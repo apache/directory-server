@@ -135,7 +135,7 @@ public class ApacheDsService
     private GeneralizedTimeSyntaxChecker timeChecker = new GeneralizedTimeSyntaxChecker();
 
     private static final Map<String, AttributeTypeOptions> MANDATORY_ENTRY_ATOP_MAP = new HashMap<String, AttributeTypeOptions>();
-    private static String[] MANDATORY_ENTRY_ATOP_AT;
+    private static final String[] MANDATORY_ENTRY_ATOP_AT = new String[5];
 
     private boolean isSchemaPartitionFirstExtraction = false;
 
@@ -317,22 +317,20 @@ public class ApacheDsService
 
         directoryService.startup();
 
-        AttributeType ocAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
+        AttributeType ocAt = directoryService.getAtProvider().getObjectClass();
         MANDATORY_ENTRY_ATOP_MAP.put( ocAt.getName(), new AttributeTypeOptions( ocAt ) );
 
-        AttributeType uuidAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
+        AttributeType uuidAt = directoryService.getAtProvider().getEntryUUID();
         MANDATORY_ENTRY_ATOP_MAP.put( uuidAt.getName(), new AttributeTypeOptions( uuidAt ) );
 
-        AttributeType csnAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_CSN_AT );
+        AttributeType csnAt = directoryService.getAtProvider().getEntryCSN();
         MANDATORY_ENTRY_ATOP_MAP.put( csnAt.getName(), new AttributeTypeOptions( csnAt ) );
 
-        AttributeType creatorAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT );
+        AttributeType creatorAt = directoryService.getAtProvider().getCreatorsName();
         MANDATORY_ENTRY_ATOP_MAP.put( creatorAt.getName(), new AttributeTypeOptions( creatorAt ) );
 
-        AttributeType createdTimeAt = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
+        AttributeType createdTimeAt = directoryService.getAtProvider().getCreateTimestamp();
         MANDATORY_ENTRY_ATOP_MAP.put( createdTimeAt.getName(), new AttributeTypeOptions( createdTimeAt ) );
-
-        MANDATORY_ENTRY_ATOP_AT = new String[MANDATORY_ENTRY_ATOP_MAP.size()];
 
         int pos = 0;
 

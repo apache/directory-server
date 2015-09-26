@@ -23,7 +23,6 @@ package org.apache.directory.server.config.listener;
 
 import static org.apache.directory.server.core.api.InterceptorEnum.AUTHENTICATION_INTERCEPTOR;
 
-import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -70,7 +69,7 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
     private static final String PPOLICY_OC_NAME = "ads-passwordPolicy";
 
     // attribute holding the value of #PPOLICY_OC_NAME
-    private Attribute AT_PWDPOLICY;
+    private Attribute passwordPolicyObjectClassAttribute;
     
     
     /** The logger for this class */
@@ -100,8 +99,8 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
             .getInterceptor( AUTHENTICATION_INTERCEPTOR.getName() );
         ppolicyConfigContainer = authInterceptor.getPwdPolicyContainer();
 
-        AttributeType ocType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        AT_PWDPOLICY = new DefaultAttribute( ocType, PPOLICY_OC_NAME );
+        AttributeType ocType = directoryService.getAtProvider().getObjectClass();
+        passwordPolicyObjectClassAttribute = new DefaultAttribute( ocType, PPOLICY_OC_NAME );
     }
 
 
@@ -144,7 +143,7 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
             return;
         }
 
-        if ( !entry.contains( AT_PWDPOLICY ) )
+        if ( !entry.contains( passwordPolicyObjectClassAttribute ) )
         {
             return;
         }

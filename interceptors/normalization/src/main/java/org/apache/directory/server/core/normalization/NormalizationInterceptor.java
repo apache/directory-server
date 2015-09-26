@@ -401,7 +401,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         {
             LeafNode leafNode = ( LeafNode ) node;
 
-            if ( leafNode.getAttributeType() == OBJECT_CLASS_AT )
+            if ( leafNode.getAttributeType() == directoryService.getAtProvider().getObjectClass() )
             {
                 if ( leafNode instanceof PresenceNode )
                 {

@@ -98,8 +98,6 @@ public class SchemaSubentryManager
     private static final String CASCADING_ERROR =
         "Cascading has not yet been implemented: standard operation is in effect.";
 
-    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
-
     static
     {
         VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NORMALIZERS_AT ) );
@@ -163,8 +161,6 @@ public class SchemaSubentryManager
 
         String nameFormsOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.NAME_FORMS_AT );
         opAttr2handlerIndex.put( nameFormsOid, NAME_FORM_INDEX );
-
-        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
     }
 
 
@@ -276,7 +272,7 @@ public class SchemaSubentryManager
 
                 case REPLACE_ATTRIBUTE:
                     // a hack to allow entryCSN modification
-                    if ( ENTRY_CSN_ATTRIBUTE_TYPE.equals( serverAttribute.getAttributeType() ) )
+                    if ( directoryService.getAtProvider().getEntryCSN().equals( serverAttribute.getAttributeType() ) )
                     {
                         break;
                     }

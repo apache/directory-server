@@ -23,7 +23,6 @@ package org.apache.directory.server.core.api.interceptor;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -74,67 +73,10 @@ public abstract class BaseInterceptor implements Interceptor
     /** set of operational attribute types used for representing the password policy state of a user entry */
     protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
 
-    /** The AccessControlSubentries AttributeType */
-    protected static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
-
-    /** A reference to the AdministrativeRole AT */
-    protected static AttributeType ADMINISTRATIVE_ROLE_AT;
-
-    /** The CollectiveAttributeSubentries AttributeType */
-    protected static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
-
-    /** The CollectiveExclusions AttributeType */
-    protected static AttributeType COLLECTIVE_EXCLUSIONS_AT;
-
-    /** A storage for the createTimestamp attributeType */
-    protected static AttributeType CREATE_TIMESTAMP_AT;
-
-    /** A storage for the creatorsName attributeType */
-    protected static AttributeType CREATORS_NAME_AT;
-
-    /** A storage for the entryACI attributeType */
-    protected static AttributeType ENTRY_ACI_AT;
-
-    /** A reference to the EntryCSN AT */
-    protected static AttributeType ENTRY_CSN_AT;
-
-    /** A reference to the EntryDN AT */
-    protected static AttributeType ENTRY_DN_AT;
-
-    /** A reference to the EntryUUID AT */
-    protected static AttributeType ENTRY_UUID_AT;
-
-    /** A reference to the ModifiersName AT */
-    protected static AttributeType MODIFIERS_NAME_AT;
-
-    /** A reference to the ModifyTimestamp AT */
-    protected static AttributeType MODIFY_TIMESTAMP_AT;
-
-    /** The ObjectClass AttributeType */
-    protected static AttributeType OBJECT_CLASS_AT;
-
-    /** the subentry ACI attribute type */
-    protected static AttributeType SUBENTRY_ACI_AT;
-
-    /** A reference to the AccessControlSubentries AT */
-    protected static AttributeType SUBSCHEMA_SUBENTRY_AT;
-
-    /** A reference to the SubtreeSpecification AT */
-    protected static AttributeType SUBTREE_SPECIFICATION_AT;
-
-    /** A reference to the TriggerExecutionSubentries AT */
-    protected static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
-
-    /** A storage for the uniqueMember attributeType */
-    protected static AttributeType UNIQUE_MEMBER_AT;
-
-    /** A storage for the UserPassword attributeType */
-    protected static AttributeType USER_PASSWORD_AT;
-
     /**
      * The final interceptor which acts as a proxy in charge to dialog with the nexus partition.
      */
-    private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
+    private final Interceptor finalInterceptor = new Interceptor()
     {
         private PartitionNexus nexus;
 
@@ -340,30 +282,7 @@ public abstract class BaseInterceptor implements Interceptor
         schemaManager = directoryService.getSchemaManager();
         dnFactory = directoryService.getDnFactory();
 
-        // Init the At we use locally
-        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-        ADMINISTRATIVE_ROLE_AT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
-        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager
-            .getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        COLLECTIVE_EXCLUSIONS_AT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
-        CREATORS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.CREATORS_NAME_AT );
-        CREATE_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.CREATE_TIMESTAMP_AT );
-        ENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_ACI_AT_OID );
-        ENTRY_CSN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
-        ENTRY_DN_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_DN_AT );
-        ENTRY_UUID_AT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
-        MODIFIERS_NAME_AT = schemaManager.getAttributeType( SchemaConstants.MODIFIERS_NAME_AT );
-        MODIFY_TIMESTAMP_AT = schemaManager.getAttributeType( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        SUBENTRY_ACI_AT = schemaManager.getAttributeType( SchemaConstants.SUBENTRY_ACI_AT_OID );
-        SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-        SUBTREE_SPECIFICATION_AT = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
-        TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager
-            .getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
-        USER_PASSWORD_AT = schemaManager.getAttributeType( SchemaConstants.USER_PASSWORD_AT_OID );
-
-        FINAL_INTERCEPTOR.init( directoryService );
+        finalInterceptor.init( directoryService );
     }
 
 
@@ -388,7 +307,7 @@ public abstract class BaseInterceptor implements Interceptor
 
         if ( currentInterceptor.equals( "FINAL" ) )
         {
-            return FINAL_INTERCEPTOR;
+            return finalInterceptor;
         }
 
         Interceptor interceptor = directoryService.getInterceptor( currentInterceptor );

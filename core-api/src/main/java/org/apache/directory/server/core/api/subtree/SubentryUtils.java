@@ -20,14 +20,12 @@
 package org.apache.directory.server.core.api.subtree;
 
 
-import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.subtree.Subentry;
 import org.apache.directory.api.ldap.model.subtree.SubtreeSpecification;
@@ -47,31 +45,11 @@ public class SubentryUtils
     /** A reference to the SchemaManager instance */
     protected SchemaManager schemaManager;
 
-    /** The AccessControlSubentries AttributeType */
-    protected static AttributeType ACCESS_CONTROL_SUBENTRIES_AT;
-
-    /** The CollectiveAttributeSubentries AttributeType */
-    protected static AttributeType COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
-
-    /** A reference to the AccessControlSubentries AT */
-    protected static AttributeType SUBSCHEMA_SUBENTRY_AT;
-
-    /** A reference to the TriggerExecutionSubentries AT */
-    protected static AttributeType TRIGGER_EXECUTION_SUBENTRIES_AT;
-
 
     public SubentryUtils( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
         this.schemaManager = directoryService.getSchemaManager();
-
-        // Init the At we use locally
-        ACCESS_CONTROL_SUBENTRIES_AT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
-        COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = schemaManager
-            .getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-        SUBSCHEMA_SUBENTRY_AT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-        TRIGGER_EXECUTION_SUBENTRIES_AT = schemaManager
-            .getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
     }
 
 
@@ -107,24 +85,24 @@ public class SubentryUtils
 
                 if ( subentry.isAccessControlAdminRole() )
                 {
-                    operational = subentryAttrs.get( ACCESS_CONTROL_SUBENTRIES_AT );
+                    operational = subentryAttrs.get( directoryService.getAtProvider().getAccessControlSubentries() );
 
                     if ( operational == null )
                     {
-                        operational = new DefaultAttribute( ACCESS_CONTROL_SUBENTRIES_AT );
+                        operational = new DefaultAttribute( directoryService.getAtProvider().getAccessControlSubentries() );
                         subentryAttrs.put( operational );
                     }
 
                     operational.add( subentryDn.getNormName() );
                 }
-
+ 
                 if ( subentry.isSchemaAdminRole() )
                 {
-                    operational = subentryAttrs.get( SUBSCHEMA_SUBENTRY_AT );
+                    operational = subentryAttrs.get( directoryService.getAtProvider().getSubschemaSubentry() );
 
                     if ( operational == null )
                     {
-                        operational = new DefaultAttribute( SUBSCHEMA_SUBENTRY_AT );
+                        operational = new DefaultAttribute( directoryService.getAtProvider().getSubschemaSubentry() );
                         subentryAttrs.put( operational );
                     }
 
@@ -133,11 +111,13 @@ public class SubentryUtils
 
                 if ( subentry.isCollectiveAdminRole() )
                 {
-                    operational = subentryAttrs.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+                    operational = subentryAttrs.get( directoryService.getAtProvider()
+                        .getCollectiveAttributeSubentries() );
 
                     if ( operational == null )
                     {
-                        operational = new DefaultAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+                        operational = new DefaultAttribute( directoryService.getAtProvider()
+                            .getCollectiveAttributeSubentries() );
                         subentryAttrs.put( operational );
                     }
 
@@ -146,11 +126,12 @@ public class SubentryUtils
 
                 if ( subentry.isTriggersAdminRole() )
                 {
-                    operational = subentryAttrs.get( TRIGGER_EXECUTION_SUBENTRIES_AT );
+                    operational = subentryAttrs.get( directoryService.getAtProvider().getTriggerExecutionSubentries() );
 
                     if ( operational == null )
                     {
-                        operational = new DefaultAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT );
+                        operational = new DefaultAttribute( directoryService.getAtProvider()
+                            .getTriggerExecutionSubentries() );
                         subentryAttrs.put( operational );
                     }
 

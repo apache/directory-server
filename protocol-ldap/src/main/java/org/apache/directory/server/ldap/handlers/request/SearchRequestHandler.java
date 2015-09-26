@@ -99,12 +99,6 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    /** cached to save redundant lookups into registries */
-    private AttributeType OBJECT_CLASS_AT;
-
-    /** cached to save redundant lookups into registries */
-    private AttributeType SUBSCHEMA_SUBENTRY_AT;
-
     /** The replication handler */
     protected ReplicationRequestHandler replicationReqHandler;
 
@@ -119,14 +113,10 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      */
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
-        if ( OBJECT_CLASS_AT == null )
-        {
-            OBJECT_CLASS_AT = session.getCoreSession().getDirectoryService().getSchemaManager().getAttributeType(
-                SchemaConstants.OBJECT_CLASS_AT );
-        }
+        AttributeType objectClassAT = session.getCoreSession().getDirectoryService().getAtProvider().getObjectClass();
 
-        EqualityNode<String> ocIsReferral = new EqualityNode<String>( OBJECT_CLASS_AT,
-            new org.apache.directory.api.ldap.model.entry.StringValue( OBJECT_CLASS_AT, SchemaConstants.REFERRAL_OC ) );
+        EqualityNode<String> ocIsReferral = new EqualityNode<String>( objectClassAT,
+            new org.apache.directory.api.ldap.model.entry.StringValue( objectClassAT, SchemaConstants.REFERRAL_OC ) );
 
         return ocIsReferral;
     }
@@ -999,7 +989,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             {
                 AttributeType attributeType = presenceNode.getAttributeType();
 
-                if ( attributeType.equals( OBJECT_CLASS_AT ) )
+                AttributeType objectClassAT = session.getCoreSession().getDirectoryService().getAtProvider().getObjectClass();
+                if ( attributeType.equals( objectClassAT ) )
                 {
                     return;
                 }
@@ -1046,7 +1037,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             if ( filter.isSchemaAware() )
             {
                 AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
-                isObjectClassFilter = attributeType.equals( OBJECT_CLASS_AT );
+                isObjectClassFilter = attributeType.equals( session.getCoreSession().getDirectoryService()
+                    .getAtProvider().getObjectClass() );
             }
             else
             {
@@ -1459,13 +1451,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
 
-        if ( SUBSCHEMA_SUBENTRY_AT == null )
-        {
-            SUBSCHEMA_SUBENTRY_AT = session.getCoreSession().getDirectoryService().getSchemaManager().getAttributeType(
-                SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
-        }
-
-        Value<?> subschemaSubentry = nexus.getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
+        Value<?> subschemaSubentry = nexus.getRootDseValue( ds.getAtProvider().getSubschemaSubentry() );
         Dn subschemaSubentryDn = ds.getDnFactory().create( subschemaSubentry.getString() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 

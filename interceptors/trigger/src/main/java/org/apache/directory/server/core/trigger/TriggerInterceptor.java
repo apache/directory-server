@@ -134,7 +134,7 @@ public class TriggerInterceptor extends BaseInterceptor
          * to be in the same naming context as their access point so the subentries
          * effecting their parent entry applies to them as well.
          */
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC ) )
         {
             Dn parentDn = dn.getParent();
 

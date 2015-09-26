@@ -189,8 +189,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         controls.setReturningAttributes( new String[]
             { SchemaConstants.PRESCRIPTIVE_ACI_AT } );
 
-        ExprNode filter =
-            new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
+        ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), new StringValue(
+            SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
 
         CoreSession adminSession = directoryService.getAdminSession();
 
@@ -234,8 +234,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         ExprNode filter =
             new OrNode(
-                new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ),
-                new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
+                new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(),
+                    new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ),
+                new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(),
+                    new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
         CoreSession adminSession = directoryService.getAdminSession();
 
@@ -290,7 +292,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         engine = new ACDFEngine( schemaManager );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
+            directoryService.getAtProvider().getSubschemaSubentry() );
         Dn subschemaSubentryDnName = dnFactory.create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
 
@@ -351,7 +354,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             originalEntry = entry;
         }
 
-        Attribute oc = originalEntry.get( OBJECT_CLASS_AT );
+        Attribute oc = originalEntry.get( directoryService.getAtProvider().getObjectClass() );
 
         /*
          * If the protected entry is a subentry, then the entry being evaluated
@@ -372,7 +375,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             originalEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 
-        Attribute subentries = originalEntry.get( ACCESS_CONTROL_SUBENTRIES_AT );
+        Attribute subentries = originalEntry.get( directoryService.getAtProvider().getAccessControlSubentries() );
 
         if ( subentries == null )
         {
@@ -397,7 +400,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     private void addEntryAciTuples( Collection<ACITuple> tuples, Entry entry ) throws LdapException
     {
-        Attribute entryAci = entry.get( ENTRY_ACI_AT );
+        Attribute entryAci = entry.get( directoryService.getAtProvider().getEntryACI() );
 
         if ( entryAci == null )
         {
@@ -455,7 +458,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Entry administrativeEntry = ( ( ClonedServerEntry ) directoryService.getPartitionNexus().lookup( lookupContext ) )
             .getOriginalEntry();
 
-        Attribute subentryAci = administrativeEntry.get( SUBENTRY_ACI_AT );
+        Attribute subentryAci = administrativeEntry.get( directoryService.getAtProvider().getSubentryACI() );
 
         if ( subentryAci == null )
         {

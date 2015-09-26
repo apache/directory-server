@@ -237,7 +237,8 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
         // If the modified entry contains the CollectiveAttributeSubentry, then the modification
         // is accepted, no matter what
-        if ( targetEntry.contains( OBJECT_CLASS_AT, SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
+        if ( targetEntry.contains( directoryService.getAtProvider().getObjectClass(),
+            SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRY_OC ) )
         {
             return;
         }
@@ -331,7 +332,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         CoreSession session = opContext.getSession();
 
         Attribute collectiveAttributeSubentries = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
-            COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+            directoryService.getAtProvider().getCollectiveAttributeSubentries() );
 
         /*
          * If there are no collective attribute subentries referenced then we
@@ -351,7 +352,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * variance.
          */
         Attribute collectiveExclusions = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
-            COLLECTIVE_EXCLUSIONS_AT );
+            directoryService.getAtProvider().getCollectiveExclusions() );
         Set<AttributeType> exclusions = new HashSet<AttributeType>();
 
         if ( collectiveExclusions != null )

@@ -176,7 +176,7 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaBaseDn = dnFactory.create( SchemaConstants.OU_SCHEMA );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = nexus.getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
+        Value<?> subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
         subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
@@ -871,9 +871,9 @@ public class SchemaInterceptor extends BaseInterceptor
             return;
         }
 
-        if ( ( !attributeType.equals( MODIFIERS_NAME_AT )
-            && ( !attributeType.equals( MODIFY_TIMESTAMP_AT ) )
-            && ( !attributeType.equals( ENTRY_CSN_AT ) )
+        if ( ( !attributeType.equals( directoryService.getAtProvider().getModifiersName() )
+            && ( !attributeType.equals( directoryService.getAtProvider().getModifyTimestamp() ) )
+            && ( !attributeType.equals( directoryService.getAtProvider().getEntryCSN() ) )
             && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
         {
             String msg = I18n.err( I18n.ERR_52, attributeType );
@@ -937,14 +937,14 @@ public class SchemaInterceptor extends BaseInterceptor
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
-        Attribute objectClassAttr = entry.get( OBJECT_CLASS_AT );
+        Attribute objectClassAttr = entry.get( directoryService.getAtProvider().getObjectClass() );
 
         // Protect the server against a null objectClassAttr
         // It can be the case if the user forgot to add it to the entry ...
         // In this case, we create an new one, empty
         if ( objectClassAttr == null )
         {
-            objectClassAttr = new DefaultAttribute( OBJECT_CLASS_AT );
+            objectClassAttr = new DefaultAttribute( directoryService.getAtProvider().getObjectClass() );
         }
 
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();
@@ -1064,7 +1064,7 @@ public class SchemaInterceptor extends BaseInterceptor
             // get the schema name
             String schemaName = getSchemaName( name );
 
-            if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
+            if ( entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.META_SCHEMA_OC ) )
             {
                 next( addContext );
 
@@ -1074,7 +1074,8 @@ public class SchemaInterceptor extends BaseInterceptor
                     computeSuperiors();
                 }
             }
-            else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_OBJECT_CLASS_OC ) )
+            else if ( entry.contains( directoryService.getAtProvider().getObjectClass(),
+                SchemaConstants.META_OBJECT_CLASS_OC ) )
             {
                 // This is an ObjectClass addition
                 checkOcSuperior( addContext.getEntry() );
@@ -1093,7 +1094,8 @@ public class SchemaInterceptor extends BaseInterceptor
                     computeSuperior( addedOC );
                 }
             }
-            else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
+            else if ( entry.contains( directoryService.getAtProvider().getObjectClass(),
+                SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
             {
                 // This is an AttributeType addition
                 next( addContext );
@@ -1184,7 +1186,9 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 AttributeType at = ( ( DefaultModification ) mod ).getAttribute().getAttributeType();
 
-                if ( !MODIFIERS_NAME_AT.equals( at ) && !MODIFY_TIMESTAMP_AT.equals( at ) && !ENTRY_CSN_AT.equals( at ) )
+                if ( !directoryService.getAtProvider().getModifiersName().equals( at )
+                    && !directoryService.getAtProvider().getModifyTimestamp().equals( at )
+                    && !directoryService.getAtProvider().getEntryCSN().equals( at ) )
                 {
                     cleanMods.add( mod );
                 }
@@ -1323,7 +1327,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 AttributeType nodeAt = node.getAttributeType();
 
                 // see if node attribute is objectClass
-                if ( nodeAt.equals( OBJECT_CLASS_AT )
+                if ( nodeAt.equals( directoryService.getAtProvider().getObjectClass() )
                     && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) || objectClassOid
                         .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
                 {
@@ -1382,7 +1386,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
-        Attribute objectClass = entry.get( OBJECT_CLASS_AT );
+        Attribute objectClass = entry.get( directoryService.getAtProvider().getObjectClass() );
 
         if ( objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
         {

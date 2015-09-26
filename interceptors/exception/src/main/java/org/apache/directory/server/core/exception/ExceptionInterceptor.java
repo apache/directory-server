@@ -103,7 +103,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
-        Value<?> attr = nexus.getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
+        Value<?> attr = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
         subschemSubentryDn = dnFactory.create( attr.getString() );
     }
 
@@ -167,7 +167,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
 
             Attribute objectClass = ( ( ClonedServerEntry ) attrs ).getOriginalEntry().get(
-                OBJECT_CLASS_AT );
+                directoryService.getAtProvider().getObjectClass() );
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {

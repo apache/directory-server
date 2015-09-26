@@ -47,11 +47,11 @@ import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
@@ -76,6 +76,9 @@ public class TupleCache
     /** a map of strings to ACITuple collections */
     private final Map<String, List<ACITuple>> tuples = new HashMap<String, List<ACITuple>>();
 
+    /** the directory service */
+    private final DirectoryService directoryService;
+
     /** the Dn factory */
     private final DnFactory dnFactory;
 
@@ -84,12 +87,6 @@ public class TupleCache
 
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
-
-    /** A storage for the PrescriptiveACI attributeType */
-    private AttributeType PRESCRIPTIVE_ACI_AT;
-
-    /** A storage for the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS_AT;
 
 
     /**
@@ -100,13 +97,12 @@ public class TupleCache
      */
     public TupleCache( CoreSession session ) throws LdapException
     {
-        SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
-        this.dnFactory = session.getDirectoryService().getDnFactory();
-        this.nexus = session.getDirectoryService().getPartitionNexus();
+        this.directoryService = session.getDirectoryService();
+        SchemaManager schemaManager = directoryService.getSchemaManager();
+        this.dnFactory = directoryService.getDnFactory();
+        this.nexus = directoryService.getPartitionNexus();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         aciParser = new ACIItemParser( ncn, schemaManager );
-        PRESCRIPTIVE_ACI_AT = schemaManager.getAttributeType( SchemaConstants.PRESCRIPTIVE_ACI_AT );
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
         initialize( session );
     }
 
@@ -128,7 +124,7 @@ public class TupleCache
         for ( String suffix : suffixes )
         {
             Dn baseDn = parseNormalized( suffix );
-            ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT,
+            ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(),
                 new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -147,7 +143,7 @@ public class TupleCache
                 {
                     Entry result = results.get();
                     Dn subentryDn = result.getDn().apply( session.getDirectoryService().getSchemaManager() );
-                    Attribute aci = result.get( PRESCRIPTIVE_ACI_AT );
+                    Attribute aci = result.get( directoryService.getAtProvider().getPrescriptiveACI() );
 
                     if ( aci == null )
                     {
@@ -175,11 +171,12 @@ public class TupleCache
     private boolean hasPrescriptiveACI( Entry entry ) throws LdapException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = entry.get( PRESCRIPTIVE_ACI_AT );
+        Attribute aci = entry.get( directoryService.getAtProvider().getPrescriptiveACI() );
 
         if ( aci == null )
         {
-            if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
+            if ( entry.contains( directoryService.getAtProvider().getObjectClass(),
+                SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
             {
                 // should not be necessary because of schema interceptor but schema checking
                 // can be turned off and in this case we must protect against being able to
@@ -205,7 +202,7 @@ public class TupleCache
         }
 
         // Get the prescriptiveACI
-        Attribute prescriptiveAci = entry.get( PRESCRIPTIVE_ACI_AT );
+        Attribute prescriptiveAci = entry.get( directoryService.getAtProvider().getPrescriptiveACI() );
 
         List<ACITuple> entryTuples = new ArrayList<ACITuple>();
 
@@ -255,7 +252,7 @@ public class TupleCache
 
         for ( Modification mod : mods )
         {
-            if ( mod.getAttribute().isInstanceOf( PRESCRIPTIVE_ACI_AT ) )
+            if ( mod.getAttribute().isInstanceOf( directoryService.getAtProvider().getPrescriptiveACI() ) )
             {
                 subentryDeleted( normName, entry );
                 subentryAdded( normName, entry );
@@ -271,7 +268,7 @@ public class TupleCache
             return;
         }
 
-        if ( mods.get( PRESCRIPTIVE_ACI_AT ) != null )
+        if ( mods.get( directoryService.getAtProvider().getPrescriptiveACI() ) != null )
         {
             subentryDeleted( normName, entry );
             subentryAdded( normName, entry );

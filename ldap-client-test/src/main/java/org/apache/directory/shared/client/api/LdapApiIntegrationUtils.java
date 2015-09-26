@@ -146,7 +146,7 @@ public final class LdapApiIntegrationUtils
             {
                 config.setLdapHost( InetAddress.getLocalHost().getHostName() );
             }
-            catch( UnknownHostException uhe )
+            catch ( UnknownHostException uhe )
             {
                 config.setLdapHost( DEFAULT_HOST );
             }

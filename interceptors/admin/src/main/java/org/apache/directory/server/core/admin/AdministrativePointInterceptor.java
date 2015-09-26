@@ -764,7 +764,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             { SchemaConstants.ADMINISTRATIVE_ROLE_AT, SchemaConstants.ENTRY_UUID_AT } );
 
         // Search for all the adminstrativePoints in the base
-        ExprNode filter = new PresenceNode( ADMINISTRATIVE_ROLE_AT );
+        ExprNode filter = new PresenceNode( directoryService.getAtProvider().getAdministrativeRole() );
 
         CoreSession adminSession = directoryService.getAdminSession();
 
@@ -815,8 +815,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             // update the cache
             Dn dn = adminPointEntry.getDn();
 
-            String uuid = adminPointEntry.get( ENTRY_UUID_AT ).getString();
-            Attribute adminPoint = adminPointEntry.get( ADMINISTRATIVE_ROLE_AT );
+            String uuid = adminPointEntry.get( directoryService.getAtProvider().getEntryUUID() ).getString();
+            Attribute adminPoint = adminPointEntry.get( directoryService.getAtProvider().getAdministrativeRole() );
 
             createAdministrativePoints( adminPoint, dn, uuid );
         }
@@ -1181,7 +1181,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Dn dn = entry.getDn();
 
         // Check if we are adding an Administrative Point
-        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( directoryService.getAtProvider().getAdministrativeRole() );
 
         if ( adminPoint == null )
         {
@@ -1209,7 +1209,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             // Ok, we are golden.
             next( addContext );
 
-            String apUuid = entry.get( ENTRY_UUID_AT ).getString();
+            String apUuid = entry.get( directoryService.getAtProvider().getEntryUUID() ).getString();
 
             // Now, update the AdminPoint cache
             createAdministrativePoints( adminPoint, dn, apUuid );
@@ -1241,7 +1241,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Dn dn = entry.getDn();
 
         // Check if we are deleting an Administrative Point
-        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( directoryService.getAtProvider().getAdministrativeRole() );
 
         if ( adminPoint == null )
         {
@@ -1307,14 +1307,14 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // We have to check that the modification is acceptable
         List<Modification> modifications = modifyContext.getModItems();
         Dn dn = modifyContext.getDn();
-        String uuid = modifyContext.getEntry().get( ENTRY_UUID_AT ).getString();
+        String uuid = modifyContext.getEntry().get( directoryService.getAtProvider().getEntryUUID() ).getString();
 
         // Check if we are modifying any AdminRole
         boolean adminRolePresent = false;
 
         for ( Modification modification : modifications )
         {
-            if ( modification.getAttribute().getAttributeType() == ADMINISTRATIVE_ROLE_AT )
+            if ( modification.getAttribute().getAttributeType() == directoryService.getAtProvider().getAdministrativeRole() )
             {
                 adminRolePresent = true;
                 break;
@@ -1327,12 +1327,12 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
             // Create a clone of the current AdminRole AT
             Attribute modifiedAdminRole = ( ( ClonedServerEntry ) modifyContext.getEntry() ).getOriginalEntry().get(
-                ADMINISTRATIVE_ROLE_AT );
+                directoryService.getAtProvider().getAdministrativeRole() );
 
             if ( modifiedAdminRole == null )
             {
                 // Create the attribute, as it does not already exist in the entry
-                modifiedAdminRole = new DefaultAttribute( ADMINISTRATIVE_ROLE_AT );
+                modifiedAdminRole = new DefaultAttribute( directoryService.getAtProvider().getAdministrativeRole() );
             }
             else
             {
@@ -1360,7 +1360,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                     Attribute attribute = modification.getAttribute();
 
                     // Skip all the attributes but AdministrativeRole
-                    if ( attribute.getAttributeType() == ADMINISTRATIVE_ROLE_AT )
+                    if ( attribute.getAttributeType() == directoryService.getAtProvider().getAdministrativeRole() )
                     {
                         // Ok, we have a modification impacting the administrative role
                         // Apply it to a virtual AdministrativeRole attribute
@@ -1463,7 +1463,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Entry entry = moveContext.getOriginalEntry();
 
         // Check if we are moving an Administrative Point
-        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( directoryService.getAtProvider().getAdministrativeRole() );
 
         if ( adminPoint == null )
         {
@@ -1491,7 +1491,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
         // Check if we are moving and renaming an Administrative Point
-        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( directoryService.getAtProvider().getAdministrativeRole() );
 
         if ( adminPoint == null )
         {
@@ -1519,7 +1519,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Entry entry = renameContext.getEntry();
 
         // Check if we are renaming an Administrative Point
-        Attribute adminPoint = entry.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute adminPoint = entry.get( directoryService.getAtProvider().getAdministrativeRole() );
 
         if ( adminPoint == null )
         {

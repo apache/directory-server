@@ -136,7 +136,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private static boolean isReferral( Entry entry ) throws LdapException
+    private boolean isReferral( Entry entry ) throws LdapException
     {
         // Check that the entry is not null, otherwise return FALSE.
         // This is typically to cover the case where the entry has not
@@ -146,7 +146,7 @@ public class ReferralInterceptor extends BaseInterceptor
             return false;
         }
 
-        Attribute oc = entry.get( OBJECT_CLASS_AT );
+        Attribute oc = entry.get( directoryService.getAtProvider().getObjectClass() );
 
         if ( oc == null )
         {
@@ -211,7 +211,7 @@ public class ReferralInterceptor extends BaseInterceptor
         referralManager = new ReferralManagerImpl( directoryService );
         directoryService.setReferralManager( referralManager );
 
-        Value<?> subschemaSubentry = nexus.getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
+        Value<?> subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
         subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
     }
 

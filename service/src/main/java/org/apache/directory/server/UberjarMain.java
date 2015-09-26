@@ -181,7 +181,7 @@ public class UberjarMain
             public void run()
             {
                 // bind to localhost only to prevent connections from outside the box
-                try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, InetAddress.getLocalHost()) )
+                try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, InetAddress.getLocalHost() ) )
                 {
                     writeShutdownPort( layout, shutdownSocket.getLocalPort() );
                     
@@ -202,7 +202,10 @@ public class UberjarMain
                                 InputStreamReader reader = new InputStreamReader( socket.getInputStream() );
                                 
                                 CharBuffer buffer = CharBuffer.allocate( 2048 );
-                                while ( reader.read( buffer ) >= 0 );
+                                while ( reader.read( buffer ) >= 0 )
+                                {
+                                    // read till end of stream
+                                }
                                 buffer.flip();
                                 String password = buffer.toString();
                                 

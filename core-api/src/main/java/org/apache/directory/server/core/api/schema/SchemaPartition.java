@@ -121,20 +121,20 @@ public final class SchemaPartition extends AbstractPartition
     private RegistrySynchronizerAdaptor synchronizer;
 
     /** A static Dn for the ou=schemaModifications entry */
-    private static Dn SCHEMA_MODIFICATION_DN;
+    private Dn schemaModificationDN;
 
     /** A static Dn for the ou=schema partition */
-    private static Dn SCHEMA_DN;
+    private Dn schemaDN;
 
     /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS_AT;
+    private AttributeType objectClassAT;
 
 
     public SchemaPartition( SchemaManager schemaManager )
     {
         try
         {
-            SCHEMA_DN = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
+            schemaDN = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
         }
         catch ( LdapInvalidDnException lide )
         {
@@ -142,9 +142,9 @@ public final class SchemaPartition extends AbstractPartition
         }
 
         id = SCHEMA_ID;
-        suffixDn = SCHEMA_DN;
+        suffixDn = schemaDN;
         this.schemaManager = schemaManager;
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID );
     }
 
 
@@ -212,7 +212,7 @@ public final class SchemaPartition extends AbstractPartition
             // schema it depends on.  This is a minimal mandatory set of schemas.
             // -----------------------------------------------------------------------
             wrapped.setId( SCHEMA_ID );
-            wrapped.setSuffixDn( SCHEMA_DN );
+            wrapped.setSuffixDn( schemaDN );
             wrapped.setSchemaManager( schemaManager );
 
             try
@@ -227,7 +227,7 @@ public final class SchemaPartition extends AbstractPartition
                 throw new RuntimeException( e );
             }
 
-            SCHEMA_MODIFICATION_DN = new Dn( schemaManager, SchemaConstants.SCHEMA_MODIFICATIONS_DN );
+            schemaModificationDN = new Dn( schemaManager, SchemaConstants.SCHEMA_MODIFICATIONS_DN );
         }
     }
 
@@ -293,7 +293,7 @@ public final class SchemaPartition extends AbstractPartition
             Dn dn = deleteContext.getDn();
             SearchRequest searchRequest = new SearchRequestImpl();
             searchRequest.setBase( dn );
-            ExprNode node = new PresenceNode( OBJECT_CLASS_AT );
+            ExprNode node = new PresenceNode( objectClassAT );
             searchRequest.setFilter( node );
             searchRequest.setTypesOnly( true );
             searchRequest.setScope( SearchScope.ONELEVEL );
@@ -393,7 +393,7 @@ public final class SchemaPartition extends AbstractPartition
             wrapped.modify( modifyContext );
         }
 
-        if ( !modifyContext.getDn().equals( SCHEMA_MODIFICATION_DN ) )
+        if ( !modifyContext.getDn().equals( schemaModificationDN ) )
         {
             updateSchemaModificationAttributes( modifyContext );
         }
@@ -508,7 +508,7 @@ public final class SchemaPartition extends AbstractPartition
         // have been done, so we can perform the below modification directly on the partition nexus
         // without using a a bypass list
         CoreSession session = opContext.getSession();
-        ModifyOperationContext modifyContext = new ModifyOperationContext( session, SCHEMA_MODIFICATION_DN, mods );
+        ModifyOperationContext modifyContext = new ModifyOperationContext( session, schemaModificationDN, mods );
         session.getDirectoryService().getPartitionNexus().modify( modifyContext );
     }
 

@@ -614,4 +614,21 @@ public interface DirectoryService extends ServerEntryFactory
      * @param cacheService the cache service
      */
     void setCacheService( CacheService cacheService );
+
+
+    /**
+     * Gets the {@link AttributeTypeProvider}.
+     * 
+     * @return the {@link AttributeTypeProvider}
+     */
+    AttributeTypeProvider getAtProvider();
+
+
+    /**
+     * Gets the {@link ObjectClassProvider}.
+     * 
+     * @return the {@link ObjectClassProvider}
+     */
+    ObjectClassProvider getOcProvider();
+
 }

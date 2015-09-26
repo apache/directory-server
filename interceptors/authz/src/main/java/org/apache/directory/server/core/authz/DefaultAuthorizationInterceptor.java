@@ -143,7 +143,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
-        Attribute uniqueMember = adminGroup.get( UNIQUE_MEMBER_AT );
+        Attribute uniqueMember = adminGroup.get( directoryService.getAtProvider().getUniqueMember() );
 
         for ( Value<?> value : uniqueMember )
         {

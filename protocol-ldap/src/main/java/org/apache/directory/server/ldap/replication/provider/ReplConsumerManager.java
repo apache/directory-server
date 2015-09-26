@@ -86,11 +86,8 @@ public class ReplConsumerManager
     /** The consumers' ou value */
     private static final String CONSUMERS = "consumers";
 
-    /** An ObjectClass AT instance */
-    private static AttributeType OBJECT_CLASS_AT;
-
     /** An AdsReplLastSentCsn AT instance */
-    private static AttributeType ADS_REPL_LAST_SENT_CSN_AT;
+    private AttributeType adsReplLastSentCsn;
 
     /** A map containing the last sent CSN for every connected consumer */
     private Map<Integer, Modification> modMap = new ConcurrentHashMap<Integer, Modification>();
@@ -108,8 +105,7 @@ public class ReplConsumerManager
         adminSession = directoryService.getAdminSession();
         schemaManager = directoryService.getSchemaManager();
         replConsumerDn = directoryService.getDnFactory().create( REPL_CONSUMER_DN_STR );
-        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        ADS_REPL_LAST_SENT_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
+        adsReplLastSentCsn = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
 
         PROVIDER_LOG.debug( "Starting the replication consumer manager" );
         createConsumersBranch();
@@ -235,7 +231,7 @@ public class ReplConsumerManager
 
         if ( mod == null )
         {
-            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, ADS_REPL_LAST_SENT_CSN_AT,
+            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, adsReplLastSentCsn,
                 replica.getLastSentCsn() );
 
             modMap.put( replica.getId(), mod );
@@ -267,7 +263,7 @@ public class ReplConsumerManager
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
         // Search for all the consumers
-        ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
+        ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), new StringValue(
             SchemaConstants.ADS_REPL_EVENT_LOG ) );
         SearchRequest searchRequest = new SearchRequestImpl();
         searchRequest.setBase( replConsumerDn );

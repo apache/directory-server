@@ -52,7 +52,6 @@ import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyError
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
-import org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.BinaryValue;
@@ -128,33 +127,28 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private CoreSession adminSession;
 
     // pwdpolicy state attribute types
-    private AttributeType AT_PWD_RESET;
+    private AttributeType pwdResetAT;
 
-    private AttributeType AT_PWD_CHANGED_TIME;
+    private AttributeType pwdChangedTimeAT;
 
-    private AttributeType AT_PWD_HISTORY;
+    private AttributeType pwdHistoryAT;
 
-    private AttributeType AT_PWD_FAILURE_TIME;
+    private AttributeType pwdFailurTimeAT;
 
-    private AttributeType AT_PWD_ACCOUNT_LOCKED_TIME;
+    private AttributeType pwdAccountLockedTimeAT;
 
-    private AttributeType AT_PWD_LAST_SUCCESS;
+    private AttributeType pwdLastSuccessAT;
 
-    private AttributeType AT_PWD_GRACE_USE_TIME;
+    private AttributeType pwdGraceUseTimeAT;
 
-    private AttributeType AT_CREATE_TIMESTAMP;
+    private AttributeType pwdPolicySubentryAT;
 
-    private AttributeType AT_PWD_POLICY_SUBENTRY;
+    private AttributeType pwdStartTimeAT;
 
-    private AttributeType AT_PWD_START_TIME;
-
-    private AttributeType AT_PWD_END_TIME;
+    private AttributeType pwdEndTimeAT;
 
     /** a container to hold all the ppolicies */
     private PpolicyConfigContainer pwdPolicyContainer;
-
-    /** the pwdPolicySubentry AT */
-    private AttributeType pwdPolicySubentryAT;
 
 
     /**
@@ -174,8 +168,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         adminSession = directoryService.getAdminSession();
-        pwdPolicySubentryAT = schemaManager
-            .lookupAttributeTypeRegistry( PasswordPolicySchemaConstants.PWD_POLICY_SUBENTRY_AT );
 
         if ( ( authenticators == null ) || ( authenticators.size() == 0 ) )
         {
@@ -388,9 +380,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
             {
                 // https://issues.apache.org/jira/browse/DIRSERVER-1978
                 if ( !addContext.getSession().isAnAdministrator()
-                    || entry.get( AT_PWD_CHANGED_TIME ) == null )
+                    || entry.get( pwdChangedTimeAT ) == null )
                 {
-                    Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
+                    Attribute pwdChangedTimeAt = new DefaultAttribute( pwdChangedTimeAT );
                     pwdChangedTimeAt.add( pwdChangedTime );
                     entry.add( pwdChangedTimeAt );
                 }
@@ -398,14 +390,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( policyConfig.isPwdMustChange() && addContext.getSession().isAnAdministrator() )
             {
-                Attribute pwdResetAt = new DefaultAttribute( AT_PWD_RESET );
+                Attribute pwdResetAt = new DefaultAttribute( pwdResetAT );
                 pwdResetAt.add( "TRUE" );
                 entry.add( pwdResetAt );
             }
 
             if ( policyConfig.getPwdInHistory() > 0 )
             {
-                Attribute pwdHistoryAt = new DefaultAttribute( AT_PWD_HISTORY );
+                Attribute pwdHistoryAt = new DefaultAttribute( pwdHistoryAT );
                 byte[] pwdHistoryVal = new PasswordHistory( pwdChangedTime, userPassword.getValue() ).getHistoryValue();
                 pwdHistoryAt.add( pwdHistoryVal );
                 entry.add( pwdHistoryAt );
@@ -589,11 +581,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( ( policyConfig != null ) && ( userEntry != null ) )
             {
-                Attribute pwdFailTimeAt = userEntry.get( AT_PWD_FAILURE_TIME );
+                Attribute pwdFailTimeAt = userEntry.get( pwdFailurTimeAT );
 
                 if ( pwdFailTimeAt == null )
                 {
-                    pwdFailTimeAt = new DefaultAttribute( AT_PWD_FAILURE_TIME );
+                    pwdFailTimeAt = new DefaultAttribute( pwdFailurTimeAT );
                 }
                 else
                 {
@@ -615,7 +607,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     // See DIRSERVER-1812 (The default admin account should never get locked forever)
                     if ( !userEntry.getDn().equals( new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN ) ) )
                     {
-                        Attribute pwdAccountLockedTimeAt = new DefaultAttribute( AT_PWD_ACCOUNT_LOCKED_TIME );
+                        Attribute pwdAccountLockedTimeAt = new DefaultAttribute( pwdAccountLockedTimeAT );
 
                         // if zero, lockout permanently, only admin can unlock it
                         if ( policyConfig.getPwdLockoutDuration() == 0 )
@@ -659,7 +651,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 if ( !mods.isEmpty() )
                 {
                     String csnVal = directoryService.getCSN().toString();
-                    Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, ENTRY_CSN_AT, csnVal );
+                    Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, directoryService.getAtProvider()
+                        .getEntryCSN(), csnVal );
                     mods.add( csnMod );
 
                     ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
@@ -681,13 +674,13 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             if ( policyConfig.getPwdMaxIdle() > 0 )
             {
-                Attribute pwdLastSuccesTimeAt = new DefaultAttribute( AT_PWD_LAST_SUCCESS );
+                Attribute pwdLastSuccesTimeAt = new DefaultAttribute( pwdLastSuccessAT );
                 pwdLastSuccesTimeAt.add( DateUtils.getGeneralizedTime() );
                 Modification pwdLastSuccesTimeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdLastSuccesTimeAt );
                 mods.add( pwdLastSuccesTimeMod );
             }
 
-            Attribute pwdFailTimeAt = userEntry.get( AT_PWD_FAILURE_TIME );
+            Attribute pwdFailTimeAt = userEntry.get( pwdFailurTimeAT );
 
             if ( pwdFailTimeAt != null )
             {
@@ -695,7 +688,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 mods.add( pwdFailTimeMod );
             }
 
-            Attribute pwdAccLockedTimeAt = userEntry.get( AT_PWD_ACCOUNT_LOCKED_TIME );
+            Attribute pwdAccLockedTimeAt = userEntry.get( pwdAccountLockedTimeAT );
 
             if ( pwdAccLockedTimeAt != null )
             {
@@ -706,7 +699,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             // checking the expiration time *after* performing authentication, do we need to care about millisecond precision?
             if ( ( policyConfig.getPwdMaxAge() > 0 ) && ( policyConfig.getPwdGraceAuthNLimit() > 0 ) )
             {
-                Attribute pwdChangeTimeAttr = userEntry.get( AT_PWD_CHANGED_TIME );
+                Attribute pwdChangeTimeAttr = userEntry.get( pwdChangedTimeAT );
 
                 if ( pwdChangeTimeAttr != null )
                 {
@@ -715,7 +708,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                     if ( expired )
                     {
-                        Attribute pwdGraceUseAttr = userEntry.get( AT_PWD_GRACE_USE_TIME );
+                        Attribute pwdGraceUseAttr = userEntry.get( pwdGraceUseTimeAT );
                         int numGraceAuth = 0;
 
                         if ( pwdGraceUseAttr != null )
@@ -724,7 +717,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                         }
                         else
                         {
-                            pwdGraceUseAttr = new DefaultAttribute( AT_PWD_GRACE_USE_TIME );
+                            pwdGraceUseAttr = new DefaultAttribute( pwdGraceUseTimeAT );
                             numGraceAuth = policyConfig.getPwdGraceAuthNLimit() - 1;
                         }
 
@@ -740,7 +733,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( !mods.isEmpty() )
             {
                 String csnVal = directoryService.getCSN().toString();
-                Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, ENTRY_CSN_AT, csnVal );
+                Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, directoryService.getAtProvider()
+                    .getEntryCSN(), csnVal );
                 mods.add( csnMod );
 
                 ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
@@ -908,7 +902,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         for ( Modification modification : modifications )
         {
-            if ( USER_PASSWORD_AT.equals( modification.getAttribute().getAttributeType() ) )
+            if ( directoryService.getAtProvider().getUserPassword()
+                .equals( modification.getAttribute().getAttributeType() ) )
             {
                 invalidateAuthenticatorCaches( modifyContext.getDn() );
                 break;
@@ -1000,11 +995,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 if ( histSize > 0 )
                 {
-                    Attribute pwdHistoryAt = entry.get( AT_PWD_HISTORY );
+                    Attribute pwdHistoryAt = entry.get( pwdHistoryAT );
 
                     if ( pwdHistoryAt == null )
                     {
-                        pwdHistoryAt = new DefaultAttribute( AT_PWD_HISTORY );
+                        pwdHistoryAt = new DefaultAttribute( pwdHistoryAT );
                     }
 
                     // Build the Modification containing the password history
@@ -1026,7 +1021,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )
                 {
-                    Attribute pwdChangedTimeAt = new DefaultAttribute( AT_PWD_CHANGED_TIME );
+                    Attribute pwdChangedTimeAt = new DefaultAttribute( pwdChangedTimeAT );
                     pwdChangedTimeAt.add( pwdChangedTime );
                     Modification pwdChangedTimeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdChangedTimeAt );
                     mods.add( pwdChangedTimeMod );
@@ -1044,7 +1039,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 if ( policyConfig.isPwdMustChange() )
                 {
-                    Attribute pwdMustChangeAt = new DefaultAttribute( AT_PWD_RESET );
+                    Attribute pwdMustChangeAt = new DefaultAttribute( pwdResetAT );
                     Modification pwdMustChangeMod = null;
 
                     if ( modifyContext.getSession().isAnAdministrator() )
@@ -1066,7 +1061,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
             processModifyAddPwdAttributes( entry, mods, pwdModDetails );
 
             String csnVal = directoryService.getCSN().toString();
-            Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, ENTRY_CSN_AT, csnVal );
+            Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, directoryService.getAtProvider()
+                .getEntryCSN(), csnVal );
             mods.add( csnMod );
 
             ModifyOperationContext internalModifyCtx = new ModifyOperationContext( adminSession );
@@ -1131,7 +1127,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             // remove the oldest value
             PasswordHistory remPwdHist = ( PasswordHistory ) pwdHistLst.toArray()[histSize - 1];
-            Attribute tempAt = new DefaultAttribute( AT_PWD_HISTORY );
+            Attribute tempAt = new DefaultAttribute( pwdHistoryAT );
             tempAt.add( remPwdHist.getHistoryValue() );
             pwdRemHistMod = new DefaultModification( REMOVE_ATTRIBUTE, tempAt );
         }
@@ -1145,14 +1141,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private void processModifyAddPwdAttributes( Entry entry, List<Modification> mods, PwdModDetailsHolder pwdModDetails )
     {
-        Attribute pwdFailureTimeAt = entry.get( AT_PWD_FAILURE_TIME );
+        Attribute pwdFailureTimeAt = entry.get( pwdFailurTimeAT );
     
         if ( pwdFailureTimeAt != null )
         {
             mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdFailureTimeAt ) );
         }
     
-        Attribute pwdGraceUseTimeAt = entry.get( AT_PWD_GRACE_USE_TIME );
+        Attribute pwdGraceUseTimeAt = entry.get( pwdGraceUseTimeAT );
     
         if ( pwdGraceUseTimeAt != null )
         {
@@ -1161,28 +1157,28 @@ public class AuthenticationInterceptor extends BaseInterceptor
     
         if ( pwdModDetails.isDelete() )
         {
-            Attribute pwdHistory = entry.get( AT_PWD_HISTORY );
+            Attribute pwdHistory = entry.get( pwdHistoryAT );
             
             if ( pwdHistory != null )
             {
                 mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdHistory ) );
             }
     
-            Attribute pwdChangedTimeAt = entry.get( AT_PWD_CHANGED_TIME );
+            Attribute pwdChangedTimeAt = entry.get( pwdChangedTimeAT );
             
             if ( pwdChangedTimeAt != null )
             {
                 mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdChangedTimeAt ) );
             }
     
-            Attribute pwdMustChangeAt = entry.get( AT_PWD_RESET );
+            Attribute pwdMustChangeAt = entry.get( pwdResetAT );
             
             if ( pwdMustChangeAt != null )
             {
                 mods.add( new DefaultModification( REMOVE_ATTRIBUTE, pwdMustChangeAt ) );
             }
     
-            Attribute pwdAccountLockedTimeAt = entry.get( AT_PWD_ACCOUNT_LOCKED_TIME );
+            Attribute pwdAccountLockedTimeAt = entry.get( pwdAccountLockedTimeAT );
             
             if ( pwdAccountLockedTimeAt != null )
             {
@@ -1367,35 +1363,35 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     public void loadPwdPolicyStateAttributeTypes() throws LdapException
     {
-        AT_PWD_RESET = schemaManager.lookupAttributeTypeRegistry( PWD_RESET_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_RESET );
+        pwdResetAT = schemaManager.lookupAttributeTypeRegistry( PWD_RESET_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdResetAT );
 
-        AT_PWD_CHANGED_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_CHANGED_TIME_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_CHANGED_TIME );
+        pwdChangedTimeAT = schemaManager.lookupAttributeTypeRegistry( PWD_CHANGED_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdChangedTimeAT );
 
-        AT_PWD_HISTORY = schemaManager.lookupAttributeTypeRegistry( PWD_HISTORY_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_HISTORY );
+        pwdHistoryAT = schemaManager.lookupAttributeTypeRegistry( PWD_HISTORY_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdHistoryAT );
 
-        AT_PWD_FAILURE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_FAILURE_TIME_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_FAILURE_TIME );
+        pwdFailurTimeAT = schemaManager.lookupAttributeTypeRegistry( PWD_FAILURE_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdFailurTimeAT );
 
-        AT_PWD_ACCOUNT_LOCKED_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_ACCOUNT_LOCKED_TIME_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_ACCOUNT_LOCKED_TIME );
+        pwdAccountLockedTimeAT = schemaManager.lookupAttributeTypeRegistry( PWD_ACCOUNT_LOCKED_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdAccountLockedTimeAT );
 
-        AT_PWD_LAST_SUCCESS = schemaManager.lookupAttributeTypeRegistry( PWD_LAST_SUCCESS_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_LAST_SUCCESS );
+        pwdLastSuccessAT = schemaManager.lookupAttributeTypeRegistry( PWD_LAST_SUCCESS_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdLastSuccessAT );
 
-        AT_PWD_GRACE_USE_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_GRACE_USE_TIME_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_GRACE_USE_TIME );
+        pwdGraceUseTimeAT = schemaManager.lookupAttributeTypeRegistry( PWD_GRACE_USE_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdGraceUseTimeAT );
 
-        AT_PWD_POLICY_SUBENTRY = schemaManager.lookupAttributeTypeRegistry( PWD_POLICY_SUBENTRY_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_POLICY_SUBENTRY );
+        pwdPolicySubentryAT = schemaManager.lookupAttributeTypeRegistry( PWD_POLICY_SUBENTRY_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdPolicySubentryAT );
 
-        AT_PWD_START_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_START_TIME_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_START_TIME );
+        pwdStartTimeAT = schemaManager.lookupAttributeTypeRegistry( PWD_START_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdStartTimeAT );
 
-        AT_PWD_END_TIME = schemaManager.lookupAttributeTypeRegistry( PWD_END_TIME_AT );
-        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( AT_PWD_END_TIME );
+        pwdEndTimeAT = schemaManager.lookupAttributeTypeRegistry( PWD_END_TIME_AT );
+        PWD_POLICY_STATE_ATTRIBUTE_TYPES.add( pwdEndTimeAT );
     }
 
 
@@ -1473,16 +1469,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
     }
 
 
-    private AttributeType getCreateTimestampAttributeType() throws LdapException
-    {
-        if ( AT_CREATE_TIMESTAMP == null )
-        {
-            AT_CREATE_TIMESTAMP = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATE_TIMESTAMP_AT );
-        }
-        return AT_CREATE_TIMESTAMP;
-    }
-
-
     private int getPwdTimeBeforeExpiry( Entry userEntry, PasswordPolicyConfiguration policyConfig )
         throws LdapException
     {
@@ -1498,10 +1484,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return 0;
         }
 
-        Attribute pwdChangedTimeAt = userEntry.get( AT_PWD_CHANGED_TIME );
+        Attribute pwdChangedTimeAt = userEntry.get( pwdChangedTimeAT );
         if ( pwdChangedTimeAt == null )
         {
-            pwdChangedTimeAt = userEntry.get( getCreateTimestampAttributeType() );
+            pwdChangedTimeAt = userEntry.get( directoryService.getAtProvider().getCreateTimestamp() );
         }
         long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
 
@@ -1559,7 +1545,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             return false;
         }
 
-        Attribute pwdChangedTimeAt = userEntry.get( AT_PWD_CHANGED_TIME );
+        Attribute pwdChangedTimeAt = userEntry.get( pwdChangedTimeAT );
 
         if ( pwdChangedTimeAt != null )
         {
@@ -1589,7 +1575,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         boolean mustChange = false;
 
-        Attribute pwdResetAt = userEntry.get( AT_PWD_RESET );
+        Attribute pwdResetAt = userEntry.get( pwdResetAT );
 
         if ( pwdResetAt != null )
         {

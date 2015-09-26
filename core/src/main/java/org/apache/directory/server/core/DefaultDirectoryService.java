@@ -70,6 +70,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
+import org.apache.directory.server.core.api.AttributeTypeProvider;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -77,6 +78,7 @@ import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.ObjectClassProvider;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.ReferralManager;
@@ -289,6 +291,12 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The Subtree evaluator instance */
     private SubtreeEvaluator evaluator;
+
+    /** The attribute type provider */
+    private AttributeTypeProvider atProvider;
+
+    /** The object class provider */
+    private ObjectClassProvider ocProvider;
 
 
     // ------------------------------------------------------------------------
@@ -1812,6 +1820,10 @@ public class DefaultDirectoryService implements DirectoryService
 
         firstStart = createBootstrapEntries();
 
+        // initialize schema providers
+        atProvider = new AttributeTypeProvider( schemaManager );
+        ocProvider = new ObjectClassProvider( schemaManager );
+
         // Initialize the interceptors
         initInterceptors();
 
@@ -2287,6 +2299,26 @@ public class DefaultDirectoryService implements DirectoryService
     public void setCacheService( CacheService cacheService )
     {
         this.cacheService = cacheService;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AttributeTypeProvider getAtProvider()
+    {
+        return atProvider;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ObjectClassProvider getOcProvider()
+    {
+        return ocProvider;
     }
 
 }

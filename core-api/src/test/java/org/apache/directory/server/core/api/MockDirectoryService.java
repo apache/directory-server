@@ -621,4 +621,18 @@ public class MockDirectoryService implements DirectoryService
     {
         // nothing
     }
+
+
+    @Override
+    public AttributeTypeProvider getAtProvider()
+    {
+        return null;
+    }
+
+
+    @Override
+    public ObjectClassProvider getOcProvider()
+    {
+        return null;
+    }
 }

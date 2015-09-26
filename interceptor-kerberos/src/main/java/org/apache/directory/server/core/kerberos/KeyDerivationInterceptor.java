@@ -75,17 +75,17 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     /** The service name. */
     private static final String NAME = "keyDerivationService";
 
-    /** The KRB5_KEY attributeType */
-    private AttributeType KRB5_KEY_AT;
+    /** The krb5Key attribute type */
+    private AttributeType krb5KeyAT;
 
-    /** The KRB5_PRINCIPAL_NAME_AT attributeType */
-    private AttributeType KRB5_PRINCIPAL_NAME_AT;
+    /** The krb5PrincipalName attribute type */
+    private AttributeType krb5PrincipalNameAT;
 
-    /** The KRB5_KEY_VERSION_NUMBER_AT attributeType */
-    private AttributeType KRB5_KEY_VERSION_NUMBER_AT;
+    /** The krb5KeyVersionNumber attribute type */
+    private AttributeType krb5KeyVersionNumberAT;
 
-    /** The USER_PASSWORD_AT attributeType */
-    private AttributeType USER_PASSWORD_AT;
+    /** The userPassword attribute tType */
+    private AttributeType userPasswordAT;
 
 
     /**
@@ -104,11 +104,11 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
 
-        KRB5_KEY_AT = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT );
-        KRB5_PRINCIPAL_NAME_AT = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
-        KRB5_KEY_VERSION_NUMBER_AT = schemaManager
+        krb5KeyAT = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_AT );
+        krb5PrincipalNameAT = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
+        krb5KeyVersionNumberAT = schemaManager
             .lookupAttributeTypeRegistry( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
-        USER_PASSWORD_AT = schemaManager
+        userPasswordAT = schemaManager
             .lookupAttributeTypeRegistry( SchemaConstants.USER_PASSWORD_AT );
 
         LOG_KRB.info( "KeyDerivation Interceptor initialized" );
@@ -135,12 +135,12 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         Entry entry = addContext.getEntry();
 
-        if ( ( entry.get( USER_PASSWORD_AT ) != null ) && ( entry.get( KRB5_PRINCIPAL_NAME_AT ) != null ) )
+        if ( ( entry.get( userPasswordAT ) != null ) && ( entry.get( krb5PrincipalNameAT ) != null ) )
         {
             LOG.debug( "Adding the entry '{}' for Dn '{}'.", entry, normName.getName() );
 
             // Get the entry's password. We will use the first one.
-            BinaryValue userPassword = ( BinaryValue ) entry.get( USER_PASSWORD_AT ).get();
+            BinaryValue userPassword = ( BinaryValue ) entry.get( userPasswordAT ).get();
             String strUserPassword = userPassword.getString();
 
             if ( LOG.isDebugEnabled() )
@@ -152,7 +152,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 LOG.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
             }
 
-            String principalName = entry.get( KRB5_PRINCIPAL_NAME_AT ).getString();
+            String principalName = entry.get( krb5PrincipalNameAT ).getString();
 
             LOG.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
             LOG_KRB.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
@@ -160,7 +160,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, strUserPassword );
 
             // Set the KVNO to 0 as it's a new entry
-            entry.put( KRB5_KEY_VERSION_NUMBER_AT, "0" );
+            entry.put( krb5KeyVersionNumberAT, "0" );
 
             Attribute keyAttribute = getKeyAttribute( keys );
             entry.put( keyAttribute );
@@ -254,7 +254,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             Attribute attr = mod.getAttribute();
 
-            if ( USER_PASSWORD_AT.equals( attr.getAttributeType() ) )
+            if ( userPasswordAT.equals( attr.getAttributeType() ) )
             {
                 Object firstValue = attr.get();
                 String password = null;
@@ -285,7 +285,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 LOG_KRB.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
             }
 
-            if ( KRB5_PRINCIPAL_NAME_AT.equals( attr.getAttributeType() ) )
+            if ( krb5PrincipalNameAT.equals( attr.getAttributeType() ) )
             {
                 subContext.setPrincipalName( attr.getString() );
                 LOG.debug( "Got principal '{}'.", subContext.getPrincipalName() );
@@ -319,8 +319,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             throw new LdapAuthenticationException( I18n.err( I18n.ERR_512, principalDn ) );
         }
 
-        if ( !( ( ClonedServerEntry ) userEntry ).getOriginalEntry().contains( OBJECT_CLASS_AT,
-            SchemaConstants.KRB5_PRINCIPAL_OC ) )
+        if ( !( ( ClonedServerEntry ) userEntry ).getOriginalEntry().contains(
+            directoryService.getAtProvider().getObjectClass(), SchemaConstants.KRB5_PRINCIPAL_OC ) )
         {
             return;
         }
@@ -334,7 +334,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         if ( subContext.getPrincipalName() == null )
         {
             Attribute principalAttribute = ( ( ClonedServerEntry ) userEntry ).getOriginalEntry().get(
-                KRB5_PRINCIPAL_NAME_AT );
+                krb5PrincipalNameAT );
             String principalName = principalAttribute.getString();
             subContext.setPrincipalName( principalName );
             LOG.debug( "Found principal '{}' from lookup.", principalName );
@@ -342,7 +342,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         }
 
         Attribute keyVersionNumberAttr = ( ( ClonedServerEntry ) userEntry ).getOriginalEntry().get(
-            KRB5_KEY_VERSION_NUMBER_AT );
+            krb5KeyVersionNumberAT );
 
         // Set the KVNO to 0 if it's a password creation,
         // otherwise increment it.
@@ -397,7 +397,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             new DefaultModification(
                 ModificationOperation.REPLACE_ATTRIBUTE,
                 new DefaultAttribute(
-                    KRB5_PRINCIPAL_NAME_AT,
+                    krb5PrincipalNameAT,
                     principalName ) );
         newModsList.add( krb5PrincipalName );
 
@@ -405,7 +405,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             new DefaultModification(
                 ModificationOperation.REPLACE_ATTRIBUTE,
                 new DefaultAttribute(
-                    KRB5_KEY_VERSION_NUMBER_AT,
+                    krb5KeyVersionNumberAT,
                     Integer.toString( kvno ) ) );
 
         newModsList.add( krb5KeyVersionNumber );
@@ -432,7 +432,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     private Attribute getKeyAttribute( Map<EncryptionType, EncryptionKey> keys )
         throws LdapException
     {
-        Attribute keyAttribute = new DefaultAttribute( KRB5_KEY_AT );
+        Attribute keyAttribute = new DefaultAttribute( krb5KeyAT );
 
         for ( EncryptionKey encryptionKey : keys.values() )
         {

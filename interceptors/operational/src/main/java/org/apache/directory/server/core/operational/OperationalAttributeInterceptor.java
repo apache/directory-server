@@ -128,7 +128,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue( SUBSCHEMA_SUBENTRY_AT );
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
+            directoryService.getAtProvider().getSubschemaSubentry() );
         subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
 
         // Create the Admin Dn
@@ -192,41 +193,42 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
         // The EntryUUID attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, ENTRY_UUID_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getEntryUUID() ) )
         {
-            entry.put( ENTRY_UUID_AT, UUID.randomUUID().toString() );
+            entry.put( directoryService.getAtProvider().getEntryUUID(), UUID.randomUUID().toString() );
         }
 
         // The EntryCSN attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, ENTRY_CSN_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getEntryCSN() ) )
         {
-            entry.put( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+            entry.put( directoryService.getAtProvider().getEntryCSN(), directoryService.getCSN().toString() );
         }
 
         // The CreatorsName attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, CREATORS_NAME_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getCreatorsName() ) )
         {
-            entry.put( CREATORS_NAME_AT, principal );
+            entry.put( directoryService.getAtProvider().getCreatorsName(), principal );
         }
 
         // The CreateTimeStamp attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, CREATE_TIMESTAMP_AT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getCreateTimestamp() ) )
         {
-            entry.put( CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            entry.put( directoryService.getAtProvider().getCreateTimestamp(), DateUtils.getGeneralizedTime() );
         }
 
         // Now, check that the user does not add operational attributes
         // The accessControlSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, ACCESS_CONTROL_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getAccessControlSubentries() );
 
         // The CollectiveAttributeSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider()
+            .getCollectiveAttributeSubentries() );
 
         // The TriggerExecutionSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, TRIGGER_EXECUTION_SUBENTRIES_AT );
+        checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getTriggerExecutionSubentries() );
 
         // The SubSchemaSybentry attribute
-        checkAddOperationalAttribute( isAdmin, entry, SUBSCHEMA_SUBENTRY_AT );
+        checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getSubschemaSubentry() );
 
         next( addContext );
     }
@@ -278,7 +280,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             AttributeType attributeType = modification.getAttribute().getAttributeType();
 
-            if ( attributeType.equals( MODIFIERS_NAME_AT ) )
+            if ( attributeType.equals( directoryService.getAtProvider().getModifiersName() ) )
             {
                 if ( !isAdmin )
                 {
@@ -292,7 +294,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
 
-            if ( attributeType.equals( MODIFY_TIMESTAMP_AT ) )
+            if ( attributeType.equals( directoryService.getAtProvider().getModifyTimestamp() ) )
             {
                 if ( !isAdmin )
                 {
@@ -306,7 +308,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
 
-            if ( attributeType.equals( ENTRY_CSN_AT ) )
+            if ( attributeType.equals( directoryService.getAtProvider().getEntryCSN() ) )
             {
                 if ( !isAdmin )
                 {
@@ -334,8 +336,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !modifierAtPresent )
             {
                 // Inject the ModifiersName AT if it's not present
-                Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal( modifyContext )
-                    .getName() );
+                Attribute attribute = new DefaultAttribute( directoryService.getAtProvider().getModifiersName(),
+                    getPrincipal( modifyContext ).getName() );
 
                 Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
                     attribute );
@@ -346,8 +348,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !modifiedTimeAtPresent )
             {
                 // Inject the ModifyTimestamp AT if it's not present
-                Attribute attribute = new DefaultAttribute( MODIFY_TIMESTAMP_AT, DateUtils
-                    .getGeneralizedTime() );
+                Attribute attribute = new DefaultAttribute( directoryService.getAtProvider().getModifyTimestamp(),
+                    DateUtils.getGeneralizedTime() );
 
                 Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
@@ -357,7 +359,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !entryCsnAtPresent )
             {
                 String csn = directoryService.getCSN().toString();
-                Attribute attribute = new DefaultAttribute( ENTRY_CSN_AT, csn );
+                Attribute attribute = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), csn );
                 Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
                 mods.add( updatedCsn );
             }
@@ -377,7 +379,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
+            .getCSN().toString() );
         modifiedEntry.put( csnAt );
 
         modifiedEntry.setDn( moveContext.getNewDn() );
@@ -397,7 +400,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
 
-        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
+            .getCSN().toString() );
         modifiedEntry.put( csnAt );
 
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
@@ -419,7 +423,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
+            .getCSN().toString() );
         modifiedEntry.put( csnAt );
 
         renameContext.setModifiedEntry( modifiedEntry );
@@ -455,7 +460,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         // insert a new CSN into the entry, this is for replication
         Entry entry = deleteContext.getEntry();
-        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
+            .getCSN().toString() );
         entry.put( csnAt );
 
         next( deleteContext );

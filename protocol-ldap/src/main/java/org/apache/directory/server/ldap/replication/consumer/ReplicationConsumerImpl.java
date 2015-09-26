@@ -155,9 +155,8 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     private Modification ridMod;
 
     /** AttributeTypes used for replication */
-    private static AttributeType REPL_COOKIE_AT;
-    private static AttributeType ENTRY_UUID_AT;
-    private static AttributeType RID_AT_TYPE;
+    private AttributeType adsReplCookieAT;
+    private AttributeType adsDsReplicaIdAT;
 
     private static final Map<String, Object> UUID_LOCK_MAP = new LRUMap( 1000 );
 
@@ -183,14 +182,13 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
         schemaManager = directoryservice.getSchemaManager();
 
-        ENTRY_UUID_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_UUID_AT );
-        REPL_COOKIE_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_COOKIE );
-        RID_AT_TYPE = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_DS_REPLICA_ID );
+        adsReplCookieAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_COOKIE );
+        adsDsReplicaIdAT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_DS_REPLICA_ID );
 
-        Attribute cookieAttr = new DefaultAttribute( REPL_COOKIE_AT );
+        Attribute cookieAttr = new DefaultAttribute( adsReplCookieAT );
         cookieMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, cookieAttr );
 
-        Attribute ridAttr = new DefaultAttribute( RID_AT_TYPE );
+        Attribute ridAttr = new DefaultAttribute( adsDsReplicaIdAT );
         ridMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, ridAttr );
 
         prepareSyncSearchRequest();
@@ -349,7 +347,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         try
         {
             Entry remoteEntry = new DefaultEntry( schemaManager, syncResult.getEntry() );
-            String uuid = remoteEntry.get( ENTRY_UUID_AT ).getString();
+            String uuid = remoteEntry.get( directoryService.getAtProvider().getEntryUUID() ).getString();
             // lock on UUID to serialize the updates when there are multiple consumers
             // connected to several producers and to the *same* base/partition
             Object lock = getLockFor( uuid );
@@ -954,7 +952,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
             if ( entry != null )
             {
-                Attribute attr = entry.get( REPL_COOKIE_AT );
+                Attribute attr = entry.get( adsReplCookieAT );
 
                 if ( attr != null )
                 {
@@ -992,7 +990,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         try
         {
-            Attribute cookieAttr = new DefaultAttribute( REPL_COOKIE_AT );
+            Attribute cookieAttr = new DefaultAttribute( adsReplCookieAT );
             Modification deleteCookieMod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
                 cookieAttr );
             session.modify( config.getConfigEntryDn(), deleteCookieMod );
