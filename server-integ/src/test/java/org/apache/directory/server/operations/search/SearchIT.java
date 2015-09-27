@@ -1210,7 +1210,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         // ensure that all operational attributes are returned
         // and no user attributes
-        assertEquals( 6, attrs.size() );
+        assertEquals( 7, attrs.size() );
         assertNull( attrs.get( "cn" ) );
         assertNull( attrs.get( "sn" ) );
         assertNull( attrs.get( "objectClass" ) );
@@ -1221,6 +1221,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "entryuuid" ) );
         assertNotNull( attrs.get( "entrycsn" ) );
         assertNotNull( attrs.get( "entryDn" ) );
+        assertNotNull( attrs.get( "subschemaSubentry" ) );
     }
 
 
@@ -1246,7 +1247,7 @@ public class SearchIT extends AbstractLdapTestUnit
         Attributes attrs = result.getAttributes();
 
         // ensure that all user attributes are returned
-        assertEquals( 12, attrs.size() );
+        assertEquals( 13, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "sn" ) );
         assertNotNull( attrs.get( "objectClass" ) );
@@ -1258,6 +1259,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "entryuuid" ) );
         assertNotNull( attrs.get( "entrycsn" ) );
         assertNotNull( attrs.get( "entryDn" ) );
+        assertNotNull( attrs.get( "subschemaSubentry" ) );
     }
 
 

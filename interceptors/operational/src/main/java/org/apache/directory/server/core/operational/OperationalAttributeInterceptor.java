@@ -74,7 +74,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static final Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
 
+    /** The denormalizer filter */
     private final EntryFilter denormalizingSearchFilter = new OperationalAttributeDenormalizingSearchFilter();
+    
+    /** The filter that add the mandatory operational attributes */
+    private final EntryFilter operationalAttributeSearchFilter = new OperationalAttributeSearchFilter();
 
     /** The subschemasubentry Dn */
     private Dn subschemaSubentryDn;
@@ -99,7 +103,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             // Denormalize the operational Attributes
             denormalizeEntryOpAttrs( entry );
-
+            
             return true;
         }
 
@@ -110,6 +114,44 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         public String toString( String tabs )
         {
             return tabs + "OperationalAttributeDenormalizingSearchFilter";
+        }
+    }
+
+    /**
+     * the search result filter to use for the addition of mandatory operational attributes
+     */
+    private class OperationalAttributeSearchFilter implements EntryFilter
+    {
+        /**
+         * {@inheritDoc}
+         */
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
+        {
+            if ( operation.getReturningAttributesString() == null )
+            {
+                return true;
+            }
+
+            // Add the SubschemaSubentry AttributeType if it's requested
+            if ( operation.isAllOperationalAttributes()|| 
+                operation.getReturningAttributes().contains( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) ||
+                operation.getReturningAttributes().contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+            {
+                AttributeType subschemaSubentryAt = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+                entry.add( new DefaultAttribute( subschemaSubentryAt, 
+                    directoryService.getPartitionNexus().getRootDseValue( subschemaSubentryAt ) ) );
+            }
+
+            return true;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "OperationalAttributeSearchFilter";
         }
     }
 
@@ -441,13 +483,15 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         EntryFilteringCursor cursor = next( searchContext );
 
         if ( searchContext.isAllOperationalAttributes()
-            || ( searchContext.getReturningAttributes() != null && !searchContext.getReturningAttributes().isEmpty() ) )
+            || ( ( searchContext.getReturningAttributes() != null ) && !searchContext.getReturningAttributes().isEmpty() ) )
         {
             if ( directoryService.isDenormalizeOpAttrsEnabled() )
             {
                 cursor.addEntryFilter( denormalizingSearchFilter );
             }
 
+            cursor.addEntryFilter( operationalAttributeSearchFilter );
+            
             return cursor;
         }
 
