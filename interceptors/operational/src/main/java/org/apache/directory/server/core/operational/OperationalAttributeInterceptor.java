@@ -133,9 +133,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
 
             // Add the SubschemaSubentry AttributeType if it's requested
-            if ( operation.isAllOperationalAttributes()|| 
-                operation.getReturningAttributes().contains( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) ||
-                operation.getReturningAttributes().contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+            if ( operation.isAllOperationalAttributes()
+                || operation.getReturningAttributes().contains( SchemaConstants.SUBSCHEMA_SUBENTRY_AT )
+                || operation.getReturningAttributes().contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
             {
                 AttributeType subschemaSubentryAt = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
                 entry.add( new DefaultAttribute( subschemaSubentryAt, 
