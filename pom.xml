@@ -142,7 +142,7 @@
     <!--module>bulkloader</module-->
     <!--Uncomment to build OSGi-related bundles-->
     <!--<module>apache-felix</module>-->
-    <!--<module>dependencies</module>-->
+    <!--<module>non-osgi-dependencies</module>-->
     <!--<module>service-osgi</module>-->
     <!--<module>component-hub</module>-->
     <module>osgi-integ</module>

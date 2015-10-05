@@ -25,7 +25,7 @@
     <version>2.0.0-M4-SNAPSHOT</version>
   </parent>
   
-  <artifactId>apacheds-dependencies</artifactId>
+  <artifactId>apacheds-non-osgi-dependencies</artifactId>
   <name>ApacheDS NonOSGI Dependencies</name>
   <packaging>bundle</packaging>
 
