@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NoPermissionException;
@@ -38,9 +39,12 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -150,6 +154,97 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertTrue( tori.contains( "cn", newCn ) );
         assertFalse( tori.contains( "cn", oldCn ) ); // old value is gone
         assertEquals( 1, tori.get( "cn" ).size() );
+
+        // Remove entry (use new rdn)
+        connection.delete( newDn );
+    }
+
+
+    /**
+     * Modify Rdn of an entry, delete its old rdn value and search before and
+     * after rename.
+     */
+    @Ignore
+    @Test
+    public void testModifyRdnAndDeleteOldWithSearchInBetween() throws Exception
+    {
+        LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
+        // connection.setTimeOut( 0L );
+        connection.loadSchema();
+
+        // Create a person, cn value is rdn
+        String oldCn = "Myra Ellen Amos";
+        String oldRdn = "cn=" + oldCn;
+        String oldDn = oldRdn + ", " + BASE;
+
+        Entry entry = new DefaultEntry( oldDn,
+                "objectClass: top",
+                "objectClass: person",
+                "cn", oldCn,
+                "sn: Amos",
+                "description", oldCn + " is a person." );
+
+        connection.add( entry );
+
+        Entry tori = connection.lookup( oldDn );
+
+        assertNotNull( tori );
+        assertTrue( tori.contains( "cn", "Myra Ellen Amos" ) );
+
+        // now try a search
+        Entry found = null;
+        for ( Entry result : connection.search( BASE, "(sn=amos)", SearchScope.ONELEVEL ) )
+        {
+            if ( found == null )
+            {
+                found = result;
+            }
+            else
+            {
+                fail( "Found too many results" );
+            }
+        }
+        assertNotNull( found );
+        Rdn foundRdn = found.getDn().getRdn();
+        assertEquals( "cn", foundRdn.getType() );
+        assertEquals( oldCn, foundRdn.getValue().getString() );
+
+        // modify Rdn
+        String newCn = "Tori Amos";
+        String newRdn = "cn=" + newCn;
+        String newDn = newRdn + "," + BASE;
+
+        connection.rename( oldDn, newRdn, true );
+
+        // Check, whether old Entry does not exists
+        assertNull( connection.lookup( oldDn ) );
+
+        // Check, whether new Entry exists
+        tori = connection.lookup( newDn );
+        assertNotNull( tori );
+
+        // Check values of cn
+        assertTrue( tori.contains( "cn", newCn ) );
+        assertFalse( tori.contains( "cn", oldCn ) ); // old value is gone
+        assertEquals( 1, tori.get( "cn" ).size() );
+
+        // now try a search
+        found = null;
+        for ( Entry result : connection.search( BASE, "(sn=amos)", SearchScope.ONELEVEL ) )
+        {
+            if ( found == null )
+            {
+                found = result;
+            }
+            else
+            {
+                fail( "Found too many results" );
+            }
+        }
+        assertNotNull( found );
+        foundRdn = found.getDn().getRdn();
+        assertEquals( "cn", foundRdn.getType() );
+        assertEquals( oldCn, foundRdn.getValue().getString() );
 
         // Remove entry (use new rdn)
         connection.delete( newDn );
