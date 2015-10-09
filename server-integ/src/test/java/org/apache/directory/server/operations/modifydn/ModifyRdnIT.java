@@ -48,7 +48,10 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
@@ -64,7 +67,23 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "ModifyRdnIT-class", enableChangeLog = false)
+@CreateDS(name = "ModifyRdnIT-class", enableChangeLog = false,
+    partitions = 
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif = "dn: dc=example,dc=com\n" +
+                        "objectClass: domain\n" +
+                        "objectClass: top\n" +
+                        "dc: example\n\n"
+                ),
+                indexes = {
+                    @CreateIndex( attribute = "uid" )
+                }
+            )
+    })
 @CreateLdapServer(
     transports =
         {
@@ -164,22 +183,28 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * Modify Rdn of an entry, delete its old rdn value and search before and
      * after rename.
      */
-    @Ignore
+    //@Ignore
     @Test
     public void testModifyRdnAndDeleteOldWithSearchInBetween() throws Exception
     {
+        String base = "dc=example,dc=com";
+
         LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
         // connection.setTimeOut( 0L );
         connection.loadSchema();
 
         // Create a person, cn value is rdn
+        String oldUid = "mary-ellen-amos";
         String oldCn = "Myra Ellen Amos";
-        String oldRdn = "cn=" + oldCn;
-        String oldDn = oldRdn + ", " + BASE;
+        String oldRdn = "uid=" + oldUid;
+        String oldDn = oldRdn + ", " + base;
 
         Entry entry = new DefaultEntry( oldDn,
                 "objectClass: top",
                 "objectClass: person",
+                "objectClass: organizationalPerson",
+                "objectClass: inetOrgPerson",
+                "uid", oldUid,
                 "cn", oldCn,
                 "sn: Amos",
                 "description", oldCn + " is a person." );
@@ -189,11 +214,11 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         Entry tori = connection.lookup( oldDn );
 
         assertNotNull( tori );
-        assertTrue( tori.contains( "cn", "Myra Ellen Amos" ) );
+        assertTrue( tori.contains( "uid", "mary-ellen-amos" ) );
 
         // now try a search
         Entry found = null;
-        for ( Entry result : connection.search( BASE, "(sn=amos)", SearchScope.ONELEVEL ) )
+        for ( Entry result : connection.search( base, "(sn=amos)", SearchScope.ONELEVEL ) )
         {
             if ( found == null )
             {
@@ -206,13 +231,13 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         }
         assertNotNull( found );
         Rdn foundRdn = found.getDn().getRdn();
-        assertEquals( "cn", foundRdn.getType() );
-        assertEquals( oldCn, foundRdn.getValue().getString() );
+        assertEquals( "uid", foundRdn.getType() );
+        assertEquals( oldUid, foundRdn.getValue().getString() );
 
         // modify Rdn
-        String newCn = "Tori Amos";
-        String newRdn = "cn=" + newCn;
-        String newDn = newRdn + "," + BASE;
+        String newUid = "tory-amos";
+        String newRdn = "uid=" + newUid;
+        String newDn = newRdn + "," + base;
 
         connection.rename( oldDn, newRdn, true );
 
@@ -224,13 +249,13 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertNotNull( tori );
 
         // Check values of cn
-        assertTrue( tori.contains( "cn", newCn ) );
-        assertFalse( tori.contains( "cn", oldCn ) ); // old value is gone
-        assertEquals( 1, tori.get( "cn" ).size() );
+        assertTrue( tori.contains( "uid", newUid ) );
+        assertFalse( tori.contains( "uid", oldUid ) ); // old value is gone
+        assertEquals( 1, tori.get( "uid" ).size() );
 
         // now try a search
         found = null;
-        for ( Entry result : connection.search( BASE, "(sn=amos)", SearchScope.ONELEVEL ) )
+        for ( Entry result : connection.search( base, "(sn=amos)", SearchScope.ONELEVEL ) )
         {
             if ( found == null )
             {
@@ -243,8 +268,8 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         }
         assertNotNull( found );
         foundRdn = found.getDn().getRdn();
-        assertEquals( "cn", foundRdn.getType() );
-        assertEquals( oldCn, foundRdn.getValue().getString() );
+        assertEquals( "uid", foundRdn.getType() );
+        assertEquals( newUid, foundRdn.getValue().getString() );
 
         // Remove entry (use new rdn)
         connection.delete( newDn );
