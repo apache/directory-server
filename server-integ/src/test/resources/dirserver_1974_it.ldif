@@ -1,0 +1,116 @@
+dn: cn=portalPerson, ou=schema
+objectclass: metaSchema
+objectclass: top
+cn: portalPerson
+m-dependencies: system
+m-dependencies: core
+
+dn: ou=attributeTypes, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: attributetypes
+
+dn: ou=comparators, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: comparators
+
+dn: ou=ditContentRules, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: ditcontentrules
+
+dn: ou=ditStructureRules, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: ditstructurerules
+
+dn: ou=matchingRules, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: matchingrules
+
+dn: ou=matchingRuleUse, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: matchingruleuse
+
+dn: ou=nameForms, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: nameforms
+
+dn: ou=normalizers, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: normalizers
+
+dn: ou=objectClasses, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: objectClasses
+
+dn: ou=syntaxCheckers, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: syntaxcheckers
+
+dn: ou=syntaxes, cn=portalPerson, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: syntaxes
+
+## active attribute
+dn: m-oid=1.3.6.1.4.1.115.1.2.20.1.2.1, ou=attributeTypes, cn=portalPerson, ou=schema
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.115.1.2.20.1.2.1
+m-name: active
+m-description: This indicates an entry is active
+m-equality: booleanMatch
+m-ordering: booleanMatch
+m-substr: booleanMatch
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.7
+m-singleValue: TRUE
+
+## affiliation attribute
+dn: m-oid=1.3.6.1.4.1.115.1.2.20.1.2.5, ou=attributeTypes, cn=portalPerson, ou=schema
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.115.1.2.20.1.2.5
+m-name: affiliation
+m-equality: caseExactMatch
+m-ordering: caseExactOrderingMatch
+m-substr: caseExactSubstringsMatch
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
+m-singleValue: TRUE
+
+## timeZone attribute
+dn: m-oid=1.3.6.1.4.1.115.1.2.20.1.2.11,ou=attributeTypes,cn=portalPerson,ou=schema
+objectClass: metaTop
+objectClass: metaAttributeType
+objectClass: top
+m-oid: 1.3.6.1.4.1.115.1.2.20.1.2.11
+m-description: A persons time zone
+m-equality: caseExactMatch
+m-name: timeZone
+m-ordering: caseExactOrderingMatch
+m-singlevalue: TRUE
+m-substr: caseExactSubstringsMatch
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
+
+## portalPerson object
+dn: m-oid=1.3.6.1.4.1.115.1.2.20.1.1.2, ou=objectClasses, cn=portalPerson, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.115.1.2.20.1.1.2
+m-name: portalPerson
+m-description: A person associated with a portal
+m-typeObjectClass: AUXILIARY
+m-may: active
+m-may: affiliation
+m-may: timeZone
+

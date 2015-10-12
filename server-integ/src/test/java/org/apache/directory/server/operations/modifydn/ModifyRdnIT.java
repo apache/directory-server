@@ -43,8 +43,6 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
-import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -173,103 +171,6 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertTrue( tori.contains( "cn", newCn ) );
         assertFalse( tori.contains( "cn", oldCn ) ); // old value is gone
         assertEquals( 1, tori.get( "cn" ).size() );
-
-        // Remove entry (use new rdn)
-        connection.delete( newDn );
-    }
-
-
-    /**
-     * Modify Rdn of an entry, delete its old rdn value and search before and
-     * after rename.
-     */
-    //@Ignore
-    @Test
-    public void testModifyRdnAndDeleteOldWithSearchInBetween() throws Exception
-    {
-        String base = "dc=example,dc=com";
-
-        LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
-        // connection.setTimeOut( 0L );
-        connection.loadSchema();
-
-        // Create a person, cn value is rdn
-        String oldUid = "mary-ellen-amos";
-        String oldCn = "Myra Ellen Amos";
-        String oldRdn = "uid=" + oldUid;
-        String oldDn = oldRdn + ", " + base;
-
-        Entry entry = new DefaultEntry( oldDn,
-                "objectClass: top",
-                "objectClass: person",
-                "objectClass: organizationalPerson",
-                "objectClass: inetOrgPerson",
-                "uid", oldUid,
-                "cn", oldCn,
-                "sn: Amos",
-                "description", oldCn + " is a person." );
-
-        connection.add( entry );
-
-        Entry tori = connection.lookup( oldDn );
-
-        assertNotNull( tori );
-        assertTrue( tori.contains( "uid", "mary-ellen-amos" ) );
-
-        // now try a search
-        Entry found = null;
-        for ( Entry result : connection.search( base, "(sn=amos)", SearchScope.ONELEVEL ) )
-        {
-            if ( found == null )
-            {
-                found = result;
-            }
-            else
-            {
-                fail( "Found too many results" );
-            }
-        }
-        assertNotNull( found );
-        Rdn foundRdn = found.getDn().getRdn();
-        assertEquals( "uid", foundRdn.getType() );
-        assertEquals( oldUid, foundRdn.getValue().getString() );
-
-        // modify Rdn
-        String newUid = "tory-amos";
-        String newRdn = "uid=" + newUid;
-        String newDn = newRdn + "," + base;
-
-        connection.rename( oldDn, newRdn, true );
-
-        // Check, whether old Entry does not exists
-        assertNull( connection.lookup( oldDn ) );
-
-        // Check, whether new Entry exists
-        tori = connection.lookup( newDn );
-        assertNotNull( tori );
-
-        // Check values of cn
-        assertTrue( tori.contains( "uid", newUid ) );
-        assertFalse( tori.contains( "uid", oldUid ) ); // old value is gone
-        assertEquals( 1, tori.get( "uid" ).size() );
-
-        // now try a search
-        found = null;
-        for ( Entry result : connection.search( base, "(sn=amos)", SearchScope.ONELEVEL ) )
-        {
-            if ( found == null )
-            {
-                found = result;
-            }
-            else
-            {
-                fail( "Found too many results" );
-            }
-        }
-        assertNotNull( found );
-        foundRdn = found.getDn().getRdn();
-        assertEquals( "uid", foundRdn.getType() );
-        assertEquals( newUid, foundRdn.getValue().getString() );
 
         // Remove entry (use new rdn)
         connection.delete( newDn );
