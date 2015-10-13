@@ -41,6 +41,8 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -177,13 +179,11 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
 
     /**
-<<<<<<<
-     * Modify Rdn of an entry, without deleting its old rdn value.
-=======
      * Modify Rdn of an entry, delete its old rdn value and search before and
      * after rename.
      */
-    @Ignore
+    //@Ignore
+    @Test
     public void testModifyRdnAndDeleteOldWithSearchInBetween() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
@@ -262,7 +262,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertNotNull( found );
         foundRdn = found.getDn().getRdn();
         assertEquals( "cn", foundRdn.getType() );
-        assertEquals( oldCn, foundRdn.getValue() );
+        assertEquals( newCn, foundRdn.getValue() );
 
         // Remove entry (use new rdn)
         connection.delete( newDn );
@@ -270,7 +270,6 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
 
     /**
->>>>>>>
      * Modify Rdn of an entry, without deleting its old rdn value.
      * 
      * The JNDI property is set with 'False'

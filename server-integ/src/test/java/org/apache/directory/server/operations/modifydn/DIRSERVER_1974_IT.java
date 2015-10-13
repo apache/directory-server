@@ -205,7 +205,7 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
             assertNotNull( found );
             Rdn foundRdn = found.getDn().getRdn();
             assertEquals( "uid", foundRdn.getType() );
-            assertEquals( oldUid, foundRdn.getValue().getString() );
+            assertEquals( oldUid, foundRdn.getValue() );
 
             template.execute(
                     new ConnectionCallback<Void>() {
@@ -225,7 +225,7 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
             assertNotNull( found );
             foundRdn = found.getDn().getRdn();
             assertEquals( "uid", foundRdn.getType() );
-            assertEquals( newUid, foundRdn.getValue().getString() );
+            assertEquals( newUid, foundRdn.getValue() );
 
             template.delete( newDn );
         }
@@ -328,7 +328,7 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
                 assertNotNull( found );
                 Rdn foundRdn = found.getDn().getRdn();
                 assertEquals( "uid", foundRdn.getType() );
-                assertEquals( newUid, foundRdn.getValue().getString() );
+                assertEquals( newUid, foundRdn.getValue() );
         
                 // Remove entry (use new rdn)
                 connection.delete( newDn );
