@@ -84,7 +84,7 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
             entry.setDn( numberHolder );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            entry.add( SchemaConstants.OU_AT, numberHolder.getRdn().getValue().getString() );
+            entry.add( SchemaConstants.OU_AT, numberHolder.getRdn().getValue() );
             entry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
             entry.add( SchemaConstants.ENTRY_CSN_AT, directoryService.getCSN().toString() );
             

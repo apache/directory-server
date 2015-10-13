@@ -231,7 +231,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_353, oldOid ) );
         }
 
-        String oid = newRdn.getNormValue().getString();
+        String oid = newRdn.getNormValue();
         checkOidIsUniqueForComparator( oid );
 
         String schemaName = getSchemaName( entry.getDn() );
@@ -240,7 +240,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         {
             // Inject the new OID in the entry
             Entry targetEntry = ( Entry ) entry.clone();
-            String newOid = newRdn.getNormValue().getString();
+            String newOid = newRdn.getNormValue();
             checkOidIsUnique( newOid );
             targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
@@ -270,7 +270,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_353, oldOid ) );
         }
 
-        String oid = newRdn.getNormValue().getString();
+        String oid = newRdn.getNormValue();
         checkOidIsUniqueForComparator( oid );
 
         String newSchemaName = getSchemaName( newParentName );
@@ -380,7 +380,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_358 ) );
         }
 
-        if ( !rdn.getNormValue().getString().equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
+        if ( !rdn.getNormValue().equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_359 ) );
         }

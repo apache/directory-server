@@ -101,7 +101,7 @@ public class RenameIT extends AbstractLdapTestUnit
         Attribute attribute = renamed.get( "cn" );
         Set<String> expected = new HashSet<String>();
         expected.add( "test0" );
-        expected.add( "TEST" );
+        expected.add( "test" );
         int found = 0;
         
         for ( Value<?> value : attribute )

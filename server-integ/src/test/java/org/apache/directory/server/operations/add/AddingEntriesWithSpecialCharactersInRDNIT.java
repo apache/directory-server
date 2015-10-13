@@ -198,12 +198,12 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
 
-        Entry entry = getOrgUnitEntry( "AC\\DC" );
-        String dn = "ou=AC\\\\DC,ou=system";
+        Entry entry = getOrgUnitEntry( "AC\\2B" );
+        String dn = "ou=AC\\\\2B,ou=system";
         entry.setDn( new Dn( dn ) );
         connection.add( entry );
 
-        EntryCursor cursor = connection.search( "ou=system", "(ou=AC\\5CDC)", SearchScope.SUBTREE, "*" );
+        EntryCursor cursor = connection.search( "ou=system", "(ou=AC\\5C2B)", SearchScope.SUBTREE, "*" );
         boolean entryFound = false;
 
         while ( cursor.next() )
@@ -214,7 +214,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
             Attribute ou = sr.get( "ou" );
             assertNotNull( ou );
-            assertTrue( ou.contains( "AC\\DC" ) );
+            assertTrue( ou.contains( "AC\\2B" ) );
         }
 
         cursor.close();
@@ -407,8 +407,8 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         assertEquals( "Name", addedEntry.get( "sn" ).getString() );
         assertEquals( "User", addedEntry.get( "cn" ).getString() );
-        assertEquals( 1, addedEntry.get( "cn" ).size() );
+        assertEquals( 2, addedEntry.get( "cn" ).size() );
         assertTrue( addedEntry.contains( "cn", "User" ) );
-        assertFalse( addedEntry.contains( "cn", " User" ) );
+        assertTrue( addedEntry.contains( "cn", "\\ User" ) );
     }
 }

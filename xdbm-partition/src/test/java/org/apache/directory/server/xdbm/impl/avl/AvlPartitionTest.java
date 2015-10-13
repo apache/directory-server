@@ -468,7 +468,7 @@ public class AvlPartitionTest
         String id = partition.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = partition.fetch( id );
-        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
         assertEquals( "ja+es", entry2.get( "sn" ).get().getNormValue() );
     }
 

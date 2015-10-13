@@ -97,7 +97,7 @@ public class LdifBulkLoaderTest
             }
             
             
-            String userBranch = ouTemplate.replace( "{ou}", rdn.getValue().getString() );
+            String userBranch = ouTemplate.replace( "{ou}", rdn.getValue() );
             userBranch = userBranch.replace( "{ouDn}", currentDn.getName() );
             
             fw.write( userBranch );

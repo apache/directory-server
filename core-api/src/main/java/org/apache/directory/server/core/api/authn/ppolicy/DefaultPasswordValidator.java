@@ -67,7 +67,7 @@ public class DefaultPasswordValidator implements PasswordValidator
      */
     private void checkUsernameSubstring( String password, Entry entry ) throws PasswordPolicyException
     {
-        String username = entry.getDn().getRdn().getValue().getString();
+        String username = entry.getDn().getRdn().getValue();
         
         if ( username == null || username.trim().length() == 0 )
         {

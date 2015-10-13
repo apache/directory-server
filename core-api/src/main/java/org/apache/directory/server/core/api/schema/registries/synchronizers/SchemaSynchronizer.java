@@ -467,7 +467,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     private String getSchemaName( Dn schema )
     {
-        return schema.getRdn().getNormValue().getString();
+        return schema.getRdn().getNormValue();
     }
 
 

@@ -1371,7 +1371,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         Rdn rdn = dn.getRdn( size - 2 );
 
-        return rdn.getNormValue().getString();
+        return rdn.getNormValue();
     }
 
 
@@ -1587,7 +1587,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             Attribute attribute = entry.get( atav.getNormType() );
 
-            if ( ( attribute == null ) || ( !attribute.contains( atav.getNormValue() ) ) )
+            if ( ( attribute == null ) || ( !attribute.contains( atav.getValue() ) ) )
             {
                 String message = I18n.err( I18n.ERR_62, dn, atav.getType() );
                 LOG.error( message );

@@ -207,7 +207,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         //        }
 
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRdn.getNormValue().getString();
+        String newOid = newRdn.getNormValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
         // Inject the new Dn
@@ -258,7 +258,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
 
         String newSchemaName = getSchemaName( newParentName );
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRdn.getNormValue().getString();
+        String newOid = newRdn.getNormValue();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         ObjectClass oc = factory.getObjectClass( schemaManager, targetEntry, schemaManager.getRegistries(),
@@ -342,7 +342,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_376 ) );
         }
 
-        if ( !rdn.getNormValue().getString().equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
+        if ( !rdn.getNormValue().equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_377 ) );

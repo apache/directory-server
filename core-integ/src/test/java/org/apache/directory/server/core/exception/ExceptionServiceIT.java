@@ -257,7 +257,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
 
         assertNotNull( entry );
         assertEquals( 1, entry.get( "ou" ).size() );
-        assertEquals( "Users", entry.get( "ou" ).getString() );
+        assertEquals( "users", entry.get( "ou" ).getString() );
     }
 
 

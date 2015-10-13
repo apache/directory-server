@@ -2112,6 +2112,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     }
 
 
+    /**
+     * This will rename the entry, and deal with the deleteOldRdn flag. If set to true, we have
+     * to remove the AVA which are not part of the new RDN from the entry.
+     * If this flag is set to false, we have to take care of the special case of an AVA
+     * which attributeType is SINGLE-VALUE : in this case, we remove the old value.
+     */
     private void rename( String oldId, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception
     {
         if ( entry == null )
@@ -2130,19 +2136,60 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
          * new Rdn attribute we add the index for this attribute value pair.
          * Also we make sure that the presence index shows the existence of the
          * new Rdn attribute within this entry.
+         * Last, not least, if the AttributeType is single value, take care
+         * of removing the old value.
          */
         for ( Ava newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
-            Object newNormValue = newAtav.getNormValue().getValue();
+            Object newNormValue = newAtav.getValue().getNormValue();
+            boolean oldRemoved = false;
 
             AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
-            entry.add( newRdnAttrType, newAtav.getValue() );
+            if ( newRdnAttrType.isSingleValued() && entry.containsAttribute( newRdnAttrType ) )
+            {
+                Attribute oldAttribute = entry.get( newRdnAttrType );
+                
+                // We have to remove the old attribute value, if we have some
+                entry.removeAttributes( newRdnAttrType );
+                
+                // Deal with the index
+                if ( hasUserIndexOn( newRdnAttrType ) )
+                {
+                    Index<?, String> index = getUserIndex( newRdnAttrType );
+                    ( ( Index ) index ).drop( oldAttribute.get().getNormValue(), id );
+
+                    /*
+                     * If there is no value for id in this index due to our
+                     * drop above we remove the oldRdnAttr from the presence idx
+                     */
+                    if ( null == index.reverseLookup( oldId ) )
+                    {
+                        presenceIdx.drop( newRdnAttrType.getOid(), oldId );
+                    }
+
+                }
+            }
+
+            if ( newRdnAttrType.getSyntax().isHumanReadable() )
+            {
+                entry.add( newRdnAttrType, ( String ) newAtav.getValue().getNormValue() );
+            }
+            else
+            {
+                entry.add( newRdnAttrType, ( byte[] ) newAtav.getValue().getNormValue() );
+            }
 
             if ( hasUserIndexOn( newRdnAttrType ) )
             {
                 Index<?, String> index = getUserIndex( newRdnAttrType );
+                
+                if ( oldRemoved )
+                {
+                    ( ( Index ) index ).drop( newNormValue, oldId );
+                }
+                
                 ( ( Index ) index ).add( newNormValue, oldId );
 
                 // Make sure the altered entry shows the existence of the new attrib
@@ -2192,7 +2239,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 if ( mustRemove )
                 {
                     String oldNormType = oldAtav.getNormType();
-                    String oldNormValue = oldAtav.getNormValue().getString();
+                    String oldNormValue = ( String ) oldAtav.getValue().getNormValue();
                     AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
                     entry.remove( oldRdnAttrType, oldNormValue );
 

@@ -574,7 +574,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             else if ( rdn.size() == 1 )
             {
                 String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                String value = rdn.getNormValue().getString();
+                String value = rdn.getNormValue();
                 newDn = newDn.add( new Rdn( name, value ) );
                 continue;
             }
@@ -586,7 +586,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 Ava atav = atavs.next();
                 String type = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                buf.append( type ).append( '=' ).append( atav.getNormValue() );
+                buf.append( type ).append( '=' ).append( atav.getValue().getNormValue() );
 
                 if ( atavs.hasNext() )
                 {

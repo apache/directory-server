@@ -298,7 +298,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         String cn = loadedEntry.get( "cn" ).get().getString();
 
-        assertEquals( "a+B", cn );
+        assertEquals( "a\\+B", cn );
     }
 
 
@@ -350,7 +350,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         Attribute attribute = loadedEntry.get( "cn" );
         Set<String> expected = new HashSet<String>();
-        expected.add( "a+B" );
+        expected.add( "a\\+B" );
         expected.add( "c" );
         int count = 0;
 

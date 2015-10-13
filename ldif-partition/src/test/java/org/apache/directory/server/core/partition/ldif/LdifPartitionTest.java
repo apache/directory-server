@@ -531,8 +531,8 @@ public class LdifPartitionTest
 
         // the renamed LDIF must contain the old an new Rdn attribute
         String content = FileUtils.readFileToString( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ) );
-        assertTrue( content.contains( "dc: child1" ) );
-        assertTrue( content.contains( "dc: renamedChild1" ) );
+        assertFalse( content.contains( "dc: child1" ) );
+        assertTrue( content.contains( "dc: renamedchild1" ) );
     }
 
 
@@ -597,8 +597,8 @@ public class LdifPartitionTest
         // the renamed LDIF must contain the old an new Rdn attribute
         String content = FileUtils
             .readFileToString( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ) );
-        assertTrue( content.contains( "dc: child1" ) );
-        assertTrue( content.contains( "dc: movedChild1" ) );
+        assertFalse( content.contains( "dc: child1" ) );
+        assertTrue( content.contains( "dc: movedchild1" ) );
     }
 
 

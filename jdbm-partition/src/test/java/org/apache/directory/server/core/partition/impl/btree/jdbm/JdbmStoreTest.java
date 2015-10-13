@@ -609,7 +609,7 @@ public class JdbmStoreTest
         dn = new Dn( schemaManager, "sn=James,ou=Engineering,o=Good Times Co." );
         Entry renamed = store.lookup( new LookupOperationContext( session, dn ) );
         assertNotNull( renamed );
-        assertEquals( "James", renamed.getDn().getRdn().getValue().getString() );
+        assertEquals( "James", renamed.getDn().getRdn().getValue() );
     }
 
 
@@ -637,7 +637,7 @@ public class JdbmStoreTest
         String id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.fetch( id, dn2 );
-        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
     }
 
 

@@ -1206,7 +1206,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         private ReplicaEventLog getEventLog( OperationContext opCtx )
         {
             Dn consumerLogDn = opCtx.getDn();
-            String name = ReplicaEventLog.REPLICA_EVENT_LOG_NAME_PREFIX + consumerLogDn.getRdn().getValue().getString();
+            String name = ReplicaEventLog.REPLICA_EVENT_LOG_NAME_PREFIX + consumerLogDn.getRdn().getNormValue();
 
             for ( ReplicaEventLog log : replicaLogMap.values() )
             {

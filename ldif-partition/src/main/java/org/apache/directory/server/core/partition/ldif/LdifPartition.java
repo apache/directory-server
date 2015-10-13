@@ -631,7 +631,16 @@ public class LdifPartition extends AbstractLdifPartition
             String atName = at.getName();
 
             // Now, get the normalized value
-            String normValue = ava.getNormValue().getString();
+            String normValue = null;
+            
+            if ( at.getSyntax().isHumanReadable() )
+            {
+                normValue = ava.getValue().getNormValue().toString();
+            }
+            else
+            {
+                normValue = Strings.utf8ToString( ( byte[] ) ava.getValue().getNormValue() );
+            }
 
             fileName.append( atName ).append( "=" ).append( normValue );
 
@@ -665,7 +674,7 @@ public class LdifPartition extends AbstractLdifPartition
             String atName = at.getName();
 
             // Now, get the normalized value
-            String normValue = rdn.getNormValue().getString();
+            String normValue = rdn.getNormValue();
 
             if ( isFirst )
             {
