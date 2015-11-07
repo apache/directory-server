@@ -256,7 +256,7 @@ public class KerberosTestUtils
         try
         {
             InetAddress loopback = InetAddress.getLocalHost();
-            hostName = loopback.getHostName();
+            hostName = loopback.getCanonicalHostName();
         }
         catch ( UnknownHostException e )
         {
