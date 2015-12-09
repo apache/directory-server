@@ -50,6 +50,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -1909,6 +1910,77 @@ public class SearchIT extends AbstractLdapTestUnit
         req.setFilter( "(member=u*)" );
         cursor = connection.search( req );
         assertFalse( cursor.next() );
+        cursor.close();
+
+        connection.close();
+    }
+
+    
+    /**
+     * Test for DIRSERVER-1873
+     */
+    @ApplyLdifs({
+        "dn: ou=users,dc=example,dc=com",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: users",
+
+        "dn: cn=\\#User1,ou=users,dc=example,dc=com",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: #User1",
+        "sn: user 1",
+        "description: User1",
+
+        "dn: cn=User#2,ou=users,dc=example,dc=com",
+        "objectClass: person",
+        "objectClass: top",
+        "cn: User#2",
+        "sn: user 2",
+        "description: User2",
+
+        "dn: ou=groups,dc=example,dc=com",
+        "ObjectClass: top",
+        "ObjectClass: organizationalUnit",
+        "ou: groups",
+
+        "dn: cn=\\#Group1,ou=groups,dc=example,dc=com",
+        "objectClass: groupOfNames",
+        "objectClass: top",
+        "cn: #Group1",
+        "member: cn=\\#user1,ou=users,dc=example,dc=com",
+        "member: cn=User#2,ou=users,dc=example,dc=com",
+        "description: Group"   
+    })
+    @Test
+    public void testSearchWithPound() throws Exception
+    {
+        LdapConnection connection = getAdminConnection( getLdapServer() );
+        SearchRequest req = new SearchRequestImpl();
+        req.setBase( new Dn( "dc=example,dc=com" ) );
+        req.setFilter( "(member=*)" );
+        req.setScope( SearchScope.SUBTREE );
+
+        SearchCursor cursor = connection.search( req );
+        int count = 0;
+        while( cursor.next() )
+        {
+            Entry result = cursor.getEntry();
+            count++;
+        }
+        
+        assertEquals( 1, count );
+        
+        cursor.close();
+
+        req.setFilter( "(member=cn=\\5C#User1,ou=users,dc=example,dc=com)" );
+        cursor = connection.search( req );
+        assertTrue( cursor.next() );
+        cursor.close();
+
+        req.setFilter( "(member=cn=User#2,ou=users,dc=example,dc=com)" );
+        cursor = connection.search( req );
+        assertTrue( cursor.next() );
         cursor.close();
 
         connection.close();
