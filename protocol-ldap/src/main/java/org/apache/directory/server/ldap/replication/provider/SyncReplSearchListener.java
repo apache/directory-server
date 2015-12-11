@@ -79,9 +79,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     /** The consumer configuration */
     private final ReplicaEventLog consumerMsgLog;
     
-    private static String replConsumerConfigDn = Strings.toLowerCase( ServerDNConstants.REPL_CONSUMER_CONFIG_DN );
-    private static String schemaDn = Strings.toLowerCase( SchemaConstants.OU_SCHEMA );
-    private static String replConsumerDn = Strings.toLowerCase( ServerDNConstants.REPL_CONSUMER_DN_STR );
+    private static String replConsumerConfigDn = Strings.toLowerCaseAscii( ServerDNConstants.REPL_CONSUMER_CONFIG_DN );
+    private static String schemaDn = Strings.toLowerCaseAscii( SchemaConstants.OU_SCHEMA );
+    private static String replConsumerDn = Strings.toLowerCaseAscii( ServerDNConstants.REPL_CONSUMER_DN_STR );
     
     /**
      * Create a new instance of a consumer listener
@@ -544,7 +544,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         // server the DNs are all normalized and a simple string compare should
         // do the trick
         
-        String name = Strings.toLowerCase( entry.getDn().getName() );
+        String name = Strings.toLowerCaseAscii( entry.getDn().getName() );
         
         if ( name.endsWith( replConsumerConfigDn )
             || name.endsWith( schemaDn )

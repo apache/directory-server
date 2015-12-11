@@ -96,7 +96,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         String[] values =
-            { PERSON_SN, PERSON_SN.toUpperCase(), Strings.toLowerCase( PERSON_SN ), PERSON_SN + "X" };
+            { PERSON_SN, PERSON_SN.toUpperCase(), Strings.toLowerCaseAscii( PERSON_SN ), PERSON_SN + "X" };
         boolean[] expected =
             { true, true, true, false };
 

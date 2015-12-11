@@ -43,7 +43,7 @@ public class TextRecordEncoderTest extends AbstractResourceRecordEncoderTest
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( Strings.toLowerCase( DnsAttribute.CHARACTER_STRING ), characterString );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.CHARACTER_STRING ), characterString );
         return map;
     }
 

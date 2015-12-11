@@ -31,7 +31,7 @@ import org.apache.directory.api.util.Strings;
  */
 public class VendorHelper
 {
-    private static final String vendor = Strings.toLowerCase( System.getProperty( "java.vendor" ) );
+    private static final String vendor = Strings.toLowerCaseAscii( System.getProperty( "java.vendor" ) );
 
 
     static String getTripleDesAlgorithm()

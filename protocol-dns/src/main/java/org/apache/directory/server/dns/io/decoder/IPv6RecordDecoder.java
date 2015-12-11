@@ -51,7 +51,7 @@ public class IPv6RecordDecoder implements RecordDecoder
         Map<String, Object> attributes = new HashMap<String, Object>();
         byte[] addressBytes = new byte[length];
         byteBuffer.get( addressBytes );
-        attributes.put( Strings.toLowerCase( DnsAttribute.IP_ADDRESS ), InetAddress.getByAddress( addressBytes ) );
+        attributes.put( Strings.toLowerCaseAscii( DnsAttribute.IP_ADDRESS ), InetAddress.getByAddress( addressBytes ) );
         
         return attributes;
     }

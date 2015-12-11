@@ -44,7 +44,7 @@ public class NameServerRecordEncoderTest extends AbstractResourceRecordEncoderTe
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), nsName );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), nsName );
         return map;
     }
 

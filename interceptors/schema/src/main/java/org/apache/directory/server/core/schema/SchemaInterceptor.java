@@ -626,7 +626,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
-                String ocLowerName = Strings.toLowerCase( ocName );
+                String ocLowerName = Strings.toLowerCaseAscii( ocName );
 
                 ObjectClass objectClass = schemaManager.lookupObjectClassRegistry( ocLowerName );
 
@@ -642,7 +642,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     for ( ObjectClass oc : ocSuperiors )
                     {
-                        if ( !objectClasses.contains( Strings.toLowerCase( oc.getName() ) ) )
+                        if ( !objectClasses.contains( Strings.toLowerCaseAscii( oc.getName() ) ) )
                         {
                             objectClasses.add( oc.getName() );
                             objectClassesUP.add( oc.getName() );

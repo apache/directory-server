@@ -159,14 +159,14 @@ public class KrbCredInfoDecoderTest
             FieldValueHolder fieldValHolder = optionalFieldValueList.get( i );
             presentFieldList.add( fieldValHolder );
 
-            Field f = krbCredInfoFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
+            Field f = krbCredInfoFieldNameMap.get( Strings.toLowerCaseAscii( fieldValHolder.fieldName ) );
             f.set( expected, fieldValHolder.value );
 
             for ( int j = i + 1; j < size; j++ )
             {
                 fieldValHolder = optionalFieldValueList.get( j );
                 presentFieldList.add( fieldValHolder );
-                f = krbCredInfoFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
+                f = krbCredInfoFieldNameMap.get( Strings.toLowerCaseAscii( fieldValHolder.fieldName ) );
                 f.set( expected, fieldValHolder.value );
             }
 
@@ -214,7 +214,7 @@ public class KrbCredInfoDecoderTest
             FieldValueHolder fieldValHolder = optionalFieldValueList.get( i );
             presentFieldList.add( fieldValHolder );
 
-            Field f = krbCredInfoFieldNameMap.get( Strings.toLowerCase( fieldValHolder.fieldName ) );
+            Field f = krbCredInfoFieldNameMap.get( Strings.toLowerCaseAscii( fieldValHolder.fieldName ) );
             f.set( expected, fieldValHolder.value );
 
             ByteBuffer stream = ByteBuffer.allocate( expected.computeLength() );
@@ -255,7 +255,7 @@ public class KrbCredInfoDecoderTest
 
         for ( FieldValueHolder fh : presentFieldList )
         {
-            Field actualField = krbCredInfoFieldNameMap.get( Strings.toLowerCase( fh.fieldName ) );
+            Field actualField = krbCredInfoFieldNameMap.get( Strings.toLowerCaseAscii( fh.fieldName ) );
             Object decodedValue = actualField.get( decoded );
 
             //System.out.println( fh.fieldName + " expected: " + fh.value + " , actual: " + decodedValue );
@@ -279,7 +279,7 @@ public class KrbCredInfoDecoderTest
         for ( Field f : fields )
         {
             f.setAccessible( true );
-            fieldNameMap.put( Strings.toLowerCase( f.getName() ), f );
+            fieldNameMap.put( Strings.toLowerCaseAscii( f.getName() ), f );
         }
 
         return fieldNameMap;

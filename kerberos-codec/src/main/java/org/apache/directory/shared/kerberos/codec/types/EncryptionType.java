@@ -180,7 +180,7 @@ public enum EncryptionType
     {
         for ( EncryptionType type : EncryptionType.values() )
         {
-            encryptionTypesByName.put( Strings.toLowerCase( type.getName() ), type );
+            encryptionTypesByName.put( Strings.toLowerCaseAscii( type.getName() ), type );
             encryptionTypesByValue.put( type.getValue(), type );
         }
     }
@@ -260,7 +260,7 @@ public enum EncryptionType
             return UNKNOWN;
         }
 
-        String lcType = Strings.toLowerCase( type );
+        String lcType = Strings.toLowerCaseAscii( type );
 
         if ( encryptionTypesByName.containsKey( lcType ) )
         {

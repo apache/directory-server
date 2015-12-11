@@ -64,7 +64,7 @@ public class CanonicalNameRecordEncoderTest extends AbstractResourceRecordEncode
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), cname );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), cname );
         return map;
     }
 

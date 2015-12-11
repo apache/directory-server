@@ -45,8 +45,8 @@ public class MailExchangeRecordEncoderTest extends AbstractResourceRecordEncoder
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( Strings.toLowerCase( DnsAttribute.MX_PREFERENCE ), mxPreference );
-        map.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), mxHost );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.MX_PREFERENCE ), mxPreference );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), mxHost );
         return map;
     }
 

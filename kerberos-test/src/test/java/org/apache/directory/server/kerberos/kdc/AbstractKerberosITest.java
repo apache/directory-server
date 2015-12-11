@@ -220,8 +220,8 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         data += "}" + SystemUtils.LINE_SEPARATOR;
 
         data += "[domain_realm]" + SystemUtils.LINE_SEPARATOR;
-        data += "." + Strings.toLowerCase( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
-        data += Strings.toLowerCase( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
+        data += "." + Strings.toLowerCaseAscii( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
+        data += Strings.toLowerCaseAscii( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
 
         FileUtils.writeStringToFile( file, data );
 

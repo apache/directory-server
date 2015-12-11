@@ -44,7 +44,7 @@ public class PointerRecordEncoderTest extends AbstractResourceRecordEncoderTest
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), ptrName );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), ptrName );
         return map;
     }
 

@@ -149,7 +149,7 @@ public final class ServiceBuilder
                 return true;
             }
 
-            return Strings.toLowerCase( file.getName() ).endsWith( ".ldif" );
+            return Strings.toLowerCaseAscii( file.getName() ).endsWith( ".ldif" );
         }
     };
 

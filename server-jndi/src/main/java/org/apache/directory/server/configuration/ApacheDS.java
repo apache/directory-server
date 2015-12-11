@@ -424,7 +424,7 @@ public class ApacheDS
             {
                 public boolean accept( File pathname )
                 {
-                    boolean isLdif = Strings.toLowerCase( pathname.getName() ).endsWith( ".ldif" );
+                    boolean isLdif = Strings.toLowerCaseAscii( pathname.getName() ).endsWith( ".ldif" );
                     return pathname.isFile() && pathname.canRead() && isLdif;
                 }
             } );

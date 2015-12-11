@@ -55,7 +55,7 @@ public class NameServerRecordDecoder implements RecordDecoder
     public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), DnsMessageDecoder.getDomainName( byteBuffer ) );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), DnsMessageDecoder.getDomainName( byteBuffer ) );
         
         return map;
     }

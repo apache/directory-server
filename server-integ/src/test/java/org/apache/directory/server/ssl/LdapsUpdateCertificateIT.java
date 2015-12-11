@@ -151,9 +151,9 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         // converting the values to lowercase is required cause the certificate is
         // having attribute names in capital letters e.c the above newIssuerDN will be present as CN=new_issuer_dn
         assertEquals( "Expected the new certificate with the new issuer",
-            Strings.toLowerCase( newIssuerDN ), Strings.toLowerCase( issuerDN ) );
+            Strings.toLowerCaseAscii( newIssuerDN ), Strings.toLowerCaseAscii( issuerDN ) );
         assertEquals( "Expected the new certificate with the new subject",
-            Strings.toLowerCase( newSubjectDN ), Strings.toLowerCase( subjectDN ) );
+            Strings.toLowerCaseAscii( newSubjectDN ), Strings.toLowerCaseAscii( subjectDN ) );
     }
 
 }

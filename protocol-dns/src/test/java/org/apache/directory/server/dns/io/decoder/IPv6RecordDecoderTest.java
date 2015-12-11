@@ -62,6 +62,6 @@ public class IPv6RecordDecoderTest
     public void testDecode() throws Exception
     {
         Map<String, Object> attributes = decoder.decode( inputBuffer, ( short ) address.getAddress().length );
-        assertEquals( address, attributes.get( Strings.toLowerCase( DnsAttribute.IP_ADDRESS ) ) );
+        assertEquals( address, attributes.get( Strings.toLowerCaseAscii( DnsAttribute.IP_ADDRESS ) ) );
     }
 }

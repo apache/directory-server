@@ -61,8 +61,8 @@ public class MailExchangeRecordDecoder implements RecordDecoder
     public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException
     {
         Map<String, Object> attributes = new HashMap<String, Object>();
-        attributes.put( Strings.toLowerCase( DnsAttribute.MX_PREFERENCE ), byteBuffer.getShort() );
-        attributes.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), DnsMessageDecoder.getDomainName( byteBuffer ) );
+        attributes.put( Strings.toLowerCaseAscii( DnsAttribute.MX_PREFERENCE ), byteBuffer.getShort() );
+        attributes.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), DnsMessageDecoder.getDomainName( byteBuffer ) );
         
         return attributes;
     }

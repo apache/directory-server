@@ -69,6 +69,6 @@ public class NameServerRecordDecoderTest
     public void testDecode() throws Exception
     {
         Map<String, Object> attributes = decoder.decode( inputBuffer, ( short ) inputBuffer.remaining() );
-        assertEquals( domainName, attributes.get( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ) ) );
+        assertEquals( domainName, attributes.get( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ) ) );
     }
 }

@@ -47,10 +47,10 @@ public class ServerSelectionRecordEncoderTest extends AbstractResourceRecordEnco
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( Strings.toLowerCase( DnsAttribute.SERVICE_PRIORITY ), priority );
-        map.put( Strings.toLowerCase( DnsAttribute.SERVICE_WEIGHT ), weight );
-        map.put( Strings.toLowerCase( DnsAttribute.SERVICE_PORT ), port );
-        map.put( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ), srvName );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SERVICE_PRIORITY ), priority );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SERVICE_WEIGHT ), weight );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SERVICE_PORT ), port );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), srvName );
         return map;
     }
 

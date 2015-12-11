@@ -154,7 +154,7 @@ public class ResourceRecordImpl implements ResourceRecord
      */
     public String get( String id )
     {
-        return ( String ) attributes.get( Strings.toLowerCase( id ) );
+        return ( String ) attributes.get( Strings.toLowerCaseAscii( id ) );
     }
 
 

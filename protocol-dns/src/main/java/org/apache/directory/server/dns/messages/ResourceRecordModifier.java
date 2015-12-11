@@ -92,6 +92,6 @@ public class ResourceRecordModifier
      */
     public void put( String id, String value )
     {
-        attributes.put( Strings.toLowerCase( id ), value );
+        attributes.put( Strings.toLowerCaseAscii( id ), value );
     }
 }

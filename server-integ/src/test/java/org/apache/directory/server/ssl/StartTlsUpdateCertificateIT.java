@@ -210,9 +210,9 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         assertEquals( 1, lastReceivedServerCertificates.length );
         String issuerDN = lastReceivedServerCertificates[0].getIssuerDN().getName();
         String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
-        assertEquals( "Expected the new certificate with the new issuer", Strings.toLowerCase( newIssuerDN ),
-            Strings.toLowerCase( issuerDN ) );
-        assertEquals( "Expected the new certificate with the new subject", Strings.toLowerCase( newSubjectDN ),
-            Strings.toLowerCase( subjectDN ) );
+        assertEquals( "Expected the new certificate with the new issuer", Strings.toLowerCaseAscii( newIssuerDN ),
+            Strings.toLowerCaseAscii( issuerDN ) );
+        assertEquals( "Expected the new certificate with the new subject", Strings.toLowerCaseAscii( newSubjectDN ),
+            Strings.toLowerCaseAscii( subjectDN ) );
     }
 }

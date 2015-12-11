@@ -71,7 +71,7 @@ public class MailExchangeRecordDecoderTest
     public void testDecode() throws Exception
     {
         Map<String, Object> attributes = decoder.decode( inputBuffer, ( short ) inputBuffer.remaining() );
-        assertEquals( preference, attributes.get( Strings.toLowerCase( DnsAttribute.MX_PREFERENCE ) ) );
-        assertEquals( domainName, attributes.get( Strings.toLowerCase( DnsAttribute.DOMAIN_NAME ) ) );
+        assertEquals( preference, attributes.get( Strings.toLowerCaseAscii( DnsAttribute.MX_PREFERENCE ) ) );
+        assertEquals( domainName, attributes.get( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ) ) );
     }
 }

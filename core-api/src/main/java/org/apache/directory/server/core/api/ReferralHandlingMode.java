@@ -78,7 +78,7 @@ public enum ReferralHandlingMode
      */
     public static final ReferralHandlingMode getModeFromJndi( String jndiValue )
     {
-        jndiValue = Strings.toLowerCase( Strings.trim( jndiValue ) );
+        jndiValue = Strings.toLowerCaseAscii( Strings.trim( jndiValue ) );
 
         if ( jndiValue.equals( "throw" ) )
         {
