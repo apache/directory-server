@@ -73,7 +73,7 @@
     <maven.artifact.version>3.3.3</maven.artifact.version>
     <maven.plugin.api.version>3.3.3</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
-    <mina.core.version>2.0.9</mina.core.version>
+    <mina.core.version>2.0.10</mina.core.version>
     <plexus.utils.version>3.0.22</plexus.utils.version>
     <slf4j.api.version>1.7.12</slf4j.api.version>
     <slf4j.log4j12.version>1.7.12</slf4j.log4j12.version>
