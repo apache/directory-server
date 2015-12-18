@@ -387,6 +387,7 @@
                 <minmemory>512m</minmemory>
                 <maxmemory>1g</maxmemory>
                 <linksource>true</linksource>
+                <additionalparam>-Xdoclint:none</additionalparam>
                 <tags>
                   <tag>
                     <name>org.apache.xbean.XBean</name>
