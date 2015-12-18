@@ -43,6 +43,7 @@
   <properties>
     <projectName>Apache Directory Server</projectName>
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
+    <additionalparam>-Xdoclint:none</additionalparam>
 
     <!-- Set versions for depending projects -->
     <org.apache.directory.api.version>1.0.0-M33</org.apache.directory.api.version>
