@@ -45,7 +45,7 @@
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>1.0.0-M33-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.api.version>1.0.0-M33</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>0.3</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
@@ -54,7 +54,7 @@
     
     <!-- Set versions for depending jars -->
     <ant.version>1.9.6</ant.version>
-    <bcprov.version>1.53</bcprov.version>
+    <bcprov.version>1.52</bcprov.version>
     <commons.cli.version>1.3.1</commons.cli.version>
     <commons.collections.version>3.2.2</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
