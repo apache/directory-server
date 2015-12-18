@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -53,6 +52,8 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.CreateLdapConnectionPoolRule;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -80,7 +81,8 @@ import org.slf4j.LoggerFactory;
         } )
 @CreateDS( name = "classDS",
         partitions = {
-                @CreatePartition(
+                @CreatePartition( 
+                        type = MavibotPartition.class,
                         name = "example",
                         suffix = "dc=example,dc=com",
                         contextEntry = @ContextEntry(
@@ -91,10 +93,22 @@ import org.slf4j.LoggerFactory;
                                         "dc: example\n\n"
                         ),
                         indexes = {
-                                @CreateIndex( attribute = "objectClass" ),
-                                @CreateIndex( attribute = "dc" ),
-                                @CreateIndex( attribute = "ou" ),
-                                @CreateIndex( attribute = "uid" )
+                                @CreateIndex(
+                                    type = MavibotIndex.class,
+                                    attribute = "objectClass" 
+                                ),
+                                @CreateIndex( 
+                                    type = MavibotIndex.class,
+                                    attribute = "dc" 
+                                ),
+                                @CreateIndex( 
+                                    type = MavibotIndex.class,
+                                    attribute = "ou" 
+                                ),
+                                @CreateIndex( 
+                                    type = MavibotIndex.class,
+                                    attribute = "uid" 
+                                )
                         }
                 )
         } )
@@ -123,7 +137,7 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
+    //@Ignore
     public void testRenameWithALotOfDummiesAndSomeCustomAttributes() {
         LdapConnectionTemplate template = classCreateDsRule.getLdapConnectionTemplate();
         AddResponse response = null;
@@ -287,52 +301,77 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
             String newDn = newRdn + "," + base;
         
             String oldDn = oldRdn + ", " + base;
-            for ( int i = 1; i < 100; i++ ) 
+            int i = 0;
+            
+            try
             {
-                connection.add( new DefaultEntry( oldDn,
-                        "objectClass: top",
-                        "objectClass: person",
-                        "objectClass: organizationalPerson",
-                        "objectClass: inetOrgPerson",
-                        "uid", oldUid,
-                        "cn", oldCn,
-                        "sn: Amos",
-                        "description", oldCn + " is a person." ) );
-                Entry tori = connection.lookup( oldDn );
-                assertNotNull( tori );
-                assertTrue( tori.contains( "uid", "mary-ellen-amos" ) );
-        
-                connection.rename( oldDn, newRdn, true );
-                assertNull( connection.lookup( oldDn ) );
-                tori = connection.lookup( newDn );
-                assertNotNull( tori );
-        
-                // Check values of uid
-                assertTrue( tori.contains( "uid", newUid ) );
-                assertFalse( tori.contains( "uid", oldUid ) ); // old value is gone
-                assertEquals( 1, tori.get( "uid" ).size() );
-        
-                // now try a search
-                Entry found = null;
-                for ( Entry result : connection.search( base, "(sn=amos)", SearchScope.ONELEVEL ) )
+                for ( ; i < 100; i++ ) 
                 {
-                    if ( found == null )
-                    {
-                        found = result;
-                    }
-                    else
-                    {
-                        fail( "Found too many results" );
-                    }
+                    rename( connection, base, oldDn, oldUid, oldCn, newRdn, newUid, newDn );
                 }
-                assertNotNull( found );
-                Rdn foundRdn = found.getDn().getRdn();
-                assertEquals( "uid", foundRdn.getType() );
-                assertEquals( newUid, foundRdn.getValue() );
-        
-                // Remove entry (use new rdn)
-                connection.delete( newDn );
+            }
+            catch ( LdapException le )
+            {
+                System.out.println( "Error at loop " + i );
+                
+                try
+                {
+                    rename( connection, base, oldDn, oldUid, oldCn, newRdn, newUid, newDn );
+                }
+                catch ( LdapException le2 )
+                {
+                    le.printStackTrace();
+                }
             }
         }
+    }
+
+    
+    private void rename( LdapConnection connection, String base, String oldDn, String oldUid, String oldCn, 
+        String newRdn, String newUid, String newDn ) throws LdapException
+    {
+        connection.add( new DefaultEntry( oldDn,
+            "objectClass: top",
+            "objectClass: person",
+            "objectClass: organizationalPerson",
+            "objectClass: inetOrgPerson",
+            "uid", oldUid,
+            "cn", oldCn,
+            "sn: Amos",
+            "description", oldCn + " is a person." ) );
+        Entry tori = connection.lookup( oldDn );
+        assertNotNull( tori );
+        assertTrue( tori.contains( "uid", "mary-ellen-amos" ) );
+    
+        connection.rename( oldDn, newRdn, true );
+        assertNull( connection.lookup( oldDn ) );
+        tori = connection.lookup( newDn );
+        assertNotNull( tori );
+    
+        // Check values of uid
+        assertTrue( tori.contains( "uid", newUid ) );
+        assertFalse( tori.contains( "uid", oldUid ) ); // old value is gone
+        assertEquals( 1, tori.get( "uid" ).size() );
+    
+        // now try a search
+        Entry found = null;
+        for ( Entry result : connection.search( base, "(sn=amos)", SearchScope.ONELEVEL ) )
+        {
+            if ( found == null )
+            {
+                found = result;
+            }
+            else
+            {
+                fail( "Found too many results" );
+            }
+        }
+        assertNotNull( found );
+        Rdn foundRdn = found.getDn().getRdn();
+        assertEquals( "uid", foundRdn.getType() );
+        assertEquals( newUid, foundRdn.getValue() );
+    
+        // Remove entry (use new rdn)
+        connection.delete( newDn );
     }
 }
