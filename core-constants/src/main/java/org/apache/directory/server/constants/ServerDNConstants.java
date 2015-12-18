@@ -22,7 +22,7 @@ package org.apache.directory.server.constants;
 
 /**
  * DN constants used in the server.
- * Final reference -> class shouldn't be extended
+ * Final reference -&gt; class shouldn't be extended
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
