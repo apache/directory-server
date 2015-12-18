@@ -40,5 +40,5 @@ set ADS_CONTROLS="-Dapacheds.controls="
 
 set ADS_EXTENDED_OPERATIONS="-Dapacheds.extendedOperations="
 
-java %ADS_CONTROLS% %ADS_EXTENDED_OPERATIONS% -Dlog4j.configuration="file:///%cd%/target/instance/conf/log4j.properties" -jar target/apacheds-service-2.0.0-M11.jar %cd%/target/instance
+java %ADS_CONTROLS% %ADS_EXTENDED_OPERATIONS% -Dlog4j.configuration="file:///%cd%/target/instance/conf/log4j.properties" -jar target/apacheds-service-2.0.0-M21.jar %cd%/target/instance
    
