@@ -19,8 +19,10 @@
 package org.apache.directory.server.core.integ;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.junit.Test;
@@ -37,5 +39,11 @@ public class TestClassServer extends AbstractLdapTestUnit
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
 
         assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
+
+        assertTrue( getService().getAdminSession().exists( new Dn( "cn=\\#\\\\\\+\\, \\\"\u00F6\u00E9\\\",ou=users,ou=system" ) ) );
+        Entry entry = getService().getAdminSession().lookup( new Dn("cn=\\#\\\\\\+\\, \\\"\u00F6\u00E9\\\",ou=users,ou=system") );
+        System.out.println( entry );
+        assertEquals(1, entry.get( "cn" ).size());
+        assertEquals("#\\+, \"\u00F6\u00E9\"", entry.get( "cn" ).get().getString());
     }
 }
