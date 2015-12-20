@@ -39,7 +39,7 @@ DIRNAME="${NAME}"
 SERVICE_NAME="${NAME}-default"
 
 wait_for_apacheds() {
-    timeout 15  sh -c "while ! nmap -Pn -p 10389 localhost | grep "10389.*open"; do sleep 1; done"
+    timeout 30  sh -c "while ! nmap -Pn -p 10389 localhost | grep "10389.*open"; do sleep 1; done"
 }
 
 # install packages
