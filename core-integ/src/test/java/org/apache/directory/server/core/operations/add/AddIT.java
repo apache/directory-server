@@ -35,6 +35,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -136,4 +137,51 @@ public class AddIT extends AbstractLdapTestUnit
 
         assertEquals( "2147483648", entry.get( "ads-dsSyncPeriodMillis" ).getString() );
     }
+
+
+    /**
+     * Test for DIRSERVER-2109.
+     */
+    @Test
+    @Ignore
+    public void test_DIRSERVER_2109_1() throws Exception
+    {
+        Dn dn = new Dn( "cn=\\#\\\\\\+\\, \\\"\u00F6\u00E9\\\",ou=users,ou=system" );
+        Entry entry = new DefaultEntry( dn,
+            "objectClass: top",
+            "objectClass: person",
+            "sn:  #\\+, \"\u00F6\u00E9\"    ",
+            "cn: #\\+, \"\u00F6\u00E9\"" );
+
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+        connection.add( entry );
+
+        entry = connection.lookup( entry.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES );
+        System.out.println( entry );
+        assertEquals( 1, entry.get( "cn" ).size() );
+        assertEquals( "#\\+, \"\u00F6\u00E9\"", entry.get( "cn" ).get().getString() );
+    }
+
+
+    /**
+     * Test for DIRSERVER-2109.
+     */
+    @Test
+    @Ignore
+    public void test_DIRSERVER_2109_2() throws Exception
+    {
+        Entry entry = new DefaultEntry( new Dn( "cn=a\\\\b,ou=users,ou=system" ) );
+        entry.add( "objectClass", "top", "person" );
+        entry.add( "cn", "a\\b" );
+        entry.add( "sn", "test" );
+
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+        connection.add( entry );
+
+        entry = connection.lookup( entry.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES );
+        System.out.println( entry );
+        assertEquals( 1, entry.get( "cn" ).size() );
+        assertEquals( "a\\b", entry.get( "cn" ).get().getString() );
+    }
+
 }
