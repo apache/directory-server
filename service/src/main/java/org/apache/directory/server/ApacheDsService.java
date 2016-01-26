@@ -62,7 +62,6 @@ import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
-import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
 import org.apache.directory.server.config.listener.ConfigChangeListener;
 import org.apache.directory.server.core.api.CacheService;
