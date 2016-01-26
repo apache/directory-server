@@ -345,13 +345,13 @@ public class JdbmPartition extends AbstractBTreePartition
             // this is a new index and we need to build it
             if ( indexDbFileNameList.contains( name ) )
             {
-                ((JdbmIndex<?>)index).close();
+                ( ( JdbmIndex<?> ) index ).close();
                 
                 File indexFile = new File( partitionDir, name );
                 indexFile.delete();
                 
                 // Recreate the index
-                ((JdbmIndex<?>)index).init( schemaManager, indexAT );
+                ( ( JdbmIndex<?> ) index ).init( schemaManager, indexAT );
             }
         }
 
@@ -469,7 +469,7 @@ public class JdbmPartition extends AbstractBTreePartition
             {
                 entryCache = cacheService.getCache( getId() );
 
-                int cacheSizeConfig = (int)entryCache.getCacheConfiguration().getMaxEntriesLocalHeap();
+                int cacheSizeConfig = ( int ) entryCache.getCacheConfiguration().getMaxEntriesLocalHeap();
 
                 if ( cacheSizeConfig < cacheSize )
                 {
