@@ -551,6 +551,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * {@inheritDoc}
      */
+    public void repair() throws Exception
+    {
+        // Do nothing by default
+        doRepair();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     protected void doInit() throws Exception
     {
         // First, inject the indexed attributes if any

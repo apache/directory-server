@@ -46,6 +46,8 @@ import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -65,6 +67,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
@@ -121,6 +124,249 @@ public class JdbmPartition extends AbstractBTreePartition
         {
             LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
         }
+    }
+    
+    
+    /**
+     * Rebuild the indexes 
+     */
+    private int rebuildIndexes() throws Exception
+    {
+        Cursor<Tuple<String, Entry>> cursor = getMasterTable().cursor();
+
+        int masterTableCount = 0;
+        int repaired = 0;
+
+        System.out.println( "Re-building indices..." );
+
+        boolean ctxEntryLoaded = false;
+
+        try
+        {
+            while ( cursor.next() )
+            {
+                masterTableCount++;
+                Tuple<String, Entry> tuple = cursor.get();
+                String id = tuple.getKey();
+
+                Entry entry = tuple.getValue();
+                
+                // Start with the RdnIndex
+                String parentId = entry.get( SchemaConstants.ENTRY_PARENT_ID_OID ).getString();
+                System.out.println( "Read entry " + entry.getDn() + " with ID " + id + " and parent ID " + parentId );
+
+                Dn dn = entry.getDn();
+                
+                ParentIdAndRdn parentIdAndRdn = null;
+
+                // context entry may have more than one RDN
+                if ( !ctxEntryLoaded && getSuffixDn().getName().startsWith( dn.getName() ) )
+                {
+                    // If the read entry is the context entry, inject a tuple that have one or more RDNs
+                    parentIdAndRdn = new ParentIdAndRdn( parentId, getSuffixDn().getRdns() );
+                    ctxEntryLoaded = true;
+                }
+                else
+                {
+                    parentIdAndRdn = new ParentIdAndRdn( parentId, dn.getRdn() );
+                }
+
+                // Inject the parentIdAndRdn in the rdnIndex
+                rdnIdx.add( parentIdAndRdn, id );
+                
+                // Process the ObjectClass index
+                // Update the ObjectClass index
+                Attribute objectClass = entry.get( objectClassAT );
+
+                if ( objectClass == null )
+                {
+                    String msg = I18n.err( I18n.ERR_217, dn, entry );
+                    ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
+                    LdapSchemaViolationException e = new LdapSchemaViolationException( rc, msg );
+                    //e.setResolvedName( entryDn );
+                    throw e;
+                }
+
+                for ( Value<?> value : objectClass )
+                {
+                    String valueStr = ( String ) value.getNormValue();
+
+                    if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                    {
+                        continue;
+                    }
+
+                    objectClassIdx.add( valueStr, id );
+                }
+                
+                // The Alias indexes
+                if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
+                {
+                    Attribute aliasAttr = entry.get( aliasedObjectNameAT );
+                    addAliasIndices( id, dn, new Dn( schemaManager, aliasAttr.getString() ) );
+                }
+                
+                // The entryCSN index
+                // Update the EntryCsn index
+                Attribute entryCsn = entry.get( entryCsnAT );
+
+                if ( entryCsn == null )
+                {
+                    String msg = I18n.err( I18n.ERR_219, dn, entry );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
+                }
+
+                entryCsnIdx.add( entryCsn.getString(), id );
+
+                // The AdministrativeRole index
+                // Update the AdministrativeRole index, if needed
+                if ( entry.containsAttribute( administrativeRoleAT ) )
+                {
+                    // We may have more than one role
+                    Attribute adminRoles = entry.get( administrativeRoleAT );
+
+                    for ( Value<?> value : adminRoles )
+                    {
+                        adminRoleIdx.add( ( String ) value.getNormValue(), id );
+                    }
+
+                    // Adds only those attributes that are indexed
+                    presenceIdx.add( administrativeRoleAT.getOid(), id );
+                }
+
+                // And the user indexess
+                // Now work on the user defined userIndices
+                for ( Attribute attribute : entry )
+                {
+                    AttributeType attributeType = attribute.getAttributeType();
+                    String attributeOid = attributeType.getOid();
+
+                    if ( hasUserIndexOn( attributeType ) )
+                    {
+                        Index<Object, String> idx = ( Index<Object, String> ) getUserIndex( attributeType );
+
+                        // here lookup by attributeId is OK since we got attributeId from
+                        // the entry via the enumeration - it's in there as is for sure
+
+                        for ( Value<?> value : attribute )
+                        {
+                            idx.add( value.getNormValue(), id );
+                        }
+
+                        // Adds only those attributes that are indexed
+                        presenceIdx.add( attributeOid, id );
+                    }
+                }
+            }
+            
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            System.out.println( "Exiting after fetching entries " + repaired );
+            throw e;
+        }
+        finally
+        {
+            cursor.close();
+        }
+        
+        return masterTableCount;
+    }
+    
+    
+    /**
+     * Update the children and descendant counters in the RDN index
+     */
+    private void updateRdnIndexCounters() throws Exception
+    {
+        Cursor<Tuple<String, Entry>> cursor = getMasterTable().cursor();
+
+        System.out.println( "Updating the RDN index counters..." );
+
+        try
+        {
+            while ( cursor.next() )
+            {
+                Tuple<String, Entry> tuple = cursor.get();
+
+                Entry entry = tuple.getValue();
+
+                // Update the parent's nbChildren and nbDescendants values
+                // Start with the RdnIndex
+                String parentId = entry.get( SchemaConstants.ENTRY_PARENT_ID_OID ).getString();
+                
+                if ( parentId != Partition.ROOT_ID )
+                {
+                    updateRdnIdx( parentId, ADD_CHILD, 0 );
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            System.out.println( "Exiting, wasn't able to update the RDN index counters" );
+            throw e;
+        }
+        finally
+        {
+            cursor.close();
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doRepair() throws Exception
+    {
+        // Find the underlying directories
+        File partitionDir = new File( getPartitionPath() );
+        
+        // get the names of the db files
+        List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
+
+        // then add all index objects to a list
+        List<String> allIndices = new ArrayList<String>();
+
+        // Iterate on the declared indexes, deleting the old ones
+        for ( Index<?, String> index : getIndexedAttributes() )
+        {
+            // Index won't be initialized at this time, so lookup AT registry to get the OID
+            AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
+            String oid = indexAT.getOid();
+            allIndices.add( oid );
+            
+            // take the part after removing .db from the
+            String name = oid + JDBM_DB_FILE_EXTN;
+            
+            // if the name doesn't exist in the list of index DB files
+            // this is a new index and we need to build it
+            if ( indexDbFileNameList.contains( name ) )
+            {
+                ((JdbmIndex<?>)index).close();
+                
+                File indexFile = new File( partitionDir, name );
+                indexFile.delete();
+                
+                // Recreate the index
+                ((JdbmIndex<?>)index).init( schemaManager, indexAT );
+            }
+        }
+
+        // Ok, now, rebuild the indexes.
+        int masterTableCount = rebuildIndexes();
+        
+        // Now that the RdnIndex has been rebuilt, we have to update the nbChildren and nbDescendants values
+        // We loop again on the MasterTable 
+        updateRdnIndexCounters();
+        
+        // Flush the indexes on disk
+        sync();
+
+        System.out.println( "Total entries present in the partition " + masterTableCount );
+        System.out.println( "Repair complete" );
     }
 
 
@@ -223,11 +469,11 @@ public class JdbmPartition extends AbstractBTreePartition
             {
                 entryCache = cacheService.getCache( getId() );
 
-                int cacheSizeConfig = entryCache.getCacheConfiguration().getMaxElementsInMemory();
+                int cacheSizeConfig = (int)entryCache.getCacheConfiguration().getMaxEntriesLocalHeap();
 
                 if ( cacheSizeConfig < cacheSize )
                 {
-                    entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
+                    entryCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize );
                 }
             }
 
@@ -326,7 +572,7 @@ public class JdbmPartition extends AbstractBTreePartition
         {
             idx.sync();
         }
-
+        
         // Sync the master table
         ( ( JdbmMasterTable ) master ).sync();
     }

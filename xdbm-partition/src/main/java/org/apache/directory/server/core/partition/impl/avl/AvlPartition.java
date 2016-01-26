@@ -74,11 +74,22 @@ public class AvlPartition extends AbstractBTreePartition
     {
         super( schemaManager, dnFactory );
     }
-
-
+    
+    
     /**
      * {@inheritDoc}
      */
+    @Override
+    protected void doRepair() throws Exception
+    {
+        // Nothing to do
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void doInit() throws Exception
     {
         if ( !initialized )

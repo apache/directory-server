@@ -174,9 +174,30 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.partition.PartitionNexus#initialize()
+    /**
+     * {@inheritDoc}
      */
+    @Override
+    public void repair() throws Exception
+    {
+        // Nothing to do
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doRepair() throws Exception
+    {
+        // Nothing to do
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void doInit() throws Exception
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.

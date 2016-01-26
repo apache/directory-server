@@ -24,12 +24,18 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Calendar;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -37,6 +43,7 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -86,40 +93,42 @@ public class UberJarMainTest
             FileUtils.deleteDirectory( instanceDirectory );
         }
     }
+    
+    
+    private LdapConnection createConnection() throws LdapException, UnknownHostException
+    {
+        LdapConnectionConfig configuration = new LdapConnectionConfig();
+        configuration.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        configuration.setLdapPort( 10389 );
+        configuration.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
+        configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );
+        configuration.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector( null ) );
+        LdapConnection connection = new LdapNetworkConnection( configuration );
+        connection.loadSchema();
 
-
-    /**
-     * Tests the creation of a new ApacheDS Service instance.
-     *
-     * @throws Exception
-     */
-    @Test
-    public void serviceInstanceTest() throws Exception
-    {   
-        uberjarMain.start( new String[]
-            { instanceDirectory.toString() } );
+        // Binding on the connection
+        connection.bind();
+        
+        return connection;
+    }
+    
+    
+    private Thread createServer()
+    {
+        // First start the server to initialize the example partition 
+        uberjarMain.start( instanceDirectory.toString() );
 
         // Creating a separate thread for the connection verification
         Thread connectionVerificationThread = new Thread()
         {
             public void run()
             {
-                LdapNetworkConnection connection = null;
+                LdapConnection connection = null;
                 
                 try
                 {
                     // Creating a connection on the created server
-                    LdapConnectionConfig configuration = new LdapConnectionConfig();
-                    configuration.setLdapHost( InetAddress.getLocalHost().getHostName() );
-                    configuration.setLdapPort( 10389 );
-                    configuration.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
-                    configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );
-                    configuration.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector( null ) );
-                    connection = new LdapNetworkConnection( configuration );
-                    connection.loadSchema();
-
-                    // Binding on the connection
-                    connection.bind();
+                    connection = createConnection();
 
                     // Looking for the Root DSE entry
                     Entry rootDseEntry = connection.lookup( Dn.ROOT_DSE );
@@ -149,6 +158,20 @@ public class UberJarMainTest
                 }
             };
         };
+
+        return connectionVerificationThread;
+    }
+
+
+    /**
+     * Tests the creation of a new ApacheDS Service instance.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void serviceInstanceTest() throws Exception
+    {   
+        Thread connectionVerificationThread = createServer();
         
         // Starting the connection verification thread
         // and waiting for the termination of it
@@ -160,5 +183,216 @@ public class UberJarMainTest
         {
             fail();
         }
+    }
+
+
+    /**
+     * Tests the repair of an existing ApacheDS Service instance.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void repairTest() throws Exception
+    {   
+        // First start the server to initialize the example partition 
+        Thread connectionVerificationThread = createServer();
+        
+        // Starting the connection verification thread
+        // and waiting for the termination of it
+        connectionVerificationThread.start();
+        connectionVerificationThread.join();
+
+        // Checking if verification is successful
+        if ( !verified )
+        {
+            fail();
+        }
+        
+        // Add a few entries to create a more complex hierarchy
+        // We will have :
+        // dc=example,dc=com
+        //    ou=people
+        //      ou=committers
+        //        cn=emmanuel
+        //        cn=kiran
+        //        cn=stefan
+        //        cn=radovan
+        //      ou=pmcs
+        //        cn=emmanuel
+        //        cn=kiran
+        //        cn=stefan
+        //   ou=groups
+        //     cn=users
+        LdapConnection connection = createConnection();
+        
+        // First level
+        Entry people = new DefaultEntry( 
+            "ou=People,dc=example,dc=com",
+            "objectClass: organizationalUnit",
+            "objectClass: top",
+            "ou: People"
+            );
+        
+        connection.add( people );
+        
+        Entry groups = new DefaultEntry( 
+            "ou=Groups,dc=example,dc=com",
+            "objectClass: organizationalUnit",
+            "objectClass: top",
+            "ou: Groups"
+            );
+        
+        connection.add( groups );
+        
+        // Second level
+        Entry committers  = new DefaultEntry( 
+            "ou=Committers,ou=people,dc=example,dc=com",
+            "objectClass: organizationalUnit",
+            "objectClass: top",
+            "ou: Committers"
+            );
+
+        connection.add( committers );
+
+        Entry pmcs  = new DefaultEntry( 
+            "ou=Pmcs,ou=people,dc=example,dc=com",
+            "objectClass: organizationalUnit",
+            "objectClass: top",
+            "ou: Pmcs"
+            );
+
+        connection.add( pmcs );
+
+        Entry users  = new DefaultEntry( 
+            "ou=Users,ou=people,dc=example,dc=com",
+            "objectClass: organizationalUnit",
+            "objectClass: top",
+            "ou: Users"
+            );
+
+        connection.add( users );
+
+        // Third level, committers
+        Entry emmanuelCommitter  = new DefaultEntry( 
+            "cn=emmanuel,ou=Committers,ou=people,dc=example,dc=com",
+            "objectClass: person",
+            "objectClass: top",
+            "cn: emmanuel",
+            "sn: Emmanuel Lecharny"
+            );
+
+        connection.add( emmanuelCommitter );
+
+        Entry kiranCommitter  = new DefaultEntry( 
+            "cn=kiran,ou=Committers,ou=people,dc=example,dc=com",
+            "objectClass: person",
+            "objectClass: top",
+            "cn: kiran",
+            "sn: Kiran Ayyagari"
+            );
+
+        connection.add( kiranCommitter );
+
+        Entry stefanCommitter  = new DefaultEntry( 
+            "cn=stefan,ou=Committers,ou=people,dc=example,dc=com",
+            "objectClass: person",
+            "objectClass: top",
+            "cn: stefan",
+            "sn: Stefan Seelmann"
+            );
+
+        connection.add( stefanCommitter );
+        
+        Entry radovanCommitter  = new DefaultEntry( 
+            "cn=radovan,ou=Committers,ou=people,dc=example,dc=com",
+            "objectClass: person",
+            "objectClass: top",
+            "cn: radovan",
+            "sn: Radovan Semancik"
+            );
+
+        connection.add( radovanCommitter );
+
+        // Third level, PMCs
+        Entry emmanuelPmc = new DefaultEntry( 
+            "cn=emmanuel,ou=Pmcs,ou=people,dc=example,dc=com",
+            "objectClass: person",
+            "objectClass: top",
+            "cn: emmanuel",
+            "sn: Emmanuel Lecharny"
+            );
+
+        connection.add( emmanuelPmc );
+
+        Entry kiranPmc = new DefaultEntry( 
+            "cn=kiran,ou=Pmcs,ou=people,dc=example,dc=com",
+            "objectClass: person",
+            "objectClass: top",
+            "cn: kiran",
+            "sn: Kiran Ayyagari"
+            );
+
+        connection.add( kiranPmc );
+
+        Entry stefanPmc = new DefaultEntry( 
+            "cn=stefan,ou=Pmcs,ou=people,dc=example,dc=com",
+            "objectClass: person",
+            "objectClass: top",
+            "cn: stefan",
+            "sn: Stefan Seelmann"
+            );
+
+        connection.add( stefanPmc );
+        
+        // Now, check that we have 13 entries
+        int entryCount = 0;
+        
+        EntryCursor cursor = connection.search( "dc=example, dc=com","(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+        
+        while ( cursor.next() )
+        {
+            cursor.get();
+            entryCount++;
+        }
+        
+        assertEquals( 13, entryCount );
+
+        // Stop the server
+        uberjarMain.stop();
+
+        // Try to repair it
+        uberjarMain.repair( instanceDirectory.toString() );
+
+        // Stop the server again
+        uberjarMain.stop();
+        
+        // And restart it
+        connectionVerificationThread = createServer();
+        
+        // Starting the connection verification thread
+        // and waiting for the termination of it
+        connectionVerificationThread.start();
+        connectionVerificationThread.join();
+
+        // Checking if verification is successful
+        if ( !verified )
+        {
+            fail();
+        }
+
+        // Check the content
+        connection = createConnection();
+
+        entryCount = 0;
+        
+        cursor = connection.search( "dc=example, dc=com","(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+        
+        while ( cursor.next() )
+        {
+            cursor.get();
+            entryCount++;
+        }
+        
+        assertEquals( 13, entryCount );
     }
 }

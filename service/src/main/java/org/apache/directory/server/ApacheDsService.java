@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -61,6 +62,7 @@ import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
+import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
 import org.apache.directory.server.config.listener.ConfigChangeListener;
 import org.apache.directory.server.core.api.CacheService;
@@ -215,6 +217,54 @@ public class ApacheDsService
         criteria.setScope( SearchScope.SUBTREE );
         
         directoryService.getEventService().addListener( configListener, criteria );
+    }
+
+
+    /**
+     * Try to repair the partitions. For each partition, we need its directory and its DN
+     *
+     * @param instanceLayout the on disk location's layout of the intance to be repaired
+     * @throws Exception If the repair failed
+     */
+    public void repair( InstanceLayout instanceLayout ) throws Exception
+    {
+        File partitionsDir = instanceLayout.getPartitionsDirectory();
+
+        if ( !partitionsDir.exists() )
+        {
+            LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
+
+            if ( !partitionsDir.mkdirs() )
+            {
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
+            }
+        }
+
+        LOG.info( "Repairing partition dir {}", partitionsDir.getAbsolutePath() );
+
+        CacheService cacheService = new CacheService();
+        cacheService.initialize( instanceLayout );
+
+        initSchemaManager( instanceLayout );
+        DnFactory dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        initSchemaLdifPartition( instanceLayout, dnFactory );
+        initConfigPartition( instanceLayout, dnFactory, cacheService );
+        Set<? extends Partition> partitions = getDirectoryService().getPartitions();
+
+        // Iterate on the partitions to repair them
+        for ( Partition partition : partitions )
+        {
+            try
+            {
+                partition.repair();
+            }
+            catch ( Exception e )
+            {
+                System.out.println( "Failed to repair the partition " + partition.getId() );
+                e.printStackTrace();
+                return;
+            }
+        }
     }
 
 

@@ -112,8 +112,21 @@ public class MavibotPartition extends AbstractBTreePartition
             LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
         }
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doRepair() throws Exception
+    {
+        // Nothing to do
+    }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doInit() throws Exception
     {

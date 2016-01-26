@@ -71,13 +71,15 @@ public class UberjarMain
         
         switch ( action )
         {
-            case START:
+            case START :
+                // Starts the server
                 LOG.debug( "Staring runtime" );
                 instance.start( instanceDirectory );
 
                 break;
 
-            case STOP:
+            case STOP :
+                // Stops the server
                 LOG.debug( "Stopping runtime" );
                 InstanceLayout layout = new InstanceLayout( instanceDirectory );
                 try ( Socket socket = new Socket( InetAddress.getLocalHost().getHostName(), readShutdownPort( layout ) );
@@ -85,6 +87,14 @@ public class UberjarMain
                 {
                     writer.print( readShutdownPassword( layout ) );
                 }
+                
+                break;
+                
+            case REPAIR :
+                // Try to fix the JDBM database
+                LOG.debug( "Fixing the database runtime" );
+                instance.repair( instanceDirectory );
+                
                 break;
 
             default:
@@ -122,9 +132,14 @@ public class UberjarMain
     }
 
     
-    public void start( String... args )
+    /**
+     * Try to start the databases
+     *
+     * @param instanceDirectory The directory containing the server instance 
+     */
+    public void start( String instanceDirectory )
     {
-        InstanceLayout layout = new InstanceLayout( args[0] );
+        InstanceLayout layout = new InstanceLayout( instanceDirectory );
         
         // Creating ApacheDS service
         service = new ApacheDsService();
@@ -144,6 +159,43 @@ public class UberjarMain
             System.exit( 1 );
         }
     }
+
+    
+    /**
+     * Try to repair the databases
+     *
+     * @param instanceDirectory The directory containing the server instance 
+     */
+    public void repair( String instanceDirectory )
+    {
+        InstanceLayout layout = new InstanceLayout( instanceDirectory );
+        
+        // Creating ApacheDS service
+        service = new ApacheDsService();
+        
+        try
+        {
+            service.start( layout );
+        }
+        catch ( Exception e )
+        {
+            return;
+        }
+
+        // Initializing the service
+        try
+        {
+            LOG.info( "Starting the service." );
+            service.repair( layout );
+            LOG.info( "Database repaired." );
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Failed to start the service.", e );
+            System.exit( 1 );
+        }
+    }
+    
 
     public void stop()
     {
@@ -259,7 +311,7 @@ public class UberjarMain
     
     private static enum Action
     {
-        START, STOP;
+        START, STOP, REPAIR;
 
         public static Action fromString( String actionString )
         {

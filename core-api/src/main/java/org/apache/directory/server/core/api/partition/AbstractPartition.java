@@ -111,6 +111,15 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
+     * {@inheritDoc}
+     */
+    public void repair() throws Exception
+    {
+        // Do nothing. It will be handled by the implementation classes
+    }
+
+
+    /**
      * Override this method to put your initialization code.
      */
     protected abstract void doDestroy() throws Exception;
@@ -118,9 +127,18 @@ public abstract class AbstractPartition implements Partition
 
     /**
      * Override this method to put your initialization code.
-     * @throws Exception
+     * 
+     * @throws Exception If teh init failed
      */
     protected abstract void doInit() throws InvalidNameException, Exception;
+
+
+    /**
+     * Override this method to implement a repair method
+     * 
+     * @throws Exception If the repair failed
+     */
+    protected abstract void doRepair() throws InvalidNameException, Exception;
 
 
     /**

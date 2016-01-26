@@ -104,9 +104,16 @@ public interface Partition
      * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
      * as a clean-up process if {@link #doInit()} throws an exception.
      *
-     * @throws Exception if initialization fails in any way
+     * @throws LdapException if initialization fails in any way
      */
     void initialize() throws LdapException;
+
+    /**
+     * Repair this partition. 
+     *
+     * @throws Exception if repair fails in any way
+     */
+    void repair() throws Exception;
 
 
     /**
