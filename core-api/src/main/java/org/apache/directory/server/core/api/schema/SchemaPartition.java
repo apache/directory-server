@@ -203,6 +203,16 @@ public final class SchemaPartition extends AbstractPartition
      * {@inheritDoc}
      */
     @Override
+    protected void doRepair() throws Exception
+    {
+        // Nothing to do
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void doInit() throws Exception
     {
         if ( !initialized )
