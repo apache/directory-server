@@ -217,7 +217,7 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
 
 
     @Override
-    public void close()
+    public void close() throws IOException
     {
         deleteFile();
         super.close();
@@ -225,7 +225,7 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
 
 
     @Override
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         deleteFile();
         super.close( cause );

@@ -412,7 +412,14 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             if ( dupsCursor != null )
             {
-                dupsCursor.close();
+                try
+                {
+                    dupsCursor.close();
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapException( ioe.getMessage(), ioe );
+                }
             }
 
             /*
@@ -481,7 +488,14 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             if ( dupsCursor != null )
             {
-                dupsCursor.close();
+                try
+                {
+                    dupsCursor.close();
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapException( ioe.getMessage(), ioe );
+                }
             }
 
             /*
@@ -562,7 +576,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -583,7 +597,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
         {

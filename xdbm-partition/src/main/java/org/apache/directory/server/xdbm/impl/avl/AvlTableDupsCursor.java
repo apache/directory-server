@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
+import java.io.IOException;
+
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -131,7 +133,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         if ( wrappedCursor.next() )
@@ -194,7 +203,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         /*
@@ -287,7 +303,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {            
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         dupsCursor = null;
@@ -316,7 +339,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         dupsCursor = null;
@@ -333,7 +363,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         dupsCursor = null;
@@ -395,7 +432,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         if ( wrappedCursor.last() )
@@ -444,7 +488,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             if ( dupsCursor != null )
             {
-                dupsCursor.close();
+                try
+                {
+                    dupsCursor.close();
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapException( ioe.getMessage(), ioe );
+                }
             }
 
             /*
@@ -511,7 +562,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             if ( dupsCursor != null )
             {
-                dupsCursor.close();
+                try
+                {
+                    dupsCursor.close();
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapException( ioe.getMessage(), ioe );
+                }
             }
 
             /*
@@ -558,7 +616,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -574,7 +632,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void close( Exception reason )
+    public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
         {

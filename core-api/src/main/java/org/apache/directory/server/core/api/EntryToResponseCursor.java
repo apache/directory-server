@@ -21,6 +21,7 @@
 package org.apache.directory.server.core.api;
 
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -144,7 +145,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -158,7 +159,7 @@ public class EntryToResponseCursor extends AbstractCursor<Response> implements S
     /**
      * {@inheritDoc}
      */
-    public void close( Exception e )
+    public void close( Exception e ) throws IOException
     {
         if ( IS_DEBUG )
         {

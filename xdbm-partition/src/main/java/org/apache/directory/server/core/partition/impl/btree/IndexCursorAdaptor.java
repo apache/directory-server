@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.api.i18n.I18n;
@@ -189,7 +190,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -203,7 +204,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception reason )
+    public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
         {

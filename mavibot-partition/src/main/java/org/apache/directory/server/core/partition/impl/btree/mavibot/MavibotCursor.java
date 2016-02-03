@@ -365,7 +365,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close()
+    public void close() throws IOException
     {
         LOG_CURSOR.debug( "Closing MavibotCursor {}", this );
         super.close();
@@ -377,7 +377,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         LOG_CURSOR.debug( "Closing MavibotCursor {}", this );
         super.close( cause );

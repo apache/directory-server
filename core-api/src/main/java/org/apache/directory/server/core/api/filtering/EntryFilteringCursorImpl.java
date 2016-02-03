@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.api.filtering;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -263,7 +264,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -278,7 +279,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
     /**
      * {@inheritDoc}
      */
-    public void close( Exception reason )
+    public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -307,7 +308,16 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
         if ( operationContext.isAbandoned() )
         {
             LOG.info( "Cursor has been abandoned." );
-            close();
+            
+            try
+            {
+                close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
+
             throw new OperationAbandonedException();
         }
 
@@ -348,7 +358,16 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
         if ( operationContext.isAbandoned() )
         {
             LOG.info( "Cursor has been abandoned." );
-            close();
+            
+            try
+            {
+                close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
+
             throw new OperationAbandonedException();
         }
 
@@ -366,7 +385,16 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
         if ( operationContext.isAbandoned() )
         {
             LOG.info( "Cursor has been abandoned." );
-            close();
+            
+            try
+            {
+                close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
+
             throw new OperationAbandonedException();
         }
 
@@ -451,7 +479,16 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
         if ( operationContext.isAbandoned() )
         {
             LOG.info( "Cursor has been abandoned." );
-            close();
+            
+            try
+            {
+                close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
+
             throw new OperationAbandonedException();
         }
 

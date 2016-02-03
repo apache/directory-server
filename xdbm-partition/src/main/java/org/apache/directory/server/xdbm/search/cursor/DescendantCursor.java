@@ -20,6 +20,8 @@
 package org.apache.directory.server.xdbm.search.cursor;
 
 
+import java.io.IOException;
+
 import org.apache.commons.collections.ArrayStack;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -224,7 +226,15 @@ public class DescendantCursor extends AbstractIndexCursor<String>
 
                     if ( !finished )
                     {
-                        currentCursor.close();
+                        try
+                        {
+                            currentCursor.close();
+                        }
+                        catch ( IOException ioe )
+                        {
+                            throw new LdapException( ioe.getMessage(), ioe );
+                        }
+
                         currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn, String>> ) cursorStack.pop();
                         currentParentId = ( String ) parentIdStack.pop();
                     }
@@ -274,7 +284,15 @@ public class DescendantCursor extends AbstractIndexCursor<String>
 
                 if ( !finished )
                 {
-                    currentCursor.close();
+                    try
+                    {
+                        currentCursor.close();
+                    }
+                    catch ( IOException ioe )
+                    {
+                        throw new LdapException( ioe.getMessage(), ioe );
+                    }
+
                     currentCursor = ( Cursor<IndexEntry<ParentIdAndRdn, String>> ) cursorStack.pop();
                     currentParentId = ( String ) parentIdStack.pop();
                 }
@@ -301,7 +319,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
      * {@inheritDoc}
      */
     @Override
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -325,7 +343,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
         {

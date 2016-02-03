@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.avltree;
 
 
+import java.io.IOException;
 import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
@@ -335,7 +336,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     /**
      * {@inheritDoc}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -349,7 +350,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     /**
      * {@inheritDoc}
      */
-    public void close( Exception reason )
+    public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
         {

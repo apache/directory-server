@@ -21,6 +21,7 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
@@ -240,7 +241,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      * {@inheritDoc}
      */
     @Override
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -256,7 +257,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
         {
