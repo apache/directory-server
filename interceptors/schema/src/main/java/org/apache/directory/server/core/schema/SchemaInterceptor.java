@@ -69,7 +69,6 @@ import org.apache.directory.api.ldap.model.schema.ObjectClassTypeEnum;
 import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.api.ldap.model.schema.UsageEnum;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
-import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -186,8 +185,7 @@ public class SchemaInterceptor extends BaseInterceptor
         computeSuperiors();
 
         // Initialize the schema manager
-        SchemaLoader loader = directoryService.getSchemaManager().getLoader();
-        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, dnFactory );
+        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, dnFactory );
 
         if ( IS_DEBUG )
         {

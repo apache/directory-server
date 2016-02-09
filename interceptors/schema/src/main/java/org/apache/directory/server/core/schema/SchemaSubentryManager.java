@@ -44,7 +44,6 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.api.ldap.model.schema.parsers.NormalizerDescription;
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -114,7 +113,7 @@ public class SchemaSubentryManager
     }
 
 
-    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader, DnFactory dnFactory )
+    public SchemaSubentryManager( SchemaManager schemaManager, DnFactory dnFactory )
         throws LdapException
     {
         this.schemaManager = schemaManager;
