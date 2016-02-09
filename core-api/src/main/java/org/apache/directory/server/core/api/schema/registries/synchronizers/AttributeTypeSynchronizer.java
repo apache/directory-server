@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A handler for operations performed to add, delete, modify, rename and 
- * move schema normalizers.
+ * move schema AttributeTypes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

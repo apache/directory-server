@@ -91,7 +91,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     public SchemaSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        //this.registries = schemaManager.getRegistries();
         this.schemaManager = schemaManager;
         disabledAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DISABLED_AT );
         factory = new SchemaEntityFactory();
