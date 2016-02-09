@@ -65,6 +65,18 @@
       <artifactId>apacheds-test-framework</artifactId>
     </dependency>
     
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-interceptor-kerberos</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-kerberos-test</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    
     <!-- Shared dependencies -->
     <dependency>
       <groupId>org.apache.directory.api</groupId>

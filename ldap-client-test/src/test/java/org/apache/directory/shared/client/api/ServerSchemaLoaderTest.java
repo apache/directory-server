@@ -21,8 +21,8 @@
 package org.apache.directory.shared.client.api;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -91,7 +91,7 @@ public class ServerSchemaLoaderTest extends AbstractLdapTestUnit
         assertTrue( schemaManager.isSchemaLoaded( "system" ) );
         assertTrue( schemaManager.isEnabled( "system" ) );
         assertFalse( schemaManager.isSchemaLoaded( "nis" ) );
-        assertEquals( schemaManager.getLoader().getAllSchemas().size(), schemaManager.getEnabled().size() );
+        assertEquals( schemaManager.getAllSchemas().size(), schemaManager.getEnabled().size() );
 
         assertTrue( schemaManager.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );
     }

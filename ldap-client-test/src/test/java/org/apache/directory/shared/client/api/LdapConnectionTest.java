@@ -265,7 +265,7 @@ public void testLookup() throws Exception
         assertNotNull( manager );
         assertTrue( manager.isEnabled( "system" ) );
         assertFalse( manager.isEnabled( "nis" ) );
-        assertEquals( manager.getLoader().getAllSchemas().size(), manager.getEnabled().size() );
+        assertEquals( manager.getAllSchemas().size(), manager.getEnabled().size() );
     }
 
 

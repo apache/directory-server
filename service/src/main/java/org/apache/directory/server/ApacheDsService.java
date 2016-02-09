@@ -231,7 +231,7 @@ public class ApacheDsService
 
         if ( !partitionsDir.exists() )
         {
-            LOG.info( "partition directory doesn't exist, creating {}", partitionsDir.getAbsolutePath() );
+            System.out.println( "partition directory doesn't exist, creating " + partitionsDir.getAbsolutePath() );
 
             if ( !partitionsDir.mkdirs() )
             {
@@ -239,7 +239,7 @@ public class ApacheDsService
             }
         }
 
-        LOG.info( "Repairing partition dir {}", partitionsDir.getAbsolutePath() );
+        System.out.println( "Repairing partition dir " + partitionsDir.getAbsolutePath() );
 
         CacheService cacheService = new CacheService();
         cacheService.initialize( instanceLayout );
@@ -290,8 +290,8 @@ public class ApacheDsService
         }
 
         SchemaLoader loader = new LdifSchemaLoader( schemaPartitionDirectory );
-        schemaManager = new DefaultSchemaManager( loader );
-
+        schemaManager = new DefaultSchemaManager( loader.getAllSchemas() );
+        
         // We have to load the schema now, otherwise we won't be able
         // to initialize the Partitions, as we won't be able to parse
         // and normalize their suffix Dn
