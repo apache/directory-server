@@ -293,6 +293,7 @@ checkUser() {
         # Still want to change users, recurse.  This means that the user will only be
         #  prompted for a password once. Variables shifted by 1
         su -m $RUN_AS_USER -c "\"$REALPATH\" $2 $3"
+        ret=$?
 
         # Now that we are the original user again, we may need to clean up the lock file.
         if [ "X$LOCKPROP" != "X" ]
@@ -308,7 +309,7 @@ checkUser() {
             fi
         fi
 
-        exit 0
+        exit $ret
     fi
 }
 
@@ -402,8 +403,20 @@ start() {
          echo "$APP_LONG_NAME is already running."
          exit 1
      fi
-
-
+}
+ 
+repair() {
+    echo "Repairing $APP_LONG_NAME..."
+    getpid
+     if [ "X$pid" = "X" ]
+     then
+         # The string passed to eval must handles spaces in paths correctly.
+         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" wrapper.java.additional.1=repair \"$WRAPPER_CONF\" set.INSTANCE_DIRECTORY=\"$INSTANCE_DIRECTORY\" set.INSTANCE=\"$INSTANCE\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
+         eval $COMMAND_LINE
+     else
+         echo "$APP_LONG_NAME is already running."
+         exit 1
+     fi
 }
  
 stopit() {
@@ -534,6 +547,13 @@ case "$1" in
 
     'start')
         checkUser touchlock $1 $INSTANCE
+        start
+        ;;
+
+    'repair')
+        checkUser touchlock $1 $INSTANCE
+        stopit
+        repair
         start
         ;;
 
