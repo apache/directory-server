@@ -55,19 +55,22 @@ test -f /opt/${DIRNAME}/LICENSE
 test -f /opt/${DIRNAME}/NOTICE
 test -d /var/lib/${DIRNAME}/default
 
-# assert not running
+# assert not running: output and exit status
 service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+service ${SERVICE_NAME} status || test $? -ne 0
 
 # install ldapsearch and tools
 apt-get -qq update
 apt-get -qq -y install ldap-utils netcat
 
 # start
-service ${SERVICE_NAME} start 
+service ${SERVICE_NAME} start
 wait_for_apacheds
 
-# assert running
+# assert running: output and exit status
 service ${SERVICE_NAME} status | grep "ApacheDS - default is running"
+service ${SERVICE_NAME} status && test $? -eq 0
+
 
 # search
 ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
@@ -75,7 +78,7 @@ ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -
 # restart and search a few times
 for i in 1 2 3
 do
-    service ${SERVICE_NAME} restart 
+    service ${SERVICE_NAME} restart
     wait_for_apacheds
     ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
 done
@@ -83,8 +86,9 @@ done
 # stop
 service ${SERVICE_NAME} stop
 
-# assert not running
+# assert not running: output and exit status
 service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+service ${SERVICE_NAME} status || test $? -ne 0
 
 # assert password warning in log
 grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log/apacheds.log

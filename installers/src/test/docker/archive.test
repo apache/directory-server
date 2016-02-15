@@ -63,13 +63,12 @@ test -f /opt/${DIRNAME}/bin/apacheds.sh
 test -x /opt/${DIRNAME}/bin/apacheds.sh
 test -d /opt/${DIRNAME}/instances/default
 
-# assert not running
+# assert not running: output and exit status
 if [ $HAVE_TTY -eq 1 ]
 then
     /opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is not running"
-else
-    ! /opt/${DIRNAME}/bin/apacheds.sh status
 fi
+/opt/${DIRNAME}/bin/apacheds.sh status || test $? -ne 0
 
 # install required tools
 apt-get -qq update
@@ -79,13 +78,12 @@ apt-get -qq -y install ldap-utils netcat
 /opt/${DIRNAME}/bin/apacheds.sh start
 wait_for_apacheds_up
 
-# assert running
+# assert running: output and exit status
 if [ $HAVE_TTY -eq 1 ]
 then
     /opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is running"
-else
-    /opt/${DIRNAME}/bin/apacheds.sh status
 fi
+/opt/${DIRNAME}/bin/apacheds.sh status && test $? -eq 0
 
 # search
 ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
@@ -104,13 +102,12 @@ done
 /opt/${DIRNAME}/bin/apacheds.sh stop
 wait_for_apacheds_down
 
-# assert not running
+# assert not running: output and exit status
 if [ $HAVE_TTY -eq 1 ]
 then
     /opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is not running"
-else
-    ! /opt/${DIRNAME}/bin/apacheds.sh status
 fi
+/opt/${DIRNAME}/bin/apacheds.sh status || test $? -ne 0
 
 # assert password warning in log
 grep ".*WARN.*admin password.*security breach.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
