@@ -21,13 +21,9 @@ package org.apache.directory.server.core.authn;
 
 
 import java.net.SocketAddress;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -36,9 +32,6 @@ import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
-import org.apache.directory.api.util.Base64;
-import org.apache.directory.api.util.Strings;
-import org.apache.directory.api.util.UnixCrypt;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -335,99 +328,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
 
             return userPasswords;
-        }
-    }
-
-
-    /**
-     * Get the algorithm of a password, which is stored in the form "{XYZ}...".
-     * The method returns null, if the argument is not in this form. It returns
-     * XYZ, if XYZ is an algorithm known to the MessageDigest class of
-     * java.security.
-     *
-     * @param password a byte[]
-     * @return included message digest alorithm, if any
-     * @throws IllegalArgumentException if the algorithm cannot be identified
-     */
-    protected String getAlgorithmForHashedPassword( byte[] password ) throws IllegalArgumentException
-    {
-        String result = null;
-
-        // Check if password arg is string or byte[]
-        String sPassword = Strings.utf8ToString( password );
-        int rightParen = sPassword.indexOf( '}' );
-
-        if ( ( sPassword.length() > 2 ) && ( sPassword.charAt( 0 ) == '{' ) && ( rightParen > -1 ) )
-        {
-            String algorithm = sPassword.substring( 1, rightParen );
-
-            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getAlgorithm().equalsIgnoreCase( algorithm ) )
-            {
-                return algorithm;
-            }
-
-            try
-            {
-                MessageDigest.getInstance( algorithm );
-                result = algorithm;
-            }
-            catch ( NoSuchAlgorithmException e )
-            {
-                LOG.warn( "Unknown message digest algorithm in password: " + algorithm, e );
-            }
-        }
-
-        return result;
-    }
-
-
-    /**
-     * Creates a digested password. For a given hash algorithm and a password
-     * value, the algorithm is applied to the password, and the result is Base64
-     * encoded. The method returns a String which looks like "{XYZ}bbbbbbb",
-     * whereas XYZ is the name of the algorithm, and bbbbbbb is the Base64
-     * encoded value of XYZ applied to the password.
-     *
-     * @param algorithm
-     *            an algorithm which is supported by
-     *            java.security.MessageDigest, e.g. SHA
-     * @param password
-     *            password value, a byte[]
-     *
-     * @return a digested password, which looks like
-     *         {SHA}LhkDrSoM6qr0fW6hzlfOJQW61tc=
-     *
-     * @throws IllegalArgumentException
-     *             if password is neither a String nor a byte[], or algorithm is
-     *             not known to java.security.MessageDigest class
-     */
-    protected String createDigestedPassword( String algorithm, byte[] password ) throws IllegalArgumentException
-    {
-        // create message digest object
-        try
-        {
-            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getAlgorithm().equalsIgnoreCase( algorithm ) )
-            {
-                String saltWithCrypted = UnixCrypt.crypt( Strings.utf8ToString( password ), "" );
-                String crypted = saltWithCrypted.substring( 2 );
-                return '{' + algorithm + '}' + Arrays.toString( Strings.getBytesUtf8( crypted ) );
-            }
-            else
-            {
-                MessageDigest digest = MessageDigest.getInstance( algorithm );
-
-                // calculate hashed value of password
-                byte[] fingerPrint = digest.digest( password );
-                char[] encoded = Base64.encode( fingerPrint );
-
-                // create return result of form "{alg}bbbbbbb"
-                return '{' + algorithm + '}' + new String( encoded );
-            }
-        }
-        catch ( NoSuchAlgorithmException nsae )
-        {
-            LOG.error( I18n.err( I18n.ERR_7, algorithm ) );
-            throw new IllegalArgumentException( nsae.getLocalizedMessage() );
         }
     }
 
