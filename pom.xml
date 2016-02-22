@@ -55,7 +55,8 @@
     
     <!-- Set versions for depending jars -->
     <ant.version>1.9.6</ant.version>
-    <bcprov.version>1.54</bcprov.version>
+    <!-- Keep BC 1.52 till DIRSTUDIO-1093 is fixed -->
+    <bcprov.version>1.52</bcprov.version>
     <commons.cli.version>1.3.1</commons.cli.version>
     <commons.collections.version>3.2.2</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
@@ -74,7 +75,7 @@
     <maven.artifact.version>3.3.9</maven.artifact.version>
     <maven.plugin.api.version>3.3.9</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
-    <mina.core.version>2.0.11</mina.core.version>
+    <mina.core.version>2.0.13</mina.core.version>
     <plexus.utils.version>3.0.22</plexus.utils.version>
     <slf4j.api.version>1.7.14</slf4j.api.version>
     <slf4j.log4j12.version>1.7.14</slf4j.log4j12.version>
