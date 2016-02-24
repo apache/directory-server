@@ -19,7 +19,7 @@
 package org.apache.directory.server.core.integ;
 
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.changelog.Tag;

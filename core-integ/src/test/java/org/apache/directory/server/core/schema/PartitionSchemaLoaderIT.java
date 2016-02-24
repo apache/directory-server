@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
 import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;

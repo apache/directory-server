@@ -63,11 +63,6 @@
     </dependency>
     
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-codec-core</artifactId>
     </dependency>

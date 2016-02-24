@@ -22,7 +22,7 @@ package org.apache.directory.server.core.integ;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.api.DirectoryService;

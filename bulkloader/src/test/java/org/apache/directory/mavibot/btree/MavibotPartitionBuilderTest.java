@@ -23,7 +23,7 @@ package org.apache.directory.mavibot.btree;
 import java.io.File;
 import java.io.InputStream;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.config.LdifConfigExtractor;
 import org.junit.Before;
 import org.junit.Rule;

@@ -23,7 +23,7 @@ package org.apache.directory.server.factory;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;

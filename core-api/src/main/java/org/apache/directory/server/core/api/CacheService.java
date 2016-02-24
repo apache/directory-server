@@ -30,7 +30,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
