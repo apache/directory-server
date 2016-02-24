@@ -25,7 +25,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Hashtable;
 
@@ -50,6 +49,7 @@ import netscape.ldap.LDAPUrl;
 
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -138,8 +138,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -177,8 +176,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
@@ -207,8 +205,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -237,8 +234,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -269,8 +265,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -294,7 +289,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "", new String[]
+            LDAPUrl url = new LDAPUrl( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(), "", new String[]
                 { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPSearchResults results = LDAPConnection.search( url );
 
@@ -328,7 +323,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "uid=admin,ou=system", attrIDs, 0,
+            LDAPUrl url = new LDAPUrl( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(), "uid=admin,ou=system", attrIDs, 0,
                 "(ObjectClass=*)" );
             LDAPConnection.search( url );
 
@@ -338,10 +333,6 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Expected
             assertTrue( true );
-        }
-        catch ( UnknownHostException uhe )
-        {
-            fail( uhe.getMessage() );
         }
 
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( oldValue );
@@ -356,8 +347,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
@@ -387,8 +377,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -423,7 +412,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "", new String[]
+            LDAPUrl url = new LDAPUrl( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(), "", new String[]
                 { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPSearchResults results = LDAPConnection.search( url );
 
@@ -464,7 +453,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testBindWithDoubleQuote() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
         connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
         assertTrue( connection.isAuthenticated() );
@@ -478,7 +467,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testBindSimpleAuthenticatorDisabled() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.setTimeOut( 0 );
 
         try

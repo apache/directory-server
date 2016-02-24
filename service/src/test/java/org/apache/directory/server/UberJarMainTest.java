@@ -23,7 +23,6 @@ package org.apache.directory.server;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 
@@ -35,6 +34,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -98,7 +98,7 @@ public class UberJarMainTest
     private LdapConnection createConnection() throws LdapException, UnknownHostException
     {
         LdapConnectionConfig configuration = new LdapConnectionConfig();
-        configuration.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        configuration.setLdapHost( Network.LOOPBACK_HOSTNAME );
         configuration.setLdapPort( 10389 );
         configuration.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
         configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );

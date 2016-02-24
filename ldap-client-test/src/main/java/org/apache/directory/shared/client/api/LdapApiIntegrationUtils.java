@@ -20,13 +20,12 @@ package org.apache.directory.shared.client.api;
 
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
@@ -71,7 +70,7 @@ public final class LdapApiIntegrationUtils
     public static LdapNetworkConnection createAdminConnection( LdapServer ldapServer ) throws LdapException,
         IOException
     {
-        LdapNetworkConnection conn = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+        LdapNetworkConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         conn.bind( DEFAULT_ADMIN, DEFAULT_PASSWORD );
         return conn;
     }
@@ -141,16 +140,7 @@ public final class LdapApiIntegrationUtils
         if ( !POOLS.containsKey( port ) )
         {
             LdapConnectionConfig config = new LdapConnectionConfig();
-            
-            try
-            {
-                config.setLdapHost( InetAddress.getLocalHost().getHostName() );
-            }
-            catch ( UnknownHostException uhe )
-            {
-                config.setLdapHost( DEFAULT_HOST );
-            }
-            
+            config.setLdapHost( Network.LOOPBACK_HOSTNAME );
             config.setLdapPort( port );
             config.setName( DEFAULT_ADMIN );
             config.setCredentials( DEFAULT_PASSWORD );
@@ -189,7 +179,7 @@ public final class LdapApiIntegrationUtils
      */
     public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         connection.setTimeOut( 0L );
         connection.bind();
 

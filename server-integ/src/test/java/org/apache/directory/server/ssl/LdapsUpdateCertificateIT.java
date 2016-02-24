@@ -23,7 +23,6 @@ package org.apache.directory.server.ssl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.net.InetAddress;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
@@ -35,6 +34,7 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -92,7 +92,7 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+        env.put( "java.naming.provider.url", "ldap://" + Network.LOOPBACK_HOSTNAME + ":"
             + getLdapServer().getPortSSL() + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -111,7 +111,7 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         // create a secure connection
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldaps://" + InetAddress.getLocalHost().getHostName() + ":"
+        env.put( "java.naming.provider.url", "ldaps://" + Network.LOOPBACK_HOSTNAME + ":"
             + getLdapServer().getPortSSL() );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );

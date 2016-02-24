@@ -21,12 +21,11 @@ package org.apache.directory.server.core.integ;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
 import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionFactory;
@@ -168,14 +167,7 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
         
-        try
-        {
-            config.setLdapHost( InetAddress.getLocalHost().getHostName() );
-        }
-        catch ( UnknownHostException uhe )
-        {
-            config.setLdapHost( "localhost" );
-        }
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         
         config.setLdapPort( ldapServer.getPort() );
         config.setName( "uid=admin,ou=system" );

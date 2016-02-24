@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Arrays;
 
 import javax.naming.NamingEnumeration;
@@ -55,6 +54,7 @@ import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -704,7 +704,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddWithNullValues() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.setTimeOut( 0L );
 
         // Use the client API
@@ -746,7 +746,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyReplaceWithNullValues() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.setTimeOut( 0L );
 
         // Use the client API

@@ -28,9 +28,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
@@ -46,6 +43,7 @@ import netscape.ldap.LDAPResponse;
 import netscape.ldap.LDAPResponseListener;
 
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -258,16 +256,7 @@ public class CompareIT extends AbstractLdapTestUnit
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
         LDAPConnection conn = new LDAPConnection();
-        
-        try
-        {
-            conn.connect( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
-        }
-        catch ( UnknownHostException uhe )
-        {
-            fail( uhe.getMessage() );
-        }
-        
+        conn.connect( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         LDAPAttribute attr = new LDAPAttribute( "uid", "admin" );
 
         try

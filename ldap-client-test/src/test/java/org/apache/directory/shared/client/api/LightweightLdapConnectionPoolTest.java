@@ -32,6 +32,7 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
@@ -153,16 +154,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         {
             int i = 0;
             LdapConnectionConfig config = new LdapConnectionConfig();
-            
-            try
-            {
-                config.setLdapHost( InetAddress.getLocalHost().getHostName() );
-            }
-            catch ( UnknownHostException e1 )
-            {
-                e1.printStackTrace();
-            }
-            
+            config.setLdapHost( Network.LOOPBACK_HOSTNAME );
             config.setLdapPort( 10389 );
             config.setName( DEFAULT_ADMIN );
             config.setCredentials( DEFAULT_PASSWORD );
@@ -220,7 +212,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
@@ -253,7 +245,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
@@ -304,7 +296,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
@@ -468,7 +460,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
     @Ignore
     public void testRebindNoPool() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
         long t0 = System.currentTimeMillis();
@@ -528,7 +520,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
     public void testSmallPool() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( getLdapServer().getPort() );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );

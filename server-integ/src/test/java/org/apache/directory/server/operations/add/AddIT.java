@@ -32,7 +32,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -79,6 +78,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -555,7 +555,7 @@ public class AddIT extends AbstractLdapTestUnit
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://" + InetAddress.getLocalHost().getHostName() + ":" + getLdapServer().getPort()
+        assertEquals( Network.ldapLoopbackUrl( getLdapServer().getPort() )
             + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
 
@@ -1158,7 +1158,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         // Limit the PDU size to 1024
         getLdapServer().getDirectoryService().setMaxPDUSize( 1024 );
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         // Inject a 1024 bytes long description
@@ -1531,7 +1531,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddNullValue() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.setTimeOut( 0L );
 
         // Use the client API
@@ -1570,7 +1570,7 @@ public class AddIT extends AbstractLdapTestUnit
     @Test
     public void testAddNullValueDirectoryString() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.setTimeOut( 0L );
 
         // Use the client API

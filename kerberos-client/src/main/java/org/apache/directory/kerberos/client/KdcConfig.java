@@ -25,11 +25,10 @@ import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.AE
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES3_CBC_SHA1_KD;
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.DES_CBC_MD5;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.api.util.Network;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 
@@ -79,14 +78,7 @@ public class KdcConfig
         
         encryptionTypes = KerberosUtils.orderEtypesByStrength( encryptionTypes );
         
-        try
-        {
-            hostName = InetAddress.getLocalHost().getHostName();
-        }
-        catch ( UnknownHostException uhe )
-        {
-            hostName = "localhost";
-        }
+        hostName = Network.LOOPBACK_HOSTNAME;
     }
 
 

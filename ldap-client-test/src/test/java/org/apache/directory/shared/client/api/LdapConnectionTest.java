@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,6 +40,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -95,7 +95,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testBindRequest() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         try
         {
             connection.bind( ADMIN_DN, "secret" );
@@ -116,7 +116,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Ignore
     public void testRebindNoPool() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
         for ( int i = 0; i < 10000; i++ )
@@ -224,7 +224,7 @@ public void testLookup() throws Exception
     {
         // test with a local connection using a local BinaryAttributeDetector
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( ldapServer.getPort() );
         config.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
         config.setCredentials( "secret" );
@@ -297,7 +297,7 @@ public void testLookup() throws Exception
     public void testAnonBind() throws Exception
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
-        LdapNetworkConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
         connection.bind();
         assertTrue( connection.isAuthenticated() );
@@ -313,7 +313,7 @@ public void testLookup() throws Exception
     public void testNoSchemaConnectionWithBinaryDetector() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( ldapServer.getPort() );
         config.setBinaryAttributeDetector( new DefaultConfigurableBinaryAttributeDetector() );
 
@@ -342,7 +342,7 @@ public void testLookup() throws Exception
     @Test(expected = InvalidConnectionException.class)
     public void testConnectionWrongPort() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), 123 );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 123 );
         connection.connect();
 
         connection.close();

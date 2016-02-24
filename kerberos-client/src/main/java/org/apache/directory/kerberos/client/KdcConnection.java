@@ -21,7 +21,6 @@ package org.apache.directory.kerberos.client;
 
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.text.ParseException;
@@ -31,6 +30,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
@@ -558,7 +558,7 @@ public class KdcConnection
             KrbPriv privateMessage = new KrbPriv();
             
             EncKrbPrivPart part = new EncKrbPrivPart();
-            part.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
+            part.setSenderAddress( new HostAddress( Network.LOOPBACK ) );
             part.setSeqNumber( authenticator.getSeqNumber() );
             part.setTimestamp( authenticator.getCtime() );
 

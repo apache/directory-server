@@ -17,13 +17,14 @@
  *   under the License.
  *
  */
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.InetAddress;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 
 /**
@@ -149,7 +150,7 @@ public class MultiThreadedReadWriteTest
 
     private LdapNetworkConnection getConnection() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), 10389 );
+        LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 10389 );
         connection.bind( "uid=admin,ou=system", "secret" );
         connection.setTimeOut( Long.MAX_VALUE );
         

@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -54,6 +53,7 @@ import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.controls.OpaqueControl;
 import org.apache.directory.api.ldap.util.JndiUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -159,8 +159,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() + "/ou=system" );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) + "/ou=system" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -178,7 +177,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         {
             // Use the netscape API as JNDI cannot be used to do a search without
             // first binding.
-            LDAPUrl url = new LDAPUrl( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "ou=system", new String[]
+            LDAPUrl url = new LDAPUrl( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(), "ou=system", new String[]
                 { "vendorName" }, 0, "(ObjectClass=*)" );
             LDAPConnection.search( url );
 
@@ -205,8 +204,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() + "/" );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -244,8 +242,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         // Use the SUN JNDI provider to hit server port and bind as anonymous
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() + "/" );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -283,8 +280,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         final Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
@@ -324,8 +320,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() + "/dc=aPache,dc=org" );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) + "/dc=aPache,dc=org" );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         InitialDirContext ctx = new InitialDirContext( env );
@@ -364,8 +359,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-        env.put( Context.PROVIDER_URL, "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
-            + getLdapServer().getPort() + "/ou=system" );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) + "/ou=system" );
         env.put( "java.naming.ldap.version", "3" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );

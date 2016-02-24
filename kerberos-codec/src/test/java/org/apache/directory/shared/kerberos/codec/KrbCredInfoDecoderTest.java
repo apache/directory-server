@@ -24,7 +24,6 @@ package org.apache.directory.shared.kerberos.codec;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Field;
-import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,6 +33,7 @@ import java.util.Map;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.krbCredInfo.KrbCredInfoContainer;
@@ -133,7 +133,7 @@ public class KrbCredInfoDecoderTest
         optionalFieldValueList.add( new FieldValueHolder( "sName", sName ) );
 
         clientAddresses = new HostAddresses( new HostAddress[]
-            { new HostAddress( InetAddress.getLocalHost() ) } );
+            { new HostAddress( Network.LOOPBACK ) } );
         optionalFieldValueList.add( new FieldValueHolder( "clientAddresses", clientAddresses ) );
     }
 

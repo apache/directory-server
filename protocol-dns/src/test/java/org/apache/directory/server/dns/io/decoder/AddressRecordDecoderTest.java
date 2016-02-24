@@ -24,6 +24,7 @@ package org.apache.directory.server.dns.io.decoder;
 import java.net.InetAddress;
 import java.util.Map;
 
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
@@ -49,7 +50,7 @@ public class AddressRecordDecoderTest
     @Before
     public void setUp() throws Exception
     {
-        address = InetAddress.getLocalHost();
+        address = Network.LOOPBACK;
         inputBuffer = IoBuffer.allocate( address.getAddress().length );
         inputBuffer.put( address.getAddress() );
         inputBuffer.flip();

@@ -21,7 +21,6 @@ package org.apache.directory.server.core.integ;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +44,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
 import org.apache.directory.api.util.FileUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -442,7 +442,7 @@ public class IntegrationUtils
      */
     public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = getAnonymousNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+        LdapConnection connection = getAnonymousNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
         return connection;
     }
@@ -475,7 +475,7 @@ public class IntegrationUtils
      */
     public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
         connection.setTimeOut( 0 );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
@@ -499,7 +499,7 @@ public class IntegrationUtils
     public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password )
         throws Exception
     {
-        return getNetworkConnectionAs( InetAddress.getLocalHost().getHostName(), ldapServer.getPort(), userDn, password );
+        return getNetworkConnectionAs( Network.LOOPBACK_HOSTNAME, ldapServer.getPort(), userDn, password );
     }
 
 

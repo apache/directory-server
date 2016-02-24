@@ -22,13 +22,13 @@ package org.apache.directory.shared.client.api;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.net.InetAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
@@ -110,7 +110,7 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         int port = getLdapServer().getPort();
 
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
@@ -232,7 +232,7 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
     public void testSmallPool() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( getLdapServer().getPort() );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );

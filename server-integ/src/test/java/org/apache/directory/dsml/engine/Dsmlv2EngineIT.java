@@ -26,13 +26,13 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.net.InetAddress;
 
 import org.apache.directory.api.dsmlv2.Dsmlv2ResponseParser;
 import org.apache.directory.api.dsmlv2.engine.Dsmlv2Engine;
 import org.apache.directory.api.dsmlv2.response.BatchResponseDsml;
 import org.apache.directory.api.dsmlv2.response.SearchResponse;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -65,7 +65,7 @@ public class Dsmlv2EngineIT extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+        connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         engine = new Dsmlv2Engine( connection, "uid=admin,ou=system", "secret" );
     }
 

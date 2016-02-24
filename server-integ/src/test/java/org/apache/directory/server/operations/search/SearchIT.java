@@ -29,7 +29,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -63,6 +62,7 @@ import org.apache.directory.api.ldap.model.message.controls.Subentries;
 import org.apache.directory.api.ldap.model.message.controls.SubentriesImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.util.JndiUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -1682,7 +1682,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testAbandonnedRequest() throws Exception
     {
-        LdapConnection asyncCnx = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection asyncCnx = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         EntryCursor cursor = null;
 
         try

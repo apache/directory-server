@@ -23,7 +23,6 @@ package org.apache.directory.server.operations.search;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.*;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -60,6 +59,7 @@ import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearchImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.util.JndiUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -378,7 +378,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPsearchMove() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+        LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
         
         Entry newOu = new DefaultEntry( "uid=persist, ou=users,ou=system" );

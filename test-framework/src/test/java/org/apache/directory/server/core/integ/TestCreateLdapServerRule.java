@@ -26,13 +26,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -120,7 +119,7 @@ public class TestCreateLdapServerRule
         {
             LdapServer ldapServer = createLdapServerRule.getLdapServer();
             ldapServer.getPort();
-            ldapConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+            ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
             ldapConnection.connect();
             ldapConnection.bind( "uid=admin,ou=system", "secret" );
     
@@ -139,10 +138,6 @@ public class TestCreateLdapServerRule
             {
                 // expected
             }
-        }
-        catch ( UnknownHostException uhe )
-        {
-            fail( uhe.getMessage() );
         }
         catch ( LdapException e )
         {
@@ -182,7 +177,7 @@ public class TestCreateLdapServerRule
         {
             LdapServer ldapServer = createLdapServerRule.getLdapServer();
             ldapServer.getPort();
-            ldapConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+            ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
             ldapConnection.connect();
             ldapConnection.bind( "uid=admin,ou=system", "secret" );
     
@@ -194,10 +189,6 @@ public class TestCreateLdapServerRule
         catch ( LdapException e )
         {
             fail( e.getMessage() );
-        }
-        catch ( UnknownHostException uhe )
-        {
-            fail( uhe.getMessage() );
         }
         finally
         {
@@ -235,7 +226,7 @@ public class TestCreateLdapServerRule
     
             LOG.debug( "getting network connection" );
             ldapServer.getPort();
-            ldapConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), ldapServer.getPort() );
+            ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
             ldapConnection.connect();
             ldapConnection.bind( "uid=admin,ou=system", "secret" );
     
@@ -246,10 +237,6 @@ public class TestCreateLdapServerRule
         catch ( LdapException e )
         {
             fail( e.getMessage() );
-        }
-        catch ( UnknownHostException uhe )
-        {
-            fail( uhe.getMessage() );
         }
         finally
         {

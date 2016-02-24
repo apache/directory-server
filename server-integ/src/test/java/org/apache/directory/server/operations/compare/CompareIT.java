@@ -28,8 +28,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
@@ -45,6 +43,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
@@ -265,7 +264,7 @@ public class CompareIT extends AbstractLdapTestUnit
     public void testCompareWithoutAuthentication() throws LdapException, Exception
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
-        LdapConnection conn = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
         conn.compare( "uid=admin,ou=system", "uid", "admin" );
         fail( "Compare success without authentication" );

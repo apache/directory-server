@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,6 +36,7 @@ import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -264,7 +264,7 @@ public class ClientInitialRefreshIT
     {
         final ReplicationConsumer syncreplClient = new MockSyncReplConsumer();
         final SyncReplConfiguration config = new SyncReplConfiguration();
-        config.setRemoteHost( InetAddress.getLocalHost().getHostName() );
+        config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
         config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
         config.setReplUserPassword( "secret".getBytes() );

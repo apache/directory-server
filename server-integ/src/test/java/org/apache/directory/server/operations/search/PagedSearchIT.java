@@ -24,7 +24,6 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +53,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.PagedResults;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.util.JndiUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -1034,7 +1034,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     @Test
     public void testPagedSearchWrongCookie() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         SearchControls controls = new SearchControls();

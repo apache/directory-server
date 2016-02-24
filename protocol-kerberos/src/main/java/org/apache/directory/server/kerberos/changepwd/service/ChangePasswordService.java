@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.ChangePasswordConfig;
@@ -361,7 +362,7 @@ public final class ChangePasswordService
                 ( byte ) 0x61, ( byte ) 0x6E, ( byte ) 0x67, ( byte ) 0x65, ( byte ) 0x64, ( byte ) 0x00 };
         privPart.setUserData( resultCode );
 
-        privPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
+        privPart.setSenderAddress( new HostAddress( Network.LOOPBACK ) );
 
         // get the subsession key from the Authenticator
         EncryptionKey subSessionKey = authenticator.getSubKey();

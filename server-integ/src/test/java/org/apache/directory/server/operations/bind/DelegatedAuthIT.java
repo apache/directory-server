@@ -24,9 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
-
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -105,7 +104,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     {
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
-        LdapConnection ldapConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), 10200 );
+        LdapConnection ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 10200 );
 
         ldapConnection.setTimeOut( 0L );
         ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
@@ -171,7 +170,7 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
     {
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", getService().getInstanceId() );
-        LdapConnection ldapConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), 10200 );
+        LdapConnection ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 10200 );
         ldapConnection.setTimeOut( 0L );
         ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
 

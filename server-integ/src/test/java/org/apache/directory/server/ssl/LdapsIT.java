@@ -22,7 +22,6 @@ package org.apache.directory.server.ssl;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.net.InetAddress;
 import java.util.Hashtable;
 
 import javax.naming.NamingException;
@@ -32,6 +31,7 @@ import javax.naming.directory.InitialDirContext;
 
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -90,7 +90,7 @@ public class LdapsIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://" + InetAddress.getLocalHost().getHostName() + ":"
+        env.put( "java.naming.provider.url", "ldap://" + Network.LOOPBACK_HOSTNAME + ":"
             + getLdapServer().getPortSSL() + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );

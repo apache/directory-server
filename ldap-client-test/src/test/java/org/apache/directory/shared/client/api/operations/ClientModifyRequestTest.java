@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.net.InetAddress;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +40,7 @@ import org.apache.directory.api.ldap.model.message.ModifyResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.DateUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -222,7 +222,7 @@ public void testModifyEntryUUIDAndEntryCSN() throws Exception
     modResp = connection.modify( modifyRequest );
     assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-    LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+    LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
     Dn bindDn = new Dn( "uid=billyd,ou=users,ou=system" );
     nonAdminConnection.bind( bindDn.getName(), "secret" );

@@ -24,8 +24,6 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
-
 import javax.naming.AuthenticationException;
 import javax.naming.InvalidNameException;
 
@@ -34,6 +32,7 @@ import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPException;
 
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -151,7 +150,7 @@ public class BindIT extends AbstractLdapTestUnit
         try
         {
             conn = new LDAPConnection();
-            conn.connect( 100, InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "uid=admin,ou=system", "secret" );
+            conn.connect( 100, Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(), "uid=admin,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }
         catch ( LDAPException e )
@@ -182,7 +181,7 @@ public class BindIT extends AbstractLdapTestUnit
 
         try
         {
-            conn.connect( 3, InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(),
+            conn.connect( 3, Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret", constraints );
             fail( "try to connect with illegal version number should fail" );
         }
@@ -193,7 +192,7 @@ public class BindIT extends AbstractLdapTestUnit
 
         try
         {
-            conn.connect( 3, InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(),
+            conn.connect( 3, Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }

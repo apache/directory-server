@@ -20,7 +20,6 @@ package org.apache.directory.server;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.CharBuffer;
@@ -29,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import org.apache.directory.api.util.Network;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,7 @@ public class UberjarMain
                 // Stops the server
                 LOG.debug( "Stopping runtime" );
                 InstanceLayout layout = new InstanceLayout( instanceDirectory );
-                try ( Socket socket = new Socket( InetAddress.getLocalHost().getHostName(), readShutdownPort( layout ) );
+                try ( Socket socket = new Socket( Network.LOOPBACK, readShutdownPort( layout ) );
                     PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
                 {
                     writer.print( readShutdownPassword( layout ) );
@@ -233,7 +233,7 @@ public class UberjarMain
             public void run()
             {
                 // bind to localhost only to prevent connections from outside the box
-                try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, InetAddress.getLocalHost() ) )
+                try ( ServerSocket shutdownSocket = new ServerSocket( shutdownPort, 1, Network.LOOPBACK ) )
                 {
                     writeShutdownPort( layout, shutdownSocket.getLocalPort() );
                     

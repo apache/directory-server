@@ -22,9 +22,6 @@ package org.apache.directory.server.core.api;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
@@ -36,6 +33,7 @@ import org.apache.directory.api.ldap.model.message.BindRequestImpl;
 import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -108,7 +106,7 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
         LdapNetworkConnection connection = null;
         try
         {
-            connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+            connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
             BindRequest bindRequest = new BindRequestImpl();
             bindRequest.setDn( new Dn( "cn=user,ou=system" ) );
@@ -120,10 +118,6 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
             assertNotNull( responseControl );
             PasswordPolicy passwordPolicy = ( ( PasswordPolicyDecorator ) responseControl ).getDecorated();
             assertNotNull( passwordPolicy );
-        }
-        catch ( UnknownHostException uhe )
-        {
-            // Nothing we can do
         }
         finally
         {

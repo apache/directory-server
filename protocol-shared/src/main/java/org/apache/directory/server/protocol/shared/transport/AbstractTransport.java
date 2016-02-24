@@ -19,9 +19,7 @@
 package org.apache.directory.server.protocol.shared.transport;
 
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
+import org.apache.directory.api.util.Network;
 import org.apache.mina.core.service.IoAcceptor;
 
 
@@ -75,15 +73,7 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport( int port )
     {
-        try
-        {
-            this.address = InetAddress.getLocalHost().getHostAddress();
-        }
-        catch ( UnknownHostException e )
-        {
-            this.address = "localhost";
-        }
-        
+        this.address = Network.LOOPBACK.getHostAddress();
         this.port = port;
     }
 
@@ -97,15 +87,7 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport( int port, int nbThreads )
     {
-        try
-        {
-            this.address = InetAddress.getLocalHost().getHostAddress();
-        }
-        catch ( UnknownHostException e )
-        {
-            this.address = "localhost";
-        }
-        
+        this.address = Network.LOOPBACK.getHostAddress();
         this.port = port;
         this.nbThreads = nbThreads;
     }

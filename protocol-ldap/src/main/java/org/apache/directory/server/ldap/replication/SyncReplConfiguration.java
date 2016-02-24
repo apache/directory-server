@@ -20,8 +20,6 @@
 package org.apache.directory.server.ldap.replication;
 
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +30,7 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 
 
@@ -144,15 +143,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
         // the default list of attributes
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
         
-        try
-        {
-            remoteHost = InetAddress.getLocalHost().getHostName();
-        }
-        catch ( UnknownHostException uhe )
-        {
-            // Default to localhost
-            remoteHost = "localhost";
-        }
+        remoteHost = Network.LOOPBACK_HOSTNAME;
         
         remotePort = 10389;
         

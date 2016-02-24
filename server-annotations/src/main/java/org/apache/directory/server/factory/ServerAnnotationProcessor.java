@@ -22,14 +22,13 @@ package org.apache.directory.server.factory;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.annotations.CreateChngPwdServer;
 import org.apache.directory.server.annotations.CreateConsumer;
@@ -245,15 +244,7 @@ public final class ServerAnnotationProcessor
         
         if ( Strings.isEmpty( remoteHost ) )
         {
-            try
-            { 
-                remoteHost = InetAddress.getLocalHost().getHostName();
-            }
-            catch ( UnknownHostException uhe )
-            {
-                // Just in case...
-                remoteHost = "localhost";
-            }
+            remoteHost = Network.LOOPBACK_HOSTNAME;
         }
         
         config.setRemoteHost( remoteHost );
@@ -481,15 +472,7 @@ public final class ServerAnnotationProcessor
         
         if ( Strings.isEmpty( address ) )
         {
-            try
-            {
-                address = InetAddress.getLocalHost().getHostName();
-            }
-            catch ( UnknownHostException uhe )
-            {
-                // Default to "localhost"...
-                address = "localhost";
-            }
+            address = Network.LOOPBACK_HOSTNAME;
         }
 
         if ( port <= 0 )

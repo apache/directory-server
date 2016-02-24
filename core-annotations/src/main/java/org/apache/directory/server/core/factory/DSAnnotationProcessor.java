@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +34,7 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.AnnotationUtils;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
@@ -136,7 +136,7 @@ public final class DSAnnotationProcessor
                     
                     if ( Strings.isEmpty( host ) )
                     {
-                        host = InetAddress.getLocalHost().getHostName();
+                        host = Network.LOOPBACK_HOSTNAME;
                     }
                     
                     dauth.setDelegateHost( host );

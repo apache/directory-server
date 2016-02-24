@@ -25,13 +25,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.List;
 
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -92,7 +92,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         sslConfig = new LdapConnectionConfig();
-        sslConfig.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        sslConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         sslConfig.setTrustManagers( new NoVerificationTrustManager() );
@@ -100,7 +100,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
                 ldapServer.getDirectoryService().getSchemaManager() ) );
 
         tlsConfig = new LdapConnectionConfig();
-        tlsConfig.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        tlsConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
         tlsConfig.setLdapPort( getLdapServer().getPort() );
         tlsConfig.setTrustManagers( new NoVerificationTrustManager() );
         tlsConfig.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector(
@@ -221,7 +221,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     public void testStallingSsl() throws Exception
     {
         LdapConnectionConfig sslConfig = new LdapConnectionConfig();
-        sslConfig.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        sslConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         //sslConfig.setTrustManagers( new NoVerificationTrustManager() );

@@ -20,7 +20,6 @@
 package org.apache.directory.shared.client.api.perf;
 
 
-import java.net.InetAddress;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -33,6 +32,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -88,7 +88,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         // Create connection
-        LdapConnection connection = new LdapNetworkConnection( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         long t2 = System.currentTimeMillis();
@@ -123,7 +123,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         // Getting the connection
-        DirContext ctx = jndiEnv( InetAddress.getLocalHost().getHostName(), getLdapServer().getPort(), "", "uid=admin,ou=system", "secret", false );
+        DirContext ctx = jndiEnv( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(), "", "uid=admin,ou=system", "secret", false );
 
         long t2 = System.currentTimeMillis();
 

@@ -30,12 +30,7 @@ import static org.apache.directory.ldap.client.api.search.FilterBuilder.equal;
 import static org.apache.directory.ldap.client.api.search.FilterBuilder.endsWith;
 import static org.apache.directory.ldap.client.api.search.FilterBuilder.startsWith;
 
-
-
-import java.net.InetAddress;
 import java.util.List;
-
-
 
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -47,6 +42,7 @@ import org.apache.directory.api.ldap.model.message.ModifyResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.DefaultLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
@@ -366,7 +362,7 @@ public class LdapConnectionTemplateTest
     {
         // test requested by https://issues.apache.org/jira/browse/DIRAPI-202
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( createLdapConnectionPoolRule.getLdapServer().getPort() );
         config.setName( "uid=admin,ou=system" );
         config.setCredentials( "secret" );

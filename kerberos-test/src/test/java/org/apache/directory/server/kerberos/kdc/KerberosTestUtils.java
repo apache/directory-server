@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
@@ -45,6 +43,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
 import org.apache.directory.server.i18n.I18n;
@@ -252,18 +251,7 @@ public class KerberosTestUtils
      */
     public static String getHostName()
     {
-        String hostName;
-        try
-        {
-            InetAddress loopback = InetAddress.getLocalHost();
-            hostName = loopback.getCanonicalHostName();
-        }
-        catch ( UnknownHostException e )
-        {
-            System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
-            hostName = "localhost";
-        }
-        return hostName;
+        return Network.LOOPBACK_HOSTNAME;
     }
 
 
