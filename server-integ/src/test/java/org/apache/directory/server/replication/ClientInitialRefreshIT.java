@@ -95,7 +95,7 @@ public class ClientInitialRefreshIT
             providerSession.add( entry );
         }
 
-        cookiesDir = new File( FileUtils.getTempDirectory(), MockSyncReplConsumer.COOKIES_DIR_NAME );
+        cookiesDir = new File( FileUtils.getTempDirectoryPath(), MockSyncReplConsumer.COOKIES_DIR_NAME );
     }
 
 
