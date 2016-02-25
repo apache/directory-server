@@ -619,7 +619,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                             pwdAccountLockedTimeAt.add( failureTime );
                         }
 
-                        Modification pwdAccountLockedMod = new DefaultModification( ADD_ATTRIBUTE,
+                        Modification pwdAccountLockedMod = new DefaultModification( REPLACE_ATTRIBUTE,
                             pwdAccountLockedTimeAt );
                         mods.add( pwdAccountLockedMod );
 
