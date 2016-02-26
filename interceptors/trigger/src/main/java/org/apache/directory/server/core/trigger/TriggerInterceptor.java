@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.trigger.LdapOperation;
 import org.apache.directory.api.ldap.trigger.TriggerSpecification;
 import org.apache.directory.api.ldap.trigger.TriggerSpecificationParser;
 import org.apache.directory.api.ldap.trigger.TriggerSpecification.SPSpec;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
@@ -145,7 +146,7 @@ public class TriggerInterceptor extends BaseInterceptor
             entry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 
-        Attribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+        Attribute subentries = entry.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
 
         if ( subentries == null )
         {

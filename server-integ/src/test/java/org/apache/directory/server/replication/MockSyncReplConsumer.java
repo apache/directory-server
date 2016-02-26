@@ -77,6 +77,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
@@ -148,7 +149,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             SchemaConstants.MODIFY_TIMESTAMP_AT,
             SchemaConstants.CREATE_TIMESTAMP_AT,
             SchemaConstants.CREATORS_NAME_AT,
-            SchemaConstants.ENTRY_PARENT_ID_AT
+            ApacheSchemaConstants.ENTRY_PARENT_ID_AT
     };
 
     /** A thread used to refresh in refreshOnly mode */

@@ -51,6 +51,7 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
@@ -407,7 +408,7 @@ public class PartitionTest
         Entry entry = partition.fetch( entryId );
         String parentId = partition.getParentId( entryId );
 
-        Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );
+        Attribute parentIdAt = entry.get( ApacheSchemaConstants.ENTRY_PARENT_ID_AT );
         assertNotNull( parentIdAt );
         //assertEquals( parentId.toString(), parentIdAt.getString() );
 

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 
 
 /**
@@ -58,7 +59,7 @@ public class AttributeTypeProvider
 
     public AttributeTypeProvider( SchemaManager schemaManager )
     {
-        accessControlSubentries = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
+        accessControlSubentries = schemaManager.getAttributeType( ApacheSchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
         administrativeRole = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
         collectiveAttributeSubentries = schemaManager
             .getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
@@ -78,7 +79,7 @@ public class AttributeTypeProvider
         subschemaSubentry = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
         subtreeSpecification = schemaManager.getAttributeType( SchemaConstants.SUBTREE_SPECIFICATION_AT );
         triggerExecutionSubentries = schemaManager
-            .getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            .getAttributeType( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         uniqueMember = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
         userPassword = schemaManager.getAttributeType( SchemaConstants.USER_PASSWORD_AT_OID );
 

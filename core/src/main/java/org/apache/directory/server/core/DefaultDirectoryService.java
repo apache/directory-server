@@ -68,6 +68,7 @@ import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.NotImplementedException;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.api.AttributeTypeProvider;
@@ -1839,7 +1840,7 @@ public class DefaultDirectoryService implements DirectoryService
             {
                 String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition()
                     .getSuffixDn().getName();
-                partitionNexus.getRootDse( null ).add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
+                partitionNexus.getRootDse( null ).add( ApacheSchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }
 

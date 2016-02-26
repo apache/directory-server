@@ -78,6 +78,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.OperationManager;
@@ -137,7 +138,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             SchemaConstants.ENTRY_DN_AT,
             SchemaConstants.CREATE_TIMESTAMP_AT,
             SchemaConstants.CREATORS_NAME_AT,
-            SchemaConstants.ENTRY_PARENT_ID_AT,
+            ApacheSchemaConstants.ENTRY_PARENT_ID_AT,
             SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
             SchemaConstants.CONTEXT_CSN_AT
     };

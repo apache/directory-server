@@ -836,7 +836,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
 
             // Add the parentId in the entry
-            entry.put( SchemaConstants.ENTRY_PARENT_ID_AT, parentId );
+            entry.put( ApacheSchemaConstants.ENTRY_PARENT_ID_AT, parentId );
 
             lockWrite();
 
@@ -1897,7 +1897,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
 
         // Update the master table with the modified entry
-        modifiedEntry.put( SchemaConstants.ENTRY_PARENT_ID_AT, newParentId );
+        modifiedEntry.put( ApacheSchemaConstants.ENTRY_PARENT_ID_AT, newParentId );
 
         // Remove the EntryDN
         modifiedEntry.removeAttributes( entryDnAT );

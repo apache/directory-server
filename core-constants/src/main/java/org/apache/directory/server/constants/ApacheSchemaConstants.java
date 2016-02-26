@@ -97,6 +97,10 @@ public final class ApacheSchemaConstants
     // ApachePresence
     public static final String APACHE_PRESENCE_AT = "ApachePresence";
     public static final String APACHE_PRESENCE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.3";
+    
+    // ApacheOneLevel
+    public static final String APACHE_ONE_LEVEL_AT = "apacheOneLevel";
+    public static final String APACHE_ONE_LEVEL_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.4";
 
     // ApacheOneAlias
     public static final String APACHE_ONE_ALIAS_AT = "apacheOneAlias";
@@ -114,6 +118,34 @@ public final class ApacheSchemaConstants
     public static final String PREF_NODE_NAME_AT = "prefNodeName";
     public static final String PREF_NODE_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.8";
 
+    // ApacheSamType
+    public static final String APACHE_SAM_TYPE_AT = "apacheSamType";
+    public static final String APACHE_SAM_TYPE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.9";
+
+    // AutonomousAreaSubentry
+    public static final String AUTONOMOUS_AREA_SUBENTRY_AT = "autonomousAreaSubentry";
+    public static final String _AUTONOMOUS_AREA_SUBENTRYOID = "1.3.6.1.4.1.18060.0.4.1.2.10";
+
+    // AccessControlSubentries
+    public static final String ACCESS_CONTROL_SUBENTRIES_AT = "accessControlSubentries";
+    public static final String ACCESS_CONTROL_SUBENTRIES_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.11";
+
+    // NbChildren
+    public static final String NB_CHILDREN_AT = "nbChildren";
+    public static final String NB_CHILDREN_OID = "1.3.6.1.4.1.18060.0.4.1.2.12";
+
+    // NbSubordinates
+    public static final String NB_SUBORDINATES_AT = "nbSubordinates";
+    public static final String NB_SUBORDINATES_OID = "1.3.6.1.4.1.18060.0.4.1.2.13";
+
+    // ApacheServicePid
+    public static final String APACHE_SERVICE_PID_AT = "apacheServicePid";
+    public static final String APACHE_SERVICE_PID_OID = "1.3.6.1.4.1.18060.0.4.1.2.15";
+
+    // ApacheServiceFactoryPid
+    public static final String APACHE_SERVICE_FACTORYPID_AT = "apacheServiceFactoryPid";
+    public static final String APACHE_SERVICE_FACTORYPID_OID = "1.3.6.1.4.1.18060.0.4.1.2.16";
+
     // CatalogEntryName
     public static final String APACHE_CATALOGUE_ENTRY_NAME_AT = "apacheCatalogEntryName";
     public static final String APACHE_CATALOGUE_ENTRY_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.17";
@@ -129,9 +161,45 @@ public final class ApacheSchemaConstants
     public static final String UNIX_FILE_AT = "unixFilePath";
     public static final String UNIX_FILE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.20";
 
+    // FullyQualifiedJavaClassName
+    public static final String FULLY_QUALIFIED_JAVA_CLASS_NAME_AT = "fullyQualifiedJavaClassName";
+    public static final String FULLY_QUALIFIED_JAVA_CLASS_NAME_OID = "1.3.6.1.4.1.18060.0.4.1.2.21";
+
+    // JavaClassByteCode
+    public static final String JAVA_CLASS_BYTE_CODE_AT = "javaClassByteCode";
+    public static final String JAVA_CLASS_BYTE_CODE_OID = "1.3.6.1.4.1.18060.0.4.1.2.22";
+
+    // ClassLoaderDefaultSearchContext
+    public static final String CLASS_LOADER_DEFAULT_SEARCH_CONTEXT_AT = "classLoaderDefaultSearchContext";
+    public static final String CLASS_LOADER_DEFAULT_SEARCH_CONTEXT_OID = "1.3.6.1.4.1.18060.0.4.1.2.23";
+
+    // PrescriptiveTriggerSpecification
+    public static final String PRESCRIPTIVE_TRIGGER_SPECIFICATION_AT = "prescriptiveTriggerSpecification";
+    public static final String PRESCRIPTIVE_TRIGGER_SPECIFICATION_OID = "1.3.6.1.4.1.18060.0.4.1.2.25";
+
+    // EntryTriggerSpecification
+    public static final String ENTRY_TRIGGER_SPECIFICATION_AT = "entryTriggerSpecification";
+    public static final String ENTRY_TRIGGER_SPECIFICATION_OID = "1.3.6.1.4.1.18060.0.4.1.2.26";
+    
+    // TriggerExecutionSubentries
+    public static final String TRIGGER_EXECUTION_SUBENTRIES_AT = "triggerExecutionSubentries";
+    public static final String TRIGGER_EXECUTION_SUBENTRIES_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.27";
+
     // entryDeleted
     public static final String ENTRY_DELETED_AT = "entryDeleted";
     public static final String ENTRY_DELETED_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.31";
+
+    // Comparators
+    public static final String COMPARATORS_AT = "comparators";
+    public static final String COMPARATORS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.32";
+
+    // Normalizers
+    public static final String NORMALIZERS_AT = "normalizers";
+    public static final String NORMALIZERS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.33";
+
+    // SyntaxCheckers
+    public static final String SYNTAX_CHECKERS_AT = "syntaxCheckers";
+    public static final String SYNTAX_CHECKERS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.34";
 
     // SchemaModifyTimestamp
     public static final String SCHEMA_MODIFY_TIMESTAMP_AT = "schemaModifyTimestamp";
@@ -145,7 +213,59 @@ public final class ApacheSchemaConstants
     public static final String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
     public static final String SUBSCHEMA_SUBENTRY_NAME_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.37";
 
+    // PrivateKeyFormat
+    public static final String PRIVATE_KEY_FORMAT_AT = "privateKeyFormat";
+    public static final String PRIVATE_KEY_FORMAT_OID = "1.3.6.1.4.1.18060.0.4.1.2.38";
+
+    // KeyAlgorithm
+    public static final String KEY_ALGORITHM_AT = "keyAlgorithm";
+    public static final String KEY_ALGORITHM_OID = "1.3.6.1.4.1.18060.0.4.1.2.39";
+
+    // PrivateKey
+    public static final String PRIVATE_KEY_AT = "privateKey";
+    public static final String PRIVATE_KEY_OID = "1.3.6.1.4.1.18060.0.4.1.2.40";
+
+    // PublicKeyFormat
+    public static final String PUBLIC_KEY_FORMAT_AT = "publicKeyFormat";
+    public static final String PUBLIC_KEY_FORMAT_OID = "1.3.6.1.4.1.18060.0.4.1.2.41";
+
+    // PublicKey
+    public static final String PUBLIC_KEY_AT = "publicKey";
+    public static final String PUBLIC_KEY_OID = "1.3.6.1.4.1.18060.0.4.1.2.42";
+
+    // ApacheSubLevel
+    public static final String APACHE_SUB_LEVEL_AT = "apacheSubLevel";
+    public static final String APACHE_SUB_LEVEL_OID = "1.3.6.1.4.1.18060.0.4.1.2.43";
+
+    // Revisions
+    public static final String REVISIONS_AT = "revisions";
+    public static final String REVISIONS_OID = "1.3.6.1.4.1.18060.0.4.1.2.44";
+
+    // ChangeTime
+    public static final String CHANGE_TIME_AT = "changeTime";
+    public static final String CHANGE_TIME_OID = "1.3.6.1.4.1.18060.0.4.1.2.45";
+
+    // ChangeType
+    public static final String CHANGE_TYPE_AT = "changeType";
+    public static final String CHANGE_TYPE_OID = "1.3.6.1.4.1.18060.0.4.1.2.46";
+
+    // EventId
+    public static final String EVENT_ID_AT = "eventId";
+    public static final String EVENT_ID_OID = "1.3.6.1.4.1.18060.0.4.1.2.47";
+
+    // Committer
+    public static final String COMMITTER_AT = "committer";
+    public static final String COMMITTER_OID = "1.3.6.1.4.1.18060.0.4.1.2.48";
+
+    // ChangeLogContext
+    public static final String CHANGELOG_CONTEXT_AT = "changeLogContext";
+    public static final String CHANGELOG_CONTEXT_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.49";
+
     // apacheRdn
     public static final String APACHE_RDN_AT = "apacheRdn";
     public static final String APACHE_RDN_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.50";
+
+    // entryParentId
+    public static final String ENTRY_PARENT_ID_AT = "entryParentId";
+    public static final String ENTRY_PARENT_ID_OID = "1.3.6.1.4.1.18060.0.4.1.2.51";
 }

@@ -152,7 +152,7 @@ public class JdbmPartition extends AbstractBTreePartition
                 Entry entry = tuple.getValue();
                 
                 // Start with the RdnIndex
-                String parentId = entry.get( SchemaConstants.ENTRY_PARENT_ID_OID ).getString();
+                String parentId = entry.get( ApacheSchemaConstants.ENTRY_PARENT_ID_OID ).getString();
                 System.out.println( "Read entry " + entry.getDn() + " with ID " + id + " and parent ID " + parentId );
 
                 Dn dn = entry.getDn();
@@ -294,7 +294,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 // Update the parent's nbChildren and nbDescendants values
                 // Start with the RdnIndex
-                String parentId = entry.get( SchemaConstants.ENTRY_PARENT_ID_OID ).getString();
+                String parentId = entry.get( ApacheSchemaConstants.ENTRY_PARENT_ID_OID ).getString();
                 
                 if ( parentId != Partition.ROOT_ID )
                 {
