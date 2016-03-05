@@ -124,7 +124,7 @@ public final class ApacheSchemaConstants
 
     // AutonomousAreaSubentry
     public static final String AUTONOMOUS_AREA_SUBENTRY_AT = "autonomousAreaSubentry";
-    public static final String _AUTONOMOUS_AREA_SUBENTRYOID = "1.3.6.1.4.1.18060.0.4.1.2.10";
+    public static final String AUTONOMOUS_AREA_SUBENTRY_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.10";
 
     // AccessControlSubentries
     public static final String ACCESS_CONTROL_SUBENTRIES_AT = "accessControlSubentries";
