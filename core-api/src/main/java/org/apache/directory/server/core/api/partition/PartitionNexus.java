@@ -139,5 +139,12 @@ public interface PartitionNexus extends Partition
     void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;
 
 
+    /**
+     * The Compare operation
+     *
+     * @param compareContext The context for the compare operation
+     * @return true if the compare operation was successful, false otherwise
+     * @throws LdapException If we had an issue during the operation
+     */
     boolean compare( CompareOperationContext compareContext ) throws LdapException;
 }
