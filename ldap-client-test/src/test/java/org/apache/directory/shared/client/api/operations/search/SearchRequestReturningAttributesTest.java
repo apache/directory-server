@@ -110,7 +110,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( entry );
 
-        assertEquals( 10, entry.size() );
+        assertEquals( 12, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
@@ -120,6 +120,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "entryCSN" ) );
         assertTrue( entry.containsAttribute( "entryDN" ) );
         assertTrue( entry.containsAttribute( "subschemaSubentry" ) );
+        assertTrue( entry.containsAttribute( "nbChildren" ) );
+        assertTrue( entry.containsAttribute( "nbSubordinates" ) );
     }
 
 
@@ -178,7 +180,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( entry );
 
-        assertEquals( 7, entry.size() );
+        assertEquals( 9, entry.size() );
         assertTrue( entry.containsAttribute( "creatorsName" ) );
         assertTrue( entry.containsAttribute( "createTimestamp" ) );
         assertTrue( entry.containsAttribute( "entryUUID" ) );
@@ -186,6 +188,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "entryDN" ) );
         assertTrue( entry.containsAttribute( "entryParentId" ) );
         assertTrue( entry.containsAttribute( "subschemaSubentry" ) );
+        assertTrue( entry.containsAttribute( "nbChildren" ) );
+        assertTrue( entry.containsAttribute( "nbSubordinates" ) );
     }
 
 
@@ -247,7 +251,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( entry );
 
-        assertEquals( 9, entry.size() );
+        assertEquals( 11, entry.size() );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
         assertTrue( entry.containsAttribute( "creatorsName" ) );
@@ -257,6 +261,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "entryDN" ) );
         assertTrue( entry.containsAttribute( "entryParentId" ) );
         assertTrue( entry.containsAttribute( "subschemaSubentry" ) );
+        assertTrue( entry.containsAttribute( "nbChildren" ) );
+        assertTrue( entry.containsAttribute( "nbSubordinates" ) );
     }
 
 
@@ -468,7 +474,7 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertEquals( 1, count );
         assertNotNull( entry );
 
-        assertEquals( 10, entry.size() );
+        assertEquals( 12, entry.size() );
         assertTrue( entry.containsAttribute( "objectClass" ) );
         assertTrue( entry.containsAttribute( "cn" ) );
         assertTrue( entry.containsAttribute( "sn" ) );
@@ -479,6 +485,8 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
         assertTrue( entry.containsAttribute( "entryDN" ) );
         assertTrue( entry.containsAttribute( "entryParentId" ) );
         assertTrue( entry.containsAttribute( "subschemaSubentry" ) );
+        assertTrue( entry.containsAttribute( "nbChildren" ) );
+        assertTrue( entry.containsAttribute( "nbSubordinates" ) );
     }
 
 

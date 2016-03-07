@@ -1213,7 +1213,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         // ensure that all operational attributes are returned
         // and no user attributes
-        assertEquals( 7, attrs.size() );
+        assertEquals( 9, attrs.size() );
         assertNull( attrs.get( "cn" ) );
         assertNull( attrs.get( "sn" ) );
         assertNull( attrs.get( "objectClass" ) );
@@ -1225,6 +1225,119 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "entrycsn" ) );
         assertNotNull( attrs.get( "entryDn" ) );
         assertNotNull( attrs.get( "subschemaSubentry" ) );
+        assertNotNull( attrs.get( "nbChildren" ) );
+        assertNotNull( attrs.get( "nbSubordinates" ) );
+    }
+
+
+    @Test
+    public void testSearchNbChildrenOperationalAttr() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "nbChildren" } );
+
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
+
+        assertTrue( res.hasMore() );
+
+        SearchResult result = res.next();
+
+        // ensure that result is not null
+        assertNotNull( result );
+
+        Attributes attrs = result.getAttributes();
+
+        // ensure that all operational attributes are returned
+        // and no user attributes
+        assertEquals( 1, attrs.size() );
+        assertNotNull( attrs.get( "nbChildren" ) );
+        assertNull( attrs.get( "nbSubordinates" ) );
+    }
+
+
+    @Test
+    public void testSearchNbSubordinatesOperationalAttr() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "nbSubordinates" } );
+
+        NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
+
+        assertTrue( res.hasMore() );
+
+        SearchResult result = res.next();
+
+        // ensure that result is not null
+        assertNotNull( result );
+
+        Attributes attrs = result.getAttributes();
+
+        // ensure that all operational attributes are returned
+        // and no user attributes
+        assertEquals( 1, attrs.size() );
+        assertNotNull( attrs.get( "nbSubordinates" ) );
+        assertNull( attrs.get( "nbChildren" ) );
+    }
+
+
+    @Test
+    @Ignore
+    public void testSearchSubordinatesPerf() throws Exception
+    {
+        LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "entryUUID" } );
+
+        long t00 = System.currentTimeMillis();
+        for ( int i = 0; i < 10000; i++ )
+        {
+            NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
+            res.close();
+        }
+        long t01 = System.currentTimeMillis();
+        
+        System.out.println( "Delta without children = " + ( t01 - t00 ) );
+
+        controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "nbSubordinates" } );
+
+        long t0 = System.currentTimeMillis();
+        for ( int i = 0; i < 100000; i++ )
+        {
+            NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
+            res.close();
+        }
+        long t1 = System.currentTimeMillis();
+        
+        System.out.println( "Delta with children = " + ( t1 - t0 ) );
+
+        controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "entryUUID" } );
+
+        long t000 = System.currentTimeMillis();
+        for ( int i = 0; i < 100000; i++ )
+        {
+            NamingEnumeration<SearchResult> res = ctx.search( "", "(commonName=Tori Amos)", controls );
+            res.close();
+        }
+        long t001 = System.currentTimeMillis();
+        
+        System.out.println( "Delta without children(2) = " + ( t001 - t000 ) );
     }
 
 
@@ -1250,7 +1363,7 @@ public class SearchIT extends AbstractLdapTestUnit
         Attributes attrs = result.getAttributes();
 
         // ensure that all user attributes are returned
-        assertEquals( 13, attrs.size() );
+        assertEquals( 15, attrs.size() );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "sn" ) );
         assertNotNull( attrs.get( "objectClass" ) );
@@ -1263,6 +1376,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "entrycsn" ) );
         assertNotNull( attrs.get( "entryDn" ) );
         assertNotNull( attrs.get( "subschemaSubentry" ) );
+        assertNotNull( attrs.get( "nbChildren" ) );
+        assertNotNull( attrs.get( "nbSubordinates" ) );
     }
 
 

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.operational;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -82,6 +83,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     
     /** The filter that add the mandatory operational attributes */
     private final EntryFilter operationalAttributeSearchFilter = new OperationalAttributeSearchFilter();
+    
+    /** The filter that add the subordinates operational attributes */
+    private final EntryFilter subordinatesSearchFilter = new SubordinatesSearchFilter();
 
     /** The subschemasubentry Dn */
     private Dn subschemaSubentryDn;
@@ -156,6 +160,33 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         public String toString( String tabs )
         {
             return tabs + "OperationalAttributeSearchFilter";
+        }
+    }
+
+    
+    /**
+     * The search result filter to use for the addition of the subordinates attributes, if requested
+     */
+    private class SubordinatesSearchFilter implements EntryFilter
+    {
+        /**
+         * {@inheritDoc}
+         */
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
+        {
+            // Add the nbChildren/nbSubordinates attributes if required
+            processSubordinates( operation.getReturningAttributes(), operation.isAllOperationalAttributes(), entry );
+
+            return true;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "SubordinatesSearchFilter";
         }
     }
 
@@ -295,52 +326,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             return serverEntry;
         }
 
-        Entry result = next( lookupContext );
+        Entry entry = next( lookupContext );
 
-        denormalizeEntryOpAttrs( result );
+        denormalizeEntryOpAttrs( entry );
         
-       // Bypass the rootDSE : we won't get the nbChildren and nbSubordiantes for this special entry
-        if ( Dn.isNullOrEmpty( result.getDn() ) )
-        {
-            return result;
-        }
+        // Add the nbChildren/nbSubordinates attributes if required
+        processSubordinates( lookupContext.getReturningAttributes(), lookupContext.isAllOperationalAttributes(), entry );
 
-        // Add the Subordinates AttributeType if it's requested
-        AttributeType nbChildrenAt = directoryService.getAtProvider().getNbChildren();
-        AttributeTypeOptions nbChildrenAto = new AttributeTypeOptions( nbChildrenAt );
-        AttributeType nbSubordinatesAt = directoryService.getAtProvider().getNbSubordinates();
-        AttributeTypeOptions nbSubordinatesAto = new AttributeTypeOptions( nbSubordinatesAt );
-        
-        if ( lookupContext.getReturningAttributes() != null )
-        {
-            boolean nbChildrenRequested = lookupContext.getReturningAttributes().contains( nbChildrenAto ) 
-                | lookupContext.isAllOperationalAttributes();
-            boolean nbSubordinatesRequested = lookupContext.getReturningAttributes().contains( nbSubordinatesAto )
-                | lookupContext.isAllOperationalAttributes();
-
-            if ( nbChildrenRequested || nbSubordinatesRequested )
-            {
-                Partition partition = directoryService.getPartitionNexus().getPartition( result.getDn() );
-                Subordinates subordinates = partition.getSubordinates( result );
-                
-                long nbChildren = subordinates.getNbChildren();
-                long nbSubordinates = subordinates.getNbSubordinates();
-                
-                if ( nbChildrenRequested )
-                {
-                    result.add( new DefaultAttribute( nbChildrenAt, 
-                        Long.toString( nbChildren ) ) );
-                }
-    
-                if ( nbSubordinatesRequested )
-                { 
-                    result.add( new DefaultAttribute( nbSubordinatesAt,
-                        Long.toString( nbSubordinates ) ) );
-                }
-            }
-        }
-
-        return result;
+        return entry;
     }
 
 
@@ -536,6 +529,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
 
             cursor.addEntryFilter( operationalAttributeSearchFilter );
+            cursor.addEntryFilter( subordinatesSearchFilter );
             
             return cursor;
         }
@@ -643,5 +637,49 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         return newDn;
+    }
+    
+    
+    private void processSubordinates( Set<AttributeTypeOptions> returningAttributes, boolean allAttributes, Entry entry ) 
+        throws LdapException
+    {
+        // Bypass the rootDSE : we won't get the nbChildren and nbSubordiantes for this special entry
+        if ( Dn.isNullOrEmpty( entry.getDn() ) )
+        {
+            return;
+        }
+
+        // Add the Subordinates AttributeType if it's requested
+        AttributeType nbChildrenAt = directoryService.getAtProvider().getNbChildren();
+        AttributeTypeOptions nbChildrenAto = new AttributeTypeOptions( nbChildrenAt );
+        AttributeType nbSubordinatesAt = directoryService.getAtProvider().getNbSubordinates();
+        AttributeTypeOptions nbSubordinatesAto = new AttributeTypeOptions( nbSubordinatesAt );
+        
+        if ( returningAttributes != null )
+        {
+            boolean nbChildrenRequested = returningAttributes.contains( nbChildrenAto ) | allAttributes;
+            boolean nbSubordinatesRequested = returningAttributes.contains( nbSubordinatesAto ) | allAttributes;
+
+            if ( nbChildrenRequested || nbSubordinatesRequested )
+            {
+                Partition partition = directoryService.getPartitionNexus().getPartition( entry.getDn() );
+                Subordinates subordinates = partition.getSubordinates( entry );
+                
+                long nbChildren = subordinates.getNbChildren();
+                long nbSubordinates = subordinates.getNbSubordinates();
+                
+                if ( nbChildrenRequested )
+                {
+                    entry.add( new DefaultAttribute( nbChildrenAt, 
+                        Long.toString( nbChildren ) ) );
+                }
+    
+                if ( nbSubordinatesRequested )
+                { 
+                    entry.add( new DefaultAttribute( nbSubordinatesAt,
+                        Long.toString( nbSubordinates ) ) );
+                }
+            }
+        }
     }
 }
