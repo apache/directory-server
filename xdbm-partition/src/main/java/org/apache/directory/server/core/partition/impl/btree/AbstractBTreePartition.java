@@ -83,6 +83,7 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.Subordinates;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -3418,5 +3419,41 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             throw new LdapOperationErrorException( e.getMessage(), e );
         }
+    }
+    
+    
+    /**
+     * Return the number of children and subordinates for a given entry
+     *
+     * @param dn The entry's DN
+     * @return The Subordinate instance that contains the values.
+     * @throws LdapException If we had an issue while processing the request
+     */
+    public Subordinates getSubordinates( Entry entry ) throws LdapException
+    {
+        Subordinates subordinates = new Subordinates();
+        
+        try
+        {
+            // Check into the Rdn index, starting with the partition Suffix
+            try
+            {
+                rwLock.readLock().lock();
+                ParentIdAndRdn parentIdAndRdn = rdnIdx.reverseLookup( entry.get( SchemaConstants.ENTRY_UUID_AT ).getString() );
+
+                subordinates.setNbChildren( parentIdAndRdn.getNbChildren() );
+                subordinates.setNbSubordinates( parentIdAndRdn.getNbDescendants() );
+            }
+            finally
+            {
+                rwLock.readLock().unlock();
+            }
+        }
+        catch ( Exception e )
+        {
+            throw new LdapException( e.getMessage(), e );
+        }
+
+        return subordinates;
     }
 }

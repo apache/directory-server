@@ -81,6 +81,7 @@ import org.apache.directory.server.core.api.interceptor.context.UnbindOperationC
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.Subordinates;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1042,8 +1043,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         mods.add( timeStampMod );
     }
-
-
+    
+    
     @Override
     public String getContextCsn()
     {
@@ -1055,5 +1056,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     @Override
     public void saveContextCsn() throws Exception
     {
+    }
+    
+    
+    /**
+     * Return the number of children and subordinates for a given entry
+     *
+     * @param dn The entry's DN
+     * @return The Subordinate instance that contains the values.
+     * @throws LdapException If we had an issue while processing the request
+     */
+    public Subordinates getSubordinates( Entry entry ) throws LdapException
+    {
+        return new Subordinates();
     }
 }

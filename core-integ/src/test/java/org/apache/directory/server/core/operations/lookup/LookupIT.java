@@ -27,7 +27,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -104,7 +106,7 @@ public class LookupIT extends AbstractLdapTestUnit
         assertNotNull( entry );
         
         // We should have 6 attributes
-        assertEquals( 6, entry.size() );
+        assertEquals( 8, entry.size() );
 
         // Check that all the user attributes are absent
         assertNull( entry.get( "cn" ) );
@@ -126,6 +128,8 @@ public class LookupIT extends AbstractLdapTestUnit
         assertNotNull( entry.get( "entryUUID" ).getString() );
         assertNotNull( entry.get( "entryParentId" ).getString() );
         assertNotNull( entry.get( "entryDn" ));
+        assertNotNull( entry.get( "nbChildren" ));
+        assertNotNull( entry.get( "nbSubordinates" ));
         assertEquals( "cn=test,ou=system", entry.get( "entryDn" ).getString() );
     }
 
@@ -251,5 +255,72 @@ public class LookupIT extends AbstractLdapTestUnit
 
         // We should have 0 attributes
         assertEquals( 0, entry.size() );
+    }
+    
+    
+    @Test
+    public void testLookupSubordinates() throws LdapException
+    {
+        Entry entry = connection.lookup( "cn=test,ou=system", "*", "+" );
+        
+        assertNotNull( entry );
+
+        // We should have 11 attributes
+        assertEquals( 11, entry.size() );
+        assertTrue( entry.containsAttribute( "nbChildren", "nbSubordinates" ) );
+        assertEquals( 0L, Long.parseLong( entry.get( "nbChildren" ).getString() ) );
+        assertEquals( 0L, Long.parseLong( entry.get( "nbSubordinates" ).getString() ) );
+        
+        // Now lookup for the "ou=system"
+        entry = connection.lookup( "ou=system", "*", "+" );
+        
+        assertNotNull( entry );
+
+        // We should have 11 attributes
+        assertEquals( 11, entry.size() );
+        assertTrue( entry.containsAttribute( "nbChildren", "nbSubordinates" ) );
+
+        // we will have 6 children :
+        // - ou=configuration
+        // - ou=consumer
+        // - ou = groups
+        // - ou=users
+        // - ou=prefNodeNames
+        // - uid=admin
+        // and 10 subordinates, as we have 3 children under ou=configuration and one under ou=groups
+        assertEquals( 6L, Long.parseLong( entry.get( "nbChildren" ).getString() ) );
+        assertEquals( 10L, Long.parseLong( entry.get( "nbSubordinates" ).getString() ) );
+        
+        // Check with only one of the two attributes 
+        entry = connection.lookup( "ou=system", "nbChildren" );
+        
+        assertNotNull( entry );
+
+        // We should have 1 attributes
+        assertEquals( 1, entry.size() );
+        assertTrue( entry.containsAttribute( "nbChildren" ) );
+        assertFalse( entry.containsAttribute( "nbSubordinates" ) );
+
+        // we will have 6 children :
+        // - ou=configuration
+        // - ou=consumer
+        // - ou = groups
+        // - ou=users
+        // - ou=prefNodeNames
+        // - uid=admin
+        assertEquals( 6L, Long.parseLong( entry.get( "nbChildren" ).getString() ) );
+        
+        // And teh subordinates
+        entry = connection.lookup( "ou=system", "nbSubordinates" );
+        
+        assertNotNull( entry );
+
+        // We should have 1 attributes
+        assertEquals( 1, entry.size() );
+        assertFalse( entry.containsAttribute( "nbChildren" ) );
+        assertTrue( entry.containsAttribute( "nbSubordinates" ) );
+
+        // we will have 10 subordinates
+        assertEquals( 10L, Long.parseLong( entry.get( "nbSubordinates" ).getString() ) );
     }
 }

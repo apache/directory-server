@@ -140,7 +140,9 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             SchemaConstants.CREATORS_NAME_AT,
             ApacheSchemaConstants.ENTRY_PARENT_ID_AT,
             SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
-            SchemaConstants.CONTEXT_CSN_AT
+            SchemaConstants.CONTEXT_CSN_AT,
+            ApacheSchemaConstants.NB_CHILDREN_AT,
+            ApacheSchemaConstants.NB_SUBORDINATES_AT
     };
 
     /** the cookie that was saved last time */

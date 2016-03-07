@@ -38,6 +38,7 @@ import org.apache.directory.api.ldap.model.name.Ava;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -55,6 +56,8 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.Subordinates;
 import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -117,6 +120,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
     }
 
+    
     /**
      * the search result filter to use for the addition of mandatory operational attributes
      */
@@ -155,7 +159,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
     }
 
-
+    
     /**
      * Creates the operational attribute management service interceptor.
      */
@@ -294,6 +298,47 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry result = next( lookupContext );
 
         denormalizeEntryOpAttrs( result );
+        
+       // Bypass the rootDSE : we won't get the nbChildren and nbSubordiantes for this special entry
+        if ( Dn.isNullOrEmpty( result.getDn() ) )
+        {
+            return result;
+        }
+
+        // Add the Subordinates AttributeType if it's requested
+        AttributeType nbChildrenAt = directoryService.getAtProvider().getNbChildren();
+        AttributeTypeOptions nbChildrenAto = new AttributeTypeOptions( nbChildrenAt );
+        AttributeType nbSubordinatesAt = directoryService.getAtProvider().getNbSubordinates();
+        AttributeTypeOptions nbSubordinatesAto = new AttributeTypeOptions( nbSubordinatesAt );
+        
+        if ( lookupContext.getReturningAttributes() != null )
+        {
+            boolean nbChildrenRequested = lookupContext.getReturningAttributes().contains( nbChildrenAto ) 
+                | lookupContext.isAllOperationalAttributes();
+            boolean nbSubordinatesRequested = lookupContext.getReturningAttributes().contains( nbSubordinatesAto )
+                | lookupContext.isAllOperationalAttributes();
+
+            if ( nbChildrenRequested || nbSubordinatesRequested )
+            {
+                Partition partition = directoryService.getPartitionNexus().getPartition( result.getDn() );
+                Subordinates subordinates = partition.getSubordinates( result );
+                
+                long nbChildren = subordinates.getNbChildren();
+                long nbSubordinates = subordinates.getNbSubordinates();
+                
+                if ( nbChildrenRequested )
+                {
+                    result.add( new DefaultAttribute( nbChildrenAt, 
+                        Long.toString( nbChildren ) ) );
+                }
+    
+                if ( nbSubordinatesRequested )
+                { 
+                    result.add( new DefaultAttribute( nbSubordinatesAt,
+                        Long.toString( nbSubordinates ) ) );
+                }
+            }
+        }
 
         return result;
     }
