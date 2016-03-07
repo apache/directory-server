@@ -53,6 +53,8 @@ public class AttributeTypeProvider
     private final AttributeType triggerExecutionSubentries;
     private final AttributeType uniqueMember;
     private final AttributeType userPassword;
+    private final AttributeType nbChildren;
+    private final AttributeType nbSubordinates;
 
     private final AttributeType[] subentryOperationalAttributes;
 
@@ -82,6 +84,8 @@ public class AttributeTypeProvider
             .getAttributeType( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         uniqueMember = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT_OID );
         userPassword = schemaManager.getAttributeType( SchemaConstants.USER_PASSWORD_AT_OID );
+        nbChildren = schemaManager.getAttributeType( ApacheSchemaConstants.NB_CHILDREN_OID );
+        nbSubordinates = schemaManager.getAttributeType( ApacheSchemaConstants.NB_SUBORDINATES_OID );
 
         subentryOperationalAttributes = new AttributeType[]
             {
@@ -273,6 +277,24 @@ public class AttributeTypeProvider
     }
 
 
+    /**
+     * @return the operational attributes of n nbChildren
+     */
+    public AttributeType getNbChildren()
+    {
+        return nbChildren;
+    }
+
+
+    /**
+     * @return the operational attributes of a nbSubordinates
+     */
+    public AttributeType getNbSubordinates()
+    {
+        return nbSubordinates;
+    }
+
+
     /** 
      * @return the <code>userPassword<code> {@link AttributeType}.
      */
@@ -289,5 +311,4 @@ public class AttributeTypeProvider
     {
         return subentryOperationalAttributes;
     }
-
 }

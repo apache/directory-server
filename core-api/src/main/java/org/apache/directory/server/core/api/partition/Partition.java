@@ -309,4 +309,14 @@ public interface Partition
      * @throws Exception
      */
     void saveContextCsn() throws Exception;
+    
+    
+    /**
+     * Return the number of children and subordinates for a given entry
+     *
+     * @param entry The entry
+     * @return The Subordinate instance that contains the values.
+     * @throws LdapException If we had an issue while processing the request
+     */
+    Subordinates getSubordinates( Entry entry ) throws LdapException;
 }
