@@ -31,6 +31,7 @@ import org.apache.directory.api.asn1.util.Oid;
 import org.apache.directory.api.ldap.codec.api.BinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
@@ -84,7 +85,6 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +134,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public boolean close() throws IOException
+    public void close() throws IOException
     {
         try
         {
@@ -146,15 +146,13 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             ioe.initCause( e );
             throw ioe;
         }
-
-        return true;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean connect() throws LdapException, IOException
+    public boolean connect() throws LdapException
     {
         return true;
     }
@@ -251,6 +249,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             resp.getLdapResult().setResultCode( ResultCodeEnum.getResultCode( e ) );
         }
 
+        addResponseControls( compareRequest, resp );
         return resp;
     }
 
@@ -471,6 +470,16 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
+    public void loadSchemaRelaxed() throws LdapException
+    {
+        // do nothing, cause we already have SchemaManager in the session's DirectoryService
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public Entry lookup( Dn dn, String... attributes ) throws LdapException
     {
         return lookup( dn, null, attributes );
@@ -505,7 +514,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     public Entry lookup( String dn, String... attributes ) throws LdapException
     {
         Dn baseDn = new Dn( schemaManager, dn );
-        
+
         return lookup( baseDn, null, attributes );
     }
 
@@ -576,7 +585,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      */
     public Entry lookup( Dn dn ) throws LdapException
     {
-        return lookup( dn, (String[])null );
+        return lookup( dn, ( String[] ) null );
     }
 
 
@@ -585,7 +594,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      */
     public Entry lookup( String dn ) throws LdapException
     {
-        return lookup( new Dn( schemaManager, dn ), (String[])null );
+        return lookup( new Dn( schemaManager, dn ), ( String[] ) null );
     }
 
 
@@ -998,18 +1007,18 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
             searchRequest.setMessageId( newId );
 
-            EntryFilteringCursor entryCursor = session.search( searchRequest );
+            Cursor<Entry> entryCursor = session.search( searchRequest );
             entryCursor.beforeFirst();
 
             //TODO enforce the size and time limits, similar in the way SearchHandler does
-            return new EntryToResponseCursor( newId, entryCursor );
+            return new EntryToResponseCursor( searchRequest, newId, entryCursor );
         }
         catch ( Exception e )
         {
             LOG.warn( e.getMessage(), e );
         }
 
-        return new EntryToResponseCursor( -1, new EmptyCursor<Entry>() );
+        return new EntryToResponseCursor( searchRequest, -1, new EmptyCursor<Entry>() );
     }
 
 
@@ -1062,7 +1071,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             {
                 session.unbind();
             }
-            
+
             session = null;
         }
     }
@@ -1152,7 +1161,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public void bind() throws LdapException, IOException
+    public void bind() throws LdapException
     {
         throw new UnsupportedOperationException(
             "Bind operation using LdapConnectionConfig are not supported on CoreSession based connection" );
@@ -1162,7 +1171,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public void anonymousBind() throws LdapException, IOException
+    public void anonymousBind() throws LdapException
     {
         BindRequest bindRequest = new BindRequestImpl();
         bindRequest.setName( "" );
@@ -1177,7 +1186,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public BindResponse bind( BindRequest bindRequest ) throws LdapException, IOException
+    public BindResponse bind( BindRequest bindRequest ) throws LdapException
     {
         if ( bindRequest == null )
         {
@@ -1190,8 +1199,14 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
-        bindContext.setDn( bindRequest.getDn() );
+
+        bindContext.setDn( bindRequest.getDn().apply( directoryService.getSchemaManager() ) );
         bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
+
+        for ( Control control : bindRequest.getControls().values() )
+        {
+            bindContext.addRequestControl( control );
+        }
 
         OperationManager operationManager = directoryService.getOperationManager();
 
@@ -1264,5 +1279,15 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     public void setBinaryAttributeDetector( BinaryAttributeDetector binaryAttributeDetector )
     {
         // Does nothing
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
     }
 }

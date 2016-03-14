@@ -36,12 +36,15 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -50,6 +53,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,7 +68,6 @@ import org.junit.runner.RunWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class LdapConnectionTest extends AbstractLdapTestUnit
 {
-
     private static final String ADMIN_DN = "uid=admin,ou=system";
 
     private LdapConnection connection;
@@ -92,7 +95,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testBindRequest() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         try
         {
             connection.bind( ADMIN_DN, "secret" );
@@ -106,6 +109,60 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
                 connection.close();
             }
         }
+    }
+
+
+    @Test
+    @Ignore
+    public void testRebindNoPool() throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+
+        for ( int i = 0; i < 10000; i++ )
+        {
+            if ( i % 100 == 0 )
+            {
+                System.out.println( "Iteration # " + i );
+            }
+            // First, unbind
+            try
+            {
+                connection.unBind();
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                throw e;
+            }
+
+            //Thread.sleep( 5 );
+
+            // Don't close the connection, we want to reuse it
+            // Then bind again
+            try
+            {
+                connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
+            }
+            catch ( Exception e )
+            {
+                System.out.println( "Failure after " + i + " iterations" );
+                e.printStackTrace();
+                throw e;
+            }
+        }
+
+        // terminate with an unbind
+        try
+        {
+            connection.unBind();
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+
+        connection.close();
     }
 
 
@@ -167,7 +224,7 @@ public void testLookup() throws Exception
     {
         // test with a local connection using a local BinaryAttributeDetector
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localhost" );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( ldapServer.getPort() );
         config.setName( ServerDNConstants.ADMIN_SYSTEM_DN );
         config.setCredentials( "secret" );
@@ -195,6 +252,8 @@ public void testLookup() throws Exception
         // Use the default list of binary Attributes
         entry = connection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
+
+        myConnection.close();
     }
 
 
@@ -206,7 +265,7 @@ public void testLookup() throws Exception
         assertNotNull( manager );
         assertTrue( manager.isEnabled( "system" ) );
         assertFalse( manager.isEnabled( "nis" ) );
-        assertEquals( manager.getLoader().getAllSchemas().size(), manager.getEnabled().size() );
+        assertEquals( manager.getAllSchemas().size(), manager.getEnabled().size() );
     }
 
 
@@ -237,37 +296,12 @@ public void testLookup() throws Exception
     @Test
     public void testAnonBind() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
+        LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
         connection.bind();
         assertTrue( connection.isAuthenticated() );
         connection.close();
-    }
-
-
-    /**
-     * Test a connection which does not have any schemaManager loaded
-     */
-    @ApplyLdifs(
-        {
-            "dn: uid=kayyagari,ou=system",
-            "objectClass: extensibleObject",
-            "objectClass: uidObject",
-            "objectClass: referral",
-            "objectClass: top",
-            "uid: kayyagari",
-            "ref: ldap://ad.example.com/uid=kayyagari,ou=system"
-    })
-@Test
-public void testNoSchemaConnection() throws Exception
-    {
-        LdapConnection ldapConnection = new LdapNetworkConnection( "localHost", ldapServer.getPort() );
-
-        ldapConnection.bind( "uid=admin,ou=system", "secret" );
-
-        // Try to retrieve a binary attribute : it should be seen as a String
-        Entry entry = ldapConnection.lookup( "uid=admin,ou=system" );
-        assertTrue( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
     }
 
 
@@ -279,7 +313,7 @@ public void testNoSchemaConnection() throws Exception
     public void testNoSchemaConnectionWithBinaryDetector() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localhost" );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( ldapServer.getPort() );
         config.setBinaryAttributeDetector( new DefaultConfigurableBinaryAttributeDetector() );
 
@@ -290,5 +324,27 @@ public void testNoSchemaConnection() throws Exception
         // Try to retrieve a binary attribute : it should be seen as a byte[]
         Entry entry = ldapConnection.lookup( "uid=admin,ou=system" );
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
+
+        ldapConnection.close();
+    }
+
+
+    @Test(expected = InvalidConnectionException.class)
+    public void testConnectionWrongHost() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( "notexisting", 1234 );
+        connection.connect();
+
+        connection.close();
+    }
+
+
+    @Test(expected = InvalidConnectionException.class)
+    public void testConnectionWrongPort() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 123 );
+        connection.connect();
+
+        connection.close();
     }
 }

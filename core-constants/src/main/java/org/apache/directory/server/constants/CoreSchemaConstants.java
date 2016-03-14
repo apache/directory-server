@@ -23,7 +23,7 @@ package org.apache.directory.server.constants;
 
 /**
  * Core schema constants used throughout the server.
- * Final reference -> class shouldn't be extended
+ * Final reference -&gt; class shouldn't be extended
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -38,5 +38,5 @@ public final class CoreSchemaConstants
     {
     }
 
-    public final static String SCHEMA_NAME = "core";
+    public static final String SCHEMA_NAME = "core";
 }

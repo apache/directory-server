@@ -23,6 +23,7 @@ package org.apache.directory.server.operations.bind;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
@@ -30,15 +31,14 @@ import netscape.ldap.LDAPException;
 
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -85,10 +85,6 @@ import org.junit.runner.RunWith;
     })
 public class BindIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
-
     /**
      * Test with bindDn which is not even found under any namingContext of the
      * server.
@@ -135,7 +131,7 @@ public class BindIT extends AbstractLdapTestUnit
         try
         {
             conn = new LDAPConnection();
-            conn.connect( 100, "localhost", getLdapServer().getPort(), "uid=admin,ou=system", "secret" );
+            conn.connect( 100, Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(), "uid=admin,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }
         catch ( LDAPException e )
@@ -166,7 +162,7 @@ public class BindIT extends AbstractLdapTestUnit
 
         try
         {
-            conn.connect( 3, "localhost", getLdapServer().getPort(),
+            conn.connect( 3, Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret", constraints );
             fail( "try to connect with illegal version number should fail" );
         }
@@ -177,7 +173,7 @@ public class BindIT extends AbstractLdapTestUnit
 
         try
         {
-            conn.connect( 3, "localhost", getLdapServer().getPort(),
+            conn.connect( 3, Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(),
                 "uid=akarasuluref,ou=users,ou=system", "secret" );
             fail( "try to connect with illegal version number should fail" );
         }

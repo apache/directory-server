@@ -54,7 +54,7 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -65,7 +65,6 @@ import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -94,9 +93,6 @@ import org.slf4j.LoggerFactory;
         { StartTlsHandler.class })
 public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsConfidentialityIT.class );
     private static final String[] CERT_IDS = new String[]
         { "userCertificate" };
@@ -129,14 +125,16 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
         assertNotNull( userCertificate );
 
-        ByteArrayInputStream in = new ByteArrayInputStream( userCertificate );
-        CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
-        Certificate cert = factory.generateCertificate( in );
-        KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
-        ks.load( null, null );
-        ks.setCertificateEntry( "apacheds", cert );
-        ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
-        LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
+        try ( ByteArrayInputStream in = new ByteArrayInputStream( userCertificate ) )
+        {
+            CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
+            Certificate cert = factory.generateCertificate( in );
+            KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
+            ks.load( null, null );
+            ks.setCertificateEntry( "apacheds", cert );
+            ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
+            LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
+        }
 
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
@@ -170,7 +168,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
         // Must use the name of the server that is found in its certificate?
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
 
         // Create initial context
         LOG.debug( "About to get initial context" );
@@ -266,7 +264,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
                 new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "cn", "fbar" ) )
         };
         ctx.modifyAttributes( "cn=foo bar,ou=system", mods );
-        Attributes reread = ( Attributes ) ctx.getAttributes( "cn=foo bar,ou=system" );
+        Attributes reread = ctx.getAttributes( "cn=foo bar,ou=system" );
         assertTrue( reread.get( "cn" ).contains( "fbar" ) );
 
         // -------------------------------------------------------------------
@@ -282,7 +280,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         catch ( NameNotFoundException e )
         {
         }
-        reread = ( Attributes ) ctx.getAttributes( "cn=fbar,ou=system" );
+        reread = ctx.getAttributes( "cn=fbar,ou=system" );
         assertTrue( reread.get( "cn" ).contains( "fbar" ) );
 
         // -------------------------------------------------------------------

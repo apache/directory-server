@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -33,45 +33,47 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateAuthenticator;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
-import org.apache.directory.server.core.authn.SimpleAuthenticator;
-import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 /**
- * Tests the server to make sure standard compare operations work properly.
+ * Tests the Delegated authenticator
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
+@CreateDS(
+    allowAnonAccess = true,
+    name = "DelegatedAuthIT-class",
+    authenticators =
+        {
+            @CreateAuthenticator(
+                type = DelegatingAuthenticator.class,
+                delegatePort = 10201,
+                delegateSsl = false) })
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: uid=antoine,ou=users,ou=system",
+        "dn: uid=emmanuel,ou=users,ou=system",
         "objectClass: uidObject",
         "objectClass: person",
         "objectClass: top",
-        "uid: antoine",
-        "cn: Antoine Levy-Lambert",
-        "sn: Levy-Lambert",
-        "userPassword: secret" })
-@CreateDS(allowAnonAccess = true, name = "DelegatedAuthIT-class")
+        "uid: emmanuel",
+        "cn: Emmanuel Lecharny",
+        "sn: Lecharny",
+        "userPassword: sesame" })
 @CreateLdapServer(
     transports =
         {
             @CreateTransport(protocol = "LDAP", port = 10200)
-    })
+    },
+    allowAnonymousAccess = true)
 public class DelegatedAuthIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     /**
      * Test with bindDn which is not even found under any namingContext of the
      * server.
@@ -80,25 +82,31 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
      */
     @CreateDS(
         allowAnonAccess = true,
-        name = "DelegatedAuthIT-method",
-        authenticators =
-            {
-                @CreateAuthenticator(
-                    type = DelegatingAuthenticator.class,
-                    delegateHost = "localhost",
-                    delegatePort = 10200) })
+        name = "DelegatedAuthIT-method")
+    @ApplyLdifs(
+        {
+            // Entry # 1
+            "dn: uid=antoine,ou=users,ou=system",
+            "objectClass: uidObject",
+            "objectClass: person",
+            "objectClass: top",
+            "uid: antoine",
+            "cn: Antoine Levy-Lambert",
+            "sn: Levy-Lambert",
+            "userPassword: secret" })
     @CreateLdapServer(
         transports =
             {
-                @CreateTransport(protocol = "LDAP")
+                @CreateTransport(protocol = "LDAP", port = 10201)
         })
     @Test
     public void testDelegatedAuthentication() throws Exception
     {
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
-        LdapConnection ldapConnection = new LdapNetworkConnection( "localhost", getLdapServer()
-            .getPort() );
+        LdapConnection ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 10200 );
+
+        ldapConnection.setTimeOut( 0L );
         ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
 
         assertTrue( ldapConnection.isAuthenticated() );
@@ -140,38 +148,30 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
      */
     @CreateDS(
         allowAnonAccess = true,
-        name = "DelegatedAuthIT-MultipleAuthenticators-method",
-        authenticators =
-            {
-                @CreateAuthenticator(type = AnonymousAuthenticator.class),
-                @CreateAuthenticator(type = SimpleAuthenticator.class),
-                @CreateAuthenticator(
-                    type = DelegatingAuthenticator.class,
-                    delegateHost = "localhost",
-                    delegatePort = 10200),
-                @CreateAuthenticator(type = StrongAuthenticator.class) })
+        name = "DelegatedAuthIT-MultipleAuthenticators-method")
     @ApplyLdifs(
         {
             // Entry # 1
-            "dn: uid=emmanuel,ou=users,ou=system",
+            "dn: uid=antoine,ou=users,ou=system",
             "objectClass: uidObject",
             "objectClass: person",
             "objectClass: top",
-            "uid: emmanuel",
-            "cn: Emmanuel Lecharny",
-            "sn: Lecharny",
-            "userPassword: sesame" })
+            "uid: antoine",
+            "cn: Antoine Levy-Lambert",
+            "sn: Levy-Lambert",
+            "userPassword: secret" })
     @CreateLdapServer(
         transports =
             {
-                @CreateTransport(protocol = "LDAP")
-        })
+                @CreateTransport(protocol = "LDAP", port = 10201)
+        }, allowAnonymousAccess = true)
     @Test
     public void testMultipleAuthenticators() throws Exception
     {
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", getService().getInstanceId() );
-        LdapConnection ldapConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 10200 );
+        ldapConnection.setTimeOut( 0L );
         ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
 
         assertTrue( ldapConnection.isAuthenticated() );

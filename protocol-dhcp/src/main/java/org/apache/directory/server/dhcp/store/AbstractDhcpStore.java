@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractDhcpStore implements DhcpStore
 {
-    private static final Logger logger = LoggerFactory.getLogger( AbstractDhcpStore.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractDhcpStore.class );
 
 
     /*
@@ -52,20 +52,25 @@ public abstract class AbstractDhcpStore implements DhcpStore
         InetAddress selectionBase, long requestedLeaseTime, OptionsField options ) throws DhcpException
     {
         Subnet subnet = findSubnet( selectionBase );
+
         if ( null == subnet )
         {
-            logger.warn( "Don't know anything about the sbnet containing " + selectionBase );
+            LOG.warn( "Don't know anything about the sbnet containing " + selectionBase );
             return null;
         }
 
         // try to find existing lease
         Lease lease = null;
         lease = findExistingLease( hardwareAddress, lease );
+
         if ( null != lease )
+        {
             return lease;
+        }
 
         Host host = null;
         host = findDesignatedHost( hardwareAddress );
+
         if ( null != host )
         {
             // make sure that the host is actually within the subnet. Depending
@@ -73,7 +78,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
             // possible to violate this condition, but we can't be sure.
             if ( !subnet.contains( host.getAddress() ) )
             {
-                logger.warn( "Host " + host + " is not within the subnet for which an address is requested" );
+                LOG.warn( "Host " + host + " is not within the subnet for which an address is requested" );
             }
             else
             {
@@ -109,10 +114,10 @@ public abstract class AbstractDhcpStore implements DhcpStore
             }
         }
 
-        if ( null == lease )
-        {
-            // FIXME: use selection base to find a lease in a pool.
-        }
+        //if ( null == lease )
+        //{
+        // FIXME: use selection base to find a lease in a pool.
+        //}
 
         // update the lease state
         if ( null != lease && lease.getState() != Lease.STATE_ACTIVE )
@@ -138,32 +143,38 @@ public abstract class AbstractDhcpStore implements DhcpStore
         // hardware address, we send a NAK.
         Lease lease = null;
         lease = findExistingLease( hardwareAddress, lease );
+
         if ( null == lease )
+        {
             return null;
+        }
 
         // check whether the notions of the client address match
         if ( !lease.getClientAddress().equals( requestedAddress ) )
         {
-            logger.warn( "Requested address " + requestedAddress + " for " + hardwareAddress
+            LOG.warn( "Requested address " + requestedAddress + " for " + hardwareAddress
                 + " doesn't match existing lease " + lease );
             return null;
         }
 
         // check whether addresses and subnet match
         Subnet subnet = findSubnet( selectionBase );
+
         if ( null == subnet )
         {
-            logger.warn( "No subnet found for existing lease " + lease );
+            LOG.warn( "No subnet found for existing lease " + lease );
             return null;
         }
+
         if ( !subnet.contains( lease.getClientAddress() ) )
         {
-            logger.warn( "Client with existing lease " + lease + " is on wrong subnet " + subnet );
+            LOG.warn( "Client with existing lease " + lease + " is on wrong subnet " + subnet );
             return null;
         }
+
         if ( !subnet.isInRange( lease.getClientAddress() ) )
         {
-            logger.warn( "Client with existing lease " + lease + " is out of valid range for subnet " + subnet );
+            LOG.warn( "Client with existing lease " + lease + " is out of valid range for subnet " + subnet );
             return null;
         }
 
@@ -186,7 +197,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
             // host address is mandatory).
             if ( host.getAddress() != null && !host.getAddress().equals( lease.getClientAddress() ) )
             {
-                logger.warn( "Existing fixed address for " + hardwareAddress + " conflicts with existing lease "
+                LOG.warn( "Existing fixed address for " + hardwareAddress + " conflicts with existing lease "
                     + lease );
                 return null;
             }
@@ -232,11 +243,19 @@ public abstract class AbstractDhcpStore implements DhcpStore
         // built-in default
         long leaseTime = 1000L * 3600;
         Integer propMaxLeaseTime = ( Integer ) properties.get( DhcpConfigElement.PROPERTY_MAX_LEASE_TIME );
+
         if ( null != propMaxLeaseTime )
+        {
             if ( requestedLeaseTime > 0 )
+            {
                 leaseTime = Math.min( propMaxLeaseTime.intValue() * 1000L, requestedLeaseTime );
+            }
             else
+            {
                 leaseTime = propMaxLeaseTime.intValue() * 1000L;
+            }
+        }
+
         return leaseTime;
     }
 

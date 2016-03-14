@@ -22,7 +22,7 @@ package org.apache.directory.shared.kerberos.messages;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -43,7 +43,7 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
  *     
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangePasswdData extends AbstractAsn1Object
+public class ChangePasswdData implements Asn1Object
 {
 
     /** the new password */
@@ -192,7 +192,7 @@ public class ChangePasswdData extends AbstractAsn1Object
 
         sb.append( "ChangePasswdData : \n" );
 
-        sb.append( "    newPasswd : " ).append( newPasswd ).append( '\n' );
+        sb.append( "    newPasswd : " ).append( Strings.utf8ToString( newPasswd ) ).append( '\n' );
         sb.append( "    targName : " ).append( targName ).append( '\n' );
         sb.append( "    targRealm : " ).append( targRealm ).append( '\n' );
 

@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
@@ -36,13 +34,20 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapServer;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -60,11 +65,9 @@ public class KerberosTestUtils
     {
         InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream( resource );
 
-        Reader reader = new InputStreamReader( new BufferedInputStream( is ) );
-
         CharArrayWriter writer = new CharArrayWriter();
 
-        try
+        try ( Reader reader = new InputStreamReader( new BufferedInputStream( is ) ) )
         {
             char[] buf = new char[2048];
             int len = 0;
@@ -77,16 +80,6 @@ public class KerberosTestUtils
                 }
             }
         }
-        finally
-        {
-            try
-            {
-                reader.close();
-            }
-            catch ( IOException ioe )
-            {
-            }
-        }
 
         char[] isca = writer.toCharArray();
         return isca;
@@ -97,12 +90,13 @@ public class KerberosTestUtils
     {
         InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream( resource );
 
-        BufferedInputStream stream = new BufferedInputStream( is );
-        int len = stream.available();
-        byte[] bytes = new byte[len];
-        stream.read( bytes, 0, len );
-
-        return bytes;
+        try ( BufferedInputStream stream = new BufferedInputStream( is ) )
+        {
+            int len = stream.available();
+            byte[] bytes = new byte[len];
+            stream.read( bytes, 0, len );
+            return bytes;
+        }
     }
 
 
@@ -257,18 +251,7 @@ public class KerberosTestUtils
      */
     public static String getHostName()
     {
-        String hostName;
-        try
-        {
-            InetAddress loopback = InetAddress.getByName( "127.0.0.1" );
-            hostName = loopback.getHostName();
-        }
-        catch ( UnknownHostException e )
-        {
-            System.err.println( "Can't find loopback address '127.0.0.1', using hostname 'localhost'" );
-            hostName = "localhost";
-        }
-        return hostName;
+        return Network.LOOPBACK_HOSTNAME;
     }
 
 
@@ -412,5 +395,42 @@ public class KerberosTestUtils
         {
             return new Oid( "1.2.840.113554.1.2.2" );
         }
+    }
+
+
+    /**
+     * Within the KerberosPrincipal/PrincipalName class a DNS lookup is done 
+     * to get the canonical name of the host. So the principal name
+     * may be extended to the form "ldap/localhost.example.com@EXAMPLE.COM".
+     * This method fixes the SASL principal name of the service entry 
+     * within the LDAP server.
+     * 
+     * @param servicePrincipalName the "original" service principal name
+     * @param serviceEntryDn the service entry in LDAP
+     * @param ldapServer the LDAP server instance
+     * @return the fixed service principal name
+     * @throws LdapException
+     */
+    public static String fixServicePrincipalName( String servicePrincipalName, Dn serviceEntryDn, LdapServer ldapServer )
+        throws LdapException
+    {
+        KerberosPrincipal servicePrincipal = new KerberosPrincipal( servicePrincipalName,
+            KerberosPrincipal.KRB_NT_SRV_HST );
+        servicePrincipalName = servicePrincipal.getName();
+
+        ldapServer.setSaslHost( servicePrincipalName.substring( servicePrincipalName.indexOf( "/" ) + 1,
+            servicePrincipalName.indexOf( "@" ) ) );
+        ldapServer.setSaslPrincipal( servicePrincipalName );
+
+        if ( serviceEntryDn != null )
+        {
+            ModifyRequest modifyRequest = new ModifyRequestImpl();
+            modifyRequest.setName( serviceEntryDn );
+            modifyRequest.replace( "userPassword", "randall" );
+            modifyRequest.replace( "krb5PrincipalName", servicePrincipalName );
+            ldapServer.getDirectoryService().getAdminSession().modify( modifyRequest );
+        }
+
+        return servicePrincipalName;
     }
 }

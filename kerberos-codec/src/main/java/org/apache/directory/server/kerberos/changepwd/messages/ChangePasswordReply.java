@@ -22,11 +22,10 @@ package org.apache.directory.server.kerberos.changepwd.messages;
 
 import java.nio.ByteBuffer;
 
+import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
-import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
-import org.apache.directory.api.asn1.DecoderException;
-import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.ApRep;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
@@ -40,16 +39,17 @@ public class ChangePasswordReply extends AbstractPasswordMessage
     private ApRep applicationReply;
     private KrbPriv privateMessage;
 
-    private short applicationReplyLen ;
+    private short applicationReplyLen;
     private short privateMessageLen;
     private short messageLength;
+
 
     public ChangePasswordReply( ApRep applicationReply, KrbPriv privateMessage )
     {
         this( PVNO, applicationReply, privateMessage );
     }
-    
-    
+
+
     /**
      * Creates a new instance of ChangePasswordReply.
      *
@@ -93,9 +93,9 @@ public class ChangePasswordReply extends AbstractPasswordMessage
     {
         applicationReplyLen = ( short ) applicationReply.computeLength();
         privateMessageLen = ( short ) privateMessage.computeLength();
-        
+
         messageLength = ( short ) ( HEADER_LENGTH + applicationReplyLen + privateMessageLen );
-        
+
         return messageLength;
     }
 
@@ -106,14 +106,14 @@ public class ChangePasswordReply extends AbstractPasswordMessage
         buf.putShort( messageLength );
         buf.putShort( getVersionNumber() );
         buf.putShort( applicationReplyLen );
-        
+
         applicationReply.encode( buf );
         privateMessage.encode( buf );
-        
+
         return buf;
     }
 
-    
+
     /**
      * Decodes a {@link ByteBuffer} into a {@link ChangePasswordReply}.
      *
@@ -128,21 +128,21 @@ public class ChangePasswordReply extends AbstractPasswordMessage
             short messageLength = buf.getShort();
             short protocolVersion = buf.getShort();
             short encodedAppReplyLength = buf.getShort();
-            
+
             byte[] encodedAppReply = new byte[encodedAppReplyLength];
             buf.get( encodedAppReply );
-            
+
             ApRep applicationReply = KerberosDecoder.decodeApRep( encodedAppReply );
-            
+
             int privateBytesLength = messageLength - HEADER_LENGTH - encodedAppReplyLength;
             byte[] encodedPrivateMessage = new byte[privateBytesLength];
             buf.get( encodedPrivateMessage );
-            
+
             KrbPriv privateMessage = KerberosDecoder.decodeKrbPriv( encodedPrivateMessage );
-            
+
             return new ChangePasswordReply( protocolVersion, applicationReply, privateMessage );
         }
-        catch( KerberosException e )
+        catch ( KerberosException e )
         {
             throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_MALFORMED, e );
         }

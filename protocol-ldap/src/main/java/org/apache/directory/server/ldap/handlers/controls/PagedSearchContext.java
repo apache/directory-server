@@ -26,12 +26,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapSession;
 
 
@@ -57,7 +58,7 @@ public class PagedSearchContext
     private AtomicInteger cookieValue;
 
     /** The associated cursor for the current search request */
-    private EntryFilteringCursor cursor;
+    private Cursor<Entry> cursor;
 
 
     /**
@@ -129,9 +130,9 @@ public class PagedSearchContext
             catch ( LdapException le )
             {
                 // Deal with special attributes : '*', '+' and '1.1'
-                if ( attribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ||
-                    attribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
-                    attribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
+                if ( attribute.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES )
+                    || attribute.equals( SchemaConstants.ALL_USER_ATTRIBUTES )
+                    || attribute.equals( SchemaConstants.NO_ATTRIBUTE ) )
                 {
                     requestSet.add( attribute );
                 }
@@ -292,7 +293,7 @@ public class PagedSearchContext
     /**
      * @return The associated cursor
      */
-    public EntryFilteringCursor getCursor()
+    public Cursor<Entry> getCursor()
     {
         return cursor;
     }
@@ -302,7 +303,7 @@ public class PagedSearchContext
      * Set the new cursor for this search request
      * @param cursor The associated cursor
      */
-    public void setCursor( EntryFilteringCursor cursor )
+    public void setCursor( Cursor<Entry> cursor )
     {
         this.cursor = cursor;
     }

@@ -46,11 +46,14 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlPartitionTest;
@@ -73,6 +76,7 @@ public class PartitionTest
 
     private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
 
     /** The OU AttributType instance */
     private static AttributeType OU_AT;
@@ -82,6 +86,8 @@ public class PartitionTest
 
     /** The CN AttributType instance */
     private static AttributeType CN_AT;
+
+    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -101,6 +107,8 @@ public class PartitionTest
         extractor.extractOrCopy( true );
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
 
+        cacheService = new CacheService();
+        cacheService.initialize( null );
         schemaManager = new DefaultSchemaManager( loader );
 
         boolean loaded = schemaManager.loadAllEnabled();
@@ -121,15 +129,16 @@ public class PartitionTest
     {
 
         // initialize the partition
-        partition = new AvlPartition( schemaManager );
+        partition = new AvlPartition( schemaManager, dnFactory );
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 
-        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.OU_AT_OID ) );
-        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.UID_AT_OID ) );
-        partition.addIndex( new AvlIndex<String, Entry>( SchemaConstants.CN_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.UID_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
+        partition.setCacheService( cacheService );
         partition.initialize();
 
         StoreUtils.loadExampleData( partition, schemaManager );
@@ -152,7 +161,7 @@ public class PartitionTest
         assertEquals( 3, partition.getOneAliasIndex().count() );
         assertEquals( 3, partition.getSubAliasIndex().count() );
         assertEquals( 15, partition.getPresenceIndex().count() );
-        assertEquals( 27, partition.getObjectClassIndex().count() );
+        assertEquals( 17, partition.getObjectClassIndex().count() );
         assertEquals( 11, partition.getEntryCsnIndex().count() );
 
         Iterator<String> userIndices = partition.getUserIndices();
@@ -221,7 +230,7 @@ public class PartitionTest
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, String> ouIndex = ( Index<String, Entry, String> ) partition.getUserIndex( OU_AT );
+        Index<String, String> ouIndex = ( Index<String, String> ) partition.getUserIndex( OU_AT );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
@@ -250,7 +259,7 @@ public class PartitionTest
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "sales" tuple in ou index
-        Index<String, Entry, String> ouIndex = ( Index<String, Entry, String> ) partition.getUserIndex( OU_AT );
+        Index<String, String> ouIndex = ( Index<String, String> ) partition.getUserIndex( OU_AT );
         assertTrue( partition.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
         assertTrue( ouIndex.forward( "sales", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
@@ -399,7 +408,7 @@ public class PartitionTest
         Entry entry = partition.fetch( entryId );
         String parentId = partition.getParentId( entryId );
 
-        Attribute parentIdAt = entry.get( SchemaConstants.ENTRY_PARENT_ID_AT );
+        Attribute parentIdAt = entry.get( ApacheSchemaConstants.ENTRY_PARENT_ID_AT );
         assertNotNull( parentIdAt );
         //assertEquals( parentId.toString(), parentIdAt.getString() );
 

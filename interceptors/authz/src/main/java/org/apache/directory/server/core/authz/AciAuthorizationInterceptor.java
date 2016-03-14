@@ -34,7 +34,6 @@ import org.apache.directory.api.ldap.aci.ACIItem;
 import org.apache.directory.api.ldap.aci.ACIItemParser;
 import org.apache.directory.api.ldap.aci.ACITuple;
 import org.apache.directory.api.ldap.aci.MicroOperation;
-import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -79,7 +78,6 @@ import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,12 +189,10 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         controls.setReturningAttributes( new String[]
             { SchemaConstants.PRESCRIPTIVE_ACI_AT } );
 
-        ExprNode filter =
-            new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
+        ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), new StringValue(
+            SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
-            AuthenticationLevel.STRONG ),
-            directoryService );
+        CoreSession adminSession = directoryService.getAdminSession();
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
             controls );
@@ -238,12 +234,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         ExprNode filter =
             new OrNode(
-                new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ),
-                new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
+                new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(),
+                    new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ),
+                new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(),
+                    new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
-            AuthenticationLevel.STRONG ),
-            directoryService );
+        CoreSession adminSession = directoryService.getAdminSession();
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
             controls );
@@ -285,10 +281,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         nexus = directoryService.getPartitionNexus();
 
-        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        CoreSession adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn,
-            AuthenticationLevel.STRONG ),
-            directoryService );
+        CoreSession adminSession = directoryService.getAdminSession();
 
         // Create the caches
         tupleCache = new TupleCache( adminSession );
@@ -299,9 +292,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         engine = new ACDFEngine( schemaManager );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
-            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        Dn subschemaSubentryDnName = directoryService.getDnFactory().create( subschemaSubentry.getString() );
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
+            directoryService.getAtProvider().getSubschemaSubentry() );
+        Dn subschemaSubentryDnName = dnFactory.create( subschemaSubentry.getString() );
         subschemaSubentryDn = subschemaSubentryDnName.getNormName();
 
         // Init the caches now
@@ -343,7 +336,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      *
      * @param tuples the collection of tuples to add to
      * @param dn the normalized distinguished name of the protected entry
-     * @param entry the target entry that access to is being controled
+     * @param entry the target entry whose access is being controlled
      * @throws Exception if there are problems accessing attribute values
      * @param proxy the partition nexus proxy object
      */
@@ -361,7 +354,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             originalEntry = entry;
         }
 
-        Attribute oc = originalEntry.get( OBJECT_CLASS_AT );
+        Attribute oc = originalEntry.get( directoryService.getAtProvider().getObjectClass() );
 
         /*
          * If the protected entry is a subentry, then the entry being evaluated
@@ -382,7 +375,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             originalEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 
-        Attribute subentries = originalEntry.get( ACCESS_CONTROL_SUBENTRIES_AT );
+        Attribute subentries = originalEntry.get( directoryService.getAtProvider().getAccessControlSubentries() );
 
         if ( subentries == null )
         {
@@ -407,7 +400,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      */
     private void addEntryAciTuples( Collection<ACITuple> tuples, Entry entry ) throws LdapException
     {
-        Attribute entryAci = entry.get( ENTRY_ACI_AT );
+        Attribute entryAci = entry.get( directoryService.getAtProvider().getEntryACI() );
 
         if ( entryAci == null )
         {
@@ -465,7 +458,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         Entry administrativeEntry = ( ( ClonedServerEntry ) directoryService.getPartitionNexus().lookup( lookupContext ) )
             .getOriginalEntry();
 
-        Attribute subentryAci = administrativeEntry.get( SUBENTRY_ACI_AT );
+        Attribute subentryAci = administrativeEntry.get( directoryService.getAtProvider().getSubentryACI() );
 
         if ( subentryAci == null )
         {
@@ -829,13 +822,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         {
             next( modifyContext );
 
-            /**
-             * @TODO: A virtual entry can be created here for not hitting the backend again.
-             */
-            CoreSession session = modifyContext.getSession();
-            LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
-                SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
+            Entry modifiedEntry = modifyContext.getAlteredEntry();
             tupleCache.subentryModified( dn, mods, modifiedEntry );
             groupCache.groupModified( dn, mods, entry, schemaManager );
 
@@ -919,6 +906,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 case REPLACE_ATTRIBUTE:
                     perms = REPLACE_PERMS;
                     break;
+
+                default:
+                    throw new IllegalArgumentException( "Unexpected modify operation " + mod.getOperation() );
             }
 
             /**
@@ -955,14 +945,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         }
 
         next( modifyContext );
-        /**
-         * @TODO: A virtual entry can be created here for not hitting the backend again.
-         */
-        CoreSession session = modifyContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
-            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
-        Entry modifiedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
+        Entry modifiedEntry = modifyContext.getAlteredEntry();
         tupleCache.subentryModified( dn, mods, modifiedEntry );
         groupCache.groupModified( dn, mods, entry, schemaManager );
     }

@@ -24,7 +24,7 @@ package org.apache.directory.shared.kerberos.components;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KrbSafeBody extends AbstractAsn1Object
+public class KrbSafeBody implements Asn1Object
 {
     /** The logger */
     private static final Logger log = LoggerFactory.getLogger( KrbSafeBody.class );
@@ -313,7 +313,7 @@ public class KrbSafeBody extends AbstractAsn1Object
                 buffer.put( TLV.getBytes( timestampLen ) );
 
                 // timestamp value
-                buffer.put( ( byte ) UniversalTag.GENERALIZED_TIME.getValue() );
+                buffer.put( UniversalTag.GENERALIZED_TIME.getValue() );
                 buffer.put( ( byte ) 0x0F );
                 buffer.put( timestamp.getBytes() );
             }
@@ -351,7 +351,7 @@ public class KrbSafeBody extends AbstractAsn1Object
         {
             log.error( I18n.err( I18n.ERR_735_CANNOT_ENCODE_KRBSAFEBODY, 1 + TLV.getNbBytes( krbSafeBodySeqLen )
                 + krbSafeBodySeqLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

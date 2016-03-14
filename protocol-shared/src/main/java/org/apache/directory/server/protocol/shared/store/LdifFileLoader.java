@@ -50,7 +50,7 @@ public class LdifFileLoader
     /**
      * the log for this class
      */
-    private static final Logger log = LoggerFactory.getLogger( LdifFileLoader.class );
+    private static final Logger LOG = LoggerFactory.getLogger( LdifFileLoader.class );
 
     /**
      * a handle on the top core session
@@ -150,7 +150,7 @@ public class LdifFileLoader
             }
             catch ( LdapException e )
             {
-                log.warn( "filter " + filters.get( ii ) + " was bypassed due to failures", e );
+                LOG.warn( "filter " + filters.get( ii ) + " was bypassed due to failures", e );
             }
 
             // early bypass if entry is rejected
@@ -195,7 +195,7 @@ public class LdifFileLoader
                         try
                         {
                             coreSession.lookup( dn );
-                            log.info( "Found {}, will not create.", dn );
+                            LOG.info( "Found {}, will not create.", dn );
                         }
                         catch ( Exception e )
                         {
@@ -205,11 +205,11 @@ public class LdifFileLoader
                                     new DefaultEntry(
                                         coreSession.getDirectoryService().getSchemaManager(), entry ) );
                                 count++;
-                                log.info( "Created {}.", dn );
+                                LOG.info( "Created {}.", dn );
                             }
                             catch ( LdapException e1 )
                             {
-                                log.info( "Could not create entry " + entry, e1 );
+                                LOG.info( "Could not create entry " + entry, e1 );
                             }
                         }
                     }
@@ -221,11 +221,11 @@ public class LdifFileLoader
                         try
                         {
                             coreSession.modify( dn, items );
-                            log.info( "Modified: " + dn + " with modificationItems: " + items );
+                            LOG.info( "Modified: " + dn + " with modificationItems: " + items );
                         }
                         catch ( LdapException e )
                         {
-                            log.info( "Could not modify: " + dn + " with modificationItems: " + items, e );
+                            LOG.info( "Could not modify: " + dn + " with modificationItems: " + items, e );
                         }
                     }
                 }
@@ -240,18 +240,18 @@ public class LdifFileLoader
                     }
                     catch ( Exception e )
                     {
-                        log.error( I18n.err( I18n.ERR_175 ), e );
+                        LOG.error( I18n.err( I18n.ERR_175 ), e );
                     }
                 }
             }
         }
         catch ( FileNotFoundException fnfe )
         {
-            log.error( I18n.err( I18n.ERR_173 ) );
+            LOG.error( I18n.err( I18n.ERR_173 ) );
         }
         catch ( Exception ioe )
         {
-            log.error( I18n.err( I18n.ERR_174 ), ioe );
+            LOG.error( I18n.err( I18n.ERR_174 ), ioe );
         }
 
         return count;
@@ -266,27 +266,32 @@ public class LdifFileLoader
      */
     private InputStream getLdifStream() throws FileNotFoundException
     {
-        InputStream in;
-
         if ( ldif.exists() )
         {
-            in = new FileInputStream( ldif );
+            return new FileInputStream( ldif );
         }
         else
         {
-            if ( loader != null && ( in = loader.getResourceAsStream( ldif.getName() ) ) != null )
+            InputStream in;
+
+            // use ldif.getPath() to resolve the relative paths
+            if ( loader != null )
             {
-                return in;
+                in = loader.getResourceAsStream( ldif.getPath() );
+                if ( in != null )
+                {
+                    return in;
+                }
             }
 
             // if file not on system see if something is bundled with the jar ...
-            in = getClass().getResourceAsStream( ldif.getName() );
+            in = getClass().getResourceAsStream( ldif.getPath() );
             if ( in != null )
             {
                 return in;
             }
 
-            in = ClassLoader.getSystemResourceAsStream( ldif.getName() );
+            in = ClassLoader.getSystemResourceAsStream( ldif.getPath() );
             if ( in != null )
             {
                 return in;
@@ -294,7 +299,5 @@ public class LdifFileLoader
 
             throw new FileNotFoundException( I18n.err( I18n.ERR_173 ) );
         }
-
-        return in;
     }
 }

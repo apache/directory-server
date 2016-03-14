@@ -20,19 +20,18 @@
 package org.apache.directory.server.ldap.handlers;
 
 
-import org.apache.directory.api.ldap.model.exception.OperationAbandonedException;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.AbandonListener;
 import org.apache.directory.api.ldap.model.message.AbandonableRequest;
 import org.apache.directory.server.core.api.event.DirectoryListener;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * An AbandonListener implementation which closes an associated cursor or 
+ * An AbandonListener implementation which closes an associated cursor or
  * removes a DirectoryListener.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -41,11 +40,11 @@ public class SearchAbandonListener implements AbandonListener
 {
     private static final Logger LOG = LoggerFactory.getLogger( SearchAbandonListener.class );
     private final LdapServer ldapServer;
-    private EntryFilteringCursor cursor;
+    private Cursor<Entry> cursor;
     private DirectoryListener listener;
 
 
-    public SearchAbandonListener( LdapServer ldapServer, EntryFilteringCursor cursor, DirectoryListener listener )
+    public SearchAbandonListener( LdapServer ldapServer, Cursor<Entry> cursor, DirectoryListener listener )
     {
         if ( ldapServer == null )
         {
@@ -64,7 +63,7 @@ public class SearchAbandonListener implements AbandonListener
     }
 
 
-    public SearchAbandonListener( LdapServer ldapServer, EntryFilteringCursor cursor )
+    public SearchAbandonListener( LdapServer ldapServer, Cursor<Entry> cursor )
     {
         this( ldapServer, cursor, null );
     }
@@ -75,25 +74,6 @@ public class SearchAbandonListener implements AbandonListener
         if ( listener != null )
         {
             ldapServer.getDirectoryService().getEventService().removeListener( listener );
-        }
-
-        try
-        {
-            if ( ( cursor != null  ) && !cursor.isClosed() )
-            {
-                /*
-                 * When this method is called due to an abandon request it 
-                 * will close the cursor but other threads processing the 
-                 * search will get an OperationAbandonedException which as
-                 * seen below will make sure the proper handling is 
-                 * performed.
-                 */
-                cursor.close( new OperationAbandonedException() );
-            }
-        }
-        catch ( Exception e )
-        {
-            LOG.error( I18n.err( I18n.ERR_166, req.getMessageId() ), e );
         }
     }
 }

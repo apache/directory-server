@@ -46,7 +46,6 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 
@@ -104,8 +103,8 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
-        Value<?> attr = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemSubentryDn = directoryService.getDnFactory().create( attr.getString() );
+        Value<?> attr = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
+        subschemSubentryDn = dnFactory.create( attr.getString() );
     }
 
 
@@ -155,7 +154,8 @@ public class ExceptionInterceptor extends BaseInterceptor
             try
             {
                 CoreSession session = addContext.getSession();
-                LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn,
+                    SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
                 attrs = directoryService.getPartitionNexus().lookup( lookupContext );
             }
@@ -167,7 +167,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
 
             Attribute objectClass = ( ( ClonedServerEntry ) attrs ).getOriginalEntry().get(
-                OBJECT_CLASS_AT );
+                directoryService.getAtProvider().getObjectClass() );
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {

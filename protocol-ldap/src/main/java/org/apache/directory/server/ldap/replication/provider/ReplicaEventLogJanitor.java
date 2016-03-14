@@ -96,7 +96,8 @@ public class ReplicaEventLogJanitor extends Thread
                         LOG.debug( "checking log idle time now={} lastUpdatedTime={} maxIdleTime={}", now,
                             lastUpdatedTime, maxIdleTime );
 
-                        if ( ( now - lastUpdatedTime ) >= maxIdleTime )
+                        // DO NOT delete those with maxIdleTime <= 0
+                        if ( ( maxIdleTime > 0 ) && ( now - lastUpdatedTime ) >= maxIdleTime )
                         {
                             //max idle time of the event log reached, delete it
                             removeEventLog( log );

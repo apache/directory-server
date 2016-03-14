@@ -53,20 +53,20 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         this.newDn = newDn;
 
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
-        injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, $entryInjector );
-        injectors.put( StoredProcedureParameter.ModifyDN_NEW_RDN.class, $newrdnInjector );
-        injectors.put( StoredProcedureParameter.ModifyDN_DELETE_OLD_RDN.class, $deleteoldrdnInjector );
-        injectors.put( StoredProcedureParameter.ModifyDN_NEW_SUPERIOR.class, $newSuperiorInjector );
-        injectors.put( StoredProcedureParameter.ModifyDN_OLD_RDN.class, $oldRDNInjector );
-        injectors.put( StoredProcedureParameter.ModifyDN_OLD_SUPERIOR_DN.class, $oldSuperiorDNInjector );
-        injectors.put( StoredProcedureParameter.ModifyDN_NEW_DN.class, $newDNInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, entryInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_NEW_RDN.class, newrdnInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_DELETE_OLD_RDN.class, deleteoldrdnInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_NEW_SUPERIOR.class, newSuperiorInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_OLD_RDN.class, oldRDNInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_OLD_SUPERIOR_DN.class, oldSuperiorDNInjector );
+        injectors.put( StoredProcedureParameter.ModifyDN_NEW_DN.class, newDNInjector );
 
     }
 
     /**
      * Injector for 'entry' parameter of ModifyDNRequest as in RFC4511.
      */
-    MicroInjector $entryInjector = new MicroInjector()
+    MicroInjector entryInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
@@ -79,7 +79,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     /**
      * Injector for 'newrdn' parameter of ModifyDNRequest as in RFC4511.
      */
-    MicroInjector $newrdnInjector = new MicroInjector()
+    MicroInjector newrdnInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
@@ -92,7 +92,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     /**
      * Injector for 'newrdn' parameter of ModifyDNRequest as in RFC4511.
      */
-    MicroInjector $deleteoldrdnInjector = new MicroInjector()
+    MicroInjector deleteoldrdnInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
@@ -105,7 +105,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     /**
      * Injector for 'newSuperior' parameter of ModifyDNRequest as in RFC4511.
      */
-    MicroInjector $newSuperiorInjector = new MicroInjector()
+    MicroInjector newSuperiorInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
@@ -118,7 +118,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     /**
      * Extra injector for 'oldRdn' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
      */
-    MicroInjector $oldRDNInjector = new MicroInjector()
+    MicroInjector oldRDNInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
@@ -131,7 +131,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     /**
      * Extra injector for 'oldRdn' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
      */
-    MicroInjector $oldSuperiorDNInjector = new MicroInjector()
+    MicroInjector oldSuperiorDNInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
@@ -144,7 +144,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     /**
      * Extra injector for 'newDn' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
      */
-    MicroInjector $newDNInjector = new MicroInjector()
+    MicroInjector newDNInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException

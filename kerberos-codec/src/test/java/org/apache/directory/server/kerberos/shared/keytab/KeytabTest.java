@@ -46,6 +46,7 @@ import org.junit.runner.RunWith;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
+
 /**
  * Tests 'keytab' formatted files.
  * 
@@ -92,7 +93,7 @@ public class KeytabTest
     {
         Keytab keytab = Keytab.read( keytab1 );
 
-        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_52, keytab.getKeytabVersion() ) );
+        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_0X502_BYTES, keytab.getKeytabVersion() ) );
         assertEquals( "Entries size", 1, keytab.getEntries().size() );
 
         KeytabEntry entry = keytab.getEntries().get( 0 );
@@ -119,7 +120,7 @@ public class KeytabTest
     {
         Keytab keytab = Keytab.read( keytab2 );
 
-        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_52, keytab.getKeytabVersion() ) );
+        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_0X502_BYTES, keytab.getKeytabVersion() ) );
         assertEquals( "Entries size", 1, keytab.getEntries().size() );
 
         KeytabEntry entry = keytab.getEntries().get( 0 );
@@ -152,6 +153,8 @@ public class KeytabTest
         Keytab writer = Keytab.getInstance();
         writer.setEntries( entries );
         ByteBuffer buffer = writer.write();
+
+        //System.out.println( Strings.dumpBytes( buffer.array() ) );
         assertEquals( "Expected file size.", 130, buffer.limit() );
     }
 
@@ -159,7 +162,7 @@ public class KeytabTest
     private KeytabEntry getEntry1() throws ParseException
     {
         String principalName = "HTTP/www.verisign.com@EXAMPLE.COM";
-        long principalType = 1;
+        int principalType = 1;
 
         String zuluTime = "20070217235745Z";
         Date date = null;

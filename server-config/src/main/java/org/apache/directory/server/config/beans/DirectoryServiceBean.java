@@ -67,11 +67,11 @@ public class DirectoryServiceBean extends AdsBaseBean
     private String dsTestEntries;
 
     /** The ChangeLog component */
-    @ConfigurationElement( objectClass= "ads-changelog")
+    @ConfigurationElement(objectClass = "ads-changelog")
     private ChangeLogBean changeLog;
 
     /** The journal component */
-    @ConfigurationElement( objectClass= "ads-journal")
+    @ConfigurationElement(objectClass = "ads-journal")
     private JournalBean journal;
 
     /** The servers */
@@ -316,6 +316,15 @@ public class DirectoryServiceBean extends AdsBaseBean
     public void setJournal( JournalBean journal )
     {
         this.journal = journal;
+    }
+
+
+    /**
+     * Clears the partitions.
+     */
+    public void clearPartitions()
+    {
+        partitions.clear();
     }
 
 

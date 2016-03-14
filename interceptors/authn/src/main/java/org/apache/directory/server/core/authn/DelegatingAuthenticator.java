@@ -28,8 +28,9 @@ import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -52,10 +53,21 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     /** The associated port */
     private int delegatePort;
 
+    /** Tells if we use SSL to connect */
+    private boolean delegateSsl;
+
+    /** Tells if we use StartTLS to connect */
+    private boolean delegateTls;
+
+    /** The SSL TrustManager FQCN to use */
+    private String delegateSslTrustManagerFQCN;
+
+    /** The startTLS TrustManager FQCN to use */
+    private String delegateTlsTrustManagerFQCN;
+
 
     /**
      * Creates a new instance.
-     * @see AbstractAuthenticator
      */
     public DelegatingAuthenticator()
     {
@@ -64,13 +76,23 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
 
 
     /**
+     * Creates a new instance.
+     * @see AbstractAuthenticator
+     */
+    public DelegatingAuthenticator( Dn baseDn )
+    {
+        super( AuthenticationLevel.SIMPLE, baseDn );
+    }
+
+
+    /**
      * Creates a new instance, for a specific authentication level.
      * @see AbstractAuthenticator
      * @param type The relevant AuthenticationLevel
      */
-    protected DelegatingAuthenticator( AuthenticationLevel type )
+    protected DelegatingAuthenticator( AuthenticationLevel type, Dn baseDn )
     {
-        super( type );
+        super( type, baseDn );
     }
 
 
@@ -111,6 +133,87 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
 
 
     /**
+     * @return the delegateSsl
+     */
+    public boolean isDelegateSsl()
+    {
+        return delegateSsl;
+    }
+
+
+    /**
+     * @param delegateSsl the delegateSsl to set
+     */
+    public void setDelegateSsl( boolean delegateSsl )
+    {
+        this.delegateSsl = delegateSsl;
+    }
+
+
+    /**
+     * @return the delegateBaseDn
+     */
+    public String getDelegateBaseDn()
+    {
+        return getBaseDn().toString();
+    }
+
+
+    /**
+     * @return the delegateTls
+     */
+    public boolean isDelegateTls()
+    {
+        return delegateTls;
+    }
+
+
+    /**
+     * @param delegateTls the delegateTls to set
+     */
+    public void setDelegateTls( boolean delegateTls )
+    {
+        this.delegateTls = delegateTls;
+    }
+
+
+    /**
+     * @return the delegateSslTrustManagerFQCN
+     */
+    public String getDelegateSslTrustManagerFQCN()
+    {
+        return delegateSslTrustManagerFQCN;
+    }
+
+
+    /**
+     * @param delegateSslTrustManagerFQCN the delegateSslTrustManagerFQCN to set
+     */
+    public void setDelegateSslTrustManagerFQCN( String delegateSslTrustManagerFQCN )
+    {
+        this.delegateSslTrustManagerFQCN = delegateSslTrustManagerFQCN;
+    }
+
+
+    /**
+     * @return the delegateTlsTrustManagerFQCN
+     */
+    public String getDelegateTlsTrustManagerFQCN()
+    {
+        return delegateTlsTrustManagerFQCN;
+    }
+
+
+    /**
+     * @param delegateTlsTrustManagerFQCN the delegateTlsTrustManagerFQCN to set
+     */
+    public void setDelegateTlsTrustManagerFQCN( String delegateTlsTrustManagerFQCN )
+    {
+        this.delegateTlsTrustManagerFQCN = delegateTlsTrustManagerFQCN;
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public LdapPrincipal authenticate( BindOperationContext bindContext )
@@ -123,29 +226,73 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             LOG.debug( "Authenticating {}", bindContext.getDn() );
         }
 
+        // First, check that the Bind DN is under the delegateBaseDn
+        Dn bindDn = bindContext.getDn();
+
+        // Don't authenticate using this authenticator if the Bind ND is not a descendant of the
+        // configured delegate base DN (or if it's null)
+        if ( ( getBaseDn() == null ) || ( !bindDn.isDescendantOf( getBaseDn() ) ) )
+        {
+            return null;
+        }
+
+        LdapConnectionConfig connectionConfig;
+        LdapNetworkConnection ldapConnection;
+
         // Create a connection on the remote host
-        LdapConnection ldapConnection = new LdapNetworkConnection( delegateHost, delegatePort );
+        if ( delegateTls )
+        {
+            connectionConfig = new LdapConnectionConfig();
+            connectionConfig.setLdapHost( delegateHost );
+            connectionConfig.setLdapPort( delegatePort );
+            connectionConfig.setTrustManagers( new NoVerificationTrustManager() );
+
+            ldapConnection = new LdapNetworkConnection( connectionConfig );
+            ldapConnection.connect();
+            ldapConnection.startTls();
+        }
+        else if ( delegateSsl )
+        {
+            connectionConfig = new LdapConnectionConfig();
+            connectionConfig.setLdapHost( delegateHost );
+            connectionConfig.setUseSsl( true );
+            connectionConfig.setLdapPort( delegatePort );
+            connectionConfig.setTrustManagers( new NoVerificationTrustManager() );
+
+            ldapConnection = new LdapNetworkConnection( connectionConfig );
+            ldapConnection.connect();
+        }
+        else
+        {
+            connectionConfig = new LdapConnectionConfig();
+            connectionConfig.setLdapHost( delegateHost );
+            connectionConfig.setLdapPort( delegatePort );
+
+            ldapConnection = new LdapNetworkConnection( delegateHost, delegatePort );
+            ldapConnection.connect();
+        }
+
+        ldapConnection.setTimeOut( 0L );
 
         try
         {
             // Try to bind
             try
             {
-                ldapConnection.bind( bindContext.getDn(),
-                    Strings.utf8ToString( bindContext.getCredentials() ) );
+                ldapConnection.bind( bindDn, Strings.utf8ToString( bindContext.getCredentials() ) );
 
                 // no need to remain bound to delegate host
                 ldapConnection.unBind();
             }
             catch ( LdapException le )
             {
-                String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+                String message = I18n.err( I18n.ERR_230, bindDn.getName() );
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
             }
 
             // Create the new principal
-            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(),
+            principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindDn,
                 AuthenticationLevel.SIMPLE,
                 bindContext.getCredentials() );
 
@@ -165,9 +312,13 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         catch ( LdapException e )
         {
             // Bad password ...
-            String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+            String message = I18n.err( I18n.ERR_230, bindDn.getName() );
             LOG.info( message );
             throw new LdapAuthenticationException( message );
+        }
+        finally
+        {
+            ldapConnection.close();
         }
     }
 

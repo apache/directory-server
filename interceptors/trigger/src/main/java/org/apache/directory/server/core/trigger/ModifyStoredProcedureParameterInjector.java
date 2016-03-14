@@ -51,13 +51,13 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         modifications = opContext.getModItems();
         this.oldEntry = getEntry( opContext );
         Map<Class<?>, MicroInjector> injectors = super.getInjectors();
-        injectors.put( StoredProcedureParameter.Modify_OBJECT.class, $objectInjector );
-        injectors.put( StoredProcedureParameter.Modify_MODIFICATION.class, $modificationInjector );
-        injectors.put( StoredProcedureParameter.Modify_OLD_ENTRY.class, $oldEntryInjector );
-        injectors.put( StoredProcedureParameter.Modify_NEW_ENTRY.class, $newEntryInjector );
+        injectors.put( StoredProcedureParameter.Modify_OBJECT.class, objectInjector );
+        injectors.put( StoredProcedureParameter.Modify_MODIFICATION.class, modificationInjector );
+        injectors.put( StoredProcedureParameter.Modify_OLD_ENTRY.class, oldEntryInjector );
+        injectors.put( StoredProcedureParameter.Modify_NEW_ENTRY.class, newEntryInjector );
     }
 
-    MicroInjector $objectInjector = new MicroInjector()
+    MicroInjector objectInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
@@ -67,7 +67,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         }
     };
 
-    MicroInjector $modificationInjector = new MicroInjector()
+    MicroInjector modificationInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
@@ -82,7 +82,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         }
     };
 
-    MicroInjector $oldEntryInjector = new MicroInjector()
+    MicroInjector oldEntryInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
@@ -90,7 +90,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         }
     };
 
-    MicroInjector $newEntryInjector = new MicroInjector()
+    MicroInjector newEntryInjector = new MicroInjector()
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {

@@ -99,7 +99,10 @@ public class SimpleDhcpStore extends AbstractDhcpStore
     protected Lease findExistingLease( HardwareAddress hardwareAddress, Lease existingLease )
     {
         if ( leases.containsKey( hardwareAddress ) )
+        {
             existingLease = ( Lease ) leases.get( hardwareAddress );
+        }
+
         return existingLease;
     }
 
@@ -169,9 +172,13 @@ public class SimpleDhcpStore extends AbstractDhcpStore
         for ( Iterator i = subnets.iterator(); i.hasNext(); )
         {
             Subnet subnet = ( Subnet ) i.next();
+
             if ( subnet.contains( clientAddress ) )
+            {
                 return subnet;
+            }
         }
+
         return null;
     }
 

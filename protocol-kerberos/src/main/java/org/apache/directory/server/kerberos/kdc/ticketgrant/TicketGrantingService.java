@@ -30,11 +30,10 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.EncoderException;
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcContext;
-import org.apache.directory.server.kerberos.kdc.KdcServer;
-import org.apache.directory.server.kerberos.protocol.codec.KerberosDecoder;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -43,10 +42,9 @@ import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.KerberosUtils;
-import org.apache.directory.shared.kerberos.codec.options.ApOptions;
+import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
 import org.apache.directory.shared.kerberos.codec.options.KdcOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
@@ -82,22 +80,27 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TicketGrantingService
+public final class TicketGrantingService
 {
 
     /** the log for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( TicketGrantingService.class );
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
 
-    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
+    private static final CipherTextHandler CIPHER_TEXT_HANDLER = new CipherTextHandler();
 
     private static final String SERVICE_NAME = "Ticket-Granting Service (TGS)";
 
-    private static final ChecksumHandler checksumHandler = new ChecksumHandler();
+    private static final ChecksumHandler CHRECKSUM_HANDLER = new ChecksumHandler();
+
+
+    private TicketGrantingService()
+    {
+    }
 
 
     public static void execute( TicketGrantingContext tgsContext ) throws Exception
     {
-        if ( LOG.isDebugEnabled() )
+        if ( LOG_KRB.isDebugEnabled() )
         {
             monitorRequest( tgsContext );
         }
@@ -118,7 +121,7 @@ public class TicketGrantingService
 
     private static void configureTicketGranting( TicketGrantingContext tgsContext ) throws KerberosException
     {
-        tgsContext.setCipherTextHandler( cipherTextHandler );
+        tgsContext.setCipherTextHandler( CIPHER_TEXT_HANDLER );
 
         if ( tgsContext.getRequest().getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
         {
@@ -153,26 +156,26 @@ public class TicketGrantingService
             sb.append( "\n\t" + "renew-till time:       " + request.getKdcReqBody().getRTime() );
             sb.append( "\n\t" + "hostAddresses:         " + request.getKdcReqBody().getAddresses() );
 
-            LOG.debug( sb.toString() );
+            LOG_KRB.debug( sb.toString() );
         }
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_153 ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_153 ), e );
         }
     }
 
 
     private static void selectEncryptionType( TicketGrantingContext tgsContext ) throws Exception
     {
-        KdcContext kdcContext = (KdcContext)tgsContext;
+        KdcContext kdcContext = tgsContext;
         KerberosConfig config = kdcContext.getConfig();
 
         Set<EncryptionType> requestedTypes = kdcContext.getRequest().getKdcReqBody().getEType();
 
         EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
-        LOG.debug( "Session will use encryption type {}.", bestType );
+        LOG_KRB.debug( "Session will use encryption type {}.", bestType );
 
         if ( bestType == null )
         {
@@ -260,7 +263,7 @@ public class TicketGrantingService
     {
         ApReq authHeader = tgsContext.getAuthHeader();
         Ticket tgt = tgsContext.getTgt();
-        
+
         KdcOptions kdcOptions = tgsContext.getRequest().getKdcReqBody().getKdcOptions();
         boolean isValidate = kdcOptions.get( KdcOptions.VALIDATE );
 
@@ -273,8 +276,10 @@ public class TicketGrantingService
         InetAddress clientAddress = tgsContext.getClientAddress();
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
 
-        Authenticator authenticator = KerberosUtils.verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY, isValidate );
+        Authenticator authenticator = KerberosUtils.verifyAuthHeader( authHeader, tgt, serverKey, clockSkew,
+            replayCache,
+            emptyAddressesAllowed, clientAddress, cipherTextHandler,
+            KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY, isValidate );
 
         tgsContext.setAuthenticator( authenticator );
     }
@@ -314,16 +319,16 @@ public class TicketGrantingService
                 Ticket tgt = tgsContext.getTgt();
                 EncTicketPart encTicketPart = tgt.getEncTicketPart();
                 EncryptionKey sessionKey = encTicketPart.getKey();
-                
+
                 if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
                     || authenticatorChecksum.getChecksumValue() == null || bodyBytes == null )
                 {
                     throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
                 }
-                
-                LOG.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
-                
-                checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, sessionKey.getKeyValue(),
+
+                LOG_KRB.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
+
+                CHRECKSUM_HANDLER.verifyChecksum( authenticatorChecksum, bodyBytes, sessionKey.getKeyValue(),
                     KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_AUTHNT_CKSUM_TGS_SESS_KEY );
             }
         }
@@ -357,7 +362,7 @@ public class TicketGrantingService
         KerberosConfig config = tgsContext.getConfig();
 
         tgsContext.getRequest().getKdcReqBody().getAdditionalTickets();
-        
+
         EncTicketPart newTicketPart = new EncTicketPart();
 
         newTicketPart.setClientAddresses( tgt.getEncTicketPart().getClientAddresses() );
@@ -387,18 +392,18 @@ public class TicketGrantingService
         {
             Ticket[] additionalTkts = tgsContext.getRequest().getKdcReqBody().getAdditionalTickets();
 
-            if( additionalTkts == null || additionalTkts.length == 0 )
+            if ( additionalTkts == null || additionalTkts.length == 0 )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
-            
+
             Ticket additionalTgt = additionalTkts[0];
             // reject if it is not a TGT
-            if( !additionalTgt.getEncTicketPart().getFlags().isInitial() )
+            if ( !additionalTgt.getEncTicketPart().getFlags().isInitial() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
-            
+
             serverKey = additionalTgt.getEncTicketPart().getKey();
             /*
              * if (server not specified) then
@@ -414,13 +419,14 @@ public class TicketGrantingService
              */
             //throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
-        
-        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, newTicketPart, KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
-        
+
+        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, newTicketPart,
+            KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
+
         Ticket newTicket = new Ticket( request.getKdcReqBody().getSName(), encryptedData );
         newTicket.setEncTicketPart( newTicketPart );
         newTicket.setRealm( request.getKdcReqBody().getRealm() );
-        
+
         tgsContext.setNewTicket( newTicket );
     }
 
@@ -460,7 +466,7 @@ public class TicketGrantingService
             encKdcRepPart.setRenewTill( newTicket.getEncTicketPart().getRenewTill() );
         }
 
-        if ( LOG.isDebugEnabled() )
+        if ( LOG_KRB.isDebugEnabled() )
         {
             monitorContext( tgsContext );
             monitorReply( reply, encKdcRepPart );
@@ -475,12 +481,12 @@ public class TicketGrantingService
 
         if ( authenticator.getSubKey() != null )
         {
-            encryptedData = cipherTextHandler.seal( authenticator.getSubKey(), encTgsRepPart,
+            encryptedData = CIPHER_TEXT_HANDLER.seal( authenticator.getSubKey(), encTgsRepPart,
                 KeyUsage.TGS_REP_ENC_PART_TGS_AUTHNT_SUB_KEY );
         }
         else
         {
-            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getKey(), encTgsRepPart,
+            encryptedData = CIPHER_TEXT_HANDLER.seal( tgt.getEncTicketPart().getKey(), encTgsRepPart,
                 KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
         }
 
@@ -497,15 +503,15 @@ public class TicketGrantingService
         {
             Ticket tgt = tgsContext.getTgt();
             long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
-            
+
             Checksum cksum = tgsContext.getAuthenticator().getCksum();
-            
+
             ChecksumType checksumType = null;
             if ( cksum != null )
             {
                 checksumType = cksum.getChecksumType();
             }
-            
+
             InetAddress clientAddress = tgsContext.getClientAddress();
             HostAddresses clientAddresses = tgt.getEncTicketPart().getClientAddresses();
 
@@ -549,12 +555,12 @@ public class TicketGrantingService
             sb.append( "\n\t" + "Ticket key type        " + encryptionType );
             sb.append( "\n\t" + "Service key version    " + keyVersion );
 
-            LOG.debug( sb.toString() );
+            LOG_KRB.debug( sb.toString() );
         }
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_154 ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_154 ), e );
         }
     }
 
@@ -579,16 +585,16 @@ public class TicketGrantingService
             sb.append( "\n\t" + "renew-till time:       " + part.getRenewTill() );
             sb.append( "\n\t" + "hostAddresses:         " + part.getClientAddresses() );
 
-            LOG.debug( sb.toString() );
+            LOG_KRB.debug( sb.toString() );
         }
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_155 ), e );
+            LOG_KRB.error( I18n.err( I18n.ERR_155 ), e );
         }
     }
 
-    
+
     private static void processFlags( KerberosConfig config, KdcReq request, Ticket tgt,
         EncTicketPart newTicketPart ) throws KerberosException
     {
@@ -745,9 +751,9 @@ public class TicketGrantingService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            KerberosTime startTime = ( tgt.getEncTicketPart().getStartTime() != null ) ?
-                tgt.getEncTicketPart().getStartTime() :
-                tgt.getEncTicketPart().getAuthTime();
+            KerberosTime startTime = ( tgt.getEncTicketPart().getStartTime() != null )
+                ? tgt.getEncTicketPart().getStartTime()
+                : tgt.getEncTicketPart().getAuthTime();
 
             if ( startTime.greaterThan( new KerberosTime() ) )
             {
@@ -758,26 +764,26 @@ public class TicketGrantingService
             newTicketPart.getFlags().clearFlag( TicketFlag.INVALID );
         }
 
-        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_0 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_7 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_9 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_10 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_11 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_12 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_13 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_14 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_15 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_16 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_17 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_18 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_19 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_20 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_21 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_22 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_23 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_24 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_25 ) ||
-            request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_29 ) )
+        if ( request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_0 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_7 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_9 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_10 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_11 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_12 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_13 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_14 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_15 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_16 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_17 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_18 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_19 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_20 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_21 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_22 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_23 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_24 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_25 )
+            || request.getKdcReqBody().getKdcOptions().get( KdcOptions.RESERVED_29 ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
@@ -844,9 +850,9 @@ public class TicketGrantingService
 
             newTicketPart.setStartTime( now );
 
-            KerberosTime tgtStartTime = ( tgt.getEncTicketPart().getStartTime() != null ) ?
-                tgt.getEncTicketPart().getStartTime() :
-                tgt.getEncTicketPart().getAuthTime();
+            KerberosTime tgtStartTime = ( tgt.getEncTicketPart().getStartTime() != null )
+                    ? tgt.getEncTicketPart().getStartTime()
+                    : tgt.getEncTicketPart().getAuthTime();
 
             long oldLife = tgt.getEncTicketPart().getEndTime().getTime() - tgtStartTime.getTime();
 

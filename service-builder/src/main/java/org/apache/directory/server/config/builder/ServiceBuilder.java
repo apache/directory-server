@@ -24,6 +24,7 @@ package org.apache.directory.server.config.builder;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,18 +33,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.ldif.LdapLdifException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.ExtendedRequest;
+import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.config.ConfigSchemaConstants;
 import org.apache.directory.server.config.ConfigurationException;
 import org.apache.directory.server.config.beans.AuthenticationInterceptorBean;
 import org.apache.directory.server.config.beans.AuthenticatorBean;
@@ -62,6 +64,8 @@ import org.apache.directory.server.config.beans.JdbmPartitionBean;
 import org.apache.directory.server.config.beans.JournalBean;
 import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
+import org.apache.directory.server.config.beans.MavibotIndexBean;
+import org.apache.directory.server.config.beans.MavibotPartitionBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.beans.PartitionBean;
 import org.apache.directory.server.config.beans.PasswordPolicyBean;
@@ -69,16 +73,19 @@ import org.apache.directory.server.config.beans.ReplConsumerBean;
 import org.apache.directory.server.config.beans.SaslMechHandlerBean;
 import org.apache.directory.server.config.beans.TcpTransportBean;
 import org.apache.directory.server.config.beans.TransportBean;
-import org.apache.directory.server.config.beans.UdpTransportBean;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
+import org.apache.directory.server.core.api.authn.ppolicy.DefaultPasswordValidator;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordValidator;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.journal.JournalStore;
+import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
@@ -87,9 +94,15 @@ import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.journal.DefaultJournal;
 import org.apache.directory.server.core.journal.DefaultJournalStore;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmDnIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmRdnIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotDnIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotRdnIndex;
+import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
 import org.apache.directory.server.kerberos.ChangePasswordConfig;
@@ -98,8 +111,8 @@ import org.apache.directory.server.kerberos.changepwd.ChangePasswordServer;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
@@ -121,7 +134,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServiceBuilder
+public final class ServiceBuilder
 {
     /** The logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ServiceBuilder.class );
@@ -136,9 +149,14 @@ public class ServiceBuilder
                 return true;
             }
 
-            return Strings.toLowerCase( file.getName() ).endsWith( ".ldif" );
+            return Strings.toLowerCaseAscii( file.getName() ).endsWith( ".ldif" );
         }
     };
+
+
+    private ServiceBuilder()
+    {
+    }
 
 
     /**
@@ -170,8 +188,18 @@ public class ServiceBuilder
             {
                 LOG.debug( "loading the interceptor class {} and instantiating",
                     interceptorBean.getInterceptorClassName() );
-                Interceptor interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() )
-                    .newInstance();
+                Class<?> clazz = Class.forName( interceptorBean.getInterceptorClassName() );
+                Interceptor interceptor = null;
+                try
+                {
+                    Constructor<?> constructor = clazz.getDeclaredConstructor( interceptorBean.getClass() );
+                    interceptor = ( Interceptor ) constructor.newInstance( interceptorBean );
+                }
+                catch ( NoSuchMethodException e )
+                {
+                    interceptor = ( Interceptor ) Class.forName( interceptorBean.getInterceptorClassName() )
+                        .newInstance();
+                }
 
                 if ( interceptorBean instanceof AuthenticationInterceptorBean )
                 {
@@ -191,14 +219,12 @@ public class ServiceBuilder
 
                         if ( ppolicyConfig != null )
                         {
+                            ppolicyContainer.addPolicy( ppolicyBean.getDn(), ppolicyConfig );
+
                             // the name should be strictly 'default', the default policy can't be enforced by defining a new AT
                             if ( ppolicyBean.getPwdId().equalsIgnoreCase( "default" ) )
                             {
-                                ppolicyContainer.setDefaultPolicy( ppolicyConfig );
-                            }
-                            else
-                            {
-                                ppolicyContainer.addPolicy( ppolicyBean.getDn(), ppolicyConfig );
+                                ppolicyContainer.setDefaultPolicyDn( ppolicyBean.getDn() );
                             }
                         }
                     }
@@ -239,7 +265,7 @@ public class ServiceBuilder
 
         passwordPolicy.setPwdAllowUserChange( passwordPolicyBean.isPwdAllowUserChange() );
         passwordPolicy.setPwdAttribute( passwordPolicyBean.getPwdAttribute() );
-        passwordPolicy.setPwdCheckQuality( passwordPolicyBean.getPwdCheckQuality() );
+        passwordPolicy.setPwdCheckQuality( CheckQualityEnum.getCheckQuality( passwordPolicyBean.getPwdCheckQuality() ) );
         passwordPolicy.setPwdExpireWarning( passwordPolicyBean.getPwdExpireWarning() );
         passwordPolicy.setPwdFailureCountInterval( passwordPolicyBean.getPwdFailureCountInterval() );
         passwordPolicy.setPwdGraceAuthNLimit( passwordPolicyBean.getPwdGraceAuthNLimit() );
@@ -257,6 +283,32 @@ public class ServiceBuilder
         passwordPolicy.setPwdMinLength( passwordPolicyBean.getPwdMinLength() );
         passwordPolicy.setPwdMustChange( passwordPolicyBean.isPwdMustChange() );
         passwordPolicy.setPwdSafeModify( passwordPolicyBean.isPwdSafeModify() );
+
+        PasswordValidator validator = null;
+
+        try
+        {
+            String className = passwordPolicyBean.getPwdValidator();
+
+            if ( className != null )
+            {
+                Class<?> cls = Class.forName( className );
+                validator = ( PasswordValidator ) cls.newInstance();
+            }
+        }
+        catch ( Exception e )
+        {
+            LOG.warn(
+                "Failed to load and instantiate the custom password validator for password policy config {}, using the default validator",
+                passwordPolicyBean.getDn(), e );
+        }
+
+        if ( validator == null )
+        {
+            validator = new DefaultPasswordValidator();
+        }
+
+        passwordPolicy.setPwdValidator( validator );
 
         return passwordPolicy;
     }
@@ -465,7 +517,20 @@ public class ServiceBuilder
 
         if ( authenticatorBean instanceof DelegatingAuthenticatorBean )
         {
-            authenticator = new DelegatingAuthenticator();
+            try
+            {
+                authenticator = new DelegatingAuthenticator(
+                    new Dn(
+                        ( ( DelegatingAuthenticatorBean ) authenticatorBean ).getBaseDn() ) );
+            }
+            catch ( LdapInvalidDnException e )
+            {
+                String errorMsg = "Failed to instantiate the configured authenticator "
+                    + authenticatorBean.getAuthenticatorId();
+                LOG.warn( errorMsg );
+                throw new ConfigurationException( errorMsg, e );
+            }
+
             ( ( DelegatingAuthenticator ) authenticator )
                 .setDelegateHost( ( ( DelegatingAuthenticatorBean ) authenticatorBean ).getDelegateHost() );
             ( ( DelegatingAuthenticator ) authenticator )
@@ -512,7 +577,7 @@ public class ServiceBuilder
         {
             transport = new TcpTransport();
         }
-        else if ( transportBean instanceof UdpTransportBean )
+        else
         {
             transport = new UdpTransport();
         }
@@ -520,8 +585,31 @@ public class ServiceBuilder
         transport.setPort( transportBean.getSystemPort() );
         transport.setAddress( transportBean.getTransportAddress() );
         transport.setBackLog( transportBean.getTransportBackLog() );
-        transport.setEnableSSL( transportBean.isTransportEnableSSL() );
         transport.setNbThreads( transportBean.getTransportNbThreads() );
+
+        if ( transport instanceof TcpTransport )
+        {
+            ( ( TcpTransport ) transport ).setEnableSSL( transportBean.isTransportEnableSSL() );
+
+            if ( ( ( TcpTransport ) transport ).isSSLEnabled() )
+            {
+                ( ( TcpTransport ) transport ).setNeedClientAuth( transportBean.getNeedClientAuth() );
+                ( ( TcpTransport ) transport ).setWantClientAuth( transportBean.getWantClientAuth() );
+                List<String> enabledProtocols = transportBean.getEnabledProtocols();
+
+                if ( ( enabledProtocols != null ) && ( enabledProtocols.size() != 0 ) )
+                {
+                    ( ( TcpTransport ) transport ).setEnabledProtocols( enabledProtocols );
+                }
+
+                List<String> enabledCiphers = transportBean.getEnabledCiphers();
+
+                if ( ( enabledCiphers != null ) && ( enabledCiphers.size() != 0 ) )
+                {
+                    ( ( TcpTransport ) transport ).setEnabledCiphers( enabledCiphers );
+                }
+            }
+        }
 
         return transport;
     }
@@ -536,7 +624,6 @@ public class ServiceBuilder
     public static Authenticator[] createAuthenticators( List<AuthenticatorBean> list ) throws ConfigurationException
     {
         Set<Authenticator> authenticators = new HashSet<Authenticator>( list.size() );
-        int i = 0;
 
         for ( AuthenticatorBean authenticatorBean : list )
         {
@@ -968,6 +1055,9 @@ public class ServiceBuilder
         // Sasl realm
         ldapServer.setSaslRealms( ldapServerBean.getLdapServerSaslRealms() );
 
+        // Relplication pinger thread sleep time
+        ldapServer.setReplPingerSleepTime( ldapServerBean.getReplPingerSleep() );
+
         // The transports
         Transport[] transports = createTransports( ldapServerBean.getTransports() );
         ldapServer.setTransports( transports );
@@ -990,7 +1080,8 @@ public class ServiceBuilder
                 try
                 {
                     Class<?> extendedOpClass = Class.forName( extendedpHandlerBean.getExtendedOpHandlerClass() );
-                    ExtendedOperationHandler extOpHandler = ( ExtendedOperationHandler ) extendedOpClass.newInstance();
+                    ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> extOpHandler =
+                        ( ExtendedOperationHandler<ExtendedRequest, ExtendedResponse> ) extendedOpClass.newInstance();
                     ldapServer.addExtendedOperationHandler( extOpHandler );
                 }
                 catch ( Exception e )
@@ -1059,6 +1150,11 @@ public class ServiceBuilder
 
         for ( ReplConsumerBean replBean : replConsumerBeans )
         {
+            if ( replBean.isDisabled() )
+            {
+                continue;
+            }
+
             String className = replBean.getReplConsumerImpl();
 
             ReplicationConsumer consumer = null;
@@ -1104,6 +1200,7 @@ public class ServiceBuilder
                 config.setSearchTimeout( replBean.getReplSearchTimeout() );
                 config.setReplUserDn( replBean.getReplUserDn() );
                 config.setReplUserPassword( replBean.getReplUserPassword() );
+                config.setSearchSizeLimit( replBean.getReplSearchSizeLimit() );
 
                 config.setUseTls( replBean.isReplUseTls() );
                 config.setStrictCertVerification( replBean.isReplStrictCertValidation() );
@@ -1131,8 +1228,8 @@ public class ServiceBuilder
      * @return An JdbmIndex instance
      * @throws Exception If the instance cannot be created
      */
-    public static JdbmIndex<?, ?> createJdbmIndex( JdbmPartition partition,
-        JdbmIndexBean<String, Entry> jdbmIndexBean, DirectoryService directoryService )
+    public static JdbmIndex<?> createJdbmIndex( JdbmPartition partition,
+        JdbmIndexBean jdbmIndexBean, DirectoryService directoryService )
     {
         if ( ( jdbmIndexBean == null ) || jdbmIndexBean.isDisabled() )
         {
@@ -1146,18 +1243,23 @@ public class ServiceBuilder
             indexFileName = jdbmIndexBean.getIndexAttributeId();
         }
 
-        JdbmIndex<?, ?> index = null;
+        JdbmIndex<?> index = null;
 
         boolean hasReverse = jdbmIndexBean.getIndexHasReverse();
 
-        if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT ) ||
-            jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT )
+            || jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             index = new JdbmRdnIndex();
         }
+        else if ( jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT )
+            || jdbmIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        {
+            index = new JdbmDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        }
         else
         {
-            index = new JdbmIndex<String, Entry>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
+            index = new JdbmIndex<String>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
         }
 
         index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
@@ -1193,11 +1295,11 @@ public class ServiceBuilder
     /**
      * Create the list of Index from the configuration
      */
-    private static Set<Index<?, ?, String>> createJdbmIndexes( JdbmPartition partition,
+    private static Set<Index<?, String>> createJdbmIndexes( JdbmPartition partition,
         List<IndexBean> indexesBeans,
         DirectoryService directoryService ) //throws Exception
     {
-        Set<Index<?, ?, String>> indexes = new HashSet<Index<?, ?, String>>();
+        Set<Index<?, String>> indexes = new HashSet<Index<?, String>>();
 
         for ( IndexBean indexBean : indexesBeans )
         {
@@ -1227,7 +1329,8 @@ public class ServiceBuilder
             return null;
         }
 
-        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager() );
+        JdbmPartition jdbmPartition = new JdbmPartition( directoryService.getSchemaManager(),
+            directoryService.getDnFactory() );
 
         jdbmPartition.setCacheSize( jdbmPartitionBean.getPartitionCacheSize() );
         jdbmPartition.setId( jdbmPartitionBean.getPartitionId() );
@@ -1251,42 +1354,7 @@ public class ServiceBuilder
         jdbmPartition.setIndexedAttributes( createJdbmIndexes( jdbmPartition, jdbmPartitionBean.getIndexes(),
             directoryService ) );
 
-        String contextEntry = jdbmPartitionBean.getContextEntry();
-
-        if ( contextEntry != null )
-        {
-            try
-            {
-                // Replace '\n' to real LF
-                String entryStr = contextEntry.replaceAll( "\\\\n", "\n" );
-
-                LdifReader ldifReader = new LdifReader();
-
-                List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
-
-                if ( ( entries != null ) && ( entries.size() > 0 ) )
-                {
-                    LdifEntry entry = entries.get( 0 );
-                    jdbmPartition.setContextEntry( entry.getEntry() );
-                }
-
-                try
-                {
-                    ldifReader.close();
-                }
-                catch ( IOException ioe )
-                {
-                    LOG.error( "Cannot close the ldif reader" );
-                }
-
-            }
-            catch ( LdapLdifException lle )
-            {
-                String message = "Cannot parse the context entry : " + contextEntry + ", " + lle.getMessage();
-                LOG.error( message );
-                throw new ConfigurationException( message );
-            }
-        }
+        setContextEntry( jdbmPartitionBean, jdbmPartition );
 
         return jdbmPartition;
     }
@@ -1310,6 +1378,10 @@ public class ServiceBuilder
         if ( partitionBean instanceof JdbmPartitionBean )
         {
             return createJdbmPartition( directoryService, ( JdbmPartitionBean ) partitionBean );
+        }
+        else if ( partitionBean instanceof MavibotPartitionBean )
+        {
+            return createMavibotPartition( directoryService, ( MavibotPartitionBean ) partitionBean );
         }
         else
         {
@@ -1386,7 +1458,7 @@ public class ServiceBuilder
 
         if ( systemPartition == null )
         {
-            //throw new Exception( I18n.err( I18n.ERR_505 ) );
+            throw new Exception( I18n.err( I18n.ERR_505 ) );
         }
 
         directoryService.setSystemPartition( systemPartition );
@@ -1433,14 +1505,158 @@ public class ServiceBuilder
         }
 
         // Enabled
-        if ( !directoryServiceBean.isEnabled() )
-        {
-            // will only be useful if we ever allow more than one DS to be configured and
-            // switch between them
-            // decide which one to use based on this flag
-            // TODO
-        }
+        // if ( !directoryServiceBean.isEnabled() )
+        // TODO will only be useful if we ever allow more than one DS to be configured and
+        // switch between them decide which one to use based on this flag
 
         return directoryService;
+    }
+
+
+    public static MavibotPartition createMavibotPartition( DirectoryService directoryService,
+        MavibotPartitionBean mvbtPartitionBean ) throws ConfigurationException
+    {
+        if ( ( mvbtPartitionBean == null ) || mvbtPartitionBean.isDisabled() )
+        {
+            return null;
+        }
+
+        MavibotPartition mvbtPartition = new MavibotPartition( directoryService.getSchemaManager(),
+            directoryService.getDnFactory() );
+
+        mvbtPartition.setId( mvbtPartitionBean.getPartitionId() );
+        //mvbtPartition.setOptimizerEnabled( mvbtPartitionBean.isJdbmPartitionOptimizerEnabled() );
+        File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(),
+            mvbtPartitionBean.getPartitionId() );
+        mvbtPartition.setPartitionPath( partitionPath.toURI() );
+
+        try
+        {
+            mvbtPartition.setSuffixDn( mvbtPartitionBean.getPartitionSuffix() );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            String message = "Cannot set the Dn " + mvbtPartitionBean.getPartitionSuffix() + ", " + lide.getMessage();
+            LOG.error( message );
+            throw new ConfigurationException( message );
+        }
+
+        mvbtPartition.setSyncOnWrite( mvbtPartitionBean.isPartitionSyncOnWrite() );
+        mvbtPartition.setIndexedAttributes( createMavibotIndexes( mvbtPartition, mvbtPartitionBean.getIndexes(),
+            directoryService ) );
+
+        setContextEntry( mvbtPartitionBean, mvbtPartition );
+
+        return mvbtPartition;
+    }
+
+
+    /**
+     * Create the list of MavibotIndex from the configuration
+     */
+    private static Set<Index<?, String>> createMavibotIndexes( MavibotPartition partition,
+        List<IndexBean> indexesBeans,
+        DirectoryService directoryService ) //throws Exception
+    {
+        Set<Index<?, String>> indexes = new HashSet<Index<?, String>>();
+
+        for ( IndexBean indexBean : indexesBeans )
+        {
+            if ( indexBean.isEnabled() && ( indexBean instanceof MavibotIndexBean ) )
+            {
+                indexes.add( createMavibotIndex( partition, ( MavibotIndexBean ) indexBean, directoryService ) );
+            }
+        }
+
+        return indexes;
+    }
+
+
+    /**
+     * Create a new instance of a MavibotIndex from an instance of MavibotIndexBean
+     * 
+     * @param MavibotIndexBean The MavibotIndexBean to convert
+     * @return An MavibotIndex instance
+     * @throws Exception If the instance cannot be created
+     */
+    public static MavibotIndex<?> createMavibotIndex( MavibotPartition partition,
+        MavibotIndexBean mavobotIndexBean, DirectoryService directoryService )
+    {
+        if ( ( mavobotIndexBean == null ) || mavobotIndexBean.isDisabled() )
+        {
+            return null;
+        }
+
+        MavibotIndex<?> index = null;
+
+        boolean hasReverse = mavobotIndexBean.getIndexHasReverse();
+
+        if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT )
+            || mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        {
+            index = new MavibotRdnIndex();
+        }
+        else if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT )
+            || mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        {
+            index = new MavibotDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+        }
+        else
+        {
+            index = new MavibotIndex<String>( mavobotIndexBean.getIndexAttributeId(), hasReverse );
+        }
+
+        index.setWkDirPath( partition.getPartitionPath() );
+
+        return index;
+    }
+
+
+    /**
+     * Sets the configured context entry if present in the given partition bean 
+     *
+     * @param bean the partition configuration bean
+     * @param partition the partition instance
+     * @throws ConfigurationException
+     */
+    private static void setContextEntry( PartitionBean bean, AbstractPartition partition )
+        throws ConfigurationException
+    {
+        String contextEntry = bean.getContextEntry();
+
+        if ( contextEntry != null )
+        {
+            try
+            {
+                // Replace '\n' to real LF
+                String entryStr = contextEntry.replaceAll( "\\\\n", "\n" );
+
+                LdifReader ldifReader = new LdifReader();
+
+                List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
+
+                if ( ( entries != null ) && ( entries.size() > 0 ) )
+                {
+                    LdifEntry entry = entries.get( 0 );
+                    partition.setContextEntry( entry.getEntry() );
+                }
+
+                try
+                {
+                    ldifReader.close();
+                }
+                catch ( IOException ioe )
+                {
+                    LOG.error( "Cannot close the ldif reader" );
+                }
+
+            }
+            catch ( LdapLdifException lle )
+            {
+                String message = "Cannot parse the context entry : " + contextEntry + ", " + lle.getMessage();
+                LOG.error( message );
+                throw new ConfigurationException( message );
+            }
+        }
     }
 }

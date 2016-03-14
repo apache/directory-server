@@ -32,7 +32,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  */
 public class DhcpProtocolCodecFactory implements ProtocolCodecFactory
 {
-    private static DhcpProtocolCodecFactory INSTANCE = new DhcpProtocolCodecFactory();
+    private static final DhcpProtocolCodecFactory INSTANCE = new DhcpProtocolCodecFactory();
 
 
     /**

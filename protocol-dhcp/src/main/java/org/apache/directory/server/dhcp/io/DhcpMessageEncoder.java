@@ -73,7 +73,9 @@ public class DhcpMessageEncoder
 
         // update message type option (if set)
         if ( null != message.getMessageType() )
+        {
             options.add( new DhcpMessageType( message.getMessageType() ) );
+        }
 
         encodeOptions( options, byteBuffer );
     }
@@ -89,11 +91,13 @@ public class DhcpMessageEncoder
     private void writeString( ByteBuffer byteBuffer, String string, int len )
     {
         if ( null == string )
+        {
             string = "";
+        }
 
         try
         {
-            byte sbytes[] = string.getBytes( "ASCII" );
+            byte[] sbytes = string.getBytes( "ASCII" );
 
             // writeBytes will automatically zero-pad and thus terminate the
             // string.
@@ -117,7 +121,7 @@ public class DhcpMessageEncoder
     {
         if ( null == currentClientAddress )
         {
-            byte emptyAddress[] =
+            byte[] emptyAddress =
                 { 0, 0, 0, 0 };
             byteBuffer.put( emptyAddress );
         }
@@ -137,18 +141,23 @@ public class DhcpMessageEncoder
      * @param byteBuffer
      * @param currentClientAddress
      */
-    private void writeBytes( ByteBuffer byteBuffer, byte bytes[], int len )
+    private void writeBytes( ByteBuffer byteBuffer, byte[] bytes, int len )
     {
         if ( null == bytes )
+        {
             bytes = new byte[]
                 {};
+        }
 
         byteBuffer.put( bytes, 0, Math.min( len, bytes.length ) );
 
         // pad as necessary
         int remain = len - bytes.length;
+
         while ( remain-- > 0 )
+        {
             byteBuffer.put( ( byte ) 0 );
+        }
     }
 
     private static final byte[] VENDOR_MAGIC_COOKIE =

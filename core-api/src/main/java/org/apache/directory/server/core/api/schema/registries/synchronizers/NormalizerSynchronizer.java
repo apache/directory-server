@@ -207,7 +207,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_367, oldOid ) );
         }
 
-        String newOid = newRdn.getNormValue().getString();
+        String newOid = newRdn.getNormValue();
         checkOidIsUniqueForNormalizer( newOid );
 
         if ( isSchemaEnabled( schemaName ) )
@@ -243,7 +243,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_367, oldOid ) );
         }
 
-        String oid = newRdn.getNormValue().getString();
+        String oid = newRdn.getNormValue();
         checkOidIsUniqueForNormalizer( oid );
         Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
@@ -325,7 +325,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_371 ) );
         }
 
-        if ( !rdn.getNormValue().getString().equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
+        if ( !rdn.getNormValue().equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_372 ) );
         }

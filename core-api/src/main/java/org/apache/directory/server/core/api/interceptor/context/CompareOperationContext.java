@@ -229,14 +229,15 @@ public class CompareOperationContext extends AbstractOperationContext
      */
     public String toString()
     {
-        return "CompareContext for Dn '" + getDn().getName() + "'" +
-            ( ( oid != null ) ? ", oid : <" + oid + ">" : "" ) +
-            ( ( value != null ) ? ", value :'" +
-                ( ( value.isHumanReadable() ) ?
-                    value.getString() :
-                    ( ( !value.isHumanReadable() ) ?
-                        Strings.dumpBytes( ( ( BinaryValue ) value ).getReference() ) :
-                        "unknown value type" ) )
+        return "CompareContext for Dn '" + getDn().getName() + "'"
+            + ( ( oid != null ) ? ", oid : <" + oid + ">" : "" )
+            + ( ( value != null ) 
+                ? ", value :'"
+                    + ( ( value.isHumanReadable() )
+                        ? value.getString()
+                        : ( ( !value.isHumanReadable() )
+                            ? Strings.dumpBytes( ( ( BinaryValue ) value ).getReference() )
+                            : "unknown value type" ) )
                 + "'"
                 : "" );
     }

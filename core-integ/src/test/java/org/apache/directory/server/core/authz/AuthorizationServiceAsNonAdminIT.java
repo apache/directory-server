@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -46,7 +47,6 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
@@ -173,7 +173,7 @@ public class AuthorizationServiceAsNonAdminIT extends AbstractLdapTestUnit
             CoreSession akarasuluSession = getService().getSession( principal );
 
             ExprNode filter = FilterParser.parse( getService().getSchemaManager(), "(objectClass=*)" );
-            EntryFilteringCursor cursor = akarasuluSession.search( new Dn( "ou=users,ou=system" ), SearchScope.OBJECT, filter , AliasDerefMode.DEREF_ALWAYS );
+            Cursor<Entry> cursor = akarasuluSession.search( new Dn( "ou=users,ou=system" ), SearchScope.OBJECT, filter , AliasDerefMode.DEREF_ALWAYS );
             
             while ( cursor.next() )
             {

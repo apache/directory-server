@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.api.asn1.ber.tlv.UniversalTag;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *</pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class HostAddresses extends AbstractAsn1Object
+public class HostAddresses implements Asn1Object
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( HostAddresses.class );
@@ -258,7 +258,7 @@ public class HostAddresses extends AbstractAsn1Object
         {
             LOG.error( I18n.err( I18n.ERR_144, 1 + TLV.getNbBytes( addressesLength )
                 + addressesLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

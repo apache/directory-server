@@ -19,6 +19,7 @@
 package org.apache.directory.server.protocol.shared.transport;
 
 
+import org.apache.directory.api.util.Network;
 import org.apache.mina.core.service.IoAcceptor;
 
 
@@ -72,7 +73,7 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport( int port )
     {
-        this.address = "localhost";
+        this.address = Network.LOOPBACK.getHostAddress();
         this.port = port;
     }
 
@@ -86,7 +87,7 @@ public abstract class AbstractTransport implements Transport
      */
     public AbstractTransport( int port, int nbThreads )
     {
-        this.address = "localhost";
+        this.address = Network.LOOPBACK.getHostAddress();
         this.port = port;
         this.nbThreads = nbThreads;
     }

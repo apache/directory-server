@@ -43,6 +43,7 @@ import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.evaluator.AndEvaluator;
 import org.apache.directory.server.xdbm.search.evaluator.ApproximateEvaluator;
+import org.apache.directory.server.xdbm.search.evaluator.EmptyEvaluator;
 import org.apache.directory.server.xdbm.search.evaluator.EqualityEvaluator;
 import org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator;
 import org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator;
@@ -64,6 +65,7 @@ public class EvaluatorBuilder
     private final Store db;
     private final SchemaManager schemaManager;
 
+    private static final EmptyEvaluator EMPTY_EVALLUATOR = new EmptyEvaluator();
 
     /**
      * Creates a top level Evaluator where leaves are delegated to a leaf node
@@ -86,7 +88,7 @@ public class EvaluatorBuilder
 
         if ( ( count != null ) && ( ( Long ) count == 0L ) )
         {
-            return null;
+            return EMPTY_EVALLUATOR;
         }
 
         switch ( node.getAssertionType() )
@@ -154,7 +156,7 @@ public class EvaluatorBuilder
         switch ( size )
         {
             case 0:
-                return null;
+                return EMPTY_EVALLUATOR;
 
             case 1:
                 return evaluators.get( 0 );
@@ -175,7 +177,7 @@ public class EvaluatorBuilder
         switch ( size )
         {
             case 0:
-                return null;
+                return EMPTY_EVALLUATOR;
 
             case 1:
                 return evaluators.get( 0 );
@@ -202,5 +204,14 @@ public class EvaluatorBuilder
         }
 
         return evaluators;
+    }
+
+
+    /**
+     * @return the schemaManager
+     */
+    public SchemaManager getSchemaManager()
+    {
+        return schemaManager;
     }
 }

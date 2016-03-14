@@ -29,6 +29,7 @@ import netscape.ldap.LDAPConnection;
 
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.util.JndiUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -44,7 +45,6 @@ public class ServerIntegrationUtils extends IntegrationUtils
     private static final Logger LOG = LoggerFactory.getLogger( ServerIntegrationUtils.class );
     private static final String CTX_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 
-    private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 10389;
     private static final String DEFAULT_ADMIN = ServerDNConstants.ADMIN_SYSTEM_DN;
     private static final String DEFAULT_PASSWORD = "secret";
@@ -80,7 +80,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, principalDn );
         env.put( Context.SECURITY_CREDENTIALS, password );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -103,7 +103,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -126,7 +126,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -149,7 +149,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -172,7 +172,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -198,7 +198,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         String password = System.getProperty( testServer + ".password", DEFAULT_PASSWORD );
         LOG.debug( testServer + ".password = " + password );
 
-        String host = System.getProperty( testServer + ".host", DEFAULT_HOST );
+        String host = System.getProperty( testServer + ".host", Network.LOOPBACK_HOSTNAME );
         LOG.debug( testServer + ".host = " + host );
 
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
@@ -228,7 +228,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         String password = System.getProperty( testServer + ".password", DEFAULT_PASSWORD );
         LOG.debug( testServer + ".password = " + password );
 
-        String host = System.getProperty( testServer + ".host", DEFAULT_HOST );
+        String host = System.getProperty( testServer + ".host", Network.LOOPBACK_HOSTNAME );
         LOG.debug( testServer + ".host = " + host );
 
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
@@ -253,7 +253,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
         throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         connection.bind( principalDn, password );
 
         return connection;
@@ -269,7 +269,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
      */
     public static LdapConnection getLdapConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
         return connection;
     }
@@ -288,7 +288,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         throws Exception
     {
         LDAPConnection connection = new LDAPConnection();
-        connection.connect( 3, "localhost", ldapServer.getPort(), principalDn, password );
+        connection.connect( 3, Network.LOOPBACK_HOSTNAME, ldapServer.getPort(), principalDn, password );
 
         return connection;
     }
@@ -303,7 +303,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
      */
     public static LdapConnection getAdminConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
         return connection;

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.directory.server.config.ConfigPartitionReader;
 import org.apache.directory.server.config.LdifConfigExtractor;
 import org.apache.directory.server.config.beans.ConfigBean;
@@ -52,31 +53,6 @@ import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ntp.NtpServer;
-import org.apache.directory.shared.ldap.model.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.model.entry.Attribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.shared.ldap.model.entry.DefaultModification;
-import org.apache.directory.shared.ldap.model.entry.Entry;
-import org.apache.directory.shared.ldap.model.entry.Modification;
-import org.apache.directory.shared.ldap.model.entry.ModificationOperation;
-import org.apache.directory.shared.ldap.model.filter.ExprNode;
-import org.apache.directory.shared.ldap.model.filter.PresenceNode;
-import org.apache.directory.shared.ldap.model.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.model.message.SearchScope;
-import org.apache.directory.shared.ldap.model.name.Dn;
-import org.apache.directory.shared.ldap.model.schema.AttributeType;
-import org.apache.directory.shared.ldap.model.schema.AttributeTypeOptions;
-import org.apache.directory.shared.ldap.model.schema.SchemaManager;
-import org.apache.directory.shared.ldap.model.schema.registries.SchemaLoader;
-import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.CsnSyntaxChecker;
-import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.GeneralizedTimeSyntaxChecker;
-import org.apache.directory.shared.ldap.model.schema.syntaxCheckers.UuidSyntaxChecker;
-import org.apache.directory.shared.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.shared.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.shared.ldap.schemamanager.impl.DefaultSchemaManager;
-import org.apache.directory.shared.util.DateUtils;
-import org.apache.directory.shared.util.exception.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -578,7 +554,10 @@ public class ApacheDsService
         }
 
         // We now have to stop the underlaying DirectoryService
-        ldapServer.getDirectoryService().shutdown();
+        if ( ldapServer != null )
+        {
+            ldapServer.getDirectoryService().shutdown();
+        }
     }
 
     private static final String BANNER_LDAP = "           _                     _          ____  ____   \n"

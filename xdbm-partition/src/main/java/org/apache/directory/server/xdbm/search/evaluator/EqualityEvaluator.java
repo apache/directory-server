@@ -63,7 +63,7 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, Entry, String> ) db.getIndex( attributeType );
+            idx = ( Index<T, String> ) db.getIndex( attributeType );
         }
 
         MatchingRule mr = attributeType.getEquality();
@@ -152,6 +152,11 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
     // wrapper or the raw normalized value
     private boolean evaluate( Attribute attribute ) throws LdapException
     {
+        if ( attribute.contains( node.getValue() ) )
+        {
+            return true;
+        }
+
         /*
          * Cycle through the attribute values testing normalized version
          * obtained from using the ordering or equality matching rule's

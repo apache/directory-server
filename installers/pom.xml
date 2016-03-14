@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M12-SNAPSHOT</version>
+    <version>2.0.0-M22-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-installers</artifactId>
@@ -68,12 +68,13 @@
               <!-- Targets for Mac OS X .pkg installer packages -->
               <macOsXPkgTargets>
                 <macOsXPkgTarget>
-                 <id>apacheds-macosx-32bit</id>
+                  <id>apacheds-macosx-32bit</id>
                   <finalName>apacheds-${project.version}-32bit.dmg</finalName>
                   <osArch>x86</osArch>
                 </macOsXPkgTarget>
+                
                 <macOsXPkgTarget>
-                 <id>apacheds-macosx-64bit</id>
+                  <id>apacheds-macosx-64bit</id>
                   <finalName>apacheds-${project.version}-64bit.dmg</finalName>
                   <osArch>x86_64</osArch>
                 </macOsXPkgTarget>
@@ -94,6 +95,7 @@
                   <finalName>apacheds-${project.version}.zip</finalName>
                   <archiveType>zip</archiveType>
                 </archiveTarget>
+                
                 <archiveTarget>
                   <id>apacheds-archive-tar.gz</id>
                   <finalName>apacheds-${project.version}.tar.gz</finalName>
@@ -106,13 +108,12 @@
                 <binTarget>
                  <id>apacheds-bin-installer-32bit</id>
                   <finalName>apacheds-${project.version}-32bit.bin</finalName>
-                  <osName>Linux</osName>
                   <osArch>x86</osArch>
                 </binTarget>
-                 <binTarget>
-                 <id>apacheds-bin-installer-64bit</id>
+                
+                <binTarget>
+                  <id>apacheds-bin-installer-64bit</id>
                   <finalName>apacheds-${project.version}-64bit.bin</finalName>
-                  <osName>Linux</osName>
                   <osArch>x86_64</osArch>
                 </binTarget>
               </binTargets>
@@ -122,13 +123,12 @@
                 <debTarget>
                  <id>apacheds-debian-i386</id>
                   <finalName>apacheds-${project.version}-i386.deb</finalName>
-                  <osName>Linux</osName>
                   <osArch>i386</osArch>
                 </debTarget>
+                
                 <debTarget>
                  <id>apacheds-debian-amd64</id>
                   <finalName>apacheds-${project.version}-amd64.deb</finalName>
-                  <osName>Linux</osName>
                   <osArch>amd64</osArch>
                 </debTarget>
               </debTargets>
@@ -138,18 +138,17 @@
                 <rpmTarget>
                   <id>apacheds-rpm-i386</id>
                   <finalName>apacheds-${project.version}-i386.rpm</finalName>
-                  <osName>Linux</osName>
                   <osArch>i386</osArch>
                 </rpmTarget>
+                
                 <rpmTarget>
                   <id>apacheds-rpm-x86_64</id>
                   <finalName>apacheds-${project.version}-x86_64.rpm</finalName>
-                  <osName>Linux</osName>
                   <osArch>x86_64</osArch>
                 </rpmTarget>
               </rpmTargets>
-              
             </configuration>
+
             <executions>
               <execution>
                 <goals>
@@ -159,6 +158,7 @@
             </executions>
           </plugin>
         </plugins>
+        
         <pluginManagement>
           <plugins>
             <plugin>
@@ -170,6 +170,313 @@
         </pluginManagement>
       </build>
     </profile>
+    
+    <profile>
+      <id>debian</id>
+      <build>
+        <plugins>
+          <!-- Generating installers -->
+          <plugin>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>apacheds-installers-maven-plugin</artifactId>
+            <configuration>
+              
+              <!-- Targets for Linux .deb installer package -->
+              <debTargets>
+                <debTarget>
+                 <id>apacheds-debian-i386</id>
+                  <finalName>apacheds-${project.version}-i386.deb</finalName>
+                  <osArch>i386</osArch>
+                </debTarget>
+                
+                <debTarget>
+                 <id>apacheds-debian-amd64</id>
+                  <finalName>apacheds-${project.version}-amd64.deb</finalName>
+                  <osArch>amd64</osArch>
+                </debTarget>
+              </debTargets>
+            </configuration>
+
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+        
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>apacheds-installers-maven-plugin</artifactId>
+              <version>${project.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <id>rpm</id>
+      <build>
+        <plugins>
+          <!-- Generating installers -->
+          <plugin>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>apacheds-installers-maven-plugin</artifactId>
+            <configuration>
+              <!-- Targets for Linux .rpm installer package -->
+              <rpmTargets>
+                <rpmTarget>
+                  <id>apacheds-rpm-i386</id>
+                  <finalName>apacheds-${project.version}-i386.rpm</finalName>
+                  <osArch>i386</osArch>
+                </rpmTarget>
+                
+                <rpmTarget>
+                  <id>apacheds-rpm-x86_64</id>
+                  <finalName>apacheds-${project.version}-x86_64.rpm</finalName>
+                  <osArch>x86_64</osArch>
+                </rpmTarget>
+              </rpmTargets>
+            </configuration>
+
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+        
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>apacheds-installers-maven-plugin</artifactId>
+              <version>${project.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>windows</id>
+      <build>
+        <plugins>
+          <!-- Generating installers -->
+          <plugin>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>apacheds-installers-maven-plugin</artifactId>
+            <configuration>
+              <!-- Target for Windows installer package -->
+              <nsisTargets>
+                <nsisTarget>
+                  <id>apacheds-win32</id>
+                  <finalName>apacheds-${project.version}.exe</finalName>
+                </nsisTarget>
+              </nsisTargets>
+            </configuration>
+
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+        
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>apacheds-installers-maven-plugin</artifactId>
+              <version>${project.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>mac</id>
+      <build>
+        <plugins>
+          <!-- Generating installers -->
+          <plugin>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>apacheds-installers-maven-plugin</artifactId>
+            <configuration>
+              
+              <!-- Targets for Mac OS X .pkg installer packages -->
+              <macOsXPkgTargets>
+                <macOsXPkgTarget>
+                  <id>apacheds-macosx-32bit</id>
+                  <finalName>apacheds-${project.version}-32bit.dmg</finalName>
+                  <osArch>x86</osArch>
+                </macOsXPkgTarget>
+                
+                <macOsXPkgTarget>
+                  <id>apacheds-macosx-64bit</id>
+                  <finalName>apacheds-${project.version}-64bit.dmg</finalName>
+                  <osArch>x86_64</osArch>
+                </macOsXPkgTarget>
+              </macOsXPkgTargets>
+            </configuration>
+
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+        
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>apacheds-installers-maven-plugin</artifactId>
+              <version>${project.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <id>bin</id>
+      <build>
+        <plugins>
+          <!-- Generating installers -->
+          <plugin>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>apacheds-installers-maven-plugin</artifactId>
+            <configuration>
+              <!-- Targets for Linux .bin installer -->
+              <binTargets>
+                <binTarget>
+                 <id>apacheds-bin-installer-32bit</id>
+                  <finalName>apacheds-${project.version}-32bit.bin</finalName>
+                  <osArch>x86</osArch>
+                </binTarget>
+                
+                <binTarget>
+                  <id>apacheds-bin-installer-64bit</id>
+                  <finalName>apacheds-${project.version}-64bit.bin</finalName>
+                  <osArch>x86_64</osArch>
+                </binTarget>
+              </binTargets>
+            </configuration>
+
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+        
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>apacheds-installers-maven-plugin</artifactId>
+              <version>${project.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <id>archive</id>
+      <build>
+        <plugins>
+          <!-- Generating installers -->
+          <plugin>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>apacheds-installers-maven-plugin</artifactId>
+            <configuration>
+              <!-- Targets for Archive installer -->
+              <archiveTargets>
+                <archiveTarget>
+                  <id>apacheds-archive-zip</id>
+                  <finalName>apacheds-${project.version}.zip</finalName>
+                  <archiveType>zip</archiveType>
+                </archiveTarget>
+                
+                <archiveTarget>
+                  <id>apacheds-archive-tar.gz</id>
+                  <finalName>apacheds-${project.version}.tar.gz</finalName>
+                  <archiveType>tar.gz</archiveType>
+                </archiveTarget>
+              </archiveTargets>
+            </configuration>
+
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+        
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>apacheds-installers-maven-plugin</artifactId>
+              <version>${project.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/test/docker</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+              <outputDirectory>${project.build.directory}/docker</outputDirectory>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
   
   <build>

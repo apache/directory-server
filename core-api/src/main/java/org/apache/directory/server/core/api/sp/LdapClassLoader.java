@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.StringValue;
@@ -39,7 +40,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DirectoryService;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +67,7 @@ public class LdapClassLoader extends ClassLoader
     private DirectoryService directoryService;
 
     /** A storage for the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS_AT;
+    private AttributeType objectClassAT;
 
 
     public LdapClassLoader( DirectoryService directoryService ) throws LdapException
@@ -76,7 +76,7 @@ public class LdapClassLoader extends ClassLoader
         this.directoryService = directoryService;
         defaultSearchDn = directoryService.getDnFactory().create( DEFAULT_SEARCH_CONTEXTS_CONFIG );
 
-        OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -86,14 +86,14 @@ public class LdapClassLoader extends ClassLoader
         BranchNode filter = new AndNode();
         AttributeType fqjcnAt = directoryService.getSchemaManager().getAttributeType( "fullyQualifiedJavaClassName" );
         filter.addNode( new EqualityNode<String>( fqjcnAt, new StringValue( name ) ) );
-        filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT,
+        filter.addNode( new EqualityNode<String>( objectClassAT,
             new StringValue( ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
 
         try
         {
             for ( Dn base : searchContexts )
             {
-                EntryFilteringCursor cursor = null;
+                Cursor<Entry> cursor = null;
                 try
                 {
                     cursor = directoryService.getAdminSession()

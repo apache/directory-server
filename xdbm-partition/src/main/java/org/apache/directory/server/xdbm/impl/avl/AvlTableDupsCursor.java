@@ -126,14 +126,21 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void beforeValue( K key, V value ) throws LdapException, CursorException, IOException
+    public void beforeValue( K key, V value ) throws LdapException, CursorException
     {
         checkNotClosed( "beforeValue()" );
         wrappedCursor.beforeKey( key );
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         if ( wrappedCursor.next() )
@@ -190,13 +197,20 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void afterValue( K key, V value ) throws LdapException, CursorException, IOException
+    public void afterValue( K key, V value ) throws LdapException, CursorException
     {
         checkNotClosed( "afterValue()" );
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         /*
@@ -270,7 +284,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException
     {
         afterValue( element.getKey(), element.getValue() );
     }
@@ -279,7 +293,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
         clearValue();
@@ -289,7 +303,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {            
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         dupsCursor = null;
@@ -299,7 +320,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
         beforeValue( element.getKey(), element.getValue() );
     }
@@ -308,7 +329,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
         clearValue();
@@ -318,7 +339,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         dupsCursor = null;
@@ -328,14 +356,21 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         checkNotClosed( "first()" );
         clearValue();
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         dupsCursor = null;
@@ -374,7 +409,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public Tuple<K, V> get() throws CursorException, IOException
+    public Tuple<K, V> get() throws CursorException
     {
         checkNotClosed( "get()" );
 
@@ -390,14 +425,21 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         checkNotClosed( "last()" );
         clearValue();
 
         if ( dupsCursor != null )
         {
-            dupsCursor.close();
+            try
+            {
+                dupsCursor.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
 
         if ( wrappedCursor.last() )
@@ -434,7 +476,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
 
@@ -446,7 +488,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             if ( dupsCursor != null )
             {
-                dupsCursor.close();
+                try
+                {
+                    dupsCursor.close();
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapException( ioe.getMessage(), ioe );
+                }
             }
 
             /*
@@ -494,14 +543,15 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         returnedTuple.setKey( wrappedTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
 
-        return valueAvailable = true;
+        valueAvailable = true;
+        return true;
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
         /*
@@ -512,7 +562,14 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         {
             if ( dupsCursor != null )
             {
-                dupsCursor.close();
+                try
+                {
+                    dupsCursor.close();
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapException( ioe.getMessage(), ioe );
+                }
             }
 
             /*
@@ -554,11 +611,12 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         returnedTuple.setKey( wrappedTuple.getKey() );
         returnedTuple.setValue( dupsCursor.get() );
 
-        return valueAvailable = true;
+        valueAvailable = true;
+        return true;
     }
 
 
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -574,7 +632,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void close( Exception reason )
+    public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
         {

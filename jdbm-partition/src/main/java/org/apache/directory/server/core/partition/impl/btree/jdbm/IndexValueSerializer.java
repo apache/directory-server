@@ -40,13 +40,13 @@ public class IndexValueSerializer implements Serializer
     private static final long serialVersionUID = 1L;
 
     /** the flag for a Long value*/
-    private static byte LONG_VALUE = 0;
+    private static final byte LONG_VALUE = 0;
 
     /** the flag for a AvlTree value*/
-    private static byte AVL_TREE_VALUE = 0;
+    private static final byte AVL_TREE_VALUE = 0;
 
     /** the flag for a BTree value*/
-    private static byte BTREE_VALUE = 0;
+    private static final byte BTREE_VALUE = 0;
 
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( IndexValueSerializer.class );
@@ -90,25 +90,27 @@ public class IndexValueSerializer implements Serializer
      */
     private byte[] serialize( Long value ) throws IOException
     {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
-
-        // First, write the type
-        out.write( LONG_VALUE );
-
-        // Now, flush the Long 
-        out.writeLong( value );
-
-        // And return the result
-        out.flush();
-
-        if ( LOG.isDebugEnabled() )
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( baos ) )
         {
-            LOG.debug( ">------------------------------------------------" );
-            LOG.debug( "Serializes a LONG value" );
-        }
 
-        return baos.toByteArray();
+            // First, write the type
+            out.write( LONG_VALUE );
+
+            // Now, flush the Long 
+            out.writeLong( value );
+
+            // And return the result
+            out.flush();
+
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( ">------------------------------------------------" );
+                LOG.debug( "Serializes a LONG value" );
+            }
+
+            return baos.toByteArray();
+        }
     }
 
 

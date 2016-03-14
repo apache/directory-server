@@ -44,10 +44,15 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DomainNameService
+public final class DomainNameService
 {
     /** the log for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DomainNameService.class );
+
+
+    private DomainNameService()
+    {
+    }
 
 
     /**

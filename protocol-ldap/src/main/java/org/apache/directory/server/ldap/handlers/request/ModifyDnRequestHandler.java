@@ -80,8 +80,7 @@ public class ModifyDnRequestHandler extends LdapRequestHandler<ModifyDnRequest>
 
             Dn oldRdn = new Dn( schemaManager, req.getName().getRdn().getName() );
 
-            boolean rdnChanged = req.getNewRdn() != null &&
-                !newRdn.getNormName().equals( oldRdn.getNormName() );
+            boolean rdnChanged = req.getNewRdn() != null && !newRdn.getNormName().equals( oldRdn.getNormName() );
 
             CoreSession coreSession = session.getCoreSession();
 

@@ -54,14 +54,14 @@ import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChan
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
-import org.apache.directory.api.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
@@ -105,7 +105,7 @@ import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
@@ -144,7 +144,7 @@ public abstract class ServerContext implements EventContext
     protected SchemaManager schemaManager;
 
     /** A reference to the ObjectClass AT */
-    protected AttributeType OBJECT_CLASS_AT;
+    protected AttributeType objectClassAT;
 
     /** The cloned environment used by this Context */
     private final Hashtable<String, Object> env;
@@ -231,7 +231,7 @@ public abstract class ServerContext implements EventContext
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -266,7 +266,7 @@ public abstract class ServerContext implements EventContext
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -290,7 +290,7 @@ public abstract class ServerContext implements EventContext
         schemaManager = service.getSchemaManager();
 
         // setup attribute type value
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     }
 
 
@@ -450,6 +450,9 @@ public abstract class ServerContext implements EventContext
                 control = new SyncStateValueDecorator( getDirectoryService().getLdapCodecService() );
 
                 break;
+
+            default:
+                throw new IllegalArgumentException( "Unsupported control " + controlIDStr );
         }
 
         control.setCritical( jndiControl.isCritical() );
@@ -547,12 +550,12 @@ public abstract class ServerContext implements EventContext
             if ( result )
             {
                 Entry emptyEntry = new DefaultEntry( service.getSchemaManager(), Dn.EMPTY_DN );
-                return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( emptyEntry ), 
+                return new EntryFilteringCursorImpl( new SingletonCursor<Entry>( emptyEntry ), 
                     searchContext, schemaManager );
             }
             else
             {
-                return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+                return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
             }
         }
         else
@@ -587,7 +590,7 @@ public abstract class ServerContext implements EventContext
     protected EntryFilteringCursor doListOperation( Dn target ) throws Exception
     {
         // setup the op context and populate with request controls
-        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        PresenceNode filter = new PresenceNode( objectClassAT );
         SearchOperationContext searchContext = new SearchOperationContext( session, target, SearchScope.ONELEVEL, filter, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         searchContext.addRequestControls( convertControls( true, requestControls ) );
 
@@ -656,9 +659,10 @@ public abstract class ServerContext implements EventContext
             lookupContext.getResponseControls() );
 
         // Now remove the ObjectClass attribute if it has not been requested
-        if ( ( lookupContext.getReturningAttributes() != null ) && ( lookupContext.getReturningAttributes().size() != 0 ) &&
-            ( ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
-            && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) ) )
+        if ( ( lookupContext.getReturningAttributes() != null )
+            && ( lookupContext.getReturningAttributes().size() != 0 )
+            && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
+            && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
         {
             serverEntry.removeAttributes( SchemaConstants.OBJECT_CLASS_AT );
         }
@@ -1536,7 +1540,7 @@ public abstract class ServerContext implements EventContext
     {
         // Conduct a special one level search at base for all objects
         Dn base = buildTarget( JndiUtils.fromName( name ) );
-        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        PresenceNode filter = new PresenceNode( objectClassAT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
@@ -1608,7 +1612,7 @@ public abstract class ServerContext implements EventContext
 
     public void addNamingListener( Name name, int scope, NamingListener namingListener ) throws NamingException
     {
-        ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+        ExprNode filter = new PresenceNode( objectClassAT );
 
         try
         {

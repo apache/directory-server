@@ -46,11 +46,14 @@ import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.exception.MultiException;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -64,6 +67,7 @@ import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.search.impl.CursorBuilder;
 import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
@@ -106,9 +110,9 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * Creates a store based on JDBM B+Trees.
      */
-    public JdbmPartition( SchemaManager schemaManager )
+    public JdbmPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
+        super( schemaManager, dnFactory );
 
         // Initialize the cache size
         if ( cacheSize < 0 )
@@ -121,6 +125,249 @@ public class JdbmPartition extends AbstractBTreePartition
             LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
         }
     }
+    
+    
+    /**
+     * Rebuild the indexes 
+     */
+    private int rebuildIndexes() throws Exception
+    {
+        Cursor<Tuple<String, Entry>> cursor = getMasterTable().cursor();
+
+        int masterTableCount = 0;
+        int repaired = 0;
+
+        System.out.println( "Re-building indices..." );
+
+        boolean ctxEntryLoaded = false;
+
+        try
+        {
+            while ( cursor.next() )
+            {
+                masterTableCount++;
+                Tuple<String, Entry> tuple = cursor.get();
+                String id = tuple.getKey();
+
+                Entry entry = tuple.getValue();
+                
+                // Start with the RdnIndex
+                String parentId = entry.get( ApacheSchemaConstants.ENTRY_PARENT_ID_OID ).getString();
+                System.out.println( "Read entry " + entry.getDn() + " with ID " + id + " and parent ID " + parentId );
+
+                Dn dn = entry.getDn();
+                
+                ParentIdAndRdn parentIdAndRdn = null;
+
+                // context entry may have more than one RDN
+                if ( !ctxEntryLoaded && getSuffixDn().getName().startsWith( dn.getName() ) )
+                {
+                    // If the read entry is the context entry, inject a tuple that have one or more RDNs
+                    parentIdAndRdn = new ParentIdAndRdn( parentId, getSuffixDn().getRdns() );
+                    ctxEntryLoaded = true;
+                }
+                else
+                {
+                    parentIdAndRdn = new ParentIdAndRdn( parentId, dn.getRdn() );
+                }
+
+                // Inject the parentIdAndRdn in the rdnIndex
+                rdnIdx.add( parentIdAndRdn, id );
+                
+                // Process the ObjectClass index
+                // Update the ObjectClass index
+                Attribute objectClass = entry.get( objectClassAT );
+
+                if ( objectClass == null )
+                {
+                    String msg = I18n.err( I18n.ERR_217, dn, entry );
+                    ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
+                    LdapSchemaViolationException e = new LdapSchemaViolationException( rc, msg );
+                    //e.setResolvedName( entryDn );
+                    throw e;
+                }
+
+                for ( Value<?> value : objectClass )
+                {
+                    String valueStr = ( String ) value.getNormValue();
+
+                    if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                    {
+                        continue;
+                    }
+
+                    objectClassIdx.add( valueStr, id );
+                }
+                
+                // The Alias indexes
+                if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
+                {
+                    Attribute aliasAttr = entry.get( aliasedObjectNameAT );
+                    addAliasIndices( id, dn, new Dn( schemaManager, aliasAttr.getString() ) );
+                }
+                
+                // The entryCSN index
+                // Update the EntryCsn index
+                Attribute entryCsn = entry.get( entryCsnAT );
+
+                if ( entryCsn == null )
+                {
+                    String msg = I18n.err( I18n.ERR_219, dn, entry );
+                    throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
+                }
+
+                entryCsnIdx.add( entryCsn.getString(), id );
+
+                // The AdministrativeRole index
+                // Update the AdministrativeRole index, if needed
+                if ( entry.containsAttribute( administrativeRoleAT ) )
+                {
+                    // We may have more than one role
+                    Attribute adminRoles = entry.get( administrativeRoleAT );
+
+                    for ( Value<?> value : adminRoles )
+                    {
+                        adminRoleIdx.add( ( String ) value.getNormValue(), id );
+                    }
+
+                    // Adds only those attributes that are indexed
+                    presenceIdx.add( administrativeRoleAT.getOid(), id );
+                }
+
+                // And the user indexess
+                // Now work on the user defined userIndices
+                for ( Attribute attribute : entry )
+                {
+                    AttributeType attributeType = attribute.getAttributeType();
+                    String attributeOid = attributeType.getOid();
+
+                    if ( hasUserIndexOn( attributeType ) )
+                    {
+                        Index<Object, String> idx = ( Index<Object, String> ) getUserIndex( attributeType );
+
+                        // here lookup by attributeId is OK since we got attributeId from
+                        // the entry via the enumeration - it's in there as is for sure
+
+                        for ( Value<?> value : attribute )
+                        {
+                            idx.add( value.getNormValue(), id );
+                        }
+
+                        // Adds only those attributes that are indexed
+                        presenceIdx.add( attributeOid, id );
+                    }
+                }
+            }
+            
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            System.out.println( "Exiting after fetching entries " + repaired );
+            throw e;
+        }
+        finally
+        {
+            cursor.close();
+        }
+        
+        return masterTableCount;
+    }
+    
+    
+    /**
+     * Update the children and descendant counters in the RDN index
+     */
+    private void updateRdnIndexCounters() throws Exception
+    {
+        Cursor<Tuple<String, Entry>> cursor = getMasterTable().cursor();
+
+        System.out.println( "Updating the RDN index counters..." );
+
+        try
+        {
+            while ( cursor.next() )
+            {
+                Tuple<String, Entry> tuple = cursor.get();
+
+                Entry entry = tuple.getValue();
+
+                // Update the parent's nbChildren and nbDescendants values
+                // Start with the RdnIndex
+                String parentId = entry.get( ApacheSchemaConstants.ENTRY_PARENT_ID_OID ).getString();
+                
+                if ( parentId != Partition.ROOT_ID )
+                {
+                    updateRdnIdx( parentId, ADD_CHILD, 0 );
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            System.out.println( "Exiting, wasn't able to update the RDN index counters" );
+            throw e;
+        }
+        finally
+        {
+            cursor.close();
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doRepair() throws Exception
+    {
+        // Find the underlying directories
+        File partitionDir = new File( getPartitionPath() );
+        
+        // get the names of the db files
+        List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
+
+        // then add all index objects to a list
+        List<String> allIndices = new ArrayList<String>();
+
+        // Iterate on the declared indexes, deleting the old ones
+        for ( Index<?, String> index : getIndexedAttributes() )
+        {
+            // Index won't be initialized at this time, so lookup AT registry to get the OID
+            AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
+            String oid = indexAT.getOid();
+            allIndices.add( oid );
+            
+            // take the part after removing .db from the
+            String name = oid + JDBM_DB_FILE_EXTN;
+            
+            // if the name doesn't exist in the list of index DB files
+            // this is a new index and we need to build it
+            if ( indexDbFileNameList.contains( name ) )
+            {
+                ( ( JdbmIndex<?> ) index ).close();
+                
+                File indexFile = new File( partitionDir, name );
+                indexFile.delete();
+                
+                // Recreate the index
+                ( ( JdbmIndex<?> ) index ).init( schemaManager, indexAT );
+            }
+        }
+
+        // Ok, now, rebuild the indexes.
+        int masterTableCount = rebuildIndexes();
+        
+        // Now that the RdnIndex has been rebuilt, we have to update the nbChildren and nbDescendants values
+        // We loop again on the MasterTable 
+        updateRdnIndexCounters();
+        
+        // Flush the indexes on disk
+        sync();
+
+        System.out.println( "Total entries present in the partition " + masterTableCount );
+        System.out.println( "Repair complete" );
+    }
 
 
     protected void doInit() throws Exception
@@ -130,23 +377,52 @@ public class JdbmPartition extends AbstractBTreePartition
             // setup optimizer and registries for parent
             if ( !optimizerEnabled )
             {
-                optimizer = new NoOpOptimizer();
+                setOptimizer( new NoOpOptimizer() );
             }
             else
             {
-                optimizer = new DefaultOptimizer<Entry>( this );
+                setOptimizer( new DefaultOptimizer<Entry>( this ) );
             }
 
             EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
             CursorBuilder cursorBuilder = new CursorBuilder( this, evaluatorBuilder );
 
-            searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );
+            setSearchEngine( new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, getOptimizer() ) );
 
             // Create the underlying directories (only if needed)
             File partitionDir = new File( getPartitionPath() );
             if ( !partitionDir.exists() && !partitionDir.mkdirs() )
             {
                 throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionDir ) );
+            }
+
+            // get all index db files first
+            File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
+
+            // get the names of the db files also
+            List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
+
+            // then add all index objects to a list
+            List<String> allIndices = new ArrayList<String>();
+
+            List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
+            
+            // Iterate on the declared indexes
+            for ( Index<?, String> index : getIndexedAttributes() )
+            {
+                // Index won't be initialized at this time, so lookup AT registry to get the OID
+                String oid = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ).getOid();
+                allIndices.add( oid );
+                
+                // take the part after removing .db from the
+                String name = oid + JDBM_DB_FILE_EXTN;
+                
+                // if the name doesn't exist in the list of index DB files
+                // this is a new index and we need to build it
+                if ( !indexDbFileNameList.contains( name ) )
+                {
+                    indexToBuild.add( index );
+                }
             }
 
             // Initialize the indexes
@@ -169,46 +445,18 @@ public class JdbmPartition extends AbstractBTreePartition
                 LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
             }
 
-            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
+            // prevent the OOM when more than 50k users are loaded at a stretch
+            // adding this system property to make it configurable till JDBM gets replaced by Mavibot
+            String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "100" );
+            
+            int recCacheSize = Integer.parseInt( cacheSizeVal );
+            
+            LOG.info( "Setting CacheRecondManager's cache size to {}", recCacheSize );
+            
+            recMan = new CacheRecordManager( base, new MRU( recCacheSize ) );
 
             // Create the master table (the table containing all the entries)
             master = new JdbmMasterTable( recMan, schemaManager );
-
-            // get all index db files first
-            File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
-
-            // get the names of the db files also
-            List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
-
-            // then add all index objects to a list
-            List<String> allIndices = new ArrayList<String>();
-
-            for ( Index<?, Entry, String> index : systemIndices.values() )
-            {
-                allIndices.add( index.getAttribute().getOid() );
-            }
-
-            List<Index<?, Entry, String>> indexToBuild = new ArrayList<Index<?, Entry, String>>();
-
-            // this loop is used for two purposes
-            // one for collecting all user indices
-            // two for finding a new index to be built
-            // just to avoid another iteration for determining which is the new index
-            for ( Index<?, Entry, String> index : userIndices.values() )
-            {
-                String indexOid = index.getAttribute().getOid();
-                allIndices.add( indexOid );
-
-                // take the part after removing .db from the
-                String name = indexOid + JDBM_DB_FILE_EXTN;
-
-                // if the name doesn't exist in the list of index DB files
-                // this is a new index and we need to build it
-                if ( !indexDbFileNameList.contains( name ) )
-                {
-                    indexToBuild.add( index );
-                }
-            }
 
             if ( indexToBuild.size() > 0 )
             {
@@ -216,6 +464,18 @@ public class JdbmPartition extends AbstractBTreePartition
             }
 
             deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
+
+            if ( cacheService != null )
+            {
+                entryCache = cacheService.getCache( getId() );
+
+                int cacheSizeConfig = ( int ) entryCache.getCacheConfiguration().getMaxEntriesLocalHeap();
+
+                if ( cacheSizeConfig < cacheSize )
+                {
+                    entryCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize );
+                }
+            }
 
             // Initialization of the context entry
             if ( ( suffixDn != null ) && ( contextEntry != null ) )
@@ -264,11 +524,6 @@ public class JdbmPartition extends AbstractBTreePartition
                 }
             }
 
-            if ( cacheService != null )
-            {
-                entryCache = cacheService.getCache( getId() );
-            }
-
             // We are done !
             initialized = true;
         }
@@ -307,17 +562,17 @@ public class JdbmPartition extends AbstractBTreePartition
         }
 
         // Sync all system indices
-        for ( Index<?, Entry, String> idx : systemIndices.values() )
+        for ( Index<?, String> idx : systemIndices.values() )
         {
             idx.sync();
         }
 
         // Sync all user defined userIndices
-        for ( Index<?, Entry, String> idx : userIndices.values() )
+        for ( Index<?, String> idx : userIndices.values() )
         {
             idx.sync();
         }
-
+        
         // Sync the master table
         ( ( JdbmMasterTable ) master ).sync();
     }
@@ -326,22 +581,32 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * Builds user defined indexes on a attributes by browsing all the entries present in master db
      * 
-     * @param userIndexes then user defined indexes to create
+     * Note: if the given list of indices contains any system index that will be skipped.
+     * 
+     * WARN: MUST be called after calling super.doInit()
+     * 
+     * @param indices then selected indexes that need to be built
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( List<Index<?, Entry, String>> userIndexes ) throws Exception
+    private void buildUserIndex( List<Index<?, String>> indices ) throws Exception
     {
         Cursor<Tuple<String, Entry>> cursor = master.cursor();
         cursor.beforeFirst();
 
         while ( cursor.next() )
         {
-            for ( Index index : userIndexes )
+            for ( Index index : indices )
             {
                 AttributeType atType = index.getAttribute();
 
                 String attributeOid = index.getAttribute().getOid();
 
+                if ( systemIndices.get( attributeOid ) != null )
+                {
+                    // skipping building of the system index
+                    continue;
+                }
+                
                 LOG.info( "building the index for attribute type {}", atType );
 
                 Tuple<String, Entry> tuple = cursor.get();
@@ -355,7 +620,7 @@ public class JdbmPartition extends AbstractBTreePartition
                 {
                     for ( Value<?> value : entryAttr )
                     {
-                        index.add( value.getValue(), id );
+                        index.add( value.getNormValue(), id );
                     }
 
                     // Adds only those attributes that are indexed
@@ -379,6 +644,12 @@ public class JdbmPartition extends AbstractBTreePartition
             String name = file.getName();
             // take the part after removing .db from the
             name = name.substring( 0, name.lastIndexOf( JDBM_DB_FILE_EXTN ) );
+
+            if ( systemIndices.get( name ) != null )
+            {
+                // do not delete the system index file
+                continue;
+            }
 
             // remove the file if not found in the list of names of indices
             if ( !allIndices.contains( name ) )
@@ -419,17 +690,21 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
-    protected Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception
+    protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
     {
-        JdbmIndex<?, Entry> jdbmIndex;
+        JdbmIndex<?> jdbmIndex;
 
         if ( index instanceof JdbmRdnIndex )
         {
             jdbmIndex = ( JdbmRdnIndex ) index;
         }
-        else if ( index instanceof JdbmIndex<?, ?> )
+        else if ( index instanceof JdbmDnIndex )
         {
-            jdbmIndex = ( JdbmIndex<?, Entry> ) index;
+            jdbmIndex = ( JdbmDnIndex ) index;
+        }
+        else if ( index instanceof JdbmIndex<?> )
+        {
+            jdbmIndex = ( JdbmIndex<?> ) index;
 
             if ( jdbmIndex.getWkDirPath() == null )
             {
@@ -504,14 +779,20 @@ public class JdbmPartition extends AbstractBTreePartition
      */
     protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws Exception
     {
-        LOG.debug( "Supplied index {} is not a JdbmIndex.  " +
-            "Will create new JdbmIndex using copied configuration parameters." );
-        JdbmIndex<?, Entry> jdbmIndex;
+        LOG.debug( "Supplied index {} is not a JdbmIndex.  "
+            + "Will create new JdbmIndex using copied configuration parameters." );
+        JdbmIndex<?> jdbmIndex;
 
         if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             jdbmIndex = new JdbmRdnIndex();
             jdbmIndex.setAttributeId( ApacheSchemaConstants.APACHE_RDN_AT_OID );
+            jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
+        }
+        else if ( oid.equals( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        {
+            jdbmIndex = new JdbmDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
+            jdbmIndex.setAttributeId( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
             jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
         }
         else
@@ -550,9 +831,9 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 entryCache.replace( new Element( id, entry ) );
             }
-            else if ( ( opCtx instanceof MoveOperationContext ) ||
-                ( opCtx instanceof MoveAndRenameOperationContext ) ||
-                ( opCtx instanceof RenameOperationContext ) )
+            else if ( ( opCtx instanceof MoveOperationContext )
+                || ( opCtx instanceof MoveAndRenameOperationContext )
+                || ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
                 entryCache.removeAll();

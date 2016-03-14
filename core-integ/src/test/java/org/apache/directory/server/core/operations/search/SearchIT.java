@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.operations.search;
 
 
+import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,10 +38,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidSearchFilterException;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -65,6 +63,8 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.LoadSchema;
+import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -80,9 +80,11 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "SearchDS")
+@CreateDS(name = "SearchDS",
+    loadedSchemas =
+        { @LoadSchema(name = "nis", enabled = true) })
 @ApplyLdifs(
-    {         
+    {
         "dn: m-oid=2.2.0, ou=attributeTypes, cn=apachemeta, ou=schema",
         "objectclass: metaAttributeType",
         "objectclass: metaTop",
@@ -157,8 +159,37 @@ import org.junit.runner.RunWith;
         "cn: singer",
         "sn: manager",
         "telephoneNumber: 1 801 555 1212 ",
-        "manager: cn=Heather Nova, ou=system"
- })
+        "manager: cn=Heather Nova, ou=system",
+        "",
+        "dn: cn=testGroup0,ou=groups,ou=system",
+        "objectClass: top",
+        "objectClass: posixGroup",
+        "cn: testGroup0",
+        "gidNumber: 0",
+        "",
+        "dn: cn=testGroup1,ou=groups,ou=system",
+        "objectClass: top",
+        "objectClass: posixGroup",
+        "cn: testGroup1",
+        "gidNumber: 1",
+        "",
+        "dn: cn=testGroup2,ou=groups,ou=system",
+        "objectClass: top",
+        "objectClass: posixGroup",
+        "cn: testGroup2",
+        "gidNumber: 2",
+        "",
+        "dn: cn=testGroup4,ou=groups,ou=system",
+        "objectClass: top",
+        "objectClass: posixGroup",
+        "cn: testGroup4",
+        "gidNumber: 4",
+        "",
+        "dn: cn=testGroup5,ou=groups,ou=system",
+        "objectClass: top",
+        "objectClass: posixGroup",
+        "cn: testGroup5",
+        "gidNumber: 5" })
 public class SearchIT extends AbstractLdapTestUnit
 {
     private static final String RDN = "cn=Heather Nova";
@@ -172,117 +203,9 @@ public class SearchIT extends AbstractLdapTestUnit
      * @throws NamingException on errors
      */
     @Before
-    public void createData() throws Exception
+    public void init() throws Exception
     {
-        getService().getSchemaManager().enable( "nis" );
-
         sysRoot = getSystemContext( getService() );
-
-        /*
-         * Check ou=testing00,ou=system
-         */
-        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
-        assertNotNull( ctx );
-        Attributes attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing00", attributes.get( "ou" ).get() );
-        Attribute attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * check ou=testing01,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
-        assertNotNull( ctx );
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing01", attributes.get( "ou" ).get() );
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * Check ou=testing02,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing02" );
-        assertNotNull( ctx );
-
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing02", attributes.get( "ou" ).get() );
-
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * Check ou=subtest,ou=testing01,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=subtest,ou=testing01" );
-        assertNotNull( ctx );
-
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "subtest", attributes.get( "ou" ).get() );
-
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         *  Check entry cn=Heather Nova, ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( RDN );
-        assertNotNull( ctx );
-
-        // -------------------------------------------------------------------
-        // Enable the nis schema
-        // -------------------------------------------------------------------
-
-        // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
-        boolean isNisDisabled = false;
-
-        if ( nisAttrs.get( "m-disabled" ) != null )
-        {
-            isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
-        }
-
-        // if nis is disabled then enable it
-        if ( isNisDisabled )
-        {
-            Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[]
-                { new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
-            schemaRoot.modifyAttributes( "cn=nis", mods );
-        }
-
-        // -------------------------------------------------------------------
-        // Add a bunch of nis groups
-        // -------------------------------------------------------------------
-        addNisPosixGroup( "testGroup0", 0 );
-        addNisPosixGroup( "testGroup1", 1 );
-        addNisPosixGroup( "testGroup2", 2 );
-        addNisPosixGroup( "testGroup4", 4 );
-        addNisPosixGroup( "testGroup5", 5 );
-    }
-
-
-    /**
-     * Create a NIS group
-     */
-    private static DirContext addNisPosixGroup( String name, int gid ) throws Exception
-    {
-        Attributes attrs = LdifUtils.createJndiAttributes("objectClass: top", "objectClass: posixGroup", "cn", name,
-                "gidNumber", String.valueOf(gid));
-
-        return getSystemContext( getService() ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
     }
 
 
@@ -425,7 +348,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( e );
 
         e.close();
-        
+
         e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
         assertNotNull( e );
         assertFalse( e.hasMore() );
@@ -503,7 +426,7 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
-        
+
         list.close();
 
         assertEquals( "size of results", 1, map.size() );
@@ -742,9 +665,9 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchResult sr = enm.next();
         assertNotNull( sr );
         assertFalse( enm.hasMore() );
-        
+
         enm.close();
-        
+
         assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
 
         enm = sysRoot.search( "", "(userCertificate=\\34\\56\\4E\\5F)", controls );
@@ -1122,7 +1045,7 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             results.add( result.getName() );
         }
-        
+
         list.close();
 
         return results;
@@ -1163,7 +1086,7 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             results.add( result.getName() );
         }
-        
+
         list.close();
 
         return results;
@@ -1194,7 +1117,7 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             results.add( result.getName() );
         }
-        
+
         list.close();
 
         return results;
@@ -1329,7 +1252,8 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person", "cn: Sid Vicious",
+        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person",
+            "cn: Sid Vicious",
             "sn: Vicious", "description: (sex*pis\\tols)" );
 
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
@@ -1377,8 +1301,9 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
         // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person", "cn: Sid Vicious",
-            "sn: Vicious", "description: (sex*pis\\tols)" );
+        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person",
+            "cn: Sid Vicious",
+            "sn: Vicious", "description: (sex*pis\\\\tols)" );
 
         DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
         assertNotNull( ctx );
@@ -1388,7 +1313,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         Attributes attributes = ctx.getAttributes( "" );
 
-        assertEquals( "(sex*pis\\tols)", attributes.get( "description" ).get() );
+        assertEquals( "(sex*pis\\\\tols)", attributes.get( "description" ).get() );
 
         // Now, search for the description
         SearchControls controls = new SearchControls();
@@ -1400,8 +1325,8 @@ public class SearchIT extends AbstractLdapTestUnit
             .getJndiValue() );
 
         String[] filters = new String[]
-            { "(description=*\\28*)", "(description=*\\29*)", "(description=*\\2A*)", "(description=*\\5C*)" };
-        
+            { /*"(description=*\\28*)", "(description=*\\29*)", "(description=*\\2A*)",*/ "(description=*\\5C*)" };
+
         for ( String filter : filters )
         {
             HashMap<String, Attributes> map = new HashMap<String, Attributes>();
@@ -1445,13 +1370,13 @@ public class SearchIT extends AbstractLdapTestUnit
         assertFalse( res.hasMore() );
 
         res.close();
-        
+
         res = sysRoot.search( "", "(cn=*{0}*)", new String[]
             { "x*y*z*" }, controls );
         assertTrue( res.hasMore() );
         assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
-        
+
         res.close();
     }
 
@@ -1488,21 +1413,21 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
-
+    
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         String filter = "(cn=Tori Amos)";
         ctls.setReturningAttributes( new String[]
             { "cn", "cn" } );
-
+    
         // Search for cn="Tori Amos" (with quotes)
         String base = "cn=\"Tori Amos\"";
-
+    
         try {
             // Check entry
             NamingEnumeration<SearchResult> result = sysRoot.search( base, filter, ctls );
             assertTrue( result.hasMore() );
-
+    
             while ( result.hasMore() )
             {
                 SearchResult sr = result.next();
@@ -1672,7 +1597,7 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
-        
+
         list.close();
 
         assertEquals( "size of results", 5, map.size() );
@@ -1886,7 +1811,8 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]{ "*", "+" } );
+        controls.setReturningAttributes( new String[]
+            { "*", "+" } );
 
         LdapContext nullRootCtx = getRootContext( getService() );
 
@@ -1902,7 +1828,7 @@ public class SearchIT extends AbstractLdapTestUnit
         list.close();
 
         assertNotNull( rootDse );
-        
+
         assertEquals( 10, rootDse.size() );
         assertNotNull( rootDse.get( "objectClass" ) );
         assertNotNull( rootDse.get( "entryUUID" ) );
@@ -2011,13 +1937,13 @@ public class SearchIT extends AbstractLdapTestUnit
 
         Set<String> csnSet = new HashSet<String>( expectedCsns.length );
         EntryCursor cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*", "+" );
-        
+
         while ( cursor.next() )
         {
             loadedEntry = cursor.get();
             csnSet.add( loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
         }
-        
+
         cursor.close();
 
         assertTrue( csnSet.size() >= expectedCsns.length );
@@ -2047,7 +1973,7 @@ public class SearchIT extends AbstractLdapTestUnit
             SearchResult result = list.next();
             map.put( result.getName(), result.getAttributes() );
         }
-        
+
         list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
@@ -2076,5 +2002,116 @@ public class SearchIT extends AbstractLdapTestUnit
         list.close();
 
         assertEquals( "Expected number of results returned was incorrect!", 0, map.size() );
+    }
+
+
+    @Test
+    public void testSearchRootDSESubtree() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[]
+            { "*", "+" } );
+
+        LdapContext nullRootCtx = getRootContext( getService() );
+
+        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(ou=testing01)", controls );
+        Attributes rootDse = null;
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            rootDse = result.getAttributes();
+        }
+
+        list.close();
+
+        assertNotNull( rootDse );
+    }
+
+
+    @Test
+    public void testSearchOrGidNumber() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[]
+            { "*", "+" } );
+
+        LdapContext nullRootCtx = getRootContext( getService() );
+
+        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(|(&(objectclass=posixGroup)(|(gidnumber=1)(gidnumber=1)))(objectClass=posixGroupp))", controls );
+        Attributes rootDse = null;
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            rootDse = result.getAttributes();
+        }
+
+        list.close();
+
+        assertNotNull( rootDse );
+    }
+    
+    
+    /**
+     * Test for DIRSERVER-1922
+     */
+    @Test
+    public void testNotEvaluator() throws Exception
+    {
+        LdapConnection con = new LdapCoreSessionConnection( service.getAdminSession() );
+
+        EntryCursor cursor = con.search( "ou=groups,ou=system", "(!(gidNumber=00001))", SearchScope.ONELEVEL, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+
+        int count = 0;
+        while ( cursor.next() )
+        {
+            count++;
+        }
+        
+        cursor.close();
+        
+        assertEquals( 5, count );
+    }
+
+    
+    /**
+     * DIRSERVER-1961
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testSearchRootDSEOneLevel() throws Exception
+    {
+        LdapConnection conn = getAdminConnection( service );
+
+        EntryCursor cursor = conn.search( "ou=schema", "(|(objectClass=*)(cn=x))", SearchScope.OBJECT, "*" );
+
+        assertTrue( cursor.next() );
+        cursor.close();
+
+        cursor = conn.search( "ou=schema", "(objectClass=person)", SearchScope.OBJECT, "*" );
+
+        assertFalse( cursor.next() );
+        cursor.close();
+
+        cursor = conn.search( "", "(objectClass=person)", SearchScope.ONELEVEL, "*" );
+
+        assertFalse( cursor.next() );
+        cursor.close();
+        
+        cursor = conn.search( "", "(objectClass=person)", SearchScope.SUBTREE, "*" );
+        int count = 0;
+        while( cursor.next() )
+        {
+            count++;
+        }
+        
+        assertEquals(3, count);
+        cursor.close();
     }
 }

@@ -198,7 +198,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         String schemaName = getSchemaName( entry.getDn() );
         MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(), schemaName );
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRdn.getNormValue().getString();
+        String newOid = newRdn.getNormValue();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -227,7 +227,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         MatchingRule oldMr = factory.getMatchingRule( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
         Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRdn.getNormValue().getString();
+        String newOid = newRdn.getNormValue();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -301,7 +301,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_362 ) );
         }
 
-        if ( !rdn.getNormValue().getString().equalsIgnoreCase( SchemaConstants.MATCHING_RULES_AT ) )
+        if ( !rdn.getNormValue().equalsIgnoreCase( SchemaConstants.MATCHING_RULES_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_363 ) );

@@ -44,7 +44,6 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.parsers.LdapComparatorDescription;
 import org.apache.directory.api.ldap.model.schema.parsers.NormalizerDescription;
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -98,25 +97,23 @@ public class SchemaSubentryManager
     private static final String CASCADING_ERROR =
         "Cascading has not yet been implemented: standard operation is in effect.";
 
-    private static AttributeType ENTRY_CSN_ATTRIBUTE_TYPE;
-
     static
     {
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NORMALIZERS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.COMPARATORS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.SYNTAX_CHECKERS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( "syntaxes" ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.MATCHING_RULES_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.MATCHING_RULE_USE_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.OBJECT_CLASSES_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NAME_FORMS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.DIT_CONTENT_RULES_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.NORMALIZERS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.COMPARATORS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.SYNTAX_CHECKERS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( "syntaxes" ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.MATCHING_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.MATCHING_RULE_USE_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.OBJECT_CLASSES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.NAME_FORMS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.DIT_CONTENT_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
     }
 
 
-    public SchemaSubentryManager( SchemaManager schemaManager, SchemaLoader loader, DnFactory dnFactory )
+    public SchemaSubentryManager( SchemaManager schemaManager, DnFactory dnFactory )
         throws LdapException
     {
         this.schemaManager = schemaManager;
@@ -163,8 +160,6 @@ public class SchemaSubentryManager
 
         String nameFormsOid = schemaManager.getAttributeTypeRegistry().getOidByName( SchemaConstants.NAME_FORMS_AT );
         opAttr2handlerIndex.put( nameFormsOid, NAME_FORM_INDEX );
-
-        ENTRY_CSN_ATTRIBUTE_TYPE = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT );
     }
 
 
@@ -276,7 +271,7 @@ public class SchemaSubentryManager
 
                 case REPLACE_ATTRIBUTE:
                     // a hack to allow entryCSN modification
-                    if ( ENTRY_CSN_ATTRIBUTE_TYPE.equals( serverAttribute.getAttributeType() ) )
+                    if ( directoryService.getAtProvider().getEntryCSN().equals( serverAttribute.getAttributeType() ) )
                     {
                         break;
                     }

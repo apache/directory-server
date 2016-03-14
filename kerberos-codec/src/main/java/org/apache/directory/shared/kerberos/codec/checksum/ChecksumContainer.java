@@ -41,8 +41,7 @@ public class ChecksumContainer extends AbstractContainer
     public ChecksumContainer()
     {
         super();
-        this.stateStack = new int[1];
-        this.grammar = ChecksumGrammar.getInstance();
+        setGrammar( ChecksumGrammar.getInstance() );
         setTransition( ChecksumStatesEnum.START_STATE );
     }
 

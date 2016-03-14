@@ -33,8 +33,9 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
  */
 public class PasswordPolicyConfiguration
 {
-    /** the name of the attribute to which the password policy is applied. 
-     * Currently only "userPassword" attribute is supported
+    /**
+     * The name of the attribute to which the password policy is applied. 
+     * The default value is "userPassword"
      */
     private String pwdAttribute = SchemaConstants.USER_PASSWORD_AT;
 
@@ -58,9 +59,9 @@ public class PasswordPolicyConfiguration
     private int pwdInHistory = 0;
 
     /** indicates how the password quality will be verified while being modified or added.
-     *  Default value 0, do not check 
+     *  Default value NO_CHECK, do not check 
      */
-    private int pwdCheckQuality = 0;
+    private CheckQualityEnum pwdCheckQuality = CheckQualityEnum.NO_CHECK;
 
     /** this attribute holds the minimum number of characters that must be used in a password. 
      *  Default value 0, no minimum length enforced
@@ -152,22 +153,31 @@ public class PasswordPolicyConfiguration
     private int pwdMaxIdle = 0;
 
     /** validator used for checking the quality of password */
-    //TODO to be injected from config  
     private PasswordValidator pwdValidator = DefaultPasswordValidator.INSTANCE;
 
 
+    /**
+     * @return The name of the attribute used to store the password
+     */
     public String getPwdAttribute()
     {
         return pwdAttribute;
     }
 
 
+    /**
+     * Set the name of the attribute storing the password
+     * @param pwdAttribute The attribute's name
+     */
     public void setPwdAttribute( String pwdAttribute )
     {
         this.pwdAttribute = pwdAttribute;
     }
 
 
+    /**
+     * @return The time that should elapse before we can change the password
+     */
     public int getPwdMinAge()
     {
         return pwdMinAge;
@@ -204,13 +214,16 @@ public class PasswordPolicyConfiguration
     }
 
 
-    public int getPwdCheckQuality()
+    /**
+     * @return The Password Check Quality 
+     */
+    public CheckQualityEnum getPwdCheckQuality()
     {
         return pwdCheckQuality;
     }
 
 
-    public void setPwdCheckQuality( int pwdCheckQuality )
+    public void setPwdCheckQuality( CheckQualityEnum pwdCheckQuality )
     {
         this.pwdCheckQuality = pwdCheckQuality;
     }
@@ -445,7 +458,7 @@ public class PasswordPolicyConfiguration
             sb.append( ++errCount ).append( ". password history count cannot be negative\n" );
         }
 
-        if ( ( pwdCheckQuality < 0 ) || ( pwdCheckQuality > 2 ) )
+        if ( pwdCheckQuality == CheckQualityEnum.UNKNOW )
         {
             sb.append( ++errCount ).append( ". invalid password quality check value, valid values are 0, 1 and 2 \n" );
         }

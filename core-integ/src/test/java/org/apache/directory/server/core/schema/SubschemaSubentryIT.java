@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.naming.NamingException;
+
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -45,6 +47,7 @@ import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.message.ModifyResponse;
@@ -69,7 +72,7 @@ import org.apache.directory.api.ldap.model.schema.parsers.ObjectClassDescription
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
-import org.apache.directory.api.ldap.schemaloader.SchemaEntityFactory;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.api.util.Base64;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -1428,6 +1431,26 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
 
     /**
+     * Tests the addition of a new attributeType with some
+     * underscores via a modify ADD on the SSSE to enabled schema.
+     *
+     * @throws Exception on error
+     */
+    @Test(expected = LdapInvalidAttributeValueException.class)
+    public void testAddAttributeTypeWithUnderscoresOnEnabledSchema() throws Exception
+    {
+        enableSchema( "nis" );
+        Dn dn = new Dn( subschemaSubentryDn );
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogus_microsoft_name' ) "
+            + "DESC 'bogus description' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+        Modification mod = new DefaultModification(
+            ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "attributeTypes", substrate ) );
+
+        connection.modify( dn, mod );
+    }
+
+
+    /**
      * Tests the addition of a new attributeType where the DESC contains only spaces
      */
     @Test
@@ -1969,15 +1992,17 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
     private String getByteCode( String resource ) throws IOException
     {
-        InputStream in = getClass().getResourceAsStream( resource );
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        while ( in.available() > 0 )
+        try ( InputStream in = getClass().getResourceAsStream( resource );
+            ByteArrayOutputStream out = new ByteArrayOutputStream() )
         {
-            out.write( in.read() );
-        }
 
-        return new String( Base64.encode( out.toByteArray() ) );
+            while ( in.available() > 0 )
+            {
+                out.write( in.read() );
+            }
+
+            return new String( Base64.encode( out.toByteArray() ) );
+        }
     }
 
 

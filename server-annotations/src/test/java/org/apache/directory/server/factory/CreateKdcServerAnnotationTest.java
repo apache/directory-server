@@ -23,7 +23,7 @@ package org.apache.directory.server.factory;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -41,17 +41,17 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @CreateDS(name = "CreateKdcServerAnnotationTest-class")
-@CreateKdcServer(primaryRealm = "apache.org",
-    kdcPrincipal = "krbtgt/apache.org@apache.org",
-    maxTicketLifetime = 1000,
-    maxRenewableLifetime = 2000,
-    transports =
-        {
-            @CreateTransport(protocol = "TCP"),
-            @CreateTransport(protocol = "UDP")
-    })
 public class CreateKdcServerAnnotationTest
 {
+    @CreateKdcServer(primaryRealm = "apache.org",
+        kdcPrincipal = "krbtgt/apache.org@apache.org",
+        maxTicketLifetime = 1000,
+        maxRenewableLifetime = 2000,
+        transports =
+            {
+                @CreateTransport(protocol = "TCP"),
+                @CreateTransport(protocol = "UDP")
+        })
     @Test
     public void testCreateKdcServer() throws Exception
     {
@@ -75,4 +75,37 @@ public class CreateKdcServerAnnotationTest
 
         FileUtils.deleteDirectory( directoryService.getInstanceLayout().getInstanceDirectory() );
     }
+    
+    @CreateKdcServer(primaryRealm = "apache.org",
+        kdcPrincipal = "krbtgt/apache.org@apache.org",
+        maxTicketLifetime = 1000,
+        maxRenewableLifetime = 2000,
+        transports =
+            {
+                @CreateTransport(protocol = "KRB")
+        })
+    @Test
+    public void testKRBProtocol() throws Exception
+    {
+        DirectoryService directoryService = DSAnnotationProcessor.getDirectoryService();
+        
+        assertEquals( "CreateKdcServerAnnotationTest-class", directoryService.getInstanceId() );
+        
+        KdcServer server = ServerAnnotationProcessor.getKdcServer( directoryService, AvailablePortFinder.getNextAvailable( 1024 ) );
+
+        assertEquals( 2, server.getTransports().length );
+        
+        KerberosConfig config = server.getConfig();
+        assertEquals( directoryService, server.getDirectoryService() );
+        assertEquals( "apache.org", config.getPrimaryRealm() );
+        assertEquals( "krbtgt/apache.org@apache.org", config.getServicePrincipal().getName() );
+        assertEquals( 1000, config.getMaximumTicketLifetime() );
+        assertEquals( 2000, config.getMaximumRenewableLifetime() );
+        
+        server.stop();
+        directoryService.shutdown();
+
+        FileUtils.deleteDirectory( directoryService.getInstanceLayout().getInstanceDirectory() );
+    }
+    
 }

@@ -35,7 +35,6 @@ import org.junit.Test;
  */
 public class OptionsTest
 {
-    @SuppressWarnings("serial")
     private class MyOptions extends Options
     {
         private MyOptions()

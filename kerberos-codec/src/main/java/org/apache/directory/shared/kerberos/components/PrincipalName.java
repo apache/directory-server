@@ -93,7 +93,7 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -117,7 +117,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PrincipalName extends AbstractAsn1Object
+public class PrincipalName implements Asn1Object
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( PrincipalName.class );
@@ -130,6 +130,9 @@ public class PrincipalName extends AbstractAsn1Object
 
     /** The principal name - we may have more than one - */
     private List<String> nameString = new ArrayList<String>();
+
+    /** The realm part */
+    private String realm;
 
     /** The principal name as a byte[], for encoding purpose */
     private List<byte[]> nameBytes;
@@ -163,6 +166,7 @@ public class PrincipalName extends AbstractAsn1Object
         try
         {
             nameString = KerberosUtils.getNames( principal );
+            realm = principal.getRealm();
         }
         catch ( ParseException pe )
         {
@@ -175,15 +179,40 @@ public class PrincipalName extends AbstractAsn1Object
 
     /**
      * Creates a new instance of PrincipalName given a String and an 
-     * prinipal type.
+     * principal type.
      * 
      * @param nameString The name string, which can contains more than one nameComponent
      * @param nameType The principal name
      */
     public PrincipalName( String nameString, PrincipalNameType nameType ) throws ParseException
     {
-        this.nameString.add( nameString );
+        this.nameString = KerberosUtils.getNames( nameString );
         this.nameType = nameType;
+    }
+
+
+    /**
+     * Creates a new instance of PrincipalName given a String[] and an 
+     * principal type.
+     * 
+     * @param nameParts The name string, which can contains more than one nameComponent
+     * @param nameType The principal name type
+     */
+    public PrincipalName( String[] nameParts, int nameType )
+    {
+        if ( nameParts == null || nameParts.length == 0 )
+        {
+            throw new IllegalArgumentException( "Empty name parts" );
+        }
+
+        List<String> nameComponents = new ArrayList<String>();
+        for ( String np : nameParts )
+        {
+            nameComponents.add( np );
+        }
+
+        this.nameString = nameComponents;
+        this.nameType = PrincipalNameType.getTypeByValue( nameType );;
     }
 
 
@@ -236,6 +265,26 @@ public class PrincipalName extends AbstractAsn1Object
     public void setNameType( int nameType )
     {
         this.nameType = PrincipalNameType.getTypeByValue( nameType );
+    }
+
+
+    /**
+     * Set the realm for the principal
+     * @param realm the realm of the principal
+     */
+    public void setRealm( String realm )
+    {
+        this.realm = realm;
+    }
+
+
+    /**
+     * Get the realm for the principal
+     * @return realm the realm of the principal
+     */
+    public String getRealm()
+    {
+        return realm;
     }
 
 
@@ -437,7 +486,7 @@ public class PrincipalName extends AbstractAsn1Object
         {
             LOG.error( I18n.err( I18n.ERR_146, 1 + TLV.getNbBytes( principalNameSeqLength )
                 + principalNameSeqLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )
@@ -480,12 +529,19 @@ public class PrincipalName extends AbstractAsn1Object
                 sb.append( '\'' ).append( name ).append( '\'' );
             }
 
-            sb.append( "> }" );
+            sb.append( ">" );
         }
         else
         {
-            sb.append( " no name-string }" );
+            sb.append( " no name-string" );
         }
+
+        if ( realm != null )
+        {
+            sb.append( "realm: " ).append( realm );
+        }
+
+        sb.append( " }" );
 
         return sb.toString();
     }

@@ -36,6 +36,7 @@ import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
@@ -112,7 +113,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
             if ( !itr.hasNext() )
             {
                 reader.close();
-                
+
                 return;
             }
 
@@ -175,6 +176,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext arg0 ) throws LdapException
     {
         // Does nothing (Read-Only)
@@ -184,15 +186,29 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    public void delete( Long arg0 ) throws LdapException
+    @Override
+    public Entry delete( String id ) throws LdapException
     {
         // Does nothing (Read-Only)
+        return null;
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
+    public Entry delete( DeleteOperationContext deleteContext ) throws LdapException
+    {
+        // Does nothing (Read-Only)
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void modify( ModifyOperationContext arg0 ) throws LdapException
     {
         // Does nothing (Read-Only)
@@ -202,6 +218,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext arg0 ) throws LdapException
     {
         // Does nothing (Read-Only)
@@ -211,6 +228,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext arg0 ) throws LdapException
     {
         // Does nothing (Read-Only)
@@ -220,6 +238,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext arg0 ) throws LdapException
     {
         // Does nothing (Read-Only)

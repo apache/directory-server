@@ -47,6 +47,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -88,7 +89,7 @@ import org.slf4j.LoggerFactory;
 public class LdifPartition extends AbstractLdifPartition
 {
     /** A logger for this class */
-    private static Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
+    private static final Logger LOG = LoggerFactory.getLogger( LdifPartition.class );
 
     /** The directory into which the entries are stored */
     private File suffixDirectory;
@@ -126,9 +127,9 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * Creates a new instance of LdifPartition.
      */
-    public LdifPartition( SchemaManager schemaManager )
+    public LdifPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
-        super( schemaManager );
+        super( schemaManager, dnFactory );
     }
 
 
@@ -258,7 +259,7 @@ public class LdifPartition extends AbstractLdifPartition
     public void add( AddOperationContext addContext ) throws LdapException
     {
         super.add( addContext );
-        
+
         addEntry( addContext.getEntry() );
     }
 
@@ -288,7 +289,7 @@ public class LdifPartition extends AbstractLdifPartition
                 LOG.debug( "deleted file {} {}", parentFile.getAbsoluteFile(), deleted );
             }
         }
-        
+
         return deletedEntry;
     }
 
@@ -315,7 +316,7 @@ public class LdifPartition extends AbstractLdifPartition
         modifyContext.setAlteredEntry( modifiedEntry );
 
         // Remove the EntryDN
-        modifiedEntry.removeAttributes( ENTRY_DN_AT );
+        modifiedEntry.removeAttributes( entryDnAT );
 
         // just overwrite the existing file
         Dn dn = modifyContext.getDn();
@@ -630,7 +631,16 @@ public class LdifPartition extends AbstractLdifPartition
             String atName = at.getName();
 
             // Now, get the normalized value
-            String normValue = ava.getNormValue().getString();
+            String normValue = null;
+            
+            if ( at.getSyntax().isHumanReadable() )
+            {
+                normValue = ava.getValue().getNormValue().toString();
+            }
+            else
+            {
+                normValue = Strings.utf8ToString( ( byte[] ) ava.getValue().getNormValue() );
+            }
 
             fileName.append( atName ).append( "=" ).append( normValue );
 
@@ -664,7 +674,7 @@ public class LdifPartition extends AbstractLdifPartition
             String atName = at.getName();
 
             // Now, get the normalized value
-            String normValue = rdn.getNormValue().getString();
+            String normValue = rdn.getNormValue();
 
             if ( isFirst )
             {
@@ -756,7 +766,7 @@ public class LdifPartition extends AbstractLdifPartition
             }
         }
 
-        return Strings.toLowerCase( sb.toString() );
+        return Strings.toLowerCaseAscii( sb.toString() );
     }
 
 
@@ -767,7 +777,7 @@ public class LdifPartition extends AbstractLdifPartition
     private void addEntry( Entry entry ) throws LdapException
     {
         // Remove the EntryDN
-        entry.removeAttributes( ENTRY_DN_AT );
+        entry.removeAttributes( entryDnAT );
 
         try
         {

@@ -23,6 +23,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
@@ -118,9 +119,23 @@ public class AddOperationContext extends AbstractChangeOperationContext
         {
             setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.ADD ) );
         }
+        else
+        {
+            throw new LdapOperationErrorException( "No session to proceed the operation" );
+        }
 
-        entry = new ClonedServerEntry(
-            new DefaultEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
+        Entry addEntry = addRequest.getEntry();
+
+        if ( addEntry.isSchemaAware() )
+        {
+            entry = new ClonedServerEntry( addEntry );
+        }
+        else
+        {
+            entry = new ClonedServerEntry(
+                new DefaultEntry( session.getDirectoryService().getSchemaManager(), addRequest.getEntry() ) );
+        }
+
         dn = addRequest.getEntry().getDn();
         requestControls = addRequest.getControls();
 

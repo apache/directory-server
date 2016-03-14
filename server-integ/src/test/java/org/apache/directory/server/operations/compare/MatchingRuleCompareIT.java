@@ -28,14 +28,12 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,22 +66,19 @@ import org.junit.runner.RunWith;
         "objectClass: groupOfNames",
         "objectClass: top",
         "cn: Artists",
-        "member: cn=Tori Amos,ou=system"
-})
+        "member: cn=Tori Amos,ou=system" })
 public class MatchingRuleCompareIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     public static final String PERSON_CN = "Tori Amos";
     public static final String PERSON_SN = "Amos";
     public static final String PERSON_RDN = "cn=" + PERSON_CN;
     public static final String PERSON_TELEPHONE = "1234567890";
     public static final String PERSON_PWD = "Secret1!";
-    
+
     public static final String GROUP_CN = "Artists";
     public static final String GROUP_RDN = "cn=" + GROUP_CN;
-    
-    
+
+
     /**
      * Compare with caseIgnoreMatch matching rule.
      * 
@@ -93,35 +88,35 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     public void testCaseIgnoreMatch() throws Exception
     {
         DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( getLdapServer() ).lookup( "ou=system" );
-    
+
         // Setting up search controls for compare op
         SearchControls ctls = new SearchControls();
         ctls.setReturningAttributes( new String[]
             {} ); // no attributes
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-    
+
         String[] values =
-            { PERSON_SN, PERSON_SN.toUpperCase(), Strings.toLowerCase( PERSON_SN ), PERSON_SN + "X" };
+            { PERSON_SN, PERSON_SN.toUpperCase(), Strings.toLowerCaseAscii( PERSON_SN ), PERSON_SN + "X" };
         boolean[] expected =
             { true, true, true, false };
-    
+
         for ( int i = 0; i < values.length; i++ )
         {
             String value = values[i];
-    
+
             NamingEnumeration<SearchResult> enumeration = ctx.search( PERSON_RDN, "sn={0}", new String[]
                 { value }, ctls );
             boolean result = enumeration.hasMore();
-    
+
             assertEquals( "compare sn value '" + PERSON_SN + "' with '" + value + "'", expected[i], result );
-    
+
             enumeration.close();
         }
     }
-    
-    
+
+
     //
-    
+
     /**
      * Compare with distinguishedNameMatch matching rule.
      * 
@@ -131,32 +126,32 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
     public void testDistinguishedNameMatch() throws Exception
     {
         DirContext ctx = ( DirContext ) ServerIntegrationUtils.getWiredContext( getLdapServer() ).lookup( "ou=system" );
-    
+
         // determine member Dn of person
         DirContext member = ( DirContext ) ctx.lookup( PERSON_RDN );
         String memberDN = member.getNameInNamespace();
-    
+
         // Setting up search controls for compare op
         SearchControls ctls = new SearchControls();
         ctls.setReturningAttributes( new String[]
             {} ); // no attributes
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-    
+
         String[] values =
             { "", memberDN, "cn=nobody", memberDN, PERSON_RDN + " , " + ctx.getNameInNamespace() };
         boolean[] expected =
             { false, true, false, true, true };
-    
+
         for ( int i = 0; i < values.length; i++ )
         {
             String value = values[i];
-    
+
             NamingEnumeration<SearchResult> enumeration = ctx.search( GROUP_RDN, "member={0}", new Object[]
                 { value }, ctls );
             boolean result = enumeration.hasMore();
-    
+
             assertEquals( "compare '" + memberDN + "' with '" + value + "'", expected[i], result );
-    
+
             enumeration.close();
         }
     }

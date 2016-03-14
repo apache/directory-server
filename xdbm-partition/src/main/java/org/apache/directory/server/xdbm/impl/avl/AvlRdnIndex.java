@@ -21,7 +21,6 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -36,7 +35,7 @@ import org.apache.directory.server.xdbm.ParentIdAndRdnComparator;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn, Entry>
+public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
 {
     public AvlRdnIndex()
     {

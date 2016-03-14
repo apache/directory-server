@@ -29,16 +29,15 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.xdbm.Index;
@@ -57,7 +56,7 @@ import org.junit.Test;
 public class JdbmIndexTest
 {
     private static File dbFileDir;
-    Index<String, Entry, String> idx;
+    Index<String, String> idx;
     private static SchemaManager schemaManager;
 
 
@@ -139,19 +138,19 @@ public class JdbmIndexTest
     void initIndex() throws Exception
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( attributeType.getName(), false );
+        JdbmIndex<String> index = new JdbmIndex<String>( attributeType.getName(), false );
         index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
     }
 
 
-    void initIndex( JdbmIndex<String, Entry> jdbmIdx ) throws Exception
+    void initIndex( JdbmIndex<String> jdbmIdx ) throws Exception
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
 
         if ( jdbmIdx == null )
         {
-            jdbmIdx = new JdbmIndex<String, Entry>( attributeType.getName(), false );
+            jdbmIdx = new JdbmIndex<String>( attributeType.getName(), false );
         }
 
         jdbmIdx.init( schemaManager, attributeType );
@@ -167,10 +166,10 @@ public class JdbmIndexTest
     public void testAttributeId() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex1 = new JdbmIndex<Object, Object>( "foo", false );
+        JdbmIndex<Object> jdbmIndex1 = new JdbmIndex<Object>( "foo", false );
         assertEquals( "foo", jdbmIndex1.getAttributeId() );
 
-        JdbmIndex<Object, Object> jdbmIndex2 = new JdbmIndex<Object, Object>( "bar", false );
+        JdbmIndex<Object> jdbmIndex2 = new JdbmIndex<Object>( "bar", false );
         assertEquals( "bar", jdbmIndex2.getAttributeId() );
 
         // initialized index
@@ -188,7 +187,7 @@ public class JdbmIndexTest
         assertEquals( "ou", idx.getAttributeId() );
 
         destroyIndex();
-        JdbmIndex<String, Entry> index = new JdbmIndex<String, Entry>( "foo", false );
+        JdbmIndex<String> index = new JdbmIndex<String>( "foo", false );
         index.setWkDirPath( dbFileDir.toURI() );
         initIndex( index );
         assertEquals( "foo", idx.getAttributeId() );
@@ -199,7 +198,7 @@ public class JdbmIndexTest
     public void testCacheSize() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou", false );
+        JdbmIndex<Object> jdbmIndex = new JdbmIndex<Object>( "ou", false );
         jdbmIndex.setCacheSize( 337 );
         assertEquals( 337, jdbmIndex.getCacheSize() );
 
@@ -224,7 +223,7 @@ public class JdbmIndexTest
         File wkdir = new File( dbFileDir, "foo" );
 
         // uninitialized index
-        JdbmIndex<String, Entry> jdbmIndex = new JdbmIndex<String, Entry>( "foo", false );
+        JdbmIndex<String> jdbmIndex = new JdbmIndex<String>( "foo", false );
         jdbmIndex.setWkDirPath( wkdir.toURI() );
         assertEquals( "foo", new File( jdbmIndex.getWkDirPath() ).getName() );
 
@@ -243,7 +242,7 @@ public class JdbmIndexTest
         assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
-        jdbmIndex = new JdbmIndex<String, Entry>( "ou", false );
+        jdbmIndex = new JdbmIndex<String>( "ou", false );
         wkdir.mkdirs();
         jdbmIndex.setWkDirPath( wkdir.toURI() );
         initIndex( jdbmIndex );
@@ -255,7 +254,7 @@ public class JdbmIndexTest
     public void testNumDupLimit() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou", false );
+        JdbmIndex<Object> jdbmIndex = new JdbmIndex<Object>( "ou", false );
         jdbmIndex.setNumDupLimit( 337 );
         assertEquals( 337, jdbmIndex.getNumDupLimit() );
 
@@ -264,14 +263,14 @@ public class JdbmIndexTest
 
         try
         {
-            ( ( JdbmIndex<String, Entry> ) idx ).setNumDupLimit( 30 );
+            ( ( JdbmIndex<String> ) idx ).setNumDupLimit( 30 );
             fail( "Should not be able to set numDupLimit after initialization." );
         }
         catch ( Exception e )
         {
         }
 
-        assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex<String, Entry> ) idx ).getNumDupLimit() );
+        assertEquals( JdbmIndex.DEFAULT_DUPLICATE_LIMIT, ( ( JdbmIndex<String> ) idx ).getNumDupLimit() );
     }
 
 
@@ -279,7 +278,7 @@ public class JdbmIndexTest
     public void testGetAttribute() throws Exception
     {
         // uninitialized index
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "ou", false );
+        JdbmIndex<Object> jdbmIndex = new JdbmIndex<Object>( "ou", false );
         assertNull( jdbmIndex.getAttribute() );
 
         initIndex();
@@ -362,58 +361,49 @@ public class JdbmIndexTest
     // -----------------------------------------------------------------------
 
     @Test
+    public void testLookupsToo() throws Exception
+    {
+        AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( "seeAlso" );
+        JdbmIndex<String> index = new JdbmIndex<String>( attributeType.getName(), false );
+        index.setWkDirPath( dbFileDir.toURI() );
+        index.init( schemaManager, attributeType );
+        this.idx = index;
+
+        String foobarDn = "uid=foo,ou=bar";
+        String bazbarDn = "uid=baz,ou=bar";
+
+        assertNull( idx.forwardLookup( foobarDn ) );
+        assertNull( idx.forwardLookup( bazbarDn ) );
+        idx.add( foobarDn, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( foobarDn ) );
+        assertNull( idx.forwardLookup( bazbarDn ) );
+        idx.add( bazbarDn, Strings.getUUID( 24L ) );
+        assertEquals( Strings.getUUID( 24L ), idx.forwardLookup( bazbarDn ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( foobarDn ) );
+    }
+
+
+    @Test
     public void testLookups() throws Exception
     {
         initIndex();
         assertNull( idx.forwardLookup( "foo" ) );
         assertNull( idx.forwardLookup( "bar" ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -24L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 24L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( 24L ) ) );
-        assertFalse( idx.forwardLessOrEq( "foo", Strings.getUUID( -24L ) ) );
 
         idx.add( "foo", Strings.getUUID( 0L ) );
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
 
         idx.add( "foo", Strings.getUUID( 1L ) );
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
 
         idx.add( "bar", Strings.getUUID( 0L ) );
         assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
         assertTrue( idx.forward( "bar", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
         assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "bar", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertFalse( idx.forwardGreaterOrEq( "bar", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "bar", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( 2L ) ) );
-        assertTrue( idx.forwardLessOrEq( "foo", Strings.getUUID( -1L ) ) );
-        assertTrue( idx.forwardLessOrEq( "bar", Strings.getUUID( -1L ) ) );
     }
 
 
@@ -534,7 +524,7 @@ public class JdbmIndexTest
     @Test
     public void testNoEqualityMatching() throws Exception
     {
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( "1.1", false );
+        JdbmIndex<Object> jdbmIndex = new JdbmIndex<Object>( "1.1", false );
 
         try
         {
@@ -556,7 +546,7 @@ public class JdbmIndexTest
     @Test
     public void testSingleValuedAttribute() throws Exception
     {
-        JdbmIndex<Object, Object> jdbmIndex = new JdbmIndex<Object, Object>( SchemaConstants.CREATORS_NAME_AT, false );
+        JdbmIndex<Object> jdbmIndex = new JdbmIndex<Object>( SchemaConstants.CREATORS_NAME_AT, false );
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
         jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
         jdbmIndex.close();

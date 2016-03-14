@@ -42,10 +42,10 @@ import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -116,12 +116,10 @@ public class SchemaAwareModificationTest
     private DefaultModification deserializeValue( ByteArrayOutputStream out ) throws IOException,
         ClassNotFoundException, LdapException
     {
-        ObjectInputStream oIn = null;
-        ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
 
-        try
+        try ( ByteArrayInputStream in = new ByteArrayInputStream( out.toByteArray() );
+            ObjectInputStream oIn = new ObjectInputStream( in ) )
         {
-            oIn = new ObjectInputStream( in );
 
             DefaultModification value = new DefaultModification();
             value.readExternal( oIn );
@@ -131,20 +129,6 @@ public class SchemaAwareModificationTest
         catch ( IOException ioe )
         {
             throw ioe;
-        }
-        finally
-        {
-            try
-            {
-                if ( oIn != null )
-                {
-                    oIn.close();
-                }
-            }
-            catch ( IOException ioe )
-            {
-                throw ioe;
-            }
         }
     }
 

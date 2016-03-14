@@ -34,7 +34,6 @@ import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.SearchRequestContainer;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.controls.PagedSearchContext;
 import org.apache.mina.core.session.IoSession;
@@ -118,7 +117,7 @@ public class LdapSession
      * a session to be authenticated :<br>
      * - the coreSession must not be null<br>
      * - and the state should be Authenticated.
-     * 
+     *
      * @return <code>true</code> if the session is not anonymous
      */
     public boolean isAuthenticated()
@@ -132,7 +131,7 @@ public class LdapSession
      * a session to be authenticated :<br>
      * - it has to exist<br>
      * - and the session should not be anonymous.
-     * 
+     *
      * @return <code>true</code> if the session is not anonymous
      */
     public boolean isAnonymous()
@@ -144,19 +143,18 @@ public class LdapSession
     /**
      * Check if the session is processing a BindRequest, either Simple
      * or SASL
-     * 
+     *
      * @return <code>true</code> if the session is in AuthPending state
      */
     public boolean isAuthPending()
     {
-        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING ) ||
-            ( bindStatus == BindStatus.SASL_AUTH_PENDING );
+        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING ) || ( bindStatus == BindStatus.SASL_AUTH_PENDING );
     }
 
 
     /**
      * Check if the session is processing a Simple BindRequest
-     * 
+     *
      * @return <code>true</code> if the session is in AuthPending state
      */
     public boolean isSimpleAuthPending()
@@ -167,7 +165,7 @@ public class LdapSession
 
     /**
      * Check if the session is processing a SASL BindRequest
-     * 
+     *
      * @return <code>true</code> if the session is in AuthPending state
      */
     public boolean isSaslAuthPending()
@@ -201,7 +199,7 @@ public class LdapSession
 
     /**
      * Sets the logical core DirectoryService session.
-     * 
+     *
      * @param coreSession the logical core DirectoryService session
      */
     public void setCoreSession( CoreSession coreSession )
@@ -229,7 +227,7 @@ public class LdapSession
 
     /**
      * Abandons a specific request by messageId.
-     * 
+     *
      * @param messageId The request ID to abandon
      */
     public AbandonableRequest abandonOutstandingRequest( int messageId )
@@ -240,7 +238,7 @@ public class LdapSession
         {
             request = outstandingRequests.remove( messageId );
         }
-        
+
         // Remove the PagedSearch cursors now
         try
         {
@@ -300,8 +298,8 @@ public class LdapSession
             outstandingRequests.remove( request.getMessageId() );
         }
     }
-    
-    
+
+
     /**
      * @return A list of all the abandonable requests for this session.
      */
@@ -313,7 +311,7 @@ public class LdapSession
         }
     }
 
-    
+
     /**
      * Registers a new searchRequest
      *
@@ -398,7 +396,7 @@ public class LdapSession
 
     /**
      * Get the mechanism selected by a user during a SASL Bind negotiation.
-     * 
+     *
      * @return The used mechanism, if any
      */
     public String getCurrentMechanism()
@@ -409,7 +407,7 @@ public class LdapSession
 
     /**
      * Add a Sasl property and value
-     * 
+     *
      * @param property the property to add
      * @param value the value for this property
      */
@@ -421,7 +419,7 @@ public class LdapSession
 
     /**
      * Get a Sasl property's value
-     * 
+     *
      * @param property the property to get
      * @return the associated value, or null if we don't have such a property
      */
@@ -475,7 +473,7 @@ public class LdapSession
      * Add a new Paged Search context into the stored context. If some
      * context with the same id already exists, it will be closed and
      * removed.
-     * 
+     *
      * @param context The context to add
      */
     public void addPagedSearchContext( PagedSearchContext context ) throws Exception
@@ -485,7 +483,7 @@ public class LdapSession
         if ( oldContext != null )
         {
             // ??? Very unlikely to happen ...
-            EntryFilteringCursor cursor = oldContext.getCursor();
+            Cursor<Entry> cursor = oldContext.getCursor();
 
             if ( cursor != null )
             {
@@ -504,7 +502,7 @@ public class LdapSession
 
     /**
      * Remove a Paged Search context from the map storing all of them.
-     * 
+     *
      * @param contextId The context ID to remove
      * @return The removed context if any found
      */
@@ -513,10 +511,10 @@ public class LdapSession
         return pagedSearchContexts.remove( contextId );
     }
 
-    
+
     /**
      * Close all the pending cursors for all the pending PagedSearches
-     * 
+     *
      * @throws Exception If we've got an exception.
      */
     public void closeAllPagedSearches() throws Exception
@@ -524,9 +522,9 @@ public class LdapSession
         for ( int contextId : pagedSearchContexts.keySet() )
         {
             PagedSearchContext context = pagedSearchContexts.get( contextId );
-            
-            EntryFilteringCursor cursor = context.getCursor();
-            
+
+            Cursor<Entry> cursor = context.getCursor();
+
             if ( cursor != null )
             {
                 cursor.close();

@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 public class DnsMessageEncoder
 {
     /** the log for this class */
-    private static final Logger log = LoggerFactory.getLogger( DnsMessageEncoder.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DnsMessageEncoder.class );
 
     /**
      * A Hashed Adapter mapping record types to their encoders.
@@ -152,7 +152,7 @@ public class DnsMessageEncoder
             }
             catch ( IOException ioe )
             {
-                log.error( ioe.getLocalizedMessage(), ioe );
+                LOG.error( ioe.getLocalizedMessage(), ioe );
             }
         }
     }

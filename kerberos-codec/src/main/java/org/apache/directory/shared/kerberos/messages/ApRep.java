@@ -196,7 +196,7 @@ public class ApRep extends KerberosMessage
         {
             LOG.error( I18n.err( I18n.ERR_137, 1 + TLV.getNbBytes( apRepLength ) + apRepLength,
                 buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

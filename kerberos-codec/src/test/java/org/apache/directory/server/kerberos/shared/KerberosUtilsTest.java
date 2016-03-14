@@ -28,9 +28,11 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 
 
@@ -44,11 +46,11 @@ import org.apache.directory.shared.kerberos.KerberosUtils;
 public class KerberosUtilsTest
 {
     @BeforeClass
-    public static void setUp()
+    public static void setUp() throws Exception
     {
         // First setup a default realm
         System.setProperty( "java.security.krb5.realm", "APACHE.ORG" );
-        System.setProperty( "java.security.krb5.kdc", "localhost" );
+        System.setProperty( "java.security.krb5.kdc", Network.LOOPBACK_HOSTNAME );
     }
 
 

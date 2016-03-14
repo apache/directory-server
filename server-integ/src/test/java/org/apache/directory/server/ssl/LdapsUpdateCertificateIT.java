@@ -34,8 +34,8 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -43,14 +43,13 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
-import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.apache.directory.server.operations.bind.BogusNtlmProvider;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -86,10 +85,6 @@ import org.junit.runner.RunWith;
     ntlmProvider = BogusNtlmProvider.class)
 public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
-
     /**
      * Create an entry for a person.
      */
@@ -97,7 +92,8 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
     {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPortSSL() + "/ou=system" );
+        env.put( "java.naming.provider.url", "ldap://" + Network.LOOPBACK_HOSTNAME + ":"
+            + getLdapServer().getPortSSL() + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
@@ -115,7 +111,8 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         // create a secure connection
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldaps://localhost:" + getLdapServer().getPortSSL() );
+        env.put( "java.naming.provider.url", "ldaps://" + Network.LOOPBACK_HOSTNAME + ":"
+            + getLdapServer().getPortSSL() );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
@@ -154,9 +151,9 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         // converting the values to lowercase is required cause the certificate is
         // having attribute names in capital letters e.c the above newIssuerDN will be present as CN=new_issuer_dn
         assertEquals( "Expected the new certificate with the new issuer",
-            Strings.toLowerCase( newIssuerDN ), Strings.toLowerCase( issuerDN ) );
+            Strings.toLowerCaseAscii( newIssuerDN ), Strings.toLowerCaseAscii( issuerDN ) );
         assertEquals( "Expected the new certificate with the new subject",
-            Strings.toLowerCase( newSubjectDN ), Strings.toLowerCase( subjectDN ) );
+            Strings.toLowerCaseAscii( newSubjectDN ), Strings.toLowerCaseAscii( subjectDN ) );
     }
 
 }

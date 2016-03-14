@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.configuration;
 
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.UUID;
 
@@ -58,7 +58,8 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
     {
         DirectoryServiceFactory dsFactory = DefaultDirectoryServiceFactory.class.newInstance();
         PartitionFactory partitionFactory = dsFactory.getPartitionFactory();
-        Partition partition = partitionFactory.createPartition( getService().getSchemaManager(), "removable",
+        Partition partition = partitionFactory.createPartition( getService().getSchemaManager(),
+            getService().getDnFactory(), "removable",
             "ou=removable", 100, getService()
                 .getInstanceLayout().getPartitionsDirectory() );
 

@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ReplicationTrustManager implements X509TrustManager
+public final class ReplicationTrustManager implements X509TrustManager
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ReplicationTrustManager.class );
@@ -63,7 +63,7 @@ public class ReplicationTrustManager implements X509TrustManager
     private static X509CertParser parser = new X509CertParser();
 
     /** the singleton instance of this trust manager */
-    private static ReplicationTrustManager INSTANCE = new ReplicationTrustManager();
+    private static final ReplicationTrustManager INSTANCE = new ReplicationTrustManager();
 
 
     /**
@@ -79,7 +79,7 @@ public class ReplicationTrustManager implements X509TrustManager
             TrustManagerFactory tmFactory = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
             tmFactory.init( ks );
 
-            TrustManager trustManagers[] = tmFactory.getTrustManagers();
+            TrustManager[] trustManagers = tmFactory.getTrustManagers();
 
             for ( int i = 0; i < trustManagers.length; i++ )
             {

@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M12-SNAPSHOT</version>
+    <version>2.0.0-M22-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-service</artifactId>
@@ -48,7 +48,7 @@
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-service-builder</artifactId>
     </dependency>
-    
+        
     <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-codec-standalone</artifactId>
@@ -108,7 +108,7 @@
             <configuration>
               <filters>
                 <filter>
-                  <artifact>bouncycastle:bcprov-jdk15</artifact>
+                  <artifact>org.bouncycastle:bcprov-jdk15on</artifact>
                   <excludes>
                     <exclude>META-INF/BCKEY.SF</exclude>
                     <exclude>META-INF/BCKEY.DSA</exclude>

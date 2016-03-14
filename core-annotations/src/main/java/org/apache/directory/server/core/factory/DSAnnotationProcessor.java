@@ -34,6 +34,8 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.AnnotationUtils;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -44,6 +46,7 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
@@ -51,6 +54,7 @@ import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.authn.DelegatingAuthenticator;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
 import org.apache.directory.server.i18n.I18n;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
@@ -62,10 +66,15 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DSAnnotationProcessor
+public final class DSAnnotationProcessor
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( DSAnnotationProcessor.class );
+
+
+    private DSAnnotationProcessor()
+    {
+    }
 
 
     /**
@@ -122,12 +131,28 @@ public class DSAnnotationProcessor
                 if ( auth instanceof DelegatingAuthenticator )
                 {
                     DelegatingAuthenticator dauth = ( DelegatingAuthenticator ) auth;
-                    dauth.setDelegateHost( createAuthenticator.delegateHost() );
+                    
+                    String host = createAuthenticator.delegateHost();
+                    
+                    if ( Strings.isEmpty( host ) )
+                    {
+                        host = Network.LOOPBACK_HOSTNAME;
+                    }
+                    
+                    dauth.setDelegateHost( host );
                     dauth.setDelegatePort( createAuthenticator.delegatePort() );
+                    dauth.setDelegateSsl( createAuthenticator.delegateSsl() );
+                    dauth.setDelegateTls( createAuthenticator.delegateTls() );
+                    dauth.setBaseDn( service.getDnFactory().create( createAuthenticator.baseDn() ) );
+                    dauth.setDelegateSslTrustManagerFQCN( createAuthenticator.delegateSslTrustManagerFQCN() );
+                    dauth.setDelegateTlsTrustManagerFQCN( createAuthenticator.delegateTlsTrustManagerFQCN() );
                 }
 
                 authenticators.add( auth );
             }
+
+            authenticationInterceptor.setAuthenticators( authenticators );
+            authenticationInterceptor.init( service );
         }
 
         service.setInterceptors( interceptorList );
@@ -197,10 +222,13 @@ public class DSAnnotationProcessor
                 PartitionFactory partitionFactory = dsf.getPartitionFactory();
                 partition = partitionFactory.createPartition(
                     schemaManager,
+                    service.getDnFactory(),
                     createPartition.name(),
                     createPartition.suffix(),
                     createPartition.cacheSize(),
                     new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
+
+                partition.setCacheService( service.getCacheService() );
 
                 CreateIndex[] indexes = createPartition.indexes();
 
@@ -216,17 +244,18 @@ public class DSAnnotationProcessor
             {
                 // The annotation contains a specific partition type, we use
                 // that type.
-                Class<?> partypes[] = new Class[]
-                    { SchemaManager.class };
+                Class<?>[] partypes = new Class[]
+                    { SchemaManager.class, DnFactory.class };
                 Constructor<?> constructor = createPartition.type().getConstructor( partypes );
                 partition = ( Partition ) constructor.newInstance( new Object[]
-                    { schemaManager } );
+                    { schemaManager, service.getDnFactory() } );
                 partition.setId( createPartition.name() );
                 partition.setSuffixDn( new Dn( schemaManager, createPartition.suffix() ) );
 
                 if ( partition instanceof AbstractBTreePartition )
                 {
                     AbstractBTreePartition btreePartition = ( AbstractBTreePartition ) partition;
+                    btreePartition.setCacheService( service.getCacheService() );
                     btreePartition.setCacheSize( createPartition.cacheSize() );
                     btreePartition.setPartitionPath( new File( service
                         .getInstanceLayout().getPartitionsDirectory(),
@@ -237,12 +266,29 @@ public class DSAnnotationProcessor
 
                     for ( CreateIndex createIndex : indexes )
                     {
-                        // The annotation does not specify a specific index
-                        // type.
-                        // We use the generic index implementation.
-                        JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
+                        if ( createIndex.type() == JdbmIndex.class )
+                        {
+                            // JDBM index
+                            JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
 
-                        btreePartition.addIndexedAttributes( index );
+                            btreePartition.addIndexedAttributes( index );
+                        }
+                        else if ( createIndex.type() == MavibotIndex.class )
+                        {
+                            // Mavibot index
+                            MavibotIndex index = new MavibotIndex( createIndex.attribute(), false );
+
+                            btreePartition.addIndexedAttributes( index );
+                        }
+                        else
+                        {
+                            // The annotation does not specify a specific index
+                            // type.
+                            // We use the generic index implementation.
+                            JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
+
+                            btreePartition.addIndexedAttributes( index );
+                        }
                     }
                 }
             }
@@ -452,7 +498,7 @@ public class DSAnnotationProcessor
         {
             LOG.debug( "Applying {} to {}", applyLdifFiles.value(),
                 desc.getDisplayName() );
-            injectLdifFiles( desc.getClass(), service, applyLdifFiles.value() );
+            injectLdifFiles( applyLdifFiles.clazz(), service, applyLdifFiles.value() );
         }
 
         ApplyLdifs applyLdifs = desc.getAnnotation( ApplyLdifs.class );
@@ -461,14 +507,14 @@ public class DSAnnotationProcessor
         {
             String[] ldifs = applyLdifs.value();
 
-            String DN_START = "dn:";
+            String dnStart = "dn:";
 
             StringBuilder sb = new StringBuilder();
 
             for ( int i = 0; i < ldifs.length; )
             {
                 String s = ldifs[i++].trim();
-                if ( s.startsWith( DN_START ) )
+                if ( s.startsWith( dnStart ) )
                 {
                     sb.append( s ).append( '\n' );
 
@@ -476,7 +522,7 @@ public class DSAnnotationProcessor
                     while ( i < ldifs.length )
                     {
                         s = ldifs[i++];
-                        if ( !s.startsWith( DN_START ) )
+                        if ( !s.startsWith( dnStart ) )
                         {
                             sb.append( s ).append( '\n' );
                         }

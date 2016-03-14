@@ -61,7 +61,7 @@ public class ReferralManagerImpl implements ReferralManager
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
 
     /** A storage for the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS_AT;
+    private AttributeType objectClassAT;
 
 
     /**
@@ -81,7 +81,7 @@ public class ReferralManagerImpl implements ReferralManager
             PartitionNexus nexus = directoryService.getPartitionNexus();
     
             Set<String> suffixes = nexus.listSuffixes();
-            OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+            objectClassAT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
     
             init( directoryService, suffixes.toArray( new String[]
                 {} ) );
@@ -156,7 +156,7 @@ public class ReferralManagerImpl implements ReferralManager
      */
     public void init( DirectoryService directoryService, String... suffixes ) throws LdapException
     {
-        ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT,
+        ExprNode referralFilter = new EqualityNode<String>( objectClassAT,
             new StringValue( SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value
@@ -216,7 +216,7 @@ public class ReferralManagerImpl implements ReferralManager
      */
     public void remove( DirectoryService directoryService, Dn suffix ) throws Exception
     {
-        ExprNode referralFilter = new EqualityNode<String>( OBJECT_CLASS_AT,
+        ExprNode referralFilter = new EqualityNode<String>( objectClassAT,
             new StringValue( SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value

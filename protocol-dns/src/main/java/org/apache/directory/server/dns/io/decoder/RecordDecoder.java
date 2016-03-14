@@ -41,5 +41,5 @@ public interface RecordDecoder
      * @return The map of attributes.
      * @throws IOException
      */
-    public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException;
+    Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException;
 }

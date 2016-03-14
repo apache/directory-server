@@ -81,7 +81,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
         uuidCursor.beforeFirst();
@@ -92,7 +92,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
         uuidCursor.afterLast();
@@ -103,7 +103,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
 
@@ -114,7 +114,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -125,7 +125,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         while ( uuidCursor.previous() )
         {
@@ -145,7 +145,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         while ( uuidCursor.next() )
         {
@@ -165,7 +165,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<V, String> get() throws CursorException, IOException
+    public IndexEntry<V, String> get() throws CursorException
     {
         checkNotClosed( "get()" );
 
@@ -181,7 +181,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -196,7 +196,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
         {

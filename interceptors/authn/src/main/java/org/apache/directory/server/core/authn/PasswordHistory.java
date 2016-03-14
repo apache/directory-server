@@ -133,8 +133,7 @@ public class PasswordHistory implements Comparable<PasswordHistory>
 
         PasswordHistory other = ( PasswordHistory ) o;
 
-        return this.getTime().equals( other.getTime() ) &&
-            this.data.equals( other.data );
+        return this.getTime().equals( other.getTime() ) && this.data.equals( other.data );
     }
 
 

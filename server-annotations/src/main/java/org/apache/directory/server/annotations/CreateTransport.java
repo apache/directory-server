@@ -54,8 +54,8 @@ public @interface CreateTransport
     int port() default -1;
 
 
-    /** The InetAddress for this transport. Default to localhost */
-    String address() default "localhost";
+    /** The InetAddress for this transport. */
+    String address() default "";
 
 
     /** The backlog. Default to 50 */

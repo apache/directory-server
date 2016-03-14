@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
 public class FilterNormalizingVisitor implements FilterVisitor
 {
     /** logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( FilterNormalizingVisitor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( FilterNormalizingVisitor.class );
 
     /** the name component normalizer used by this visitor */
     private final NameComponentNormalizer ncn;
@@ -256,7 +256,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         }
         catch ( LdapException ne )
         {
-            log.warn( "Failed to normalize filter value: {}", ne.getLocalizedMessage(), ne );
+            LOG.warn( "Failed to normalize filter value: {}", ne.getLocalizedMessage(), ne );
             return null;
         }
     }

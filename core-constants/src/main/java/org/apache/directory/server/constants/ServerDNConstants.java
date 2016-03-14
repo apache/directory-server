@@ -22,7 +22,7 @@ package org.apache.directory.server.constants;
 
 /**
  * DN constants used in the server.
- * Final reference -> class shouldn't be extended
+ * Final reference -&gt; class shouldn't be extended
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -75,7 +75,11 @@ public final class ServerDNConstants
 
     /** The replication consumer container DN */
     public static final String REPL_CONSUMER_DN_STR = "ou=consumers,ou=system";
-    
+
+    /** the default DirectoryService DN */
+    public static final String DEFAULT_DS_CONFIG_DN = "ads-directoryServiceId=default,ou=config";
+
     /** the replication consumer configuration DN */
-    public static final String REPL_CONSUMER_CONFIG_DN = "ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config";
+    public static final String REPL_CONSUMER_CONFIG_DN = "ou=replConsumers,ads-serverId=ldapServer,ou=servers,"
+        + DEFAULT_DS_CONFIG_DN;
 }

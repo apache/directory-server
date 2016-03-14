@@ -58,14 +58,16 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
@@ -80,6 +82,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -98,6 +101,8 @@ public class SingleFileLdifPartitionTest
 {
     private static SchemaManager schemaManager = null;
 
+    private static DnFactory dnFactory;
+
     private static CsnFactory defaultCSNFactory;
 
     private static CoreSession mockSession;
@@ -111,6 +116,8 @@ public class SingleFileLdifPartitionTest
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
+
+    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -158,6 +165,10 @@ public class SingleFileLdifPartitionTest
         LdifEntry ldifEntry = reader.parseLdif( contextEntryStr ).get( 0 );
 
         contextEntry = new ClonedServerEntry( new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
+
+        cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -186,9 +197,9 @@ public class SingleFileLdifPartitionTest
         // Remove the entryDn attribute
         Entry copy = entry.clone();
         copy.removeAttributes( "entryDn" );
-        
+
         // while writing to the file 1 extra newline char will be added
-        
+
         String ldif = LdifUtils.convertToLdif( copy ) + "\n";
         byte[] data = Strings.getBytesUtf8( ldif );
 
@@ -222,11 +233,12 @@ public class SingleFileLdifPartitionTest
             rf.close();
         }
 
-        SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager );
+        SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager, dnFactory );
         partition.setId( "test-ldif" );
         partition.setPartitionPath( new File( fileName ).toURI() );
         partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
+        partition.setCacheService( cacheService );
         partition.initialize();
 
         return partition;
@@ -247,19 +259,25 @@ public class SingleFileLdifPartitionTest
         Entry fetched = partition.lookup( opCtx );
 
         assertNotNull( fetched );
-        
+
         // Check the EntryDn attribute
         Attribute entryDn = fetched.get( "entryDn" );
-        
+
         assertNotNull( entryDn );
         assertEquals( entryDn.getString(), entry.getDn().getName() );
-        
+
         if ( !entry.contains( entryDn ) )
         {
             // Removed the entryDn attribute to be able to compare the entries
             fetched.removeAttributes( "entryDn" );
         }
-        
+
+        if ( !entry.containsAttribute( SchemaConstants.CONTEXT_CSN_AT ) )
+        {
+            // Removed the entryDn attribute to be able to compare the entries
+            fetched.removeAttributes( SchemaConstants.CONTEXT_CSN_AT );
+        }
+
         assertEquals( entry, fetched );
     }
 
@@ -301,12 +319,18 @@ public class SingleFileLdifPartitionTest
 
         String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
-        assertEquals( contextEntry, partition.fetch( id ) );
+
+        Entry fetched = partition.fetch( id );
+
+        //remove the entryDn cause it is not present in the above hand made contextEntry
+        fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
+
+        assertEquals( contextEntry, fetched );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
         assertEquals( getEntryLdifLen( contextEntry ), file.length() );
-        
+
         file.close();
 
         partition = reloadPartition();
@@ -329,23 +353,23 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
-        entry1.put( "ObjectClass", "top", "domain" );
-        entry1.put( "dc", "test" );
+        Entry entry1 = createEntry( "cn=test,ou=test,ou=system" );
+        entry1.put( "ObjectClass", "top", "person" );
+        entry1.put( "cn", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        Entry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
-        entry2.put( "ObjectClass", "top", "domain" );
-        entry2.put( "dc", "test" );
+        Entry entry2 = createEntry( "cn=test,cn=test,ou=test,ou=system" );
+        entry2.put( "ObjectClass", "top", "person" );
+        entry2.put( "cn", "test" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
 
-        Entry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
-        entryMvrdn.put( "ObjectClass", "top", "domain" );
-        entryMvrdn.put( "dc", "mvrdn" );
+        Entry entryMvrdn = createEntry( "cn=mvrdn+objectClass=person,cn=test,ou=test,ou=system" );
+        entryMvrdn.put( "ObjectClass", "top", "person" );
+        entryMvrdn.put( "cn", "mvrdn" );
         addCtx.setEntry( entryMvrdn );
 
         partition.add( addCtx );
@@ -417,16 +441,16 @@ public class SingleFileLdifPartitionTest
         partition.modify( modOpCtx );
         assertEquals( getEntryLdifLen( modOpCtx.getAlteredEntry() ), file.length() );
 
-        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
-        entry1.put( "ObjectClass", "top", "domain" );
-        entry1.put( "dc", "test" );
+        Entry entry1 = createEntry( "cn=test,ou=test,ou=system" );
+        entry1.put( "ObjectClass", "top", "person" );
+        entry1.put( "cn", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        Entry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
-        entry2.put( "ObjectClass", "top", "domain" );
-        entry2.put( "dc", "test" );
+        Entry entry2 = createEntry( "cn=test,cn=test,ou=test,ou=system" );
+        entry2.put( "ObjectClass", "top", "person" );
+        entry2.put( "cn", "test" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
@@ -462,7 +486,7 @@ public class SingleFileLdifPartitionTest
         String ldif = Strings.utf8ToString( entry1Data );
 
         LdifEntry ldifEntry = reader.parseLdif( ldif ).get( 0 );
-        
+
         // Remove the EntryDN
         entry1.removeAttributes( "entryDn" );
 
@@ -528,23 +552,23 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
-        entry1.put( "ObjectClass", "top", "domain" );
-        entry1.put( "dc", "test" );
+        Entry entry1 = createEntry( "cn=test,ou=test,ou=system" );
+        entry1.put( "ObjectClass", "top", "person" );
+        entry1.put( "cn", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        Entry entry2 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
-        entry2.put( "ObjectClass", "top", "domain" );
-        entry2.put( "dc", "test" );
+        Entry entry2 = createEntry( "cn=test,cn=test,ou=test,ou=system" );
+        entry2.put( "ObjectClass", "top", "person" );
+        entry2.put( "cn", "test" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
 
-        Entry entry3 = createEntry( "dc=test,dc=test,ou=test,ou=system" );
-        entry3.put( "ObjectClass", "top", "domain" );
-        entry3.put( "dc", "test" );
+        Entry entry3 = createEntry( "cn=test,cn=test,ou=test,ou=system" );
+        entry3.put( "ObjectClass", "top", "person" );
+        entry3.put( "cn", "test" );
         addCtx.setEntry( entry3 );
 
         try
@@ -596,30 +620,30 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
-        entry1.put( "ObjectClass", "top", "domain" );
-        entry1.put( "dc", "test" );
+        Entry entry1 = createEntry( "cn=test,ou=test,ou=system" );
+        entry1.put( "ObjectClass", "top", "person" );
+        entry1.put( "cn", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        Entry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
-        entry2.put( "ObjectClass", "top", "domain" );
-        entry2.put( "dc", "test1" );
+        Entry entry2 = createEntry( "cn=test1,cn=test,ou=test,ou=system" );
+        entry2.put( "ObjectClass", "top", "person" );
+        entry2.put( "cn", "test1" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
 
-        Entry entry3 = createEntry( "dc=test2,dc=test,ou=test,ou=system" );
-        entry3.put( "ObjectClass", "top", "domain" );
-        entry3.put( "dc", "test2" );
+        Entry entry3 = createEntry( "cn=test2,cn=test,ou=test,ou=system" );
+        entry3.put( "ObjectClass", "top", "person" );
+        entry3.put( "cn", "test2" );
         addCtx.setEntry( entry3 );
 
         partition.add( addCtx );
 
-        Entry entryMvrdn = createEntry( "dc=mvrdn+objectClass=domain,dc=test,ou=test,ou=system" );
-        entryMvrdn.put( "ObjectClass", "top", "domain" );
-        entryMvrdn.put( "dc", "mvrdn" );
+        Entry entryMvrdn = createEntry( "cn=mvrdn+objectClass=person,cn=test,ou=test,ou=system" );
+        entryMvrdn.put( "ObjectClass", "top", "person" );
+        entryMvrdn.put( "cn", "mvrdn" );
         addCtx.setEntry( entryMvrdn );
 
         partition.add( addCtx );
@@ -654,33 +678,33 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        Entry entry1 = createEntry( "dc=test,ou=test,ou=system" );
-        entry1.put( "ObjectClass", "top", "domain" );
-        entry1.put( "dc", "test" );
+        Entry entry1 = createEntry( "cn=test,ou=test,ou=system" );
+        entry1.put( "ObjectClass", "top", "person" );
+        entry1.put( "cn", "test" );
         addCtx.setEntry( entry1 );
 
         partition.add( addCtx );
 
-        Entry entry2 = createEntry( "dc=test1,dc=test,ou=test,ou=system" );
-        entry2.put( "ObjectClass", "top", "domain" );
-        entry2.put( "dc", "test1" );
+        Entry entry2 = createEntry( "cn=test1,cn=test,ou=test,ou=system" );
+        entry2.put( "ObjectClass", "top", "person" );
+        entry2.put( "cn", "test1" );
         addCtx.setEntry( entry2 );
 
         partition.add( addCtx );
 
-        Entry entry3 = createEntry( "dc=test2,dc=test,ou=test,ou=system" );
-        entry3.put( "ObjectClass", "top", "domain" );
-        entry3.put( "dc", "test2" );
+        Entry entry3 = createEntry( "cn=test2,cn=test,ou=test,ou=system" );
+        entry3.put( "ObjectClass", "top", "person" );
+        entry3.put( "cn", "test2" );
         addCtx.setEntry( entry3 );
 
         partition.add( addCtx );
 
         SearchOperationContext searchCtx = new SearchOperationContext( mockSession );
 
-        Dn dn = new Dn( "dc=test,ou=test,ou=system" );
+        Dn dn = new Dn( "cn=test,ou=test,ou=system" );
         dn.apply( schemaManager );
         searchCtx.setDn( dn );
-        ExprNode filter = FilterParser.parse( schemaManager, "(ObjectClass=domain)" );
+        ExprNode filter = FilterParser.parse( schemaManager, "(ObjectClass=person)" );
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         FilterNormalizingVisitor visitor = new FilterNormalizingVisitor( ncn, schemaManager );
         filter.accept( visitor );
@@ -721,9 +745,9 @@ public class SingleFileLdifPartitionTest
         SingleFileLdifPartition partition = injectEntries();
 
         Entry childEntry1 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
-            "dc=child1,ou=test,ou=system" ) ) );
+            "cn=child1,ou=test,ou=system" ) ) );
         Entry childEntry2 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
-            "dc=child2,ou=test,ou=system" ) ) );
+            "cn=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
@@ -733,10 +757,10 @@ public class SingleFileLdifPartitionTest
         assertExists( partition, childEntry2 );
         assertNotExists( partition, childEntry1 );
 
-        assertExists( partition, "dc=child1,dc=child2,ou=test,ou=system" );
-        assertExists( partition, "dc=grandChild11,dc=child1,dc=child2,ou=test,ou=system" );
-        assertExists( partition, "dc=grandChild12,dc=child1,dc=child2,ou=test,ou=system" );
-        assertExists( partition, "dc=greatGrandChild111,dc=grandChild11,dc=child1,dc=child2,ou=test,ou=system" );
+        assertExists( partition, "cn=child1,cn=child2,ou=test,ou=system" );
+        assertExists( partition, "cn=grandChild11,cn=child1,cn=child2,ou=test,ou=system" );
+        assertExists( partition, "cn=grandChild12,cn=child1,cn=child2,ou=test,ou=system" );
+        assertExists( partition, "cn=greatGrandChild111,cn=grandChild11,cn=child1,cn=child2,ou=test,ou=system" );
     }
 
 
@@ -746,9 +770,9 @@ public class SingleFileLdifPartitionTest
         SingleFileLdifPartition partition = injectEntries();
 
         Entry childEntry1 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
-            "dc=grandChild11,dc=child1,ou=test,ou=system" ) ) );
+            "cn=grandChild11,cn=child1,ou=test,ou=system" ) ) );
         Entry childEntry2 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
-            "dc=child2,ou=test,ou=system" ) ) );
+            "cn=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
@@ -758,11 +782,11 @@ public class SingleFileLdifPartitionTest
         assertExists( partition, childEntry2 );
         assertNotExists( partition, childEntry1 );
 
-        assertExists( partition, "dc=child1,ou=test,ou=system" );
-        assertExists( partition, "dc=child2,ou=test,ou=system" );
-        assertExists( partition, "dc=grandChild11,dc=child2,ou=test,ou=system" );
-        assertExists( partition, "dc=grandChild12,dc=child1,ou=test,ou=system" );
-        assertExists( partition, "dc=greatGrandChild111,dc=grandChild11,dc=child2,ou=test,ou=system" );
+        assertExists( partition, "cn=child1,ou=test,ou=system" );
+        assertExists( partition, "cn=child2,ou=test,ou=system" );
+        assertExists( partition, "cn=grandChild11,cn=child2,ou=test,ou=system" );
+        assertExists( partition, "cn=grandChild12,cn=child1,ou=test,ou=system" );
+        assertExists( partition, "cn=greatGrandChild111,cn=grandChild11,cn=child2,ou=test,ou=system" );
     }
 
 
@@ -771,20 +795,20 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
+        Dn childDn1 = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
+        Rdn newRdn = new Rdn( SchemaConstants.CN_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, true );
         partition.rename( renameOpCtx );
 
         partition = reloadPartition();
 
-        childDn1 = new Dn( schemaManager, "dc=renamedChild1,ou=test,ou=system" );
+        childDn1 = new Dn( schemaManager, "cn=renamedChild1,ou=test,ou=system" );
 
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
         assertNotNull( entry );
-        assertFalse( entry.get( "dc" ).contains( "child1" ) );
+        assertFalse( entry.get( "cn" ).contains( "child1" ) );
     }
 
 
@@ -793,20 +817,20 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
+        Dn childDn1 = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
+        Rdn newRdn = new Rdn( SchemaConstants.CN_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, false );
         partition.rename( renameOpCtx );
 
         partition = reloadPartition();
 
-        childDn1 = new Dn( schemaManager, "dc=renamedChild1,ou=test,ou=system" );
+        childDn1 = new Dn( schemaManager, "cn=renamedChild1,ou=test,ou=system" );
 
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
         assertNotNull( entry );
-        assertTrue( entry.get( "dc" ).contains( "child1" ) );
+        assertTrue( entry.get( "cn" ).contains( "child1" ) );
     }
 
 
@@ -815,23 +839,23 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
+        Dn childDn1 = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
 
-        Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
+        Dn childDn2 = new Dn( schemaManager, "cn=child2,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        Rdn newRdn = new Rdn( SchemaConstants.CN_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, true );
         partition.moveAndRename( moveAndRenameOpCtx );
 
         partition = reloadPartition();
 
-        childDn1 = new Dn( schemaManager, "dc=movedChild1,dc=child2,ou=test,ou=system" );
+        childDn1 = new Dn( schemaManager, "cn=movedChild1,cn=child2,ou=test,ou=system" );
 
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
         assertNotNull( entry );
-        Attribute dc = entry.get( "dc" );
+        Attribute dc = entry.get( "cn" );
         assertFalse( dc.contains( "child1" ) );
         assertTrue( dc.contains( "movedChild1" ) );
     }
@@ -842,25 +866,25 @@ public class SingleFileLdifPartitionTest
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
+        Dn childDn1 = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
 
-        Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
+        Dn childDn2 = new Dn( schemaManager, "cn=child2,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        Rdn newRdn = new Rdn( SchemaConstants.CN_AT + "=" + "movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, false );
         partition.moveAndRename( moveAndRenameOpCtx );
 
         partition = reloadPartition();
 
-        childDn1 = new Dn( schemaManager, "dc=movedChild1,dc=child2,ou=test,ou=system" );
+        childDn1 = new Dn( schemaManager, "cn=movedChild1,cn=child2,ou=test,ou=system" );
 
         Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
 
         assertNotNull( entry );
-        Attribute dc = entry.get( "dc" );
-        assertTrue( dc.contains( "child1" ) );
-        assertTrue( dc.contains( "movedChild1" ) );
+        Attribute cn = entry.get( "cn" );
+        assertTrue( cn.contains( "child1" ) );
+        assertTrue( cn.contains( "movedchild1" ) );
     }
 
 
@@ -880,7 +904,13 @@ public class SingleFileLdifPartitionTest
         // search works fine
         String id = partition.getEntryId( contextEntry.getDn() );
         assertNotNull( id );
-        assertEquals( contextEntry, partition.fetch( id ) );
+
+        Entry fetched = partition.fetch( id );
+
+        //remove the entryDn cause it is not present in the above hand made contextEntry
+        fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
+
+        assertEquals( contextEntry, fetched );
 
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
 
@@ -935,17 +965,17 @@ public class SingleFileLdifPartitionTest
 
         // test the work of modify thread
         LookupOperationContext lookupCtx = new LookupOperationContext( mockSession );
-        lookupCtx.setDn( new Dn( "dc=threadDoModify,ou=test,ou=system" ) );
+        lookupCtx.setDn( new Dn( "cn=threadDoModify,ou=test,ou=system" ) );
 
         Entry entry = partition.lookup( lookupCtx );
         assertNotNull( entry );
         assertEquals( "description no 999", entry.get( "description" ).getString() );
         assertExists( partition, contextEntry.getDn().getName() );
-        assertExists( partition, "dc=child1,ou=test,ou=system" );
-        assertExists( partition, "dc=child2,ou=test,ou=system" );
-        assertExists( partition, "dc=grandChild11,dc=child1,ou=test,ou=system" );
-        assertExists( partition, "dc=grandChild12,dc=child1,ou=test,ou=system" );
-        assertExists( partition, "dc=greatGrandChild111,dc=grandChild11,dc=child1,ou=test,ou=system" );
+        assertExists( partition, "cn=child1,ou=test,ou=system" );
+        assertExists( partition, "cn=child2,ou=test,ou=system" );
+        assertExists( partition, "cn=grandChild11,cn=child1,ou=test,ou=system" );
+        assertExists( partition, "cn=grandChild12,cn=child1,ou=test,ou=system" );
+        assertExists( partition, "cn=greatGrandChild111,cn=grandChild11,cn=child1,ou=test,ou=system" );
     }
 
 
@@ -965,9 +995,9 @@ public class SingleFileLdifPartitionTest
                 {
                     AddOperationContext addCtx = new AddOperationContext( mockSession );
 
-                    Entry childEntry1 = createEntry( "dc=threadDoModify,ou=test,ou=system" );
-                    childEntry1.put( "ObjectClass", "top", "domain" );
-                    childEntry1.put( "dc", "threadDoModify" );
+                    Entry childEntry1 = createEntry( "cn=threadDoModify,ou=test,ou=system" );
+                    childEntry1.put( "ObjectClass", "top", "person" );
+                    childEntry1.put( "cn", "threadDoModify" );
                     addCtx.setEntry( childEntry1 );
                     partition.add( addCtx );
 
@@ -1028,9 +1058,9 @@ public class SingleFileLdifPartitionTest
 
                     for ( ; i < 1000; i++ )
                     {
-                        Entry entry = createEntry( "dc=threadDoAddAndDelete,ou=test,ou=system" );
-                        entry.put( "ObjectClass", "top", "domain" );
-                        entry.put( "dc", "threadDoAddAndDelete" );
+                        Entry entry = createEntry( "cn=threadDoAddAndDelete,ou=test,ou=system" );
+                        entry.put( "ObjectClass", "top", "person" );
+                        entry.put( "cn", "threadDoAddAndDelete" );
                         addCtx.setEntry( entry );
 
                         // add first
@@ -1070,11 +1100,11 @@ public class SingleFileLdifPartitionTest
 
                 try
                 {
-                    Dn dn = new Dn( schemaManager, "dc=grandChild12,dc=child1,ou=test,ou=system" );
+                    Dn dn = new Dn( schemaManager, "cn=grandChild12,cn=child1,ou=test,ou=system" );
 
-                    Rdn oldRdn = new Rdn( SchemaConstants.DC_AT + "=" + "grandChild12" );
+                    Rdn oldRdn = new Rdn( SchemaConstants.CN_AT + "=" + "grandChild12" );
 
-                    Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedGrandChild12" );
+                    Rdn newRdn = new Rdn( SchemaConstants.CN_AT + "=" + "renamedGrandChild12" );
 
                     Dn tmpDn = dn;
                     Rdn tmpRdn = newRdn;
@@ -1124,10 +1154,10 @@ public class SingleFileLdifPartitionTest
 
                 try
                 {
-                    Dn originalDn = new Dn( schemaManager, "dc=grandChild11,dc=child1,ou=test,ou=system" );
+                    Dn originalDn = new Dn( schemaManager, "cn=grandChild11,cn=child1,ou=test,ou=system" );
 
-                    Dn originalParent = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
-                    Dn newParent = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
+                    Dn originalParent = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
+                    Dn newParent = new Dn( schemaManager, "cn=child2,ou=test,ou=system" );
 
                     Dn tmpDn = originalDn;
                     Dn tmpParentDn = newParent;
@@ -1166,37 +1196,42 @@ public class SingleFileLdifPartitionTest
 
         partition.add( addCtx );
 
-        Entry childEntry1 = createEntry( "dc=child1,ou=test,ou=system" );
-        childEntry1.put( "ObjectClass", "top", "domain" );
-        childEntry1.put( "dc", "child1" );
+        Entry childEntry1 = createEntry( "cn=child1,ou=test,ou=system" );
+        childEntry1.put( "ObjectClass", "top", "person" );
+        childEntry1.put( "cn", "child1" );
+        childEntry1.put( "sn", "child1" );
         addCtx.setEntry( childEntry1 );
 
         partition.add( addCtx );
 
-        Entry childEntry2 = createEntry( "dc=child2,ou=test,ou=system" );
-        childEntry2.put( "ObjectClass", "top", "domain" );
-        childEntry2.put( "dc", "child2" );
+        Entry childEntry2 = createEntry( "cn=child2,ou=test,ou=system" );
+        childEntry2.put( "ObjectClass", "top", "person" );
+        childEntry2.put( "cn", "child2" );
+        childEntry1.put( "sn", "child2" );
         addCtx.setEntry( childEntry2 );
 
         partition.add( addCtx );
 
-        Entry grandChild11 = createEntry( "dc=grandChild11,dc=child1,ou=test,ou=system" );
-        grandChild11.put( "ObjectClass", "top", "domain" );
-        grandChild11.put( "dc", "grandChild11" );
+        Entry grandChild11 = createEntry( "cn=grandChild11,cn=child1,ou=test,ou=system" );
+        grandChild11.put( "ObjectClass", "top", "person" );
+        grandChild11.put( "cn", "grandChild11" );
+        childEntry1.put( "sn", "grandChild11" );
         addCtx.setEntry( grandChild11 );
 
         partition.add( addCtx );
 
-        Entry grandChild12 = createEntry( "dc=grandChild12,dc=child1,ou=test,ou=system" );
-        grandChild12.put( "ObjectClass", "top", "domain" );
-        grandChild12.put( "dc", "grandChild12" );
+        Entry grandChild12 = createEntry( "cn=grandChild12,cn=child1,ou=test,ou=system" );
+        grandChild12.put( "ObjectClass", "top", "person" );
+        grandChild12.put( "cn", "grandChild12" );
+        childEntry1.put( "sn", "grandChild12" );
         addCtx.setEntry( grandChild12 );
 
         partition.add( addCtx );
 
-        Entry greatGrandChild111 = createEntry( "dc=greatGrandChild111,dc=grandChild11,dc=child1,ou=test,ou=system" );
-        greatGrandChild111.put( "ObjectClass", "top", "domain" );
-        greatGrandChild111.put( "dc", "greatGrandChild111" );
+        Entry greatGrandChild111 = createEntry( "cn=greatGrandChild111,cn=grandChild11,cn=child1,ou=test,ou=system" );
+        greatGrandChild111.put( "ObjectClass", "top", "person" );
+        greatGrandChild111.put( "cn", "greatGrandChild111" );
+        greatGrandChild111.put( "sn", "greatGrandChild111" );
         addCtx.setEntry( greatGrandChild111 );
 
         partition.add( addCtx );

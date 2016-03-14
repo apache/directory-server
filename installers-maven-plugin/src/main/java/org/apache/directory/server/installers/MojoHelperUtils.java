@@ -31,7 +31,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -50,35 +50,37 @@ import org.codehaus.plexus.util.InterpolationFilterReader;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MojoHelperUtils
+public final class MojoHelperUtils
 {
-    public static void copyBinaryFile( InputStream from, File to ) throws IOException
+
+    private MojoHelperUtils()
     {
-        FileOutputStream out = null;
-        try
+    }
+
+
+    public static void copyBinaryFile( GenerateMojo mojo, String fileName, InputStream from, File to )
+        throws IOException
+    {
+        mojo.getLog().info( "Copying " + fileName + " to " + to );
+
+        try ( FileOutputStream out = new FileOutputStream( to ) )
         {
-            out = new FileOutputStream( to );
             IOUtil.copy( from, out );
         }
         finally
         {
             IOUtil.close( from );
-            IOUtil.close( out );
         }
     }
 
 
-    public static void copyAsciiFile( GenerateMojo mymojo, Properties filterProperties, InputStream from,
-        File to, boolean filtering ) throws IOException
+    public static void copyAsciiFile( GenerateMojo mymojo, Properties filterProperties, String fileName,
+        InputStream from, File to, boolean filtering ) throws IOException
     {
         // buffer so it isn't reading a byte at a time!
-        Reader fileReader = null;
-        Writer fileWriter = null;
-        try
+        try ( Reader fileReader = new BufferedReader( new InputStreamReader( from ) );
+            Writer fileWriter = new OutputStreamWriter( new FileOutputStream( to ) ) )
         {
-            fileReader = new BufferedReader( new InputStreamReader( from ) );
-            fileWriter = new OutputStreamWriter( new FileOutputStream( to ) );
-
             Reader reader = null;
             if ( filtering )
             {
@@ -103,18 +105,13 @@ public class MojoHelperUtils
             }
             IOUtil.copy( reader, fileWriter );
         }
-        finally
-        {
-            IOUtil.close( fileReader );
-            IOUtil.close( fileWriter );
-        }
     }
 
 
     public static void copyAsciiFile( GenerateMojo mymojo, Properties filterProperties, File from, File to,
         boolean filtering ) throws IOException
     {
-        copyAsciiFile( mymojo, filterProperties, new FileInputStream( from ), to, filtering );
+        copyAsciiFile( mymojo, filterProperties, from.getAbsolutePath(), new FileInputStream( from ), to, filtering );
     }
 
 
@@ -125,15 +122,16 @@ public class MojoHelperUtils
     }
 
 
-    public static void copyDependencies( GenerateMojo mymojo, InstallationLayout layout,
+    public static void copyDependencies( GenerateMojo myMojo, InstallationLayout layout,
         boolean includeWrapperDependencies )
         throws MojoFailureException
     {
         // Creating the excludes set
         Set<String> excludes = new HashSet<String>();
-        if ( mymojo.getExcludes() != null )
+
+        if ( myMojo.getExcludes() != null )
         {
-            excludes.addAll( mymojo.getExcludes() );
+            excludes.addAll( myMojo.getExcludes() );
         }
 
         // Adding the wrapper dependencies to the excludes set
@@ -144,16 +142,17 @@ public class MojoHelperUtils
         }
 
         // Filtering and copying dependencies
-        Iterator<?> artifacts = mymojo.getProject().getRuntimeArtifacts().iterator();
-        while ( artifacts.hasNext() )
+        List<Artifact> artifacts = ( List<Artifact> ) ( myMojo.getProject().getRuntimeArtifacts() );
+
+        for ( Artifact artifact : artifacts )
         {
-            Artifact artifact = ( Artifact ) artifacts.next();
             String key = artifact.getGroupId() + ":" + artifact.getArtifactId();
 
             if ( !excludes.contains( key ) )
             {
                 try
                 {
+                    myMojo.getLog().info( "Copying " + artifact.getFile() + " to " + layout.getLibDirectory() );
                     FileUtils.copyFileToDirectory( artifact.getFile(), layout.getLibDirectory() );
                 }
                 catch ( IOException e )

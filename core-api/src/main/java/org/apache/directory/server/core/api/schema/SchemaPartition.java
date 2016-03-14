@@ -29,9 +29,9 @@ import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
@@ -44,6 +44,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.SchemaUtils;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -59,6 +60,7 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.Subordinates;
 import org.apache.directory.server.core.api.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -120,20 +122,20 @@ public final class SchemaPartition extends AbstractPartition
     private RegistrySynchronizerAdaptor synchronizer;
 
     /** A static Dn for the ou=schemaModifications entry */
-    private static Dn SCHEMA_MODIFICATION_DN;
+    private Dn schemaModificationDN;
 
     /** A static Dn for the ou=schema partition */
-    private static Dn SCHEMA_DN;
+    private Dn schemaDN;
 
     /** The ObjectClass AttributeType */
-    private static AttributeType OBJECT_CLASS_AT;
+    private AttributeType objectClassAT;
 
 
     public SchemaPartition( SchemaManager schemaManager )
     {
         try
         {
-            SCHEMA_DN = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
+            schemaDN = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
         }
         catch ( LdapInvalidDnException lide )
         {
@@ -141,9 +143,9 @@ public final class SchemaPartition extends AbstractPartition
         }
 
         id = SCHEMA_ID;
-        suffixDn = SCHEMA_DN;
+        suffixDn = schemaDN;
         this.schemaManager = schemaManager;
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID );
+        objectClassAT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID );
     }
 
 
@@ -202,6 +204,16 @@ public final class SchemaPartition extends AbstractPartition
      * {@inheritDoc}
      */
     @Override
+    protected void doRepair() throws Exception
+    {
+        // Nothing to do
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void doInit() throws Exception
     {
         if ( !initialized )
@@ -211,7 +223,7 @@ public final class SchemaPartition extends AbstractPartition
             // schema it depends on.  This is a minimal mandatory set of schemas.
             // -----------------------------------------------------------------------
             wrapped.setId( SCHEMA_ID );
-            wrapped.setSuffixDn( SCHEMA_DN );
+            wrapped.setSuffixDn( schemaDN );
             wrapped.setSchemaManager( schemaManager );
 
             try
@@ -226,7 +238,7 @@ public final class SchemaPartition extends AbstractPartition
                 throw new RuntimeException( e );
             }
 
-            SCHEMA_MODIFICATION_DN = new Dn( schemaManager, SchemaConstants.SCHEMA_MODIFICATIONS_DN );
+            schemaModificationDN = new Dn( schemaManager, SchemaConstants.SCHEMA_MODIFICATIONS_DN );
         }
     }
 
@@ -285,14 +297,14 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public final int getChildCount( DeleteOperationContext deleteContext ) throws LdapException
+    public int getChildCount( DeleteOperationContext deleteContext ) throws LdapException
     {
         try
         {
             Dn dn = deleteContext.getDn();
             SearchRequest searchRequest = new SearchRequestImpl();
             searchRequest.setBase( dn );
-            ExprNode node = new PresenceNode( OBJECT_CLASS_AT );
+            ExprNode node = new PresenceNode( objectClassAT );
             searchRequest.setFilter( node );
             searchRequest.setTypesOnly( true );
             searchRequest.setScope( SearchScope.ONELEVEL );
@@ -309,7 +321,7 @@ public final class SchemaPartition extends AbstractPartition
             {
                 nbEntry++;
             }
-            
+
             cursor.close();
 
             return nbEntry;
@@ -334,7 +346,7 @@ public final class SchemaPartition extends AbstractPartition
 
         if ( nbChild > 1 )
         {
-            throw new LdapUnwillingToPerformException( "There are children under the entry " + deleteContext.getDn() );
+            throw new LdapContextNotEmptyException( "There are children under the entry " + deleteContext.getDn() );
         }
 
         // The SchemaObject always exist when we reach this method.
@@ -352,7 +364,7 @@ public final class SchemaPartition extends AbstractPartition
         }
 
         updateSchemaModificationAttributes( deleteContext );
-        
+
         return deletedEntry;
     }
 
@@ -392,7 +404,7 @@ public final class SchemaPartition extends AbstractPartition
             wrapped.modify( modifyContext );
         }
 
-        if ( !modifyContext.getDn().equals( SCHEMA_MODIFICATION_DN ) )
+        if ( !modifyContext.getDn().equals( schemaModificationDN ) )
         {
             updateSchemaModificationAttributes( modifyContext );
         }
@@ -507,8 +519,30 @@ public final class SchemaPartition extends AbstractPartition
         // have been done, so we can perform the below modification directly on the partition nexus
         // without using a a bypass list
         CoreSession session = opContext.getSession();
-        ModifyOperationContext modifyContext = new ModifyOperationContext( session, SCHEMA_MODIFICATION_DN, mods );
+        ModifyOperationContext modifyContext = new ModifyOperationContext( session, schemaModificationDN, mods );
         session.getDirectoryService().getPartitionNexus().modify( modifyContext );
+    }
+
+
+    @Override
+    public String getContextCsn()
+    {
+        return wrapped.getContextCsn();
+    }
+
+
+    @Override
+    public void saveContextCsn() throws Exception
+    {
+        wrapped.saveContextCsn();
+    }
+
+
+    @Override
+    public void setCacheService( CacheService cacheService )
+    {
+        super.setCacheService( cacheService );
+        wrapped.setCacheService( cacheService );
     }
 
 
@@ -518,5 +552,20 @@ public final class SchemaPartition extends AbstractPartition
     public String toString()
     {
         return "Partition : " + SCHEMA_ID;
+    }
+    
+    
+    /**
+     * Return the number of children and subordinates for a given entry
+     *
+     * @param dn The entry's DN
+     * @return The Subordinate instance that contains the values.
+     * @throws LdapException If we had an issue while processing the request
+     */
+    public Subordinates getSubordinates( Entry entry ) throws LdapException
+    {
+        Subordinates subordinates = new Subordinates();
+        
+        return subordinates;
     }
 }

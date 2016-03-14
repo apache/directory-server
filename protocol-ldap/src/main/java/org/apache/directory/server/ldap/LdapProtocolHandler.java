@@ -35,7 +35,6 @@ import org.apache.directory.api.ldap.model.message.ResultResponse;
 import org.apache.directory.api.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.api.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
@@ -124,7 +123,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     {
         if ( ldapSession == null )
         {
-            LOG.warn( "Null LdapSession given to cleanUpSession." );
+            LOG.debug( "Null LdapSession given to cleanUpSession." );
             return;
         }
 
@@ -182,14 +181,14 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         if ( message == SslFilter.SESSION_SECURED )
         {
-            ExtendedRequest<?> req =
+            ExtendedRequest req =
                 LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
         }
         else if ( message == SslFilter.SESSION_UNSECURED )
         {
-            ExtendedRequest<?> req =
+            ExtendedRequest req =
                 LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
                     "SECURED".getBytes( "ISO-8859-1" ) );
             message = req;
@@ -198,7 +197,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         if ( ( ( Request ) message ).getControls().size() > 0
             && message instanceof ResultResponseRequest )
         {
-            ResultResponseRequest<?> req = ( ResultResponseRequest<?> ) message;
+            ResultResponseRequest req = ( ResultResponseRequest ) message;
 
             for ( Control control : req.getControls().values() )
             {

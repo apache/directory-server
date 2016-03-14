@@ -157,7 +157,8 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
             }
         }
 
-        if ( ( c = keyComparator.compare( key, parent.getKey() ) ) < 0 )
+        c = keyComparator.compare( key, parent.getKey() );
+        if ( c < 0 )
         {
             parent.setLeft( node );
         }
@@ -209,7 +210,8 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     {
         if ( node.next == null && node.previous == null ) // should happen in case of tree having single node
         {
-            first = last = null;
+            first = null;
+            last = null;
         }
         else if ( node.next == null ) // last node
         {

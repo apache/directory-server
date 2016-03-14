@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -42,7 +40,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
-import org.apache.directory.api.ldap.schemaloader.SchemaEntityFactory;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -93,7 +91,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      */
     public SchemaSynchronizer( SchemaManager schemaManager ) throws Exception
     {
-        //this.registries = schemaManager.getRegistries();
         this.schemaManager = schemaManager;
         disabledAT = schemaManager.lookupAttributeTypeRegistry( MetaSchemaConstants.M_DISABLED_AT );
         factory = new SchemaEntityFactory();
@@ -469,7 +466,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     private String getSchemaName( Dn schema )
     {
-        return schema.getRdn().getNormValue().getString();
+        return schema.getRdn().getNormValue();
     }
 
 
@@ -550,7 +547,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             {
                 String dependency = value.getString();
 
-                if ( schemaManager.getLoadedSchema( Strings.toLowerCase( dependency ) ) == null )
+                if ( schemaManager.getLoadedSchema( Strings.toLowerCaseAscii( dependency ) ) == null )
                 {
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                         I18n.err( I18n.ERR_385, dependency ) );

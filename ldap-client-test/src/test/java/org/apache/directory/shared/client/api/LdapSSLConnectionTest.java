@@ -31,6 +31,7 @@ import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -41,12 +42,12 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -88,10 +89,10 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
 
 
     @Before
-    public void setup()
+    public void setup() throws Exception
     {
         sslConfig = new LdapConnectionConfig();
-        sslConfig.setLdapHost( "localhost" );
+        sslConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         sslConfig.setTrustManagers( new NoVerificationTrustManager() );
@@ -99,7 +100,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
                 ldapServer.getDirectoryService().getSchemaManager() ) );
 
         tlsConfig = new LdapConnectionConfig();
-        tlsConfig.setLdapHost( "localhost" );
+        tlsConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
         tlsConfig.setLdapPort( getLdapServer().getPort() );
         tlsConfig.setTrustManagers( new NoVerificationTrustManager() );
         tlsConfig.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector(
@@ -161,10 +162,17 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         try
         {
             connection = new LdapNetworkConnection( tlsConfig );
+            tlsConfig.setUseTls( true );
             connection.connect();
-            connection.startTls();
-            connection.bind( "uid=admin,ou=system", "secret" );
 
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertTrue( connection.isAuthenticated() );
+
+            // try multiple binds with startTLS DIRAPI-173
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertTrue( connection.isAuthenticated() );
+            
+            connection.bind( "uid=admin,ou=system", "secret" );
             assertTrue( connection.isAuthenticated() );
 
             connection.unBind();
@@ -183,8 +191,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     public void testGetSupportedControlsWithStartTLS() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig );
+        tlsConfig.setUseTls( true );
         connection.connect();
-        connection.startTls();
 
         Dn dn = new Dn( "uid=admin,ou=system" );
         connection.bind( dn.getName(), "secret" );
@@ -213,7 +221,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     public void testStallingSsl() throws Exception
     {
         LdapConnectionConfig sslConfig = new LdapConnectionConfig();
-        sslConfig.setLdapHost( "localhost" );
+        sslConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
         //sslConfig.setTrustManagers( new NoVerificationTrustManager() );

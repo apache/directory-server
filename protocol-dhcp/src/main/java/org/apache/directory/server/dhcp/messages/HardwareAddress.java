@@ -89,8 +89,11 @@ public final class HardwareAddress
     public int hashCode()
     {
         int hashCode = 98643532 ^ type ^ length;
+
         for ( int i = 0; i < length; i++ )
+        {
             hashCode ^= address[i];
+        }
 
         return hashCode;
     }
@@ -102,7 +105,9 @@ public final class HardwareAddress
     public boolean equals( Object obj )
     {
         if ( null == obj || !( obj.getClass().equals( HardwareAddress.class ) ) )
+        {
             return false;
+        }
 
         HardwareAddress hw = ( HardwareAddress ) obj;
 
@@ -122,19 +127,29 @@ public final class HardwareAddress
     public String getNativeRepresentation()
     {
         StringBuffer sb = new StringBuffer();
+
         switch ( type )
         {
             case 1:
                 for ( int i = 0; i < length; i++ )
                 {
                     if ( i > 0 )
+                    {
                         sb.append( ":" );
+                    }
+
                     String hex = Integer.toHexString( address[i] & 0xff );
+
                     if ( hex.length() < 2 )
+                    {
                         sb.append( '0' );
+                    }
+
                     sb.append( hex );
                 }
+
                 break;
+
             default:
                 sb.append( toString() );
         }
@@ -157,13 +172,21 @@ public final class HardwareAddress
         StringBuffer sb = new StringBuffer();
         sb.append( type );
         sb.append( "/" );
+
         for ( int i = 0; i < length; i++ )
         {
             if ( i > 0 )
+            {
                 sb.append( ":" );
+            }
+
             String hex = Integer.toHexString( address[i] & 0xff );
+
             if ( hex.length() < 2 )
+            {
                 sb.append( '0' );
+            }
+
             sb.append( hex );
         }
 
@@ -171,7 +194,7 @@ public final class HardwareAddress
     }
 
     private static final Pattern PARSE_PATTERN = Pattern
-        .compile( "(\\d+)\\s+(?:(\\p{XDigit}{1,2}):)*(\\p{XDigit}{1,2})?" );
+        .compile( "(\\d+)/(?:(\\p{XDigit}{1,2}):)*(\\p{XDigit}{1,2})?" );
 
 
     /**
@@ -185,18 +208,26 @@ public final class HardwareAddress
     public static HardwareAddress valueOf( String s )
     {
         if ( null == s || s.length() == 0 )
+        {
             return null;
+        }
 
         Matcher m = PARSE_PATTERN.matcher( s );
+
         if ( !m.matches() )
+        {
             throw new IllegalArgumentException( I18n.err( I18n.ERR_637, s ) );
+        }
 
         int type = Integer.parseInt( m.group( 1 ) );
         int len = m.groupCount() - 1;
 
-        byte addr[] = new byte[len];
+        byte[] addr = new byte[len];
+
         for ( int i = 0; i < addr.length; i++ )
+        {
             addr[i] = ( byte ) Integer.parseInt( m.group( i + 2 ), 16 );
+        }
 
         return new HardwareAddress( ( short ) type, ( short ) len, addr );
     }

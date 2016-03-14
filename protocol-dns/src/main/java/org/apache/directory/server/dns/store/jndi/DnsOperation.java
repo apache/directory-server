@@ -43,5 +43,5 @@ public interface DnsOperation
      * @return Set<ResourceRecord> The result returned by the command
      * @throws Exception The exception thrown by the command
      */
-    public Set<ResourceRecord> execute( DirContext ctx, Name baseDn ) throws Exception;
+    Set<ResourceRecord> execute( DirContext ctx, Name baseDn ) throws Exception;
 }

@@ -73,14 +73,8 @@ public class GroupCache
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
 
-    /** A storage for the ObjectClass attributeType */
-    private AttributeType OBJECT_CLASS_AT;
-
-    /** A storage for the member attributeType */
-    private AttributeType MEMBER_AT;
-
-    /** A storage for the uniqueMember attributeType */
-    private AttributeType UNIQUE_MEMBER_AT;
+    /** the directory service */
+    private final DirectoryService directoryService;
 
     /**
      * the schema manager
@@ -99,6 +93,7 @@ public class GroupCache
     private Cache ehCache;
 
 
+
     /**
      * Creates a static group cache.
      *
@@ -107,12 +102,10 @@ public class GroupCache
      */
     public GroupCache( DirectoryService dirService ) throws LdapException
     {
+        this.directoryService = dirService;
         schemaManager = dirService.getSchemaManager();
         dnFactory = dirService.getDnFactory();
         nexus = dirService.getPartitionNexus();
-        OBJECT_CLASS_AT = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
-        MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );
-        UNIQUE_MEMBER_AT = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT );
 
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
@@ -143,16 +136,16 @@ public class GroupCache
             // didn't use clone() cause it is creating List objects, which IMO is not worth calling
             // in this initialization phase
             BranchNode filter = new OrNode();
-            filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
-                SchemaConstants.GROUP_OF_NAMES_OC ) ) );
-            filter.addNode( new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
-                SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
+            filter.addNode( new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(),
+                new StringValue( SchemaConstants.GROUP_OF_NAMES_OC ) ) );
+            filter.addNode( new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(),
+                new StringValue( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
             Dn baseDn = dnFactory.create( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             ctls.setReturningAttributes( new String[]
-                { "*", "+" } );
+                { SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES } );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
@@ -185,9 +178,8 @@ public class GroupCache
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
+                LOG.error( "Exception while initializing the groupCache:  {}", e.getCause() );
                 LdapOperationException le = new LdapOperationException( e.getMessage(), e );
-                le.initCause( e );
                 throw le;
             }
         }
@@ -208,14 +200,14 @@ public class GroupCache
      */
     private Attribute getMemberAttribute( Entry entry ) throws LdapException
     {
-        Attribute member = entry.get( MEMBER_AT );
+        Attribute member = entry.get( directoryService.getAtProvider().getMember() );
 
         if ( member != null )
         {
             return member;
         }
 
-        Attribute uniqueMember = entry.get( UNIQUE_MEMBER_AT );
+        Attribute uniqueMember = entry.get( directoryService.getAtProvider().getUniqueMember() );
 
         if ( uniqueMember != null )
         {
@@ -392,18 +384,18 @@ public class GroupCache
     {
         Attribute members = null;
         AttributeType memberAttr = null;
-        Attribute oc = entry.get( OBJECT_CLASS_AT );
+        Attribute oc = entry.get( directoryService.getAtProvider().getObjectClass() );
 
         if ( oc.contains( SchemaConstants.GROUP_OF_NAMES_OC ) )
         {
-            members = entry.get( MEMBER_AT );
-            memberAttr = schemaManager.getAttributeType( SchemaConstants.MEMBER_AT );
+            memberAttr = directoryService.getAtProvider().getMember();
+            members = entry.get( memberAttr );
         }
 
         if ( oc.contains( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) )
         {
-            members = entry.get( UNIQUE_MEMBER_AT );
-            memberAttr = schemaManager.getAttributeType( SchemaConstants.UNIQUE_MEMBER_AT );
+            memberAttr = directoryService.getAtProvider().getUniqueMember();
+            members = entry.get( memberAttr );
         }
 
         if ( members == null )

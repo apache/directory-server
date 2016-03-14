@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
@@ -35,7 +36,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.CoreSession;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosAttribute;
@@ -50,11 +50,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StoreUtils
+public final class StoreUtils
 {
     /** Loggers for this class */
     private static final Logger LOG = LoggerFactory.getLogger( StoreUtils.class );
     private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
+
+
+    private StoreUtils()
+    {
+    }
 
 
     /**
@@ -129,13 +134,15 @@ public class StoreUtils
     public static Entry findPrincipalEntry( CoreSession session, Dn searchBaseDn, String principal )
         throws Exception
     {
-        EntryFilteringCursor cursor = null;
+        Cursor<Entry> cursor = null;
 
         try
         {
             SchemaManager schemaManager = session.getDirectoryService().getSchemaManager();
-            cursor = session.search( searchBaseDn, SearchScope.SUBTREE,
-                getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS, "*" );
+            cursor = session
+                .search( searchBaseDn, SearchScope.SUBTREE,
+                    getFilter( schemaManager, principal ), AliasDerefMode.DEREF_ALWAYS,
+                    SchemaConstants.ALL_USER_ATTRIBUTES );
 
             cursor.beforeFirst();
 

@@ -44,8 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DhcpProtocolHandler implements IoHandler
 {
-    private static final Logger logger = LoggerFactory
-        .getLogger( DhcpProtocolHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DhcpProtocolHandler.class );
 
     /**
      * Default DHCP client port
@@ -75,7 +74,7 @@ public class DhcpProtocolHandler implements IoHandler
 
     public void sessionCreated( IoSession session ) throws Exception
     {
-        logger.debug( "{} CREATED", session.getLocalAddress() );
+        LOG.debug( "{} CREATED", session.getLocalAddress() );
         session.getFilterChain().addFirst( "codec",
             new ProtocolCodecFilter( new DhcpProtocolCodecFactory() ) );
     }
@@ -83,14 +82,14 @@ public class DhcpProtocolHandler implements IoHandler
 
     public void sessionOpened( IoSession session )
     {
-        logger.debug( "{} -> {} OPENED", session.getRemoteAddress(), session
+        LOG.debug( "{} -> {} OPENED", session.getRemoteAddress(), session
             .getLocalAddress() );
     }
 
 
     public void sessionClosed( IoSession session )
     {
-        logger.debug( "{} -> {} CLOSED", session.getRemoteAddress(), session
+        LOG.debug( "{} -> {} CLOSED", session.getRemoteAddress(), session
             .getLocalAddress() );
     }
 
@@ -103,7 +102,7 @@ public class DhcpProtocolHandler implements IoHandler
 
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        logger.error( "EXCEPTION CAUGHT ", cause );
+        LOG.error( "EXCEPTION CAUGHT ", cause );
         cause.printStackTrace( System.out );
 
         session.close( true );
@@ -113,9 +112,11 @@ public class DhcpProtocolHandler implements IoHandler
     public void messageReceived( IoSession session, Object message )
         throws Exception
     {
-        if ( logger.isDebugEnabled() )
-            logger.debug( "{} -> {} RCVD: {} " + message, session.getRemoteAddress(),
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "{} -> {} RCVD: {} " + message, session.getRemoteAddress(),
                 session.getLocalAddress() );
+        }
 
         final DhcpMessage request = ( DhcpMessage ) message;
 
@@ -156,19 +157,31 @@ public class DhcpProtocolHandler implements IoHandler
     {
 
         final MessageType mt = reply.getMessageType();
+
         if ( !isNullAddress( request.getRelayAgentAddress() ) )
+        {
             // send to agent, if received via agent.
             return new InetSocketAddress( request.getRelayAgentAddress(), SERVER_PORT );
+        }
         else if ( null != mt && mt == MessageType.DHCPNAK )
+        {
             // force broadcast for DHCPNAKs
             return new InetSocketAddress( "255.255.255.255", 68 );
-        else // not a NAK...
-        if ( !isNullAddress( request.getCurrentClientAddress() ) )
-            // have a current address? unicast to it.
-            return new InetSocketAddress( request.getCurrentClientAddress(),
-                CLIENT_PORT );
+        }
         else
-            return new InetSocketAddress( "255.255.255.255", 68 );
+        {
+            // not a NAK...
+            if ( !isNullAddress( request.getCurrentClientAddress() ) )
+            {
+                // have a current address? unicast to it.
+                return new InetSocketAddress( request.getCurrentClientAddress(),
+                    CLIENT_PORT );
+            }
+            else
+            {
+                return new InetSocketAddress( "255.255.255.255", 68 );
+            }
+        }
     }
 
 
@@ -181,18 +194,30 @@ public class DhcpProtocolHandler implements IoHandler
      */
     private boolean isNullAddress( InetAddress addr )
     {
-        final byte a[] = addr.getAddress();
+        final byte[] a = addr.getAddress();
+
         for ( int i = 0; i < a.length; i++ )
+        {
             if ( a[i] != 0 )
+            {
                 return false;
+            }
+        }
+
         return true;
     }
 
 
     public void messageSent( IoSession session, Object message )
     {
-        if ( logger.isDebugEnabled() )
-            logger.debug( "{} -> {} SENT: " + message, session.getRemoteAddress(),
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "{} -> {} SENT: " + message, session.getRemoteAddress(),
                 session.getLocalAddress() );
+        }
+    }
+    
+    public void inputClosed( IoSession session )
+    {
     }
 }

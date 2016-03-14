@@ -28,9 +28,6 @@ package org.apache.directory.shared.kerberos.flags;
  */
 public class TicketFlags extends AbstractKerberosFlags
 {
-    private static final long serialVersionUID = 1L;
-
-
     /**
       * Basic constructor of a TicketFlags BitString
       */

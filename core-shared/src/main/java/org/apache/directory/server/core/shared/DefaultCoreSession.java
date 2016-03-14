@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.shared;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -27,9 +29,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
+import jdbm.recman.BaseRecordManager;
+
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -46,14 +53,24 @@ import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.CompareRequest;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.DeleteRequest;
+import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.ResultResponse;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.UnbindRequest;
+import org.apache.directory.api.ldap.model.message.controls.SortKey;
+import org.apache.directory.api.ldap.model.message.controls.SortRequest;
+import org.apache.directory.api.ldap.model.message.controls.SortResponse;
+import org.apache.directory.api.ldap.model.message.controls.SortResponseControlImpl;
+import org.apache.directory.api.ldap.model.message.controls.SortResultCode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
@@ -61,7 +78,6 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.changelog.LogChange;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AbstractOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -76,6 +92,7 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -101,8 +118,13 @@ public class DefaultCoreSession implements CoreSession
     private LdapPrincipal authorizedPrincipal;
 
     /** A reference to the ObjectClass AT */
-    protected AttributeType OBJECT_CLASS_AT;
+    protected AttributeType objectClassAT;
 
+    /** The associated IoSession */
+    private IoSession ioSession;
+
+    /** flag to indicate if the password must be changed */
+    private boolean pwdMustChange;
 
     /**
      * Creates a new instance of a DefaultCoreSession
@@ -113,10 +135,29 @@ public class DefaultCoreSession implements CoreSession
     {
         this.directoryService = directoryService;
         authenticatedPrincipal = principal;
-        anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
+
+        if ( principal.getAuthenticationLevel() == AuthenticationLevel.NONE )
+        {
+            anonymousPrincipal = principal;
+        }
+        else
+        {
+            anonymousPrincipal = new LdapPrincipal( directoryService.getSchemaManager() );
+        }
 
         // setup attribute type value
-        OBJECT_CLASS_AT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+    }
+
+
+    /**
+     * Stores the IoSession into the CoreSession. This is only useful when the server is not embedded.
+     * 
+     * @param ioSession The IoSession for this CoreSession
+     */
+    public void setIoSession( IoSession ioSession )
+    {
+        this.ioSession = ioSession;
     }
 
 
@@ -360,13 +401,19 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#getClientAddress()
+    /**
+     * {@inheritDoc}
      */
     public SocketAddress getClientAddress()
     {
-        // TODO Auto-generated method stub
-        return null;
+        if ( ioSession != null )
+        {
+            return ioSession.getRemoteAddress();
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -413,13 +460,19 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.CoreSession#getServiceAddress()
+    /**
+     * {@inheritDoc}
      */
     public SocketAddress getServiceAddress()
     {
-        // TODO Auto-generated method stub
-        return null;
+        if ( ioSession != null )
+        {
+            return ioSession.getServiceAddress();
+        }
+        else
+        {
+            return null;
+        }
     }
 
 
@@ -482,13 +535,14 @@ public class DefaultCoreSession implements CoreSession
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.message.AliasDerefMode, java.util.Set)
      */
-    public EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
+    public Cursor<Entry> list( Dn dn, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
 
-        PresenceNode filter = new PresenceNode( OBJECT_CLASS_AT );
-        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.ONELEVEL, filter, returningAttributes );
+        PresenceNode filter = new PresenceNode( objectClassAT );
+        SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.ONELEVEL, filter,
+            returningAttributes );
         searchContext.setAliasDerefMode( aliasDerefMode );
 
         return operationManager.search( searchContext );
@@ -758,7 +812,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( Dn dn, String filter ) throws LdapException
+    public Cursor<Entry> search( Dn dn, String filter ) throws LdapException
     {
         return search( dn, filter, true );
     }
@@ -767,7 +821,7 @@ public class DefaultCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException
+    public Cursor<Entry> search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
         ExprNode filterNode = null;
@@ -782,7 +836,7 @@ public class DefaultCoreSession implements CoreSession
         }
 
         SearchOperationContext searchContext = new SearchOperationContext( this, dn, SearchScope.OBJECT, filterNode,
-            (String)null );
+            ( String ) null );
         searchContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
         setReferralHandling( searchContext, ignoreReferrals );
 
@@ -793,7 +847,7 @@ public class DefaultCoreSession implements CoreSession
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.filter.SearchScope, org.apache.directory.api.ldap.model.filter.ExprNode, org.apache.directory.api.ldap.message.AliasDerefMode, java.util.Set)
      */
-    public EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
+    public Cursor<Entry> search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
@@ -807,7 +861,14 @@ public class DefaultCoreSession implements CoreSession
 
     public boolean isAnonymous()
     {
-        return getEffectivePrincipal().getDn().isEmpty();
+        if ( ( authorizedPrincipal == null ) && ( authenticatedPrincipal == null ) )
+        {
+            return true;
+        }
+        else
+        {
+            return authenticatedPrincipal.getAuthenticationLevel() == AuthenticationLevel.NONE;
+        }
     }
 
 
@@ -1025,26 +1086,79 @@ public class DefaultCoreSession implements CoreSession
     }
 
 
-    public EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException
+    public Cursor<Entry> search( SearchRequest searchRequest ) throws LdapException
     {
         SearchOperationContext searchContext = new SearchOperationContext( this, searchRequest );
         searchContext.setSyncreplSearch( searchRequest.getControls().containsKey( SyncRequestValue.OID ) );
-        
+
         OperationManager operationManager = directoryService.getOperationManager();
 
-        EntryFilteringCursor cursor = null;
+        // Check if we received serverside sort Control
+        SortRequest sortControl = ( SortRequest ) searchRequest.getControls().get( SortRequest.OID );
+
+        SortResponse sortRespCtrl = null;
+
+        ResultResponse done = searchRequest.getResultResponse();
+
+        LdapResult ldapResult = done.getLdapResult();
+
+        if ( sortControl != null )
+        {
+            sortRespCtrl = canSort( sortControl, ldapResult, getDirectoryService().getSchemaManager() );
+
+            if ( sortControl.isCritical() && ( sortRespCtrl.getSortResult() != SortResultCode.SUCCESS ) )
+            {
+                ldapResult.setResultCode( ResultCodeEnum.UNAVAILABLE_CRITICAL_EXTENSION );
+                done.addControl( sortRespCtrl );
+
+                return new EmptyCursor<Entry>();
+            }
+        }
+
+        Cursor<Entry> cursor = null;
 
         try
         {
             cursor = operationManager.search( searchContext );
+
+            if ( ( sortRespCtrl != null ) && ( sortRespCtrl.getSortResult() == SortResultCode.SUCCESS ) )
+            {
+                cursor = sortResults( cursor, sortControl, getDirectoryService().getSchemaManager() );
+            }
+
+            // the below condition is to satisfy the scenario 6 in section 2 of rfc2891
+            if ( sortRespCtrl != null )
+            {
+                cursor.beforeFirst();
+
+                if ( !cursor.next() )
+                {
+                    sortRespCtrl = null;
+                }
+                else
+                {
+                    // move the cursor back
+                    cursor.previous();
+                }
+            }
         }
         catch ( LdapException e )
         {
-            searchRequest.getResultResponse().addAllControls( searchContext.getResponseControls() );
+            done.addAllControls( searchContext.getResponseControls() );
             throw e;
         }
+        catch ( Exception e )
+        {
+            done.addAllControls( searchContext.getResponseControls() );
+            throw new LdapException( e );
+        }
 
-        searchRequest.getResultResponse().addAllControls( searchContext.getResponseControls() );
+        if ( sortRespCtrl != null )
+        {
+            done.addControl( sortRespCtrl );
+        }
+
+        done.addAllControls( searchContext.getResponseControls() );
 
         return cursor;
     }
@@ -1071,5 +1185,187 @@ public class DefaultCoreSession implements CoreSession
 
         OperationManager operationManager = directoryService.getOperationManager();
         operationManager.unbind( unbindContext );
+    }
+
+
+    /**
+     * Checks if the requested search results can be sorted
+     * 
+     * @param sortControl the sort control
+     * @param ldapResult the refrence to the LDAP result of the ongoing search operation
+     * @param session the current session
+     * @return a sort response control
+     */
+    private SortResponse canSort( SortRequest sortControl, LdapResult ldapResult, SchemaManager schemaManager )
+    {
+        SortResponse resp = new SortResponseControlImpl();
+
+        List<SortKey> keys = sortControl.getSortKeys();
+
+        // only ONE key is supported by the server for now
+        if ( keys.size() > 1 )
+        {
+            ldapResult.setDiagnosticMessage( "Cannot sort results based on more than one attribute" );
+            resp.setSortResult( SortResultCode.UNWILLINGTOPERFORM );
+            return resp;
+        }
+
+        SortKey sk = keys.get( 0 );
+
+        AttributeType at = schemaManager.getAttributeType( sk.getAttributeTypeDesc() );
+
+        if ( at == null )
+        {
+            ldapResult.setDiagnosticMessage( "No attribute with the name " + sk.getAttributeTypeDesc()
+                + " exists in the server's schema" );
+            resp.setSortResult( SortResultCode.NOSUCHATTRIBUTE );
+            resp.setAttributeName( sk.getAttributeTypeDesc() );
+            return resp;
+        }
+
+        String mrOid = sk.getMatchingRuleId();
+
+        if ( mrOid != null )
+        {
+            MatchingRule mr = at.getOrdering();
+
+            if ( mr != null )
+            {
+                if ( !mrOid.equals( mr.getOid() ) )
+                {
+                    ldapResult.setDiagnosticMessage( "Given matchingrule " + mrOid
+                        + " is not applicable for the attribute " + sk.getAttributeTypeDesc() );
+                    resp.setSortResult( SortResultCode.INAPPROPRIATEMATCHING );
+                    resp.setAttributeName( sk.getAttributeTypeDesc() );
+                    return resp;
+                }
+            }
+
+            try
+            {
+                schemaManager.lookupComparatorRegistry( mrOid );
+            }
+            catch ( LdapException e )
+            {
+                ldapResult.setDiagnosticMessage( "Given matchingrule " + mrOid + " is not supported" );
+                resp.setSortResult( SortResultCode.INAPPROPRIATEMATCHING );
+                resp.setAttributeName( sk.getAttributeTypeDesc() );
+                return resp;
+            }
+        }
+        else
+        {
+            MatchingRule mr = at.getOrdering();
+
+            if ( mr == null )
+            {
+                mr = at.getEquality();
+            }
+
+            ldapResult.setDiagnosticMessage( "Matchingrule is required for sorting by the attribute "
+                + sk.getAttributeTypeDesc() );
+            resp.setSortResult( SortResultCode.INAPPROPRIATEMATCHING );
+            resp.setAttributeName( sk.getAttributeTypeDesc() );
+
+            if ( mr == null )
+            {
+                return resp;
+            }
+
+            try
+            {
+                schemaManager.lookupComparatorRegistry( mr.getOid() );
+            }
+            catch ( LdapException e )
+            {
+                return resp;
+            }
+        }
+
+        resp.setSortResult( SortResultCode.SUCCESS );
+
+        return resp;
+    }
+
+
+    /**
+     * Sorts the entries based on the given sortkey and returns the cursor
+     * 
+     * @param unsortedEntries the cursor containing un-sorted entries
+     * @param control the sort control
+     * @param schemaManager schema manager
+     * @return a cursor containing sorted entries
+     * @throws CursorException
+     * @throws LdapException
+     * @throws IOException
+     * @throws KeyNotFoundException 
+     */
+    private Cursor<Entry> sortResults( Cursor<Entry> unsortedEntries, SortRequest control, SchemaManager schemaManager )
+        throws CursorException, LdapException, IOException
+    {
+        unsortedEntries.beforeFirst();
+
+        Entry first = null;
+
+        if ( unsortedEntries.next() )
+        {
+            first = unsortedEntries.get();
+        }
+
+        if ( !unsortedEntries.next() )
+        {
+            unsortedEntries.beforeFirst();
+
+            return unsortedEntries;
+        }
+
+        SortKey sk = control.getSortKeys().get( 0 );
+
+        AttributeType at = schemaManager.getAttributeType( sk.getAttributeTypeDesc() );
+
+        SortedEntryComparator comparator = new SortedEntryComparator( at, sk.getMatchingRuleId(), sk.isReverseOrder(),
+            schemaManager );
+
+        SortedEntrySerializer keySerializer = new SortedEntrySerializer();
+        SortedEntrySerializer.setSchemaManager( schemaManager );
+        
+        File file = File.createTempFile( "replica", ".sorted-data" );// see DIRSERVER-2007
+        BaseRecordManager recMan = new BaseRecordManager( file.getAbsolutePath() );
+
+        jdbm.btree.BTree<Entry, String> btree = new jdbm.btree.BTree<Entry, String>( recMan, comparator, keySerializer, NullStringSerializer.INSTANCE );
+        
+
+        btree.insert( first, "", false );
+
+        // at this stage the cursor will be _on_ the next element, so read it
+        btree.insert( unsortedEntries.get(), "", false );
+
+        while ( unsortedEntries.next() )
+        {
+            Entry entry = unsortedEntries.get();
+            btree.insert( entry, "", false );
+        }
+
+        unsortedEntries.close();
+
+        return new SortedEntryCursor( btree, recMan, file );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPwdMustChange() 
+    {
+        return pwdMustChange;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPwdMustChange( boolean pwdMustChange ) 
+    {
+        this.pwdMustChange = pwdMustChange;
     }
 }

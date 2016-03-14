@@ -20,24 +20,26 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
+import org.apache.directory.api.ldap.model.message.ExtendedRequest;
+import org.apache.directory.api.ldap.model.message.ExtendedResponse;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.ldap.handlers.sasl.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
-import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 
 
 /**
@@ -66,7 +68,8 @@ public class LdapServerSettingsTest
     {
         LdapServer server = new LdapServer();
         StartTlsHandler handler = new StartTlsHandler();
-        List<ExtendedOperationHandler> handlers = new ArrayList<ExtendedOperationHandler>();
+        List<ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>> handlers =
+            new ArrayList<ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>>();
         handlers.add( handler );
         server.setExtendedOperationHandlers( handlers );
         assertEquals( handler, server.getExtendedOperationHandler( handler.getOid() ) );

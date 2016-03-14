@@ -31,7 +31,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -47,20 +47,23 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
@@ -88,6 +91,7 @@ public class JdbmStoreTest
     CoreSession session;
 
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
     private static LdifSchemaLoader loader;
     private static Dn EXAMPLE_COM;
 
@@ -102,6 +106,8 @@ public class JdbmStoreTest
 
     /** The SN AttributeType instance */
     private static AttributeType SN_AT;
+
+    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -135,6 +141,10 @@ public class JdbmStoreTest
         DC_AT = schemaManager.getAttributeType( SchemaConstants.DC_AT );
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
+
+        cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -147,7 +157,7 @@ public class JdbmStoreTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
 
         // initialize the store
-        store = new JdbmPartition( schemaManager );
+        store = new JdbmPartition( schemaManager, dnFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -164,6 +174,7 @@ public class JdbmStoreTest
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );
 
+        store.setCacheService( cacheService );
         store.initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
@@ -210,7 +221,7 @@ public class JdbmStoreTest
         wkdir2 = new File( wkdir2.getParentFile(), getClass().getSimpleName() );
 
         // initialize the 2nd store
-        JdbmPartition store2 = new JdbmPartition( schemaManager );
+        JdbmPartition store2 = new JdbmPartition( schemaManager, dnFactory );
         store2.setId( "example2" );
         store2.setCacheSize( 10 );
         store2.setPartitionPath( wkdir2.toURI() );
@@ -218,6 +229,7 @@ public class JdbmStoreTest
         store2.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID, false ) );
         store2.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID, false ) );
         store2.setSuffixDn( EXAMPLE_COM );
+        store2.setCacheService( cacheService );
         store2.initialize();
 
         // inject context entry
@@ -244,11 +256,11 @@ public class JdbmStoreTest
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        JdbmPartition jdbmPartition = new JdbmPartition( schemaManager );
+        JdbmPartition jdbmPartition = new JdbmPartition( schemaManager, dnFactory );
         jdbmPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( jdbmPartition.getAliasIndex() );
-        Index<String, Entry, String> index = new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
+        Index<Dn, String> index = new JdbmIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID,
             true );
         ( ( Store ) jdbmPartition ).addIndex( index );
         assertNotNull( jdbmPartition.getAliasIndex() );
@@ -258,7 +270,7 @@ public class JdbmStoreTest
         assertEquals( 24, jdbmPartition.getCacheSize() );
 
         assertNull( jdbmPartition.getPresenceIndex() );
-        jdbmPartition.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
+        jdbmPartition.addIndex( new JdbmIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
         assertNotNull( jdbmPartition.getPresenceIndex() );
 
         assertNull( jdbmPartition.getId() );
@@ -270,12 +282,12 @@ public class JdbmStoreTest
         assertNotNull( jdbmPartition.getRdnIndex() );
 
         assertNull( jdbmPartition.getOneAliasIndex() );
-        ( ( Store ) jdbmPartition ).addIndex( new JdbmIndex<Long, Entry>(
+        ( ( Store ) jdbmPartition ).addIndex( new JdbmIndex<Long>(
             ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
         assertNotNull( jdbmPartition.getOneAliasIndex() );
 
         assertNull( jdbmPartition.getSubAliasIndex() );
-        jdbmPartition.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
+        jdbmPartition.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
         assertNotNull( jdbmPartition.getSubAliasIndex() );
 
         assertNull( jdbmPartition.getSuffixDn() );
@@ -285,7 +297,7 @@ public class JdbmStoreTest
         assertNotNull( jdbmPartition.getSuffixDn() );
 
         assertFalse( jdbmPartition.getUserIndices().hasNext() );
-        jdbmPartition.addIndex( new JdbmIndex<Object, Entry>( "2.5.4.3", false ) );
+        jdbmPartition.addIndex( new JdbmIndex<Object>( "2.5.4.3", false ) );
         assertEquals( true, jdbmPartition.getUserIndices().hasNext() );
 
         assertNull( jdbmPartition.getPartitionPath() );
@@ -309,7 +321,7 @@ public class JdbmStoreTest
         assertNotNull( store.getAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
+            store.addIndex( new JdbmIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -328,7 +340,7 @@ public class JdbmStoreTest
         assertNotNull( store.getPresenceIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
+            store.addIndex( new JdbmIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -358,7 +370,7 @@ public class JdbmStoreTest
         assertNotNull( store.getOneAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
+            store.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -368,7 +380,7 @@ public class JdbmStoreTest
         assertNotNull( store.getSubAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
+            store.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
@@ -597,7 +609,7 @@ public class JdbmStoreTest
         dn = new Dn( schemaManager, "sn=James,ou=Engineering,o=Good Times Co." );
         Entry renamed = store.lookup( new LookupOperationContext( session, dn ) );
         assertNotNull( renamed );
-        assertEquals( "James", renamed.getDn().getRdn().getValue().getString() );
+        assertEquals( "James", renamed.getDn().getRdn().getValue() );
     }
 
 
@@ -625,7 +637,7 @@ public class JdbmStoreTest
         String id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.fetch( id, dn2 );
-        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
     }
 
 
@@ -660,9 +672,9 @@ public class JdbmStoreTest
 
         Dn newDn = parentDn.add( childDn.getRdn() );
 
-        store.move( childDn, parentDn, newDn, childEntry );
+        store.move( childDn, parentDn, newDn, null );
 
-        assertEquals( 4, store.getSubAliasIndex().count() );
+        assertEquals( 3, store.getSubAliasIndex().count() );
     }
 
 
@@ -789,7 +801,7 @@ public class JdbmStoreTest
         assertTrue( ouIndexDbFile.exists() );
         assertTrue( ouIndexTxtFile.exists() );
 
-        store = new JdbmPartition( schemaManager );
+        store = new JdbmPartition( schemaManager, dnFactory );
         store.setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
@@ -800,6 +812,7 @@ public class JdbmStoreTest
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );
         // init the store to call deleteUnusedIndexFiles() method
+        store.setCacheService( cacheService );
         store.initialize();
 
         assertFalse( ouIndexDbFile.exists() );

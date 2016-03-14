@@ -47,6 +47,7 @@ import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 
+
 /**
  * Provides JNDI service to {@link AbstractContextFactory}.
  *
@@ -544,20 +545,6 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * the highest committed CSN value
-     *
-     * @param lastCommittedCsnVal the CSN value
-     */
-    void setContextCsn( String lastCommittedCsnVal );
-
-
-    /**
-     * @return the current highest committed CSN value
-     */
-    String getContextCsn();
-
-
-    /**
      * the time interval at which the DirectoryService's data is flushed to disk
      * 
      * @param syncPeriodMillis the syncPeriodMillis to set
@@ -614,11 +601,34 @@ public interface DirectoryService extends ServerEntryFactory
      */
     DnFactory getDnFactory();
 
-    
+
+    /**
+     * Sets the Dn factory.
+     */
+    void setDnFactory( DnFactory dnFactory );
+
+
     /**
      * Sets the CacheService
      * 
      * @param cacheService the cache service
      */
     void setCacheService( CacheService cacheService );
+
+
+    /**
+     * Gets the {@link AttributeTypeProvider}.
+     * 
+     * @return the {@link AttributeTypeProvider}
+     */
+    AttributeTypeProvider getAtProvider();
+
+
+    /**
+     * Gets the {@link ObjectClassProvider}.
+     * 
+     * @return the {@link ObjectClassProvider}
+     */
+    ObjectClassProvider getOcProvider();
+
 }

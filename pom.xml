@@ -24,12 +24,13 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>29</version>
+    <version>35</version>
+    <relativePath />
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>2.0.0-M12-SNAPSHOT</version>
+  <version>2.0.0-M22-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ApacheDS</name>
@@ -42,40 +43,46 @@
   <properties>
     <projectName>Apache Directory Server</projectName>
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
+    <additionalparam>-Xdoclint:none</additionalparam>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>1.0.0-M17-SNAPSHOT</org.apache.directory.api.version>
-    <org.apache.directory.checkstyle-configuration.version>0.1</org.apache.directory.checkstyle-configuration.version>
+    <org.apache.directory.api.version>1.0.0-M34-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
+    <org.apache.directory.checkstyle-configuration.version>0.3</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
-    <org.apache.directory.jdbm.version>2.0.0-M2</org.apache.directory.jdbm.version>
+    <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
     <skin.version>1.0.2</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.8.4</ant.version>
-    <bcprov.version>140</bcprov.version>
-    <commons.cli.version>1.2</commons.cli.version>
-    <commons.collections.version>3.2.1</commons.collections.version>
-    <commons.daemon.version>1.0.13</commons.daemon.version>
+    <ant.version>1.9.6</ant.version>
+    <bcprov.version>1.54</bcprov.version>
+    <commons.cli.version>1.3.1</commons.cli.version>
+    <commons.collections.version>3.2.2</commons.collections.version>
+    <commons.daemon.version>1.0.15</commons.daemon.version>
     <commons.io.version>2.4</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
-    <commons.net.version>3.2</commons.net.version>
+    <commons.net.version>3.4</commons.net.version>
     <commons.pool.version>1.6</commons.pool.version>
-    <dnsjava.version>2.1.1</dnsjava.version>
-    <ehcache.version>2.4.4</ehcache.version>
+    <dnsjava.version>2.1.7</dnsjava.version>
+    <ehcache.version>2.8.5</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
-    <jetty.version>6.1.14</jetty.version>
-    <junit.version>4.11</junit.version>
+    <jetty.version>6.1.26</jetty.version>
+    <junit.version>4.12</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
-    <maven.archiver.version>2.5</maven.archiver.version>
-    <maven.artifact.version>3.0.5</maven.artifact.version>
-    <maven.plugin.api.version>3.0.5</maven.plugin.api.version>
+    <maven.archiver.version>3.0.0</maven.archiver.version>
+    <maven.artifact.version>3.3.9</maven.artifact.version>
+    <maven.plugin.api.version>3.3.9</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
-    <mina.core.version>2.0.7</mina.core.version>
-    <plexus.utils.version>3.0.10</plexus.utils.version>
-    <slf4j.api.version>1.7.2</slf4j.api.version>
-    <slf4j.log4j12.version>1.7.2</slf4j.log4j12.version>
+    <mina.core.version>2.0.13</mina.core.version>
+    <plexus.utils.version>3.0.22</plexus.utils.version>
+    <slf4j.api.version>1.7.14</slf4j.api.version>
+    <slf4j.log4j12.version>1.7.14</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
+    <pax-exam.version>4.8.0</pax-exam.version>
+    <pax-url.version>2.4.5</pax-url.version>
+    <org.apache.felix.version>5.4.0</org.apache.felix.version>
+    <logback.version>1.1.3</logback.version>
   </properties>
 
   <url>http://directory.apache.org/apacheds/1.5</url>
@@ -96,7 +103,7 @@
     <module>i18n</module>
     <module>all</module>
     <module>jdbm-partition</module>
-    <!--module>mvbt-partition</module-->
+    <module>mavibot-partition</module>
     <module>xdbm-partition</module>
     <module>core-shared</module>
     <module>core-api</module>
@@ -116,7 +123,6 @@
     <module>protocol-kerberos</module>
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
-    <!-- <module>protocol-changepw</module> -->
     <module>server-integ</module>
     <module>server-config</module>
     <module>service-builder</module>
@@ -132,17 +138,15 @@
     <module>kerberos-client</module>
     <module>service</module>
     <module>wrapper</module>
-    <!--
-    <module>hbase-partition</module>
-    <module>hbase-partition-test</module>
-    -->
     <module>installers-maven-plugin</module>
     <module>installers</module>
+    <!--module>bulkloader</module-->
     <!--Uncomment to build OSGi-related bundles-->
     <!--<module>apache-felix</module>-->
-    <!--<module>dependencies</module>-->
+    <!--<module>non-osgi-dependencies</module>-->
     <!--<module>service-osgi</module>-->
     <!--<module>component-hub</module>-->
+    <module>osgi-integ</module>
   </modules>
 
   <build>
@@ -159,8 +163,8 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>1.7</source>
+            <target>1.7</target>
             <optimize>true</optimize>
             <showDeprecations>true</showDeprecations>
             <encoding>ISO-8859-1</encoding>
@@ -214,6 +218,23 @@
             </excludes>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <configuration>
+            <failOnViolation>true</failOnViolation>
+            <includeTestSourceDirectory>false</includeTestSourceDirectory>
+          </configuration>
+          <executions>
+            <execution>
+              <id>validate</id>
+              <phase>validate</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
@@ -237,10 +258,31 @@
                     <ignore />
                   </action>
                 </pluginExecution>
+                <pluginExecution>
+                    <pluginExecutionFilter>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <versionRange>[2.16,)</versionRange>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </pluginExecutionFilter>
+                    <action>
+                        <ignore />
+                    </action>
+                </pluginExecution>
               </pluginExecutions>
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <systemPropertyVariables>
+              <java.io.tmpdir>${basedir}/target</java.io.tmpdir>
+            </systemPropertyVariables>
+          </configuration>
+         </plugin>
       </plugins>
     </pluginManagement>
     
@@ -248,13 +290,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.directory.buildtools</groupId>
-            <artifactId>checkstyle-configuration</artifactId>
-            <version>${org.apache.directory.checkstyle-configuration.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -289,6 +324,7 @@
               <configuration>
                 <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
                 <aggregate>true</aggregate>
+                <forkedProcessTimeoutInSeconds>3600</forkedProcessTimeoutInSeconds>
               </configuration>
             </plugin>
       
@@ -300,17 +336,17 @@
               </configuration>
             </plugin>
        
-            <plugin>
+            <!-- plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-pmd-plugin</artifactId>
               <configuration>
                 <linkXref>true</linkXref>
                 <sourceEncoding>utf-8</sourceEncoding>
                 <minimumTokens>100</minimumTokens>
-                <targetJdk>1.6</targetJdk>
+                <targetJdk>1.7</targetJdk>
                 <aggregate>true</aggregate>
               </configuration>
-            </plugin>
+            </plugin -->
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -365,6 +401,7 @@
                 <minmemory>512m</minmemory>
                 <maxmemory>1g</maxmemory>
                 <linksource>true</linksource>
+                <additionalparam>-Xdoclint:none</additionalparam>
                 <tags>
                   <tag>
                     <name>org.apache.xbean.XBean</name>
@@ -397,7 +434,7 @@
                     <head>WARNING</head>
                   </tag>
                 </tags>
-                <source>1.6</source>
+                <source>1.7</source>
               </configuration>
               <reportSets>
                 <reportSet>
@@ -432,15 +469,6 @@
                     <exclude>org/apache/directory/server/**/*Constants.class</exclude>
                   </excludes>
                 </instrumentation>
-              </configuration>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-checkstyle-plugin</artifactId>
-              <configuration>
-                <configLocation>directory-checks.xml</configLocation>
-                <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
               </configuration>
             </plugin>
       
@@ -574,6 +602,12 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-http-directory-bridge</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-http-integration</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -587,7 +621,7 @@
       <dependency>
         <groupId>org.apache.directory.jdbm</groupId>
         <artifactId>apacheds-jdbm1</artifactId>
-        <type>bundle</type>
+        <!--type>bundle</type-->
         <version>${org.apache.directory.jdbm.version}</version>
       </dependency>
      
@@ -598,6 +632,12 @@
         <version>${project.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-interceptors-number</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-interceptors-authn</artifactId>
@@ -717,6 +757,13 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-kerberos-test</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-kerberos-test</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
       </dependency>
       
       <dependency>
@@ -864,6 +911,12 @@
         <version>${project.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-mavibot-partition</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
       <!-- Shared dependencies -->
       
       <dependency>
@@ -974,6 +1027,14 @@
         <version>${org.apache.directory.api.version}</version>
       </dependency>
       
+      <!-- Mavibot dependencies -->
+      
+      <dependency>
+        <groupId>org.apache.directory.mavibot</groupId>
+        <artifactId>mavibot</artifactId>
+        <version>${org.apache.directory.mavibot.version}</version>
+      </dependency>
+      
       <!-- Mina dependencies -->
       
       <dependency>
@@ -1032,6 +1093,42 @@
         <groupId>org.apache.directory.junit</groupId>
         <artifactId>junit-addons</artifactId>
         <version>${org.apache.directory.junit.junit-addons.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>pax-exam-container-forked</artifactId>
+        <version>${pax-exam.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>pax-exam-junit4</artifactId>
+        <version>${pax-exam.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.exam</groupId>
+        <artifactId>pax-exam-link-mvn</artifactId>
+        <version>${pax-exam.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ops4j.pax.url</groupId>
+        <artifactId>pax-url-aether</artifactId>
+        <version>${pax-url.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.framework</artifactId>
+        <version>${org.apache.felix.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
       </dependency>
 
       <!-- Logging dependencies -->
@@ -1117,8 +1214,8 @@
       </dependency>
 
       <dependency>
-        <groupId>bouncycastle</groupId>
-        <artifactId>bcprov-jdk15</artifactId>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15on</artifactId>
         <version>${bcprov.version}</version>
       </dependency>
 
@@ -1131,7 +1228,7 @@
       <dependency>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>servlet-api-2.5</artifactId>
-        <version>${jetty.version}</version>
+        <version>6.1.14</version>
       </dependency>
     
       <dependency>
@@ -1148,7 +1245,7 @@
       
       <dependency>
         <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-core</artifactId>
+        <artifactId>ehcache</artifactId>
         <version>${ehcache.version}</version>
       </dependency>
     </dependencies>

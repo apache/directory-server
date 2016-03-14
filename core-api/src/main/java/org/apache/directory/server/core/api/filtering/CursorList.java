@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.api.filtering;
 
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +27,6 @@ import org.apache.directory.api.i18n.I18n;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
-import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -112,7 +110,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
             this.list = Collections.emptyList();
         }
 
-        listSize = list.size();
+        listSize = this.list.size();
 
         if ( ( start < 0 ) || ( start > listSize ) )
         {
@@ -135,7 +133,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
         this.end = end;
         this.searchContext = searchContext;
         index = start;
-        currentCursor = list.get( index );
+        currentCursor = this.list.get( index );
     }
 
 
@@ -168,7 +166,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public void before( Entry element ) throws LdapException, CursorException, IOException
+    public void before( Entry element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
     }
@@ -177,7 +175,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public void after( Entry element ) throws LdapException, CursorException, IOException
+    public void after( Entry element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
     }
@@ -186,7 +184,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         index = 0;
         currentCursor = list.get( index );
@@ -197,7 +195,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         index = end - 1;
         currentCursor = list.get( index );
@@ -208,7 +206,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         if ( listSize > 0 )
         {
@@ -224,7 +222,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         if ( listSize > 0 )
         {
@@ -277,49 +275,19 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
-        // if parked at -1 we cannot go backwards
-        if ( index == -1 )
+        while ( index > -1 )
         {
-            return false;
-        }
+            currentCursor = list.get( index );
 
-        // if the index moved back is still greater than or eq to start then OK
-        if ( index > start )
-        {
-            if ( index == end )
-            {
-                index--;
-                currentCursor = list.get( index );
-            }
-
-            if ( !currentCursor.previous() )
-            {
-                index--;
-                currentCursor = list.get( index );
-
-                return currentCursor.previous();
-            }
-            else
+            if ( currentCursor.previous() )
             {
                 return true;
             }
-        }
-
-        // if the index currently less than or equal to start we need to park it at -1 and return false
-        if ( index <= start )
-        {
-            if ( !currentCursor.previous() )
-            {
-                index = -1;
-                currentCursor = null;
-
-                return false;
-            }
             else
             {
-                return true;
+                index--;
             }
         }
 
@@ -330,56 +298,26 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         if ( listSize > 0 )
         {
-            // if parked at -1 we advance to the start index and return true
             if ( index == -1 )
             {
                 index = start;
+            }
+
+            while ( index < end )
+            {
                 currentCursor = list.get( index );
 
-                return currentCursor.next();
-            }
-
-            // if the index plus one is less than the end then increment and return true
-            if ( index < end - 1 )
-            {
-                if ( !currentCursor.next() )
-                {
-                    index++;
-
-                    if ( index < end )
-                    {
-                        currentCursor = list.get( index );
-
-                        return currentCursor.next();
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
+                if ( currentCursor.next() )
                 {
                     return true;
                 }
-            }
-
-            // if the index plus one is equal to the end then increment and return false
-            if ( index == end - 1 )
-            {
-                if ( !currentCursor.next() )
-                {
-                    index++;
-                    currentCursor = null;
-
-                    return false;
-                }
                 else
                 {
-                    return true;
+                    index++;
                 }
             }
         }
@@ -391,11 +329,11 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     /**
      * {@inheritDoc}
      */
-    public Entry get() throws CursorException, IOException
+    public Entry get() throws CursorException
     {
         if ( ( index < start ) || ( index >= end ) )
         {
-            throw new IOException( I18n.err( I18n.ERR_02009_CURSOR_NOT_POSITIONED ) );
+            throw new CursorException( I18n.err( I18n.ERR_02009_CURSOR_NOT_POSITIONED ) );
         }
 
         if ( currentCursor.available() )

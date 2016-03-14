@@ -44,8 +44,7 @@ public class KrbSafeContainer extends AbstractContainer
     public KrbSafeContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
-        this.grammar = KrbSafeGrammar.getInstance();
+        setGrammar( KrbSafeGrammar.getInstance() );
         setTransition( KrbSafeStatesEnum.START_STATE );
     }
 

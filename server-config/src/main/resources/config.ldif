@@ -71,6 +71,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.AnonymousAuthenticator
+ads-baseDn: 
 ads-enabled: TRUE
 
 dn: ads-authenticatorid=simpleauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
@@ -80,6 +81,7 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.SimpleAuthenticator
+ads-baseDn: 
 ads-enabled: TRUE
 
 dn: ads-authenticatorid=strongauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
@@ -89,7 +91,18 @@ objectclass: ads-base
 objectClass: ads-authenticator
 objectClass: ads-authenticatorImpl
 ads-authenticatorClass: org.apache.directory.server.core.authn.StrongAuthenticator
+ads-baseDn: 
 ads-enabled: TRUE
+
+dn: ads-authenticatorid=delegatingauthenticator,ou=authenticators,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+ads-authenticatorid: delegatingauthenticator
+objectclass: top
+objectclass: ads-base
+objectClass: ads-authenticator
+objectClass: ads-authenticatorImpl
+ads-authenticatorClass: org.apache.directory.server.core.authn.DelegatingAuthenticator
+ads-baseDn: 
+ads-enabled: FALSE
 
 dn: ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectClass: organizationalUnit
@@ -121,6 +134,7 @@ ads-pwdGraceExpire: 0
 ads-pwdMinDelay: 0
 ads-pwdMaxDelay: 0
 ads-pwdMaxIdle: 0
+ads-pwdValidator: org.apache.directory.server.core.api.authn.ppolicy.DefaultPasswordValidator
 ads-enabled: TRUE
 
 dn: ads-interceptorId=referralInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
@@ -181,10 +195,13 @@ dn: ads-interceptorId=passwordHashingInterceptor,ou=interceptors,ads-directorySe
 objectclass: top
 objectclass: ads-base
 objectclass: ads-interceptor
+objectclass: ads-hashInterceptor
 ads-enabled: TRUE
 ads-interceptororder: 9
-ads-interceptorclassname: org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor
+ads-interceptorclassname: org.apache.directory.server.core.hash.ConfigurableHashingInterceptor
 ads-interceptorid: passwordHashingInterceptor
+ads-hashAlgorithm: SSHA
+ads-hashAttribute: 2.5.4.35
 
 dn: ads-interceptorId=schemaInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
 objectclass: top
@@ -240,6 +257,24 @@ ads-interceptorclassname: org.apache.directory.server.core.trigger.TriggerInterc
 ads-interceptorid: triggerInterceptor
 ads-enabled: TRUE
 
+dn: ads-interceptorId=journalInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
+ads-interceptororder: 16
+ads-interceptorclassname: org.apache.directory.server.core.journal.JournalInterceptor
+ads-interceptorid: journalInterceptor
+ads-enabled: TRUE
+
+dn: ads-interceptorId=numberInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config
+objectclass: top
+objectclass: ads-base
+objectclass: ads-interceptor
+ads-interceptororder: 17
+ads-interceptorclassname: org.apache.directory.server.core.number.NumberIncrementingInterceptor
+ads-interceptorId: numberInterceptor
+ads-enabled: FALSE
+
 dn: ou=partitions,ads-directoryServiceId=default,ou=config
 ou: partitions
 objectclass: organizationalUnit
@@ -252,15 +287,10 @@ objectclass: ads-partition
 objectclass: ads-jdbmPartition
 ads-partitionSuffix: ou=system
 ads-jdbmpartitionoptimizerenabled: TRUE
-ads-partitioncachesize: 100
+ads-partitioncachesize: 10000
 ads-partitionsynconwrite: TRUE
 ads-partitionid: system
 ads-enabled: TRUE
-ads-contextEntry: dn: ou=system\n
- objectClass: top\n
- objectClass: organizationalUnit\n
- ou: system\n
- description: The System context entry
 
 dn: ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ou: indexes
@@ -270,7 +300,7 @@ objectclass: top
 dn: ads-indexAttributeId=apacheRdn,ou=indexes,ads-partitionId=system,ou=partitions,ads-directoryServiceId=default,ou=config
 ads-indexattributeid: apacheRdn
 ads-indexHasReverse: TRUE
-ads-indexcachesize: 100
+ads-indexcachesize: 1000
 objectclass: ads-index
 objectclass: ads-jdbmIndex
 objectclass: ads-base
@@ -376,7 +406,7 @@ ads-partitionSuffix: dc=example,dc=com
 ads-contextentry:: ZG46IGRjPWV4YW1wbGUsZGM9Y29tCmRjOiBleGFtcGxlCm9iamVjdGNsY
  XNzOiBkb21haW4Kb2JqZWN0Y2xhc3M6IHRvcAoK
 ads-jdbmpartitionoptimizerenabled: TRUE
-ads-partitioncachesize: 100
+ads-partitioncachesize: 10000
 ads-partitionsynconwrite: TRUE
 ads-partitionid: example
 ads-enabled: TRUE
@@ -661,8 +691,9 @@ ads-saslPrincipal: ldap/ldap.example.com@EXAMPLE.COM
 ads-saslRealms: example.com
 ads-saslRealms: apache.org
 ads-searchBaseDN: ou=users,ou=system
-ads-enabled: TRUE
 ads-replEnabled: true
+ads-replPingerSleep: 5
+ads-enabled: TRUE
 
 dn: ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectClass: organizationalUnit
@@ -725,13 +756,29 @@ objectclass: ads-extendedOpHandler
 objectclass: ads-base
 objectclass: top
 
+dn: ads-extendedOpId=pwdModifyHandler,ou=extendedOpHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-extendedOpId: pwdModifyHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.PwdModifyHandler
+objectclass: ads-extendedOpHandler
+objectclass: ads-base
+objectclass: top
+ads-enabled: TRUE
+
+dn: ads-extendedOpId=whoAmIHandler,ou=extendedOpHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-extendedOpId: whoAmIHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.WhoAmIHandler
+objectclass: ads-extendedOpHandler
+objectclass: ads-base
+objectclass: top
+ads-enabled: TRUE
+
 dn: ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: saslMechHandlers
 objectclass: organizationalUnit
 objectclass: top
 
 dn: ads-saslMechName=CRAM-MD5,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -739,7 +786,7 @@ ads-saslMechName: CRAM-MD5
 ads-enabled: TRUE
 
 dn: ads-saslMechName=DIGEST-MD5,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -747,7 +794,7 @@ ads-saslMechName: DIGEST-MD5
 ads-enabled: TRUE
 
 dn: ads-saslMechName=GSS-SPNEGO,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -756,7 +803,7 @@ ads-ntlmMechProvider: com.foo.Bar
 ads-enabled: TRUE
 
 dn: ads-saslMechName=GSSAPI,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -764,7 +811,7 @@ ads-saslMechName: GSSAPI
 ads-enabled: TRUE
 
 dn: ads-saslMechName=NTLM,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top
@@ -773,7 +820,7 @@ ads-ntlmMechProvider: com.foo.Bar
 ads-enabled: TRUE
 
 dn: ads-saslMechName=SIMPLE,ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.SimpleMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: ads-base
 objectclass: top

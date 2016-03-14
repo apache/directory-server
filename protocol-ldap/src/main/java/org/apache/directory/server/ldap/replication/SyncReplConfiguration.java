@@ -25,10 +25,12 @@ import java.util.Set;
 
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.directory.api.ldap.model.constants.LdapConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 
 
@@ -64,13 +66,13 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 public class SyncReplConfiguration implements ReplicationConsumerConfig
 {
     /** host name of the syncrepl remote server, default value is localhost */
-    private String remoteHost = "localhost";
+    private String remoteHost;
 
     /** port number of the syncrepl provider server, default is 10389 */
-    private int remotePort = 10389;
-    
+    private int remotePort;
+
     /** The producer, as <host>:<port> */
-    private String producer = remoteHost + ":" + remotePort;
+    private String producer;
 
     /** replication user's Dn */
     private String replUserDn;
@@ -88,7 +90,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     private String baseDn;
 
     /** the ldap filter for fetching the entries, default value is (objectClass=*) */
-    private String filter = "(objectClass=*)";
+    private String filter = LdapConstants.OBJECT_CLASS_STAR;
 
     /** names of attributes to be replicated, default value is all user attributes */
     private Set<String> attributes;
@@ -140,6 +142,12 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
         attributes = new HashSet<String>();
         // the default list of attributes
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
+        
+        remoteHost = Network.LOOPBACK_HOSTNAME;
+        
+        remotePort = 10389;
+        
+        producer = remoteHost + ":" + remotePort;
     }
 
 

@@ -78,21 +78,23 @@ public class ReplicaEventMessageSerializer implements Serializer
         Entry entry = replicaEventMessage.getEntry();
         ChangeType changeType = replicaEventMessage.getChangeType();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutput out = new ObjectOutputStream( baos );
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutput out = new ObjectOutputStream( baos ) )
+        {
 
-        // The change type first
-        out.writeByte( changeType.getValue() );
+            // The change type first
+            out.writeByte( changeType.getValue() );
 
-        // The entry DN
-        entry.getDn().writeExternal( out );
+            // The entry DN
+            entry.getDn().writeExternal( out );
 
-        // The entry
-        entry.writeExternal( out );
+            // The entry
+            entry.writeExternal( out );
 
-        out.flush();
+            out.flush();
 
-        return baos.toByteArray();
+            return baos.toByteArray();
+        }
     }
 
 

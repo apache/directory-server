@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ChangePasswordProtocolHandler implements IoHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( ChangePasswordProtocolHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordProtocolHandler.class );
 
     private ChangePasswordServer server;
     private PrincipalStore store;
@@ -77,9 +77,9 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     public void sessionCreated( IoSession session ) throws Exception
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportMetadata() );
+            LOG.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportMetadata() );
         }
 
         session.getFilterChain().addFirst( "codec",
@@ -89,32 +89,32 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     public void sessionOpened( IoSession session )
     {
-        log.debug( "{} OPENED", session.getRemoteAddress() );
+        LOG.debug( "{} OPENED", session.getRemoteAddress() );
     }
 
 
     public void sessionClosed( IoSession session )
     {
-        log.debug( "{} CLOSED", session.getRemoteAddress() );
+        LOG.debug( "{} CLOSED", session.getRemoteAddress() );
     }
 
 
     public void sessionIdle( IoSession session, IdleStatus status )
     {
-        log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
+        LOG.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
     }
 
 
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        log.debug( session.getRemoteAddress() + " EXCEPTION", cause );
+        LOG.debug( session.getRemoteAddress() + " EXCEPTION", cause );
         session.close( true );
     }
 
 
     public void messageReceived( IoSession session, Object message )
     {
-        log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
+        LOG.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
         ChangePasswordRequest request = ( ChangePasswordRequest ) message;
@@ -135,13 +135,13 @@ public class ChangePasswordProtocolHandler implements IoHandler
         }
         catch ( KerberosException ke )
         {
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
-                log.warn( ke.getLocalizedMessage(), ke );
+                LOG.warn( ke.getLocalizedMessage(), ke );
             }
             else
             {
-                log.warn( ke.getLocalizedMessage() );
+                LOG.warn( ke.getLocalizedMessage() );
             }
 
             KrbError errorMessage = getErrorMessage( server.getConfig().getServicePrincipal(), ke );
@@ -150,7 +150,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
         }
         catch ( Exception e )
         {
-            log.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
+            LOG.error( I18n.err( I18n.ERR_152, e.getLocalizedMessage() ), e );
 
             KrbError error = getErrorMessage( server.getConfig().getServicePrincipal(), new ChangePasswordException(
                 ChangePasswdErrorType.KRB5_KPASSWD_UNKNOWN_ERROR ) );
@@ -161,9 +161,9 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     public void messageSent( IoSession session, Object message )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
+            LOG.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
         }
     }
 
@@ -187,6 +187,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
         krbError.setSName( new PrincipalName( principal ) );
         krbError.setSTime( now );
         krbError.setSusec( 0 );
+        krbError.setRealm( principal.getRealm() );
         krbError.setEData( buildExplanatoryData( exception ) );
 
         return krbError;
@@ -208,7 +209,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
             }
             catch ( UnsupportedEncodingException uee )
             {
-                log.error( uee.getLocalizedMessage() );
+                LOG.error( uee.getLocalizedMessage() );
             }
         }
         else
@@ -221,5 +222,10 @@ public class ChangePasswordProtocolHandler implements IoHandler
         byteBuffer.put( resultString );
 
         return byteBuffer.array();
+    }
+
+    
+    public void inputClosed( IoSession session )
+    {
     }
 }

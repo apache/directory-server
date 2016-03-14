@@ -22,9 +22,9 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.Index;
@@ -42,11 +42,12 @@ public class AvlPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public AvlPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+    public AvlPartition createPartition( SchemaManager schemaManager, DnFactory dnFactory, String id, String suffix,
+        int cacheSize,
         File workingDirectory )
         throws Exception
     {
-        AvlPartition partition = new AvlPartition( schemaManager );
+        AvlPartition partition = new AvlPartition( schemaManager, dnFactory );
         partition.setId( id );
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );
@@ -67,9 +68,9 @@ public class AvlPartitionFactory implements PartitionFactory
         }
 
         AvlPartition avlPartition = ( AvlPartition ) partition;
-        Set<Index<?, ?, String>> indexedAttributes = avlPartition.getIndexedAttributes();
+        Set<Index<?, String>> indexedAttributes = avlPartition.getIndexedAttributes();
 
-        AvlIndex<Object, Entry> index = new AvlIndex<Object, Entry>( attributeId, false );
+        AvlIndex<Object> index = new AvlIndex<Object>( attributeId, false );
         //index.setCacheSize( cacheSize );
 
         indexedAttributes.add( index );

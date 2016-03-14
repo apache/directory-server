@@ -23,7 +23,7 @@ package org.apache.directory.shared.kerberos.components;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AdAndOr extends AbstractAsn1Object
+public class AdAndOr implements Asn1Object
 {
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( AdAndOr.class );
@@ -178,7 +178,7 @@ public class AdAndOr extends AbstractAsn1Object
         {
             LOG.error( I18n.err( I18n.ERR_139, 1 + TLV.getNbBytes( adAndOrSeqLength )
                 + adAndOrSeqLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

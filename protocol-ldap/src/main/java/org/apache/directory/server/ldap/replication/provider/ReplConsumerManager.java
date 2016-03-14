@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
@@ -50,7 +51,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,16 +81,13 @@ public class ReplConsumerManager
 
     /** The replication factory DN */
     private static final String REPL_CONSUMER_DN_STR = "ou=consumers,ou=system";
-    private static Dn REPL_CONSUMER_DN;
+    private Dn replConsumerDn;
 
     /** The consumers' ou value */
     private static final String CONSUMERS = "consumers";
 
-    /** An ObjectClass AT instance */
-    private static AttributeType OBJECT_CLASS_AT;
-
     /** An AdsReplLastSentCsn AT instance */
-    private static AttributeType ADS_REPL_LAST_SENT_CSN_AT;
+    private AttributeType adsReplLastSentCsn;
 
     /** A map containing the last sent CSN for every connected consumer */
     private Map<Integer, Modification> modMap = new ConcurrentHashMap<Integer, Modification>();
@@ -107,9 +104,8 @@ public class ReplConsumerManager
         this.directoryService = directoryService;
         adminSession = directoryService.getAdminSession();
         schemaManager = directoryService.getSchemaManager();
-        REPL_CONSUMER_DN = directoryService.getDnFactory().create( REPL_CONSUMER_DN_STR );
-        OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
-        ADS_REPL_LAST_SENT_CSN_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
+        replConsumerDn = directoryService.getDnFactory().create( REPL_CONSUMER_DN_STR );
+        adsReplLastSentCsn = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ADS_REPL_LAST_SENT_CSN );
 
         PROVIDER_LOG.debug( "Starting the replication consumer manager" );
         createConsumersBranch();
@@ -121,13 +117,13 @@ public class ReplConsumerManager
      */
     private void createConsumersBranch() throws Exception
     {
-        if ( !adminSession.exists( REPL_CONSUMER_DN ) )
+        if ( !adminSession.exists( replConsumerDn ) )
         {
             LOG.debug( "creating the entry for storing replication consumers' details" );
             PROVIDER_LOG
-                .debug( "Creating the entry for storing replication consumers' details in {}", REPL_CONSUMER_DN );
+                .debug( "Creating the entry for storing replication consumers' details in {}", replConsumerDn );
 
-            Entry entry = new DefaultEntry( schemaManager, REPL_CONSUMER_DN,
+            Entry entry = new DefaultEntry( schemaManager, replConsumerDn,
                 SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ORGANIZATIONAL_UNIT_OC,
                 SchemaConstants.OU_AT, CONSUMERS );
 
@@ -154,7 +150,7 @@ public class ReplConsumerManager
 
         // Check that we don't already have an entry for this consumer
         Dn consumerDn = directoryService.getDnFactory().create(
-            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + replConsumerDn );
 
         if ( adminSession.exists( consumerDn ) )
         {
@@ -202,7 +198,7 @@ public class ReplConsumerManager
 
         // Check that we have an entry for this consumer
         Dn consumerDn = directoryService.getDnFactory().create(
-            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + replConsumerDn );
 
         PROVIDER_LOG.debug( "Trying to delete the consumer entry {}", consumerDn );
 
@@ -235,7 +231,7 @@ public class ReplConsumerManager
 
         if ( mod == null )
         {
-            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, ADS_REPL_LAST_SENT_CSN_AT,
+            mod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, adsReplLastSentCsn,
                 replica.getLastSentCsn() );
 
             modMap.put( replica.getId(), mod );
@@ -248,7 +244,7 @@ public class ReplConsumerManager
         }
 
         Dn dn = directoryService.getDnFactory().create(
-            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + REPL_CONSUMER_DN );
+            SchemaConstants.ADS_DS_REPLICA_ID + "=" + replica.getId() + "," + replConsumerDn );
         adminSession.modify( dn, mod );
 
         LOG.debug( "updated last sent CSN of consumer entry {}", dn );
@@ -267,15 +263,15 @@ public class ReplConsumerManager
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
         // Search for all the consumers
-        ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
+        ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), new StringValue(
             SchemaConstants.ADS_REPL_EVENT_LOG ) );
         SearchRequest searchRequest = new SearchRequestImpl();
-        searchRequest.setBase( REPL_CONSUMER_DN );
+        searchRequest.setBase( replConsumerDn );
         searchRequest.setScope( SearchScope.ONELEVEL );
         searchRequest.setFilter( filter );
         searchRequest.addAttributes( SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
-        EntryFilteringCursor cursor = adminSession.search( searchRequest );
+        Cursor<Entry> cursor = adminSession.search( searchRequest );
 
         // Now loop on each consumer configuration
         while ( cursor.next() )

@@ -69,7 +69,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public void after( Entry element ) throws LdapException, CursorException, IOException
+    public void after( Entry element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -78,7 +78,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         this.indexCursor.afterLast();
     }
@@ -96,7 +96,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public void before( Entry element ) throws LdapException, CursorException, IOException
+    public void before( Entry element ) throws LdapException, CursorException
     {
         throw new UnsupportedOperationException();
     }
@@ -105,7 +105,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         indexCursor.beforeFirst();
     }
@@ -123,7 +123,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -137,7 +137,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -151,7 +151,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         return indexCursor.first();
     }
@@ -160,7 +160,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public Entry get() throws CursorException, IOException
+    public Entry get() throws CursorException
     {
         IndexEntry<String, String> indexEntry = indexCursor.get();
 
@@ -199,7 +199,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         return indexCursor.last();
     }
@@ -208,7 +208,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         return indexCursor.next();
     }
@@ -217,7 +217,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         return indexCursor.previous();
     }

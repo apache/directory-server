@@ -45,12 +45,23 @@ public class PingerThread extends Thread
     /** A flag to stop the pinger */
     private boolean stop = false;
 
+    /** the time interval before this thread pings each replication provider. Default value is 5 seconds */
+    private long sleepTime = 5000;
 
     /**
      * Create a new instance of this thread.
+     * 
+     * @param sleepSec the number of seconds pinger thread should sleep before pinging the providers
      */
-    public PingerThread()
+    public PingerThread( int sleepSec )
     {
+        if ( sleepSec > 0 )
+        {
+            sleepTime = sleepSec * 1000;
+        }
+        
+        CONSUMER_LOG.info( "Configured pinger thread to sleep for {} seconds", ( sleepTime / 1000 ) );
+        
         setDaemon( true );
     }
 
@@ -76,7 +87,7 @@ public class PingerThread extends Thread
                     consumer.ping();
                 }
 
-                Thread.sleep( 5000 );
+                Thread.sleep( sleepTime );
             }
         }
         catch ( InterruptedException ie )

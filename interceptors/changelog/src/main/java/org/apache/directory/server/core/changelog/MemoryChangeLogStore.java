@@ -183,24 +183,14 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             }
         }
 
-        PrintWriter out = null;
-
-        try
+        try ( PrintWriter out = new PrintWriter( new FileWriter( revFile ) ) )
         {
-            out = new PrintWriter( new FileWriter( revFile ) );
             out.println( currentRevision );
             out.flush();
         }
         catch ( IOException e )
         {
             throw e;
-        }
-        finally
-        {
-            if ( out != null )
-            {
-                out.close();
-            }
         }
     }
 

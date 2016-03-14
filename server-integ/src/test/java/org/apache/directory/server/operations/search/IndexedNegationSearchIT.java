@@ -34,21 +34,19 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
-import org.junit.Rule;
+import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -128,34 +126,28 @@ import org.junit.runner.RunWith;
         "objectClass: uidObject",
         "uid: jnewbie",
         "cn: Joe Newbie",
-        "sn: Newbie"
-
-})
+        "sn: Newbie" })
 @CreateLdapServer(
-transports =
-    {
-        @CreateTransport(protocol = "LDAP")
-},
-saslMechanisms =
-    {
-        @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
-        @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
-},
-extendedOpHandlers =
-    {
-        StartTlsHandler.class,
-        StoredProcedureExtendedOperationHandler.class
-})
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP")
+    },
+    saslMechanisms =
+        {
+            @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.CRAM_MD5, implClass = CramMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.DIGEST_MD5, implClass = DigestMd5MechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSSAPI, implClass = GssapiMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.NTLM, implClass = NtlmMechanismHandler.class),
+            @SaslMechanism(name = SupportedSaslMechanisms.GSS_SPNEGO, implClass = NtlmMechanismHandler.class)
+    },
+    extendedOpHandlers =
+        {
+            StartTlsHandler.class,
+            StoredProcedureExtendedOperationHandler.class
+    })
 public class IndexedNegationSearchIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-    
-    
     /**
      * Tests to make sure a negated search for OU of "test1" returns
      * those entries that do not have the OU attribute or do not have
@@ -169,8 +161,8 @@ public class IndexedNegationSearchIT extends AbstractLdapTestUnit
         assertTrue( contains( "uid=test2,ou=test,ou=system", results ) );
         assertTrue( contains( "uid=testNoOU,ou=test,ou=system", results ) );
     }
-    
-    
+
+
     /**
      * Tests to make sure a negated search for actors without ou
      * with value 'drama' returns those that do not have the attribute
@@ -188,8 +180,8 @@ public class IndexedNegationSearchIT extends AbstractLdapTestUnit
         assertTrue( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
         assertEquals( 2, results.size() );
     }
-    
-    
+
+
     boolean contains( String dn, Set<SearchResult> results )
     {
         for ( SearchResult result : results )
@@ -199,11 +191,11 @@ public class IndexedNegationSearchIT extends AbstractLdapTestUnit
                 return true;
             }
         }
-    
+
         return false;
     }
-    
-    
+
+
     /**
      * Tests to make sure a negated search for actors without ou
      * with value 'drama' returns those that do not have the attribute
@@ -221,8 +213,8 @@ public class IndexedNegationSearchIT extends AbstractLdapTestUnit
         assertFalse( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
         assertEquals( 1, results.size() );
     }
-    
-    
+
+
     Set<SearchResult> getActorResults( String filter ) throws Exception
     {
         DirContext ctx = getWiredContext( getLdapServer() );
@@ -234,14 +226,14 @@ public class IndexedNegationSearchIT extends AbstractLdapTestUnit
         {
             results.add( namingEnumeration.next() );
         }
-    
+
         namingEnumeration.close();
         ctx.close();
-    
+
         return results;
     }
-    
-    
+
+
     Set<SearchResult> getResults( String filter ) throws Exception
     {
         DirContext ctx = getWiredContext( getLdapServer() );
@@ -253,10 +245,10 @@ public class IndexedNegationSearchIT extends AbstractLdapTestUnit
         {
             results.add( namingEnumeration.next() );
         }
-    
+
         namingEnumeration.close();
         ctx.close();
-    
+
         return results;
     }
 }

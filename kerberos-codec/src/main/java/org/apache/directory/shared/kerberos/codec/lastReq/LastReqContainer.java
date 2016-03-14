@@ -41,8 +41,7 @@ public class LastReqContainer extends AbstractContainer
     public LastReqContainer()
     {
         super();
-        this.stateStack = new int[1];
-        this.grammar = LastReqGrammar.getInstance();
+        setGrammar( LastReqGrammar.getInstance() );
         setTransition( LastReqStatesEnum.START_STATE );
     }
 

@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.ObjectClass;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 
@@ -221,7 +222,7 @@ public class ConfigWriter
         }
         else
         {
-            // TODO: throw an exception 
+            throw new IllegalStateException( "Missing object class " + objectClass );
         }
     }
 
@@ -242,9 +243,9 @@ public class ConfigWriter
         ObjectClass objectClass ) throws LdapException
     {
         ObjectClass topObjectClass = schemaManager.lookupObjectClassRegistry( SchemaConstants.TOP_OC );
-        if ( topObjectClass != null )
+        if ( topObjectClass == null )
         {
-            // TODO throw new exception (there should be a top object class 
+            throw new IllegalStateException( "Missing top object class." );
         }
 
         if ( topObjectClass.equals( objectClass ) )
@@ -623,7 +624,7 @@ public class ConfigWriter
             else if ( value instanceof Boolean )
             {
                 // Value is a byte[]
-                attribute.add( value.toString().toUpperCase() );
+                attribute.add( Strings.toUpperCase( value.toString() ) );
             }
             else
             {

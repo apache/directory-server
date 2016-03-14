@@ -24,6 +24,7 @@ import java.net.SocketAddress;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.mina.core.session.IoSession;
@@ -40,11 +41,20 @@ import org.apache.mina.core.session.IoSession;
 public class StrongAuthenticator extends AbstractAuthenticator
 {
     /**
-     * Creates a new instance of SaslAuthenticator.
+     * Creates a new instance.
      */
     public StrongAuthenticator()
     {
         super( AuthenticationLevel.STRONG );
+    }
+
+
+    /**
+     * Creates a new instance of SaslAuthenticator.
+     */
+    public StrongAuthenticator( Dn baseDn )
+    {
+        super( AuthenticationLevel.STRONG, baseDn );
     }
 
 

@@ -154,6 +154,7 @@ public class KdcServer extends DirectoryBackedService
 
         if ( changePwdServer != null )
         {
+            changePwdServer.setSearchBaseDn( this.getSearchBaseDn() );
             changePwdServer.start();
         }
     }

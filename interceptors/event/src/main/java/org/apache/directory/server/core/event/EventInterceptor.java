@@ -20,6 +20,10 @@
 package org.apache.directory.server.core.event;
 
 
+import static org.apache.directory.api.ldap.model.message.SearchScope.OBJECT;
+import static org.apache.directory.api.ldap.model.message.SearchScope.ONELEVEL;
+import static org.apache.directory.api.ldap.model.message.SearchScope.SUBTREE;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -54,7 +59,6 @@ import org.apache.directory.server.core.api.interceptor.context.RenameOperationC
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * An {@link org.apache.directory.server.core.api.interceptor.Interceptor} based service for notifying {@link
  * DirectoryListener}s of changes to the DIT.
@@ -64,7 +68,7 @@ import org.slf4j.LoggerFactory;
 public class EventInterceptor extends BaseInterceptor
 {
     /** A logger for this class */
-    private final static Logger LOG = LoggerFactory.getLogger( EventInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( EventInterceptor.class );
 
     private Evaluator evaluator;
     private ExecutorService executor;
@@ -118,9 +122,9 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
-                
+
             case DELETE:
                 if ( listener.isSynchronous() )
                 {
@@ -136,9 +140,9 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
-                
+
             case MODIFY:
                 if ( listener.isSynchronous() )
                 {
@@ -154,9 +158,9 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
-                
+
             case MOVE:
                 if ( listener.isSynchronous() )
                 {
@@ -172,7 +176,7 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
 
             case RENAME:
@@ -190,15 +194,16 @@ public class EventInterceptor extends BaseInterceptor
                         }
                     } );
                 }
-                
+
                 break;
-                
+
             case MOVE_AND_RENAME:
                 if ( listener.isSynchronous() )
                 {
                     listener.entryMovedAndRenamed( ( MoveAndRenameOperationContext ) opContext );
                 }
                 else
+                {
                     executor.execute( new Runnable()
                     {
                         public void run()
@@ -206,8 +211,12 @@ public class EventInterceptor extends BaseInterceptor
                             listener.entryMovedAndRenamed( ( MoveAndRenameOperationContext ) opContext );
                         }
                     } );
-                
+                }
+
                 break;
+
+            default:
+                throw new IllegalArgumentException( "Unexpected event type " + type );
         }
     }
 
@@ -268,7 +277,7 @@ public class EventInterceptor extends BaseInterceptor
         Entry oriEntry = modifyContext.getEntry();
 
         // modification was already done when this flag is turned on, move to sending the events
-        if( !modifyContext.isPushToEvtInterceptor() )
+        if ( !modifyContext.isPushToEvtInterceptor() )
         {
             next( modifyContext );
         }
@@ -282,7 +291,8 @@ public class EventInterceptor extends BaseInterceptor
 
         // Get the modified entry
         CoreSession session = modifyContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, modifyContext.getDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, modifyContext.getDn(),
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         modifyContext.setAlteredEntry( alteredEntry );
@@ -366,7 +376,8 @@ public class EventInterceptor extends BaseInterceptor
 
         // Get the modified entry
         CoreSession session = renameContext.getSession();
-        LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn(),
+            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         renameContext.setModifiedEntry( alteredEntry );
@@ -388,7 +399,7 @@ public class EventInterceptor extends BaseInterceptor
     private List<RegistrationEntry> getSelectingRegistrations( Dn name, Entry entry ) throws LdapException
     {
         List<RegistrationEntry> registrations = directoryService.getEventService().getRegistrationEntries();
-        
+
         if ( registrations.isEmpty() )
         {
             return Collections.emptyList();
@@ -402,9 +413,25 @@ public class EventInterceptor extends BaseInterceptor
 
             Dn base = criteria.getBase();
 
+            SearchScope scope = criteria.getScope();
+            
+            boolean inscope = false;
+            
             // fix for DIRSERVER-1502
-            if ( ( name.equals( base ) || name.isDescendantOf( base ) )
-                && evaluator.evaluate( criteria.getFilter(), base, entry ) )
+            if ( ( scope == OBJECT ) && name.equals( base ) )
+            {
+                inscope = true;
+            }
+            else if ( ( scope == ONELEVEL ) && name.getParent().equals( base ) )
+            {
+                inscope = true;
+            }
+            else if ( ( scope == SUBTREE ) && ( name.isDescendantOf( base ) || name.equals( base ) ) )
+            {
+                inscope = true;
+            } 
+            
+            if ( inscope && evaluator.evaluate( criteria.getFilter(), base, entry ) )
             {
                 selecting.add( registration );
             }

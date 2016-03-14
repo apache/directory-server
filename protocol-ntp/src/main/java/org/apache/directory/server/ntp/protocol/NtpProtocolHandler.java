@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class NtpProtocolHandler extends IoHandlerAdapter
 {
     /** the log for this class */
-    private static final Logger log = LoggerFactory.getLogger( NtpProtocolHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( NtpProtocolHandler.class );
 
     /** The NtpService instance */
     private NtpService ntpService = new NtpServiceImpl();
@@ -51,7 +51,7 @@ public class NtpProtocolHandler extends IoHandlerAdapter
      */
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        log.error( session.getRemoteAddress() + " EXCEPTION", cause );
+        LOG.error( session.getRemoteAddress() + " EXCEPTION", cause );
         session.close( true );
     }
 
@@ -61,9 +61,9 @@ public class NtpProtocolHandler extends IoHandlerAdapter
      */
     public void messageReceived( IoSession session, Object message )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
+            LOG.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
         }
 
         NtpMessage reply = ntpService.getReplyFor( ( NtpMessage ) message );

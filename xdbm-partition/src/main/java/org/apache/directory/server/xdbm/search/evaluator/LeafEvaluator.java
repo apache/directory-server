@@ -20,7 +20,6 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.filter.SimpleNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.LdapComparator;
@@ -59,7 +58,7 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     protected LdapComparator<? super Object> ldapComparator;
 
     /** The index to use if any */
-    protected Index<T, Entry, String> idx;
+    protected Index<T, String> idx;
 
 
     @SuppressWarnings("unchecked")

@@ -34,7 +34,7 @@ public interface ChecksumEngine
      *
      * @return The checksum type.
      */
-    public ChecksumType checksumType();
+    ChecksumType checksumType();
 
 
     /**
@@ -45,5 +45,5 @@ public interface ChecksumEngine
      * @param usage 
      * @return The checksum value.
      */
-    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage );
+    byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage );
 }

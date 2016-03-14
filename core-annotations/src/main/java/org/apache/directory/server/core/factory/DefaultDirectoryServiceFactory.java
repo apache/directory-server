@@ -23,14 +23,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.schema.LdapComparator;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.NormalizingComparator;
+import org.apache.directory.api.ldap.model.schema.registries.ComparatorRegistry;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -99,6 +102,13 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             LOG.error( "Error instantiating custom partiton factory", e );
             throw new RuntimeException( e );
         }
+    }
+
+
+    public DefaultDirectoryServiceFactory( DirectoryService directoryService, PartitionFactory partitionFactory )
+    {
+        this.directoryService = directoryService;
+        this.partitionFactory = partitionFactory;
     }
 
 
@@ -174,10 +184,21 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
 
+        // Tell all the normalizer comparators that they should not normalize anything
+        ComparatorRegistry comparatorRegistry = schemaManager.getComparatorRegistry();
+
+        for ( LdapComparator<?> comparator : comparatorRegistry )
+        {
+            if ( comparator instanceof NormalizingComparator )
+            {
+                ( ( NormalizingComparator ) comparator ).setOnServer();
+            }
+        }
+
         directoryService.setSchemaManager( schemaManager );
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition( schemaManager );
+        LdifPartition ldifPartition = new LdifPartition( schemaManager, directoryService.getDnFactory() );
         ldifPartition.setPartitionPath( new File( workingDirectory, "schema" ).toURI() );
         SchemaPartition schemaPartition = new SchemaPartition( schemaManager );
         schemaPartition.setWrappedPartition( ldifPartition );
@@ -205,6 +226,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
 
         // Inject the System Partition
         Partition systemPartition = partitionFactory.createPartition( directoryService.getSchemaManager(),
+            directoryService.getDnFactory(),
             "system", ServerDNConstants.SYSTEM_DN, 500,
             new File( directoryService.getInstanceLayout().getPartitionsDirectory(), "system" ) );
         systemPartition.setSchemaManager( directoryService.getSchemaManager() );
@@ -226,10 +248,10 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         buildInstanceDirectory( name );
 
         CacheService cacheService = new CacheService();
-        cacheService.initialize( directoryService.getInstanceLayout() );
+        cacheService.initialize( directoryService.getInstanceLayout(), name );
 
         directoryService.setCacheService( cacheService );
-        
+
         // Init the service now
         initSchema();
         initSystemPartition();

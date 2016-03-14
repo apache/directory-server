@@ -91,42 +91,56 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void beforeKey( K key ) throws LdapException, CursorException, IOException
+    public void beforeKey( K key ) throws LdapException, CursorException
     {
         checkNotClosed( "beforeKey()" );
-        browser = table.getBTree().browse( key );
-        clearValue();
+        try
+        {
+            browser = table.getBTree().browse( key );
+            clearValue();
+        }
+        catch ( IOException e )
+        {
+            throw new CursorException( e );
+        }
     }
 
 
     @SuppressWarnings("unchecked")
-    public void afterKey( K key ) throws LdapException, CursorException, IOException
+    public void afterKey( K key ) throws LdapException, CursorException
     {
-        browser = table.getBTree().browse( key );
-
-        /*
-         * While the next value is less than or equal to the element keep
-         * advancing forward to the next item.  If we cannot advance any
-         * further then stop and return.  If we find a value greater than
-         * the element then we stop, backup, and return so subsequent calls
-         * to getNext() will return a value greater than the element.
-         */
-        while ( browser.getNext( jdbmTuple ) )
+        try
         {
-            checkNotClosed( "afterKey()" );
-            K next = ( K ) jdbmTuple.getKey();
+            browser = table.getBTree().browse( key );
 
-            int nextCompared = table.getKeyComparator().compare( next, key );
-
-            if ( nextCompared > 0 )
+            /*
+             * While the next value is less than or equal to the element keep
+             * advancing forward to the next item.  If we cannot advance any
+             * further then stop and return.  If we find a value greater than
+             * the element then we stop, backup, and return so subsequent calls
+             * to getNext() will return a value greater than the element.
+             */
+            while ( browser.getNext( jdbmTuple ) )
             {
-                browser.getPrevious( jdbmTuple );
-                clearValue();
-                return;
-            }
-        }
+                checkNotClosed( "afterKey()" );
+                K next = ( K ) jdbmTuple.getKey();
 
-        clearValue();
+                int nextCompared = table.getKeyComparator().compare( next, key );
+
+                if ( nextCompared > 0 )
+                {
+                    browser.getPrevious( jdbmTuple );
+                    clearValue();
+                    return;
+                }
+            }
+
+            clearValue();
+        }
+        catch ( IOException e )
+        {
+            throw new CursorException( e );
+        }
     }
 
 
@@ -148,7 +162,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param element the tuple who's key is used to position this Cursor
      * @throws IOException if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
         beforeKey( element.getKey() );
     }
@@ -157,7 +171,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException
     {
         afterKey( element.getKey() );
     }
@@ -166,29 +180,43 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
-        browser = table.getBTree().browse();
-        clearValue();
+        try
+        {
+            browser = table.getBTree().browse();
+            clearValue();
+        }
+        catch ( IOException e )
+        {
+            throw new CursorException( e );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
-        browser = table.getBTree().browse( null );
-        clearValue();
+        try
+        {
+            browser = table.getBTree().browse( null );
+            clearValue();
+        }
+        catch ( IOException e )
+        {
+            throw new CursorException( e );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
         return next();
@@ -198,7 +226,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
         return previous();
@@ -209,30 +237,39 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
+
         if ( browser == null )
         {
             afterLast();
         }
 
-        if ( browser.getPrevious( jdbmTuple ) )
+        try
         {
-            if ( returnedTuple.getKey() != null && table.getKeyComparator().compare(
-                ( K ) jdbmTuple.getKey(), returnedTuple.getKey() ) == 0 )
+            if ( browser.getPrevious( jdbmTuple ) )
             {
-                browser.getPrevious( jdbmTuple );
-            }
+                if ( returnedTuple.getKey() != null
+                    && table.getKeyComparator().compare( ( K ) jdbmTuple.getKey(), returnedTuple.getKey() ) == 0 )
+                {
+                    browser.getPrevious( jdbmTuple );
+                }
 
-            returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
-            returnedTuple.setValue( ( V ) jdbmTuple.getValue() );
-            return valueAvailable = true;
+                returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
+                returnedTuple.setValue( ( V ) jdbmTuple.getValue() );
+                valueAvailable = true;
+                return true;
+            }
+            else
+            {
+                clearValue();
+                return false;
+            }
         }
-        else
+        catch ( IOException e )
         {
-            clearValue();
-            return false;
+            throw new CursorException( e );
         }
     }
 
@@ -241,7 +278,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
 
@@ -250,22 +287,30 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             beforeFirst();
         }
 
-        if ( browser.getNext( jdbmTuple ) )
+        try
         {
-            if ( returnedTuple.getKey() != null && table.getKeyComparator().compare(
-                ( K ) jdbmTuple.getKey(), returnedTuple.getKey() ) == 0 )
+            if ( browser.getNext( jdbmTuple ) )
             {
-                browser.getNext( jdbmTuple );
-            }
+                if ( returnedTuple.getKey() != null
+                    && table.getKeyComparator().compare( ( K ) jdbmTuple.getKey(), returnedTuple.getKey() ) == 0 )
+                {
+                    browser.getNext( jdbmTuple );
+                }
 
-            returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
-            returnedTuple.setValue( ( V ) jdbmTuple.getValue() );
-            return valueAvailable = true;
+                returnedTuple.setKey( ( K ) jdbmTuple.getKey() );
+                returnedTuple.setValue( ( V ) jdbmTuple.getValue() );
+                valueAvailable = true;
+                return true;
+            }
+            else
+            {
+                clearValue();
+                return false;
+            }
         }
-        else
+        catch ( IOException e )
         {
-            clearValue();
-            return false;
+            throw new CursorException( e );
         }
     }
 
@@ -273,7 +318,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public Tuple<K, V> get() throws CursorException, IOException
+    public Tuple<K, V> get() throws CursorException
     {
         checkNotClosed( "get()" );
         if ( valueAvailable )
@@ -289,7 +334,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -304,7 +349,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @Override
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
         {

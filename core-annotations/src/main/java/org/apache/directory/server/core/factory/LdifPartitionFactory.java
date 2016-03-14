@@ -22,9 +22,9 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.xdbm.Index;
@@ -42,11 +42,12 @@ public class LdifPartitionFactory implements PartitionFactory
     /**
      * {@inheritDoc}
      */
-    public LdifPartition createPartition( SchemaManager schemaManager, String id, String suffix, int cacheSize,
+    public LdifPartition createPartition( SchemaManager schemaManager, DnFactory dnFactory, String id, String suffix,
+        int cacheSize,
         File workingDirectory )
         throws Exception
     {
-        LdifPartition partition = new LdifPartition( schemaManager );
+        LdifPartition partition = new LdifPartition( schemaManager, dnFactory );
         partition.setId( id );
         partition.setSuffixDn( new Dn( suffix ) );
         partition.setCacheSize( 500 );
@@ -67,9 +68,9 @@ public class LdifPartitionFactory implements PartitionFactory
         }
 
         LdifPartition ldifPartition = ( LdifPartition ) partition;
-        Set<Index<?, ?, String>> indexedAttributes = ldifPartition.getIndexedAttributes();
+        Set<Index<?, String>> indexedAttributes = ldifPartition.getIndexedAttributes();
 
-        AvlIndex<Object, Entry> index = new AvlIndex<Object, Entry>( attributeId, false );
+        AvlIndex<Object> index = new AvlIndex<Object>( attributeId, false );
         //index.setCacheSize( cacheSize );
 
         indexedAttributes.add( index );

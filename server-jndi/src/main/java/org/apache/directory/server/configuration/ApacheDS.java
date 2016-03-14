@@ -29,18 +29,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -291,24 +289,25 @@ public class ApacheDS
      */
     private Dn buildProtectedFileEntryDn( File ldif ) throws Exception
     {
-        String fileSep = File.separatorChar == '\\' ?
-            ApacheSchemaConstants.WINDOWS_FILE_AT :
-            ApacheSchemaConstants.UNIX_FILE_AT;
+        String fileSep = File.separatorChar == '\\'
+            ? ApacheSchemaConstants.WINDOWS_FILE_AT
+            : ApacheSchemaConstants.UNIX_FILE_AT;
 
-        return new Dn( fileSep +
-            "=" +
-            Strings.dumpHexPairs( Strings.getBytesUtf8( getCanonical( ldif ) ) ) +
-            "," +
-            ServerDNConstants.LDIF_FILES_DN );
+        return new Dn( fileSep
+            + "="
+            + Strings.dumpHexPairs( Strings.getBytesUtf8( getCanonical( ldif ) ) )
+            + ","
+            + ServerDNConstants.LDIF_FILES_DN );
     }
 
 
     private void addFileEntry( File ldif ) throws Exception
     {
-        String rdnAttr = File.separatorChar == '\\' ?
-            ApacheSchemaConstants.WINDOWS_FILE_AT :
-            ApacheSchemaConstants.UNIX_FILE_AT;
-        String oc = File.separatorChar == '\\' ? ApacheSchemaConstants.WINDOWS_FILE_OC
+        String rdnAttr = File.separatorChar == '\\'
+            ? ApacheSchemaConstants.WINDOWS_FILE_AT
+            : ApacheSchemaConstants.UNIX_FILE_AT;
+        String oc = File.separatorChar == '\\'
+            ? ApacheSchemaConstants.WINDOWS_FILE_OC
             : ApacheSchemaConstants.UNIX_FILE_OC;
 
         Entry entry = directoryService.newEntry( buildProtectedFileEntryDn( ldif ) );
@@ -425,7 +424,7 @@ public class ApacheDS
             {
                 public boolean accept( File pathname )
                 {
-                    boolean isLdif = Strings.toLowerCase( pathname.getName() ).endsWith( ".ldif" );
+                    boolean isLdif = Strings.toLowerCaseAscii( pathname.getName() ).endsWith( ".ldif" );
                     return pathname.isFile() && pathname.canRead() && isLdif;
                 }
             } );
@@ -495,7 +494,7 @@ public class ApacheDS
         directoryService.setSchemaManager( schemaManager );
 
         // Init the LdifPartition
-        LdifPartition ldifPartition = new LdifPartition( schemaManager );
+        LdifPartition ldifPartition = new LdifPartition( schemaManager, directoryService.getDnFactory() );
         ldifPartition.setPartitionPath( new File( workingDirectory, "schema" ).toURI() );
 
         schemaPartition.setWrappedPartition( ldifPartition );

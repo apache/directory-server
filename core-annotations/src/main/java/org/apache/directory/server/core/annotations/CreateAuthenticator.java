@@ -50,9 +50,29 @@ public @interface CreateAuthenticator
 
 
     /** Delegate host, use for testing DelegatingAuthenticator */
-    String delegateHost() default "localhost";
+    String delegateHost() default "";
 
 
     /** Delegate port, use for testing DelegatingAuthenticator */
     int delegatePort() default -1;
+
+
+    /** The base DN from which we will do authentication */
+    String baseDn() default "";
+
+
+    /** Tells if we use SSL to connect */
+    boolean delegateSsl() default false;
+
+
+    /** Tells if we use startTls to connect */
+    boolean delegateTls() default false;
+
+
+    /** The SSL TrustManager FQCN */
+    String delegateSslTrustManagerFQCN() default "org.apache.directory.ldap.client.api.NoVerificationTrustManager";
+
+
+    /** The startTls TrustManager FQCN */
+    String delegateTlsTrustManagerFQCN() default "org.apache.directory.ldap.client.api.NoVerificationTrustManager";
 }

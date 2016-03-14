@@ -32,12 +32,12 @@ import org.apache.directory.api.util.Strings;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StringSerializer implements Serializer
+public final class StringSerializer implements Serializer
 {
     private static final long serialVersionUID = -173163945773783649L;
 
     /** A static instance of a StringSerializer */
-    public static StringSerializer INSTANCE = new StringSerializer();
+    public static final StringSerializer INSTANCE = new StringSerializer();
 
 
     /**

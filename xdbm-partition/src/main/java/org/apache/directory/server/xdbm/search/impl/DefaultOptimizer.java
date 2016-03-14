@@ -20,10 +20,12 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
-import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
 import org.apache.directory.api.ldap.model.filter.AssertionNode;
@@ -55,6 +57,8 @@ import org.apache.directory.server.xdbm.search.Optimizer;
  */
 public class DefaultOptimizer<E> implements Optimizer
 {
+    static final String CANDIDATES_ANNOTATION_KEY = "candidates";
+
     /** the database this optimizer operates on */
     private final Store db;
     private String contextEntryId;
@@ -299,9 +303,40 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
+            Index<V, String> idx = ( Index<V, String> ) db.getIndex( node.getAttributeType() );
 
-            return idx.count( node.getValue().getValue() );
+            Cursor<String> result = idx.forwardValueCursor( node.getValue().getValue() );
+            Set<String> values = new HashSet<String>();
+            int nbFound = 0;
+
+            for ( String value : result )
+            {
+                values.add( value );
+                nbFound++;
+
+                // Arbitrary stop gathering the candidates if we have more than 100
+                if ( nbFound == 100 )
+                {
+                    break;
+                }
+            }
+
+            result.close();
+
+            if ( nbFound < 100 )
+            {
+                // Store the found candidates in the node
+                node.set( CANDIDATES_ANNOTATION_KEY, values );
+
+                return values.size();
+            }
+            else
+            {
+                // Reset the candidates annotation
+                node.set( CANDIDATES_ANNOTATION_KEY, null );
+
+                return idx.count( node.getValue().getValue() );
+            }
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
@@ -323,7 +358,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<V, E, String> idx = ( Index<V, E, String> ) db.getIndex( node.getAttributeType() );
+            Index<V, String> idx = ( Index<V, String> ) db.getIndex( node.getAttributeType() );
 
             if ( isGreaterThan )
             {
@@ -354,14 +389,14 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<String, E, String> idx = ( Index<String, E, String> ) db.getIndex( node.getAttributeType() );
+            Index<String, String> idx = ( Index<String, String> ) db.getIndex( node.getAttributeType() );
 
             String initial = node.getInitial();
 
             if ( Strings.isEmpty( initial ) )
             {
-                // Not a (attr=ABC*) filter : full scan
-                return Long.MAX_VALUE;
+                // Not a (attr=ABC*) filter : full index scan
+                return idx.count();
             }
             else
             {
@@ -389,7 +424,7 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            Index<?, ?, ?> idx = db.getIndex( node.getAttributeType() );
+            Index<?, ?> idx = db.getIndex( node.getAttributeType() );
             return idx.count();
         }
 
@@ -409,13 +444,13 @@ public class DefaultOptimizer<E> implements Optimizer
     {
         if ( db.hasUserIndexOn( node.getAttributeType() ) )
         {
-            Index<String, Entry, String> presenceIndex = db.getPresenceIndex();
+            Index<String, String> presenceIndex = db.getPresenceIndex();
 
             return presenceIndex.count( node.getAttributeType().getOid() );
         }
         else if ( node.getAttributeType().getOid().equals( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID ) )
         {
-            Index<String, Entry, String> presenceIndex = db.getPresenceIndex();
+            Index<String, String> presenceIndex = db.getPresenceIndex();
 
             return presenceIndex.count( node.getAttributeType().getOid() );
         }

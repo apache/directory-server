@@ -49,7 +49,6 @@ import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
-import org.apache.directory.api.ldap.model.filter.AssertionNode;
 import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -57,10 +56,7 @@ import org.apache.directory.api.ldap.model.filter.ExtensibleNode;
 import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
 import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
-import org.apache.directory.api.ldap.model.filter.PresenceNode;
-import org.apache.directory.api.ldap.model.filter.ScopeNode;
 import org.apache.directory.api.ldap.model.filter.SimpleNode;
-import org.apache.directory.api.ldap.model.filter.SubstringNode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.Cascade;
@@ -73,14 +69,13 @@ import org.apache.directory.api.ldap.model.schema.ObjectClassTypeEnum;
 import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.api.ldap.model.schema.UsageEnum;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
-import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
@@ -107,7 +102,7 @@ import org.slf4j.LoggerFactory;
 public class SchemaInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
-    private static Logger LOG = LoggerFactory.getLogger( SchemaInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SchemaInterceptor.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
@@ -177,23 +172,20 @@ public class SchemaInterceptor extends BaseInterceptor
         topFilter = new TopFilter();
         filters.add( topFilter );
 
-        schemaBaseDn = directoryService.getDnFactory().create( SchemaConstants.OU_SCHEMA );
+        schemaBaseDn = dnFactory.create( SchemaConstants.OU_SCHEMA );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
-        subschemaSubentryDn.apply( schemaManager );
+        Value<?> subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
-        schemaModificationAttributesDn = directoryService.getDnFactory().create(
+        schemaModificationAttributesDn = dnFactory.create(
             SchemaConstants.SCHEMA_MODIFICATIONS_DN );
-        schemaModificationAttributesDn.apply( schemaManager );
 
         computeSuperiors();
 
         // Initialize the schema manager
-        SchemaLoader loader = directoryService.getSchemaManager().getLoader();
-        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, loader, directoryService.getDnFactory() );
+        schemaSubEntryManager = new SchemaSubentryManager( schemaManager, dnFactory );
 
         if ( IS_DEBUG )
         {
@@ -433,13 +425,6 @@ public class SchemaInterceptor extends BaseInterceptor
                     node.setValue( newValue );
                 }
             }
-            else if ( ( filter instanceof SubstringNode ) ||
-                ( filter instanceof PresenceNode ) ||
-                ( filter instanceof AssertionNode ) ||
-                ( filter instanceof ScopeNode ) )
-            {
-                // Nothing to do
-            }
             else if ( filter instanceof GreaterEqNode )
             {
                 GreaterEqNode node = ( ( GreaterEqNode ) filter );
@@ -483,6 +468,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     node.setValue( newValue );
                 }
             }
+            // nothing to do for SubstringNode, PresenceNode, AssertionNode, ScopeNode
         }
         else
         {
@@ -638,7 +624,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
-                String ocLowerName = Strings.toLowerCase( ocName );
+                String ocLowerName = Strings.toLowerCaseAscii( ocName );
 
                 ObjectClass objectClass = schemaManager.lookupObjectClassRegistry( ocLowerName );
 
@@ -654,7 +640,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 {
                     for ( ObjectClass oc : ocSuperiors )
                     {
-                        if ( !objectClasses.contains( Strings.toLowerCase( oc.getName() ) ) )
+                        if ( !objectClasses.contains( Strings.toLowerCaseAscii( oc.getName() ) ) )
                         {
                             objectClasses.add( oc.getName() );
                             objectClassesUP.add( oc.getName() );
@@ -696,8 +682,12 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Modify an entry, applying the given modifications, and check if it's OK
      */
-    private void checkModifyEntry( Dn dn, Entry currentEntry, List<Modification> mods ) throws LdapException
+    private void checkModifyEntry( ModifyOperationContext modifyContext ) throws LdapException
     {
+        Dn dn = modifyContext.getDn();
+        Entry currentEntry = modifyContext.getEntry();
+        List<Modification> mods = modifyContext.getModItems();
+
         // The first step is to check that the modifications are valid :
         // - the ATs are present in the schema
         // - The value is syntaxically correct
@@ -711,17 +701,7 @@ public class SchemaInterceptor extends BaseInterceptor
             Attribute attribute = mod.getAttribute();
             AttributeType attributeType = attribute.getAttributeType();
 
-            // We don't allow modification of operational attributes
-            if ( !attributeType.isUserModifiable()
-                && ( !attributeType.equals( MODIFIERS_NAME_AT )
-                    && ( !attributeType.equals( MODIFY_TIMESTAMP_AT ) )
-                    && ( !attributeType.equals( ENTRY_CSN_AT ) )
-                    && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
-            {
-                String msg = I18n.err( I18n.ERR_52, attributeType );
-                LOG.error( msg );
-                throw new LdapNoPermissionException( msg );
-            }
+            assertAttributeIsModifyable( modifyContext, attributeType );
 
             switch ( mod.getOperation() )
             {
@@ -855,6 +835,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     }
 
                     break;
+
+                default:
+                    throw new IllegalArgumentException( "Unexpected modify operation " + mod.getOperation() );
             }
         }
 
@@ -870,6 +853,34 @@ public class SchemaInterceptor extends BaseInterceptor
         check( dn, tempEntry );
     }
 
+
+    private void assertAttributeIsModifyable( ModifyOperationContext modifyContext, AttributeType attributeType )
+        throws LdapNoPermissionException
+    {
+        if ( attributeType.isUserModifiable() )
+        {
+            // We don't allow modification of operational attributes
+            return;
+        }
+
+        if ( modifyContext.isReplEvent() && modifyContext.getSession().isAdministrator() )
+        {
+            // this is a replication related modification, allow the operation
+            return;
+        }
+
+        if ( ( !attributeType.equals( directoryService.getAtProvider().getModifiersName() )
+            && ( !attributeType.equals( directoryService.getAtProvider().getModifyTimestamp() ) )
+            && ( !attributeType.equals( directoryService.getAtProvider().getEntryCSN() ) )
+            && ( !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) ) ) )
+        {
+            String msg = I18n.err( I18n.ERR_52, attributeType );
+            LOG.error( msg );
+            throw new LdapNoPermissionException( msg );
+        }
+    }
+
+
     /**
      * Filters objectClass attribute to inject top when not present.
      */
@@ -880,9 +891,7 @@ public class SchemaInterceptor extends BaseInterceptor
          */
         public boolean accept( SearchOperationContext operationContext, Entry entry ) throws LdapException
         {
-            ServerEntryUtils.filterContents(
-                operationContext.getSession().getDirectoryService().getSchemaManager(),
-                operationContext, entry );
+            ServerEntryUtils.filterContents( schemaManager, operationContext, entry );
 
             return true;
         }
@@ -926,14 +935,14 @@ public class SchemaInterceptor extends BaseInterceptor
         // 3-1) Except if the extensibleObject ObjectClass is used
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
-        Attribute objectClassAttr = entry.get( OBJECT_CLASS_AT );
+        Attribute objectClassAttr = entry.get( directoryService.getAtProvider().getObjectClass() );
 
         // Protect the server against a null objectClassAttr
         // It can be the case if the user forgot to add it to the entry ...
         // In this case, we create an new one, empty
         if ( objectClassAttr == null )
         {
-            objectClassAttr = new DefaultAttribute( OBJECT_CLASS_AT );
+            objectClassAttr = new DefaultAttribute( directoryService.getAtProvider().getObjectClass() );
         }
 
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();
@@ -1017,6 +1026,9 @@ public class SchemaInterceptor extends BaseInterceptor
 
                         case STRUCTURAL:
                             break;
+
+                        default:
+                            throw new IllegalArgumentException( "Unexpected object class type " + ocType );
                     }
                 }
                 catch ( LdapException ne )
@@ -1050,7 +1062,7 @@ public class SchemaInterceptor extends BaseInterceptor
             // get the schema name
             String schemaName = getSchemaName( name );
 
-            if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_SCHEMA_OC ) )
+            if ( entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.META_SCHEMA_OC ) )
             {
                 next( addContext );
 
@@ -1060,7 +1072,8 @@ public class SchemaInterceptor extends BaseInterceptor
                     computeSuperiors();
                 }
             }
-            else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_OBJECT_CLASS_OC ) )
+            else if ( entry.contains( directoryService.getAtProvider().getObjectClass(),
+                SchemaConstants.META_OBJECT_CLASS_OC ) )
             {
                 // This is an ObjectClass addition
                 checkOcSuperior( addContext.getEntry() );
@@ -1079,7 +1092,8 @@ public class SchemaInterceptor extends BaseInterceptor
                     computeSuperior( addedOC );
                 }
             }
-            else if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
+            else if ( entry.contains( directoryService.getAtProvider().getObjectClass(),
+                SchemaConstants.META_ATTRIBUTE_TYPE_OC ) )
             {
                 // This is an AttributeType addition
                 next( addContext );
@@ -1170,7 +1184,9 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 AttributeType at = ( ( DefaultModification ) mod ).getAttribute().getAttributeType();
 
-                if ( !MODIFIERS_NAME_AT.equals( at ) && !MODIFY_TIMESTAMP_AT.equals( at ) && !ENTRY_CSN_AT.equals( at ) )
+                if ( !directoryService.getAtProvider().getModifiersName().equals( at )
+                    && !directoryService.getAtProvider().getModifyTimestamp().equals( at )
+                    && !directoryService.getAtProvider().getEntryCSN().equals( at ) )
                 {
                     cleanMods.add( mod );
                 }
@@ -1185,9 +1201,7 @@ public class SchemaInterceptor extends BaseInterceptor
             return;
         }
 
-        Entry entry = modifyContext.getEntry();
-        List<Modification> modifications = modifyContext.getModItems();
-        checkModifyEntry( dn, entry, modifications );
+        checkModifyEntry( modifyContext );
 
         next( modifyContext );
     }
@@ -1305,13 +1319,13 @@ public class SchemaInterceptor extends BaseInterceptor
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+                    return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
                 }
 
                 AttributeType nodeAt = node.getAttributeType();
 
                 // see if node attribute is objectClass
-                if ( nodeAt.equals( OBJECT_CLASS_AT )
+                if ( nodeAt.equals( directoryService.getAtProvider().getObjectClass() )
                     && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) || objectClassOid
                         .equals( SchemaConstants.SUBSCHEMA_OC_OID ) ) && ( node instanceof EqualityNode ) )
                 {
@@ -1319,12 +1333,12 @@ public class SchemaInterceptor extends BaseInterceptor
                     Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
                         searchContext );
                     serverEntry.setDn( base );
-                    return new BaseEntryFilteringCursor( new SingletonCursor<Entry>( serverEntry ), searchContext,
+                    return new EntryFilteringCursorImpl( new SingletonCursor<Entry>( serverEntry ), searchContext,
                         schemaManager );
                 }
                 else
                 {
-                    return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+                    return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
                 }
             }
             else if ( filter instanceof ObjectClassNode )
@@ -1333,14 +1347,14 @@ public class SchemaInterceptor extends BaseInterceptor
                 Entry serverEntry = SchemaService.getSubschemaEntry( directoryService,
                     searchContext );
                 serverEntry.setDn( base );
-                EntryFilteringCursor cursor = new BaseEntryFilteringCursor(
+                EntryFilteringCursor cursor = new EntryFilteringCursorImpl(
                     new SingletonCursor<Entry>( serverEntry ), searchContext, schemaManager );
                 return cursor;
             }
         }
 
         // In any case not handled previously, just return an empty result
-        return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+        return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
     }
 
 
@@ -1355,7 +1369,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         Rdn rdn = dn.getRdn( size - 2 );
 
-        return rdn.getNormValue().getString();
+        return rdn.getNormValue();
     }
 
 
@@ -1370,7 +1384,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         // Never check the attributes if the extensibleObject objectClass is
         // declared for this entry
-        Attribute objectClass = entry.get( OBJECT_CLASS_AT );
+        Attribute objectClass = entry.get( directoryService.getAtProvider().getObjectClass() );
 
         if ( objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
         {
@@ -1554,16 +1568,11 @@ public class SchemaInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                try
-                {
-                    syntaxChecker.assertSyntax( value.getValue() );
-                }
-                catch ( Exception ne )
+                if ( !syntaxChecker.isValidSyntax( value.getValue() ) )
                 {
                     String message = I18n.err( I18n.ERR_280, value.getString(), attribute.getUpId() );
                     LOG.info( message );
-
-                    throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, message );
+                    throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }
             }
         }
@@ -1576,7 +1585,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             Attribute attribute = entry.get( atav.getNormType() );
 
-            if ( ( attribute == null ) || ( !attribute.contains( atav.getNormValue() ) ) )
+            if ( ( attribute == null ) || ( !attribute.contains( atav.getValue() ) ) )
             {
                 String message = I18n.err( I18n.ERR_62, dn, atav.getType() );
                 LOG.error( message );

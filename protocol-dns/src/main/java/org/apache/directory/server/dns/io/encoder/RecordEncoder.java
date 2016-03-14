@@ -39,5 +39,5 @@ public interface RecordEncoder
      * @param record
      * @throws IOException
      */
-    public void put( IoBuffer buffer, ResourceRecord record ) throws IOException;
+    void put( IoBuffer buffer, ResourceRecord record ) throws IOException;
 }

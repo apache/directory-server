@@ -29,7 +29,7 @@ import java.util.Collections;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosTicket;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
@@ -220,8 +220,8 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         data += "}" + SystemUtils.LINE_SEPARATOR;
 
         data += "[domain_realm]" + SystemUtils.LINE_SEPARATOR;
-        data += "." + Strings.toLowerCase( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
-        data += Strings.toLowerCase( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
+        data += "." + Strings.toLowerCaseAscii( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
+        data += Strings.toLowerCaseAscii( REALM ) + " = " + REALM + SystemUtils.LINE_SEPARATOR;
 
         FileUtils.writeStringToFile( file, data );
 

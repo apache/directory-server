@@ -34,10 +34,10 @@ import org.tanukisoftware.wrapper.WrapperManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ApacheDsTanukiWrapper implements WrapperListener
+public final class ApacheDsTanukiWrapper implements WrapperListener
 {
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( ApacheDsTanukiWrapper.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ApacheDsTanukiWrapper.class );
 
     /** The ApacheDS service*/
     private ApacheDsService service;
@@ -56,7 +56,7 @@ public class ApacheDsTanukiWrapper implements WrapperListener
 
     public Integer start( String[] args )
     {
-        log.info( "Starting the service..." );
+        LOG.info( "Starting the service..." );
 
         if ( ( args != null ) && ( args.length == 1 ) )
         {
@@ -73,7 +73,7 @@ public class ApacheDsTanukiWrapper implements WrapperListener
             }
             catch ( Exception e )
             {
-                log.error( "Failed to start the service.", e );
+                LOG.error( "Failed to start the service.", e );
                 System.exit( ExitCodes.START );
             }
         }
@@ -89,7 +89,7 @@ public class ApacheDsTanukiWrapper implements WrapperListener
 
     public int stop( int exitCode )
     {
-        log.info( "Attempting graceful shutdown of the service..." );
+        LOG.info( "Attempting graceful shutdown of the service..." );
 
         // Stopping the service
         try
@@ -98,11 +98,11 @@ public class ApacheDsTanukiWrapper implements WrapperListener
         }
         catch ( Exception e )
         {
-            log.error( "Failed to stop the service.", e );
+            LOG.error( "Failed to stop the service.", e );
             System.exit( ExitCodes.STOP );
         }
 
-        log.info( "Completed graceful shutdown of the service..." );
+        LOG.info( "Completed graceful shutdown of the service..." );
 
         return exitCode;
     }
@@ -110,17 +110,13 @@ public class ApacheDsTanukiWrapper implements WrapperListener
 
     public void controlEvent( int event )
     {
-        if ( WrapperManager.isControlledByNativeWrapper() )
-        {
-            // The Wrapper will take care of this event
-        }
-        else
+        if ( !WrapperManager.isControlledByNativeWrapper() )
         {
             // We are not being controlled by the Wrapper, so
             // handle the event ourselves.
-            if ( ( event == WrapperManager.WRAPPER_CTRL_C_EVENT ) ||
-                ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT ) ||
-                ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
+            if ( ( event == WrapperManager.WRAPPER_CTRL_C_EVENT )
+                || ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT )
+                || ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
             {
                 WrapperManager.stop( 0 );
             }

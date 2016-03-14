@@ -109,7 +109,7 @@ public interface Transport
 
 
     /**
-     * @return <code>true</code> id SSL is enabled for this transport
+     * @return <code>true</code> if SSL is enabled for this transport
      */
     boolean isSSLEnabled();
 }

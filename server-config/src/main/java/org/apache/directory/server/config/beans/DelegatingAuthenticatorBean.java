@@ -38,6 +38,10 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
     @ConfigurationElement(attributeType = "ads-delegatePort")
     private int delegatePort;
 
+    /** Tells if we use SSL to connect */
+    @ConfigurationElement(attributeType = "ads-delegateSsl", isOptional = true)
+    private boolean delegateSsl;
+
 
     /**
      * @return the delegateHost
@@ -87,6 +91,8 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
 
         sb.append( tabs ).append( "  delegate host : " ).append( delegateHost ).append( '\n' );
         sb.append( tabs ).append( "  delegate port : " ).append( delegatePort ).append( '\n' );
+        sb.append( tabs ).append( "  delegate base DN : " ).append( baseDn ).append( '\n' );
+        sb.append( tabs ).append( "  delegate SSL : " ).append( delegateSsl ).append( '\n' );
 
         return sb.toString();
     }

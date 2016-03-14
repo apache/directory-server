@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
 
@@ -55,7 +56,8 @@ public class AddressRecordDecoder implements RecordDecoder
         Map<String, Object> attributes = new HashMap<String, Object>();
         byte[] addressBytes = new byte[length];
         byteBuffer.get( addressBytes );
-        attributes.put( DnsAttribute.IP_ADDRESS, InetAddress.getByAddress( addressBytes ) );
+        attributes.put( Strings.toLowerCaseAscii( DnsAttribute.IP_ADDRESS ), InetAddress.getByAddress( addressBytes ) );
+        
         return attributes;
     }
 }

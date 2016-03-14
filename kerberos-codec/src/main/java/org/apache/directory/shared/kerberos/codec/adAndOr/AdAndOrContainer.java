@@ -41,8 +41,7 @@ public class AdAndOrContainer extends AbstractContainer
     public AdAndOrContainer()
     {
         super();
-        this.stateStack = new int[1];
-        this.grammar = AdAndOrGrammar.getInstance();
+        setGrammar( AdAndOrGrammar.getInstance() );
         setTransition( AdAndOrStatesEnum.START_STATE );
     }
 

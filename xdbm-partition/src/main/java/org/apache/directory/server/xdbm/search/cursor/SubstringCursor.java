@@ -26,7 +26,6 @@ import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
@@ -72,7 +71,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
 
         if ( hasIndex )
         {
-            wrapped = ( ( Index<String, Entry, String> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
+            wrapped = ( ( Index<String, String> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
                 .forwardCursor();
         }
         else
@@ -105,7 +104,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
@@ -135,7 +134,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
 
@@ -150,7 +149,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
         return next();
@@ -174,7 +173,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -185,7 +184,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         while ( wrapped.previous() )
         {
@@ -210,7 +209,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         while ( wrapped.next() )
         {
@@ -236,7 +235,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<String, String> get() throws CursorException, IOException
+    public IndexEntry<String, String> get() throws CursorException
     {
         checkNotClosed( "get()" );
 
@@ -252,7 +251,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -268,7 +267,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
         {

@@ -60,6 +60,8 @@ public class MockDirectoryService implements DirectoryService
 {
     int count;
 
+    DnFactory dnFactory;
+    
     /** The schemaManager */
     SchemaManager schemaManager;
 
@@ -463,20 +465,9 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public String getContextCsn()
-    {
-        return null;
-    }
-
-
     public long getSyncPeriodMillis()
     {
         return 0;
-    }
-
-
-    public void setContextCsn( String lastCommittedCsnVal )
-    {
     }
 
 
@@ -552,7 +543,16 @@ public class MockDirectoryService implements DirectoryService
      */
     public DnFactory getDnFactory()
     {
-        return null;
+        return dnFactory;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setDnFactory( DnFactory dnFactory )
+    {
+        this.dnFactory = dnFactory;
     }
 
 
@@ -613,11 +613,26 @@ public class MockDirectoryService implements DirectoryService
         // TODO Auto-generated method stub
     }
 
+
     /**
      * {@inheritDoc}
      */
     public void setCacheService( CacheService cacheService )
     {
-      // nothing
+        // nothing
+    }
+
+
+    @Override
+    public AttributeTypeProvider getAtProvider()
+    {
+        return null;
+    }
+
+
+    @Override
+    public ObjectClassProvider getOcProvider()
+    {
+        return null;
     }
 }

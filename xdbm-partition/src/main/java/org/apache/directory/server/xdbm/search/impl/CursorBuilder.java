@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
@@ -193,6 +192,20 @@ public class CursorBuilder
     private <T> long computeEquality( EqualityNode<T> node, PartitionSearchResult searchResult )
         throws Exception
     {
+        Set<String> thisCandidates = ( Set<String> ) node.get( DefaultOptimizer.CANDIDATES_ANNOTATION_KEY );
+
+        if ( thisCandidates != null )
+        {
+            Set<String> candidates = searchResult.getCandidateSet();
+
+            for ( String candidate : thisCandidates )
+            {
+                candidates.add( candidate );
+            }
+
+            return thisCandidates.size();
+        }
+
         AttributeType attributeType = node.getAttributeType();
         Value<T> value = node.getValue();
         int nbResults = 0;
@@ -201,7 +214,7 @@ public class CursorBuilder
         if ( db.hasIndexOn( attributeType ) )
         {
             // Get the cursor using the index
-            Index<T, Entry, String> userIndex = ( Index<T, Entry, String> ) db.getIndex( attributeType );
+            Index<T, String> userIndex = ( Index<T, String> ) db.getIndex( attributeType );
             Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( value.getValue() );
             Set<String> uuidSet = searchResult.getCandidateSet();
 
@@ -247,7 +260,7 @@ public class CursorBuilder
         if ( db.hasIndexOn( attributeType ) )
         {
             // Get the cursor using the index
-            Index<T, Entry, String> userIndex = ( Index<T, Entry, String> ) db.getIndex( attributeType );
+            Index<T, String> userIndex = ( Index<T, String> ) db.getIndex( attributeType );
             Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
@@ -299,7 +312,7 @@ public class CursorBuilder
         if ( db.hasIndexOn( attributeType ) )
         {
             // Get the cursor using the index
-            Index<T, Entry, String> userIndex = ( Index<T, Entry, String> ) db.getIndex( attributeType );
+            Index<T, String> userIndex = ( Index<T, String> ) db.getIndex( attributeType );
             Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
@@ -416,11 +429,12 @@ public class CursorBuilder
             // we will dereference the alias
             if ( searchResult.isDerefAlways() || searchResult.isDerefInSearching() )
             {
-                String aliasedDn = db.getAliasIndex().reverseLookup( uuid );
+                Dn aliasedDn = db.getAliasIndex().reverseLookup( uuid );
 
                 if ( aliasedDn != null )
                 {
-                    String aliasedId = db.getEntryId( new Dn( searchResult.getSchemaManager(), aliasedDn ) );
+                    aliasedDn.apply( evaluatorBuilder.getSchemaManager() );
+                    String aliasedId = db.getEntryId( aliasedDn );
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
@@ -503,11 +517,12 @@ public class CursorBuilder
             // we will dereference the alias
             if ( searchResult.isDerefAlways() || searchResult.isDerefInSearching() )
             {
-                String aliasedDn = db.getAliasIndex().reverseLookup( uuid );
+                Dn aliasedDn = db.getAliasIndex().reverseLookup( uuid );
 
                 if ( aliasedDn != null )
                 {
-                    String aliasedId = db.getEntryId( new Dn( searchResult.getSchemaManager(), aliasedDn ) );
+                    aliasedDn.apply( evaluatorBuilder.getSchemaManager() );
+                    String aliasedId = db.getEntryId( aliasedDn );
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
@@ -518,7 +533,7 @@ public class CursorBuilder
 
                         ScopeNode newScopeNode = new ScopeNode(
                             node.getDerefAliases(),
-                            new Dn( searchResult.getSchemaManager(), aliasedDn ),
+                            aliasedDn,
                             aliasedId,
                             node.getScope() );
 
@@ -565,14 +580,27 @@ public class CursorBuilder
         // Fetch all the UUIDs if we have an index
         if ( db.hasIndexOn( attributeType ) )
         {
-            Index<String, Entry, String> userIndex = ( ( Index<String, Entry, String> ) db.getIndex( attributeType ) );
+            Index<String, String> userIndex = ( ( Index<String, String> ) db.getIndex( attributeType ) );
             Cursor<IndexEntry<String, String>> cursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
             IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
-            indexEntry.setKey( node.getInitial() );
-
-            cursor.before( indexEntry );
+            String initial = node.getInitial();
+            
+            boolean fullIndexScan = false;
+            
+            if ( initial == null )
+            {
+                fullIndexScan = true;
+                cursor.beforeFirst();
+            }
+            else
+            {
+                indexEntry.setKey( initial );
+                
+                cursor.before( indexEntry );
+            }
+            
             int nbResults = 0;
 
             MatchingRule rule = attributeType.getSubstring();
@@ -614,13 +642,20 @@ public class CursorBuilder
 
                 String key = indexEntry.getKey();
 
-                if ( !regexp.matcher( key ).matches() )
+                boolean matched = regexp.matcher( key ).matches();
+                
+                if ( !fullIndexScan & !matched )
                 {
                     cursor.close();
 
                     return nbResults;
                 }
 
+                if ( !matched )
+                {
+                    continue;
+                }
+                
                 String uuid = indexEntry.getId();
 
                 if ( !uuidSet.contains( uuid ) )

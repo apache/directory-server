@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
-import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
@@ -61,11 +60,9 @@ import org.apache.directory.api.ldap.model.subtree.Subentry;
 import org.apache.directory.api.ldap.model.subtree.SubtreeSpecification;
 import org.apache.directory.api.ldap.model.subtree.SubtreeSpecificationParser;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
-import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
@@ -82,7 +79,6 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,8 +98,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = Subentries.OID;
 
-    /** The set of Subentry operational attributes */
-    public static AttributeType[] SUBENTRY_OPATTRS;
+    private Value<String> subentryOC;
 
     /** The SubTree specification parser instance */
     private SubtreeSpecificationParser ssParser;
@@ -148,7 +143,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            return !entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
+            return !entry.contains( directoryService.getAtProvider().getObjectClass(), subentryOC );
         }
 
 
@@ -179,7 +174,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            return entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
+            return entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC );
         }
 
 
@@ -207,34 +202,25 @@ public class SubentryInterceptor extends BaseInterceptor
 
         nexus = directoryService.getPartitionNexus();
 
-        SUBENTRY_OPATTRS = new AttributeType[]
-            {
-                ACCESS_CONTROL_SUBENTRIES_AT,
-                SUBSCHEMA_SUBENTRY_AT,
-                COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
-                TRIGGER_EXECUTION_SUBENTRIES_AT
-        };
-
         ssParser = new SubtreeSpecificationParser( schemaManager );
 
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = nexus.listSuffixes();
-        ExprNode filter = new EqualityNode<String>( OBJECT_CLASS_AT, new StringValue(
+        ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), new StringValue(
             SchemaConstants.SUBENTRY_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
-        Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        subentryOC = new StringValue( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC );
 
         // search each namingContext for subentries
         for ( String suffix : suffixes )
         {
-            Dn suffixDn = directoryService.getDnFactory().create( suffix );
+            Dn suffixDn = dnFactory.create( suffix );
 
-            CoreSession adminSession = new DefaultCoreSession(
-                new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ), directoryService );
+            CoreSession adminSession = directoryService.getAdminSession();
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, filter,
                 controls );
@@ -251,7 +237,8 @@ public class SubentryInterceptor extends BaseInterceptor
                     Entry subentry = subentries.get();
                     Dn subentryDn = subentry.getDn();
 
-                    String subtree = subentry.get( SUBTREE_SPECIFICATION_AT ).getString();
+                    String subtree = subentry.get( directoryService.getAtProvider().getSubtreeSpecification() )
+                        .getString();
                     SubtreeSpecification ss;
 
                     try
@@ -301,7 +288,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
 
-        Attribute oc = subentry.get( OBJECT_CLASS_AT );
+        Attribute oc = subentry.get( directoryService.getAtProvider().getObjectClass() );
 
         if ( oc == null )
         {
@@ -398,11 +385,13 @@ public class SubentryInterceptor extends BaseInterceptor
                             modifications = getOperationalModsForRemove( subentryDn, candidate );
                             break;
 
-                    /*
-                    case REPLACE :
-                    modifications = getOperationalModsForReplace( subentryDn, candidate );
-                    break;
-                     */
+                        case REPLACE:
+                            // TODO: why is that commented out???
+                            //modifications = getOperationalModsForReplace( subentryDn, candidate );
+                            break;
+
+                        default:
+                            throw new IllegalArgumentException( "Unexpected operation " + operation );
                     }
 
                     LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), subentryDn );
@@ -453,7 +442,8 @@ public class SubentryInterceptor extends BaseInterceptor
         Entry administrationPoint = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // The administrativeRole AT must exist and not be null
-        Attribute administrativeRole = administrationPoint.get( ADMINISTRATIVE_ROLE_AT );
+        Attribute administrativeRole = administrationPoint.get( directoryService.getAtProvider()
+            .getAdministrativeRole() );
 
         // check that administrativeRole has something valid in it for us
         if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
@@ -469,7 +459,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private void setSubtreeSpecification( Subentry subentry, Entry entry ) throws LdapException
     {
-        String subtree = entry.get( SUBTREE_SPECIFICATION_AT ).getString();
+        String subtree = entry.get( directoryService.getAtProvider().getSubtreeSpecification() ).getString();
         SubtreeSpecification ss;
 
         try
@@ -498,7 +488,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private boolean hasAdministrativeDescendant( OperationContext opContext, Dn name ) throws LdapException
     {
-        ExprNode filter = new PresenceNode( ADMINISTRATIVE_ROLE_AT );
+        ExprNode filter = new PresenceNode( directoryService.getAtProvider().getAdministrativeRole() );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -570,7 +560,8 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to remove references to the subentry
             if ( isOldNameSelected && !isNewNameSelected )
             {
-                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+                for ( AttributeType operationalAttribute : directoryService.getAtProvider()
+                    .getSubentryOperationalAttributes() )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
                     Attribute opAttr = entry.get( operationalAttribute );
@@ -592,7 +583,8 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to add references to the subentry
             else if ( isNewNameSelected && !isOldNameSelected )
             {
-                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+                for ( AttributeType operationalAttribute : directoryService.getAtProvider()
+                    .getSubentryOperationalAttributes() )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     Attribute opAttr = new DefaultAttribute( operationalAttribute );
@@ -612,12 +604,12 @@ public class SubentryInterceptor extends BaseInterceptor
 
     private Set<AdministrativeRole> getSubentryTypes( Entry entry, List<Modification> mods ) throws LdapException
     {
-        Attribute ocFinalState = entry.get( OBJECT_CLASS_AT ).clone();
+        Attribute ocFinalState = entry.get( directoryService.getAtProvider().getObjectClass() ).clone();
 
         for ( Modification mod : mods )
         {
-            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) ||
-                mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
+            if ( mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
+                || mod.getAttribute().getId().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
             {
                 switch ( mod.getOperation() )
                 {
@@ -640,6 +632,9 @@ public class SubentryInterceptor extends BaseInterceptor
                     case REPLACE_ATTRIBUTE:
                         ocFinalState = mod.getAttribute();
                         break;
+
+                    default:
+                        throw new IllegalArgumentException( "Unexpected modify operatoin " + mod.getOperation() );
                 }
             }
         }
@@ -688,14 +683,14 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         List<Modification> modifications = new ArrayList<Modification>();
 
-        getOperationalModForReplace( subentry.isAccessControlAdminRole(), ACCESS_CONTROL_SUBENTRIES_AT, entry, oldDn,
-            newDn, modifications );
-        getOperationalModForReplace( subentry.isSchemaAdminRole(), SUBSCHEMA_SUBENTRY_AT, entry, oldDn, newDn,
-            modifications );
-        getOperationalModForReplace( subentry.isCollectiveAdminRole(), COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, entry,
-            oldDn, newDn, modifications );
-        getOperationalModForReplace( subentry.isTriggersAdminRole(), TRIGGER_EXECUTION_SUBENTRIES_AT, entry, oldDn,
-            newDn, modifications );
+        getOperationalModForReplace( subentry.isAccessControlAdminRole(), directoryService.getAtProvider()
+            .getAccessControlSubentries(), entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isSchemaAdminRole(), directoryService.getAtProvider()
+            .getSubschemaSubentry(), entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isCollectiveAdminRole(), directoryService.getAtProvider()
+            .getCollectiveAttributeSubentries(), entry, oldDn, newDn, modifications );
+        getOperationalModForReplace( subentry.isTriggersAdminRole(), directoryService.getAtProvider()
+            .getTriggerExecutionSubentries(), entry, oldDn, newDn, modifications );
 
         return modifications;
     }
@@ -711,27 +706,29 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( subentry.isAccessControlAdminRole() )
         {
-            Attribute accessControlSubentries = new DefaultAttribute( ACCESS_CONTROL_SUBENTRIES_AT, dn.getNormName() );
+            Attribute accessControlSubentries = new DefaultAttribute( directoryService.getAtProvider()
+                .getAccessControlSubentries(), dn.getNormName() );
             attributes.add( accessControlSubentries );
         }
 
         if ( subentry.isSchemaAdminRole() )
         {
-            Attribute subschemaSubentry = new DefaultAttribute( SUBSCHEMA_SUBENTRY_AT, dn.getNormName() );
+            Attribute subschemaSubentry = new DefaultAttribute(
+                directoryService.getAtProvider().getSubschemaSubentry(), dn.getNormName() );
             attributes.add( subschemaSubentry );
         }
 
         if ( subentry.isCollectiveAdminRole() )
         {
-            Attribute collectiveAttributeSubentries = new DefaultAttribute( COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT,
-                dn.getNormName() );
+            Attribute collectiveAttributeSubentries = new DefaultAttribute( directoryService.getAtProvider()
+                .getCollectiveAttributeSubentries(), dn.getNormName() );
             attributes.add( collectiveAttributeSubentries );
         }
 
         if ( subentry.isTriggersAdminRole() )
         {
-            Attribute tiggerExecutionSubentries = new DefaultAttribute( TRIGGER_EXECUTION_SUBENTRIES_AT,
-                dn.getNormName() );
+            Attribute tiggerExecutionSubentries = new DefaultAttribute( directoryService.getAtProvider()
+                .getTriggerExecutionSubentries(), dn.getNormName() );
             attributes.add( tiggerExecutionSubentries );
         }
 
@@ -757,7 +754,7 @@ public class SubentryInterceptor extends BaseInterceptor
         List<Modification> modifications = new ArrayList<Modification>();
         String dn = subentryDn.getNormName();
 
-        for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+        for ( AttributeType operationalAttribute : directoryService.getAtProvider().getSubentryOperationalAttributes() )
         {
             Attribute opAttr = candidate.get( operationalAttribute );
 
@@ -837,7 +834,8 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to remove references to the subentry
             if ( isOldEntrySelected && !isNewEntrySelected )
             {
-                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+                for ( AttributeType operationalAttribute : directoryService.getAtProvider()
+                    .getSubentryOperationalAttributes() )
                 {
                     ModificationOperation op = ModificationOperation.REPLACE_ATTRIBUTE;
                     Attribute opAttr = oldEntry.get( operationalAttribute );
@@ -859,7 +857,8 @@ public class SubentryInterceptor extends BaseInterceptor
             // need to add references to the subentry
             else if ( isNewEntrySelected && !isOldEntrySelected )
             {
-                for ( AttributeType operationalAttribute : SUBENTRY_OPATTRS )
+                for ( AttributeType operationalAttribute : directoryService.getAtProvider()
+                    .getSubentryOperationalAttributes() )
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     Attribute opAttr = new DefaultAttribute( operationalAttribute );
@@ -902,7 +901,7 @@ public class SubentryInterceptor extends BaseInterceptor
         Entry entry = addContext.getEntry();
 
         // Check if the added entry is a subentry
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC ) )
         {
             // get the name of the administrative point and its administrativeRole attributes
             // The AP must be the parent Dn, but we also have to check that the given Dn
@@ -986,22 +985,26 @@ public class SubentryInterceptor extends BaseInterceptor
 
                         if ( subentry.isAccessControlAdminRole() )
                         {
-                            setOperationalAttribute( entry, subentryDn, ACCESS_CONTROL_SUBENTRIES_AT );
+                            setOperationalAttribute( entry, subentryDn, directoryService.getAtProvider()
+                                .getAccessControlSubentries() );
                         }
 
                         if ( subentry.isSchemaAdminRole() )
                         {
-                            setOperationalAttribute( entry, subentryDn, SUBSCHEMA_SUBENTRY_AT );
+                            setOperationalAttribute( entry, subentryDn, directoryService.getAtProvider()
+                                .getSubschemaSubentry() );
                         }
 
                         if ( subentry.isCollectiveAdminRole() )
                         {
-                            setOperationalAttribute( entry, subentryDn, COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+                            setOperationalAttribute( entry, subentryDn, directoryService.getAtProvider()
+                                .getCollectiveAttributeSubentries() );
                         }
 
                         if ( subentry.isTriggersAdminRole() )
                         {
-                            setOperationalAttribute( entry, subentryDn, TRIGGER_EXECUTION_SUBENTRIES_AT );
+                            setOperationalAttribute( entry, subentryDn, directoryService.getAtProvider()
+                                .getTriggerExecutionSubentries() );
                         }
                     }
                 }
@@ -1027,7 +1030,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         // If the entry has a "subentry" Objectclass, we can process the entry.
         // We first remove the re
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry removedSubentry = directoryService.getSubentryCache().getSubentry( dn );
 
@@ -1084,7 +1087,8 @@ public class SubentryInterceptor extends BaseInterceptor
         // Find the subtreeSpecification
         for ( Modification mod : modifications )
         {
-            if ( mod.getAttribute().getAttributeType().equals( SUBTREE_SPECIFICATION_AT ) )
+            if ( mod.getAttribute().getAttributeType()
+                .equals( directoryService.getAtProvider().getSubtreeSpecification() ) )
             {
                 isSubtreeSpecificationModification = true;
                 subtreeMod = mod;
@@ -1092,7 +1096,8 @@ public class SubentryInterceptor extends BaseInterceptor
             }
         }
 
-        boolean containsSubentryOC = entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC );
+        boolean containsSubentryOC = entry.contains( directoryService.getAtProvider().getObjectClass(),
+            SchemaConstants.SUBENTRY_OC );
 
         // Check if we have a modified subentry attribute in a Subentry entry
         if ( containsSubentryOC && isSubtreeSpecificationModification )
@@ -1123,7 +1128,7 @@ public class SubentryInterceptor extends BaseInterceptor
             Dn oldBaseDn = apName;
             oldBaseDn = oldBaseDn.add( ssOld.getBase() );
 
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            ExprNode filter = new PresenceNode( directoryService.getAtProvider().getObjectClass() );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -1264,7 +1269,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = moveContext.getOriginalEntry();
 
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC ) )
         {
             // This is a subentry. Moving a subentry means we have to:
             // o Check that there is a new AP where we move the subentry
@@ -1290,7 +1295,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
 
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            ExprNode filter = new PresenceNode( directoryService.getAtProvider().getObjectClass() );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -1378,7 +1383,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = moveAndRenameContext.getOriginalEntry();
 
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = directoryService.getSubentryCache().removeSubentry( oldDn );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -1396,7 +1401,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
 
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            ExprNode filter = new PresenceNode( directoryService.getAtProvider().getObjectClass() );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
@@ -1474,7 +1479,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
 
-        if ( entry.contains( OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC ) )
+        if ( entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC ) )
         {
             // @Todo To be reviewed !!!
             Subentry subentry = directoryService.getSubentryCache().removeSubentry( oldDn );
@@ -1491,7 +1496,7 @@ public class SubentryInterceptor extends BaseInterceptor
             next( renameContext );
 
             subentry = directoryService.getSubentryCache().getSubentry( newName );
-            ExprNode filter = new PresenceNode( OBJECT_CLASS_AT );
+            ExprNode filter = new PresenceNode( directoryService.getAtProvider().getObjectClass() );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]

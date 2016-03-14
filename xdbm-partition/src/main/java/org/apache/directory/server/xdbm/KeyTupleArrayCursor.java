@@ -134,7 +134,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param element the valueTuple who's value is used to position this Cursor
      * @throws Exception if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
         checkNotClosed( "before()" );
         wrapped.before( element.getValue() );
@@ -145,7 +145,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, V> element ) throws LdapException, CursorException, IOException
+    public void after( Tuple<K, V> element ) throws LdapException, CursorException
     {
         checkNotClosed( "after()" );
         wrapped.after( element.getValue() );
@@ -156,7 +156,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
         wrapped.beforeFirst();
@@ -167,7 +167,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
         wrapped.afterLast();
@@ -178,7 +178,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
 
@@ -189,7 +189,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -200,14 +200,15 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
         if ( wrapped.previous() )
         {
             returnedTuple.setKey( key );
             returnedTuple.setValue( wrapped.get() );
-            return valueAvailable = true;
+            valueAvailable = true;
+            return true;
         }
         else
         {
@@ -220,14 +221,15 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
         if ( wrapped.next() )
         {
             returnedTuple.setKey( key );
             returnedTuple.setValue( wrapped.get() );
-            return valueAvailable = true;
+            valueAvailable = true;
+            return true;
         }
         else
         {
@@ -240,7 +242,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public Tuple<K, V> get() throws CursorException, IOException
+    public Tuple<K, V> get() throws CursorException
     {
         checkNotClosed( "get()" );
 
@@ -256,7 +258,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -275,7 +277,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception reason )
+    public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
         {

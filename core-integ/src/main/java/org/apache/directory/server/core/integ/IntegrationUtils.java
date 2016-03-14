@@ -28,7 +28,6 @@ import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -44,6 +43,8 @@ import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
+import org.apache.directory.api.util.FileUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -68,7 +69,7 @@ public class IntegrationUtils
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( IntegrationUtils.class );
 
-    private static final List<LdapConnection> openConnections = new ArrayList<LdapConnection>();
+    private static final List<LdapConnection> OPEN_CONNECTIONS = new ArrayList<LdapConnection>();
 
 
     /**
@@ -278,7 +279,7 @@ public class IntegrationUtils
         attr = new DefaultAttribute( "ou", "Engineering", "People" );
         ldif.addAttribute( attr );
 
-        String uid = dn.getRdn().getNormValue().getString();
+        String uid = dn.getRdn().getNormValue();
         ldif.putAttribute( "uid", uid );
 
         ldif.putAttribute( "l", "Bogusville" );
@@ -292,7 +293,7 @@ public class IntegrationUtils
 
         String givenName = cn.split( " " )[0];
         ldif.putAttribute( "givenName", givenName );
-        
+
         return ldif;
     }
 
@@ -424,10 +425,43 @@ public class IntegrationUtils
     public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password )
         throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( host, port);
+        LdapConnection connection = new LdapNetworkConnection( host, port );
 
         connection.bind( dn, password );
-        openConnections.add( connection );
+        OPEN_CONNECTIONS.add( connection );
+        return connection;
+    }
+
+
+    /**
+     * Gets an anonymous LdapNetworkConnection
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection connection = getAnonymousNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
+
+        return connection;
+    }
+
+
+    /**
+     * Gets an anonymous LdapNetworkConnection
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getAnonymousNetworkConnection( String host, int port ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( host, port );
+        connection.bind();
+
+        OPEN_CONNECTIONS.add( connection );
+
         return connection;
     }
 
@@ -441,12 +475,12 @@ public class IntegrationUtils
      */
     public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", ldapServer.getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
         connection.setTimeOut( 0 );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
-        openConnections.add( connection );
+        OPEN_CONNECTIONS.add( connection );
 
         return connection;
     }
@@ -465,14 +499,14 @@ public class IntegrationUtils
     public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password )
         throws Exception
     {
-        return getNetworkConnectionAs( "localhost", ldapServer.getPort(), userDn, password );
+        return getNetworkConnectionAs( Network.LOOPBACK_HOSTNAME, ldapServer.getPort(), userDn, password );
     }
 
 
     public static void closeConnections()
     {
 
-        for ( LdapConnection con : openConnections )
+        for ( LdapConnection con : OPEN_CONNECTIONS )
         {
             if ( con == null )
             {
@@ -493,6 +527,6 @@ public class IntegrationUtils
             }
         }
 
-        openConnections.clear();
+        OPEN_CONNECTIONS.clear();
     }
 }

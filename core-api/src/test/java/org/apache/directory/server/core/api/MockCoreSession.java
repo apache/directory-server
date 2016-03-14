@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -95,6 +96,8 @@ public class MockCoreSession implements CoreSession
     /** A reference to the ObjectClass AT */
     protected AttributeType OBJECT_CLASS_AT;
 
+    /** flag to indicate if the password must be changed */
+    private boolean pwdMustChange;
 
     public MockCoreSession( LdapPrincipal principal, DirectoryService directoryService )
     {
@@ -460,7 +463,7 @@ public class MockCoreSession implements CoreSession
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.CoreSession#list(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.message.AliasDerefMode, java.util.Set)
      */
-    public EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
+    public Cursor<Entry> list( Dn dn, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
@@ -726,7 +729,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( Dn dn, String filter ) throws LdapException
+    public Cursor<Entry> search( Dn dn, String filter ) throws LdapException
     {
         return search( dn, filter, true );
     }
@@ -735,7 +738,7 @@ public class MockCoreSession implements CoreSession
     /**
      * {@inheritDoc}
      */
-    public EntryFilteringCursor search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException
+    public Cursor<Entry> search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
         ExprNode filterNode = null;
@@ -760,7 +763,7 @@ public class MockCoreSession implements CoreSession
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.CoreSession#search(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.filter.SearchScope, org.apache.directory.api.ldap.model.filter.ExprNode, org.apache.directory.api.ldap.model.message.AliasDerefMode, java.util.Set)
      */
-    public EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
+    public Cursor<Entry> search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
@@ -929,7 +932,7 @@ public class MockCoreSession implements CoreSession
     }
 
 
-    public EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException
+    public Cursor<Entry> search( SearchRequest searchRequest ) throws LdapException
     {
         SearchOperationContext searchContext = new SearchOperationContext( this, searchRequest );
         OperationManager operationManager = directoryService.getOperationManager();
@@ -961,4 +964,23 @@ public class MockCoreSession implements CoreSession
     {
         this.directoryService = directoryService;
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPwdMustChange() 
+    {
+        return pwdMustChange;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPwdMustChange( boolean pwdMustChange ) 
+    {
+        this.pwdMustChange = pwdMustChange;
+    }
+
 }

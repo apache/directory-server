@@ -20,7 +20,7 @@
 package org.apache.directory.server.xdbm;
 
 
-import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertFalse;
 
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.api.partition.Partition;

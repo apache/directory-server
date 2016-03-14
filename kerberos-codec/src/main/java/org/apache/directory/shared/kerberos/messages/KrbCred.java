@@ -185,7 +185,7 @@ public class KrbCred extends KerberosMessage
         {
             log.error( I18n.err( I18n.ERR_741_CANNOT_ENCODE_KRB_CRED, 1 + TLV.getNbBytes( krbCredLen )
                 + krbCredLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

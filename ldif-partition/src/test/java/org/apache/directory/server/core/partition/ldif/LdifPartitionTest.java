@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
@@ -47,13 +47,15 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
@@ -66,6 +68,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -87,7 +90,9 @@ public class LdifPartitionTest
     private static File wkdir;
     private static LdifPartition partition;
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
     private static CsnFactory defaultCSNFactory;
+    private static CacheService cacheService;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -119,6 +124,10 @@ public class LdifPartitionTest
         }
 
         defaultCSNFactory = new CsnFactory( 0 );
+
+        cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -131,12 +140,13 @@ public class LdifPartitionTest
 
         // initialize the store
         // initialize the partition
-        partition = new LdifPartition( schemaManager );
+        partition = new LdifPartition( schemaManager, dnFactory );
         partition.setId( "test-ldif" );
         partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
         partition.setPartitionPath( wkdir.toURI() );
 
+        partition.setCacheService( cacheService );
         partition.initialize();
 
         Entry entry = createEntry( "ou=test, ou=system" );
@@ -521,8 +531,8 @@ public class LdifPartitionTest
 
         // the renamed LDIF must contain the old an new Rdn attribute
         String content = FileUtils.readFileToString( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ) );
-        assertTrue( content.contains( "dc: child1" ) );
-        assertTrue( content.contains( "dc: renamedChild1" ) );
+        assertFalse( content.contains( "dc: child1" ) );
+        assertTrue( content.contains( "dc: renamedchild1" ) );
     }
 
 
@@ -587,8 +597,8 @@ public class LdifPartitionTest
         // the renamed LDIF must contain the old an new Rdn attribute
         String content = FileUtils
             .readFileToString( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ) );
-        assertTrue( content.contains( "dc: child1" ) );
-        assertTrue( content.contains( "dc: movedChild1" ) );
+        assertFalse( content.contains( "dc: child1" ) );
+        assertTrue( content.contains( "dc: movedchild1" ) );
     }
 
 

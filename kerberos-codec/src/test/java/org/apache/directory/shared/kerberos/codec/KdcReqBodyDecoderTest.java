@@ -26,9 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.Asn1Container;
@@ -48,6 +45,9 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -500,7 +500,7 @@ public class KdcReqBodyDecoderTest
                 0x02, 0x01, 0x12
         } );
 
-        String decodedPdu = Strings.dumpBytes( stream.array() );
+        Strings.dumpBytes( stream.array() );
         stream.flip();
 
         // Allocate a KdcReqBody Container

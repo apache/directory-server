@@ -23,8 +23,10 @@ package org.apache.directory.server.core.api.partition;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperationContext;
@@ -40,14 +42,13 @@ import org.apache.directory.server.core.api.interceptor.context.GetRootDseOperat
  */
 public interface PartitionNexus extends Partition
 {
-
     /** the admin super user uid */
-    public static final String ADMIN_UID = "admin";
+    String ADMIN_UID = "admin";
 
     /** the initial admin passwd set on startup */
-    public static final String ADMIN_PASSWORD_STRING = "secret";
+    String ADMIN_PASSWORD_STRING = "secret";
 
-    public static final byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8( ADMIN_PASSWORD_STRING );
+    byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8( ADMIN_PASSWORD_STRING );
 
 
     /**
@@ -55,7 +56,16 @@ public interface PartitionNexus extends Partition
      *
      * @return the attributes of the RootDSE
      */
-    public Entry getRootDse( GetRootDseOperationContext getRootDseContext );
+    Entry getRootDse( GetRootDseOperationContext getRootDseContext );
+
+
+    /**
+     * Get's the RootDSE value associated with an AttributeType
+     * 
+     * @param attributeType The attribute type for which we want a value
+     * @return the values associated with the given attributeType
+     */
+    Value<?> getRootDseValue( AttributeType attributeType );
 
 
     /**
@@ -64,7 +74,7 @@ public interface PartitionNexus extends Partition
      * @param Partition The Partition to add
      * @throws Exception If the addition can't be done
      */
-    public void addContextPartition( Partition partition ) throws LdapException;
+    void addContextPartition( Partition partition ) throws LdapException;
 
 
     /**
@@ -73,8 +83,7 @@ public interface PartitionNexus extends Partition
      * @param partitionDn the partition Dn
      * @throws Exception If the removal can't be done
      */
-    public void removeContextPartition( Dn partitionDn )
-        throws LdapException;
+    void removeContextPartition( Dn partitionDn ) throws LdapException;
 
 
     /**
@@ -87,7 +96,7 @@ public interface PartitionNexus extends Partition
      * @return the partition containing the entry represented by the dn
      * @throws Exception if there is no partition for the dn
      */
-    public Partition getPartition( Dn dn ) throws LdapException;
+    Partition getPartition( Dn dn ) throws LdapException;
 
 
     /**
@@ -99,7 +108,7 @@ public interface PartitionNexus extends Partition
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      */
-    public Dn getSuffixDn( Dn dn ) throws LdapException;
+    Dn getSuffixDn( Dn dn ) throws LdapException;
 
 
     /**
@@ -109,7 +118,7 @@ public interface PartitionNexus extends Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws Exception if there are any problems
      */
-    public Set<String> listSuffixes() throws LdapException;
+    Set<String> listSuffixes() throws LdapException;
 
 
     /**
@@ -118,7 +127,7 @@ public interface PartitionNexus extends Partition
      * @param extensionOids a set of OID strings to add to the supportedExtension
      * attribute in the RootDSE
      */
-    public void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException;
+    void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException;
 
 
     /**
@@ -127,8 +136,15 @@ public interface PartitionNexus extends Partition
      * @param extensionOids a set of OID strings to add to the supportedSaslMechanisms
      * attribute in the RootDSE
      */
-    public void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;
+    void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;
 
 
-    public boolean compare( CompareOperationContext compareContext ) throws LdapException;
+    /**
+     * The Compare operation
+     *
+     * @param compareContext The context for the compare operation
+     * @return true if the compare operation was successful, false otherwise
+     * @throws LdapException If we had an issue during the operation
+     */
+    boolean compare( CompareOperationContext compareContext ) throws LdapException;
 }

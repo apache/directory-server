@@ -190,12 +190,14 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorWithByteCodeToEnabledSchema() throws Exception
     {
-        InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        while ( in.available() > 0 )
+        try ( InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" ) )
         {
-            out.write( in.read() );
+            while ( in.available() > 0 )
+            {
+                out.write( in.read() );
+            }
         }
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=apachemeta,ou=schema" );
@@ -229,12 +231,14 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorWithByteCodeToDisabledSchema() throws Exception
     {
-        InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        while ( in.available() > 0 )
+        try ( InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" ) )
         {
-            out.write( in.read() );
+            while ( in.available() > 0 )
+            {
+                out.write( in.read() );
+            }
         }
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=nis,ou=schema" );

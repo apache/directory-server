@@ -37,10 +37,10 @@ import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.junit.After;
 import org.junit.Before;
@@ -167,7 +167,8 @@ public class KeyTupleBTreeCursorTest
         table.put( KEY, "30" );
         table.put( KEY, "25" );
 
-        KeyTupleBTreeCursor<String, String> cursor = new KeyTupleBTreeCursor<String, String>( getDupsContainer(), KEY, comparator );
+        KeyTupleBTreeCursor<String, String> cursor = new KeyTupleBTreeCursor<String, String>( getDupsContainer(), KEY,
+            comparator );
 
         cursor.before( new Tuple<String, String>( KEY, "3" ) );
         assertTrue( cursor.next() );

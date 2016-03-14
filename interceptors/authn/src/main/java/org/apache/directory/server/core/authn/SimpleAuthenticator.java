@@ -21,16 +21,9 @@ package org.apache.directory.server.core.authn;
 
 
 import java.net.SocketAddress;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-
-import javax.naming.Context;
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -39,11 +32,11 @@ import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
-import org.apache.directory.api.util.Base64;
-import org.apache.directory.api.util.StringConstants;
-import org.apache.directory.api.util.Strings;
-import org.apache.directory.api.util.UnixCrypt;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -90,11 +83,21 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance.
-     * @see AbstractAuthenticator
      */
     public SimpleAuthenticator()
     {
         super( AuthenticationLevel.SIMPLE );
+        credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
+    }
+
+
+    /**
+     * Creates a new instance.
+     * @see AbstractAuthenticator
+     */
+    public SimpleAuthenticator( Dn baseDn )
+    {
+        super( AuthenticationLevel.SIMPLE, baseDn );
         credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
@@ -105,7 +108,19 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      */
     public SimpleAuthenticator( int cacheSize )
     {
-        super( AuthenticationLevel.SIMPLE );
+        super( AuthenticationLevel.SIMPLE, Dn.ROOT_DSE );
+
+        credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
+    }
+
+
+    /**
+     * Creates a new instance, with an initial cache size
+     * @param cacheSize the size of the credential cache
+     */
+    public SimpleAuthenticator( int cacheSize, Dn baseDn )
+    {
+        super( AuthenticationLevel.SIMPLE, baseDn );
 
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }
@@ -130,26 +145,28 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
         }
 
-        byte[] storedPassword;
+        byte[][] storedPasswords;
 
         if ( principal == null )
         {
             // Not found in the cache
             // Get the user password from the backend
-            storedPassword = lookupUserPassword( bindContext );
+            storedPasswords = lookupUserPassword( bindContext );
 
             // Deal with the special case where the user didn't enter a password
             // We will compare the empty array with the credentials. Sometime,
             // a user does not set a password. This is bad, but there is nothing
             // we can do against that, except education ...
-            if ( storedPassword == null )
+            if ( storedPasswords == null )
             {
-                storedPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
+                storedPasswords = new byte[][]
+                    {};
             }
 
             // Create the new principal before storing it in the cache
             principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(),
-                AuthenticationLevel.SIMPLE, storedPassword );
+                AuthenticationLevel.SIMPLE );
+            principal.setUserPassword( storedPasswords );
 
             // Now, update the local cache ONLY if pwdpolicy is not enabled.
             if ( !getDirectoryService().isPwdPolicyEnabled() )
@@ -195,25 +212,42 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
 
         // Get the stored password, either from cache or from backend
-        byte[] storedPassword = principal.getUserPassword();
+        byte[][] storedPasswords = principal.getUserPasswords();
 
-        // Now, compare the two passwords.
-        if ( PasswordUtil.compareCredentials( credentials, storedPassword ) )
+        PasswordPolicyException ppe = null;
+        try 
         {
-            if ( IS_DEBUG )
+            checkPwdPolicy( bindContext.getEntry() );
+        }
+        catch ( PasswordPolicyException e )
+        {
+            ppe = e;
+        }
+
+        // Now, compare the passwords.
+        for ( byte[] storedPassword : storedPasswords )
+        {
+            if ( PasswordUtil.compareCredentials( credentials, storedPassword ) )
             {
-                LOG.debug( "{} Authenticated", bindContext.getDn() );
-            }
+                if ( ppe != null ) 
+                {
+                    LOG.debug( "{} Authentication failed: {}", bindContext.getDn(), ppe.getMessage() );
+                    throw ppe;
+                }
 
-            return principal;
+                if ( IS_DEBUG )
+                {
+                    LOG.debug( "{} Authenticated", bindContext.getDn() );
+                }
+
+                return principal;
+            }
         }
-        else
-        {
-            // Bad password ...
-            String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
-            LOG.info( message );
-            throw new LdapAuthenticationException( message );
-        }
+
+        // Bad password ...
+        String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+        LOG.info( message );
+        throw new LdapAuthenticationException( message );
     }
 
 
@@ -223,7 +257,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return the credentials from the backend
      * @throws Exception if there are problems accessing backend
      */
-    private byte[] lookupUserPassword( BindOperationContext bindContext ) throws LdapException
+    private byte[][] lookupUserPassword( BindOperationContext bindContext ) throws LdapException
     {
         // ---- lookup the principal entry's userPassword attribute
         Entry userEntry;
@@ -255,121 +289,45 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             LOG.error( I18n.err( I18n.ERR_6, cause.getLocalizedMessage() ) );
             LdapAuthenticationException e = new LdapAuthenticationException( cause.getLocalizedMessage() );
-            e.initCause( e );
+            e.initCause( cause );
             throw e;
         }
 
-        checkPwdPolicy( userEntry );
+        DirectoryService directoryService = getDirectoryService();
+        String userPasswordAttribute = SchemaConstants.USER_PASSWORD_AT;
 
-        Value<?> userPassword;
+        if ( directoryService.isPwdPolicyEnabled() )
+        {
+            AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) directoryService
+                .getInterceptor(
+                InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
+            PasswordPolicyConfiguration pPolicyConfig = authenticationInterceptor.getPwdPolicy( userEntry );
+            userPasswordAttribute = pPolicyConfig.getPwdAttribute();
 
-        Attribute userPasswordAttr = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
+        }
+
+        Attribute userPasswordAttr = userEntry.get( userPasswordAttribute );
 
         bindContext.setEntry( new ClonedServerEntry( userEntry ) );
 
         // ---- assert that credentials match
         if ( userPasswordAttr == null )
         {
-            return StringConstants.EMPTY_BYTES;
+            return new byte[][]
+                {};
         }
         else
         {
-            userPassword = userPasswordAttr.get();
+            byte[][] userPasswords = new byte[userPasswordAttr.size()][];
+            int pos = 0;
 
-            return userPassword.getBytes();
-        }
-    }
-
-
-    /**
-     * Get the algorithm of a password, which is stored in the form "{XYZ}...".
-     * The method returns null, if the argument is not in this form. It returns
-     * XYZ, if XYZ is an algorithm known to the MessageDigest class of
-     * java.security.
-     *
-     * @param password a byte[]
-     * @return included message digest alorithm, if any
-     * @throws IllegalArgumentException if the algorithm cannot be identified
-     */
-    protected String getAlgorithmForHashedPassword( byte[] password ) throws IllegalArgumentException
-    {
-        String result = null;
-
-        // Check if password arg is string or byte[]
-        String sPassword = Strings.utf8ToString( password );
-        int rightParen = sPassword.indexOf( '}' );
-
-        if ( ( sPassword.length() > 2 ) && ( sPassword.charAt( 0 ) == '{' ) && ( rightParen > -1 ) )
-        {
-            String algorithm = sPassword.substring( 1, rightParen );
-
-            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
+            for ( Value<?> userPassword : userPasswordAttr )
             {
-                return algorithm;
+                userPasswords[pos] = userPassword.getBytes();
+                pos++;
             }
 
-            try
-            {
-                MessageDigest.getInstance( algorithm );
-                result = algorithm;
-            }
-            catch ( NoSuchAlgorithmException e )
-            {
-                LOG.warn( "Unknown message digest algorithm in password: " + algorithm, e );
-            }
-        }
-
-        return result;
-    }
-
-
-    /**
-     * Creates a digested password. For a given hash algorithm and a password
-     * value, the algorithm is applied to the password, and the result is Base64
-     * encoded. The method returns a String which looks like "{XYZ}bbbbbbb",
-     * whereas XYZ is the name of the algorithm, and bbbbbbb is the Base64
-     * encoded value of XYZ applied to the password.
-     *
-     * @param algorithm
-     *            an algorithm which is supported by
-     *            java.security.MessageDigest, e.g. SHA
-     * @param password
-     *            password value, a byte[]
-     *
-     * @return a digested password, which looks like
-     *         {SHA}LhkDrSoM6qr0fW6hzlfOJQW61tc=
-     *
-     * @throws IllegalArgumentException
-     *             if password is neither a String nor a byte[], or algorithm is
-     *             not known to java.security.MessageDigest class
-     */
-    protected String createDigestedPassword( String algorithm, byte[] password ) throws IllegalArgumentException
-    {
-        // create message digest object
-        try
-        {
-            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
-            {
-                String saltWithCrypted = UnixCrypt.crypt( Strings.utf8ToString( password ), "" );
-                String crypted = saltWithCrypted.substring( 2 );
-                return '{' + algorithm + '}' + Arrays.toString( Strings.getBytesUtf8( crypted ) );
-            }
-            else
-            {
-                MessageDigest digest = MessageDigest.getInstance( algorithm );
-
-                // calculate hashed value of password
-                byte[] fingerPrint = digest.digest( password );
-                char[] encoded = Base64.encode( fingerPrint );
-
-                // create return result of form "{alg}bbbbbbb"
-                return '{' + algorithm + '}' + new String( encoded );
-            }
-        }
-        catch ( NoSuchAlgorithmException nsae )
-        {
-            LOG.error( I18n.err( I18n.ERR_7, algorithm ) );
-            throw new IllegalArgumentException( nsae.getLocalizedMessage() );
+            return userPasswords;
         }
     }
 

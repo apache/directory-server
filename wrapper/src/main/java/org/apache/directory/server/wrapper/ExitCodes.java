@@ -37,17 +37,17 @@ public final class ExitCodes
     {
     }
 
-    public final static int CLASS_LOOKUP = 1;
-    public final static int INSTANTIATION = 2;
-    public final static int METHOD_LOOKUP = 3;
-    public final static int INITIALIZATION = 4;
-    public final static int START = 5;
-    public final static int STOP = 6;
-    public final static int PROPLOAD = 7;
-    public final static int VERIFICATION = 8;
-    public final static int DESTROY = 9;
-    public final static int BAD_ARGUMENTS = 10;
-    public final static int BAD_COMMAND = 11;
-    public final static int UNKNOWN = 12;
-    public final static int INVOCATION = 13;
+    public static final int CLASS_LOOKUP = 1;
+    public static final int INSTANTIATION = 2;
+    public static final int METHOD_LOOKUP = 3;
+    public static final int INITIALIZATION = 4;
+    public static final int START = 5;
+    public static final int STOP = 6;
+    public static final int PROPLOAD = 7;
+    public static final int VERIFICATION = 8;
+    public static final int DESTROY = 9;
+    public static final int BAD_ARGUMENTS = 10;
+    public static final int BAD_COMMAND = 11;
+    public static final int UNKNOWN = 12;
+    public static final int INVOCATION = 13;
 }

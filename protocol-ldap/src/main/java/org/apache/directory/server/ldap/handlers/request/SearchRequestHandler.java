@@ -30,8 +30,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorClosedException;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -70,7 +71,6 @@ import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
@@ -94,11 +94,10 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     /** The logger */
     private static final Logger LOG = LoggerFactory.getLogger( SearchRequestHandler.class );
 
+    private static final Logger SEARCH_TIME_LOG = LoggerFactory.getLogger( "org.apache.directory.server.ldap.handlers.request.SEARCH_TIME_LOG" );
+    
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-    /** cached to save redundant lookups into registries */
-    private AttributeType OBJECT_CLASS_AT;
 
     /** The replication handler */
     protected ReplicationRequestHandler replicationReqHandler;
@@ -114,14 +113,10 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      */
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
-        if ( OBJECT_CLASS_AT == null )
-        {
-            OBJECT_CLASS_AT = session.getCoreSession().getDirectoryService().getSchemaManager().getAttributeType(
-                SchemaConstants.OBJECT_CLASS_AT );
-        }
+        AttributeType objectClassAT = session.getCoreSession().getDirectoryService().getAtProvider().getObjectClass();
 
-        EqualityNode<String> ocIsReferral = new EqualityNode<String>( OBJECT_CLASS_AT,
-            new org.apache.directory.api.ldap.model.entry.StringValue( OBJECT_CLASS_AT, SchemaConstants.REFERRAL_OC ) );
+        EqualityNode<String> ocIsReferral = new EqualityNode<String>( objectClassAT,
+            new org.apache.directory.api.ldap.model.entry.StringValue( objectClassAT, SchemaConstants.REFERRAL_OC ) );
 
         return ocIsReferral;
     }
@@ -222,8 +217,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
         }
     }
-    
-    
+
+
     /**
      * Handle the replication request.
      */
@@ -257,38 +252,32 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      */
     private void handleLookup( LdapSession session, SearchRequest req ) throws Exception
     {
-        try
-        {
-            Map<String, Control> controlMap = req.getControls();
-            Control[] controls = null;
+        Map<String, Control> controlMap = req.getControls();
+        Control[] controls = null;
 
-            if ( controlMap != null )
+        if ( controlMap != null )
+        {
+            Collection<Control> controlValues = controlMap.values();
+
+            controls = new Control[controlValues.size()];
+            int pos = 0;
+
+            for ( Control control : controlMap.values() )
             {
-                Collection<Control> controlValues = controlMap.values();
-
-                controls = new Control[controlValues.size()];
-                int pos = 0;
-
-                for ( Control control : controlMap.values() )
-                {
-                    controls[pos++] = control;
-                }
+                controls[pos++] = control;
             }
-
-            Entry entry = session.getCoreSession().lookup(
-                req.getBase(),
-                controls,
-                req.getAttributes().toArray( new String[]
-                    {} ) );
-
-            session.getIoSession().write( generateResponse( session, req, entry ) );
-
-            // write the SearchResultDone message
-            session.getIoSession().write( req.getResultResponse() );
         }
-        finally
-        {
-        }
+
+        Entry entry = session.getCoreSession().lookup(
+            req.getBase(),
+            controls,
+            req.getAttributes().toArray( new String[]
+                {} ) );
+
+        session.getIoSession().write( generateResponse( session, req, entry ) );
+
+        // write the SearchResultDone message
+        session.getIoSession().write( req.getResultResponse() );
     }
 
 
@@ -304,7 +293,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      * @param cursor the {@link EntryFilteringCursor} over the search results
      */
     private void setTimeLimitsOnCursor( SearchRequest req, LdapSession session,
-        final EntryFilteringCursor cursor )
+        final Cursor<Entry> cursor )
     {
         // Don't bother setting time limits for administrators
         if ( session.getCoreSession().isAnAdministrator() && req.getTimeLimit() == NO_TIME_LIMIT )
@@ -384,7 +373,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
 
     private void writeResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
-        EntryFilteringCursor cursor, long sizeLimit ) throws Exception
+        Cursor<Entry> cursor, long sizeLimit ) throws Exception
     {
         long count = 0;
 
@@ -405,6 +394,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
             if ( req.isAbandoned() )
             {
+                cursor.close( new OperationAbandonedException() );
+
                 // The cursor has been closed by an abandon request.
                 if ( IS_DEBUG )
                 {
@@ -425,8 +416,13 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             count++;
         }
 
-        // DO NOT WRITE THE RESPONSE - JUST RETURN IT
-        ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+        // check if the result code is not already set
+        // the result code might be set when sort control is present
+        if ( ldapResult.getResultCode() == null )
+        {
+            // DO NOT WRITE THE RESPONSE - JUST RETURN IT
+            ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
+        }
 
         if ( ( count >= sizeLimit ) && ( cursor.next() ) )
         {
@@ -441,7 +437,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
 
     private void readPagedResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
-        EntryFilteringCursor cursor, long sizeLimit, int pagedLimit, PagedSearchContext pagedContext,
+        Cursor<Entry> cursor, long sizeLimit, int pagedLimit, PagedSearchContext pagedContext,
         PagedResultsDecorator pagedResultsControl ) throws Exception
     {
         req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
@@ -475,6 +471,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         boolean hasMoreEntry = cursor.next();
 
+        // We have some entry, move back to the first one, as we just moved forward 
+        // to get the first entry
         if ( hasMoreEntry )
         {
             cursor.previous();
@@ -560,7 +558,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             pagedSearchControl.setCritical( true );
 
             // Close the cursor
-            EntryFilteringCursor cursor = psCookie.getCursor();
+            Cursor<Entry> cursor = psCookie.getCursor();
 
             if ( cursor != null )
             {
@@ -578,7 +576,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         LdapResult ldapResult = req.getResultResponse().getLdapResult();
         ldapResult.setResultCode( ResultCodeEnum.SUCCESS );
         req.getResultResponse().addControl( pagedSearchControl );
-        return req.getResultResponse();
+
+        return ( SearchResultDone ) req.getResultResponse();
     }
 
 
@@ -615,7 +614,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         long sizeLimit = min( serverLimit, requestLimit );
 
         int pagedLimit = pagedSearchControl.getSize();
-        EntryFilteringCursor cursor = null;
+        Cursor<Entry> cursor = null;
         PagedSearchContext pagedContext = null;
 
         // We have the following cases :
@@ -676,8 +675,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
                 // If we had a cookie in the session, remove it
                 removeContext( session, pagedContext );
-                
-                return req.getResultResponse();
+
+                return ( SearchResultDone ) req.getResultResponse();
             }
             else
             {
@@ -710,7 +709,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 ldapResult.setDiagnosticMessage( "Invalid cookie for this PagedSearch request." );
                 ldapResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
 
-                return req.getResultResponse();
+                return ( SearchResultDone ) req.getResultResponse();
             }
 
             if ( pagedContext.hasSameRequest( req, session ) )
@@ -777,7 +776,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
-        return req.getResultResponse();
+        return ( SearchResultDone ) req.getResultResponse();
     }
 
 
@@ -808,7 +807,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         // A normal search
         // Check that we have a cursor or not.
         // No cursor : do a search.
-        EntryFilteringCursor cursor = session.getCoreSession().search( req );
+        Cursor<Entry> cursor = session.getCoreSession().search( req );
 
         // register the request in the session
         session.registerSearchRequest( req, cursor );
@@ -840,9 +839,13 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
             writeResults( session, req, ldapResult, cursor, sizeLimit );
         }
+        catch ( Exception e )
+        {
+            throw e;
+        }
         finally
         {
-            if ( ( cursor != null  ) && !cursor.isClosed() )
+            if ( ( cursor != null ) && !cursor.isClosed() )
             {
                 try
                 {
@@ -855,7 +858,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
-        return req.getResultResponse();
+        return ( SearchResultDone ) req.getResultResponse();
     }
 
 
@@ -873,7 +876,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      */
     private Response generateResponse( LdapSession session, SearchRequest req, Entry entry ) throws Exception
     {
-        Attribute ref = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( SchemaConstants.REF_AT );
+        Attribute ref = entry.get( SchemaConstants.REF_AT );
         boolean hasManageDsaItControl = req.getControls().containsKey( ManageDsaIT.OID );
 
         if ( ( ref != null ) && !hasManageDsaItControl )
@@ -898,24 +901,25 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 {
                     ldapUrl = new LdapUrl( url );
                     ldapUrl.setForceScopeRendering( true );
+
+                    switch ( req.getScope() )
+                    {
+                        case SUBTREE:
+                            ldapUrl.setScope( SearchScope.SUBTREE.getScope() );
+                            break;
+
+                        case ONELEVEL: // one level here is object level on remote server
+                            ldapUrl.setScope( SearchScope.OBJECT.getScope() );
+                            break;
+
+                        default:
+                            ldapUrl.setScope( SearchScope.OBJECT.getScope() );
+                    }
                 }
                 catch ( LdapURLEncodingException e )
                 {
                     LOG.error( I18n.err( I18n.ERR_165, url, entry ) );
-                }
-
-                switch ( req.getScope() )
-                {
-                    case SUBTREE:
-                        ldapUrl.setScope( SearchScope.SUBTREE.getScope() );
-                        break;
-
-                    case ONELEVEL: // one level here is object level on remote server
-                        ldapUrl.setScope( SearchScope.OBJECT.getScope() );
-                        break;
-
-                    default:
-                        ldapUrl.setScope( SearchScope.OBJECT.getScope() );
+                    ldapUrl = new LdapUrl();
                 }
 
                 respRef.getReferral().addLdapUrl( ldapUrl.toString() );
@@ -985,7 +989,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             {
                 AttributeType attributeType = presenceNode.getAttributeType();
 
-                if ( attributeType.equals( OBJECT_CLASS_AT ) )
+                AttributeType objectClassAT = session.getCoreSession().getDirectoryService().getAtProvider().getObjectClass();
+                if ( attributeType.equals( objectClassAT ) )
                 {
                     return;
                 }
@@ -1032,7 +1037,8 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             if ( filter.isSchemaAware() )
             {
                 AttributeType attributeType = ( ( PresenceNode ) req.getFilter() ).getAttributeType();
-                isObjectClassFilter = attributeType.equals( OBJECT_CLASS_AT );
+                isObjectClassFilter = attributeType.equals( session.getCoreSession().getDirectoryService()
+                    .getAtProvider().getObjectClass() );
             }
             else
             {
@@ -1144,11 +1150,26 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             // Handle regular search requests from here down
             // ===============================================================
 
-            //long t0 = System.nanoTime();
+            boolean isLogSearchTime = SEARCH_TIME_LOG.isDebugEnabled();
+            
+            long t0 = 0;
+            String filter = null;
+            
+            if ( isLogSearchTime )
+            {
+                t0 = System.nanoTime();
+                filter = req.getFilter().toString();
+            }
+            
             SearchResultDone done = doSimpleSearch( session, req );
-            //long t1 = System.nanoTime();
             session.getIoSession().write( done );
-            //.print( "Handler;" + ((t1-t0)/1000) + ";" );
+            
+            if ( isLogSearchTime )
+            {
+                long t1 = System.nanoTime();
+                SEARCH_TIME_LOG.debug( "Search with filter {} took {}ms. Filter with assigned counts is {}", filter,
+                    ( ( t1 - t0 ) / 1000000 ), req.getFilter() );
+            }
         }
         catch ( Exception e )
         {
@@ -1212,7 +1233,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         try
         {
             isReferral = referralManager.isReferral( reqTargetDn );
-    
+
             if ( !isReferral )
             {
                 // Check if the entry has a parent which is a referral
@@ -1429,8 +1450,9 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
-        Value<?> subschemaSubentry = nexus.getRootDse( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        Dn subschemaSubentryDn = new Dn( ds.getSchemaManager(), subschemaSubentry.getString() );
+
+        Value<?> subschemaSubentry = nexus.getRootDseValue( ds.getAtProvider().getSubschemaSubentry() );
+        Dn subschemaSubentryDn = ds.getDnFactory().create( subschemaSubentry.getString() );
         String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         return subschemaSubentryDnNorm.equals( baseNormForm );
@@ -1482,6 +1504,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             catch ( LdapURLEncodingException e )
             {
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
+                ldapUrl = new LdapUrl();
             }
 
             // Normalize the Dn to check for same dn
@@ -1561,6 +1584,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             catch ( LdapURLEncodingException e )
             {
                 LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
+                ldapUrl = new LdapUrl();
             }
 
             Dn urlDn = new Dn( session.getCoreSession().getDirectoryService()
@@ -1616,6 +1640,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {
         LdapResult result = req.getResultResponse().getLdapResult();
+        Exception cause = null;
 
         /*
          * Set the result code or guess the best option.
@@ -1624,16 +1649,25 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         if ( e instanceof CursorClosedException )
         {
-            e = (Exception)((CursorClosedException)e).getCause();
-        }
+            cause = ( Exception ) ( ( CursorClosedException ) e ).getCause();
 
-        if ( e instanceof LdapOperationException )
-        {
-            code = ( ( LdapOperationException ) e ).getResultCode();
+            if ( cause == null )
+            {
+                cause = e;
+            }
         }
         else
         {
-            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            cause = e;
+        }
+
+        if ( cause instanceof LdapOperationException )
+        {
+            code = ( ( LdapOperationException ) cause ).getResultCode();
+        }
+        else
+        {
+            code = ResultCodeEnum.getBestEstimate( cause, req.getType() );
         }
 
         result.setResultCode( code );
@@ -1643,23 +1677,19 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
          * exception into the message if we are in debug mode.  Note we
          * embed the result code name into the message.
          */
-        String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
+        String msg = code.toString() + ": failed for " + req + ": " + cause.getLocalizedMessage();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( msg, e );
-        }
-
-        if ( IS_DEBUG )
-        {
-            msg += ":\n" + ExceptionUtils.getStackTrace( e );
+            LOG.debug( msg, cause );
+            msg += ":\n" + ExceptionUtils.getStackTrace( cause );
         }
 
         result.setDiagnosticMessage( msg );
 
-        if ( e instanceof LdapOperationException )
+        if ( cause instanceof LdapOperationException )
         {
-            LdapOperationException ne = ( LdapOperationException ) e;
+            LdapOperationException ne = ( LdapOperationException ) cause;
 
             // Add the matchedDN if necessary
             boolean setMatchedDn = code == ResultCodeEnum.NO_SUCH_OBJECT || code == ResultCodeEnum.ALIAS_PROBLEM

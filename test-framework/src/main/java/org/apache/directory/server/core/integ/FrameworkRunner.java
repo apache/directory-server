@@ -22,8 +22,7 @@ package org.apache.directory.server.core.integ;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.directory.api.ldap.codec.standalone.StandaloneLdapApiService;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -75,37 +74,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /** The KdcServer for this class, if any */
     private KdcServer classKdcServer;
-
-    /**
-     * Initialize the codec service
-     */
-    static
-    {
-        // Load the extension points
-        System.setProperty( StandaloneLdapApiService.DEFAULT_CONTROLS_LIST,
-            "org.apache.directory.api.ldap.codec.controls.cascade.CascadeFactory," +
-                "org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITFactory," +
-                "org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeFactory," +
-                "org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsFactory," +
-                "org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory," +
-                "org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesFactory" );
-
-        System.setProperty( StandaloneLdapApiService.EXTRA_CONTROLS_LIST,
-            "org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory," +
-                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory," +
-                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory," +
-                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory," +
-                "org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory" );
-
-        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_REQUESTS_LIST,
-            "org.apache.directory.api.ldap.extras.extended.ads_impl.cancel.CancelFactory," +
-                "org.apache.directory.api.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory," +
-                "org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory," +
-                "org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory" );
-
-        System.setProperty( StandaloneLdapApiService.DEFAULT_EXTENDED_OPERATION_RESPONSES_LIST,
-            "org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory" );
-    }
 
 
     /**

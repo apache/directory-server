@@ -22,10 +22,10 @@ package org.apache.directory.server.operations.modifydn;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import javax.naming.NameNotFoundException;
@@ -41,16 +41,20 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,7 +66,23 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS(name = "ModifyRdnIT-class", enableChangeLog = false)
+@CreateDS(name = "ModifyRdnIT-class", enableChangeLog = false,
+    partitions = 
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif = "dn: dc=example,dc=com\n" +
+                        "objectClass: domain\n" +
+                        "objectClass: top\n" +
+                        "dc: example\n\n"
+                ),
+                indexes = {
+                    @CreateIndex( attribute = "uid" )
+                }
+            )
+    })
 @CreateLdapServer(
     transports =
         {
@@ -70,8 +90,6 @@ import org.junit.runner.RunWith;
     })
 public class ModifyRdnIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final String BASE = "ou=system";
 
 
@@ -127,11 +145,11 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
             "cn", oldCn,
             "sn: Amos",
             "description", oldCn + " is a person." );
-        
+
         connection.add( entry );
 
         Entry tori = connection.lookup( oldDn );
-        
+
         assertNotNull( tori );
         assertTrue( tori.contains( "cn", "Myra Ellen Amos" ) );
 
@@ -139,7 +157,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         String newCn = "Tori Amos";
         String newRdn = "cn=" + newCn;
         String newDn = newRdn + "," + BASE;
-        
+
         connection.rename( oldDn, newRdn, true );
 
         // Check, whether old Entry does not exists
@@ -154,6 +172,97 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertTrue( tori.contains( "cn", newCn ) );
         assertFalse( tori.contains( "cn", oldCn ) ); // old value is gone
         assertEquals( 1, tori.get( "cn" ).size() );
+
+        // Remove entry (use new rdn)
+        connection.delete( newDn );
+    }
+
+
+    /**
+     * Modify Rdn of an entry, delete its old rdn value and search before and
+     * after rename.
+     */
+    //@Ignore
+    @Test
+    public void testModifyRdnAndDeleteOldWithSearchInBetween() throws Exception
+    {
+        LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
+        // connection.setTimeOut( 0L );
+        connection.loadSchema();
+
+        // Create a person, cn value is rdn
+        String oldCn = "Myra Ellen Amos";
+        String oldRdn = "cn=" + oldCn;
+        String oldDn = oldRdn + ", " + BASE;
+
+        Entry entry = new DefaultEntry( oldDn,
+                "objectClass: top",
+                "objectClass: person",
+                "cn", oldCn,
+                "sn: Amos",
+                "description", oldCn + " is a person." );
+
+        connection.add( entry );
+
+        Entry tori = connection.lookup( oldDn );
+
+        assertNotNull( tori );
+        assertTrue( tori.contains( "cn", "Myra Ellen Amos" ) );
+
+        // now try a search
+        Entry found = null;
+        for ( Entry result : connection.search( BASE, "(sn=amos)", SearchScope.ONELEVEL ) )
+        {
+            if ( found == null )
+            {
+                found = result;
+            }
+            else
+            {
+                fail( "Found too many results" );
+            }
+        }
+        assertNotNull( found );
+        Rdn foundRdn = found.getDn().getRdn();
+        assertEquals( "cn", foundRdn.getType() );
+        assertEquals( oldCn, foundRdn.getValue() );
+
+        // modify Rdn
+        String newCn = "Tori Amos";
+        String newRdn = "cn=" + newCn;
+        String newDn = newRdn + "," + BASE;
+
+        connection.rename( oldDn, newRdn, true );
+
+        // Check, whether old Entry does not exists
+        assertNull( connection.lookup( oldDn ) );
+
+        // Check, whether new Entry exists
+        tori = connection.lookup( newDn );
+        assertNotNull( tori );
+
+        // Check values of cn
+        assertTrue( tori.contains( "cn", newCn ) );
+        assertFalse( tori.contains( "cn", oldCn ) ); // old value is gone
+        assertEquals( 1, tori.get( "cn" ).size() );
+
+        // now try a search
+        found = null;
+        for ( Entry result : connection.search( BASE, "(sn=amos)", SearchScope.ONELEVEL ) )
+        {
+            if ( found == null )
+            {
+                found = result;
+            }
+            else
+            {
+                fail( "Found too many results" );
+            }
+        }
+        assertNotNull( found );
+        foundRdn = found.getDn().getRdn();
+        assertEquals( "cn", foundRdn.getType() );
+        assertEquals( newCn, foundRdn.getValue() );
 
         // Remove entry (use new rdn)
         connection.delete( newDn );
@@ -200,7 +309,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( Strings.toLowerCaseAscii( newCn ) ) );
         assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
@@ -247,7 +356,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( Strings.toLowerCaseAscii( newCn ) ) );
         assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
@@ -302,7 +411,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( Strings.toLowerCaseAscii( newCn ) ) );
         assertTrue( !cn.contains( oldCn ) ); // old value is gone
         assertTrue( cn.contains( alternateCn ) ); // alternate value is still available
         assertEquals( 2, cn.size() );
@@ -353,7 +462,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertTrue( cn.contains( cnVal ) );
         assertEquals( "Number of cn occurences", 1, cn.size() );
         Attribute sn = tori.getAttributes( "" ).get( "sn" );
-        assertTrue( sn.contains( snVal ) );
+        assertTrue( sn.contains( Strings.toLowerCaseAscii( snVal ) ) );
         assertEquals( "Number of sn occurences", 1, sn.size() );
 
         // Remove entry (use new rdn)
@@ -441,7 +550,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of ou
         Attribute ou = org.getAttributes( "" ).get( "ou" );
-        assertTrue( ou.contains( newOu ) );
+        assertTrue( ou.contains( Strings.toLowerCaseAscii( newOu ) ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
 
@@ -597,10 +706,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        assertTrue( cnAttr.contains( "tori amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "Amos" ) );
+        assertTrue( snAttr.contains( "amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertEquals( 1, descriptionAttr.size() );
 
@@ -637,10 +746,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        assertTrue( cnAttr.contains( "tori amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "Amos" ) );
+        assertTrue( snAttr.contains( "amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertEquals( 1, descriptionAttr.size() );
 
@@ -677,10 +786,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        assertTrue( cnAttr.contains( "tori amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "Amos" ) );
+        assertTrue( snAttr.contains( "amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertEquals( 1, descriptionAttr.size() );
 
@@ -717,10 +826,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        assertTrue( cnAttr.contains( "tori amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "Amos" ) );
+        assertTrue( snAttr.contains( "amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertNull( descriptionAttr );
 
@@ -763,7 +872,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertTrue( cnAttr.contains( "Tori Amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "Amos" ) );
+        assertTrue( snAttr.contains( "amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertEquals( 1, descriptionAttr.size() );
         Attribute telephoneNumberAttr = newCtx.getAttributes( "" ).get( "telephoneNumber" );
@@ -865,7 +974,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "Tori Amos" ) );
+        assertTrue( cnAttr.contains( "tori amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
         assertTrue( snAttr.contains( "Amos" ) );

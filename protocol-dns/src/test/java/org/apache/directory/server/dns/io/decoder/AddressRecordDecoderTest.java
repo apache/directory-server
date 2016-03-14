@@ -24,10 +24,13 @@ package org.apache.directory.server.dns.io.decoder;
 import java.net.InetAddress;
 import java.util.Map;
 
+import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
 
@@ -47,7 +50,7 @@ public class AddressRecordDecoderTest
     @Before
     public void setUp() throws Exception
     {
-        address = InetAddress.getByName( "127.0.0.1" );
+        address = Network.LOOPBACK;
         inputBuffer = IoBuffer.allocate( address.getAddress().length );
         inputBuffer.put( address.getAddress() );
         inputBuffer.flip();
@@ -60,6 +63,6 @@ public class AddressRecordDecoderTest
     public void testDecode() throws Exception
     {
         Map<String, Object> attributes = decoder.decode( inputBuffer, ( short ) address.getAddress().length );
-        assertEquals( address, attributes.get( DnsAttribute.IP_ADDRESS ) );
+        assertEquals( address, attributes.get( Strings.toLowerCaseAscii( DnsAttribute.IP_ADDRESS ) ) );
     }
 }

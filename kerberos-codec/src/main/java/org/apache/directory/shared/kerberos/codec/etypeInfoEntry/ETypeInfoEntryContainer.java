@@ -41,8 +41,7 @@ public class ETypeInfoEntryContainer extends AbstractContainer
     public ETypeInfoEntryContainer()
     {
         super();
-        this.stateStack = new int[1];
-        this.grammar = ETypeInfoEntryGrammar.getInstance();
+        setGrammar( ETypeInfoEntryGrammar.getInstance() );
         setTransition( ETypeInfoEntryStatesEnum.START_STATE );
     }
 

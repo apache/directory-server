@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AbandonListener;
 import org.apache.directory.api.ldap.model.message.AbandonableRequest;
@@ -30,10 +31,14 @@ import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.api.ldap.model.message.controls.EntryChange;
 import org.apache.directory.api.ldap.model.message.controls.EntryChangeImpl;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.entry.ClonedServerEntry;
+import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ChangeOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
@@ -63,6 +68,8 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     final SearchRequest req;
     final PersistentSearch psearchControl;
 
+    private LookupOperationContext filterCtx;
+    private SchemaManager schemaManager;
 
     public PersistentSearchListener( LdapSession session, SearchRequest req )
     {
@@ -70,6 +77,9 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         this.req = req;
         req.addAbandonListener( this );
         this.psearchControl = ( PersistentSearch ) req.getControls().get( PersistentSearch.OID );
+        
+        filterCtx = new LookupOperationContext( session.getCoreSession(), req.getAttributes().toArray( new String[]{} ) );
+        schemaManager = session.getCoreSession().getDirectoryService().getSchemaManager();
     }
 
     
@@ -144,7 +154,17 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( addContext.getDn() );
-        respEntry.setEntry( addContext.getEntry() );
+        
+        // the entry needs to be cloned cause addContext.getEntry() will only contain
+        // the user provided values and all the operational attributes added during
+        // Partition.add() will be applied in the cloned entry present inside it
+        // if we don't clone then the attributes will not be filtered
+        // e.x the operational attributes will also be sent even when a user requests
+        // user attributes only
+        Entry entry = new ClonedServerEntry( addContext.getEntry() );
+        filterEntry( entry );
+        respEntry.setEntry( entry );
+        
         setECResponseControl( respEntry, addContext, ChangeType.ADD );
         session.getIoSession().write( respEntry );
     }
@@ -159,6 +179,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( deleteContext.getDn() );
+        filterEntry( deleteContext.getEntry() );
         respEntry.setEntry( deleteContext.getEntry() );
         setECResponseControl( respEntry, deleteContext, ChangeType.DELETE );
         session.getIoSession().write( respEntry );
@@ -174,7 +195,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( modifyContext.getDn() );
-        respEntry.setEntry( modifyContext.getAlteredEntry() );
+        
+        Entry entry = new ClonedServerEntry( modifyContext.getAlteredEntry() );
+        filterEntry( entry );
+        respEntry.setEntry( entry );
+
         setECResponseControl( respEntry, modifyContext, ChangeType.MODIFY );
         session.getIoSession().write( respEntry );
     }
@@ -188,8 +213,12 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         }
 
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
-        respEntry.setObjectName( moveContext.getDn() );
-        respEntry.setEntry( moveContext.getEntry() );
+        respEntry.setObjectName( moveContext.getNewDn() );
+        
+        Entry entry = new ClonedServerEntry( moveContext.getModifiedEntry() );
+        filterEntry( entry );
+        respEntry.setEntry( entry );
+        
         setECResponseControl( respEntry, moveContext, ChangeType.MODDN );
         session.getIoSession().write( respEntry );
     }
@@ -210,8 +239,33 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( renameContext.getModifiedEntry().getDn() );
-        respEntry.setEntry( renameContext.getModifiedEntry() );
+        
+        Entry entry = new ClonedServerEntry( renameContext.getModifiedEntry() );
+        filterEntry( entry );
+        respEntry.setEntry( entry );
+        
         setECResponseControl( respEntry, renameContext, ChangeType.MODDN );
         session.getIoSession().write( respEntry );
+    }
+    
+    
+    /**
+     * A convenient method to filter the contents of an entry
+     * 
+     * @see ServerEntryUtils#filterContents(SchemaManager, org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext, Entry)
+     * 
+     * @param entry
+     */
+    private void filterEntry( Entry entry )
+    {
+        try
+        {
+            ServerEntryUtils.filterContents( schemaManager, filterCtx, entry );
+        }
+        catch ( LdapException e )
+        {
+            // shouldn't happen, if it does then blow up
+            throw new RuntimeException( e );
+        }
     }
 }

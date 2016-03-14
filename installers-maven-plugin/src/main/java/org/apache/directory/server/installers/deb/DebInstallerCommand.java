@@ -24,8 +24,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
+import org.apache.directory.server.installers.LinuxInstallerCommand;
 import org.apache.directory.server.installers.MojoHelperUtils;
 import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -38,15 +38,38 @@ import org.apache.tools.ant.taskdefs.Execute;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
+public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
 {
+    /** The debian directory */
+    private static final String DEBIAN_DIR = "DEBIAN";
+
+    /** The debian control file */
+    private static final String CONTROL_FILE = "control";
+
+    /** The debian preinst file */
+    private static final String POSTINST_FILE = "postinst";
+
+    /** The debian postints file for files */
+    private static final String PRERM_FILE = "prerm";
+
+    /** The debian extension for files */
+    private static final String DOT_DEB_EXTENSION = ".deb";
+
+    /** The debian extension for files */
+    private static final String DEB_EXTENSION = "deb";
+
+    /** The default extension */
+    private static final String DASH_DEFAULT = "-" + DEFAULT;
+
+    /** The etc/init.d directory */
+    private static final String ETC_INITD = "etc/init.d";
+
+
     /**
      * Creates a new instance of DebInstallerCommand.
      *
-     * @param mojo
-     *      the Server Installers Mojo
-     * @param target
-     *      the DEB target
+     * @param mojo the Server Installers Mojo
+     * @param target the DEB target
      */
     public DebInstallerCommand( GenerateMojo mojo, DebTarget target )
     {
@@ -72,7 +95,11 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
 
         log.info( "  Creating Deb installer..." );
 
-        // Creating the target directory
+        // Creating the target directory, which uses the ID of the Target
+        File targetDirectory = getTargetDirectory();
+
+        log.info( "Creating target directory : " + targetDirectory.getAbsolutePath() );
+
         if ( !getTargetDirectory().mkdirs() )
         {
             Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, getTargetDirectory() ) );
@@ -88,16 +115,18 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
             createLayouts();
 
             // Copying the init script in /etc/init.d/
-            File debEtcInitdDirectory = new File( getDebDirectory(), "etc/init.d" );
+            File debEtcInitdDirectory = new File( getDebDirectory(), ETC_INITD );
+
             if ( !debEtcInitdDirectory.mkdirs() )
             {
                 Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, debEtcInitdDirectory ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
-                new File( debEtcInitdDirectory, "apacheds-" + mojo.getProject().getVersion() + "-default" ), true );
+
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, INSTALLERS_PATH + ETC_INITD_SCRIPT,
+                getClass().getResourceAsStream( INSTALLERS_PATH + ETC_INITD_SCRIPT ),
+                new File( debEtcInitdDirectory, APACHEDS_DASH + mojo.getProject().getVersion() + DASH_DEFAULT ), true );
         }
         catch ( Exception e )
         {
@@ -106,7 +135,8 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         }
 
         // Create DEBIAN directory
-        File debDebianDirectory = new File( getDebDirectory(), "DEBIAN" );
+        File debDebianDirectory = new File( getDebDirectory(), DEBIAN_DIR );
+
         if ( !debDebianDirectory.mkdirs() )
         {
             Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, debDebianDirectory ) );
@@ -114,17 +144,20 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
             throw new MojoFailureException( e.getMessage() );
         }
 
-        // Copying the 'control' file
+        // Copying the 'control', 'postinst' and 'prerm' files
         try
         {
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "control" ),
-                new File( debDebianDirectory, "control" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, CONTROL_FILE,
+                getClass().getResourceAsStream( CONTROL_FILE ),
+                new File( debDebianDirectory, CONTROL_FILE ), true );
 
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "postinst" ),
-                new File( debDebianDirectory, "postinst" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, POSTINST_FILE,
+                getClass().getResourceAsStream( POSTINST_FILE ),
+                new File( debDebianDirectory, POSTINST_FILE ), true );
 
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "prerm" ),
-                new File( debDebianDirectory, "prerm" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, PRERM_FILE,
+                getClass().getResourceAsStream( PRERM_FILE ),
+                new File( debDebianDirectory, PRERM_FILE ), true );
         }
         catch ( IOException e )
         {
@@ -134,21 +167,23 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
 
         // Setting correct permission on the postinst script
         MojoHelperUtils.exec( new String[]
-            { "chmod", "755", new File( debDebianDirectory, "postinst" ).toString() }, debDebianDirectory,
+            { CHMOD, RWX_RX_RX, new File( debDebianDirectory, POSTINST_FILE ).toString() }, debDebianDirectory,
             false );
         MojoHelperUtils.exec( new String[]
-            { "chmod", "755", new File( debDebianDirectory, "prerm" ).toString() }, debDebianDirectory, false );
+            { CHMOD, RWX_RX_RX, new File( debDebianDirectory, PRERM_FILE ).toString() }, debDebianDirectory, false );
 
         // Generating the Deb
         log.info( "    Generating Deb installer" );
 
         String finalName = target.getFinalName();
-        if ( !finalName.endsWith( ".deb" ) )
+
+        if ( !finalName.endsWith( DOT_DEB_EXTENSION ) )
         {
-            finalName = finalName + ".deb";
+            finalName = finalName + DOT_DEB_EXTENSION;
         }
 
         Execute createDebTask = new Execute();
+
         String[] cmd = new String[]
             {
                 mojo.getDpkgUtility().getAbsolutePath(),
@@ -156,6 +191,16 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
                 getTargetDirectory().getName() + "/" + getDebDirectory().getName(),
                 finalName
         };
+
+        StringBuilder antTask = new StringBuilder();
+
+        for ( String command : cmd )
+        {
+            antTask.append( command ).append( " " );
+        }
+
+        log.info( "Executing the ant task with command : " + antTask.toString() + " into directory "
+            + mojo.getOutputDirectory() );
         createDebTask.setCommandline( cmd );
         createDebTask.setWorkingDirectory( mojo.getOutputDirectory() );
 
@@ -174,7 +219,8 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
 
 
     /**
-     * Verifies the target.
+     * Verifies the target. The OsName must be 'Linux', it must be executed on a Linux box
+     * or a mac, the dpkg utility must be present locally.
      *
      * @return
      *      <code>true</code> if the target is correct, 
@@ -187,15 +233,18 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         {
             log.warn( "Deb package installer can only be targeted for Linux platforms!" );
             log.warn( "The build will continue, but please check the the platform of this installer target" );
+
             return false;
         }
 
         // Verifying the currently used OS to build the installer is Linux or Mac OS X
-        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( System.getProperty( "os.name" ) ) || Target.OS_NAME_MAC_OS_X
-            .equalsIgnoreCase( System.getProperty( "os.name" ) ) ) )
+        String osName = System.getProperty( OS_NAME );
+
+        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( osName ) || Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( osName ) ) )
         {
             log.warn( "Deb package installer can only be built on a machine running Linux or Mac OS X!" );
             log.warn( "The build will continue, generation of this target is skipped." );
+
             return false;
         }
 
@@ -204,6 +253,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         {
             log.warn( "Cannot find dpkg utility at this location: " + mojo.getDpkgUtility() );
             log.warn( "The build will continue, but please check the location of your dpkg utility." );
+
             return false;
         }
 
@@ -219,6 +269,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
         super.initializeFilterProperties();
 
         String version = mojo.getProject().getVersion();
+
         if ( version != null )
         {
             if ( version.endsWith( "-SNAPSHOT" ) )
@@ -230,15 +281,15 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
                 filterProperties.put( "version.debian", version );
             }
         }
-        filterProperties.put( "arch", target.getOsArch() );
 
-        filterProperties.put( "installation.directory", "/opt/apacheds-" + mojo.getProject().getVersion() );
-        filterProperties.put( "instances.directory", "/var/lib/apacheds-" + mojo.getProject().getVersion() );
-        filterProperties.put( "user", "apacheds" );
-        filterProperties.put( "wrapper.java.command", "# wrapper.java.command=<path-to-java-executable>" );
-        filterProperties.put( "double.quote", "" );
-        filterProperties.put( "default.instance.name", "default" );
-        filterProperties.put( "installation.directory", "/opt/apacheds-" + mojo.getProject().getVersion() );
+        filterProperties.put( ARCH_PROP, target.getOsArch() );
+        filterProperties.put( INSTALLATION_DIRECTORY_PROP, OPT_APACHEDS_DIR + mojo.getProject().getVersion() );
+        filterProperties.put( INSTANCES_DIRECTORY_PROP, VAR_LIB_APACHEDS_DIR + mojo.getProject().getVersion() );
+        filterProperties.put( USER_PROP, APACHEDS );
+        filterProperties.put( GROUP_PROP, APACHEDS );
+        filterProperties.put( WRAPPER_JAVA_COMMAND_PROP, WRAPPER_JAVA_COMMAND );
+        filterProperties.put( DOUBLE_QUOTE_PROP, "" );
+        filterProperties.put( DEFAULT_INSTANCE_NAME_PROP, DEFAULT );
     }
 
 
@@ -247,7 +298,7 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
      */
     public File getInstallationDirectory()
     {
-        return new File( getDebDirectory(), "opt/apacheds-" + mojo.getProject().getVersion() );
+        return new File( getDebDirectory(), OPT_APACHEDS_DIR + mojo.getProject().getVersion() );
     }
 
 
@@ -256,18 +307,17 @@ public class DebInstallerCommand extends AbstractMojoCommand<DebTarget>
      */
     public File getInstanceDirectory()
     {
-        return new File( getDebDirectory(), "var/lib/apacheds-" + mojo.getProject().getVersion() + "/default" );
+        return new File( getDebDirectory(), VAR_LIB_APACHEDS_DIR + mojo.getProject().getVersion() + "/" + DEFAULT );
     }
 
 
     /**
      * Gets the directory for the Deb installer.
      *
-     * @return
-     *      the directory for the Deb installer
+     * @return the directory for the Deb installer
      */
     private File getDebDirectory()
     {
-        return new File( getTargetDirectory(), "deb" );
+        return new File( getTargetDirectory(), DEB_EXTENSION );
     }
 }

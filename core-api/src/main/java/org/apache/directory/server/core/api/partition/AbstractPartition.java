@@ -33,6 +33,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -54,6 +55,9 @@ public abstract class AbstractPartition implements Partition
     /** The SchemaManager instance */
     protected SchemaManager schemaManager;
 
+    /** The DnFactory to use to create DN */
+    protected DnFactory dnFactory;
+
     /** The partition ID */
     protected String id;
 
@@ -62,7 +66,13 @@ public abstract class AbstractPartition implements Partition
 
     /** the cache service */
     protected CacheService cacheService;
+
+    /** the value of last successful add/update operation's CSN */
+    private String contextCsn;
     
+    /** a flag to detect the change in context CSN */
+    protected volatile boolean ctxCsnChanged = false;
+
     /**
      * {@inheritDoc}
      */
@@ -101,6 +111,15 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
+     * {@inheritDoc}
+     */
+    public void repair() throws Exception
+    {
+        // Do nothing. It will be handled by the implementation classes
+    }
+
+
+    /**
      * Override this method to put your initialization code.
      */
     protected abstract void doDestroy() throws Exception;
@@ -108,9 +127,18 @@ public abstract class AbstractPartition implements Partition
 
     /**
      * Override this method to put your initialization code.
-     * @throws Exception
+     * 
+     * @throws Exception If teh init failed
      */
     protected abstract void doInit() throws InvalidNameException, Exception;
+
+
+    /**
+     * Override this method to implement a repair method
+     * 
+     * @throws Exception If the repair failed
+     */
+    protected abstract void doRepair() throws InvalidNameException, Exception;
 
 
     /**
@@ -238,7 +266,7 @@ public abstract class AbstractPartition implements Partition
         this.contextEntry = contextEntry;
     }
 
-    
+
     /**
      * {@inheritDoc}
      */
@@ -246,5 +274,31 @@ public abstract class AbstractPartition implements Partition
     public void setCacheService( CacheService cacheService )
     {
         this.cacheService = cacheService;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getContextCsn()
+    {
+        return contextCsn;
+    }
+
+    
+    /**
+     * Replaces the current context CSN with the given CSN value if they are not same and
+     * sets the ctxCsnChanged flag to true.
+     * 
+     * @param csn the CSN value
+     */
+    protected void setContextCsn( String csn )
+    {
+        if ( !csn.equals( contextCsn ) )
+        {
+            contextCsn = csn;
+            ctxCsnChanged = true;
+        }
     }
 }

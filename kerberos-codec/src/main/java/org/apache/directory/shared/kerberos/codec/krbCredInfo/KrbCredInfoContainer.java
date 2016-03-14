@@ -41,8 +41,7 @@ public class KrbCredInfoContainer extends AbstractContainer
     public KrbCredInfoContainer()
     {
         super();
-        this.stateStack = new int[1];
-        this.grammar = KrbCredInfoGrammar.getInstance();
+        setGrammar( KrbCredInfoGrammar.getInstance() );
         setTransition( KrbCredInfoStatesEnum.START_STATE );
     }
 

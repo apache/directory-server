@@ -168,4 +168,9 @@ public class DnsProtocolHandler implements IoHandler
     {
         return ( this.contextKey );
     }
+
+    
+    public void inputClosed( IoSession session )
+    {
+    }
 }

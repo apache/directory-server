@@ -44,8 +44,7 @@ public class EncTicketPartContainer extends AbstractContainer
     public EncTicketPartContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
-        this.grammar = EncTicketPartGrammar.getInstance();
+        setGrammar( EncTicketPartGrammar.getInstance() );
         setTransition( EncTicketPartStatesEnum.START_STATE );
     }
 

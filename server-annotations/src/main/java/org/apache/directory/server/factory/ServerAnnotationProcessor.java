@@ -24,11 +24,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.directory.server.annotations.CreateChngPwdServer;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.server.annotations.CreateChngPwdServer;
 import org.apache.directory.server.annotations.CreateConsumer;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -43,16 +45,15 @@ import org.apache.directory.server.kerberos.changepwd.ChangePasswordServer;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmProvider;
+import org.apache.directory.server.ldap.handlers.sasl.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmProvider;
 import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.apache.mina.util.AvailablePortFinder;
 import org.junit.runner.Description;
 
 
@@ -62,64 +63,52 @@ import org.junit.runner.Description;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServerAnnotationProcessor
+public final class ServerAnnotationProcessor
 {
+    private ServerAnnotationProcessor()
+    {
+    }
+
+
     private static void createTransports( LdapServer ldapServer, CreateTransport[] transportBuilders )
     {
         if ( transportBuilders.length != 0 )
         {
             for ( CreateTransport transportBuilder : transportBuilders )
             {
-                String protocol = transportBuilder.protocol();
-                int port = transportBuilder.port();
-                int nbThreads = transportBuilder.nbThreads();
-                int backlog = transportBuilder.backlog();
-                String address = transportBuilder.address();
-
-                if ( port <= 0 )
+                List< Transport > transports = createTransports( transportBuilder );
+                
+                for ( Transport t : transports )
                 {
-                    try
-                    {
-                        ServerSocket ss = new ServerSocket( 0 );
-
-                        port = ss.getLocalPort();
-
-                        ss.close();
-                    }
-                    catch ( IOException ioe )
-                    {
-                        // Don't know what to do here...
-                    }
-                }
-
-                if ( protocol.equalsIgnoreCase( "LDAP" ) )
-                {
-                    Transport ldap = new TcpTransport( address, port, nbThreads, backlog );
-                    ldapServer.addTransports( ldap );
-                }
-                else if ( protocol.equalsIgnoreCase( "LDAPS" ) )
-                {
-                    Transport ldaps = new TcpTransport( address, port, nbThreads, backlog );
-                    ldaps.setEnableSSL( true );
-                    ldapServer.addTransports( ldaps );
-                }
-                else
-                {
-                    throw new IllegalArgumentException( I18n.err( I18n.ERR_689, protocol ) );
+                    ldapServer.addTransports( t );
                 }
             }
         }
         else
         {
             // Create default LDAP and LDAPS transports
-            int port = AvailablePortFinder.getNextAvailable( 1024 );
-            Transport ldap = new TcpTransport( port );
-            ldapServer.addTransports( ldap );
-            
-            port = AvailablePortFinder.getNextAvailable( port );
-            Transport ldaps = new TcpTransport( port );
-            ldaps.setEnableSSL( true );
-            ldapServer.addTransports( ldaps );
+            try 
+            {
+                int port = getFreePort();
+                Transport ldap = new TcpTransport( port );
+                ldapServer.addTransports( ldap );
+            }
+            catch ( IOException ioe )
+            {
+                // Don't know what to do here...
+            }
+
+            try 
+            {
+                int port = getFreePort();
+                Transport ldaps = new TcpTransport( port );
+                ldaps.setEnableSSL( true );
+                ldapServer.addTransports( ldaps );
+            }
+            catch ( IOException ioe )
+            {
+                // Don't know what to do here...
+            }
         }
     }
 
@@ -142,6 +131,9 @@ public class ServerAnnotationProcessor
 
             // Associate the DS to this LdapServer
             ldapServer.setDirectoryService( directoryService );
+
+            // Propagate the anonymous flag to the DS
+            directoryService.setAllowAnonymousAccess( createLdapServer.allowAnonymousAccess() );
 
             ldapServer.setSaslHost( createLdapServer.saslHost() );
 
@@ -199,15 +191,15 @@ public class ServerAnnotationProcessor
                     }
                 }
             }
-            
+
             List<String> realms = new ArrayList<String>();
-            for( String s : createLdapServer.saslRealms() )
+            for ( String s : createLdapServer.saslRealms() )
             {
                 realms.add( s );
             }
-            
+
             ldapServer.setSaslRealms( realms );
-            
+
             return ldapServer;
         }
         else
@@ -247,7 +239,15 @@ public class ServerAnnotationProcessor
         ReplicationConsumer consumer = new ReplicationConsumerImpl();
 
         SyncReplConfiguration config = new SyncReplConfiguration();
-        config.setRemoteHost( createConsumer.remoteHost() );
+        
+        String remoteHost = createConsumer.remoteHost();
+        
+        if ( Strings.isEmpty( remoteHost ) )
+        {
+            remoteHost = Network.LOOPBACK_HOSTNAME;
+        }
+        
+        config.setRemoteHost( remoteHost );
         config.setRemotePort( createConsumer.remotePort() );
         config.setReplUserDn( createConsumer.replUserDn() );
         config.setReplUserPassword( Strings.getBytesUtf8( createConsumer.replUserPassword() ) );
@@ -371,14 +371,13 @@ public class ServerAnnotationProcessor
     public static KdcServer getKdcServer( DirectoryService directoryService, int startPort ) throws Exception
     {
         CreateKdcServer createKdcServer = ( CreateKdcServer ) getAnnotation( CreateKdcServer.class );
-
-        return createKdcServer( createKdcServer, directoryService, startPort );
+        return createKdcServer( createKdcServer, directoryService );
     }
 
-    
-    private static KdcServer createKdcServer( CreateKdcServer createKdcServer, DirectoryService directoryService, int startPort )
+
+    private static KdcServer createKdcServer( CreateKdcServer createKdcServer, DirectoryService directoryService )
     {
-        if( createKdcServer == null )
+        if ( createKdcServer == null )
         {
             return null;
         }
@@ -388,53 +387,65 @@ public class ServerAnnotationProcessor
         kdcConfig.setPrimaryRealm( createKdcServer.primaryRealm() );
         kdcConfig.setMaximumTicketLifetime( createKdcServer.maxTicketLifetime() );
         kdcConfig.setMaximumRenewableLifetime( createKdcServer.maxRenewableLifetime() );
-        
+
         KdcServer kdcServer = new KdcServer( kdcConfig );
-        
+
         kdcServer.setSearchBaseDn( createKdcServer.searchBaseDn() );
-        
+
         CreateTransport[] transportBuilders = createKdcServer.transports();
-        
-        if( transportBuilders == null )
+
+        if ( transportBuilders == null )
         {
             // create only UDP transport if none specified
-            UdpTransport defaultTransport = new UdpTransport( AvailablePortFinder.getNextAvailable( startPort ) );
+            int port = 0;
+            try
+            {
+                port = getFreePort();
+            }
+            catch ( IOException ioe )
+            {
+                // Don't know what to do here...
+            }
+            UdpTransport defaultTransport = new UdpTransport( port );
             kdcServer.addTransports( defaultTransport );
         }
-        else if( transportBuilders.length > 0 )
+        else if ( transportBuilders.length > 0 )
         {
-            for( CreateTransport transportBuilder : transportBuilders )
+            for ( CreateTransport transportBuilder : transportBuilders )
             {
-                Transport t = createTransport( transportBuilder, startPort );
-                startPort = t.getPort() + 1;
-                kdcServer.addTransports( t );
+                List< Transport > transports = createTransports( transportBuilder );
+                for ( Transport t : transports )
+                {
+                    kdcServer.addTransports( t );
+                }
             }
         }
 
         CreateChngPwdServer[] createChngPwdServers = createKdcServer.chngPwdServer();
-        
-        
-        if( createChngPwdServers.length > 0 )
+
+        if ( createChngPwdServers.length > 0 )
         {
-            
+
             CreateChngPwdServer createChngPwdServer = createChngPwdServers[0];
             ChangePasswordConfig config = new ChangePasswordConfig( kdcConfig );
             config.setServicePrincipal( createChngPwdServer.srvPrincipal() );
-            
+
             ChangePasswordServer chngPwdServer = new ChangePasswordServer( config );
-            
-            for( CreateTransport transportBuilder : createChngPwdServer.transports() )
+
+            for ( CreateTransport transportBuilder : createChngPwdServer.transports() )
             {
-                Transport t = createTransport( transportBuilder, startPort );
-                startPort = t.getPort() + 1;
-                chngPwdServer.addTransports( t );
+                List< Transport > transports = createTransports( transportBuilder );
+                for ( Transport t : transports )
+                {
+                    chngPwdServer.addTransports( t );
+                }
             }
-            
+
             chngPwdServer.setDirectoryService( directoryService );
-            
+
             kdcServer.setChangePwdServer( chngPwdServer );
         }
-        
+
         kdcServer.setDirectoryService( directoryService );
 
         // Launch the server
@@ -449,44 +460,78 @@ public class ServerAnnotationProcessor
 
         return kdcServer;
     }
-    
-    
-    public static Transport createTransport( CreateTransport transportBuilder, int startPort )
+
+
+    private static List< Transport > createTransports( CreateTransport transportBuilder )
     {
         String protocol = transportBuilder.protocol();
         int port = transportBuilder.port();
         int nbThreads = transportBuilder.nbThreads();
         int backlog = transportBuilder.backlog();
         String address = transportBuilder.address();
-
-        if ( port == -1 )
-        {
-            port = AvailablePortFinder.getNextAvailable( startPort );
-            startPort = port + 1;
-        }
         
-        if ( protocol.equalsIgnoreCase( "TCP" ) )
+        if ( Strings.isEmpty( address ) )
+        {
+            address = Network.LOOPBACK_HOSTNAME;
+        }
+
+        if ( port <= 0 )
+        {
+            try
+            {
+                port = getFreePort();
+            }
+            catch ( IOException ioe )
+            {
+                // Don't know what to do here...
+            }
+        }
+
+        if ( protocol.equalsIgnoreCase( "TCP" ) || protocol.equalsIgnoreCase( "LDAP" ) )
         {
             Transport tcp = new TcpTransport( address, port, nbThreads, backlog );
-            return tcp;
+            return Collections.singletonList( tcp );
+        }
+        else if ( protocol.equalsIgnoreCase( "LDAPS" ) )
+        {
+            Transport tcp = new TcpTransport( address, port, nbThreads, backlog );
+            tcp.setEnableSSL( true );
+            return Collections.singletonList( tcp );
         }
         else if ( protocol.equalsIgnoreCase( "UDP" ) )
         {
-            UdpTransport udp = new UdpTransport( address, port );
-            return udp;
+            Transport udp = new UdpTransport( address, port );
+            return Collections.singletonList( udp );
         }
-        else
+        else if ( protocol.equalsIgnoreCase( "KRB" ) || protocol.equalsIgnoreCase( "CPW" ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_689, protocol ) );
+            Transport tcp = new TcpTransport( address, port, nbThreads, backlog );
+            List< Transport > transports = new ArrayList< Transport >();
+            transports.add( tcp );
+            
+            Transport udp = new UdpTransport( address, port );
+            transports.add( udp );
+            return transports;
         }
+        
+        throw new IllegalArgumentException( I18n.err( I18n.ERR_689, protocol ) );
     }
-    
-    
-    public static KdcServer getKdcServer( Description description, DirectoryService directoryService, int startPort ) throws Exception
+
+    private static int getFreePort() throws IOException
+    {
+        ServerSocket ss = new ServerSocket( 0 );
+        int port = ss.getLocalPort();
+        ss.close();
+        
+        return port;
+    }
+
+    public static KdcServer getKdcServer( Description description, DirectoryService directoryService, int startPort )
+        throws Exception
     {
         CreateKdcServer createLdapServer = description.getAnnotation( CreateKdcServer.class );
 
-        return createKdcServer( createLdapServer, directoryService, startPort );
+        return createKdcServer( createLdapServer, directoryService );
     }
 
 }

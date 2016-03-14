@@ -32,6 +32,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -87,7 +88,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         // Create connection
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         long t2 = System.currentTimeMillis();
@@ -117,12 +118,12 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
 
 
     @Test
-    public void testSearchPerfWithJndi() throws NamingException
+    public void testSearchPerfWithJndi() throws NamingException, Exception
     {
         long t1 = System.currentTimeMillis();
 
         // Getting the connection
-        DirContext ctx = jndiEnv( "localhost", getLdapServer().getPort(), "", "uid=admin,ou=system", "secret", false );
+        DirContext ctx = jndiEnv( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort(), "", "uid=admin,ou=system", "secret", false );
 
         long t2 = System.currentTimeMillis();
 

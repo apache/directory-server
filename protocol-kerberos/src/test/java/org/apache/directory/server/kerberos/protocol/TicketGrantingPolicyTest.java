@@ -27,6 +27,7 @@ import java.net.InetAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.api.util.Network;
 import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.protocol.AbstractAuthenticationServiceTest.KrbDummySession;
@@ -345,7 +346,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         kdcReqBody.setTill( requestedEndTime );
 
         HostAddress[] address =
-            { new HostAddress( InetAddress.getLocalHost() ) };
+            { new HostAddress( Network.LOOPBACK ) };
         HostAddresses addresses = new HostAddresses( address );
         kdcReqBody.setAddresses( addresses );
 

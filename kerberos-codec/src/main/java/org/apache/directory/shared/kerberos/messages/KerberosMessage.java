@@ -20,7 +20,7 @@
 package org.apache.directory.shared.kerberos.messages;
 
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.shared.kerberos.KerberosConstants;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 
@@ -28,7 +28,7 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class KerberosMessage extends AbstractAsn1Object
+public abstract class KerberosMessage implements Asn1Object
 {
     /** The protocol version (should be 5) */
     private int protocolVersionNumber = KerberosConstants.KERBEROS_V5;

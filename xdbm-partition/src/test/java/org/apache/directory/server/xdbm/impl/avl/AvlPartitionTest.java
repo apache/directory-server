@@ -46,16 +46,19 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.junit.After;
@@ -71,13 +74,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@SuppressWarnings("unchecked")
 public class AvlPartitionTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AvlPartitionTest.class );
 
     private static AvlPartition partition;
     private static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
     private static Dn EXAMPLE_COM;
 
     /** The OU AttributeType instance */
@@ -91,6 +94,8 @@ public class AvlPartitionTest
 
     /** The ApacheAlias AttributeType instance */
     private static AttributeType APACHE_ALIAS_AT;
+
+    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -111,6 +116,9 @@ public class AvlPartitionTest
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
 
         schemaManager = new DefaultSchemaManager( loader );
+        cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
 
         boolean loaded = schemaManager.loadAllEnabled();
 
@@ -132,14 +140,15 @@ public class AvlPartitionTest
     public void createStore() throws Exception
     {
         // initialize the partition
-        partition = new AvlPartition( schemaManager );
+        partition = new AvlPartition( schemaManager, dnFactory );
         partition.setId( "example" );
         partition.setSyncOnWrite( false );
 
-        partition.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        partition.addIndex( new AvlIndex( SchemaConstants.UID_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        partition.addIndex( new AvlIndex<String>( SchemaConstants.UID_AT_OID ) );
         partition.setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
 
+        partition.setCacheService( cacheService );
         partition.initialize();
 
         StoreUtils.loadExampleData( partition, schemaManager );
@@ -157,17 +166,17 @@ public class AvlPartitionTest
     @Test
     public void testSimplePropertiesUnlocked() throws Exception
     {
-        AvlPartition avlPartition = new AvlPartition( schemaManager );
+        AvlPartition avlPartition = new AvlPartition( schemaManager, dnFactory );
         avlPartition.setSyncOnWrite( true ); // for code coverage
 
         assertNull( avlPartition.getAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getAliasIndex() );
 
         assertEquals( 0, avlPartition.getCacheSize() );
 
         assertNull( avlPartition.getPresenceIndex() );
-        avlPartition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
         assertNotNull( avlPartition.getPresenceIndex() );
 
         assertNull( avlPartition.getId() );
@@ -179,11 +188,11 @@ public class AvlPartitionTest
         assertNotNull( avlPartition.getRdnIndex() );
 
         assertNull( avlPartition.getOneAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<Long>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getOneAliasIndex() );
 
         assertNull( avlPartition.getSubAliasIndex() );
-        avlPartition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+        avlPartition.addIndex( new AvlIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
         assertNotNull( avlPartition.getSubAliasIndex() );
 
         assertNull( avlPartition.getSuffixDn() );
@@ -193,7 +202,7 @@ public class AvlPartitionTest
         assertNotNull( avlPartition.getSuffixDn() );
 
         assertFalse( avlPartition.getUserIndices().hasNext() );
-        avlPartition.addIndex( new AvlIndex<Object, Entry>( "2.5.4.3" ) );
+        avlPartition.addIndex( new AvlIndex<Object>( "2.5.4.3" ) );
         assertTrue( avlPartition.getUserIndices().hasNext() );
 
         assertNull( avlPartition.getPartitionPath() );
@@ -217,7 +226,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -229,7 +238,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<String, Entry>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
+            partition.addIndex( new AvlIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -262,7 +271,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Long>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -273,7 +282,7 @@ public class AvlPartitionTest
 
         try
         {
-            partition.addIndex( new AvlIndex<Long, Entry>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
+            partition.addIndex( new AvlIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID ) );
             //fail();
         }
         catch ( IllegalStateException e )
@@ -459,7 +468,7 @@ public class AvlPartitionTest
         String id = partition.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = partition.fetch( id );
-        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
         assertEquals( "ja+es", entry2.get( "sn" ).get().getNormValue() );
     }
 
@@ -494,9 +503,9 @@ public class AvlPartitionTest
         assertEquals( 3, partition.getSubAliasIndex().count() );
 
         Dn newDn = parentDn.add( childDn.getRdn() );
-        partition.move( childDn, parentDn, newDn, childEntry );
+        partition.move( childDn, parentDn, newDn, null );
 
-        assertEquals( 4, partition.getSubAliasIndex().count() );
+        assertEquals( 3, partition.getSubAliasIndex().count() );
     }
 
 

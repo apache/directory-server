@@ -117,7 +117,7 @@ public class SubentryCache implements Iterable<Dn>
     {
         if ( cacheSize.get() > cacheMaxSize )
         {
-            // TODO : Throw an exception here
+            throw new IllegalStateException( "Cache is full: size=" + cacheSize.get() + ", max=" + cacheMaxSize );
         }
 
         Subentry oldSubentry = cache.put( dn, subentry );

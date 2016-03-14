@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -40,12 +40,13 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.UuidSyntaxChecker;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
@@ -76,6 +77,7 @@ public class NestedFilterTest extends AbstractCursorTest
     static SchemaManager schemaManager = null;
     Optimizer optimizer;
     static FilterNormalizingVisitor visitor;
+    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -113,12 +115,17 @@ public class NestedFilterTest extends AbstractCursorTest
 
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         visitor = new FilterNormalizingVisitor( ncn, schemaManager );
+
+        cacheService = new CacheService();
+        cacheService.initialize( null );
     }
 
 
     @Before
     public void createStore() throws Exception
     {
+        directoryService = new MockDirectoryService();
+
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
@@ -126,15 +133,16 @@ public class NestedFilterTest extends AbstractCursorTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, directoryService.getDnFactory() );
         ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
@@ -143,7 +151,6 @@ public class NestedFilterTest extends AbstractCursorTest
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
         optimizer = new DefaultOptimizer( store );
 
-        directoryService = new MockDirectoryService();
         directoryService.setSchemaManager( schemaManager );
         session = new MockCoreSession( new LdapPrincipal(), directoryService );
 
@@ -173,6 +180,10 @@ public class NestedFilterTest extends AbstractCursorTest
     @Test
     public void testNestedAndnOr() throws Exception
     {
+        // This filter will get back 3 entries :
+        // ou=Apache,ou=Board of Directors,o=Good Times Co.
+        // cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.
+        // commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co.
         String filter = "(|(&(cn=J*)(sn=w*))(ou=apache))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
@@ -181,23 +192,25 @@ public class NestedFilterTest extends AbstractCursorTest
 
         Cursor<Entry> cursor = buildCursor( exprNode );
 
+        Set<String> expectedUuid = new HashSet<String>();
+        expectedUuid.add( Strings.getUUID( 5 ) );
+        expectedUuid.add( Strings.getUUID( 7 ) );
+        expectedUuid.add( Strings.getUUID( 9 ) );
+
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 7 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Apache", entry.get( "ou" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 9 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Jim Bean", entry.get( "cn" ).getString() );
+        assertTrue( expectedUuid.contains( entry.get( "entryUUID" ).getString() ) );
 
         assertFalse( cursor.next() );
         cursor.close();

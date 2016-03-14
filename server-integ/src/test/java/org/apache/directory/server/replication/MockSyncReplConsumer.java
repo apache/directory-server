@@ -34,13 +34,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.extras.controls.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.SyncInfoValue;
 import org.apache.directory.api.ldap.extras.controls.SyncModifyDnType;
-import org.apache.directory.api.ldap.extras.controls.SyncRequestValue;
-import org.apache.directory.api.ldap.extras.controls.SyncStateTypeEnum;
-import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.api.ldap.model.constants.Loggers;
@@ -77,6 +77,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.ConnectionClosedEventListener;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
@@ -148,7 +149,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             SchemaConstants.MODIFY_TIMESTAMP_AT,
             SchemaConstants.CREATE_TIMESTAMP_AT,
             SchemaConstants.CREATORS_NAME_AT,
-            SchemaConstants.ENTRY_PARENT_ID_AT
+            ApacheSchemaConstants.ENTRY_PARENT_ID_AT
     };
 
     /** A thread used to refresh in refreshOnly mode */
@@ -809,10 +810,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                     syncCookie ) ) ) );
             }
 
-            FileOutputStream fout = new FileOutputStream( cookieFile );
-            fout.write( syncCookie.length );
-            fout.write( syncCookie );
-            fout.close();
+            try ( FileOutputStream fout = new FileOutputStream( cookieFile ) )
+            {
+                fout.write( syncCookie.length );
+                fout.write( syncCookie );
+            }
 
             lastSavedCookie = new byte[syncCookie.length];
             System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );
@@ -835,10 +837,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         {
             if ( ( cookieFile != null ) && cookieFile.exists() && ( cookieFile.length() > 0 ) )
             {
-                FileInputStream fin = new FileInputStream( cookieFile );
-                syncCookie = new byte[fin.read()];
-                fin.read( syncCookie );
-                fin.close();
+                try ( FileInputStream fin = new FileInputStream( cookieFile ) )
+                {
+                    syncCookie = new byte[fin.read()];
+                    fin.read( syncCookie );
+                }
 
                 lastSavedCookie = new byte[syncCookie.length];
                 System.arraycopy( syncCookie, 0, lastSavedCookie, 0, syncCookie.length );

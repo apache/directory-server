@@ -20,8 +20,8 @@
 package org.apache.directory.server.ldap.replication.provider;
 
 
-import org.apache.directory.api.ldap.extras.controls.SyncStateTypeEnum;
-import org.apache.directory.api.ldap.extras.controls.SyncStateValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -79,9 +79,9 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     /** The consumer configuration */
     private final ReplicaEventLog consumerMsgLog;
     
-    private static String replConsumerConfigDn = ServerDNConstants.REPL_CONSUMER_CONFIG_DN.toLowerCase();
-    private static String schemaDn = SchemaConstants.OU_SCHEMA.toLowerCase();
-    private static String replConsumerDn = ServerDNConstants.REPL_CONSUMER_DN_STR.toLowerCase();
+    private static String replConsumerConfigDn = Strings.toLowerCaseAscii( ServerDNConstants.REPL_CONSUMER_CONFIG_DN );
+    private static String schemaDn = Strings.toLowerCaseAscii( SchemaConstants.OU_SCHEMA );
+    private static String replConsumerDn = Strings.toLowerCaseAscii( ServerDNConstants.REPL_CONSUMER_DN_STR );
     
     /**
      * Create a new instance of a consumer listener
@@ -260,7 +260,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
             return;
         }
         
-        sendDeletedEntry( ((ClonedServerEntry)entry).getClonedEntry() );
+        sendDeletedEntry( ( ( ClonedServerEntry ) entry ).getClonedEntry() );
     }
     
 
@@ -352,7 +352,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         {
             if ( !moveContext.getNewSuperior().isDescendantOf( consumerMsgLog.getSearchCriteria().getBase() ) )
             {
-                sendDeletedEntry( entry );
+                sendDeletedEntry( moveContext.getOriginalEntry() );
                 return;
             }
 
@@ -523,7 +523,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
                 // if successful update the last sent CSN
                 consumerMsgLog.setLastSentCsn( entry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
             }
-            catch( Exception e )
+            catch ( Exception e )
             {
                 //should never happen
                 LOG.error( "No entry CSN attribute found", e );
@@ -544,17 +544,17 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         // server the DNs are all normalized and a simple string compare should
         // do the trick
         
-        String name = entry.getDn().getName().toLowerCase();
+        String name = Strings.toLowerCaseAscii( entry.getDn().getName() );
         
-        if ( name.endsWith( replConsumerConfigDn ) ||
-             name.endsWith( schemaDn ) ||
-             name.endsWith( replConsumerDn ) )
+        if ( name.endsWith( replConsumerConfigDn )
+            || name.endsWith( schemaDn )
+            || name.endsWith( replConsumerDn ) )
         {
             return true;
         }
         
         // do not replicate the changes made to transport config entries
-        if( name.startsWith( "ads-transportid" ) && name.endsWith( ServerDNConstants.CONFIG_DN ) )
+        if ( name.startsWith( "ads-transportid" ) && name.endsWith( ServerDNConstants.CONFIG_DN ) )
         {
             return true;
         }
@@ -583,11 +583,11 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
      */
     private boolean isMmrConfiguredToReceiver( AbstractChangeOperationContext ctx )
     {
-        if( ctx.isReplEvent() )
+        if ( ctx.isReplEvent() )
         {
             boolean skip = ( ctx.getRid() == consumerMsgLog.getId() );
             
-            if( skip )
+            if ( skip )
             {
                 LOG.debug( "RID in operation context matches with the ID of replication event log {} for host {}", consumerMsgLog.getName(), consumerMsgLog.getHostName() );
             }

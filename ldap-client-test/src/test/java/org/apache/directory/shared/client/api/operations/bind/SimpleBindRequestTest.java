@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.shared.client.api.operations.bind;
 
@@ -26,8 +26,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
@@ -36,7 +38,9 @@ import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.BindRequestImpl;
 import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -77,7 +81,20 @@ import org.junit.runner.RunWith;
         "sn: administrator",
         "displayName: Directory Superuser",
         "uid: superuser",
-        "userPassword: test" })
+        "userPassword: test",
+        "",
+        // Entry # 2
+        "dn: uid=superuser2,ou=system",
+        "objectClass: person",
+        "objectClass: organizationalPerson",
+        "objectClass: inetOrgPerson",
+        "objectClass: top",
+        "cn: superuser2",
+        "sn: administrator",
+        "displayName: Directory Superuser",
+        "uid: superuser2",
+        "userPassword: test1",
+        "userPassword: test2" })
 public class SimpleBindRequestTest extends AbstractLdapTestUnit
 {
     private LdapAsyncConnection connection;
@@ -89,7 +106,8 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
     }
 
 
@@ -115,6 +133,9 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.bind( "uid=admin,ou=system", "secret" );
 
         assertTrue( connection.isAuthenticated() );
+
+        connection.unBind();
+        connection.close();
     }
 
 
@@ -155,6 +176,34 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         bindRequest.setCredentials( "secret" );
 
         BindResponse bindResponse = connection.bind( bindRequest );
+
+        assertNotNull( bindResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
+    }
+
+
+    /**
+     * Test a successful simple bind request when the user has 2 passwords.
+     */
+    @Test
+    public void testSimpleBindRequest2Passwords() throws Exception
+    {
+        BindRequest bindRequest = new BindRequestImpl();
+        bindRequest.setDn( new Dn( "uid=superUser2,ou=system" ) );
+        bindRequest.setCredentials( "test1" );
+
+        BindResponse bindResponse = connection.bind( bindRequest );
+
+        assertNotNull( bindResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
+
+        bindRequest = new BindRequestImpl();
+        bindRequest.setDn( new Dn( "uid=superUser2,ou=system" ) );
+        bindRequest.setCredentials( "test2" );
+
+        bindResponse = connection.bind( bindRequest );
 
         assertNotNull( bindResponse );
         assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
@@ -209,8 +258,10 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAnonymous() throws Exception
     {
+        getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
+
         //System.out.println( "------------------Create connection" + i + "-------------" );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         //System.out.println( "------------------Bind" + i + "-------------" );
 
         // Try with no parameters
@@ -224,7 +275,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.close();
 
         // Try with empty strings
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( "", "" );
 
         assertTrue( connection.isAuthenticated() );
@@ -234,7 +285,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         connection.close();
 
         // Try with null parameters
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( ( String ) null, ( String ) null );
 
         assertTrue( connection.isAuthenticated() );
@@ -244,7 +295,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         assertFalse( connection.isConnected() );
         connection.close();
 
-        connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
         //System.out.println( "----------------Unbind done" + i + "-------------" );
         assertFalse( connection.isConnected() );
@@ -261,7 +312,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void testDIRAPI47() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setLdapHost( "localhost" );
+        config.setLdapHost( Network.LOOPBACK_HOSTNAME );
         config.setLdapPort( getLdapServer().getPort() );
         config.setName( "uid=nonexisting,dc=example,dc=com" );
 
@@ -571,5 +622,30 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         connection.bind( "uid=admin,ou=system", "secret" );
         assertTrue( connection.isAuthenticated() );
+    }
+
+
+    /**
+     * DIRAPI-236
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testUnbindDuringSearch() throws Exception
+    {
+        connection.bind( "uid=admin, ou=system", "secret" );
+
+        assertTrue( connection.isAuthenticated() );
+
+        EntryCursor cursor1 = connection.search( new Dn( "ou=system" ), "(uid=*)", SearchScope.SUBTREE, "*" );
+        EntryCursor cursor2 = connection.search( new Dn( "ou=system" ), "(uid=*)", SearchScope.ONELEVEL, "*" );
+        EntryCursor cursor3 = connection.search( new Dn( "ou=system" ), "(ObjectClass=*)", SearchScope.OBJECT, "*" );
+
+        connection.unBind();
+
+        // this call hangs forever
+        assertFalse( cursor1.next() );
+        assertFalse( cursor2.next() );
+        assertFalse( cursor3.next() );
     }
 }

@@ -20,12 +20,14 @@
 package org.apache.directory.server.installers;
 
 
+
+
 /**
  * The superclass for all installer targets.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class Target
+public abstract class Target
 {
     /** The OS name for 'Any' */
     public static final String OS_NAME_ANY = "Any";
@@ -67,8 +69,7 @@ public class Target
     /**
      * Gets the final name.
      *
-     * @return
-     *      the final name
+     * @return the final name
      */
     public String getFinalName()
     {
@@ -77,46 +78,9 @@ public class Target
 
 
     /**
-     * Gets the id.
-     *
-     * @return
-     *      the id
-     */
-    public String getId()
-    {
-        return id;
-    }
-
-
-    /**
-     * Gets the OS architecture.
-     *
-     * @return
-     *      the OS architecture
-     */
-    public String getOsArch()
-    {
-        return osArch;
-    }
-
-
-    /**
-     * Gets the OS name.
-     *
-     * @return
-     *      the OS name
-     */
-    public String getOsName()
-    {
-        return osName;
-    }
-
-
-    /**
      * Sets the final name.
      *
-     * @param finalName
-     *      the final name
+     * @param finalName the final name
      */
     public void setFinalName( String finalName )
     {
@@ -125,10 +89,20 @@ public class Target
 
 
     /**
+     * Gets the id.
+     *
+     * @return the id
+     */
+    public String getId()
+    {
+        return id;
+    }
+
+
+    /**
      * Sets the id.
      *
-     * @param id
-     *      the id
+     * @param id the id
      */
     public void setId( String id )
     {
@@ -137,10 +111,20 @@ public class Target
 
 
     /**
+     * Gets the OS architecture.
+     *
+     * @return the OS architecture
+     */
+    public String getOsArch()
+    {
+        return osArch;
+    }
+
+
+    /**
      * Sets the OS architecture.
      *
-     * @param osArch
-     *      the OS architecture
+     * @param osArch the OS architecture
      */
     public void setOsArch( String osArch )
     {
@@ -149,10 +133,20 @@ public class Target
 
 
     /**
+     * Gets the OS name.
+     *
+     * @return the OS name
+     */
+    public String getOsName()
+    {
+        return osName;
+    }
+
+
+    /**
      * Sets the OS name.
      *
-     * @param osName
-     *      the OS name
+     * @param osName the OS name
      */
     public void setOsName( String osName )
     {

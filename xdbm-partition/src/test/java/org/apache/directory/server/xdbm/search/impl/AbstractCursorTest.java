@@ -31,7 +31,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.EntryCursorAdaptor;
@@ -111,7 +111,7 @@ public class AbstractCursorTest
         SearchOperationContext operationContext = 
             new SearchOperationContext( session, Dn.ROOT_DSE, SearchScope.ONELEVEL, null, "*", "EntryUUID" );
         
-        return new BaseEntryFilteringCursor( new EntryCursorAdaptor( ( AbstractBTreePartition ) store, searchResult ),
+        return new EntryFilteringCursorImpl( new EntryCursorAdaptor( ( AbstractBTreePartition ) store, searchResult ),
             operationContext, directoryService.getSchemaManager() );
     }
 }

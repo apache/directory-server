@@ -27,14 +27,23 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateAuthenticator;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.authn.AbstractAuthenticator;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.junit.Test;
 
@@ -182,4 +191,63 @@ public class DirectoryServiceAnnotationTest
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }
 
+
+    @Test
+    @CreateDS(
+        name = "MethodDSWithAuthenticator",
+        authenticators =
+            { @CreateAuthenticator(type = DummyAuthenticator.class) })
+    public void testCustomAuthenticator() throws Exception
+    {
+        final DirectoryService service = DSAnnotationProcessor.getDirectoryService();
+        assertTrue( service.isStarted() );
+        assertEquals( "MethodDSWithAuthenticator", service.getInstanceId() );
+        final Set<Authenticator> authenticators = findAuthInterceptor( service ).getAuthenticators();
+        assertEquals(
+            "Expected interceptor to be configured with only one authenticator",
+            1,
+            authenticators.size() );
+        assertEquals(
+            "Expected the only interceptor to be the dummy interceptor",
+            DummyAuthenticator.class,
+            authenticators.iterator().next().getClass() );
+        service.getSession( new Dn( "uid=non-existant-user,ou=system" ), "wrong-password".getBytes() );
+        assertTrue( "Expedted dummy authenticator to have been invoked", dummyAuthenticatorCalled );
+        service.shutdown();
+        FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
+    }
+
+    private static volatile boolean dummyAuthenticatorCalled = false;
+
+    private static class DummyAuthenticator extends AbstractAuthenticator
+    {
+        protected DummyAuthenticator()
+        {
+            super( AuthenticationLevel.SIMPLE, Dn.ROOT_DSE );
+        }
+
+
+        @Override
+        public LdapPrincipal authenticate( BindOperationContext ctx ) throws Exception
+        {
+            dummyAuthenticatorCalled = true;
+            return new LdapPrincipal(
+                super.getDirectoryService().getSchemaManager(),
+                ctx.getDn(),
+                AuthenticationLevel.SIMPLE );
+        }
+    }
+
+
+    private static AuthenticationInterceptor findAuthInterceptor( DirectoryService service )
+    {
+        for ( Interceptor interceptor : service.getInterceptors() )
+        {
+            if ( interceptor instanceof AuthenticationInterceptor )
+            {
+                return ( AuthenticationInterceptor ) interceptor;
+            }
+        }
+        return null;
+    }
 }

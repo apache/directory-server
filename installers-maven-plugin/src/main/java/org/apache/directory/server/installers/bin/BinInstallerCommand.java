@@ -24,8 +24,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
+import org.apache.directory.server.installers.LinuxInstallerCommand;
 import org.apache.directory.server.installers.MojoHelperUtils;
 import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -34,14 +34,20 @@ import org.apache.tools.ant.taskdefs.Execute;
 
 
 /**
- * Bin (Binary) Installer command for Linux.
+ * Bin (Binary) Installer command for Linux. This creates a pure Linux installer, that can be used on any
+ * linux or unix box. This is an alternative for boxes not supporting RPM or DEB format.
+ * 
+ * The way it works is that it creates 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
+public class BinInstallerCommand extends LinuxInstallerCommand<BinTarget>
 {
+    /** The /bin/sh executable */
+    private static final String BIN_SH_EXE = "/bin/sh";
+
     /** The sh utility executable */
-    private File shUtility = new File( "/bin/sh" );
+    private File shUtility = new File( BIN_SH_EXE );
 
     /** The final name of the installer */
     private String finalName;
@@ -50,10 +56,8 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
     /**
      * Creates a new instance of BinInstallerCommand.
      *
-     * @param mojo
-     *      the Server Installers Mojo
-     * @param target
-     *      the Bin target
+     * @param mojo the Server Installers Mojo
+     * @param target the Bin target
      */
     public BinInstallerCommand( GenerateMojo mojo, BinTarget target )
     {
@@ -97,6 +101,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 
             // Creating the instance directory
             File instanceDirectory = getInstanceDirectory();
+
             if ( !instanceDirectory.mkdirs() )
             {
                 Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceDirectory ) );
@@ -105,23 +110,24 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
             }
 
             // Copying configuration files to the instance directory
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/server/installers/log4j.properties" ),
-                new File( instanceDirectory, "log4j.properties" ), true );
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/server/installers/wrapper-instance.conf" ),
-                new File( instanceDirectory, "wrapper.conf" ), true );
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/server/installers/config.ldif" ),
-                new File( instanceDirectory, "config.ldif" ), false );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, INSTALLERS_PATH + LOG4J_PROPERTIES_FILE,
+                getClass().getResourceAsStream( INSTALLERS_PATH + LOG4J_PROPERTIES_FILE ),
+                new File( instanceDirectory, LOG4J_PROPERTIES_FILE ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, INSTALLERS_PATH + WRAPPER_INSTANCE_CONF_FILE,
+                getClass().getResourceAsStream( INSTALLERS_PATH + WRAPPER_INSTANCE_CONF_FILE ),
+                new File( instanceDirectory, WRAPPER_INSTANCE_CONF_FILE ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, INSTALLERS_PATH + CONFIG_LDIF_FILE,
+                getClass().getResourceAsStream( INSTALLERS_PATH + CONFIG_LDIF_FILE ),
+                new File( instanceDirectory, CONFIG_LDIF_FILE ), false );
 
             // Copying the init script to the instance directory
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
-                new File( instanceDirectory, "etc-initd-script" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, INSTALLERS_PATH + ETC_INITD_SCRIPT,
+                getClass().getResourceAsStream( INSTALLERS_PATH + ETC_INITD_SCRIPT ),
+                new File( instanceDirectory, ETC_INITD_SCRIPT ), true );
 
             // Creating the sh directory for the shell scripts
             File binShDirectory = new File( getBinInstallerDirectory(), "sh" );
+
             if ( !binShDirectory.mkdirs() )
             {
                 Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, binShDirectory ) );
@@ -130,15 +136,20 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
             }
 
             // Copying shell script utilities for the installer
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "bootstrap.sh" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, "bootstrap.sh",
+                getClass().getResourceAsStream( "bootstrap.sh" ),
                 new File( getBinInstallerDirectory(), "bootstrap.sh" ), true );
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-                "createInstaller.sh" ), new File( getBinInstallerDirectory(), "createInstaller.sh" ), true );
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "functions.sh" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, "createInstaller.sh",
+                getClass().getResourceAsStream( "createInstaller.sh" ),
+                new File( getBinInstallerDirectory(), "createInstaller.sh" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, "functions.sh",
+                getClass().getResourceAsStream( "functions.sh" ),
                 new File( binShDirectory, "functions.sh" ), false );
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "install.sh" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, "install.sh",
+                getClass().getResourceAsStream( "install.sh" ),
                 new File( binShDirectory, "install.sh" ), false );
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream( "variables.sh" ),
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, "variables.sh",
+                getClass().getResourceAsStream( "variables.sh" ),
                 new File( binShDirectory, "variables.sh" ), false );
         }
         catch ( Exception e )
@@ -154,6 +165,7 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
             { shUtility.getAbsolutePath(), "createInstaller.sh" };
         createBinTask.setCommandline( cmd );
         createBinTask.setWorkingDirectory( getBinInstallerDirectory() );
+
         try
         {
             createBinTask.execute();
@@ -186,8 +198,9 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
         }
 
         // Verifying the currently used OS to build the installer is Linux or Mac OS X
-        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( System.getProperty( "os.name" ) ) || Target.OS_NAME_MAC_OS_X
-            .equalsIgnoreCase( System.getProperty( "os.name" ) ) ) )
+        String osName = System.getProperty( OS_NAME );
+
+        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( osName ) || Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( osName ) ) )
         {
             log.warn( "Bin package installer can only be built on a machine running Linux or Mac OS X!" );
             log.warn( "The build will continue, generation of this target is skipped." );
@@ -215,14 +228,16 @@ public class BinInstallerCommand extends AbstractMojoCommand<BinTarget>
 
         filterProperties.put( "tmpArchive", "__tmp.tar.gz" );
         finalName = target.getFinalName();
+
         if ( !finalName.endsWith( ".bin" ) )
         {
             finalName = finalName + ".bin";
         }
-        filterProperties.put( "finalName", finalName );
+
+        filterProperties.put( FINAL_NAME_PROP, finalName );
         filterProperties.put( "apacheds.version", mojo.getProject().getVersion() );
-        filterProperties.put( "wrapper.java.command", "# wrapper.java.command=<path-to-java-executable>" );
-        filterProperties.put( "double.quote", "" );
+        filterProperties.put( WRAPPER_JAVA_COMMAND_PROP, WRAPPER_JAVA_COMMAND );
+        filterProperties.put( DOUBLE_QUOTE_PROP, "" );
     }
 
 

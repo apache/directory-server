@@ -41,28 +41,25 @@ public class DefaultMarshaller implements Marshaller<Object>
 
     public byte[] serialize( Object object ) throws IOException
     {
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( byteStream );
-        byte[] data;
+        try ( ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( byteStream ) )
+        {
+            out.writeObject( object );
+            out.flush();
+            byte[] data = byteStream.toByteArray();
+            out.close();
 
-        out.writeObject( object );
-        out.flush();
-        data = byteStream.toByteArray();
-        out.close();
-
-        return data;
+            return data;
+        }
     }
 
 
     public Object deserialize( byte[] bytes ) throws IOException
     {
-        Object object;
-        ByteArrayInputStream byteStream = new ByteArrayInputStream( bytes );
-        ObjectInputStream in = new ObjectInputStream( byteStream );
-
-        try
+        try ( ByteArrayInputStream byteStream = new ByteArrayInputStream( bytes );
+            ObjectInputStream in = new ObjectInputStream( byteStream ) )
         {
-            object = in.readObject();
+            return in.readObject();
         }
         catch ( ClassNotFoundException e )
         {
@@ -70,7 +67,5 @@ public class DefaultMarshaller implements Marshaller<Object>
             ioe.initCause( e );
             throw ioe;
         }
-
-        return object;
     }
 }

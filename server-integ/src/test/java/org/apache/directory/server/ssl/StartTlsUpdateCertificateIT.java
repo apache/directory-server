@@ -44,8 +44,8 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -56,7 +56,6 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -85,9 +84,6 @@ import org.slf4j.LoggerFactory;
         { StartTlsHandler.class })
 public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsUpdateCertificateIT.class );
     private static final String[] CERT_IDS = new String[]
         { "userCertificate" };
@@ -120,14 +116,16 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
         assertNotNull( userCertificate );
 
-        ByteArrayInputStream in = new ByteArrayInputStream( userCertificate );
-        CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
-        Certificate cert = factory.generateCertificate( in );
-        KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
-        ks.load( null, null );
-        ks.setCertificateEntry( "apacheds", cert );
-        ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
-        LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
+        try ( ByteArrayInputStream in = new ByteArrayInputStream( userCertificate ) )
+        {
+            CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
+            Certificate cert = factory.generateCertificate( in );
+            KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
+            ks.load( null, null );
+            ks.setCertificateEntry( "apacheds", cert );
+            ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
+            LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
+        }
 
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
@@ -158,7 +156,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         // create a secure connection
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort() );
+        env.put( "java.naming.provider.url", Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
@@ -211,9 +209,9 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         assertEquals( 1, lastReceivedServerCertificates.length );
         String issuerDN = lastReceivedServerCertificates[0].getIssuerDN().getName();
         String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
-        assertEquals( "Expected the new certificate with the new issuer", Strings.toLowerCase( newIssuerDN ),
-            Strings.toLowerCase( issuerDN ) );
-        assertEquals( "Expected the new certificate with the new subject", Strings.toLowerCase( newSubjectDN ),
-            Strings.toLowerCase( subjectDN ) );
+        assertEquals( "Expected the new certificate with the new issuer", Strings.toLowerCaseAscii( newIssuerDN ),
+            Strings.toLowerCaseAscii( issuerDN ) );
+        assertEquals( "Expected the new certificate with the new subject", Strings.toLowerCaseAscii( newSubjectDN ),
+            Strings.toLowerCaseAscii( subjectDN ) );
     }
 }

@@ -30,7 +30,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangePasswordProtocolCodecFactory implements ProtocolCodecFactory
+public final class ChangePasswordProtocolCodecFactory implements ProtocolCodecFactory
 {
     private static final ChangePasswordProtocolCodecFactory INSTANCE = new ChangePasswordProtocolCodecFactory();
 

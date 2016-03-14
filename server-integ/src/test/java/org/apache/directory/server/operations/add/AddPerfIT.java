@@ -25,6 +25,7 @@ import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -44,31 +45,31 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports =
-{ @CreateTransport(protocol = "LDAP") })
+    { @CreateTransport(protocol = "LDAP") })
 @CreateDS(
-        name="AddPerfDS",
-        partitions =
+    name = "AddPerfDS",
+    partitions =
         {
             @CreatePartition(
                 name = "example",
                 suffix = "dc=example,dc=com",
                 contextEntry = @ContextEntry(
                     entryLdif =
-                        "dn: dc=example,dc=com\n" +
+                    "dn: dc=example,dc=com\n" +
                         "dc: example\n" +
                         "objectClass: top\n" +
-                        "objectClass: domain\n\n" ),
+                        "objectClass: domain\n\n"),
                 indexes =
-                {
-                    @CreateIndex( attribute = "objectClass" ),
-                    //@CreateIndex( attribute = "sn" ),
-                    @CreateIndex( attribute = "cn" )
-                } )
-                
-        },
-        enableChangeLog = false )
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        //@CreateIndex( attribute = "sn" ),
+                        @CreateIndex(attribute = "cn")
+                })
+
+    },
+    enableChangeLog = false)
 public class AddPerfIT extends AbstractLdapTestUnit
 {
     /**
@@ -77,18 +78,18 @@ public class AddPerfIT extends AbstractLdapTestUnit
     @Test
     public void testAddPerf() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
         Dn dn = new Dn( "cn=test,dc=example,dc=com" );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: TEST",
             "cn: test" );
 
         connection.bind( "uid=admin,ou=system", "secret" );
         connection.add( entry );
-        int nbIterations = 1500;
+        int nbIterations = 15000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -112,7 +113,7 @@ public class AddPerfIT extends AbstractLdapTestUnit
             String name = "test" + i;
             dn = new Dn( "cn=" + name + ",dc=example,dc=com" );
             entry = new DefaultEntry( getService().getSchemaManager(), dn,
-                "ObjectClass: top", 
+                "ObjectClass: top",
                 "ObjectClass: person",
                 "sn", name.toUpperCase(),
                 "cn", name );
@@ -126,24 +127,25 @@ public class AddPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed ) + " per s ) /" + ( t1 - t0 ) );
-        
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 5000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
+
         int nbFound = 0;
         long t2 = System.currentTimeMillis();
         EntryCursor result = connection.search( "dc=example,dc=com", "(sn=test123*)", SearchScope.SUBTREE, "*" );
-        
+
         while ( result.next() )
         {
             Entry res = result.get();
-            
+
             System.out.println( res.getDn() );
             nbFound++;
         }
-        
+
         result.close();
         long t3 = System.currentTimeMillis();
-        System.out.println( "Delta search : " + ( t3 - t2 ) + " for " + nbFound + " entries");
-        
+        System.out.println( "Delta search : " + ( t3 - t2 ) + " for " + nbFound + " entries" );
+
         connection.close();
     }
 }

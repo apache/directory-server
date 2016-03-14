@@ -44,8 +44,7 @@ public class EncKrbCredPartContainer extends AbstractContainer
     public EncKrbCredPartContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
-        this.grammar = EncKrbCredPartGrammar.getInstance();
+        setGrammar( EncKrbCredPartGrammar.getInstance() );
         setTransition( EncKrbCredPartStatesEnum.START_STATE );
     }
 

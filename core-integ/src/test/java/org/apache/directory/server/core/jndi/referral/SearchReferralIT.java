@@ -39,6 +39,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapPartialResultException;
@@ -48,7 +49,6 @@ import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.CoreSession;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Before;
@@ -423,7 +423,7 @@ public class SearchReferralIT extends AbstractLdapTestUnit
         CoreSession coreSession = getService().getAdminSession();
         Dn dn = new Dn( "ou=roles,o=Mnn,c=WW,ou=system" );
         
-        EntryFilteringCursor cursor = coreSession.search( dn, "(ObjectClass=*)", true );
+        Cursor<Entry> cursor = coreSession.search( dn, "(ObjectClass=*)", true );
         
         assertNotNull( cursor );
         

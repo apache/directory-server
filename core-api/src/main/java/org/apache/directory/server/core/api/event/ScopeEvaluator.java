@@ -26,7 +26,6 @@ import org.apache.directory.api.ldap.model.exception.LdapInvalidSearchFilterExce
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.ScopeNode;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.server.core.api.event.Evaluator;
 import org.apache.directory.server.i18n.I18n;
 
 

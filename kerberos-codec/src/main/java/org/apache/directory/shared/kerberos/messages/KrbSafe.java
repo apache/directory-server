@@ -211,7 +211,7 @@ public class KrbSafe extends KerberosMessage
         {
             log.error( I18n.err( I18n.ERR_736_CANNOT_ENCODE_KRBSAFE, 1 + TLV.getNbBytes( krbSafeLen )
                 + krbSafeLen, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

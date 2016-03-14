@@ -29,8 +29,13 @@ import java.lang.reflect.Method;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class AnnotationUtils
+public final class AnnotationUtils
 {
+    private AnnotationUtils()
+    {
+    }
+
+
     /**
      * Get an instance of a class extracted from the annotation found in the method
      * or the class. We iterate on the stack trace until we find the desired annotation.

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -33,19 +34,23 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.AddRequestImpl;
 import org.apache.directory.api.ldap.model.message.AddResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.DateUtils;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.AddFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -78,7 +83,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Before
     public void setup() throws Exception
     {
-        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
         session = getLdapServer().getDirectoryService().getAdminSession();
     }
 
@@ -104,6 +109,18 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         connection.add( entry );
 
         assertTrue( session.exists( dn ) );
+        
+        EntryCursor cursor = connection.search( entry.getDn(), "(objectClass=*)", SearchScope.OBJECT, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        assertTrue( cursor.next() );
+        entry = cursor.get();
+        
+        cursor = connection.search( "ou=system", "(objectClass=*)", SearchScope.OBJECT, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        assertTrue( cursor.next() );
+        Entry contextEntry = cursor.get();
+        
+        String expectedCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
+        String contextCsn = contextEntry.get( SchemaConstants.CONTEXT_CSN_AT ).getString();
+        assertEquals( expectedCsn, contextCsn );
     }
 
 
@@ -259,7 +276,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         }
     }
 
-    
+
     @Test
     /**
      * tests adding en entry with escaped chars in the RDN
@@ -278,13 +295,13 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         Entry loadedEntry = connection.lookup( dn.getName(), "*" );
         assertNotNull( loadedEntry );
         assertTrue( loadedEntry.containsAttribute( "cn" ) );
-        
+
         String cn = loadedEntry.get( "cn" ).get().getString();
-        
-        assertEquals( "a+B", cn );
+
+        assertEquals( "a\\+B", cn );
     }
 
-    
+
     @Test
     /**
      * tests adding en entry with escaped chars in the RDN
@@ -304,13 +321,13 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         Entry loadedEntry = connection.lookup( dn.getName(), "*" );
         assertNotNull( loadedEntry );
         assertTrue( loadedEntry.containsAttribute( "cn" ) );
-        
+
         String cn = loadedEntry.get( "cn" ).get().getString();
-        
+
         assertEquals( "a+b", cn );
     }
 
-    
+
     @Test
     /**
      * tests adding en entry with escaped chars in the RDN
@@ -330,26 +347,26 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         Entry loadedEntry = connection.lookup( dn.getName(), "*" );
         assertNotNull( loadedEntry );
         assertTrue( loadedEntry.containsAttribute( "cn" ) );
-        
+
         Attribute attribute = loadedEntry.get( "cn" );
         Set<String> expected = new HashSet<String>();
-        expected.add( "a+B" );
+        expected.add( "a\\+B" );
         expected.add( "c" );
         int count = 0;
-        
+
         for ( Value<?> value : attribute )
         {
             String val = value.getString();
-            
+
             assertTrue( expected.contains( val ) );
             count++;
-            
+
         }
-        
+
         assertEquals( 2, count );
     }
-    
-    
+
+
     /**
      * the below test fails cause the API is failing to
      * preserve the UP name of the attribute of RDN
@@ -369,11 +386,49 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        entry = connection.lookup(dn);
-        
-        String ldif = LdifUtils.convertToLdif(entry);
-        
-        assertTrue( ldif.contains(dn.getName()) );
+        entry = connection.lookup( dn );
+
+        String ldif = LdifUtils.convertToLdif( entry );
+
+        assertTrue( ldif.contains( dn.getName() ) );
     }
-    
+
+
+    @Test
+    public void testAddNullValueSchemaAware() throws LdapException, IOException
+    {
+        connection.setTimeOut( 0L );
+        connection.loadSchema();
+
+        // Use the client API
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Add a new entry with some null values
+        Entry entry = new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), "cn=test,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: person",
+            "ObjectClass: OrganizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "cn: test",
+            "sn: Test",
+            "userPassword:",
+            "mail:" );
+
+        connection.add( entry );
+
+        // Now fetch the entry
+        Entry found = connection.lookup( "cn=test,ou=system" );
+
+        assertNotNull( found );
+        assertNotNull( found.get( "userPassword" ) );
+        assertNotNull( found.get( "mail" ) );
+        byte[] userPassword = found.get( "userPassword" ).getBytes();
+        String mail = found.get( "mail" ).getString();
+
+        assertTrue( Strings.isEmpty( userPassword ) );
+        assertTrue( Strings.isEmpty( mail ) );
+
+        connection.close();
+    }
 }

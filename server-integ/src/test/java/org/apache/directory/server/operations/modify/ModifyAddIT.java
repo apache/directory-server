@@ -24,9 +24,11 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import javax.naming.NamingEnumeration;
@@ -45,15 +47,22 @@ import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -84,24 +93,20 @@ import org.junit.runner.RunWith;
         "objectClass: person",
         "objectClass: top",
         "cn: Debbie Harry",
-        "sn: Harry"
-})
+        "sn: Harry" })
 //@CreateDS( allowAnonAccess=true, name="BindIT-class")
 @CreateLdapServer(
-transports =
-    {
-        @CreateTransport(protocol = "LDAP")
-})
+    transports =
+        {
+            @CreateTransport(protocol = "LDAP") })
 public class ModifyAddIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final String BASE = "ou=system";
     private static final String RDN_TORI_AMOS = "cn=Tori Amos";
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String RDN_DEBBIE_HARRY = "cn=Debbie Harry";
-    
-    
+
+
     /**
      * Creation of required attributes of a person entry.
      */
@@ -114,11 +119,11 @@ public class ModifyAddIT extends AbstractLdapTestUnit
             "objectClass: inetorgperson",
             "cn", cn,
             "sn", sn );
-    
+
         return attributes;
     }
-    
-    
+
+
     /**
      * Add a new attribute to a person entry.
      */
@@ -126,12 +131,12 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddNewAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Add telephoneNumber attribute
         String newValue = "1234567890";
         Attributes attrs = new BasicAttributes( "telephoneNumber", newValue, true );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-    
+
         // Verify, that
         // - case of attribute description is correct
         // - attribute value is added
@@ -142,8 +147,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( attr.contains( newValue ) );
         assertEquals( 1, attr.size() );
     }
-    
-    
+
+
     /**
      * Add a new attribute with two values.
      */
@@ -151,7 +156,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddNewAttributeValues() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Add telephoneNumber attribute
         String[] newValues =
             { "1234567890", "999999999" };
@@ -161,7 +166,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         Attributes attrs = new BasicAttributes( true );
         attrs.put( attr );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-    
+
         // Verify, that
         // - case of attribute description is correct
         // - attribute values are present
@@ -173,8 +178,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( attr.contains( newValues[1] ) );
         assertEquals( newValues.length, attr.size() );
     }
-    
-    
+
+
     /**
      * Add an additional value.
      */
@@ -182,14 +187,14 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddAdditionalAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // A new description attribute value
         String newValue = "A new description for this person";
         assertFalse( newValue.equals( PERSON_DESCRIPTION ) );
         Attributes attrs = new BasicAttributes( "description", newValue, true );
-    
+
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-    
+
         // Verify, that attribute value is added
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "description" );
@@ -198,8 +203,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( attr.contains( PERSON_DESCRIPTION ) );
         assertEquals( 2, attr.size() );
     }
-    
-    
+
+
     /**
      * Try to add an already existing attribute value.
      *
@@ -212,10 +217,10 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddExistingAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Change description attribute
         Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION, true );
-    
+
         try
         {
             ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
@@ -225,7 +230,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         {
             // expected behaviour
         }
-    
+
         // Verify, that attribute is still there, and is the only one
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "description" );
@@ -233,8 +238,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( attr.contains( PERSON_DESCRIPTION ) );
         assertEquals( 1, attr.size() );
     }
-    
-    
+
+
     /**
      * Try to add an already existing attribute value.
      *
@@ -249,7 +254,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddExistingNthAttributesDirServer664() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Change description attribute
         Attributes attrs = new BasicAttributes( true );
         attrs.put( new BasicAttribute( "telephoneNumber", "1" ) );
@@ -266,11 +271,11 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs.put( new BasicAttribute( "telephoneNumber", "12" ) );
         attrs.put( new BasicAttribute( "telephoneNumber", "13" ) );
         attrs.put( new BasicAttribute( "telephoneNumber", "14" ) );
-    
+
         Attribute attr = new BasicAttribute( "description", PERSON_DESCRIPTION );
-    
+
         attrs.put( attr );
-    
+
         try
         {
             ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
@@ -280,7 +285,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         {
             // expected behaviour
         }
-    
+
         // Verify, that attribute is still there, and is the only one
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         attr = attrs.get( "description" );
@@ -288,8 +293,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( attr.contains( PERSON_DESCRIPTION ) );
         assertEquals( 1, attr.size() );
     }
-    
-    
+
+
     /**
      * Check for DIR_SERVER_643
      */
@@ -297,16 +302,16 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testTwoDescriptionDirServer643() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Change description attribute
         Attributes attrs = new BasicAttributes( true );
         Attribute attr = new BasicAttribute( "description",
             "a British singer-songwriter with an expressive four-octave voice" );
         attr.add( "one of the most influential female artists of the twentieth century" );
         attrs.put( attr );
-    
+
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-    
+
         // Verify, that attribute is still there, and is the only one
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         attr = attrs.get( "description" );
@@ -316,8 +321,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( attr.contains( "one of the most influential female artists of the twentieth century" ) );
         assertTrue( attr.contains( PERSON_DESCRIPTION ) );
     }
-    
-    
+
+
     /**
      * Try to add a duplicate attribute value to an entry, where this attribute
      * is already present (objectclass in this case). Expected behaviour is that
@@ -328,7 +333,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddDuplicateValueToExistingAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // modify object classes, add a new value twice
         Attribute ocls = new BasicAttribute( "objectClass", "organizationalPerson" );
         ModificationItem[] modItems = new ModificationItem[2];
@@ -342,7 +347,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         catch ( AttributeInUseException ex )
         {
         }
-    
+
         // Check, whether attribute objectClass is unchanged
         Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         ocls = attrs.get( "objectClass" );
@@ -350,8 +355,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( ocls.contains( "top" ) );
         assertTrue( ocls.contains( "person" ) );
     }
-    
-    
+
+
     /**
      * Try to add a duplicate attribute value to an entry, where this attribute
      * is not present. Expected behaviour is that the modify operation causes an
@@ -361,7 +366,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddDuplicateValueToNewAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // add the same description value twice
         Attribute desc = new BasicAttribute( "description", "another description value besides songwriter" );
         ModificationItem[] modItems = new ModificationItem[2];
@@ -375,13 +380,13 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         catch ( AttributeInUseException ex )
         {
         }
-    
+
         // Check, whether attribute description is still not present
         Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         assertEquals( 1, attrs.get( "description" ).size() );
     }
-    
-    
+
+
     /**
      * Modify the entry with a bad attribute : this should fail
      */
@@ -389,11 +394,11 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testSearchBadAttribute() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Add a not existing attribute
         String newValue = "unbelievable";
         Attributes attrs = new BasicAttributes( "voice", newValue, true );
-    
+
         try
         {
             ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
@@ -404,11 +409,11 @@ public class ModifyAddIT extends AbstractLdapTestUnit
             assertTrue( true );
             return;
         }
-    
+
         fail( "Cannot reach this point" );
     }
-    
-    
+
+
     /**
      * Create a person entry and perform a modify op, in which
      * we modify an attribute two times.
@@ -417,12 +422,12 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAttributeValueMultiMofificationDIRSERVER_636() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Create a person entry
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext( rdn, attrs );
-    
+
         // Add a description with two values
         String[] descriptions =
             {
@@ -431,28 +436,28 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         Attribute desc1 = new BasicAttribute( "description" );
         desc1.add( descriptions[0] );
         desc1.add( descriptions[1] );
-    
+
         ModificationItem addModOp = new ModificationItem(
             DirContext.ADD_ATTRIBUTE, desc1 );
-    
+
         Attribute desc2 = new BasicAttribute( "description" );
         desc2.add( descriptions[1] );
         ModificationItem delModOp = new ModificationItem(
             DirContext.REMOVE_ATTRIBUTE, desc2 );
-    
+
         ctx.modifyAttributes( rdn, new ModificationItem[]
             { addModOp,
                 delModOp } );
-    
+
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         String filter = "(cn=*Bush)";
         String base = "";
-    
+
         // Check entry
         NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls );
         assertTrue( enm.hasMore() );
-    
+
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
@@ -461,12 +466,12 @@ public class ModifyAddIT extends AbstractLdapTestUnit
             assertEquals( 1, desc.size() );
             assertTrue( desc.contains( descriptions[0] ) );
         }
-    
+
         // Remove the person entry
         ctx.destroySubcontext( rdn );
     }
-    
-    
+
+
     /**
      * Try to add subschemaSubentry attribute to an entry
      */
@@ -474,15 +479,15 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testModifyOperationalAttributeAdd() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
             "subschemaSubentry", "cn=anotherSchema" ) );
-    
+
         try
         {
             ctx.modifyAttributes( RDN_DEBBIE_HARRY, new ModificationItem[]
                 { modifyOp } );
-    
+
             fail( "modification of entry should fail" );
         }
         catch ( InvalidAttributeValueException e )
@@ -494,8 +499,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
             // Expected result
         }
     }
-    
-    
+
+
     /**
      * Create a person entry and perform a modify op on an
      * attribute which is part of the Dn. This is not allowed.
@@ -506,18 +511,18 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testDNAttributeMemberModificationDIRSERVER_687() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Create a person entry
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush";
         ctx.createSubcontext( rdn, attrs );
-    
+
         // Try to modify the cn attribute
         Attribute desc1 = new BasicAttribute( "cn", "Georges Bush" );
-    
+
         ModificationItem addModOp = new ModificationItem(
             DirContext.REPLACE_ATTRIBUTE, desc1 );
-    
+
         try
         {
             ctx.modifyAttributes( rdn, new ModificationItem[]
@@ -537,8 +542,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
             ctx.destroySubcontext( rdn );
         }
     }
-    
-    
+
+
     /**
      * Try to modify an entry adding invalid number of values for a single-valued atribute
      *
@@ -548,7 +553,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testModifyAddWithInvalidNumberOfAttributeValues() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         Attributes attrs = new BasicAttributes( true );
         Attribute ocls = new BasicAttribute( "objectClass" );
         ocls.add( "top" );
@@ -557,14 +562,14 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs.put( "cn", "Fiona Apple" );
         attrs.put( "sn", "Apple" );
         ctx.createSubcontext( "cn=Fiona Apple", attrs );
-    
+
         // add two displayNames to an inetOrgPerson
         attrs = new BasicAttributes( true );
         Attribute displayName = new BasicAttribute( "displayName" );
         displayName.add( "Fiona" );
         displayName.add( "Fiona A." );
         attrs.put( displayName );
-    
+
         try
         {
             ctx.modifyAttributes( "cn=Fiona Apple", DirContext.ADD_ATTRIBUTE, attrs );
@@ -572,11 +577,11 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         }
         catch ( InvalidAttributeValueException e )
         {
-    
+
         }
     }
-    
-    
+
+
     /**
      * Add a new binary attribute to a person entry.
      */
@@ -584,13 +589,13 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddNewBinaryAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Add a binary attribute
         byte[] newValue = new byte[]
             { 0x00, 0x01, 0x02, 0x03 };
         Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue, true );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-    
+
         // Verify, that attribute value is added
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "userCertificate" );
@@ -600,8 +605,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( Arrays.equals( newValue, certificate ) );
         assertEquals( 1, attr.size() );
     }
-    
-    
+
+
     /**
      * Add a new attribute to a person entry.
      */
@@ -609,13 +614,13 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddNewBinaryAttributeValueAbove0x80() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Add a binary attribute
         byte[] newValue = new byte[]
             { ( byte ) 0x80, ( byte ) 0x81, ( byte ) 0x82, ( byte ) 0x83 };
         Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue, true );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-    
+
         // Verify, that attribute value is added
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "userCertificate" );
@@ -625,8 +630,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         assertTrue( Arrays.equals( newValue, certificate ) );
         assertEquals( 1, attr.size() );
     }
-    
-    
+
+
     /**
      * Add a new binary attribute to a person entry.
      */
@@ -634,13 +639,13 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testRetrieveEntryWithBinaryAttributeValue() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Add a ;binary attribute
         byte[] newValue = new byte[]
             { 0x00, 0x01, 0x02, 0x03 };
         Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-    
+
         // Search entry an request ;binary attribute
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -648,11 +653,11 @@ public class ModifyAddIT extends AbstractLdapTestUnit
             { "userCertificate;binary" } );
         String filter = "(objectClass=*)";
         String base = RDN_TORI_AMOS;
-    
+
         // Test that ;binary attribute is present
         NamingEnumeration<SearchResult> enm = ctx.search( base, filter, sctls );
         assertTrue( enm.hasMore() );
-    
+
         while ( enm.hasMore() )
         {
             SearchResult sr = enm.next();
@@ -664,10 +669,10 @@ public class ModifyAddIT extends AbstractLdapTestUnit
             assertTrue( Arrays.equals( newValue, certificate ) );
             assertEquals( 1, attr.size() );
         }
-    
+
     }
-    
-    
+
+
     /**
      * Add a new ;binary attribute with bytes greater than 0x80
      * to a person entry.
@@ -678,13 +683,13 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testAddNewBinaryAttributeValue0x80() throws Exception
     {
         DirContext ctx = ( DirContext ) getWiredContext( getLdapServer() ).lookup( BASE );
-    
+
         // Add a ;binary attribute with high-bytes
         byte[] newValue = new byte[]
             { ( byte ) 0x80, ( byte ) 0x81, ( byte ) 0x82, ( byte ) 0x83 };
         Attributes attrs = new BasicAttributes( "userCertificate;binary", newValue );
         ctx.modifyAttributes( RDN_TORI_AMOS, DirContext.ADD_ATTRIBUTE, attrs );
-    
+
         // Verify, that attribute value is added
         attrs = ctx.getAttributes( RDN_TORI_AMOS );
         Attribute attr = attrs.get( "userCertificate" );
@@ -693,5 +698,106 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         byte[] certificate = ( byte[] ) attr.get();
         assertTrue( Arrays.equals( newValue, certificate ) );
         assertEquals( 1, attr.size() );
+    }
+
+
+    @Test
+    public void testModifyAddWithNullValues() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
+
+        // Use the client API
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Add a new entry with some null values
+        Entry entry = new DefaultEntry( "uid=12345,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: person",
+            "ObjectClass: OrganizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "uid: 12345",
+            "cn: test",
+            "sn: Test",
+            "userPassword: 12345" );
+
+        connection.add( entry );
+
+        // Now modify the entry : we should add two null values
+        connection.modify( new Dn( "uid=12345,ou=system" ),
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "userPassword", Strings.EMPTY_BYTES ),
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "mail", ( String ) null )
+            );
+
+        // Get back the entry
+        Entry found = connection.lookup( "uid=12345,ou=system" );
+
+        assertNotNull( found );
+        assertNotNull( found.get( "mail" ) );
+        assertNotNull( found.get( "userPassword" ) );
+        assertTrue( found.contains( "mail", Strings.EMPTY_BYTES ) );
+        assertTrue( found.contains( "userPassword", "12345", "" ) );
+
+        connection.close();
+    }
+
+
+    @Test
+    public void testModifyReplaceWithNullValues() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
+
+        // Use the client API
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Add a new entry with some null values
+        Entry entry = new DefaultEntry( "uid=12345,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: person",
+            "ObjectClass: OrganizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "uid: 12345",
+            "cn: test",
+            "sn: Test",
+            "userPassword: 12345" );
+
+        connection.add( entry );
+
+        // Now modify the entry : we should replace the password with a null value
+        // and add a mail Attribute with a null value
+        connection.modify( new Dn( "uid=12345,ou=system" ),
+            new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword", Strings.EMPTY_BYTES ),
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "mail", ( String ) null )
+            );
+
+        // Get back the entry
+        Entry found = connection.lookup( "uid=12345,ou=system" );
+
+        assertNotNull( found );
+        assertNotNull( found.get( "mail" ) );
+        assertNotNull( found.get( "userPassword" ) );
+        assertEquals( 1, found.get( "mail" ).size() );
+        assertEquals( 1, found.get( "userPassword" ).size() );
+        assertTrue( found.contains( "mail", Strings.EMPTY_BYTES ) );
+        assertTrue( found.contains( "userPassword", "" ) );
+
+        // Now, do a replace with no value. We should not anymore have a mail
+        connection.modify( new Dn( "uid=12345,ou=system" ),
+            new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "mail" )
+            );
+
+        // Get back the entry
+        found = connection.lookup( "uid=12345,ou=system" );
+
+        assertNotNull( found );
+        assertNull( found.get( "mail" ) );
+        assertNotNull( found.get( "userPassword" ) );
+        assertEquals( 1, found.get( "userPassword" ).size() );
+        assertTrue( found.contains( "userPassword", "" ) );
+
+        connection.close();
     }
 }

@@ -31,6 +31,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -51,6 +52,8 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
+import netscape.ldap.LDAPException;
+
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
@@ -63,6 +66,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
@@ -74,6 +78,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -550,8 +555,8 @@ public class AddIT extends AbstractLdapTestUnit
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/ou=favorite,ou=Fruits,ou=system",
-            sr.getName() );
+        assertEquals( Network.ldapLoopbackUrl( getLdapServer().getPort() )
+            + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
 
         // Remove alias and entry
@@ -1153,7 +1158,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         // Limit the PDU size to 1024
         getLdapServer().getDirectoryService().setMaxPDUSize( 1024 );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         // Inject a 1024 bytes long description
@@ -1241,7 +1246,7 @@ public class AddIT extends AbstractLdapTestUnit
         javax.naming.directory.Attribute cnAttribute = res.next().getAttributes().get( "cn" );
         assertEquals( 2, cnAttribute.size() );
         assertTrue( cnAttribute.contains( "Tori,Amos" ) );
-        assertTrue( cnAttribute.contains( "Amos,Tori" ) );
+        assertTrue( cnAttribute.contains( "Amos\\,Tori" ) );
         assertFalse( res.hasMore() );
 
         // search for the implicit added userPassword
@@ -1510,15 +1515,88 @@ public class AddIT extends AbstractLdapTestUnit
         assertNotNull( certificate );
         assertEquals( 1, certificate.size() );
         assertTrue( certificate.contains( Strings.getBytesUtf8( "<Hello world !>" ) ) );
-        
+
         // Same check without the ";binary"
         certificate = kateReloaded.get( "userCertificate" );
         assertNotNull( certificate );
         assertEquals( 1, certificate.size() );
         assertTrue( certificate.contains( Strings.getBytesUtf8( "<Hello world !>" ) ) );
-        
+
         // Remove entry
         con.delete( dn );
         con.unBind();
+    }
+
+
+    @Test
+    public void testAddNullValue() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
+
+        // Use the client API
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Add a new entry with some null values
+        Entry entry = new DefaultEntry( "cn=test,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: person",
+            "ObjectClass: OrganizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "cn: test",
+            "sn: Test",
+            "userPassword:",
+            "mail:" );
+
+        connection.add( entry );
+
+        // Now fetch the entry
+        Entry found = connection.lookup( "cn=test,ou=system" );
+
+        assertNotNull( found );
+        assertNotNull( found.get( "userPassword" ) );
+        assertNotNull( found.get( "mail" ) );
+        String userPassword = found.get( "userPassword" ).getString();
+        String mail = found.get( "mail" ).getString();
+
+        assertTrue( Strings.isEmpty( userPassword ) );
+        assertTrue( Strings.isEmpty( mail ) );
+
+        connection.close();
+    }
+
+
+    @Test
+    public void testAddNullValueDirectoryString() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.setTimeOut( 0L );
+
+        // Use the client API
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Add a new entry with some null values
+        Entry entry = new DefaultEntry( "cn=test,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: person",
+            "ObjectClass: OrganizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "cn: test",
+            "sn: Test",
+            "displayName:" ); // The DisplayName must contain a value
+
+        try
+        {
+            connection.add( entry );
+            fail();
+        }
+        catch ( LdapInvalidAttributeValueException liave )
+        {
+            // Expected
+        }
+
+        connection.close();
     }
 }

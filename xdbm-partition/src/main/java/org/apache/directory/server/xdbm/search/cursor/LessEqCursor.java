@@ -26,7 +26,6 @@ import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.i18n.I18n;
@@ -89,7 +88,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
         if ( store.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, Entry, String> ) store.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, String> ) store.getIndex( attributeType ) ).forwardCursor();
             uuidIdxCursor = null;
         }
         else
@@ -112,7 +111,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
+    public void before( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
         checkNotClosed( "before()" );
 
@@ -160,7 +159,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException, IOException
+    public void after( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
         checkNotClosed( "after()" );
 
@@ -200,7 +199,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void beforeFirst() throws LdapException, CursorException, IOException
+    public void beforeFirst() throws LdapException, CursorException
     {
         checkNotClosed( "beforeFirst()" );
         if ( userIdxCursor != null )
@@ -220,7 +219,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void afterLast() throws LdapException, CursorException, IOException
+    public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
         if ( userIdxCursor != null )
@@ -243,7 +242,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean first() throws LdapException, CursorException, IOException
+    public boolean first() throws LdapException, CursorException
     {
         beforeFirst();
         return next();
@@ -253,7 +252,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean last() throws LdapException, CursorException, IOException
+    public boolean last() throws LdapException, CursorException
     {
         afterLast();
 
@@ -264,7 +263,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException, IOException
+    public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed( "previous()" );
 
@@ -300,7 +299,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException, IOException
+    public boolean next() throws LdapException, CursorException
     {
         checkNotClosed( "next()" );
 
@@ -349,7 +348,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public IndexEntry<V, String> get() throws CursorException, IOException
+    public IndexEntry<V, String> get() throws CursorException
     {
         checkNotClosed( "get()" );
 
@@ -375,7 +374,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close()
+    public void close() throws IOException
     {
         if ( IS_DEBUG )
         {
@@ -399,7 +398,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public void close( Exception cause )
+    public void close( Exception cause ) throws IOException
     {
         LOG_CURSOR.debug( "Closing LessEqCursor {}", this );
         super.close( cause );

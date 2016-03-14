@@ -90,6 +90,10 @@ public class LdapServerBean extends DSBasedServerBean
     @ConfigurationElement(objectClass = "ads-extendedOpHandler", container = "extendedOpHandlers", isOptional = true)
     private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
 
+    /** the time interval between subsequent pings to each replication provider */
+    @ConfigurationElement(attributeType = "ads-replPingerSleep")
+    private int replPingerSleep;
+
 
     /**
      * Create a new LdapServerBean instance
@@ -403,6 +407,7 @@ public class LdapServerBean extends DSBasedServerBean
         sb.append( tabs ).append( "  sasl host : " ).append( saslHost ).append( '\n' );
         sb.append( toString( tabs, "  confidentiality required", confidentialityRequired ) );
         sb.append( toString( tabs, "  enable replication provider", replReqHandler ) );
+        sb.append( toString( tabs, "  Pinger thread sleep time(in sec.)", replPingerSleep ) );
 
         if ( ( extendedOpHandlers != null ) && ( extendedOpHandlers.size() > 0 ) )
         {
@@ -464,6 +469,18 @@ public class LdapServerBean extends DSBasedServerBean
     public void setReplEnabled( boolean replEnabled )
     {
         this.replEnabled = replEnabled;
+    }
+
+
+    public int getReplPingerSleep()
+    {
+        return replPingerSleep;
+    }
+
+
+    public void setReplPingerSleep( int replPingerSleep )
+    {
+        this.replPingerSleep = replPingerSleep;
     }
 
 

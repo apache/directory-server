@@ -30,7 +30,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DnsProtocolUdpCodecFactory implements ProtocolCodecFactory
+public final class DnsProtocolUdpCodecFactory implements ProtocolCodecFactory
 {
     private static final DnsProtocolUdpCodecFactory INSTANCE = new DnsProtocolUdpCodecFactory();
 

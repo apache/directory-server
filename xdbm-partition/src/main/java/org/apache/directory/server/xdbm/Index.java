@@ -36,10 +36,9 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <K> The Indexed value type, used to retrieve an element
- * @param <O> The indexed element type, when retrieved
  * @param <ID> The unique identifier type in the master table
  */
-public interface Index<K, O, ID>
+public interface Index<K, ID>
 {
     /** The default cache size (ie, the number of elements we stored in the cache) */
     int DEFAULT_INDEX_CACHE_SIZE = 100;
@@ -119,7 +118,7 @@ public interface Index<K, O, ID>
      * @return the number of key/value pairs in this index
      * @throws Exception on failure to access index db files
      */
-    int count() throws Exception;
+    long count() throws Exception;
 
 
     /**
@@ -130,13 +129,13 @@ public interface Index<K, O, ID>
      * @return the number of key/value pairs in this index with the value value
      * @throws Exception on failure to access index db files
      */
-    int count( K attrVal ) throws Exception;
+    long count( K attrVal ) throws Exception;
 
 
-    int greaterThanCount( K attrVal ) throws Exception;
+    long greaterThanCount( K attrVal ) throws Exception;
 
 
-    int lessThanCount( K attrVal ) throws Exception;
+    long lessThanCount( K attrVal ) throws Exception;
 
 
     ID forwardLookup( K attrVal ) throws Exception;
@@ -224,30 +223,6 @@ public interface Index<K, O, ID>
 
 
     boolean reverse( ID id, K attrVal ) throws Exception;
-
-
-    boolean forwardGreaterOrEq( K attrVal ) throws Exception;
-
-
-    boolean forwardGreaterOrEq( K attrVal, ID id ) throws Exception;
-
-
-    boolean reverseGreaterOrEq( ID id ) throws Exception;
-
-
-    boolean reverseGreaterOrEq( ID id, K attrVal ) throws LdapException;
-
-
-    boolean forwardLessOrEq( K attrVal ) throws Exception;
-
-
-    boolean forwardLessOrEq( K attrVal, ID id ) throws Exception;
-
-
-    boolean reverseLessOrEq( ID id ) throws Exception;
-
-
-    boolean reverseLessOrEq( ID id, K attrVal ) throws Exception;
 
 
     void close() throws Exception;

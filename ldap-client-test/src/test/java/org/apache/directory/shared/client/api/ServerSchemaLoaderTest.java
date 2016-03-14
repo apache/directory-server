@@ -21,18 +21,18 @@
 package org.apache.directory.shared.client.api;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.DefaultSchemaLoader;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -68,14 +68,14 @@ public class ServerSchemaLoaderTest extends AbstractLdapTestUnit
     {
         LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
     }
-    
-    
+
+
     @Test
     public void testLoadSSSE() throws Exception
     {
         connection.setTimeOut( 0L );
         SchemaLoader loader = new DefaultSchemaLoader( connection );
-        
+
         // Load the schemas
         SchemaManager schemaManager = new DefaultSchemaManager( loader );
 
@@ -91,7 +91,7 @@ public class ServerSchemaLoaderTest extends AbstractLdapTestUnit
         assertTrue( schemaManager.isSchemaLoaded( "system" ) );
         assertTrue( schemaManager.isEnabled( "system" ) );
         assertFalse( schemaManager.isSchemaLoaded( "nis" ) );
-        assertEquals( schemaManager.getLoader().getAllSchemas().size(), schemaManager.getEnabled().size() );
+        assertEquals( schemaManager.getAllSchemas().size(), schemaManager.getEnabled().size() );
 
         assertTrue( schemaManager.getRegistries().getAttributeTypeRegistry().contains( "cn" ) );
     }

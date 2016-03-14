@@ -41,8 +41,7 @@ public class AdKdcIssuedContainer extends AbstractContainer
     public AdKdcIssuedContainer()
     {
         super();
-        this.stateStack = new int[1];
-        this.grammar = AdKDCIssuedGrammar.getInstance();
+        setGrammar( AdKDCIssuedGrammar.getInstance() );
         setTransition( AdKDCIssuedStatesEnum.START_STATE );
     }
 

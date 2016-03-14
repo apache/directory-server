@@ -41,10 +41,7 @@ public class UnbindOperationContext extends AbstractOperationContext
     {
         super( session, session.getEffectivePrincipal().getDn() );
 
-        if ( session != null )
-        {
-            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.UNBIND ) );
-        }
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.UNBIND ) );
     }
 
 
@@ -53,10 +50,7 @@ public class UnbindOperationContext extends AbstractOperationContext
         super( session, session.getEffectivePrincipal().getDn() );
         setRequestControls( unbindRequest.getControls() );
 
-        if ( session != null )
-        {
-            setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.UNBIND ) );
-        }
+        setInterceptors( session.getDirectoryService().getInterceptors( OperationEnum.UNBIND ) );
     }
 
 

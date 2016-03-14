@@ -37,6 +37,7 @@ import org.apache.directory.api.ldap.model.schema.NameForm;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
 import org.apache.directory.api.ldap.model.schema.ObjectClass;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.SchemaObjectRenderer;
 import org.apache.directory.api.ldap.model.schema.SchemaUtils;
 import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.api.ldap.model.schema.registries.NormalizerRegistry;
@@ -53,13 +54,18 @@ import org.apache.directory.server.core.api.interceptor.context.LookupOperationC
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SchemaService
+public final class SchemaService
 {
     /** cached version of the schema subentry with all attributes in it */
     private static Entry schemaSubentry;
 
     /** A lock to avid concurrent generation of the SubschemaSubentry */
     private static Object schemaSubentrLock = new Object();
+
+
+    private SchemaService()
+    {
+    }
 
 
     /**
@@ -116,7 +122,7 @@ public class SchemaService
 
         for ( ObjectClass objectClass : schemaManager.getObjectClassRegistry() )
         {
-            attr.add( SchemaUtils.render( objectClass ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( objectClass ) );
         }
 
         return attr;
@@ -130,7 +136,7 @@ public class SchemaService
 
         for ( AttributeType attributeType : schemaManager.getAttributeTypeRegistry() )
         {
-            attr.add( SchemaUtils.render( attributeType ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( attributeType ) );
         }
 
         return attr;
@@ -144,7 +150,7 @@ public class SchemaService
 
         for ( MatchingRule matchingRule : schemaManager.getMatchingRuleRegistry() )
         {
-            attr.add( SchemaUtils.render( matchingRule ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( matchingRule ) );
         }
 
         return attr;
@@ -158,7 +164,7 @@ public class SchemaService
 
         for ( MatchingRuleUse matchingRuleUse : schemaManager.getMatchingRuleUseRegistry() )
         {
-            attr.add( SchemaUtils.render( matchingRuleUse ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( matchingRuleUse ) );
         }
 
         return attr;
@@ -172,7 +178,7 @@ public class SchemaService
 
         for ( LdapSyntax syntax : schemaManager.getLdapSyntaxRegistry() )
         {
-            attr.add( SchemaUtils.render( syntax ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( syntax ) );
         }
 
         return attr;
@@ -186,7 +192,7 @@ public class SchemaService
 
         for ( DitContentRule ditContentRule : schemaManager.getDITContentRuleRegistry() )
         {
-            attr.add( SchemaUtils.render( ditContentRule ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( ditContentRule ) );
         }
 
         return attr;
@@ -200,7 +206,7 @@ public class SchemaService
 
         for ( DitStructureRule ditStructureRule : schemaManager.getDITStructureRuleRegistry() )
         {
-            attr.add( SchemaUtils.render( ditStructureRule ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( ditStructureRule ) );
         }
 
         return attr;
@@ -214,7 +220,7 @@ public class SchemaService
 
         for ( NameForm nameForm : schemaManager.getNameFormRegistry() )
         {
-            attr.add( SchemaUtils.render( nameForm ).toString() );
+            attr.add( SchemaObjectRenderer.SUBSCHEMA_SUBENTRY_RENDERER.render( nameForm ) );
         }
 
         return attr;
@@ -310,7 +316,7 @@ public class SchemaService
                         new LookupOperationContext( null, schemaModificationAttributesDn ) ) );
             }
 
-            return ( Entry ) schemaSubentry.clone();
+            return schemaSubentry.clone();
         }
     }
 
@@ -331,14 +337,15 @@ public class SchemaService
                     new LookupOperationContext( null, schemaModificationAttributesDn ) ) );
         }
 
-        return ( Entry ) schemaSubentry.clone();
+        return schemaSubentry.clone();
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public static Entry getSubschemaEntry( DirectoryService directoryService, FilteringOperationContext operationContext ) throws LdapException
+    public static Entry getSubschemaEntry( DirectoryService directoryService, FilteringOperationContext operationContext )
+        throws LdapException
     {
         SchemaManager schemaManager = directoryService.getSchemaManager();
 

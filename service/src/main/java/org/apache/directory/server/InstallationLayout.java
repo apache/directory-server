@@ -28,7 +28,26 @@ import org.apache.directory.server.core.api.AbstractLayout;
 
 /**
  * Convenience class to encapsulate paths to various directories and files within
- * an installation.
+ * an installation. The default installation layout will be :
+ * <pre>
+ * apacheds-&lt;version&gt;/ : installation directory
+ *  |
+ *  +-- bin : binDirectory
+ *  |    |
+ *  |    +-- apacheds* : scriptFile
+ *  |    |
+ *  |    +-- wrapper* : wrapperFile
+ *  |
+ *  +-- conf/ : confDirectory
+ *  |    |
+ *  |    +-- wrapper.conf : wrapperConfFile
+ *  |
+ *  +-- lib/ : LibDirectory
+ *  |
+ *  +-- LICENSE
+ *  |
+ *  +-- NOTICE
+ * </pre>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -37,8 +56,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Creates a new instance of InstallationLayout.
      *
-     * @param installationDirectory
-     *      the installation directory
+     * @param installationDirectory the installation directory
      */
     public InstallationLayout( File installationDirectory )
     {
@@ -50,8 +68,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Creates a new instance of InstallationLayout.
      *
-     * @param installationDirectoryPath
-     *      the path to the installation directory
+     * @param installationDirectoryPath the path to the installation directory
      */
     public InstallationLayout( String installationDirectoryPath )
     {
@@ -89,8 +106,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the 'bin' directory in the installation directory.
      *
-     * @return
-     *      the 'bin' directory
+     * @return the 'bin' directory
      */
     public File getBinDirectory()
     {
@@ -101,8 +117,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the 'conf' directory in the installation directory.
      *
-     * @return
-     *      the 'conf' directory
+     * @return the 'conf' directory
      */
     public File getConfDirectory()
     {
@@ -113,8 +128,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the installation directory.
      *
-     * @return
-     *      the installation directory
+     * @return the installation directory
      */
     public File getInstallationDirectory()
     {
@@ -125,8 +139,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the 'lib' directory in the installation directory.
      *
-     * @return
-     *      the 'lib' directory
+     * @return the 'lib' directory
      */
     public File getLibDirectory()
     {
@@ -137,8 +150,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the LICENSE file (<em>'/LICENSE'</em>).
      *
-     * @return
-     *      the LICENSE file
+     * @return the LICENSE file
      */
     public File getLicenseFile()
     {
@@ -149,8 +161,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the NOTICE file (<em>'/NOTICE'</em>).
      *
-     * @return
-     *      the NOTICE file
+     * @return the NOTICE file
      */
     public File getNoticeFile()
     {
@@ -161,8 +172,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the script file (<em>'/bin/apacheds'</em>).
      *
-     * @return
-     *      the script file
+     * @return the script file
      */
     public File getScriptFile()
     {
@@ -173,8 +183,7 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the wrapper configuration file (<em>'/conf/wrapper.conf'</em>).
      *
-     * @return
-     *      the wrapper configuration file
+     * @return the wrapper configuration file
      */
     public File getWrapperConfigurationFile()
     {
@@ -185,11 +194,33 @@ public class InstallationLayout extends AbstractLayout
     /**
      * Gets the wrapper file (<em>'/bin/wrapper'</em>).
      *
-     * @return
-     *      the wrapper file
+     * @return the wrapper file
      */
     public File getWrapperFile()
     {
         return new File( getBinDirectory(), "wrapper" );
+    }
+
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "Installation layout\n" );
+        sb.append( "  Root dir          : " ).append( getDirectory() ).append( '\n' );
+        sb.append( "  Installation dir  : " ).append( getInstallationDirectory() ).append( '\n' );
+        sb.append( "  bin dir           : " ).append( getBinDirectory() ).append( '\n' );
+        sb.append( "  conf dir          : " ).append( getConfDirectory() ).append( '\n' );
+        sb.append( "Copied files\n" );
+        sb.append( "  License file      : " ).append( getLicenseFile() ).append( '\n' );
+        sb.append( "  Notice file       : " ).append( getNoticeFile() ).append( '\n' );
+        sb.append( "  Script file       : " ).append( getScriptFile() ).append( '\n' );
+        sb.append( "  Wrapper file      : " ).append( getWrapperFile() ).append( '\n' );
+        sb.append( "  Wrapper Conf file : " ).append( getWrapperConfigurationFile() ).append( '\n' );
+
+        return sb.toString();
     }
 }

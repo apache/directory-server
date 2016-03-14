@@ -94,11 +94,10 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
             x = x.next;
         }
 
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream( byteStream );
         byte[] data = null;
 
-        try
+        try ( ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            DataOutputStream out = new DataOutputStream( byteStream ) )
         {
             out.writeByte( 0 ); // represents the start of AvlTree byte stream
             out.writeInt( tree.getSize() );

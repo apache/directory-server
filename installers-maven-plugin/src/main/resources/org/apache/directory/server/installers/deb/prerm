@@ -32,9 +32,7 @@ for instance_dir in `find /var/lib/apacheds-${version} -maxdepth 1 -mindepth 1 -
   tarball=$parent_dir/apacheds-${version}-$instance"_"$timestamp.tgz
   echo Backing up old $instance instance data to $tarball
   tar -zcf $tarball $instance_dir
-  rm -rf $instance_dir/partitions/*
-  rm -rf $instance_dir/log/*
-  rm -rf $instance_dir/.dirservice.lock
+  rm -rf $instance_dir
 done
 
 

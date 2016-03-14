@@ -25,8 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -44,7 +42,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.SchemaObject;
 import org.apache.directory.api.ldap.model.schema.SchemaObjectWrapper;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
-import org.apache.directory.api.ldap.schemaloader.SchemaEntityFactory;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -65,13 +63,13 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected final SchemaManager schemaManager;
 
     /** The m-oid AttributeType */
-    protected final AttributeType m_oidAT;
+    protected final AttributeType moidAT;
 
     /** The Schema objetc factory */
     protected final SchemaEntityFactory factory;
 
     /** A map associating a SchemaObject type with its path on the partition*/
-    private final static Map<String, String> OBJECT_TYPE_TO_PATH = new HashMap<String, String>();
+    private static final Map<String, String> OBJECT_TYPE_TO_PATH = new HashMap<String, String>();
 
     static
     {
@@ -96,7 +94,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected AbstractRegistrySynchronizer( SchemaManager schemaManager ) throws Exception
     {
         this.schemaManager = schemaManager;
-        m_oidAT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
+        moidAT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
         factory = new SchemaEntityFactory();
     }
 
@@ -163,7 +161,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         Rdn rdn = dn.getRdn( size - 2 );
 
-        return rdn.getNormValue().getString();
+        return rdn.getNormValue();
     }
 
 
@@ -217,7 +215,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 I18n.err( I18n.ERR_338, objectType ) );
         }
 
-        if ( !rdn.getNormValue().getString().equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
+        if ( !rdn.getNormValue().equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_339, objectType, OBJECT_TYPE_TO_PATH.get( objectType ) ) );
@@ -336,7 +334,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         for ( Entry result : results )
         {
             Dn dn = result.getDn();
-            oids.add( dn.getRdn().getNormValue().getString() );
+            oids.add( dn.getRdn().getNormValue() );
         }
 
         return oids;
@@ -345,7 +343,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     protected String getOid( Entry entry ) throws LdapException
     {
-        Attribute oid = entry.get( m_oidAT );
+        Attribute oid = entry.get( moidAT );
 
         if ( oid == null )
         {

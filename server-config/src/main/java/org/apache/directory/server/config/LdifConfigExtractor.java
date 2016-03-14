@@ -35,8 +35,8 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.ResourceMap;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.ResourceMap;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LdifConfigExtractor
+public final class LdifConfigExtractor
 {
 
     public static final String LDIF_CONFIG_FILE = "config.ldif";
@@ -63,6 +63,11 @@ public class LdifConfigExtractor
     // java.util.regex.Pattern is immutable so only one instance is needed for all uses.
     private static final Pattern EXTRACT_PATTERN = Pattern.compile( ".*config"
         + "[/\\Q\\\\E]" + "ou=config.*\\.ldif" );
+
+
+    private LdifConfigExtractor()
+    {
+    }
 
 
     /**
@@ -164,10 +169,9 @@ public class LdifConfigExtractor
     private static void extractFromJar( File outputDirectory, String resource ) throws IOException
     {
         byte[] buf = new byte[512];
-        InputStream in = DefaultSchemaLdifExtractor.getUniqueResourceAsStream( resource,
-            "LDIF file in config repository" );
 
-        try
+        try ( InputStream in = DefaultSchemaLdifExtractor.getUniqueResourceAsStream( resource,
+            "LDIF file in config repository" ) ) 
         {
             File destination = new File( outputDirectory, resource );
 
@@ -188,8 +192,7 @@ public class LdifConfigExtractor
                 }
             }
 
-            FileOutputStream out = new FileOutputStream( destination );
-            try
+            try ( FileOutputStream out = new FileOutputStream( destination ) )
             {
                 while ( in.available() > 0 )
                 {
@@ -198,14 +201,6 @@ public class LdifConfigExtractor
                 }
                 out.flush();
             }
-            finally
-            {
-                out.close();
-            }
-        }
-        finally
-        {
-            in.close();
         }
     }
 
@@ -309,26 +304,24 @@ public class LdifConfigExtractor
 
             LOG.debug( "URL of the config ldif file {}", configUrl );
 
-            InputStream in = configUrl.openStream();
             byte[] buf = new byte[1024 * 1024];
 
-            FileWriter fw = new FileWriter( configFile );
-
-            while ( true )
+            try ( InputStream in = configUrl.openStream();
+                FileWriter fw = new FileWriter( configFile ) )
             {
-                int read = in.read( buf );
-
-                if ( read <= 0 )
+                while ( true )
                 {
-                    break;
+                    int read = in.read( buf );
+
+                    if ( read <= 0 )
+                    {
+                        break;
+                    }
+
+                    String s = Strings.utf8ToString( buf, 0, read );
+                    fw.write( s );
                 }
-
-                String s = Strings.utf8ToString( buf, 0, read );
-                fw.write( s );
             }
-
-            fw.close();
-            in.close();
 
             LOG.info( "successfully extracted the config file {}", configFile.getAbsoluteFile() );
 

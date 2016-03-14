@@ -30,7 +30,6 @@ import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -50,11 +49,8 @@ import org.apache.directory.api.ldap.model.schema.normalizers.OidNormalizer;
 import org.apache.directory.api.ldap.trigger.TriggerSpecification;
 import org.apache.directory.api.ldap.trigger.TriggerSpecificationParser;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
-import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
@@ -130,10 +126,7 @@ public class TriggerSpecCache
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-            Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            CoreSession adminSession = new DefaultCoreSession(
-                new LdapPrincipal( directoryService.getSchemaManager(), adminDn, AuthenticationLevel.STRONG ),
-                directoryService );
+            CoreSession adminSession = directoryService.getAdminSession();
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, baseDn,
                 filter, ctls );

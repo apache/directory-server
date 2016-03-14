@@ -53,15 +53,6 @@ public class CoreContextFactory implements InitialContextFactory
         env = ( Hashtable<String, Object> ) env.clone();
         Dn principalDn = null;
 
-        try
-        {
-            principalDn = new Dn( getPrincipal( env ) );
-        }
-        catch ( LdapInvalidDnException lide )
-        {
-            throw new InvalidNameException( I18n.err( I18n.ERR_733, env ) );
-        }
-
         byte[] credential = getCredential( env );
         String providerUrl = getProviderUrl( env );
 
@@ -75,6 +66,15 @@ public class CoreContextFactory implements InitialContextFactory
         if ( !service.isStarted() )
         {
             return new DeadContext();
+        }
+
+        try
+        {
+            principalDn = new Dn( service.getSchemaManager(), getPrincipal( env ) );
+        }
+        catch ( LdapInvalidDnException lide )
+        {
+            throw new InvalidNameException( I18n.err( I18n.ERR_733, env ) );
         }
 
         ServerLdapContext ctx = null;

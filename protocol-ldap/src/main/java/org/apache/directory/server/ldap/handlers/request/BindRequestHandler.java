@@ -45,12 +45,13 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.SaslConstants;
+import org.apache.directory.server.ldap.handlers.sasl.MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,6 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      * @throws Exception If the authentication cannot be done
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public void handleSimpleAuth( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         DirectoryService directoryService = ldapServer.getDirectoryService();
@@ -162,7 +162,13 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 LdapResult result = bindRequest.getResultResponse().getLdapResult();
                 result.setDiagnosticMessage( "Bind principalDn points to referral." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
+
+                // Reset the session now
+                ldapSession.setAnonymous();
+
+                // Write the response
                 ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+
                 return;
             }
 
@@ -178,7 +184,11 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             directoryService.getOperationManager().bind( bindContext );
 
             // As a result, store the created session in the Core Session
-            ldapSession.setCoreSession( bindContext.getSession() );
+            CoreSession coreSession = bindContext.getSession();
+            ldapSession.setCoreSession( coreSession );
+
+            // Store the IoSession in the coreSession
+            ( ( DefaultCoreSession ) coreSession ).setIoSession( bindContext.getIoSession() );
 
             // And set the current state accordingly
             if ( !ldapSession.getCoreSession().isAnonymous() )
@@ -242,6 +252,11 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
             result.setDiagnosticMessage( msg );
             bindRequest.getResultResponse().addAllControls( bindContext.getResponseControls() );
+
+            // Before writing the response, be sure the session is set to anonymous
+            ldapSession.setAnonymous();
+
+            // Write the response
             ldapSession.getIoSession().write( bindRequest.getResultResponse() );
         }
         finally
@@ -318,11 +333,21 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 {
                     DirectoryService ds = ldapSession.getLdapServer().getDirectoryService();
                     String saslMechanism = bindRequest.getSaslMechanism();
-                    CoreSession userSession = ds.getSession( ldapPrincipal.getDn(), ldapPrincipal.getUserPassword(),
-                        saslMechanism, null );
+                    byte[] password = null;
+
+                    if ( ldapPrincipal.getUserPasswords() != null )
+                    {
+                        password = ldapPrincipal.getUserPasswords()[0];
+                    }
+
+                    CoreSession userSession = ds.getSession( ldapPrincipal.getDn(),
+                        password, saslMechanism, null );
 
                     // Set the user session into the ldap session 
                     ldapSession.setCoreSession( userSession );
+
+                    // Store the IoSession in the coreSession
+                    ( ( DefaultCoreSession ) userSession ).setIoSession( ldapSession.getIoSession() );
                 }
 
                 // Mark the user as authenticated
@@ -343,7 +368,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
                 // Build the response
                 result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
-                BindResponse resp = bindRequest.getResultResponse();
+                BindResponse resp = ( BindResponse ) bindRequest.getResultResponse();
 
                 // Store the challenge
                 resp.setServerSaslCreds( tokenBytes );
@@ -423,7 +448,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
     private void sendBindSuccess( LdapSession ldapSession, BindRequest bindRequest, byte[] tokenBytes )
     {
         // Return the successful response
-        BindResponse response = bindRequest.getResultResponse();
+        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
         response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
         response.setServerSaslCreds( tokenBytes );
 

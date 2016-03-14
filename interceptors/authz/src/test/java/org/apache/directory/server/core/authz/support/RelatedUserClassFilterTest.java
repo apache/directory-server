@@ -36,7 +36,7 @@ import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,7 +78,7 @@ public class RelatedUserClassFilterTest
     public static void init() throws Exception
     {
         schemaManager = new DefaultSchemaManager();
-        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DefaultSchemaManager( null ) );
+        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DefaultSchemaManager() );
         filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
 
         try

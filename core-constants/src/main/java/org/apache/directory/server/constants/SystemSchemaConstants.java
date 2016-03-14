@@ -22,11 +22,11 @@ package org.apache.directory.server.constants;
 
 /**
  * Constants for the System schema.
- * Final reference -> class shouldn't be extended
+ * Final reference -&gt; class shouldn't be extended
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class SystemSchemaConstants
+public final class SystemSchemaConstants
 {
     /**
      *  Ensures no construction of this class, also ensures there is no need for final keyword above
@@ -37,5 +37,5 @@ public class SystemSchemaConstants
     {
     }
 
-    public final static String SCHEMA_NAME = "system";
+    public static final String SCHEMA_NAME = "system";
 }

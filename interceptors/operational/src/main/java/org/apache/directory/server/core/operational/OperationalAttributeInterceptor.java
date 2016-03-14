@@ -22,6 +22,7 @@ package org.apache.directory.server.core.operational;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -38,6 +39,7 @@ import org.apache.directory.api.ldap.model.name.Ava;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -47,7 +49,6 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
@@ -56,6 +57,8 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.Subordinates;
 import org.apache.directory.server.core.shared.SchemaService;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -73,26 +76,23 @@ import org.slf4j.LoggerFactory;
 public class OperationalAttributeInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
-    private static Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( OperationalAttributeInterceptor.class );
 
-    private final EntryFilter DENORMALIZING_SEARCH_FILTER = new OperationalAttributeDenormalizingSearchFilter();
+    /** The denormalizer filter */
+    private final EntryFilter denormalizingSearchFilter = new OperationalAttributeDenormalizingSearchFilter();
+    
+    /** The filter that add the mandatory operational attributes */
+    private final EntryFilter operationalAttributeSearchFilter = new OperationalAttributeSearchFilter();
+    
+    /** The filter that add the subordinates operational attributes */
+    private final EntryFilter subordinatesSearchFilter = new SubordinatesSearchFilter();
 
     /** The subschemasubentry Dn */
     private Dn subschemaSubentryDn;
 
     /** The admin Dn */
     private Dn adminDn;
-    
-    /** Some attributeTypes we use locally */
-    private static AttributeType entryUuidAT;
-    private static AttributeType entryCsnAT;
-    private static AttributeType creatorsNameAT;
-    private static AttributeType createTimeStampAT;
-    private static AttributeType accessControlSubentriesAT;
-    private static AttributeType collectiveAttributeSubentriesAT;
-    private static AttributeType triggerExecutionSubentriesAT;
-    private static AttributeType subschemaSubentryAT;
-    
+
     /**
      * the search result filter to use for collective attribute injection
      */
@@ -107,14 +107,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 return true;
             }
-            
+
             // Denormalize the operational Attributes
             denormalizeEntryOpAttrs( entry );
             
             return true;
         }
-        
-        
+
+
         /**
          * {@inheritDoc}
          */
@@ -124,7 +124,73 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
     }
 
+    
+    /**
+     * the search result filter to use for the addition of mandatory operational attributes
+     */
+    private class OperationalAttributeSearchFilter implements EntryFilter
+    {
+        /**
+         * {@inheritDoc}
+         */
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
+        {
+            if ( operation.getReturningAttributesString() == null )
+            {
+                return true;
+            }
 
+            // Add the SubschemaSubentry AttributeType if it's requested
+            if ( operation.isAllOperationalAttributes()
+                || operation.getReturningAttributes().contains( SchemaConstants.SUBSCHEMA_SUBENTRY_AT )
+                || operation.getReturningAttributes().contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+            {
+                AttributeType subschemaSubentryAt = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+                entry.add( new DefaultAttribute( subschemaSubentryAt, 
+                    directoryService.getPartitionNexus().getRootDseValue( subschemaSubentryAt ) ) );
+            }
+
+            return true;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "OperationalAttributeSearchFilter";
+        }
+    }
+
+    
+    /**
+     * The search result filter to use for the addition of the subordinates attributes, if requested
+     */
+    private class SubordinatesSearchFilter implements EntryFilter
+    {
+        /**
+         * {@inheritDoc}
+         */
+        public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
+        {
+            // Add the nbChildren/nbSubordinates attributes if required
+            processSubordinates( operation.getReturningAttributes(), operation.isAllOperationalAttributes(), entry );
+
+            return true;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        public String toString( String tabs )
+        {
+            return tabs + "SubordinatesSearchFilter";
+        }
+    }
+
+    
     /**
      * Creates the operational attribute management service interceptor.
      */
@@ -139,22 +205,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDse( null ).get(
-            SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = directoryService.getDnFactory().create( subschemaSubentry.getString() );
+        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
+            directoryService.getAtProvider().getSubschemaSubentry() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
 
         // Create the Admin Dn
-        adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        
-        // Initialize the AttributeType we use locally
-        entryUuidAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT_OID );
-        entryCsnAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_CSN_AT_OID );
-        creatorsNameAT = schemaManager.getAttributeType( SchemaConstants.CREATORS_NAME_AT );
-        createTimeStampAT = schemaManager.getAttributeType( SchemaConstants.CREATE_TIMESTAMP_AT_OID );
-        accessControlSubentriesAT = schemaManager.getAttributeType( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT_OID );
-        collectiveAttributeSubentriesAT = schemaManager.getAttributeType( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT_OID );
-        triggerExecutionSubentriesAT = schemaManager.getAttributeType( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        subschemaSubentryAT = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
+        adminDn = dnFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
     }
 
 
@@ -166,7 +222,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * Check if we have to add an operational attribute, or if the admin has injected one
      */
-    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, AttributeType attribute ) throws LdapException
+    private boolean checkAddOperationalAttribute( boolean isAdmin, Entry entry, AttributeType attribute )
+        throws LdapException
     {
         if ( entry.containsAttribute( attribute ) )
         {
@@ -213,41 +270,42 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
         // The EntryUUID attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, entryUuidAT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getEntryUUID() ) )
         {
-            entry.put( entryUuidAT, UUID.randomUUID().toString() );
+            entry.put( directoryService.getAtProvider().getEntryUUID(), UUID.randomUUID().toString() );
         }
 
         // The EntryCSN attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, entryCsnAT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getEntryCSN() ) )
         {
-            entry.put( entryCsnAT, directoryService.getCSN().toString() );
+            entry.put( directoryService.getAtProvider().getEntryCSN(), directoryService.getCSN().toString() );
         }
 
         // The CreatorsName attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, creatorsNameAT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getCreatorsName() ) )
         {
-            entry.put( creatorsNameAT, principal );
+            entry.put( directoryService.getAtProvider().getCreatorsName(), principal );
         }
 
         // The CreateTimeStamp attribute
-        if ( !checkAddOperationalAttribute( isAdmin, entry, createTimeStampAT ) )
+        if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getCreateTimestamp() ) )
         {
-            entry.put( createTimeStampAT, DateUtils.getGeneralizedTime() );
+            entry.put( directoryService.getAtProvider().getCreateTimestamp(), DateUtils.getGeneralizedTime() );
         }
 
         // Now, check that the user does not add operational attributes
         // The accessControlSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, accessControlSubentriesAT );
+        checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getAccessControlSubentries() );
 
         // The CollectiveAttributeSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, collectiveAttributeSubentriesAT );
+        checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider()
+            .getCollectiveAttributeSubentries() );
 
         // The TriggerExecutionSubentries attribute
-        checkAddOperationalAttribute( isAdmin, entry, triggerExecutionSubentriesAT );
+        checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getTriggerExecutionSubentries() );
 
         // The SubSchemaSybentry attribute
-        checkAddOperationalAttribute( isAdmin, entry, subschemaSubentryAT );
+        checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getSubschemaSubentry() );
 
         next( addContext );
     }
@@ -268,11 +326,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             return serverEntry;
         }
 
-        Entry result = next( lookupContext );
+        Entry entry = next( lookupContext );
 
-        denormalizeEntryOpAttrs( result );
+        denormalizeEntryOpAttrs( entry );
+        
+        // Add the nbChildren/nbSubordinates attributes if required
+        processSubordinates( lookupContext.getReturningAttributes(), lookupContext.isAllOperationalAttributes(), entry );
 
-        return result;
+        return entry;
     }
 
 
@@ -299,7 +360,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         {
             AttributeType attributeType = modification.getAttribute().getAttributeType();
 
-            if ( attributeType.equals( MODIFIERS_NAME_AT ) )
+            if ( attributeType.equals( directoryService.getAtProvider().getModifiersName() ) )
             {
                 if ( !isAdmin )
                 {
@@ -313,11 +374,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
 
-            if ( attributeType.equals( MODIFY_TIMESTAMP_AT ) )
+            if ( attributeType.equals( directoryService.getAtProvider().getModifyTimestamp() ) )
             {
                 if ( !isAdmin )
                 {
-                    String message = I18n.err( I18n.ERR_32 );
+                    String message = I18n.err( I18n.ERR_30, attributeType );
                     LOG.error( message );
                     throw new LdapNoPermissionException( message );
                 }
@@ -327,11 +388,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 }
             }
 
-            if ( attributeType.equals( ENTRY_CSN_AT ) )
+            if ( attributeType.equals( directoryService.getAtProvider().getEntryCSN() ) )
             {
                 if ( !isAdmin )
                 {
-                    String message = I18n.err( I18n.ERR_32 );
+                    String message = I18n.err( I18n.ERR_30, attributeType );
                     LOG.error( message );
                     throw new LdapNoPermissionException( message );
                 }
@@ -343,7 +404,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) && !isAdmin )
             {
-                String message = I18n.err( I18n.ERR_32 );
+                String message = I18n.err( I18n.ERR_30, attributeType );
                 LOG.error( message );
                 throw new LdapNoPermissionException( message );
             }
@@ -355,8 +416,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !modifierAtPresent )
             {
                 // Inject the ModifiersName AT if it's not present
-                Attribute attribute = new DefaultAttribute( MODIFIERS_NAME_AT, getPrincipal( modifyContext )
-                    .getName() );
+                Attribute attribute = new DefaultAttribute( directoryService.getAtProvider().getModifiersName(),
+                    getPrincipal( modifyContext ).getName() );
 
                 Modification modifiersName = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
                     attribute );
@@ -367,8 +428,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !modifiedTimeAtPresent )
             {
                 // Inject the ModifyTimestamp AT if it's not present
-                Attribute attribute = new DefaultAttribute( MODIFY_TIMESTAMP_AT, DateUtils
-                    .getGeneralizedTime() );
+                Attribute attribute = new DefaultAttribute( directoryService.getAtProvider().getModifyTimestamp(),
+                    DateUtils.getGeneralizedTime() );
 
                 Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
@@ -378,7 +439,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !entryCsnAtPresent )
             {
                 String csn = directoryService.getCSN().toString();
-                Attribute attribute = new DefaultAttribute( ENTRY_CSN_AT, csn );
+                Attribute attribute = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), csn );
                 Modification updatedCsn = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
                 mods.add( updatedCsn );
             }
@@ -397,8 +458,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry modifiedEntry = moveContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        
-        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+
+        Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
+            .getCSN().toString() );
         modifiedEntry.put( csnAt );
 
         modifiedEntry.setDn( moveContext.getNewDn() );
@@ -417,8 +479,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
-        
-        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+
+        Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
+            .getCSN().toString() );
         modifiedEntry.put( csnAt );
 
         moveAndRenameContext.setModifiedEntry( modifiedEntry );
@@ -439,8 +502,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         Entry modifiedEntry = renameContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        
-        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+
+        Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
+            .getCSN().toString() );
         modifiedEntry.put( csnAt );
 
         renameContext.setModifiedEntry( modifiedEntry );
@@ -457,13 +521,16 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         EntryFilteringCursor cursor = next( searchContext );
 
         if ( searchContext.isAllOperationalAttributes()
-            || ( searchContext.getReturningAttributes() != null && !searchContext.getReturningAttributes().isEmpty() ) )
+            || ( ( searchContext.getReturningAttributes() != null ) && !searchContext.getReturningAttributes().isEmpty() ) )
         {
             if ( directoryService.isDenormalizeOpAttrsEnabled() )
             {
-                cursor.addEntryFilter( DENORMALIZING_SEARCH_FILTER );
+                cursor.addEntryFilter( denormalizingSearchFilter );
             }
 
+            cursor.addEntryFilter( operationalAttributeSearchFilter );
+            cursor.addEntryFilter( subordinatesSearchFilter );
+            
             return cursor;
         }
 
@@ -475,8 +542,9 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         // insert a new CSN into the entry, this is for replication
-        Entry entry = deleteContext.getEntry();        
-        Attribute csnAt = new DefaultAttribute( ENTRY_CSN_AT, directoryService.getCSN().toString() );
+        Entry entry = deleteContext.getEntry();
+        Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
+            .getCSN().toString() );
         entry.put( csnAt );
 
         next( deleteContext );
@@ -491,7 +559,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn creatorsName = directoryService.getDnFactory().create( attr.getString() );
+                Dn creatorsName = dnFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( creatorsName ).getName() );
@@ -501,7 +569,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn modifiersName = directoryService.getDnFactory().create( attr.getString() );
+                Dn modifiersName = dnFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -511,7 +579,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( attr != null )
             {
-                Dn modifiersName = directoryService.getDnFactory().create( attr.getString() );
+                Dn modifiersName = dnFactory.create( attr.getString() );
 
                 attr.clear();
                 attr.add( denormalizeTypes( modifiersName ).getName() );
@@ -545,7 +613,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             else if ( rdn.size() == 1 )
             {
                 String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                String value = rdn.getNormValue().getString();
+                String value = rdn.getNormValue();
                 newDn = newDn.add( new Rdn( name, value ) );
                 continue;
             }
@@ -557,7 +625,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 Ava atav = atavs.next();
                 String type = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                buf.append( type ).append( '=' ).append( atav.getNormValue() );
+                buf.append( type ).append( '=' ).append( atav.getValue().getNormValue() );
 
                 if ( atavs.hasNext() )
                 {
@@ -569,5 +637,49 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
 
         return newDn;
+    }
+    
+    
+    private void processSubordinates( Set<AttributeTypeOptions> returningAttributes, boolean allAttributes, Entry entry ) 
+        throws LdapException
+    {
+        // Bypass the rootDSE : we won't get the nbChildren and nbSubordiantes for this special entry
+        if ( Dn.isNullOrEmpty( entry.getDn() ) )
+        {
+            return;
+        }
+
+        // Add the Subordinates AttributeType if it's requested
+        AttributeType nbChildrenAt = directoryService.getAtProvider().getNbChildren();
+        AttributeTypeOptions nbChildrenAto = new AttributeTypeOptions( nbChildrenAt );
+        AttributeType nbSubordinatesAt = directoryService.getAtProvider().getNbSubordinates();
+        AttributeTypeOptions nbSubordinatesAto = new AttributeTypeOptions( nbSubordinatesAt );
+        
+        if ( returningAttributes != null )
+        {
+            boolean nbChildrenRequested = returningAttributes.contains( nbChildrenAto ) | allAttributes;
+            boolean nbSubordinatesRequested = returningAttributes.contains( nbSubordinatesAto ) | allAttributes;
+
+            if ( nbChildrenRequested || nbSubordinatesRequested )
+            {
+                Partition partition = directoryService.getPartitionNexus().getPartition( entry.getDn() );
+                Subordinates subordinates = partition.getSubordinates( entry );
+                
+                long nbChildren = subordinates.getNbChildren();
+                long nbSubordinates = subordinates.getNbSubordinates();
+                
+                if ( nbChildrenRequested )
+                {
+                    entry.add( new DefaultAttribute( nbChildrenAt, 
+                        Long.toString( nbChildren ) ) );
+                }
+    
+                if ( nbSubordinatesRequested )
+                { 
+                    entry.add( new DefaultAttribute( nbSubordinatesAt,
+                        Long.toString( nbSubordinates ) ) );
+                }
+            }
+        }
     }
 }

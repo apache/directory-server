@@ -25,14 +25,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.naming.NamingException;
-
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 import jdbm.recman.TransactionManager;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -50,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
+public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn>
 {
 
     /** A logger for this class */
@@ -79,7 +76,6 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn, Entry>
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
 
-            e.printStackTrace();
             throw e;
         }
 

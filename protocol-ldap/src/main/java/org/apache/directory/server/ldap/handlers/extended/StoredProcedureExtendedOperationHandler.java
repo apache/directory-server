@@ -29,8 +29,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.extras.extended.StoredProcedureRequest;
-import org.apache.directory.api.ldap.extras.extended.StoredProcedureResponse;
+import org.apache.directory.api.ldap.extras.extended.storedProcedure.StoredProcedureRequest;
+import org.apache.directory.api.ldap.extras.extended.storedProcedure.StoredProcedureResponse;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.sp.LdapContextParameter;
@@ -93,7 +93,8 @@ public class StoredProcedureExtendedOperationHandler implements
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
         StoredProcedureResponse resp =
-            LdapApiServiceFactory.getSingleton().newExtendedResponse( req, serializedResponse );
+            LdapApiServiceFactory.getSingleton().newExtendedResponse( req.getRequestName(), req.getMessageId(),
+                serializedResponse );
         session.getIoSession().write( resp );
     }
 

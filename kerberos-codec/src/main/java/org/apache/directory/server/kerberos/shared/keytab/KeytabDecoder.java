@@ -82,7 +82,7 @@ class KeytabDecoder
     {
         String principalName = getPrincipalName( buffer );
 
-        long principalType = buffer.getInt();
+        int principalType = buffer.getInt();
 
         long time = buffer.getInt();
         KerberosTime timeStamp = new KerberosTime( time * 1000 );
@@ -118,11 +118,11 @@ class KeytabDecoder
 
             if ( ii < count - 1 )
             {
-                principalNameBuffer.append( "\\" );
+                principalNameBuffer.append( "/" );
             }
         }
 
-        principalNameBuffer.append( "@" + realm );
+        principalNameBuffer.append( "@" ).append( realm );
 
         return principalNameBuffer.toString();
     }

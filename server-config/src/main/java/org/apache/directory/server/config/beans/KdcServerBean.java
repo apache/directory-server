@@ -23,8 +23,6 @@ package org.apache.directory.server.config.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.config.ConfigurationElement;
 
 
@@ -67,9 +65,6 @@ public class KdcServerBean extends DSBasedServerBean
 
     /** The default for verifying the body checksum */
     private static final boolean DEFAULT_VERIFY_BODY_CHECKSUM = true;
-
-    /** The default kdc service principal */
-    private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
     /** The allowable clock skew. */
     @ConfigurationElement(attributeType = "ads-krbAllowableClockSkew")

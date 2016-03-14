@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -41,9 +42,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.UnbindRequest;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.changelog.LogChange;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 
 
@@ -722,7 +721,7 @@ public interface CoreSession
      * @param returningAttributes the attributes to return
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor list( Dn dn, AliasDerefMode aliasDerefMode,
+    Cursor<Entry> list( Dn dn, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException;
 
 
@@ -735,7 +734,7 @@ public interface CoreSession
      * @param filter the search filter
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( Dn dn, String filter ) throws LdapException;
+    Cursor<Entry> search( Dn dn, String filter ) throws LdapException;
 
 
     /**
@@ -748,7 +747,7 @@ public interface CoreSession
      * @param ignoreReferrals a flag to tell the server to ignore referrals
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException;
+    Cursor<Entry> search( Dn dn, String filter, boolean ignoreReferrals ) throws LdapException;
 
 
     /**
@@ -761,11 +760,11 @@ public interface CoreSession
      * @param returningAttributes the attributes to return
      * @throws Exception if there are failures while listing children
      */
-    EntryFilteringCursor search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
+    Cursor<Entry> search( Dn dn, SearchScope scope, ExprNode filter, AliasDerefMode aliasDerefMode,
         String... returningAttributes ) throws LdapException;
 
 
-    EntryFilteringCursor search( SearchRequest searchRequest ) throws LdapException;
+    Cursor<Entry> search( SearchRequest searchRequest ) throws LdapException;
 
 
     /**
@@ -783,4 +782,21 @@ public interface CoreSession
      * @throws LdapException If the operation failed
      */
     void unbind( UnbindRequest unbindRequest ) throws LdapException;
+    
+    
+    /**
+     * @return true if the password must be changed
+     */
+    boolean isPwdMustChange();
+
+    
+    /**
+     * Sets if the passwords must be changed. If set to true then this session is
+     * only allowed to perform modify password, bind, unbind, abandon and StartTLS
+     * extended operation only as specified in section #8.1.2.2 of the password policy
+     * <a href="http://tools.ietf.org/id/draft-behera-ldap-password-policy-10.txt">spec</a> 
+     * 
+     * @param pwdMustChange
+     */
+    void setPwdMustChange( boolean pwdMustChange );
 }

@@ -35,8 +35,8 @@ import org.apache.directory.api.ldap.model.message.Request;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.ResultResponse;
 import org.apache.directory.api.ldap.model.message.ResultResponseRequest;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -162,7 +162,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             if ( message instanceof ExtendedRequest )
             {
                 // Reject all extended operations except StartTls  
-                ExtendedRequest<?> req = ( ExtendedRequest<?> ) message;
+                ExtendedRequest req = ( ExtendedRequest ) message;
 
                 if ( !req.getRequestName().equals( StartTlsHandler.EXTENSION_OID ) )
                 {
@@ -175,7 +175,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             else if ( message instanceof ResultResponseRequest )
             {
                 // Reject all other operations that have a result response  
-                rejectWithoutConfidentiality( session, ( ( ResultResponseRequest<?> ) message )
+                rejectWithoutConfidentiality( session, ( ( ResultResponseRequest ) message )
                     .getResultResponse() );
                 return;
             }
@@ -211,6 +211,9 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             coreSession = getLdapServer().getDirectoryService().getSession();
             ldapSession.setCoreSession( coreSession );
 
+            // Store the IoSession in the coreSession
+            ( ( DefaultCoreSession ) coreSession ).setIoSession( ldapSession.getIoSession() );
+
             if ( message instanceof AbandonRequest )
             {
                 return;
@@ -235,7 +238,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
     /**
      * Handles processing with referrals without ManageDsaIT decorator.
      */
-    public void handleException( LdapSession session, ResultResponseRequest<?> req, Exception e )
+    public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {
         LdapResult result = req.getResultResponse().getLdapResult();
 
@@ -243,6 +246,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
          * Set the result code or guess the best option.
          */
         ResultCodeEnum code;
+
         if ( e instanceof LdapOperationException )
         {
             code = ( ( LdapOperationException ) e ).getResultCode();
@@ -261,10 +265,10 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
          */
         String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
 
-        if ( LOG.isDebugEnabled() )
-        {
-            LOG.debug( msg, e );
+        LOG.debug( msg, e );
 
+        if ( LOG.isDebugEnabled() || ( code == ResultCodeEnum.OTHER ) )
+        {
             msg += ":\n" + ExceptionUtils.getStackTrace( e );
         }
 
@@ -280,7 +284,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
             if ( ( ne.getResolvedDn() != null ) && setMatchedDn )
             {
-                result.setMatchedDn( ( Dn ) ne.getResolvedDn() );
+                result.setMatchedDn( ne.getResolvedDn() );
             }
 
             // Add the referrals if necessary

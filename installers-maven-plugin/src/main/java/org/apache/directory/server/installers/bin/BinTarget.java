@@ -24,7 +24,7 @@ import org.apache.directory.server.installers.Target;
 
 
 /**
- * A Bin installer for the Linux platform.
+ * A Bin installer for the Linux platform. The default OsName parameter is Linux.
  * 
  * To create a Bin installer we use the shell (SH) utility that is bundled 
  * in every Linux.

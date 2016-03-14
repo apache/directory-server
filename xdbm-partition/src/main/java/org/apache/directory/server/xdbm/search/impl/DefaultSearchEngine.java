@@ -6,22 +6,24 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.xdbm.search.impl;
 
 
 import java.util.HashSet;
 import java.util.Set;
+
+import net.sf.ehcache.Element;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -52,7 +54,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Given a search filter and a scope the search engine identifies valid
  * candidate entries returning their ids.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DefaultSearchEngine implements SearchEngine
@@ -144,7 +146,23 @@ public class DefaultSearchEngine implements SearchEngine
         // --------------------------------------------------------------------
         // Determine the effective base with aliases
         // --------------------------------------------------------------------
-        String aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+        Dn aliasedBase = null;
+
+
+        if ( db.getAliasCache() != null )
+        {
+            Element aliasBaseElement = db.getAliasCache().get( baseId );
+
+            if ( aliasBaseElement != null )
+            {
+                aliasedBase = ( Dn ) ( aliasBaseElement ).getObjectValue();
+            }
+        }
+        else
+        {
+            aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+        }
+
         Dn effectiveBase = baseDn;
         String effectiveBaseId = baseId;
 
@@ -155,7 +173,7 @@ public class DefaultSearchEngine implements SearchEngine
              * finding the base, or always then we set the effective base to the alias target
              * got from the alias index.
              */
-            effectiveBase = new Dn( schemaManager, aliasedBase );
+            effectiveBase = aliasedBase.apply( schemaManager );
             effectiveBaseId = db.getEntryId( effectiveBase );
         }
 
@@ -246,7 +264,7 @@ public class DefaultSearchEngine implements SearchEngine
             {
                 IndexEntry<String, String> indexEntry = cursor.get();
 
-                // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID> 
+                // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID>
                 IndexEntry<String, String> forwardIndexEntry = new IndexEntry<String, String>();
                 forwardIndexEntry.setKey( indexEntry.getKey() );
                 forwardIndexEntry.setId( indexEntry.getKey() );

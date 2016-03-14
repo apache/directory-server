@@ -36,7 +36,7 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -125,12 +125,14 @@ public class MemoryChangeLogStoreTest
             Strings.getBytesUtf8( "secret" ) );
         ChangeLogEvent event = new ChangeLogEvent( revision, zuluTime, principal, forward, reverse );
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        byte[] data = null;
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( baos ) )
+        {
+            ChangeLogEventSerializer.serialize( event, out );
+            data = baos.toByteArray();
+        }
 
-        ChangeLogEventSerializer.serialize( event, out );
-
-        byte[] data = baos.toByteArray();
         ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
         ChangeLogEvent read = ChangeLogEventSerializer.deserialize( schemaManager, in );
@@ -144,7 +146,7 @@ public class MemoryChangeLogStoreTest
         assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
         assertEquals( principal.getName(), readPrincipal.getName() );
         assertEquals( principal.getDn(), readPrincipal.getDn() );
-        assertNull( readPrincipal.getUserPassword() );
+        assertNull( readPrincipal.getUserPasswords() );
 
         assertEquals( zuluTime, read.getZuluTime() );
         assertEquals( revision, read.getRevision() );

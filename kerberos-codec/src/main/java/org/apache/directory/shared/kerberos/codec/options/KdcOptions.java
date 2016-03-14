@@ -24,7 +24,6 @@ package org.apache.directory.shared.kerberos.codec.options;
  * The list of possible KDC options.
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@SuppressWarnings("serial")
 public class KdcOptions extends Options
 {
     /**

@@ -785,10 +785,10 @@ public enum I18n
     ERR_749("ERR_749"),
     ERR_750("ERR_750");
 
-    private static ResourceBundle errBundle = ResourceBundle
+    private static final ResourceBundle ERR_BUNDLE = ResourceBundle
         .getBundle( "org.apache.directory.server.i18n.errors" );
 
-    private final static ResourceBundle msgBundle = ResourceBundle
+    private static final ResourceBundle MSG_BUNDLE = ResourceBundle
         .getBundle( "org/apache/directory/server/i18n/messages" );
 
     /** The error code */
@@ -825,7 +825,7 @@ public enum I18n
     {
         try
         {
-            return err + " " + MessageFormat.format( errBundle.getString( err.getErrorCode() ), args );
+            return err + " " + MessageFormat.format( ERR_BUNDLE.getString( err.getErrorCode() ), args );
         }
         catch ( Exception e )
         {
@@ -863,7 +863,7 @@ public enum I18n
     {
         try
         {
-            return MessageFormat.format( msgBundle.getString( msg ), args );
+            return MessageFormat.format( MSG_BUNDLE.getString( msg ), args );
         }
         catch ( MissingResourceException mre )
         {

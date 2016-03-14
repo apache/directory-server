@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.message.ModifyResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.DateUtils;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -221,7 +222,7 @@ public void testModifyEntryUUIDAndEntryCSN() throws Exception
     modResp = connection.modify( modifyRequest );
     assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
 
-    LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+    LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
     Dn bindDn = new Dn( "uid=billyd,ou=users,ou=system" );
     nonAdminConnection.bind( bindDn.getName(), "secret" );

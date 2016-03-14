@@ -33,13 +33,11 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -104,15 +102,9 @@ import org.junit.runner.RunWith;
         "objectClass: uidObject",
         "uid: jnewbie",
         "cn: Joe Newbie",
-        "sn: Newbie"
-
-})
+        "sn: Newbie" })
 public class NegationSearchIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-    
-    
     /**
      * Tests to make sure a negated search for actors without ou
      * with value 'drama' returns those that do not have the attribute
@@ -129,8 +121,8 @@ public class NegationSearchIT extends AbstractLdapTestUnit
         assertTrue( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
         assertEquals( 2, results.size() );
     }
-    
-    
+
+
     /**
      * Tests to make sure a negated search for actors without ou
      * with value 'drama' returns those that do not have the attribute
@@ -147,8 +139,8 @@ public class NegationSearchIT extends AbstractLdapTestUnit
         assertFalse( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
         assertEquals( 1, results.size() );
     }
-    
-    
+
+
     boolean contains( String dn, Set<SearchResult> results )
     {
         for ( SearchResult result : results )
@@ -158,11 +150,11 @@ public class NegationSearchIT extends AbstractLdapTestUnit
                 return true;
             }
         }
-    
+
         return false;
     }
-    
-    
+
+
     Set<SearchResult> getResults( String filter ) throws Exception
     {
         DirContext ctx = getWiredContext( getLdapServer() );
@@ -174,10 +166,10 @@ public class NegationSearchIT extends AbstractLdapTestUnit
         {
             results.add( namingEnumeration.next() );
         }
-    
+
         namingEnumeration.close();
         ctx.close();
-    
+
         return results;
     }
 }

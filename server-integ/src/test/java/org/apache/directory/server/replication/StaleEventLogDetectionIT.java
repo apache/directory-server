@@ -28,13 +28,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -58,6 +59,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 /**
  * Tests the stale event log removal capability
  *
@@ -74,11 +76,12 @@ public class StaleEventLogDetectionIT
     private static AtomicInteger entryCount = new AtomicInteger();
 
     private static final int INSERT_COUNT = 10;
-    
+
     private static final int TOTAL_COUNT = INSERT_COUNT + 1;
 
     private static File cookiesDir;
-    
+
+
     @BeforeClass
     public static void setUp() throws Exception
     {
@@ -93,22 +96,22 @@ public class StaleEventLogDetectionIT
 
             providerSession.add( entry );
         }
-        
+
         cookiesDir = new File( FileUtils.getTempDirectory(), MockSyncReplConsumer.COOKIES_DIR_NAME );
     }
 
-    
+
     @Before
     @After
     public void deleteCookies() throws IOException
     {
-        if( cookiesDir.exists() )
+        if ( cookiesDir.exists() )
         {
             FileUtils.cleanDirectory( cookiesDir );
         }
     }
 
-    
+
     @AfterClass
     public static void tearDown() throws Exception
     {
@@ -190,7 +193,7 @@ public class StaleEventLogDetectionIT
      */
     private boolean waitForSyncReplClient( ReplicationConsumer consumer, int expected ) throws Exception
     {
-        System.out.println( "\nNbAdded every 100ms : " );
+//        System.out.println( "\nNbAdded every 100ms : " );
         boolean isFirst = true;
 
         for ( int i = 0; i < 50; i++ )
@@ -203,10 +206,10 @@ public class StaleEventLogDetectionIT
             }
             else
             {
-                System.out.print( ", " );
+//                System.out.print( ", " );
             }
 
-            System.out.print( nbAdded );
+//            System.out.print( nbAdded );
 
             if ( nbAdded == expected )
             {
@@ -224,7 +227,7 @@ public class StaleEventLogDetectionIT
     {
         final ReplicationConsumer syncreplClient = new MockSyncReplConsumer();
         final SyncReplConfiguration config = new SyncReplConfiguration();
-        config.setRemoteHost( "localhost" );
+        config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
         config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
         config.setReplUserPassword( "secret".getBytes() );
@@ -281,7 +284,7 @@ public class StaleEventLogDetectionIT
     @Test
     public void testDeleteStaleEventLog() throws Exception
     {
-        System.out.println( "\n---> Running testDeleteStaleEventLog" );
+        //System.out.println( "\n---> Running testDeleteStaleEventLog" );
 
         ReplicationConsumer consumer = createConsumer();
 
@@ -290,27 +293,27 @@ public class StaleEventLogDetectionIT
         consumer.stop();
 
         Thread.sleep( 5 * 1000 ); // let the journal be created and put in the map
-        
+
         SyncReplRequestHandler syncreplHandler = ( SyncReplRequestHandler ) providerServer.getReplicationReqHandler();
-        
+
         ReplicaEventLog log = syncreplHandler.getReplicaLogMap().values().iterator().next();
         log.setMaxIdlePeriod( 10 ); // in seconds
-        
+
         syncreplHandler.getLogJanitor().setSleepTime( 1000 ); // every second
         syncreplHandler.getLogJanitor().interrupt();
-        
+
         File replDir = providerServer.getDirectoryService().getInstanceLayout().getReplDirectory();
         File logFile = new File( replDir, log.getName() + ".db" );
-        
+
         // there should be only one log file
         assertTrue( logFile.exists() );
-        
+
         // let it sleep for 10 seconds + 5 seconds (above)
         Thread.sleep( 10 * 1000 );
-        
+
         // there should be only one log file
         assertFalse( logFile.exists() );
-        
-        System.out.println( "\n<-- Done" );
+
+        //System.out.println( "\n<-- Done" );
     }
 }

@@ -26,6 +26,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.store.AbstractPolicy;
 
 import org.apache.directory.shared.kerberos.KerberosTime;
@@ -59,7 +60,7 @@ public class ReplayCacheImpl implements ReplayCache
     /**
      * A structure to hold an entry
      */
-    public class ReplayCacheEntry implements Serializable
+    public static class ReplayCacheEntry implements Serializable
     {
         private static final long serialVersionUID = 1L;
 
@@ -257,6 +258,8 @@ public class ReplayCacheImpl implements ReplayCache
     public void clear()
     {
         LOG.debug( "removing all the elements from cache" );
-        cache.removeAll();
+        if (cache.getStatus().equals(Status.STATUS_ALIVE)) {
+            cache.removeAll();
+        }
     }
 }

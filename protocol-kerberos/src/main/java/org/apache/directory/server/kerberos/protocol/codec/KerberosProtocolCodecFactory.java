@@ -29,7 +29,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosProtocolCodecFactory implements ProtocolCodecFactory
+public final class KerberosProtocolCodecFactory implements ProtocolCodecFactory
 {
     private static final KerberosProtocolCodecFactory INSTANCE = new KerberosProtocolCodecFactory();
 

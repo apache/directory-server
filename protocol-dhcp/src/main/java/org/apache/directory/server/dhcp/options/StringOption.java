@@ -66,8 +66,10 @@ public abstract class StringOption extends DhcpOption
     public byte[] getData()
     {
         if ( null == string )
+        {
             return new byte[]
                 {};
+        }
 
         try
         {

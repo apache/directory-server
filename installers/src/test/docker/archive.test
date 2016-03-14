@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License. 
+
+# 
+# Script to test Debian installer within Docker container.
+#
+
+NAME="apacheds-${project.version}"
+DIRNAME="${NAME}"
+
+wait_for_apacheds_up() {
+    timeout 30  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
+}
+wait_for_apacheds_down() {
+    timeout 30  sh -c "while nc -z localhost 10389; do sleep 1; done"
+}
+
+# stop execution if any command fails (i.e. exits with status code > 0)
+set -e
+
+# trace commands
+set -x
+
+HAVE_TTY=0
+if [ "`tty`" != "not a tty" ]; then
+    HAVE_TTY=1
+fi
+
+# install
+cd /opt
+if [ -f /apacheds.tar.gz ]
+then
+    tar -xzvf /apacheds.tar.gz
+elif [ -f /apacheds.zip ]
+then
+    unzip /apacheds.zip
+    # exec permission in zip not set
+    chmod +x /opt/${DIRNAME}/bin/apacheds.sh
+else
+    exit 1
+fi
+
+# assert files and directories exist
+test -f /opt/${DIRNAME}/LICENSE
+test -f /opt/${DIRNAME}/NOTICE
+test -f /opt/${DIRNAME}/bin/apacheds.sh
+test -x /opt/${DIRNAME}/bin/apacheds.sh
+test -d /opt/${DIRNAME}/instances/default
+
+# assert not running: output and exit status
+if [ $HAVE_TTY -eq 1 ]
+then
+    /opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is not running"
+fi
+/opt/${DIRNAME}/bin/apacheds.sh status || test $? -ne 0
+
+# install required tools
+apt-get -qq update
+apt-get -qq -y install ldap-utils netcat
+
+# start
+/opt/${DIRNAME}/bin/apacheds.sh start
+wait_for_apacheds_up
+
+# assert running: output and exit status
+if [ $HAVE_TTY -eq 1 ]
+then
+    /opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is running"
+fi
+/opt/${DIRNAME}/bin/apacheds.sh status && test $? -eq 0
+
+# search
+ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
+
+# restart and search a few times
+for i in 1 2 3
+do
+    /opt/${DIRNAME}/bin/apacheds.sh stop
+    wait_for_apacheds_down
+    /opt/${DIRNAME}/bin/apacheds.sh start
+    wait_for_apacheds_up
+    ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
+done
+
+# stop
+/opt/${DIRNAME}/bin/apacheds.sh stop
+wait_for_apacheds_down
+
+# assert not running: output and exit status
+if [ $HAVE_TTY -eq 1 ]
+then
+    /opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is not running"
+fi
+/opt/${DIRNAME}/bin/apacheds.sh status || test $? -ne 0
+
+# assert password warning in log
+grep ".*WARN.*admin password.*security breach.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
+# assert no error in log
+! grep ".*ERROR.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
+
+# SUCCESS
+echo "SUCCESS"
+

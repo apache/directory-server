@@ -41,5 +41,5 @@ public interface RecordStore
      * @return The set of {@link ResourceRecord}s.
      * @throws DnsException
      */
-    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException;
+    Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException;
 }

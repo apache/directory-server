@@ -125,7 +125,7 @@ public class SearchRequestContainer
      */
     public int getTimeLimit()
     {
-        return (int)(timeLimit/1000L); // Convert it back to seconds
+        return ( int ) ( timeLimit / 1000L ); // Convert it back to seconds
     }
     
     

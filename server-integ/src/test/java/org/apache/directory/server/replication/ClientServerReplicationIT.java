@@ -27,10 +27,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
@@ -51,9 +53,9 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
@@ -93,8 +95,13 @@ public class ClientServerReplicationIT
     public static void setUp() throws Exception
     {
         Class.forName( FrameworkRunner.class.getName() );
-        startProvider();
-        startConsumer();
+        CountDownLatch counter = new CountDownLatch( 2 );
+
+        startProvider( counter );
+        startConsumer( counter );
+
+        // Wait for the two servers to be up and running
+        counter.await();
     }
 
 
@@ -122,7 +129,7 @@ public class ClientServerReplicationIT
             System.out.println( "-----------> Dumping the server <-----------" );
             System.out.println( "-----------> Looking for " + entryDn.getNormName() + " <-----------" );
 
-            EntryFilteringCursor cursor = session.search( searchRequest );
+            Cursor<Entry> cursor = session.search( searchRequest );
 
             while ( cursor.next() )
             {
@@ -187,6 +194,7 @@ public class ClientServerReplicationIT
                 Entry consumerEntry = consumerSession.lookup( entryDn, "*", "+" );
                 Csn providerCSN = new Csn( providerEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
                 Csn consumerCSN = new Csn( consumerEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+
                 if ( consumerCSN.compareTo( providerCSN ) >= 0 )
                 {
                     if ( print )
@@ -255,9 +263,9 @@ public class ClientServerReplicationIT
         assertFalse( consumerSession.exists( provUser.getDn() ) );
 
         // add the entry and check it is replicated
-        System.out.println( ">--------------------------------------- Adding " + provUser );
+        //System.out.println( ">--------------------------------------- Adding " + provUser );
         providerSession.add( provUser );
-        System.out.println( ">--------------------------------------- Added " );
+        //System.out.println( ">--------------------------------------- Added " );
 
         assertTrue( providerSession.exists( provUser.getDn() ) );
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
@@ -267,9 +275,15 @@ public class ClientServerReplicationIT
         modReq.setName( provUser.getDn() );
         modReq.add( "userPassword", "secret" );
 
-        System.out.println( ">--------------------------------------- Modifying " + modReq );
+        // to test replication of binary data
+        modReq.add( "objectClass", "inetOrgPerson" );
+        modReq.add( "uid", "uid" );
+        TlsKeyGenerator.addKeyPair( provUser );
+        modReq.add( "userCertificate", provUser.get( "userCertificate" ).getBytes() );
+        
+        //System.out.println( ">--------------------------------------- Modifying " + modReq );
         providerSession.modify( modReq );
-        System.out.println( ">--------------------------------------- Modified " );
+        //System.out.println( ">--------------------------------------- Modified " );
 
         assertTrue( checkEntryReplicated( provUser.getDn() ) );
         compareEntries( provUser.getDn() );
@@ -282,11 +296,13 @@ public class ClientServerReplicationIT
         Entry provUser = createEntry();
         Dn userDn = provUser.getDn();
 
+        Thread.sleep( 500 );
+
         assertFalse( consumerSession.exists( userDn ) );
 
         // Add entry "cn=entryN,dc=example,dc=com" and check it is replicated
         providerSession.add( provUser );
-        
+
         assertTrue( checkEntryReplicated( userDn ) );
 
         // Add container for users "ou=users,dc=example,dc=com" and check it is replicated
@@ -332,7 +348,7 @@ public class ClientServerReplicationIT
 
         assertTrue( checkEntryReplicated( movedAndRenamedEntryDn ) );
         compareEntries( movedAndRenamedEntryDn );
-        
+
         // cleanup
         providerSession.delete( usersContainerDn );
     }
@@ -430,7 +446,7 @@ public class ClientServerReplicationIT
 
     private Entry restartConsumer( Entry provUser ) throws Exception
     {
-        System.out.println( "------------------------------------- Stop consumer" );
+        //System.out.println( "------------------------------------- Stop consumer" );
         // Now stop the consumer
         consumerServer.stop();
 
@@ -451,7 +467,7 @@ public class ClientServerReplicationIT
         Thread.sleep( 1000 );
 
         // Restart the consumer
-        System.out.println( "------------------------------------- Start consumer" );
+        //System.out.println( "------------------------------------- Start consumer" );
         consumerServer.start();
 
         assertTrue( checkEntryDeletion( consumerSession, deletedUserDn ) );
@@ -484,12 +500,12 @@ public class ClientServerReplicationIT
             provUser = restartConsumer( provUser );
         }
     }
-
-
+    
+    
     private void compareEntries( Dn dn ) throws Exception
     {
         String[] searchAttributes = new String[]
-        {
+            {
                 SchemaConstants.ALL_USER_ATTRIBUTES,
                 SchemaConstants.ENTRY_UUID_AT
         };
@@ -538,7 +554,7 @@ public class ClientServerReplicationIT
         })
     @CreateLdapServer(transports =
         { @CreateTransport(port = 16000, protocol = "LDAP") })
-    public static void startProvider() throws Exception
+    public static void startProvider( final CountDownLatch counter ) throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
@@ -555,6 +571,7 @@ public class ClientServerReplicationIT
                 {
                     schemaManager = providerServer.getDirectoryService().getSchemaManager();
                     providerSession = providerServer.getDirectoryService().getAdminSession();
+                    counter.countDown();
                 }
                 catch ( Exception e )
                 {
@@ -594,7 +611,6 @@ public class ClientServerReplicationIT
         { @CreateTransport(port = 17000, protocol = "LDAP") })
     @CreateConsumer
         (
-            remoteHost = "localhost",
             remotePort = 16000,
             replUserDn = "uid=admin,ou=system",
             replUserPassword = "secret",
@@ -603,7 +619,7 @@ public class ClientServerReplicationIT
             refreshInterval = 1000,
             replicaId = 1
         )
-        public static void startConsumer() throws Exception
+        public static void startConsumer( final CountDownLatch counter ) throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
         consumerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
@@ -614,7 +630,6 @@ public class ClientServerReplicationIT
         replConsumers.add( consumer );
 
         consumerServer.setReplConsumers( replConsumers );
-        consumerServer.startReplicationConsumers();
 
         Runnable r = new Runnable()
         {
@@ -648,6 +663,7 @@ public class ClientServerReplicationIT
 
                     consumerSession = consumerServer.getDirectoryService().getAdminSession();
                     consumerSession.add( provConfigEntry );
+                    counter.countDown();
                 }
                 catch ( Exception e )
                 {
@@ -660,5 +676,7 @@ public class ClientServerReplicationIT
         t.setDaemon( true );
         t.start();
         t.join();
+
+        consumerServer.startReplicationConsumers();
     }
 }

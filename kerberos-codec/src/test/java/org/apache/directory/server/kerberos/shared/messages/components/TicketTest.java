@@ -62,28 +62,29 @@ public class TicketTest
 
         byte[] expectedResult = new byte[]
             {
-                0x61, ( byte ) 0x81, ( byte ) 0xFA,
-                0x30, ( byte ) 0x81, ( byte ) 0xF7,
+                0x61, ( byte ) 0x81, ( byte ) 0xE7,
+                0x30, ( byte ) 0x81, ( byte ) 0xE4,
                 ( byte ) 0xA0, 0x03,
                 0x02, 0x01, 0x05,
                 ( byte ) 0xA1, 0x0D,
                 0x1B, 0x0B,
                 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                ( byte ) 0xA2, 0x28,
-                0x30, 0x26,
+                ( byte ) 0xA2, 0x1D,
+                0x30, 0x1B,
                 ( byte ) 0xA0, 0x03,
                 0x02, 0x01, 0x01,
-                ( byte ) 0xA1, 0x1F,
-                0x30, 0x1D,
-                0x1B, 0x1B,
-                'k', 'a', 'd', 'm', 'i', 'n', '/',
-                'c', 'h', 'a', 'n', 'g', 'e', 'p', 'w', '@', 'E', 'X', 'A', 'M', 'P', 'L', 'E', '.', 'C', 'O', 'M',
-                ( byte ) 0xA3, ( byte ) 0x81, ( byte ) 0xB6,
-                0x30, ( byte ) 0x81, ( byte ) 0xB3,
+                ( byte ) 0xA1, 0x14,
+                0x30, 0x12,
+                0x1B, 0x06,
+                'k', 'a', 'd', 'm', 'i', 'n',
+                0x1B, 0x08,
+                'c', 'h', 'a', 'n', 'g', 'e', 'p', 'w',
+                ( byte ) 0xA3, ( byte ) 0x81, ( byte ) 0xAE,
+                0x30, ( byte ) 0x81, ( byte ) 0xAB,
                 ( byte ) 0xA0, 0x03,
                 0x02, 0x01, 0x03,
-                ( byte ) 0xA2, ( byte ) 0x81, ( byte ) 0xAB,
-                0x04, ( byte ) 0x81, ( byte ) 0xA8
+                ( byte ) 0xA2, ( byte ) 0x81, ( byte ) 0xA3,
+                0x04, ( byte ) 0x81, ( byte ) 0xA0
         };
 
         // We will just compared the first bytes (everything before the encrypted data)

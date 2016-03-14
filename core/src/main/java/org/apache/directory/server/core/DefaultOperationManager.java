@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -73,14 +74,19 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultOperationManager implements OperationManager
 {
-    /** The logger */
-    private static final Logger LOG = LoggerFactory.getLogger( DefaultOperationManager.class );
+    /** A logger specifically for operations */
+    private static final Logger OPERATION_LOG = LoggerFactory.getLogger( Loggers.OPERATION_LOG.getName() );
+
+    /** A logger specifically for operations time */
+    private static final Logger OPERATION_TIME = LoggerFactory.getLogger( Loggers.OPERATION_TIME.getName() );
+
+    /** A logger specifically for operations statistics */
+    private static final Logger OPERATION_STAT = LoggerFactory.getLogger( Loggers.OPERATION_STAT.getName() );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-    /** A logger specifically for change operations */
-    private static final Logger LOG_CHANGES = LoggerFactory.getLogger( "LOG_CHANGES" );
+    private static final boolean IS_DEBUG = OPERATION_LOG.isDebugEnabled();
+    private static final boolean IS_TIME = OPERATION_TIME.isDebugEnabled();
+    private static final boolean IS_STAT = OPERATION_STAT.isDebugEnabled();
 
     /** The directory service instance */
     private final DirectoryService directoryService;
@@ -96,9 +102,18 @@ public class DefaultOperationManager implements OperationManager
 
 
     /**
+     * {@inheritDoc}
+     */
+    public ReadWriteLock getRWLock()
+    {
+        return rwLock;
+    }
+
+
+    /**
      * Acquires a ReadLock
      */
-    private void lockRead()
+    public void lockRead()
     {
         rwLock.readLock().lock();
     }
@@ -125,7 +140,7 @@ public class DefaultOperationManager implements OperationManager
     /**
      * Releases a ReadLock
      */
-    private void unlockRead()
+    public void unlockRead()
     {
         rwLock.readLock().unlock();
     }
@@ -284,6 +299,9 @@ public class DefaultOperationManager implements OperationManager
                     case ONELEVEL:
                         urlString.append( "one" );
                         break;
+
+                    default:
+                        throw new IllegalArgumentException( "Unexpected scope " + scope );
                 }
 
                 urls.add( urlString.toString() );
@@ -323,8 +341,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> AddOperation : {}", addContext );
-            LOG_CHANGES.debug( ">> AddOperation : {}", addContext );
+            OPERATION_LOG.debug( ">> AddOperation : {}", addContext );
+        }
+
+        long addStart = 0L;
+
+        if ( IS_TIME )
+        {
+            addStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -379,8 +403,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< AddOperation successful" );
-            LOG_CHANGES.debug( "<< AddOperation successful" );
+            OPERATION_LOG.debug( "<< AddOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Add operation took " + ( System.nanoTime() - addStart ) + " ns" );
         }
     }
 
@@ -392,7 +420,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> BindOperation : {}", bindContext );
+            OPERATION_LOG.debug( ">> BindOperation : {}", bindContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -413,7 +448,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< BindOperation successful" );
+            OPERATION_LOG.debug( "<< BindOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Bind operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
     }
 
@@ -425,7 +465,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> CompareOperation : {}", compareContext );
+            OPERATION_LOG.debug( ">> CompareOperation : {}", compareContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -501,7 +548,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< CompareOperation successful" );
+            OPERATION_LOG.debug( "<< CompareOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Compare operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
 
         return result;
@@ -515,8 +567,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> DeleteOperation : {}", deleteContext );
-            LOG_CHANGES.debug( ">> DeleteOperation : {}", deleteContext );
+            OPERATION_LOG.debug( ">> DeleteOperation : {}", deleteContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -592,8 +650,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< DeleteOperation successful" );
-            LOG_CHANGES.debug( "<< DeleteOperation successful" );
+            OPERATION_LOG.debug( "<< DeleteOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Delete operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
     }
 
@@ -605,7 +667,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> GetRootDseOperation : {}", getRootDseContext );
+            OPERATION_LOG.debug( ">> GetRootDseOperation : {}", getRootDseContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -616,7 +685,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< getRootDseOperation successful" );
+            OPERATION_LOG.debug( "<< getRootDseOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "GetRootDSE operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
 
         return root;
@@ -630,7 +704,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> hasEntryOperation : {}", hasEntryContext );
+            OPERATION_LOG.debug( ">> hasEntryOperation : {}", hasEntryContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -652,7 +733,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< HasEntryOperation successful" );
+            OPERATION_LOG.debug( "<< HasEntryOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "HasEntry operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
 
         return result;
@@ -666,7 +752,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> LookupOperation : {}", lookupContext );
+            OPERATION_LOG.debug( ">> LookupOperation : {}", lookupContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -688,7 +781,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< LookupOperation successful" );
+            OPERATION_LOG.debug( "<< LookupOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Lookup operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
 
         return entry;
@@ -702,8 +800,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> ModifyOperation : {}", modifyContext );
-            LOG_CHANGES.debug( ">> ModifyOperation : {}", modifyContext );
+            OPERATION_LOG.debug( ">> ModifyOperation : {}", modifyContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -788,8 +892,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< ModifyOperation successful" );
-            LOG_CHANGES.debug( "<< ModifyOperation successful" );
+            OPERATION_LOG.debug( "<< ModifyOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Modify operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
     }
 
@@ -801,8 +909,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> MoveOperation : {}", moveContext );
-            LOG_CHANGES.debug( ">> MoveOperation : {}", moveContext );
+            OPERATION_LOG.debug( ">> MoveOperation : {}", moveContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -897,8 +1011,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< MoveOperation successful" );
-            LOG_CHANGES.debug( "<< MoveOperation successful" );
+            OPERATION_LOG.debug( "<< MoveOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Move operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
     }
 
@@ -910,8 +1028,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
-            LOG_CHANGES.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+            OPERATION_LOG.debug( ">> MoveAndRenameOperation : {}", moveAndRenameContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -1006,8 +1130,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< MoveAndRenameOperation successful" );
-            LOG_CHANGES.debug( "<< MoveAndRenameOperation successful" );
+            OPERATION_LOG.debug( "<< MoveAndRenameOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "MoveAndRename operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
     }
 
@@ -1019,8 +1147,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> RenameOperation : {}", renameContext );
-            LOG_CHANGES.debug( ">> RenameOperation : {}", renameContext );
+            OPERATION_LOG.debug( ">> RenameOperation : {}", renameContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -1111,8 +1245,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< RenameOperation successful" );
-            LOG_CHANGES.debug( "<< RenameOperation successful" );
+            OPERATION_LOG.debug( "<< RenameOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Rename operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
     }
 
@@ -1124,7 +1262,14 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> SearchOperation : {}", searchContext );
+            OPERATION_LOG.debug( ">> SearchOperation : {}", searchContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
@@ -1203,7 +1348,12 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< SearchOperation successful" );
+            OPERATION_LOG.debug( "<< SearchOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Search operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
 
         return cursor;
@@ -1217,25 +1367,31 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( ">> UnbindOperation : {}", unbindContext );
+            OPERATION_LOG.debug( ">> UnbindOperation : {}", unbindContext );
+        }
+
+        long opStart = 0L;
+
+        if ( IS_TIME )
+        {
+            opStart = System.nanoTime();
         }
 
         ensureStarted();
 
-        try
-        {
-            // Call the Unbind method
-            Interceptor head = directoryService.getInterceptor( unbindContext.getNextInterceptor() );
+        // Call the Unbind method
+        Interceptor head = directoryService.getInterceptor( unbindContext.getNextInterceptor() );
 
-            head.unbind( unbindContext );
-        }
-        finally
-        {
-        }
+        head.unbind( unbindContext );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "<< UnbindOperation successful" );
+            OPERATION_LOG.debug( "<< UnbindOperation successful" );
+        }
+
+        if ( IS_TIME )
+        {
+            OPERATION_TIME.debug( "Unbind operation took " + ( System.nanoTime() - opStart ) + " ns" );
         }
     }
 

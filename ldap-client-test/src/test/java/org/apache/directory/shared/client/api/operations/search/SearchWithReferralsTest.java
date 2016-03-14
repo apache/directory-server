@@ -22,6 +22,7 @@ package org.apache.directory.shared.client.api.operations.search;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -31,12 +32,15 @@ import java.util.List;
 
 import org.apache.directory.api.ldap.model.cursor.CursorLdapReferralException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -51,7 +55,20 @@ import org.junit.runner.RunWith;
 
 
 /**
- * A class to test the search operation with referrals
+ * A class to test the search operation with referrals. We use the following structure :
+ * 
+ * <pre>
+ * ou=system
+ *   ou=Countries
+ *     c=europ --> c=france,ou=system
+ *     c=america --> c=usa,ou=system
+ *   c=France
+ *     l=Paris
+ *       cn=emmanuel lecharny
+ *   c=USA
+ *     l=Jacksonville
+ *       cn=alex karasulu
+ * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -109,13 +126,12 @@ import org.junit.runner.RunWith;
         "dn: ou=Countries,ou=system",
         "objectClass: top",
         "objectClass: organizationalUnit",
-        "ou: Countries"
-})
+        "ou: Countries" })
 public class SearchWithReferralsTest extends AbstractLdapTestUnit
 {
     private LdapNetworkConnection connection;
-    
-    
+
+
     @Before
     public void setupReferrals() throws Exception
     {
@@ -126,36 +142,36 @@ public class SearchWithReferralsTest extends AbstractLdapTestUnit
                 "objectClass: extensibleObject\n" +
                 "c: europ\n" +
                 "ref: ldap://localhost:52489/c=france,ou=system\n\n" +
-    
+
                 "dn: c=america,ou=Countries,ou=system\n" +
                 "objectClass: top\n" +
                 "objectClass: referral\n" +
                 "objectClass: extensibleObject\n" +
                 "c: america\n" +
                 "ref: ldap://localhost:52489/c=usa,ou=system\n\n";
-    
+
         LdifReader reader = new LdifReader( new StringReader( ldif ) );
-    
+
         while ( reader.hasNext() )
         {
             LdifEntry entry = reader.next();
             getLdapServer().getDirectoryService().getAdminSession().add(
                 new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), entry.getEntry() ) );
         }
-    
+
         reader.close();
-    
+
         connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
-    
-    
+
+
     @After
     public void shutdown() throws Exception
     {
         LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
     }
-    
-    
+
+
     /**
      * Test of an search operation with a referral
      *
@@ -171,20 +187,20 @@ public class SearchWithReferralsTest extends AbstractLdapTestUnit
         int count = 0;
         Entry entry = null;
         List<String> refs = new ArrayList<String>();
-    
+
         while ( cursor.next() )
         {
             try
             {
                 entry = cursor.get();
-    
+
                 assertNotNull( entry );
                 count++;
             }
             catch ( CursorLdapReferralException clre )
             {
                 count++;
-    
+
                 do
                 {
                     String ref = clre.getReferralInfo();
@@ -193,11 +209,269 @@ public class SearchWithReferralsTest extends AbstractLdapTestUnit
                 while ( clre.skipReferral() );
             }
         }
-    
+
         assertEquals( 3, count );
         assertEquals( 2, refs.size() );
         assertTrue( refs.contains( "ldap://localhost:52489/c=usa,ou=system??sub" ) );
         assertTrue( refs.contains( "ldap://localhost:52489/c=france,ou=system??sub" ) );
+        cursor.close();
+    }
+
+
+    /**
+     * Test of an search operation with a referral, we don't request the operational attributes
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchWithReferralThrowNoOpAttr() throws Exception
+    {
+        EntryCursor cursor = connection.search( "ou=Countries,ou=system", "(objectClass=*)",
+            SearchScope.SUBTREE, "*" );
+        int count = 0;
+        Entry entry = null;
+        List<String> refs = new ArrayList<String>();
+
+        while ( cursor.next() )
+        {
+            try
+            {
+                entry = cursor.get();
+
+                assertNotNull( entry );
+                count++;
+            }
+            catch ( CursorLdapReferralException clre )
+            {
+                count++;
+
+                do
+                {
+                    String ref = clre.getReferralInfo();
+                    refs.add( ref );
+                }
+                while ( clre.skipReferral() );
+            }
+        }
+
+        assertEquals( 3, count );
+        assertEquals( 2, refs.size() );
+        assertTrue( refs.contains( "ldap://localhost:52489/c=usa,ou=system??sub" ) );
+        assertTrue( refs.contains( "ldap://localhost:52489/c=france,ou=system??sub" ) );
+        cursor.close();
+    }
+
+
+    /**
+     * Test of an search operation with a referral, we don't request any attribute
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchWithReferralThrowNoAttribute() throws Exception
+    {
+        EntryCursor cursor = connection.search( "ou=Countries,ou=system", "(objectClass=*)",
+            SearchScope.SUBTREE, "1.1" );
+        int count = 0;
+        Entry entry = null;
+        List<String> refs = new ArrayList<String>();
+
+        while ( cursor.next() )
+        {
+            try
+            {
+                entry = cursor.get();
+
+                assertNotNull( entry );
+                count++;
+            }
+            catch ( CursorLdapReferralException clre )
+            {
+                count++;
+
+                do
+                {
+                    String ref = clre.getReferralInfo();
+                    refs.add( ref );
+                }
+                while ( clre.skipReferral() );
+            }
+        }
+
+        assertEquals( 3, count );
+        assertEquals( 2, refs.size() );
+        assertTrue( refs.contains( "ldap://localhost:52489/c=usa,ou=system??sub" ) );
+        assertTrue( refs.contains( "ldap://localhost:52489/c=france,ou=system??sub" ) );
+        cursor.close();
+    }
+
+
+    /**
+     * Test of an search operation with a referral and a follow
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchWithReferralAsIs() throws Exception
+    {
+        // We will ask the referal to be returned as is
+        SearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( new Dn( "ou=Countries,ou=system" ) );
+        searchRequest.setFilter( "(objectClass=*)" );
+        searchRequest.setScope( SearchScope.SUBTREE );
+        searchRequest.addAttributes( "*", "+" );
+
+        searchRequest.ignoreReferrals();
+
+        SearchCursor cursor = connection.search( searchRequest );
+        int count = 0;
+        Entry entry = null;
+        List<String> refs = new ArrayList<String>();
+
+        while ( cursor.next() )
+        {
+            entry = cursor.getEntry();
+
+            assertNotNull( entry );
+
+            if ( !"ou=Countries,ou=system".equals( entry.getDn().toString() ) )
+            {
+                assertTrue( entry.containsAttribute( "ref" ) );
+            }
+
+            count++;
+        }
+
+        assertEquals( 3, count );
+        assertEquals( 0, refs.size() );
+        cursor.close();
+    }
+
+
+    /**
+     * Test of an search operation with a referral and a follow
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchWithReferralAsIsNoOpAttr() throws Exception
+    {
+        // We will ask the referal to be returned as is
+        SearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( new Dn( "ou=Countries,ou=system" ) );
+        searchRequest.setFilter( "(objectClass=*)" );
+        searchRequest.setScope( SearchScope.SUBTREE );
+        searchRequest.addAttributes( "*" );
+
+        searchRequest.ignoreReferrals();
+
+        SearchCursor cursor = connection.search( searchRequest );
+        int count = 0;
+        Entry entry = null;
+        List<String> refs = new ArrayList<String>();
+
+        while ( cursor.next() )
+        {
+            entry = cursor.getEntry();
+
+            assertNotNull( entry );
+            assertFalse( entry.containsAttribute( "ref" ) );
+            count++;
+        }
+
+        assertEquals( 3, count );
+        assertEquals( 0, refs.size() );
+        cursor.close();
+    }
+
+
+    /**
+     * Test of an search operation with a referral and a follow
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchWithReferralAsIsNoAttr() throws Exception
+    {
+        // We will ask the referal to be returned as is
+        SearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( new Dn( "ou=Countries,ou=system" ) );
+        searchRequest.setFilter( "(objectClass=*)" );
+        searchRequest.setScope( SearchScope.SUBTREE );
+        searchRequest.addAttributes( "1.1" );
+
+        searchRequest.ignoreReferrals();
+
+        SearchCursor cursor = connection.search( searchRequest );
+        int count = 0;
+        Entry entry = null;
+        List<String> refs = new ArrayList<String>();
+
+        while ( cursor.next() )
+        {
+            entry = cursor.getEntry();
+
+            assertNotNull( entry );
+            assertFalse( entry.containsAttribute( "ref" ) );
+            count++;
+        }
+
+        assertEquals( 3, count );
+        assertEquals( 0, refs.size() );
+        cursor.close();
+    }
+
+
+    /**
+     * Test of an search operation with a referral and a follow
+     *
+     * search for "cn=alex karasulu" on "c=america, ou=system"
+     * we should get a referral URL thrown, which point to
+     * "c=usa, ou=system", and ask for a subtree search
+     */
+    @Test
+    public void testSearchWithReferralAsIsRef() throws Exception
+    {
+        // We will ask the referal to be returned as is
+        SearchRequest searchRequest = new SearchRequestImpl();
+        searchRequest.setBase( new Dn( "ou=Countries,ou=system" ) );
+        searchRequest.setFilter( "(objectClass=*)" );
+        searchRequest.setScope( SearchScope.SUBTREE );
+        searchRequest.addAttributes( "ref" );
+
+        searchRequest.ignoreReferrals();
+
+        SearchCursor cursor = connection.search( searchRequest );
+        int count = 0;
+        Entry entry = null;
+        List<String> refs = new ArrayList<String>();
+
+        while ( cursor.next() )
+        {
+            entry = cursor.getEntry();
+
+            assertNotNull( entry );
+
+            if ( !"ou=Countries,ou=system".equals( entry.getDn().toString() ) )
+            {
+                assertTrue( entry.containsAttribute( "ref" ) );
+            }
+
+            count++;
+        }
+
+        assertEquals( 3, count );
+        assertEquals( 0, refs.size() );
         cursor.close();
     }
 }

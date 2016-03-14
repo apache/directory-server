@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class TypedData extends AbstractAsn1Object
+public class TypedData implements Asn1Object
 {
 
     // The inner class storing the individual TDs
@@ -248,7 +248,7 @@ public class TypedData extends AbstractAsn1Object
         {
             LOG.error( I18n.err( I18n.ERR_743_CANNOT_ENCODE_TYPED_DATA, 1 + TLV.getNbBytes( typedDataSeqSeqLength )
                 + typedDataSeqSeqLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
         }
 
         if ( IS_DEBUG )

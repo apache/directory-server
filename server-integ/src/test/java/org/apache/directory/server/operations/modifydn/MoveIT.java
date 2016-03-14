@@ -33,14 +33,12 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -83,8 +81,6 @@ import org.junit.runner.RunWith;
         "ou: child" })
 public class MoveIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final String DN = "uid=akarasulu,ou=users,ou=system";
     private static final String NEW_DN = "uid=akarasulu,ou=NewSuperior,ou=system";
     private static final String NEW_DN2 = "uid=elecharny,ou=NewSuperior,ou=system";

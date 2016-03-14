@@ -24,7 +24,6 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.UndefinedNode;
 import org.apache.directory.server.xdbm.IndexEntry;
-import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
 
 
@@ -35,17 +34,12 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  */
 public class EmptyEvaluator implements Evaluator<UndefinedNode>
 {
-    /** The backend */
-    private final Store db;
-
-
     /**
      * Create a new instance of the PassThroughEvaluator
      * @throws Exception
      */
-    public EmptyEvaluator( Store db )
+    public EmptyEvaluator()
     {
-        this.db = db;
     }
 
 
@@ -74,7 +68,7 @@ public class EmptyEvaluator implements Evaluator<UndefinedNode>
      */
     public UndefinedNode getExpression()
     {
-        return null;
+        return UndefinedNode.UNDEFINED_NODE;
     }
 
 

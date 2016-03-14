@@ -22,18 +22,24 @@ package org.apache.directory.server.kerberos.protocol.codec;
 
 import java.nio.ByteBuffer;
 
+import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.asn1.ber.tlv.TLVStateEnum;
+import org.apache.directory.api.ldap.model.constants.Loggers;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.KerberosMessageContainer;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
+import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MinaKerberosDecoder extends ProtocolDecoderAdapter
+public class MinaKerberosDecoder extends CumulativeProtocolDecoder
 {
     /** the key used while storing message container in the session */
     private static final String KERBEROS_MESSAGE_CONTAINER = "kerberosMessageContainer";
@@ -41,33 +47,148 @@ public class MinaKerberosDecoder extends ProtocolDecoderAdapter
     /** The ASN 1 decoder instance */
     private Asn1Decoder asn1Decoder = new Asn1Decoder();
 
+    private static final int DEFAULT_MAX_PDU_SIZE = 1024 * 7; // 7KB
+    
+    /** the maximum allowed PDU size for a Kerberos request */
+    private int maxPduSize = DEFAULT_MAX_PDU_SIZE;
+    
+    private static final Logger LOG_KRB = LoggerFactory.getLogger( Loggers.KERBEROS_LOG.getName() );
+    
+    /** A speedup for logger */
+    private static final boolean IS_DEBUG = LOG_KRB.isDebugEnabled();
 
     @Override
-    public void decode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws Exception
+    public boolean doDecode( IoSession session, IoBuffer in, ProtocolDecoderOutput out ) throws Exception
     {
-        ByteBuffer buf = in.buf();
+        ByteBuffer incomingBuf = in.buf();
 
-        KerberosMessageContainer kerberosMessageContainer = ( KerberosMessageContainer ) session
+        KerberosMessageContainer krbMsgContainer = ( KerberosMessageContainer ) session
             .getAttribute( KERBEROS_MESSAGE_CONTAINER );
 
-        if ( kerberosMessageContainer == null )
+        if ( krbMsgContainer == null )
         {
-            kerberosMessageContainer = new KerberosMessageContainer();
-            session.setAttribute( KERBEROS_MESSAGE_CONTAINER, kerberosMessageContainer );
-            kerberosMessageContainer.setStream( buf );
-            kerberosMessageContainer.setGathering( true );
-            kerberosMessageContainer.setTCP( !session.getTransportMetadata().isConnectionless() );
+            krbMsgContainer = new KerberosMessageContainer();
+            krbMsgContainer.setMaxPDUSize( maxPduSize );
+            session.setAttribute( KERBEROS_MESSAGE_CONTAINER, krbMsgContainer );
+            krbMsgContainer.setGathering( true );
+            
+            boolean tcp = !session.getTransportMetadata().isConnectionless();
+            krbMsgContainer.setTCP( tcp );
+            
+            if ( tcp )
+            {
+                if ( incomingBuf.remaining() > 4 )
+                {
+                    int len = incomingBuf.getInt();
+                    
+                    if ( len > maxPduSize )
+                    {
+                        session.removeAttribute( KERBEROS_MESSAGE_CONTAINER );
+                        
+                        String err = "Request length %d exceeds allowed max PDU size %d";
+                        err = String.format( err, len, maxPduSize );
+                        
+                        throw new DecoderException( err );
+                    }
+                    
+                    krbMsgContainer.setTcpLength( len );
+                    incomingBuf.mark();
+                    
+                    ByteBuffer tmp = ByteBuffer.allocate( len );
+                    tmp.put( incomingBuf );
+                    
+                    krbMsgContainer.setStream( tmp );
+                }
+                else
+                {
+                    String err = "Could not determine the length of TCP buffer";
+                    LOG_KRB.warn( "{} {}", err, Strings.dumpBytes( incomingBuf.array() ) );
+                    throw new IllegalStateException( err );
+                }
+            }
+            else // UDP
+            {
+                krbMsgContainer.setStream( incomingBuf );
+            }
+        }
+        else // must be a fragmented TCP stream, copy the incomingBuf into the existing buffer of the container
+        {
+            int totLen = incomingBuf.limit() + krbMsgContainer.getStream().position();
+            if ( totLen > maxPduSize )
+            {
+                session.removeAttribute( KERBEROS_MESSAGE_CONTAINER );
+                
+                String err = "Total length of recieved bytes %d exceeds allowed max PDU size %d";
+                err = String.format( err, totLen, maxPduSize );
+                
+                throw new DecoderException( err );
+            }
+            
+            krbMsgContainer.getStream().put( incomingBuf );
+        }
+
+        if ( krbMsgContainer.isTCP() )
+        {
+            int curLen = krbMsgContainer.getStream().position();
+            if ( curLen < krbMsgContainer.getTcpLength() )
+            {
+                return false;
+            }
         }
 
         try
         {
-            Object obj = KerberosDecoder.decode( kerberosMessageContainer, asn1Decoder );
-            out.write( obj );
+            ByteBuffer stream = krbMsgContainer.getStream();
+            if ( stream.position() != 0 )
+            {
+                stream.flip();
+            }
+            
+            asn1Decoder.decode( stream, krbMsgContainer );
+            
+            if ( krbMsgContainer.getState() == TLVStateEnum.PDU_DECODED )
+            {
+                if ( IS_DEBUG )
+                {
+                    LOG_KRB.debug( "Decoded KerberosMessage : " + krbMsgContainer.getMessage() );
+                    incomingBuf.mark();
+                }
+                
+                out.write( krbMsgContainer.getMessage() );
+                
+                return true;
+            }
+        }
+        catch ( DecoderException de )
+        {
+            LOG_KRB.warn( "Error while decoding kerberos message", de );
+            incomingBuf.clear();
+            krbMsgContainer.clean();
+            throw de;
         }
         finally
         {
             session.removeAttribute( KERBEROS_MESSAGE_CONTAINER );
         }
+        
+        throw new DecoderException( "Invalid buffer" );
+   }
+
+    
+    /**
+     * @return the maxPduSize
+     */
+    public int getMaxPduSize()
+    {
+        return maxPduSize;
     }
 
+    
+    /**
+     * @param maxPduSize the maxPduSize to set
+     */
+    public void setMaxPduSize( int maxPduSize )
+    {
+        this.maxPduSize = maxPduSize;
+    }
 }

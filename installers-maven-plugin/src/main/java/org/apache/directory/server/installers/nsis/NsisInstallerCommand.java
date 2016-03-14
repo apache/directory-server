@@ -34,22 +34,99 @@ import org.apache.tools.ant.taskdefs.Execute;
 
 
 /**
- * Nullsoft INstaller System (NSIS) Installer command for Windows installers
+ * Nullsoft INstaller System (NSIS) Installer command for Windows installers. It creates this layout :
+ * 
+ * <pre>
+ * installers/
+ *  |
+ *  +-- target/
+ *       |
+ *       +-- installers/
+ *            |
+ *            +-- apacheds-win32/
+ *                 |
+ *                 +-- instancesFiles/
+ *                 |    |
+ *                 |    +-- default/
+ *                 |         |
+ *                 |         +-- run/
+ *                 |         |
+ *                 |         +-- partitions/
+ *                 |         |
+ *                 |         +-- log/
+ *                 |         |
+ *                 |         +-- cache/
+ *                 |         |
+ *                 |         +-- conf/
+ *                 |              |
+ *                 |              +-- wrapper-instance.conf
+ *                 |              |
+ *                 |              +-- log4j.properties
+ *                 |              |
+ *                 |              +-- config.ldif
+ *                 |
+ *                 +-- installationFiles/
+ *                 |    |
+ *                 |    +-- lib/
+ *                 |    |    |
+ *                 |    |    +-- wrapper.dll
+ *                 |    |    |
+ *                 |    |    +-- wrapper-3.2.3.jar
+ *                 |    |    |
+ *                 |    |    +-- apacheds-wrapper-2.0.0-M20-SNAPSHOT.jar
+ *                 |    |    |
+ *                 |    |    +-- apacheds-service-2.0.0-M20-SNAPSHOT.jar
+ *                 |    |
+ *                 |    +-- conf/
+ *                 |    |    |
+ *                 |    |    +-- wrapper.conf
+ *                 |    |
+ *                 |    +-- bin/
+ *                 |    |    |
+ *                 |    |    +-- wrapper.exe
+ *                 |    |
+ *                 |    +-- NOTICE
+ *                 |    |
+ *                 |    +-- LICENSE
+ *                 |    |
+ *                 |    +-- Manage ApacheDS.ex
+ *                 |   
+ *                 +-- header.bmp
+ *                 |
+ *                 +-- welcome.bmp
+ *                 |
+ *                 +-- installer.ico
+ *                 |
+ *                 +-- uninstaller.ico
+ *                 |
+ *                 +-- installer.nsi
+ * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 {
+    /** The list of windows files */
+    private static final String WRAPPER_EXE_RESOURCE = INSTALLERS_PATH + "wrapper/bin/wrapper-windows-x86-32.exe";
+    private static final String WRAPPER_EXE_FILE = "wrapper.exe";
+    private static final String WRAPPER_DLL_RESOURCE = INSTALLERS_PATH + "wrapper/lib/wrapper-windows-x86-32.dll";
+    private static final String WRAPPER_DLL_FILE = "wrapper.dll";
+    private static final String MANAGE_APACHEDS_EXE = "Manage ApacheDS.exe";
+    private static final String HEADER_BMP = "header.bmp";
+    private static final String WELCOME_BMP = "welcome.bmp";
+    private static final String INSTALLER_ICO = "installer.ico";
+    private static final String UNINSTALLER_ICO = "uninstaller.ico";
+    private static final String INSTALLER_NSI = "installer.nsi";
+    private static final String EXE_EXTENSION = ".exe";
     private static final String INSTALLATION_FILES = "installationFiles";
+    private static final String INSTANCES_FILES = "instancesFiles";
 
 
     /**
      * Creates a new instance of NsisInstallerCommand.
      *
-     * @param mojo
-     *      the Server Installers Mojo
-     * @param target
-     *      the NSIS target
+     * @param mojo the Server Installers Mojo
+     * @param target the NSIS target
      */
     public NsisInstallerCommand( GenerateMojo mojo, NsisTarget target )
     {
@@ -77,6 +154,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 
         // Creating the target directory
         File targetDirectory = getTargetDirectory();
+
         if ( !targetDirectory.mkdirs() )
         {
             Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, targetDirectory ) );
@@ -86,7 +164,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 
         log.info( "    Copying NSIS installer files" );
 
-        File installerFile = new File( targetDirectory, "installer.nsi" );
+        File installerFile = new File( targetDirectory, INSTALLER_NSI );
 
         try
         {
@@ -94,22 +172,29 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
             createLayouts();
 
             // Copying the 'Manage ApacheDS' utility
-            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "Manage ApacheDS.exe" ), new File(
-                getInstallationDirectory(), "Manage ApacheDS.exe" ) );
+            MojoHelperUtils.copyBinaryFile( mojo, MANAGE_APACHEDS_EXE,
+                getClass().getResourceAsStream( MANAGE_APACHEDS_EXE ), new File( getInstallationDirectory(),
+                    MANAGE_APACHEDS_EXE ) );
 
             // Copying the images and icons
-            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "header.bmp" ), new File(
-                targetDirectory, "header.bmp" ) );
-            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "welcome.bmp" ), new File(
-                targetDirectory, "welcome.bmp" ) );
-            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "installer.ico" ), new File(
-                targetDirectory, "installer.ico" ) );
-            MojoHelperUtils.copyBinaryFile( getClass().getResourceAsStream( "uninstaller.ico" ), new File(
-                targetDirectory, "uninstaller.ico" ) );
+            MojoHelperUtils.copyBinaryFile( mojo, HEADER_BMP, getClass().getResourceAsStream( HEADER_BMP ),
+                new File(
+                    targetDirectory, HEADER_BMP ) );
+
+            MojoHelperUtils.copyBinaryFile( mojo, WELCOME_BMP, getClass().getResourceAsStream( WELCOME_BMP ),
+                new File(
+                    targetDirectory, WELCOME_BMP ) );
+
+            MojoHelperUtils.copyBinaryFile( mojo, INSTALLER_ICO, getClass().getResourceAsStream( INSTALLER_ICO ),
+                new File(
+                    targetDirectory, INSTALLER_ICO ) );
+
+            MojoHelperUtils.copyBinaryFile( mojo, UNINSTALLER_ICO,
+                getClass().getResourceAsStream( UNINSTALLER_ICO ), new File( targetDirectory, UNINSTALLER_ICO ) );
 
             // Copying the 'installer.nsi' file
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, getClass().getResourceAsStream(
-                "installer.nsi" ), installerFile, true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, INSTALLER_NSI, getClass().getResourceAsStream(
+                INSTALLER_NSI ), installerFile, true );
         }
         catch ( Exception e )
         {
@@ -127,6 +212,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
                 installerFile.getAbsolutePath() };
         createPkgTask.setCommandline( cmd );
         createPkgTask.setWorkingDirectory( targetDirectory );
+
         try
         {
             createPkgTask.execute();
@@ -138,7 +224,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         }
 
         log.info( "=> NSIS installer generated at "
-            + new File( mojo.getOutputDirectory(), filterProperties.getProperty( "finalname" ) ) );
+            + new File( mojo.getOutputDirectory(), filterProperties.getProperty( FINAL_NAME_PROP ) ) );
     }
 
 
@@ -179,15 +265,17 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
         super.initializeFilterProperties();
 
         String finalName = target.getFinalName();
-        if ( !finalName.endsWith( ".exe" ) )
+
+        if ( !finalName.endsWith( EXE_EXTENSION ) )
         {
-            finalName = finalName + ".exe";
+            finalName = finalName + EXE_EXTENSION;
         }
-        filterProperties.put( "finalname", target.getFinalName() );
-        filterProperties.put( "installationFiles", INSTALLATION_FILES );
-        filterProperties.put( "instancesFiles", "instancesFiles" );
-        filterProperties.put( "wrapper.java.command", "wrapper.java.command=@java.home@\\bin\\java.exe" );
-        filterProperties.put( "double.quote", "\"" );
+
+        filterProperties.put( FINAL_NAME_PROP, target.getFinalName() );
+        filterProperties.put( INSTALLATION_FILES, INSTALLATION_FILES );
+        filterProperties.put( INSTANCES_FILES, INSTANCES_FILES );
+        filterProperties.put( WRAPPER_JAVA_COMMAND_PROP, "wrapper.java.command=@java.home@\\bin\\java.exe" );
+        filterProperties.put( DOUBLE_QUOTE_PROP, "\"" );
     }
 
 
@@ -205,6 +293,31 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
      */
     public File getInstanceDirectory()
     {
-        return new File( getTargetDirectory(), "instancesFiles/default" );
+        return new File( getTargetDirectory(), INSTANCES_FILES + "/" + DEFAULT );
+    }
+
+
+    /**
+     * Copies wrapper files to the installation layout.
+     *
+     * @param mojo The maven plugin Mojo
+     * @throws MojoFailureException If the copy failed
+     */
+    public void copyWrapperFiles( GenerateMojo mojo ) throws MojoFailureException
+    {
+        try
+        {
+            MojoHelperUtils.copyBinaryFile( mojo, WRAPPER_EXE_RESOURCE,
+                getClass().getResourceAsStream( WRAPPER_EXE_RESOURCE ),
+                new File( getInstallationLayout().getBinDirectory(), WRAPPER_EXE_FILE ) );
+
+            MojoHelperUtils.copyBinaryFile( mojo, WRAPPER_DLL_RESOURCE,
+                getClass().getResourceAsStream( WRAPPER_DLL_RESOURCE ), new File( getInstallationLayout()
+                    .getLibDirectory(), WRAPPER_DLL_FILE ) );
+        }
+        catch ( IOException e )
+        {
+            throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
+        }
     }
 }

@@ -22,10 +22,10 @@ package org.apache.directory.server.dns.io.encoder;
 
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.api.util.Network;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
 
@@ -43,14 +43,7 @@ public class AddressRecordEncoderTest extends AbstractResourceRecordEncoderTest
     @Override
     protected void setUpResourceData()
     {
-        try
-        {
-            address = InetAddress.getByName( "127.0.0.1" );
-        }
-        catch ( UnknownHostException e )
-        {
-            // should never happen
-        }
+        address = Network.LOOPBACK;
     }
 
 

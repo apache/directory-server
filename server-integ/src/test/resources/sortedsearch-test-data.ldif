@@ -1,0 +1,136 @@
+dn: ou=parent,ou=system
+objectclass: top
+objectclass: organizationalUnit
+ou: parent
+
+dn: ou=children,ou=parent,ou=system
+objectclass: top
+objectclass: organizationalUnit
+ou: children
+
+dn: ou=grandchildren,ou=children,ou=parent,ou=system
+objectclass: top
+objectclass: organizationalUnit
+ou: grandchildren
+
+dn: uid=user0,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: user0_user0
+sn: user0_sn
+cn: user0_cn
+cn: cn_0
+uid: user0
+
+dn: uid=user1,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: user1_user1
+sn: user1_sn
+cn: user1_cn
+cn: cn_1
+uid: user1
+
+dn: uid=user2,ou=children,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: user0_user0
+sn: user2_sn
+cn: user2_cn
+cn: cn_2
+uid: user0
+
+dn: uid=user3,ou=children,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: user3_user3
+sn: user3_sn
+cn: user3_cn
+cn: cn_3
+uid: user3
+
+dn: uid=user4,ou=grandchildren,ou=children,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: user4_user4
+sn: user4_sn
+cn: user4_cn
+cn: cn_4
+uid: user4
+
+dn: uid=user5,ou=grandchildren,ou=children,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: user5_user5
+sn: user5_sn
+cn: user5_cn
+cn: cn_5
+uid: user5
+
+dn: uid=user6,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: user6_user6
+sn: user6_sn
+cn: a_cn
+cn: cn_6
+uid: user6
+
+dn: uid=user7,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: user7_user7
+sn: user7_sn
+cn: user7_cn
+cn: cn_7
+uid: user7
+
+dn: uid=person1,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: person0_person0
+sn: person1_sn
+cn: person1_cn
+cn: cn_8
+uid: person1
+
+dn: uid=person2,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: person1_person1
+sn: person2_sn
+cn: person2_cn
+cn: cn_9
+uid: person2
+
+dn: uid=person3,ou=parent,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+givenName: person2_person2
+sn: person3_sn
+cn: person3_cn
+cn: cn_10
+uid: person3
+

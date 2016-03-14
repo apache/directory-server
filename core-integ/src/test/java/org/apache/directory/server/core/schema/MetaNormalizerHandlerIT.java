@@ -163,12 +163,14 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddNormalizerWithByteCodeToEnabledSchema() throws Exception
     {
-        InputStream in = getClass().getResourceAsStream( "DummyNormalizer.bytecode" );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        while ( in.available() > 0 )
+        try ( InputStream in = getClass().getResourceAsStream( "DummyNormalizer.bytecode" ) )
         {
-            out.write( in.read() );
+            while ( in.available() > 0 )
+            {
+                out.write( in.read() );
+            }
         }
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=normalizers,cn=apacheMeta,ou=schema" );
@@ -196,12 +198,14 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddNormalizerWithByteCodeToDisabledSchema() throws Exception
     {
-        InputStream in = getClass().getResourceAsStream( "DummyNormalizer.bytecode" );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        while ( in.available() > 0 )
+        try ( InputStream in = getClass().getResourceAsStream( "DummyNormalizer.bytecode" ) )
         {
-            out.write( in.read() );
+            while ( in.available() > 0 )
+            {
+                out.write( in.read() );
+            }
         }
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=normalizers,cn=nis,ou=schema" );

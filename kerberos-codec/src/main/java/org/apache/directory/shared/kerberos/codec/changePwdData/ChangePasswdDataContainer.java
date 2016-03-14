@@ -44,8 +44,7 @@ public class ChangePasswdDataContainer extends AbstractContainer
     public ChangePasswdDataContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
-        this.grammar = ChangePasswdDataGrammar.getInstance();
+        setGrammar( ChangePasswdDataGrammar.getInstance() );
         setTransition( ChangePasswdDataStatesEnum.START_STATE );
     }
 

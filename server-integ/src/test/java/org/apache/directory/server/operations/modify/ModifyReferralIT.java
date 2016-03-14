@@ -39,7 +39,6 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -47,7 +46,6 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.operations.compare.CompareIT;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -106,15 +104,12 @@ import org.slf4j.LoggerFactory;
         "uid: akarasuluref",
         "ref: ldap://localhost:10389/uid=akarasulu,ou=users,ou=system",
         "ref: ldap://foo:10389/uid=akarasulu,ou=users,ou=system",
-        "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system"
-})
+        "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class ModifyReferralIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final Logger LOG = LoggerFactory.getLogger( CompareIT.class );
-    
-    
+
+
     /**
      * Tests modify operation on referral entry with the ManageDsaIT control.
      */
@@ -122,24 +117,24 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         ManageDsaIT manageDSAIT = new ManageDsaITImpl();
         manageDSAIT.setCritical( true );
-    
+
         // modify success
         ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
         modifyRequest.add( "description", "referral to akarasulu" );
         modifyRequest.addControl( manageDSAIT );
-    
+
         conn.modify( modifyRequest );
-    
+
         assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", "description", "referral to akarasulu" ) );
-    
+
         conn.close();
     }
-    
-    
+
+
     /**
      * Tests modify operation on referral entries without the
      * ManageDsaIT control. Referrals are sent back to the client with a
@@ -149,28 +144,28 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     public void testOnReferral() throws Exception
     {
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         // referrals failure
         // modify success
         ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
         modifyRequest.add( "description", "referral to akarasulu" );
-    
+
         ModifyResponse modifyResponse = conn.modify( modifyRequest );
-    
+
         assertEquals( ResultCodeEnum.REFERRAL, modifyResponse.getLdapResult().getResultCode() );
-    
+
         assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
         assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
         assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
-    
+
         conn.close();
     }
-    
-    
+
+
     /**
      * Tests modify operation on normal and referral entries without the
      * ManageDsaIT control using JNDI instead of the Netscape API. Referrals
@@ -180,11 +175,11 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     public void testThrowOnReferralWithJndi() throws Exception
     {
         LdapContext ctx = getWiredContextThrowOnRefferal( getLdapServer() );
-    
+
         // modify failure
         Attribute attr = new BasicAttribute( "description", "referral to akarasulu" );
         ModificationItem mod = new ModificationItem( DirContext.ADD_ATTRIBUTE, attr );
-    
+
         try
         {
             ctx.modifyAttributes( "uid=akarasuluref,ou=users,ou=system", new ModificationItem[]
@@ -195,11 +190,11 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
             // seems JNDI only returns the first referral URL and not all so we test for it
             assertEquals( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system", e.getReferralInfo() );
         }
-    
+
         ctx.close();
     }
-    
-    
+
+
     /**
      * Tests referral handling when an ancestor is a referral.
      */
@@ -207,25 +202,25 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     public void testAncestorReferral() throws Exception
     {
         LOG.debug( "" );
-    
+
         LdapConnection conn = getWiredConnection( getLdapServer() );
-    
+
         // referrals failure
         ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( new Dn( "ou=Computers,uid=akarasuluref,ou=users,ou=system" ) );
         modifyRequest.add( "ou", "Machines" );
-    
+
         ModifyResponse modifyResponse = conn.modify( modifyRequest );
-    
+
         assertEquals( ResultCodeEnum.REFERRAL, modifyResponse.getLdapResult().getResultCode() );
-    
+
         assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
         assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
         assertTrue( modifyResponse.getLdapResult().getReferral().getLdapUrls()
             .contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-    
+
         conn.close();
     }
 }

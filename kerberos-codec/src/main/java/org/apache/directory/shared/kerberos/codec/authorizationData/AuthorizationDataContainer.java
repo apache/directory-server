@@ -41,8 +41,7 @@ public class AuthorizationDataContainer extends AbstractContainer
     public AuthorizationDataContainer()
     {
         super();
-        this.stateStack = new int[1];
-        this.grammar = AuthorizationDataGrammar.getInstance();
+        setGrammar( AuthorizationDataGrammar.getInstance() );
         setTransition( AuthorizationDataStatesEnum.START_STATE );
     }
 

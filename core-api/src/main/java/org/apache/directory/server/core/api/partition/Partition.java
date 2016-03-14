@@ -104,9 +104,16 @@ public interface Partition
      * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
      * as a clean-up process if {@link #doInit()} throws an exception.
      *
-     * @throws Exception if initialization fails in any way
+     * @throws LdapException if initialization fails in any way
      */
     void initialize() throws LdapException;
+
+    /**
+     * Repair this partition. 
+     *
+     * @throws Exception if repair fails in any way
+     */
+    void repair() throws Exception;
 
 
     /**
@@ -281,12 +288,35 @@ public interface Partition
      * @throws IOException if we can't write the data
      */
     void dumpIndex( OutputStream stream, String name ) throws IOException;
-    
-    
+
+
     /**
      * set the Cache service 
      *
      * @param cacheService
      */
     void setCacheService( CacheService cacheService );
+
+    
+    /**
+     * @return the current highest committed CSN value
+     */
+    String getContextCsn();
+
+    
+    /**
+     * saves the context CSN value in the context entry of the partition
+     * @throws Exception
+     */
+    void saveContextCsn() throws Exception;
+    
+    
+    /**
+     * Return the number of children and subordinates for a given entry
+     *
+     * @param entry The entry
+     * @return The Subordinate instance that contains the values.
+     * @throws LdapException If we had an issue while processing the request
+     */
+    Subordinates getSubordinates( Entry entry ) throws LdapException;
 }

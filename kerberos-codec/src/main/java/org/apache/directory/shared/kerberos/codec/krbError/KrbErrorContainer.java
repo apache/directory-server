@@ -44,8 +44,7 @@ public class KrbErrorContainer extends AbstractContainer
     public KrbErrorContainer( ByteBuffer stream )
     {
         super( stream );
-        this.stateStack = new int[1];
-        this.grammar = KrbErrorGrammar.getInstance();
+        setGrammar( KrbErrorGrammar.getInstance() );
         setTransition( KrbErrorStatesEnum.START_STATE );
     }
 

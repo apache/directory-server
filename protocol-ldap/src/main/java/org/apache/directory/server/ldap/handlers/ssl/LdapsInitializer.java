@@ -21,14 +21,16 @@ package org.apache.directory.server.ldap.handlers.ssl;
 
 
 import java.security.SecureRandom;
+import java.util.List;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.i18n.I18n;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -41,16 +43,30 @@ import org.apache.mina.filter.ssl.SslFilter;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
-public class LdapsInitializer
+public final class LdapsInitializer
 {
-    public static IoFilterChainBuilder init( KeyManagerFactory kmf ) throws LdapException
+    private LdapsInitializer()
+    {
+    }
+
+
+    /**
+     * Initialize the LDAPS server.
+     *
+     * @param ldapServer The LDAP server instance
+     * @param transport The TCP transport that contains the SSL configuration
+     * @return A IoFilter chain
+     * @throws LdapException If we had a pb
+     */
+    public static IoFilterChainBuilder init( LdapServer ldapServer, TcpTransport transport ) throws LdapException
     {
         SSLContext sslCtx;
+
         try
         {
             // Initialize the SSLContext to work with our key managers.
             sslCtx = SSLContext.getInstance( "TLS" );
-            sslCtx.init( kmf.getKeyManagers(), new TrustManager[]
+            sslCtx.init( ldapServer.getKeyManagerFactory().getKeyManagers(), new TrustManager[]
                 { new NoVerificationTrustManager() }, new SecureRandom() );
         }
         catch ( Exception e )
@@ -60,8 +76,35 @@ public class LdapsInitializer
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
         SslFilter sslFilter = new SslFilter( sslCtx );
-        sslFilter.setWantClientAuth( true );
+
+        // The ciphers
+        List<String> cipherSuites = transport.getCipherSuite();
+
+        if ( ( cipherSuites != null ) && !cipherSuites.isEmpty() )
+        {
+            sslFilter.setEnabledCipherSuites( cipherSuites.toArray( new String[cipherSuites.size()] ) );
+        }
+
+        // The protocols
+        List<String> enabledProtocols = transport.getEnabledProtocols();
+
+        if ( ( enabledProtocols != null ) && !enabledProtocols.isEmpty() )
+        {
+            sslFilter.setEnabledProtocols( enabledProtocols.toArray( new String[enabledProtocols.size()] ) );
+        }
+        else
+        {
+            // Be sure we disable SSLV3
+            sslFilter.setEnabledProtocols( new String[]
+                { "TLSv1", "TLSv1.1", "TLSv1.2" } );
+        }
+
+        // The remaining SSL parameters
+        sslFilter.setNeedClientAuth( transport.isNeedClientAuth() );
+        sslFilter.setWantClientAuth( transport.isWantClientAuth() );
+
         chain.addLast( "sslFilter", sslFilter );
+
         return chain;
     }
 }

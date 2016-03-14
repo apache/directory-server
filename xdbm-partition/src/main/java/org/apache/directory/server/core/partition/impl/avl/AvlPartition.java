@@ -26,6 +26,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.Index;
@@ -54,6 +55,8 @@ public class AvlPartition extends AbstractBTreePartition
 
     /**
      * Creates a store based on AVL Trees.
+     * 
+     * @param schemaManager the schema manager
      */
     public AvlPartition( SchemaManager schemaManager )
     {
@@ -62,8 +65,31 @@ public class AvlPartition extends AbstractBTreePartition
 
 
     /**
+     * Creates a store based on AVL Trees.
+     *
+     * @param schemaManager the schema manager
+     * @param dnFactory the DN factory
+     */
+    public AvlPartition( SchemaManager schemaManager, DnFactory dnFactory )
+    {
+        super( schemaManager, dnFactory );
+    }
+    
+    
+    /**
      * {@inheritDoc}
      */
+    @Override
+    protected void doRepair() throws Exception
+    {
+        // Nothing to do
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void doInit() throws Exception
     {
         if ( !initialized )
@@ -74,14 +100,14 @@ public class AvlPartition extends AbstractBTreePartition
             // setup optimizer and registries for parent
             if ( !optimizerEnabled )
             {
-                optimizer = new NoOpOptimizer();
+                setOptimizer( new NoOpOptimizer() );
             }
             else
             {
-                optimizer = new DefaultOptimizer<Entry>( this );
+                setOptimizer( new DefaultOptimizer<Entry>( this ) );
             }
 
-            searchEngine = new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, optimizer );
+            setSearchEngine( new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, getOptimizer() ) );
 
             if ( isInitialized() )
             {
@@ -144,17 +170,17 @@ public class AvlPartition extends AbstractBTreePartition
 
 
     @Override
-    protected Index<?, Entry, String> convertAndInit( Index<?, Entry, String> index ) throws Exception
+    protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
     {
-        AvlIndex<?, Entry> avlIndex;
+        AvlIndex<?> avlIndex;
 
         if ( index.getAttributeId().equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             avlIndex = new AvlRdnIndex( index.getAttributeId() );
         }
-        else if ( index instanceof AvlIndex<?, ?> )
+        else if ( index instanceof AvlIndex<?> )
         {
-            avlIndex = ( AvlIndex<?, Entry> ) index;
+            avlIndex = ( AvlIndex<?> ) index;
         }
         else
         {
@@ -177,7 +203,7 @@ public class AvlPartition extends AbstractBTreePartition
         LOG.debug( "Supplied index {} is not a JdbmIndex.  "
             + "Will create new JdbmIndex using copied configuration parameters." );
 
-        AvlIndex<?, Entry> avlIndex;
+        AvlIndex<?> avlIndex;
 
         if ( oid.equals( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {

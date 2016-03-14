@@ -65,7 +65,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     private final Normalizer normalizer;
 
     /** The index to use if any */
-    private final Index<String, Entry, String> idx;
+    private final Index<String, String> idx;
 
 
     /**
@@ -114,7 +114,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<String, Entry, String> ) db.getIndex( attributeType );
+            idx = ( Index<String, String> ) db.getIndex( attributeType );
         }
         else
         {

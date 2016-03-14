@@ -28,7 +28,7 @@ import org.apache.directory.server.config.ConfigurationElement;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndexBean<K, E> extends IndexBean
+public class JdbmIndexBean extends IndexBean
 {
     /** The default cache size */
     private static final int DEFAULT_INDEX_CACHE_SIZE = 100;

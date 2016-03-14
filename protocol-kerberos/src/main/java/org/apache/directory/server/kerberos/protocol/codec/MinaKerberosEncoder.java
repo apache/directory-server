@@ -22,7 +22,8 @@ package org.apache.directory.server.kerberos.protocol.codec;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.asn1.AbstractAsn1Object;
+import org.apache.directory.api.asn1.Asn1Object;
+import org.apache.directory.shared.kerberos.codec.KerberosEncoder;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
@@ -38,7 +39,7 @@ public class MinaKerberosEncoder extends ProtocolEncoderAdapter
     @Override
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws Exception
     {
-        AbstractAsn1Object asn1Obj = ( AbstractAsn1Object ) message;
+        Asn1Object asn1Obj = ( Asn1Object ) message;
         boolean isTcp = !session.getTransportMetadata().isConnectionless();
 
         ByteBuffer encodedByteBuf = KerberosEncoder.encode( asn1Obj, isTcp );

@@ -25,26 +25,21 @@ import java.util.Map;
 
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.util.Network;
+import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.PoolableLdapConnectionFactory;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.ldap.LdapServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * The Class LdapApiIntegrationUtils.
  */
-public class LdapApiIntegrationUtils
+public final class LdapApiIntegrationUtils
 {
-
-    /** The class logger. */
-    private static final Logger LOG = LoggerFactory.getLogger( LdapApiIntegrationUtils.class );
-
     /** The Constant DEFAULT_HOST. */
     private static final String DEFAULT_HOST = "localhost";
 
@@ -55,7 +50,12 @@ public class LdapApiIntegrationUtils
     private static final String DEFAULT_PASSWORD = "secret";
 
     /** The pools. */
-    private static Map<Integer, LdapConnectionPool> pools = new HashMap<Integer, LdapConnectionPool>();
+    private static final Map<Integer, LdapConnectionPool> POOLS = new HashMap<Integer, LdapConnectionPool>();
+
+
+    private LdapApiIntegrationUtils()
+    {
+    }
 
 
     /**
@@ -70,7 +70,7 @@ public class LdapApiIntegrationUtils
     public static LdapNetworkConnection createAdminConnection( LdapServer ldapServer ) throws LdapException,
         IOException
     {
-        LdapNetworkConnection conn = new LdapNetworkConnection( DEFAULT_HOST, ldapServer.getPort() );
+        LdapNetworkConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         conn.bind( DEFAULT_ADMIN, DEFAULT_PASSWORD );
         return conn;
     }
@@ -104,11 +104,11 @@ public class LdapApiIntegrationUtils
     public static LdapConnection getPooledAdminConnection( LdapServer ldapServer ) throws Exception
     {
         LdapConnection ldapConnection = getAdminPool( ldapServer ).getConnection();
-        
+
         ldapConnection.setBinaryAttributeDetector(
             new SchemaBinaryAttributeDetector(
-                ldapServer.getDirectoryService().getSchemaManager()) );
-        
+                ldapServer.getDirectoryService().getSchemaManager() ) );
+
         return ldapConnection;
     }
 
@@ -136,21 +136,53 @@ public class LdapApiIntegrationUtils
     private static LdapConnectionPool getAdminPool( LdapServer ldapServer )
     {
         int port = ldapServer.getPort();
-        
-        if ( !pools.containsKey( port ) )
+
+        if ( !POOLS.containsKey( port ) )
         {
             LdapConnectionConfig config = new LdapConnectionConfig();
-            config.setLdapHost( DEFAULT_HOST );
+            config.setLdapHost( Network.LOOPBACK_HOSTNAME );
             config.setLdapPort( port );
             config.setName( DEFAULT_ADMIN );
             config.setCredentials( DEFAULT_PASSWORD );
-            PoolableLdapConnectionFactory factory = new PoolableLdapConnectionFactory( config );
+            DefaultPoolableLdapConnectionFactory factory = new DefaultPoolableLdapConnectionFactory( config );
             LdapConnectionPool pool = new LdapConnectionPool( factory );
             pool.setTestOnBorrow( true );
-            pools.put( port, pool );
+            POOLS.put( port, pool );
         }
 
-        return pools.get( port );
+        return POOLS.get( port );
     }
 
+
+    /**
+     * Gets an anonymous LdapNetworkConnection
+     * 
+     * @param dirService The Directory Service to be connected to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getAnonymousNetworkConnection( String host, int port ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( host, port );
+        connection.bind();
+
+        return connection;
+    }
+
+
+    /**
+     * Gets an anonymous LdapNetworkConnection
+     * 
+     * @param ldapServer The LDAP server we want to connect to
+     * @return A LdapNetworkConnection instance
+     * @exception If the connection could not be established.
+     */
+    public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
+        connection.setTimeOut( 0L );
+        connection.bind();
+
+        return connection;
+    }
 }

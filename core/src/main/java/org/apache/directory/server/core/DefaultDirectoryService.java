@@ -42,8 +42,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
@@ -70,8 +68,10 @@ import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.NotImplementedException;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
+import org.apache.directory.server.core.api.AttributeTypeProvider;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -79,6 +79,7 @@ import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.ObjectClassProvider;
 import org.apache.directory.server.core.api.OperationEnum;
 import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.ReferralManager;
@@ -189,10 +190,10 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
-        "WARNING: the changelog is only partially operational and will revert\n" +
-            "state without consideration of who made the original change.  All reverting " +
-            "changes are made by the admin user.\n Furthermore the used controls are not at " +
-            "all taken into account";
+        "WARNING: the changelog is only partially operational and will revert\n"
+            + "state without consideration of who made the original change.  All reverting "
+            + "changes are made by the admin user.\n Furthermore the used controls are not at "
+            + "all taken into account";
 
     /** The delay to wait between each sync on disk */
     private long syncPeriodMillis;
@@ -226,7 +227,7 @@ public class DefaultDirectoryService implements DirectoryService
     private boolean shutdownHookEnabled = true; // allow by default
 
     /** Manage anonymous access to entries other than the RootDSE */
-    private boolean allowAnonymousAccess = true; // allow by default
+    private boolean allowAnonymousAccess = false; // forbid by default
 
     /** Manage the basic access control checks */
     private boolean accessControlEnabled; // off by default
@@ -263,9 +264,6 @@ public class DefaultDirectoryService implements DirectoryService
     /** The maximum size for an incoming PDU */
     private int maxPDUSize = Integer.MAX_VALUE;
 
-    /** the value of last successful add/update operation's CSN */
-    private String contextCsn;
-
     /** lock file for directory service's working directory */
     private RandomAccessFile lockFile = null;
 
@@ -294,6 +292,12 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The Subtree evaluator instance */
     private SubtreeEvaluator evaluator;
+
+    /** The attribute type provider */
+    private AttributeTypeProvider atProvider;
+
+    /** The object class provider */
+    private ObjectClassProvider ocProvider;
 
 
     // ------------------------------------------------------------------------
@@ -516,6 +520,8 @@ public class DefaultDirectoryService implements DirectoryService
             return;
         }
 
+        // We don't call getMethods() because it would get back the default methods
+        // from the BaseInterceptor, something we don't want.
         Method[] methods = interceptorClz.getDeclaredMethods();
 
         for ( Method method : methods )
@@ -540,11 +546,16 @@ public class DefaultDirectoryService implements DirectoryService
 
             if ( hasCorrestSig && method.getName().equals( operation.getMethodName() ) )
             {
-                selectedInterceptorList.add( interceptor.getName() );
+                if ( !selectedInterceptorList.contains( interceptor.getName() ) )
+                {
+                    selectedInterceptorList.add( interceptor.getName() );
+                }
+
                 break;
             }
         }
 
+        // Recurse on extended classes, as we have used getDeclaredMethods() instead of getmethods()
         gatherInterceptors( interceptor, interceptorClz.getSuperclass(), operation, selectedInterceptorList );
     }
 
@@ -951,28 +962,40 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * Get back an anonymous session
+     */
     public CoreSession getSession()
     {
         return new DefaultCoreSession( new LdapPrincipal( schemaManager ), this );
     }
 
 
+    /** 
+     * Get back a session for a given principal
+     */
     public CoreSession getSession( LdapPrincipal principal )
     {
         return new DefaultCoreSession( principal, this );
     }
 
 
+    /**
+     * Get back a session for the give user and credentials bound with Simple Bind
+     */
     public CoreSession getSession( Dn principalDn, byte[] credentials ) throws LdapException
     {
-        if ( !started )
+        synchronized ( this )
         {
-            throw new IllegalStateException( "Service has not started." );
+            if ( !started )
+            {
+                throw new IllegalStateException( "Service has not started." );
+            }
         }
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( credentials );
-        bindContext.setDn( principalDn );
+        bindContext.setDn( principalDn.apply( schemaManager ) );
         bindContext.setInterceptors( getInterceptors( OperationEnum.BIND ) );
 
         operationManager.bind( bindContext );
@@ -981,17 +1004,24 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
+    /**
+     * Get back a session for a given user bound with SASL Bind
+     */
     public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
         throws Exception
     {
-        if ( !started )
+        synchronized ( this )
         {
-            throw new IllegalStateException( "Service has not started." );
+            if ( !started )
+            {
+                throw new IllegalStateException( "Service has not started." );
+
+            }
         }
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( credentials );
-        bindContext.setDn( principalDn );
+        bindContext.setDn( principalDn.apply( schemaManager ) );
         bindContext.setSaslMechanism( saslMechanism );
         bindContext.setInterceptors( getInterceptors( OperationEnum.BIND ) );
 
@@ -1154,12 +1184,6 @@ public class DefaultDirectoryService implements DirectoryService
                 }
             }
         }
-        catch ( IOException e )
-        {
-            String message = I18n.err( I18n.ERR_77, revision );
-            LOG.error( message );
-            throw new LdapException( message );
-        }
         catch ( Exception e )
         {
             throw new LdapOperationException( e.getMessage(), e );
@@ -1227,20 +1251,6 @@ public class DefaultDirectoryService implements DirectoryService
         initialize();
         showSecurityWarnings();
 
-        // load the last stored valid CSN value
-        LookupOperationContext loc = new LookupOperationContext( getAdminSession(), systemPartition.getSuffixDn(),
-            SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-
-        Entry entry = systemPartition.lookup( loc );
-
-        Attribute cntextCsnAt = entry.get( SchemaConstants.CONTEXT_CSN_AT );
-
-        if ( cntextCsnAt != null )
-        {
-            // this is a multivalued attribute but current syncrepl provider implementation stores only ONE value at ou=system
-            contextCsn = cntextCsnAt.getString();
-        }
-
         started = true;
 
         if ( !testEntries.isEmpty() )
@@ -1275,7 +1285,10 @@ public class DefaultDirectoryService implements DirectoryService
         // Shutdown the sync thread
         // --------------------------------------------------------------------
         LOG.debug( "--- Syncing the nexus " );
+        LOG.debug( "--- Flushing everything before quitting" );
+        getOperationManager().lockWrite();
         partitionNexus.sync();
+        getOperationManager().unlockWrite();
 
         // --------------------------------------------------------------------
         // Shutdown the changelog
@@ -1293,24 +1306,22 @@ public class DefaultDirectoryService implements DirectoryService
             journal.destroy();
         }
 
+        
         // --------------------------------------------------------------------
         // Shutdown the partition
         // --------------------------------------------------------------------
 
         LOG.debug( "--- Destroying the nexus" );
         partitionNexus.destroy();
-
-        // Last flush...
-        LOG.debug( "--- Flushing everything before quitting" );
-        getOperationManager().lockWrite();
-        partitionNexus.sync();
-        getOperationManager().unlockWrite();
-
+        
         // --------------------------------------------------------------------
         // And shutdown the server
         // --------------------------------------------------------------------
         LOG.debug( "--- Deleting the cache service" );
         cacheService.destroy();
+
+        LOG.debug( "---Deleting the DnCache" );
+        dnFactory = null;
 
         if ( lockFile != null )
         {
@@ -1405,7 +1416,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public boolean isStarted()
+    public synchronized boolean isStarted()
     {
         return started;
     }
@@ -1663,7 +1674,8 @@ public class DefaultDirectoryService implements DirectoryService
      * Displays security warning messages if any possible secutiry issue is found.
      * @throws Exception if there are failures parsing and accessing internal structures
      */
-    private void showSecurityWarnings() throws Exception
+    // made protected as per the request in DIRSERVER-1920
+    protected void showSecurityWarnings() throws Exception
     {
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
@@ -1766,10 +1778,13 @@ public class DefaultDirectoryService implements DirectoryService
             setDefaultInterceptorConfigurations();
         }
 
-        if ( cacheService != null )
+        if ( cacheService == null )
         {
-            cacheService.initialize( instanceLayout );
+            // Initialize a default cache service
+            cacheService = new CacheService();
         }
+
+        cacheService.initialize( instanceLayout, instanceId );
 
         // Initialize the AP caches
         accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
@@ -1777,7 +1792,10 @@ public class DefaultDirectoryService implements DirectoryService
         subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
         triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
 
-        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        if ( dnFactory == null )
+        {
+            dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        }
 
         // triggers partition to load schema fully from schema partition
         schemaPartition.setCacheService( cacheService );
@@ -1803,6 +1821,10 @@ public class DefaultDirectoryService implements DirectoryService
 
         firstStart = createBootstrapEntries();
 
+        // initialize schema providers
+        atProvider = new AttributeTypeProvider( schemaManager );
+        ocProvider = new ObjectClassProvider( schemaManager );
+
         // Initialize the interceptors
         initInterceptors();
 
@@ -1818,7 +1840,7 @@ public class DefaultDirectoryService implements DirectoryService
             {
                 String clSuffix = ( ( TaggableSearchableChangeLogStore ) changeLog.getChangeLogStore() ).getPartition()
                     .getSuffixDn().getName();
-                partitionNexus.getRootDse( null ).add( SchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
+                partitionNexus.getRootDse( null ).add( ApacheSchemaConstants.CHANGELOG_CONTEXT_AT, clSuffix );
             }
         }
 
@@ -2129,24 +2151,6 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * {@inheritDoc}
-     */
-    public String getContextCsn()
-    {
-        return contextCsn;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setContextCsn( String lastKnownCsn )
-    {
-        this.contextCsn = lastKnownCsn;
-    }
-
-
-    /**
      * checks if the working directory is already in use by some other directory service, if yes
      * then throws a runtime exception else will obtain the lock on the working directory
      */
@@ -2266,6 +2270,15 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
+    public void setDnFactory( DnFactory dnFactory )
+    {
+        this.dnFactory = dnFactory;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public SubentryCache getSubentryCache()
     {
         return subentryCache;
@@ -2287,6 +2300,26 @@ public class DefaultDirectoryService implements DirectoryService
     public void setCacheService( CacheService cacheService )
     {
         this.cacheService = cacheService;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AttributeTypeProvider getAtProvider()
+    {
+        return atProvider;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ObjectClassProvider getOcProvider()
+    {
+        return ocProvider;
     }
 
 }

@@ -23,22 +23,31 @@ package org.apache.directory.server.operations.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Random;
+
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.cursor.SearchCursor;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,13 +60,34 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
+@CreateDS(
+    name = "AddPerfDS",
+    partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn"),
+                        @CreateIndex(attribute = "displayName")
+                })
+
+    },
+    enableChangeLog = false)
 @CreateLdapServer(transports =
+    //{ @CreateTransport(address = "192.168.1.1", port = 10389, protocol = "LDAP") })
     { @CreateTransport(protocol = "LDAP") })
 public class SearchPerfIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
 
     /**
      * test a search request perf.
@@ -65,7 +95,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     @Test
     public void testSearchRequestObjectScopePerf() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         long deltaSearch = 0L;
         long deltaGet = 0L;
         long deltaClose = 0L;
@@ -159,8 +189,9 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t1 = System.currentTimeMillis();
 
             Long deltaWarmed = ( t1 - t00 );
-            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
-                + " per s ) /" + ( t1 - t0 ) + " , count : " + count );
+            System.out.println( "OBJECT level - Delta : " + deltaWarmed + "( "
+                + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+                + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
 
             System.out.println( "DeltaSearch : " + ( deltaSearch / nbIterations ) );
             System.out.println( "DeltaGet : " + ( deltaGet / nbIterations ) );
@@ -185,7 +216,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     @Test
     public void testSearchRequestOneLevelScopePerf() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
         try
         {
@@ -265,8 +296,8 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t1 = System.currentTimeMillis();
 
             Long deltaWarmed = ( t1 - t00 );
-            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
-                * 5
+            System.out.println( "ONE level - Delta : " + deltaWarmed + "( "
+                + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed ) * 5
                 + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         }
         catch ( LdapException e )
@@ -288,7 +319,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     @Test
     public void testSearchRequestSubtreeLevelScopePerf() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.setTimeOut( 0 );
 
         try
@@ -369,7 +400,8 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             long t1 = System.currentTimeMillis();
 
             Long deltaWarmed = ( t1 - t00 );
-            System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            System.out.println( "SUB level - Delta : " + deltaWarmed + "( "
+                + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
                 * 10
                 + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
         }
@@ -383,5 +415,111 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             connection.unBind();
             connection.close();
         }
+    }
+
+
+    @Test
+    public void testSearch100kUsers() throws LdapException, CursorException, InterruptedException, Exception
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        Entry rootPeople = new DefaultEntry(
+            "ou=People,dc=example,dc=com",
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: People" );
+
+        connection.add( rootPeople );
+
+        long tadd0 = System.currentTimeMillis();
+        for ( int i = 0; i < 100000; i++ )
+        {
+            Entry user = new DefaultEntry(
+                "uid=user." + i + ",ou=People,dc=example,dc=com",
+                "objectClass: top",
+                "objectClass: person",
+                "objectClass: organizationalPerson",
+                "objectClass: inetOrgPerson",
+                "givenName: Aaccf",
+                "sn: Amar",
+                "cn", "user" + i,
+                "initials: AA",
+                "uid", "user." + i,
+                "mail: user.1@cs.hacettepe.edu.tr",
+                "userPassword: password",
+                "telephoneNumber: 314-796-3178",
+                "homePhone: 514-847-0518",
+                "pager: 784-600-5445",
+                "mobile: 801-755-4931",
+                "street: 00599 First Street",
+                "l: Augusta",
+                "st: MN",
+                "postalCode: 30667",
+                "postalAddress: Aaccf Amar$00599 First Street$Augusta, MN  30667",
+                "description: This is the description for Aaccf Amar." );
+
+            connection.add( user );
+
+            if ( i % 100 == 0 )
+            {
+                System.out.println( "Injected " + i );
+            }
+        }
+        long tadd1 = System.currentTimeMillis();
+
+        System.out.println( "Time to inject 100k entries : " + ( ( tadd1 - tadd0 ) / 1000 ) + "s" );
+
+        // Sleep forever
+        //Thread.sleep( 3600000L );
+
+        // Now do a random search
+        SearchRequest searchRequest = new SearchRequestImpl();
+
+        searchRequest.setBase( new Dn( "dc=example,dc=com" ) );
+        searchRequest.setScope( SearchScope.SUBTREE );
+        searchRequest.addAttributes( "*" );
+        searchRequest.setDerefAliases( AliasDerefMode.DEREF_ALWAYS );
+
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+        int nbIterations = 200000;
+        int count = 0;
+        Random random = new Random();
+
+        for ( int j = 0; j < nbIterations; j++ )
+        {
+            if ( j % 10000 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+
+                System.out.println( j + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+
+            if ( j == 50000 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+
+            searchRequest.setFilter( "(cn=user" + random.nextInt( 100000 ) + ")" );
+
+            SearchCursor cursor = connection.search( searchRequest );
+
+            while ( cursor.next() )
+            {
+                count++;
+                cursor.getEntry();
+            }
+
+            cursor.close();
+        }
+
+        long t1 = System.currentTimeMillis();
+
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
     }
 }

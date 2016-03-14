@@ -30,7 +30,7 @@ import java.io.ObjectOutputStream;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.LdapPrincipalSerializer;
 import org.junit.BeforeClass;
@@ -70,18 +70,20 @@ public class LdapPrincipalTest
     {
         LdapPrincipal principal = new LdapPrincipal( schemaManager );
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( baos ) )
+        {
 
-        LdapPrincipalSerializer.serialize( principal, out );
-        out.flush();
+            LdapPrincipalSerializer.serialize( principal, out );
+            out.flush();
 
-        byte[] data = baos.toByteArray();
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+            byte[] data = baos.toByteArray();
+            ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        LdapPrincipal readPrincipal = LdapPrincipalSerializer.deserialize( schemaManager, in );
-        assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
-        assertEquals( principal.getName(), readPrincipal.getName() );
+            LdapPrincipal readPrincipal = LdapPrincipalSerializer.deserialize( schemaManager, in );
+            assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
+            assertEquals( principal.getName(), readPrincipal.getName() );
+        }
     }
 
 
@@ -94,17 +96,19 @@ public class LdapPrincipalTest
         LdapPrincipal principal = new LdapPrincipal( schemaManager, new Dn( schemaManager, "uid=admin,ou=system" ),
             AuthenticationLevel.STRONG );
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream( baos );
+        try ( ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream( baos ) )
+        {
 
-        LdapPrincipalSerializer.serialize( principal, out );
-        out.flush();
+            LdapPrincipalSerializer.serialize( principal, out );
+            out.flush();
 
-        byte[] data = baos.toByteArray();
-        ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
+            byte[] data = baos.toByteArray();
+            ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream( data ) );
 
-        LdapPrincipal readPrincipal = LdapPrincipalSerializer.deserialize( schemaManager, in );
-        assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
-        assertEquals( principal.getName(), readPrincipal.getName() );
+            LdapPrincipal readPrincipal = LdapPrincipalSerializer.deserialize( schemaManager, in );
+            assertEquals( principal.getAuthenticationLevel(), readPrincipal.getAuthenticationLevel() );
+            assertEquals( principal.getName(), readPrincipal.getName() );
+        }
     }
 }

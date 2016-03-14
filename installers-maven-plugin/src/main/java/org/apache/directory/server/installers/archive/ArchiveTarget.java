@@ -24,7 +24,7 @@ import org.apache.directory.server.installers.Target;
 
 
 /**
- * An archive installer for any platform.
+ * An archive installer for any platform. We generate 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

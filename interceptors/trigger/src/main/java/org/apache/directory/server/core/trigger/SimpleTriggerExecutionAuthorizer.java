@@ -27,22 +27,6 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 
 public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthorizer
 {
-    // private static Dn adminName;
-
-    static
-    {
-        //try
-        {
-            //adminName = new Dn( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-        }
-        //catch ( LdapInvalidDnException e )
-        {
-            // TODO Auto-generated catch block
-            //    e.printStackTrace();
-        }
-    }
-
-
     public boolean hasPermission( OperationContext opContext ) throws LdapException
     {
         Dn principalName = opContext.getSession().getEffectivePrincipal().getDn();

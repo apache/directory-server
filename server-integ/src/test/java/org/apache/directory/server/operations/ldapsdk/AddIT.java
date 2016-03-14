@@ -79,8 +79,8 @@ import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -98,7 +98,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -182,8 +181,6 @@ import org.slf4j.LoggerFactory;
         "ref: ldap://bar:10389/uid=akarasulu,ou=users,ou=system" })
 public class AddIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
     private static final Logger LOG = LoggerFactory.getLogger( AddIT.class );
     private static final String RDN = "cn=The Person";
 
@@ -559,8 +556,8 @@ public class AddIT extends AbstractLdapTestUnit
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:" + getLdapServer().getPort() + "/ou=favorite,ou=Fruits,ou=system",
-            sr.getName() );
+        assertEquals( Network.ldapLoopbackUrl( getLdapServer().getPort() )
+            + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
 
         // Remove alias and entry
@@ -1171,7 +1168,7 @@ public class AddIT extends AbstractLdapTestUnit
     {
         // Limit the PDU size to 1024
         getLdapServer().getDirectoryService().setMaxPDUSize( 1024 );
-        LdapConnection connection = new LdapNetworkConnection( "localhost", getLdapServer().getPort() );
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
 
         // Inject a 1024 bytes long description
@@ -1259,7 +1256,7 @@ public class AddIT extends AbstractLdapTestUnit
         javax.naming.directory.Attribute cnAttribute = res.next().getAttributes().get( "cn" );
         assertEquals( 2, cnAttribute.size() );
         assertTrue( cnAttribute.contains( "Tori,Amos" ) );
-        assertTrue( cnAttribute.contains( "Amos,Tori" ) );
+        assertTrue( cnAttribute.contains( "Amos\\,Tori" ) );
         assertFalse( res.hasMore() );
 
         // search for the implicit added userPassword

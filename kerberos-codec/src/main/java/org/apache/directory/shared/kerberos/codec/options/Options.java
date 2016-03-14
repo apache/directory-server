@@ -28,7 +28,6 @@ import org.apache.directory.shared.kerberos.flags.AbstractKerberosFlags;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@SuppressWarnings("serial")
 public abstract class Options extends AbstractKerberosFlags
 {
     /**

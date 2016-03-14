@@ -31,7 +31,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeIdentifierException;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
@@ -62,8 +61,13 @@ import org.apache.directory.server.i18n.I18n;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ServerEntryUtils
+public final class ServerEntryUtils
 {
+    private ServerEntryUtils()
+    {
+    }
+
+
     /**
      * Convert a ServerAttribute into a BasicAttribute. The Dn is lost
      * during this conversion, as the Attributes object does not store
@@ -261,7 +265,7 @@ public class ServerEntryUtils
     public static Entry getTargetEntry( Modification mod, Entry entry, SchemaManager schemaManager )
         throws LdapException
     {
-        Entry targetEntry = ( Entry ) entry.clone();
+        Entry targetEntry = entry.clone();
         ModificationOperation modOp = mod.getOperation();
         String id = mod.getAttribute().getUpId();
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
@@ -532,7 +536,7 @@ public class ServerEntryUtils
 
                 // TODO : handle options
                 AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( id );
-                modificationsList.add( toServerModification( ( ModificationItem ) modification, attributeType ) );
+                modificationsList.add( toServerModification( modification, attributeType ) );
             }
 
             return modificationsList;
@@ -551,7 +555,7 @@ public class ServerEntryUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public static final Modification getModificationItem( List<Modification> mods, AttributeType type )
+    public static Modification getModificationItem( List<Modification> mods, AttributeType type )
     {
         for ( Modification modification : mods )
         {
@@ -682,7 +686,7 @@ public class ServerEntryUtils
      */
     private static String stripOptions( String attributeId )
     {
-        int optionsPos = attributeId.indexOf( ";" );
+        int optionsPos = attributeId.indexOf( ';' );
 
         if ( optionsPos != -1 )
         {
@@ -705,7 +709,7 @@ public class ServerEntryUtils
      */
     private static Set<String> getOptions( String attributeId )
     {
-        int optionsPos = attributeId.indexOf( ";" );
+        int optionsPos = attributeId.indexOf( ';' );
 
         if ( optionsPos != -1 )
         {
@@ -728,8 +732,8 @@ public class ServerEntryUtils
             return null;
         }
     }
-    
-    
+
+
     /**
      * Filters an entry accordingly to the requested Attribute list.
      * 
@@ -737,32 +741,46 @@ public class ServerEntryUtils
      * @param operationContext The SearchingOperationContext
      * @throws LdapException If the filtering fails
      */
-    public static void filterContents( SchemaManager schemaManager, FilteringOperationContext operationContext, Entry entry ) throws LdapException
+    public static void filterContents( SchemaManager schemaManager, FilteringOperationContext operationContext,
+        Entry entry ) throws LdapException
     {
         boolean typesOnly = operationContext.isTypesOnly();
 
         boolean returnAll = ( operationContext.isAllOperationalAttributes() && operationContext.isAllUserAttributes() )
             && ( !typesOnly );
-        
+
         if ( returnAll )
         {
             return;
         }
-        
+
+        // for special handling of entryDN attribute, see DIRSERVER-1902
         Entry originalEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
 
-        // First, remove all the attributes if we have the NoAtribute flag set to true
+        AttributeType entryDnType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.ENTRY_DN_AT_OID );
+        AttributeType refType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.REF_AT_OID );
+
+        // First, remove all the attributes if we have the NoAttribute flag set to true
         if ( operationContext.isNoAttributes() )
         {
             for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
+
+                // Bypass the ref attribute, unless the ManageDSAIT control is present
+                if ( operationContext.isReferralThrown() && attributeType.equals( refType ) )
+                {
+                    continue;
+                }
+
                 entry.remove( entry.get( attributeType ) );
             }
 
+            entry.removeAttributes( entryDnType );
+
             return;
         }
-                
+
         // If the user has requested all the User attributes ('*') only, we filter the entry's attribute to keep only
         // the USER attributes, plus the Operational attributes in the returning list 
         if ( operationContext.isAllUserAttributes() )
@@ -770,6 +788,12 @@ public class ServerEntryUtils
             for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
+
+                // Bypass the ref attribute, unless the ManageDSAIT control is present
+                if ( operationContext.isReferralThrown() && attributeType.equals( refType ) )
+                {
+                    continue;
+                }
 
                 if ( attributeType.isOperational() )
                 {
@@ -788,6 +812,12 @@ public class ServerEntryUtils
                 }
             }
 
+            // DIRSERVER-1953
+            if ( !operationContext.contains( schemaManager, entryDnType ) )
+            {
+                entry.removeAttributes( entryDnType );
+            }
+
             return;
         }
 
@@ -798,7 +828,6 @@ public class ServerEntryUtils
             for ( Attribute attribute : originalEntry )
             {
                 AttributeType attributeType = attribute.getAttributeType();
-
 
                 if ( attributeType.isUser() )
                 {
@@ -817,6 +846,15 @@ public class ServerEntryUtils
                 }
             }
 
+            if ( !operationContext.contains( schemaManager, entryDnType ) )
+            {
+                entry.removeAttributes( entryDnType );
+            }
+            else if ( typesOnly )
+            {
+                entry.get( entryDnType ).clear();
+            }
+
             return;
         }
 
@@ -825,18 +863,26 @@ public class ServerEntryUtils
         {
             for ( Attribute attribute : originalEntry )
             {
-                if ( !operationContext.contains( schemaManager, attribute.getAttributeType() ) )
+                AttributeType attributeType = attribute.getAttributeType();
+
+                // Bypass the ref attribute, unless the ManageDSAIT control is present
+                if ( operationContext.isReferralThrown() && attributeType.equals( refType ) )
                 {
-                    entry.removeAttributes( attribute.getAttributeType() );
                     continue;
                 }
-                AttributeType attributeType = attribute.getAttributeType();
+
+                if ( !operationContext.contains( schemaManager, attributeType ) )
+                {
+                    entry.removeAttributes( attributeType );
+                    continue;
+                }
+
                 boolean isNotRequested = true;
 
                 for ( AttributeTypeOptions attrOptions : operationContext.getReturningAttributes() )
                 {
-                    if ( attrOptions.getAttributeType().equals( attributeType ) ||
-                        attrOptions.getAttributeType().isAncestorOf( attributeType ) )
+                    if ( attrOptions.getAttributeType().equals( attributeType )
+                        || attrOptions.getAttributeType().isAncestorOf( attributeType ) )
                     {
                         isNotRequested = false;
                         break;
@@ -851,6 +897,15 @@ public class ServerEntryUtils
                 {
                     entry.get( attributeType ).clear();
                 }
+            }
+
+            if ( !operationContext.contains( schemaManager, entryDnType ) )
+            {
+                entry.removeAttributes( entryDnType );
+            }
+            else if ( typesOnly )
+            {
+                entry.get( entryDnType ).clear();
             }
         }
     }

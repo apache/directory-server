@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
+import org.apache.directory.server.installers.LinuxInstallerCommand;
 import org.apache.directory.server.installers.MojoHelperUtils;
 import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -39,16 +39,27 @@ import org.codehaus.plexus.util.FileUtils;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
+public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
 {
+    /** The rpm extension */
+    private static final String DOT_RPM = ".rpm";
+
+    /** The RPM specification file */
+    private static final String APACHEDS_SPEC_FILE = "apacheds.spec";
+
+    /** The names used inside the rpm file */
+    private static final String RPMS = "RPMS";
+    private static final String SOURCES = "SOURCES";
+    private static final String SPECS = "SPECS";
+    private static final String BUILD = "BUILD";
+    private static final String SRPMS = "SRPMS";
+
 
     /**
      * Creates a new instance of RpmInstallerCommand.
      *
-     * @param mojo
-     *      the Server Installers Mojo
-     * @param target
-     *      the RPM target
+     * @param mojo the Server Installers Mojo
+     * @param target the RPM target
      */
     public RpmInstallerCommand( GenerateMojo mojo, RpmTarget target )
     {
@@ -90,35 +101,44 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         try
         {
             // Create Rpm directories (BUILD, RPMS, SOURCES, SPECS & SRPMS)
-            File rpmBuild = new File( getTargetDirectory(), "BUILD" );
+            File rpmBuild = new File( getTargetDirectory(), BUILD );
+
             if ( !rpmBuild.mkdirs() )
             {
                 Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmBuild ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
-            File rpmRpms = new File( getTargetDirectory(), "RPMS" );
+
+            File rpmRpms = new File( getTargetDirectory(), RPMS );
+
             if ( !rpmRpms.mkdirs() )
             {
                 Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmRpms ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
-            File rpmSources = new File( getTargetDirectory(), "SOURCES" );
+
+            File rpmSources = new File( getTargetDirectory(), SOURCES );
+
             if ( !rpmSources.mkdirs() )
             {
                 Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmSources ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
-            File rpmSpecs = new File( getTargetDirectory(), "SPECS" );
+
+            File rpmSpecs = new File( getTargetDirectory(), SPECS );
+
             if ( !rpmSpecs.mkdirs() )
             {
                 Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmSpecs ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
-            File rpmSrpms = new File( getTargetDirectory(), "SRPMS" );
+
+            File rpmSrpms = new File( getTargetDirectory(), SRPMS );
+
             if ( !rpmSrpms.mkdirs() )
             {
                 Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, rpmSrpms ) );
@@ -130,9 +150,9 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
             createLayouts();
 
             // Copying the init script for /etc/init.d/
-            MojoHelperUtils.copyAsciiFile( mojo, filterProperties,
-                getClass().getResourceAsStream( "/org/apache/directory/server/installers/etc-initd-script" ),
-                new File( getAdsSourcesDirectory(), "etc-initd-script" ), true );
+            MojoHelperUtils.copyAsciiFile( mojo, filterProperties, INSTALLERS_PATH + ETC_INITD_SCRIPT,
+                getClass().getResourceAsStream( INSTALLERS_PATH + ETC_INITD_SCRIPT ),
+                new File( getAdsSourcesDirectory(), ETC_INITD_SCRIPT ), true );
 
             // Creating the spec file
             createSpecFile();
@@ -140,12 +160,12 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
             // Generating tar.gz file
             MojoHelperUtils.exec( new String[]
                 {
-                    "tar",
+                    TAR,
                     "-zcf",
-                    "apacheds-" + getVersion() + ".tar.gz",
-                    "apacheds-" + getVersion()
+                    APACHEDS_DASH + getVersion() + ".tar.gz",
+                    APACHEDS_DASH + getVersion()
             },
-                new File( getTargetDirectory(), "/SOURCES" ),
+                new File( getTargetDirectory(), "/" + SOURCES ),
                 false );
         }
         catch ( Exception e )
@@ -168,7 +188,7 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
                 "_topdir " + getTargetDirectory(),
                 "--define",
                 "_tmppath /tmp",
-                "SPECS/apacheds.spec"
+                SPECS + "/" + APACHEDS_SPEC_FILE
         },
             getTargetDirectory(),
             false );
@@ -176,16 +196,17 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         // Copying the rpm at the final destination
         try
         {
-            String rpmName = "apacheds-" + getVersion() + "-1." + target.getOsArch() + ".rpm";
+            String rpmName = APACHEDS_DASH + getVersion() + "-1." + target.getOsArch() + DOT_RPM;
             String finalName = target.getFinalName();
-            if ( !finalName.endsWith( ".rpm" ) )
+
+            if ( !finalName.endsWith( DOT_RPM ) )
             {
-                finalName = finalName + ".rpm";
+                finalName = finalName + DOT_RPM;
             }
 
             File finalFile = new File( mojo.getOutputDirectory(), finalName );
 
-            FileUtils.copyFile( new File( getTargetDirectory(), "RPMS/" + target.getOsArch() + "/" + rpmName ),
+            FileUtils.copyFile( new File( getTargetDirectory(), RPMS + "/" + target.getOsArch() + "/" + rpmName ),
                 finalFile );
 
             log.info( "=> RPM generated at " + finalFile );
@@ -194,7 +215,6 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         {
             throw new MojoFailureException( "Failed to copy generated Rpm installer file." );
         }
-
     }
 
 
@@ -216,8 +236,9 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
         }
 
         // Verifying the currently used OS to build the installer is Linux or Mac OS X
-        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( System.getProperty( "os.name" ) ) || Target.OS_NAME_MAC_OS_X
-            .equalsIgnoreCase( System.getProperty( "os.name" ) ) ) )
+        String osName = System.getProperty( OS_NAME );
+
+        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( osName ) || Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( osName ) ) )
         {
             log.warn( "Rpm package installer can only be built on a machine running Linux or Mac OS X!" );
             log.warn( "The build will continue, generation of this target is skipped." );
@@ -243,13 +264,14 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     {
         super.initializeFilterProperties();
 
-        filterProperties.put( "installation.directory", "/opt/apacheds-" + getVersion() );
-        filterProperties.put( "instances.directory", "/var/lib/apacheds-" + getVersion() );
-        filterProperties.put( "default.instance.name", "default" );
-        filterProperties.put( "user", "apacheds" );
-        filterProperties.put( "wrapper.java.command", "# wrapper.java.command=<path-to-java-executable>" );
-        filterProperties.put( "double.quote", "" );
-        filterProperties.put( "version", getVersion() );
+        filterProperties.put( INSTALLATION_DIRECTORY_PROP, OPT_APACHEDS_DIR + getVersion() );
+        filterProperties.put( INSTANCES_DIRECTORY_PROP, VAR_LIB_APACHEDS_DIR + getVersion() );
+        filterProperties.put( DEFAULT_INSTANCE_NAME_PROP, DEFAULT );
+        filterProperties.put( USER_PROP, APACHEDS );
+        filterProperties.put( GROUP_PROP, APACHEDS );
+        filterProperties.put( WRAPPER_JAVA_COMMAND_PROP, WRAPPER_JAVA_COMMAND );
+        filterProperties.put( DOUBLE_QUOTE_PROP, "" );
+        filterProperties.put( VERSION_PROP, getVersion() );
     }
 
 
@@ -266,6 +288,7 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 
         // Getting the lib directory
         File libDirectory = getInstallationLayout().getLibDirectory();
+
         if ( libDirectory.exists() )
         {
             // Iterating on each file in the lib directory
@@ -282,28 +305,26 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
 
         // Creating properties based on these values
         Properties properties = new Properties();
-        properties.put( "version", getVersion() );
+        properties.put( VERSION_PROP, getVersion() );
         properties.put( "build.dir", getBuidDirectory() );
         properties.put( "install.libs", installLibs.toString() );
         properties.put( "files.libs", filesLibs.toString() );
 
         // Copying and filtering the spec file
-        MojoHelperUtils.copyAsciiFile( mojo, properties,
-            getClass().getResourceAsStream( "apacheds.spec" ),
-            new File( getTargetDirectory(), "SPECS/apacheds.spec" ), true );
-
+        MojoHelperUtils.copyAsciiFile( mojo, properties, APACHEDS_SPEC_FILE,
+            getClass().getResourceAsStream( APACHEDS_SPEC_FILE ),
+            new File( getTargetDirectory(), SPECS + "/" + APACHEDS_SPEC_FILE ), true );
     }
 
 
     /**
      * Gets the 'apacheds-${version}' directory inside 'SOURCES'.
      *
-     * @return
-     *      the 'apacheds-${version}' directory inside 'SOURCES'
+     * @return the 'apacheds-${version}' directory inside 'SOURCES'
      */
     private File getAdsSourcesDirectory()
     {
-        return new File( getTargetDirectory(), "SOURCES/apacheds-" + getVersion() );
+        return new File( getTargetDirectory(), SOURCES + "/" + APACHEDS_DASH + getVersion() );
     }
 
 
@@ -321,15 +342,14 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
      */
     public File getInstanceDirectory()
     {
-        return new File( getAdsSourcesDirectory(), "instances/default" );
+        return new File( getAdsSourcesDirectory(), INSTANCE_DEFAULT_DIR );
     }
 
 
     /**
      * Gets the version number.
      *
-     * @return
-     *      the version number
+     * @return the version number
      */
     private String getVersion()
     {
@@ -340,11 +360,10 @@ public class RpmInstallerCommand extends AbstractMojoCommand<RpmTarget>
     /**
      * Gets the BUILD directory path.
      *
-     * @return
-     *      the BUILD directory path
+     * @return the BUILD directory path
      */
     private String getBuidDirectory()
     {
-        return getTargetDirectory().getAbsolutePath() + "/BUILD";
+        return getTargetDirectory().getAbsolutePath() + "/" + BUILD;
     }
 }

@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ehcache name="apacheds" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false"
 	monitoring="autodetect" dynamicConfig="true">
 
@@ -93,7 +93,7 @@
 		The defaultCache has an implicit name "default" which is a reserved cache 
 		name. -->
 		
-	<defaultCache maxElementsInMemory="0" eternal="false"
+	<defaultCache maxElementsInMemory="1" eternal="false"
 		overflowToDisk="false" timeToIdleSeconds="1200" timeToLiveSeconds="1200">
 	</defaultCache>
 

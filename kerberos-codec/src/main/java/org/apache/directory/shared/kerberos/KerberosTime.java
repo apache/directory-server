@@ -19,12 +19,12 @@
  */
 package org.apache.directory.shared.kerberos;
 
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 
 
@@ -35,9 +35,12 @@ import org.apache.directory.api.util.Strings;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosTime implements Comparable<KerberosTime>
+public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7541256140193748103L;
 
     /** The UTC timeZone */
     private static final TimeZone UTC = TimeZone.getTimeZone( "UTC" );
@@ -311,8 +314,8 @@ public class KerberosTime implements Comparable<KerberosTime>
     {
         return kerberosTime == 0;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */

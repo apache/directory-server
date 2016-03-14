@@ -419,9 +419,10 @@ public class AvlTreeMarshallerTest
         tree.insert( 8 );
         tree.insert( 9 );
 
-        FileOutputStream fout = new FileOutputStream( treeFile );
-        fout.write( treeMarshaller.serialize( tree ) );
-        fout.close();
+        try ( FileOutputStream fout = new FileOutputStream( treeFile ) )
+        {
+            fout.write( treeMarshaller.serialize( tree ) );
+        }
 
         savedTree = tree; // to reference in other tests
 
@@ -434,12 +435,11 @@ public class AvlTreeMarshallerTest
         assertTrue( true );
 
         // UnMarshall
-        FileInputStream fin = new FileInputStream( treeFile );
-
         byte[] data = new byte[( int ) treeFile.length()];
-        fin.read( data );
-
-        fin.close();
+        try ( FileInputStream fin = new FileInputStream( treeFile ) )
+        {
+            fin.read( data );
+        }
 
         AvlTree<Integer> unmarshalledTree = treeMarshaller.deserialize( data );
 

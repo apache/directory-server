@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.api.DirectoryService;
-
-import javax.naming.InitialContext;
 import javax.naming.spi.InitialContextFactory;
 
 

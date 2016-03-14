@@ -27,11 +27,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.extras.extended.GracefulDisconnectResponse;
-import org.apache.directory.api.ldap.extras.extended.GracefulDisconnectResponseImpl;
-import org.apache.directory.api.ldap.extras.extended.GracefulShutdownRequest;
-import org.apache.directory.api.ldap.extras.extended.GracefulShutdownResponse;
-import org.apache.directory.api.ldap.extras.extended.GracefulShutdownResponseImpl;
+import org.apache.directory.api.ldap.extras.extended.gracefulDisconnect.GracefulDisconnectResponse;
+import org.apache.directory.api.ldap.extras.extended.gracefulDisconnect.GracefulDisconnectResponseImpl;
+import org.apache.directory.api.ldap.extras.extended.gracefulShutdown.GracefulShutdownRequest;
+import org.apache.directory.api.ldap.extras.extended.gracefulShutdown.GracefulShutdownResponse;
+import org.apache.directory.api.ldap.extras.extended.gracefulShutdown.GracefulShutdownResponseImpl;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.directory.server.i18n.I18n;
@@ -247,21 +247,21 @@ public class GracefulShutdownHandler implements
                     LOG.warn( "Failed to sent NoD for client: " + session, e );
                 }
             }
-        }
 
-        // And close the connections when the NoDs are sent.
-        Iterator<IoSession> sessionIt = sessions.iterator();
+            // And close the connections when the NoDs are sent.
+            Iterator<IoSession> sessionIt = sessions.iterator();
 
-        for ( WriteFuture future : writeFutures )
-        {
-            try
+            for ( WriteFuture future : writeFutures )
             {
-                future.awaitUninterruptibly( 1000 );
-                sessionIt.next().close( true );
-            }
-            catch ( Exception e )
-            {
-                LOG.warn( "Failed to sent NoD.", e );
+                try
+                {
+                    future.awaitUninterruptibly( 1000 );
+                    sessionIt.next().close( true );
+                }
+                catch ( Exception e )
+                {
+                    LOG.warn( "Failed to sent NoD.", e );
+                }
             }
         }
     }

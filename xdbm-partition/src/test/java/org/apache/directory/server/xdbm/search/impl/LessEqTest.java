@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -49,15 +49,18 @@ import org.apache.directory.api.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
@@ -84,6 +87,8 @@ public class LessEqTest
     File wkdir;
     Store store;
     static SchemaManager schemaManager = null;
+    private static DnFactory dnFactory;
+    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -118,6 +123,10 @@ public class LessEqTest
         {
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
+
+        cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -131,18 +140,17 @@ public class LessEqTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, dnFactory );
         ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.POSTALCODE_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.POSTALCODE_AT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ( ( Partition ) store ).initialize();
-
+        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
@@ -172,8 +180,8 @@ public class LessEqTest
     public void testCursorIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
-        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqNode<String> node = new LessEqNode<String>( at, new StringValue( at, "3" ) );
+        LessEqEvaluator<String> evaluator = new LessEqEvaluator<String>( node, store, schemaManager );
         LessEqCursor<String> cursor = new LessEqCursor<String>( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
@@ -227,7 +235,7 @@ public class LessEqTest
 
         // ---------- test first() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
 
         cursor.first();
 
@@ -262,7 +270,7 @@ public class LessEqTest
 
         // ---------- test afterLast() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
 
         cursor.afterLast();
         assertFalse( cursor.available() );
@@ -299,7 +307,7 @@ public class LessEqTest
 
         // ---------- test last() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
 
         cursor.last();
 
@@ -334,7 +342,7 @@ public class LessEqTest
 
         // ---------- test before() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
 
@@ -357,7 +365,7 @@ public class LessEqTest
         cursor.close();
         assertTrue( cursor.isClosed() );
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "7" );
         cursor.before( indexEntry );
@@ -367,7 +375,7 @@ public class LessEqTest
         assertEquals( "3", cursor.get().getKey() );
         cursor.close();
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "3" );
         cursor.before( indexEntry );
@@ -379,7 +387,7 @@ public class LessEqTest
 
         // ---------- test after() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "1" );
 
@@ -402,7 +410,7 @@ public class LessEqTest
         cursor.close();
         assertTrue( cursor.isClosed() );
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "7" );
         cursor.after( indexEntry );
@@ -412,7 +420,7 @@ public class LessEqTest
         assertEquals( "3", cursor.get().getKey() );
         cursor.close();
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "3" );
         cursor.after( indexEntry );
@@ -428,8 +436,8 @@ public class LessEqTest
     public void testCursorNotIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
-        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqNode<String> node = new LessEqNode<String>( at, new StringValue( at, "3" ) );
+        LessEqEvaluator<String> evaluator = new LessEqEvaluator<String>( node, store, schemaManager );
         LessEqCursor<String> cursor = new LessEqCursor<String>( store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
@@ -472,7 +480,7 @@ public class LessEqTest
 
         // ---------- test beforeFirst() ----------
         set.clear();
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         cursor.first();
 
         assertTrue( cursor.available() );
@@ -499,7 +507,7 @@ public class LessEqTest
 
         // ---------- test afterLast() ----------
         set.clear();
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
@@ -524,7 +532,7 @@ public class LessEqTest
         // ---------- test last() ----------
 
         set.clear();
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         cursor.last();
 
         assertTrue( cursor.available() );
@@ -550,7 +558,7 @@ public class LessEqTest
 
         // ---------- test before() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
 
@@ -567,7 +575,7 @@ public class LessEqTest
 
         // ---------- test after() ----------
 
-        cursor = new LessEqCursor( store, evaluator );
+        cursor = new LessEqCursor<String>( store, evaluator );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
         try
@@ -591,9 +599,9 @@ public class LessEqTest
     public void testEvaluatorIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
-        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
+        LessEqNode<String> node = new LessEqNode<String>( at, new StringValue( at, "3" ) );
 
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqEvaluator<String> evaluator = new LessEqEvaluator<String>( node, store, schemaManager );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
@@ -637,9 +645,9 @@ public class LessEqTest
     public void testEvaluatorWithDescendantValue() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
-        LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
+        LessEqNode<String> node = new LessEqNode<String>( at, new StringValue( at, "2" ) );
 
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqEvaluator<String> evaluator = new LessEqEvaluator<String>( node, store, schemaManager );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
@@ -667,9 +675,9 @@ public class LessEqTest
     public void testEvaluatorWithoutDescendants() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
-        LessEqNode node = new LessEqNode( at, new StringValue( at, "2" ) );
+        LessEqNode<String> node = new LessEqNode<String>( at, new StringValue( at, "2" ) );
 
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqEvaluator<String> evaluator = new LessEqEvaluator<String>( node, store, schemaManager );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
@@ -685,9 +693,9 @@ public class LessEqTest
     public void testEvaluatorNotIndexed() throws Exception
     {
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
-        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
+        LessEqNode<String> node = new LessEqNode<String>( at, new StringValue( at, "3" ) );
 
-        LessEqEvaluator evaluator = new LessEqEvaluator( node, store, schemaManager );
+        LessEqEvaluator<String> evaluator = new LessEqEvaluator<String>( node, store, schemaManager );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
         assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
@@ -741,9 +749,9 @@ public class LessEqTest
 
         try
         {
-            LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
+            LessEqNode<String> node = new LessEqNode<String>( at, new StringValue( at, "3" ) );
 
-            new LessEqEvaluator( node, store, schemaManager );
+            new LessEqEvaluator<String>( node, store, schemaManager );
         }
         finally
         {
@@ -780,8 +788,8 @@ public class LessEqTest
         desc.setNames( names );
         desc.setObsolete( false );
 
-        LessEqNode node = new LessEqNode( at, new StringValue( at, "3" ) );
-        new LessEqEvaluator( node, store, schemaManager );
+        LessEqNode<String> node = new LessEqNode<String>( at, new StringValue( at, "3" ) );
+        new LessEqEvaluator<String>( node, store, schemaManager );
         schemaManager.delete( at );
     }
 }

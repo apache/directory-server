@@ -35,7 +35,38 @@ import org.apache.directory.server.i18n.I18n;
 
 
 /**
- * Keytab file.
+ * Keytab file. The format is the following :
+ * <pre>
+ * { 
+ *   version : 2 bytes (0x05 0x02)
+ *   keytabEntry*
+ * }
+ *
+ * keytab_entry 
+ * {
+ *     size : int
+ *     numComponents :  short
+ *     realm : countedOctetString
+ *     components[numComponents] : countedOctetString
+ *     nameType : int
+ *     timestamp : int
+ *     vno8 : byte
+ *     key : keyBlock
+ *     vno : int // only present if >= 4 bytes left in entry
+ * };
+ *
+ * keyblock 
+ * {
+ *     type : int
+ *     data : countedOctetString
+ * }
+ *
+ * countedOctetString 
+ * {
+ *     length : short
+ *     data[length] : bytes
+ * }
+ *
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -44,16 +75,22 @@ public class Keytab
     /**
      * Byte array constant for keytab file format 5.1.
      */
-    public static final byte[] VERSION_51 = new byte[]
+    public static final byte[] VERSION_0X501_BYTES = new byte[]
         { ( byte ) 0x05, ( byte ) 0x01 };
+
+    // Format 0x0501
+    public static final short VERSION_0X501 = 0x0501;
 
     /**
      * Byte array constant for keytab file format 5.2.
      */
-    public static final byte[] VERSION_52 = new byte[]
+    public static final byte[] VERSION_0X502_BYTES = new byte[]
         { ( byte ) 0x05, ( byte ) 0x02 };
 
-    private byte[] keytabVersion = VERSION_52;
+    // Format 0x0502
+    public static final short VERSION_0X502 = 0x0502;
+
+    private byte[] keytabVersion = VERSION_0X502_BYTES;
     private List<KeytabEntry> entries = new ArrayList<KeytabEntry>();
 
 
@@ -187,39 +224,36 @@ public class Keytab
      */
     protected static byte[] getBytesFromFile( File file ) throws IOException
     {
-        InputStream is = new FileInputStream( file );
-
-        long length = file.length();
-
-        // Check to ensure that file is not larger than Integer.MAX_VALUE.
-        if ( length > Integer.MAX_VALUE )
+        try (InputStream is = new FileInputStream( file ))
         {
-            is.close();
-            throw new IOException( I18n.err( I18n.ERR_618, file.getName() ) );
+
+            long length = file.length();
+
+            // Check to ensure that file is not larger than Integer.MAX_VALUE.
+            if ( length > Integer.MAX_VALUE )
+            {
+                throw new IOException( I18n.err( I18n.ERR_618, file.getName() ) );
+            }
+
+            // Create the byte array to hold the data.
+            byte[] bytes = new byte[( int ) length];
+
+            // Read in the bytes
+            int offset = 0;
+            int numRead = 0;
+            while ( offset < bytes.length && ( numRead = is.read( bytes, offset, bytes.length - offset ) ) >= 0 )
+            {
+                offset += numRead;
+            }
+
+            // Ensure all the bytes have been read in.
+            if ( offset < bytes.length )
+            {
+                throw new IOException( I18n.err( I18n.ERR_619, file.getName() ) );
+            }
+
+            return bytes;
         }
-
-        // Create the byte array to hold the data.
-        byte[] bytes = new byte[( int ) length];
-
-        // Read in the bytes
-        int offset = 0;
-        int numRead = 0;
-        while ( offset < bytes.length && ( numRead = is.read( bytes, offset, bytes.length - offset ) ) >= 0 )
-        {
-            offset += numRead;
-        }
-
-        // Ensure all the bytes have been read in.
-        if ( offset < bytes.length )
-        {
-            is.close();
-            throw new IOException( I18n.err( I18n.ERR_619, file.getName() ) );
-        }
-
-        // Close the input stream and return bytes.
-        is.close();
-        
-        return bytes;
     }
 
 
@@ -233,11 +267,16 @@ public class Keytab
     protected void writeFile( ByteBuffer buffer, File file ) throws IOException
     {
         // Set append false to replace existing.
-        FileChannel wChannel = new FileOutputStream( file, false ).getChannel();
+        FileOutputStream fout = new FileOutputStream( file, false );
 
-        // Write the bytes between the position and limit.
-        wChannel.write( buffer );
-
-        wChannel.close();
+        try (FileChannel wChannel = fout.getChannel())
+        {
+            // Write the bytes between the position and limit.
+            wChannel.write( buffer );
+        }
+        finally
+        {
+            fout.close();
+        }
     }
 }

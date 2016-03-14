@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
@@ -42,7 +41,8 @@ public interface PrincipalStore
      * @param isInitialTicket tells if the ticket is a freshly obtained ticket
      * @throws Exception
      */
-    public void changePassword( KerberosPrincipal byPrincipal, KerberosPrincipal forPrincipal, String newPassword, boolean isInitialTicket ) throws ChangePasswordException;
+    void changePassword( KerberosPrincipal byPrincipal, KerberosPrincipal forPrincipal, String newPassword,
+        boolean isInitialTicket ) throws ChangePasswordException;
 
 
     /**
@@ -52,5 +52,5 @@ public interface PrincipalStore
      * @return The {@link PrincipalStoreEntry} for the given Kerberos principal.
      * @throws Exception
      */
-    public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception;
+    PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception;
 }

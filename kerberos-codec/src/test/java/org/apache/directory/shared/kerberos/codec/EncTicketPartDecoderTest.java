@@ -24,13 +24,13 @@ package org.apache.directory.shared.kerberos.codec;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.encTicketPart.EncTicketPartContainer;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
@@ -89,7 +89,7 @@ public class EncTicketPartDecoderTest
         KerberosTime renewtill = new KerberosTime( time );
 
         HostAddresses caddr = new HostAddresses( new HostAddress[]
-            { new HostAddress( InetAddress.getByName( "localhost" ) ) } );
+            { new HostAddress( Network.LOOPBACK ) } );
 
         AuthorizationData authzData = new AuthorizationData();
         authzData.createNewAD();

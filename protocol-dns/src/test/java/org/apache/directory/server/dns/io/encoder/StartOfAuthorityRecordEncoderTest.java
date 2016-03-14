@@ -51,13 +51,13 @@ public class StartOfAuthorityRecordEncoderTest extends AbstractResourceRecordEnc
     protected Map<String, Object> getAttributes()
     {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put( Strings.toLowerCase( DnsAttribute.SOA_M_NAME ), mName );
-        map.put( Strings.toLowerCase( DnsAttribute.SOA_R_NAME ), rName );
-        map.put( Strings.toLowerCase( DnsAttribute.SOA_SERIAL ), serial );
-        map.put( Strings.toLowerCase( DnsAttribute.SOA_REFRESH ), refresh );
-        map.put( Strings.toLowerCase( DnsAttribute.SOA_RETRY ), retry );
-        map.put( Strings.toLowerCase( DnsAttribute.SOA_EXPIRE ), expire );
-        map.put( Strings.toLowerCase( DnsAttribute.SOA_MINIMUM ), minimum );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SOA_M_NAME ), mName );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SOA_R_NAME ), rName );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SOA_SERIAL ), serial );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SOA_REFRESH ), refresh );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SOA_RETRY ), retry );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SOA_EXPIRE ), expire );
+        map.put( Strings.toLowerCaseAscii( DnsAttribute.SOA_MINIMUM ), minimum );
 
         return map;
     }

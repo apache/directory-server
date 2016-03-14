@@ -27,8 +27,11 @@ import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.BinaryValue;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
@@ -79,7 +82,13 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
 
         Attribute pwdAt = entry.get( SchemaConstants.USER_PASSWORD_AT );
 
-        includeHashedPassword( pwdAt );
+        Attribute hashedPwdAt = includeHashedPassword( pwdAt );
+        
+        if ( hashedPwdAt != null )
+        {
+            entry.remove( pwdAt );
+            entry.add( hashedPwdAt );
+        }
 
         next( addContext );
     }
@@ -105,8 +114,17 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
             // check for modification on 'userPassword' AT
             if ( SchemaConstants.USER_PASSWORD_AT_OID.equals( oid ) )
             {
-                includeHashedPassword( mod.getAttribute() );
-                break;
+                if ( mod.getOperation() == ModificationOperation.REMOVE_ATTRIBUTE )
+                {
+                   continue; 
+                }
+                
+                Attribute newPwd = includeHashedPassword( mod.getAttribute() );
+
+                if ( newPwd != null )
+                {
+                    mod.setAttribute( newPwd );
+                }
             }
         }
 
@@ -119,25 +137,41 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
      *
      * @param pwdAt the password attribute
      */
-    private void includeHashedPassword( Attribute pwdAt ) throws LdapException
+    private Attribute includeHashedPassword( Attribute pwdAt ) throws LdapException
     {
         if ( pwdAt == null )
         {
-            return;
+            return null;
         }
 
-        BinaryValue userPassword = ( BinaryValue ) pwdAt.get();
+        Attribute newPwd = new DefaultAttribute( pwdAt.getAttributeType() );
 
-        // check if the given password is already hashed
-        LdapSecurityConstants existingAlgo = PasswordUtil.findAlgorithm( userPassword.getValue() );
-
-        // if there exists NO algorithm, then hash the password
-        if ( existingAlgo == null )
+        // Special case : deal with a potential empty value. We may have more than one
+        for ( Value<?> userPassword : pwdAt )
         {
-            byte[] hashedPassword = PasswordUtil.createStoragePassword( userPassword.getValue(), algorithm );
+            if ( userPassword.getValue() == null )
+            {
+                continue;
+            }
 
-            pwdAt.clear();
-            pwdAt.add( hashedPassword );
+            // check if the given password is already hashed
+            LdapSecurityConstants existingAlgo = PasswordUtil.findAlgorithm( ( ( BinaryValue ) userPassword )
+                .getValue() );
+
+            // if there exists NO algorithm, then hash the password
+            if ( existingAlgo == null )
+            {
+                byte[] hashedPassword = PasswordUtil.createStoragePassword(
+                    ( ( BinaryValue ) userPassword ).getValue(), algorithm );
+
+                newPwd.add( hashedPassword );
+            }
+            else
+            {
+                newPwd.add( ( ( BinaryValue ) userPassword ).getValue() );
+            }
         }
+
+        return newPwd;
     }
 }

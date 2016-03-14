@@ -37,7 +37,7 @@ APP_LONG_NAME="ApacheDS - $INSTANCE"
 
 # Wrapper
 WRAPPER_CMD="$INSTALLATION_DIRECTORY/bin/wrapper"
-WRAPPER_CONF="$INSTANCE_DIRECTORY/conf/wrapper.conf"
+WRAPPER_CONF="$INSTANCE_DIRECTORY/conf/wrapper-instance.conf"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.
 #  nice is only used if a priority is specified.
@@ -51,7 +51,7 @@ PIDDIR=$INSTANCE_DIRECTORY/run
 #  TERM signals.
 #IGNORE_SIGNALS=true
 
-# If specified, the Wrapper will be run as the specified user.
+# If specified, the Wrapper will be run as the specified user and group.
 # IMPORTANT - Make sure that the user has the required privileges to write
 #  the PID file and wrapper.log files.  Failure to be able to write the log
 #  file will cause the Wrapper to exit without any way to write out an error
@@ -60,6 +60,7 @@ PIDDIR=$INSTANCE_DIRECTORY/run
 #  the JVM and is not useful in situations where a privileged resource or
 #  port needs to be allocated prior to the user being changed.
 RUN_AS_USER="@user@"
+RUN_AS_GROUP="@group@"
 
 # Do not modify anything beyond this point
 #-----------------------------------------------------------------------------
@@ -279,7 +280,7 @@ checkUser() {
             if [ "X$1" != "X" ]
             then
                 # Resolve the primary group 
-                RUN_AS_GROUP=`groups $RUN_AS_USER | awk '{print $3}' | tail -1`
+                RUN_AS_GROUP=`groups $RUN_AS_GROUP| awk '{print $3}' | tail -1`
                 if [ "X$RUN_AS_GROUP" = "X" ]
                 then
                     RUN_AS_GROUP=$RUN_AS_USER
@@ -292,6 +293,7 @@ checkUser() {
         # Still want to change users, recurse.  This means that the user will only be
         #  prompted for a password once. Variables shifted by 1
         su -m $RUN_AS_USER -c "\"$REALPATH\" $2 $3"
+        ret=$?
 
         # Now that we are the original user again, we may need to clean up the lock file.
         if [ "X$LOCKPROP" != "X" ]
@@ -307,7 +309,7 @@ checkUser() {
             fi
         fi
 
-        exit 0
+        exit $ret
     fi
 }
 
@@ -317,22 +319,22 @@ getpid() {
         if [ -r "$PIDFILE" ]
         then
             pid=`cat "$PIDFILE"`
-            #if [ "X$pid" != "X" ]
-            #then
-            #    # It is possible that 'a' process with the pid exists but that it is not the
-            #    #  correct process.  This can happen in a number of cases, but the most
-            #    #  common is during system startup after an unclean shutdown.
-            #    # The ps statement below looks for the specific wrapper command running as
-            #    #  the pid.  If it is not found then the pid file is considered to be stale.
-            #    pidtest=`$PSEXE -p $pid -o args | grep "$WRAPPER_CMD" | tail -1`
-            #    if [ "X$pidtest" = "X" ]
-            #    then
-            #        # This is a stale pid file.
-            #        rm -f "$PIDFILE"
-            #        echo "Removed stale pid file: $PIDFILE"
-            #        pid=""
-            #    fi
-            #fi
+            if [ "X$pid" != "X" ]
+            then
+                # It is possible that 'a' process with the pid exists but that it is not the
+                #  correct process.  This can happen in a number of cases, but the most
+                #  common is during system startup after an unclean shutdown.
+                # The ps statement below looks for the specific wrapper command running as
+                #  the pid.  If it is not found then the pid file is considered to be stale.
+                pidtest=`$PSEXE -p $pid -o args | grep "$WRAPPER_CMD" | tail -1`
+                if [ "X$pidtest" = "X" ]
+                then
+                    # This is a stale pid file.
+                    rm -f "$PIDFILE"
+                    echo "Removed stale pid file: $PIDFILE"
+                    pid=""
+                fi
+            fi
         else
             echo "Cannot read $PIDFILE."
             exit 1
@@ -401,8 +403,20 @@ start() {
          echo "$APP_LONG_NAME is already running."
          exit 1
      fi
-
-
+}
+ 
+repair() {
+    echo "Repairing $APP_LONG_NAME..."
+    getpid
+     if [ "X$pid" = "X" ]
+     then
+         # The string passed to eval must handles spaces in paths correctly.
+         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" wrapper.java.additional.1=repair \"$WRAPPER_CONF\" set.INSTANCE_DIRECTORY=\"$INSTANCE_DIRECTORY\" set.INSTANCE=\"$INSTANCE\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
+         eval $COMMAND_LINE
+     else
+         echo "$APP_LONG_NAME is already running."
+         exit 1
+     fi
 }
  
 stopit() {
@@ -533,6 +547,13 @@ case "$1" in
 
     'start')
         checkUser touchlock $1 $INSTANCE
+        start
+        ;;
+
+    'repair')
+        checkUser touchlock $1 $INSTANCE
+        stopit
+        repair
         start
         ;;
 

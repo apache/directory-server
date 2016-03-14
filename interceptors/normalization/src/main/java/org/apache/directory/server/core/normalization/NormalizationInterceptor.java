@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.normalization;
 
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
@@ -29,11 +30,14 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeTypeException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.BranchNode;
+import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.LeafNode;
 import org.apache.directory.api.ldap.model.filter.NotNode;
 import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.filter.UndefinedNode;
 import org.apache.directory.api.ldap.model.name.Ava;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
@@ -42,11 +46,10 @@ import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameCompon
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
-import org.apache.directory.server.core.api.filtering.BaseEntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
@@ -126,16 +129,6 @@ public class NormalizationInterceptor extends BaseInterceptor
         addContext.getEntry().getDn().apply( schemaManager );
         addRdnAttributesToEntry( addContext.getDn(), addContext.getEntry() );
         next( addContext );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void bind( BindOperationContext bindContext ) throws LdapException
-    {
-        bindContext.getDn().apply( schemaManager );
-        next( bindContext );
     }
 
 
@@ -290,7 +283,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( filter == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+            return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
         }
 
         // Normalize the filter
@@ -299,7 +292,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( filter == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new BaseEntryFilteringCursor( new EmptyCursor<Entry>(), searchContext, schemaManager );
+            return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
         }
 
         // We now have to remove the (ObjectClass=*) filter if it's present, and to add the scope filter
@@ -313,11 +306,12 @@ public class NormalizationInterceptor extends BaseInterceptor
 
 
     /**
-     * Remove the (ObjectClass=*) node from brancheNode, if we have one.
+     * Remove the (ObjectClass=*) node from an AndNode, if we have one.
      */
-    private ExprNode handleBranchNode( ExprNode node, BranchNode newBranchNode )
+    private ExprNode handleAndNode( ExprNode node )
     {
         int nbNodes = 0;
+        AndNode newAndNode = new AndNode();
 
         for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
         {
@@ -325,31 +319,76 @@ public class NormalizationInterceptor extends BaseInterceptor
 
             if ( !( modifiedNode instanceof ObjectClassNode ) )
             {
-                newBranchNode.addNode( modifiedNode );
+                newAndNode.addNode( modifiedNode );
                 nbNodes++;
+            }
+
+            if ( modifiedNode instanceof UndefinedNode )
+            {
+                // We can just return an Undefined node as nothing will get selected
+                return UndefinedNode.UNDEFINED_NODE;
             }
         }
 
         switch ( nbNodes )
         {
             case 0:
-                // Unlikely... But (&(ObjectClass=*)) is still an option 
+                // Unlikely... But (&(ObjectClass=*)) or (|(ObjectClass=*)) are still an option
                 return ObjectClassNode.OBJECT_CLASS_NODE;
 
             case 1:
-                if ( newBranchNode instanceof NotNode )
-                {
-                    return newBranchNode;
-                }
-                else
-                {
-                    // We can safely remove the AND/OR node and replace it with its first child
-                    return newBranchNode.getFirstChild();
-                }
+                // We can safely remove the AND/OR node and replace it with its first child
+                return newAndNode.getFirstChild();
 
             default:
-                return newBranchNode;
+                return newAndNode;
         }
+    }
+
+
+    /**
+     * Remove the (ObjectClass=*) node from a NotNode, if we have one.
+     */
+    private ExprNode handleNotNode( ExprNode node )
+    {
+        for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
+        {
+            ExprNode modifiedNode = removeObjectClass( child );
+
+            if ( modifiedNode instanceof ObjectClassNode )
+            {
+                // We don't want any entry which has an ObjectClass, return an undefined node
+                return UndefinedNode.UNDEFINED_NODE;
+            }
+
+            if ( modifiedNode instanceof UndefinedNode )
+            {
+                // Here, we will select everything
+                return ObjectClassNode.OBJECT_CLASS_NODE;
+            }
+        }
+
+        return node;
+    }
+
+
+    /**
+     * Remove the (ObjectClass=*) node from an OrNode, if we have one.
+     */
+    private ExprNode handleOrNode( ExprNode node )
+    {
+        for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
+        {
+            ExprNode modifiedNode = removeObjectClass( child );
+
+            if ( modifiedNode instanceof ObjectClassNode )
+            {
+                // We can return immediately with an ObjectClass node
+                return ObjectClassNode.OBJECT_CLASS_NODE;
+            }
+        }
+
+        return node;
     }
 
 
@@ -358,32 +397,45 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     private ExprNode removeObjectClass( ExprNode node )
     {
-        if ( ( node instanceof PresenceNode ) &&
-            ( ( ( PresenceNode ) node ).getAttributeType() == OBJECT_CLASS_AT ) )
+        if ( node instanceof LeafNode )
         {
-            // We can safely remove the node and return an undefined node
-            return ObjectClassNode.OBJECT_CLASS_NODE;
-        }
-        // --------------------------------------------------------------------
-        //                 H A N D L E   B R A N C H   N O D E S       
-        // --------------------------------------------------------------------
-        else if ( node instanceof AndNode )
-        {
-            AndNode newAndNode = new AndNode();
+            LeafNode leafNode = ( LeafNode ) node;
 
-            return handleBranchNode( node, newAndNode );
+            if ( leafNode.getAttributeType() == directoryService.getAtProvider().getObjectClass() )
+            {
+                if ( leafNode instanceof PresenceNode )
+                {
+                    // We can safely remove the node and return an undefined node
+                    return ObjectClassNode.OBJECT_CLASS_NODE;
+                }
+                else if ( leafNode instanceof EqualityNode )
+                {
+                    Value<String> v = ( ( EqualityNode<String> ) leafNode ).getValue();
+
+                    if ( v.getNormValue().equals( SchemaConstants.TOP_OC ) )
+                    {
+                        // Here too we can safely remove the node and return an undefined node
+                        return ObjectClassNode.OBJECT_CLASS_NODE;
+                    }
+                }
+            }
+        }
+
+        // --------------------------------------------------------------------
+        //                 H A N D L E   B R A N C H   N O D E S
+        // --------------------------------------------------------------------
+
+        if ( node instanceof AndNode )
+        {
+            return handleAndNode( node );
         }
         else if ( node instanceof OrNode )
         {
-            OrNode newOrNode = new OrNode();
-
-            return handleBranchNode( node, newOrNode );
+            return handleOrNode( node );
         }
         else if ( node instanceof NotNode )
         {
-            NotNode newNotNode = new NotNode();
-
-            return handleBranchNode( node, newNotNode );
+            return handleNotNode( node );
         }
         else
         {
@@ -414,8 +466,8 @@ public class NormalizationInterceptor extends BaseInterceptor
         // Loop on all the AVAs
         for ( Ava ava : rdn )
         {
-            Value<?> value = ava.getNormValue();
-            Value<?> upValue = ava.getValue();
+            Value<?> value = ava.getValue();
+            String upValue = ava.getValue().getString();
             String upId = ava.getType();
 
             // Check that the entry contains this Ava

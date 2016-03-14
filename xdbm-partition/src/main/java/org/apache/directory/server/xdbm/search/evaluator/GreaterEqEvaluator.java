@@ -52,7 +52,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
-            idx = ( Index<T, Entry, String> ) db.getIndex( attributeType );
+            idx = ( Index<T, String> ) db.getIndex( attributeType );
         }
         else
         {
@@ -90,11 +90,6 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 
     public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
-        if ( idx != null && idx.isDupsEnabled() )
-        {
-            return idx.reverseGreaterOrEq( indexEntry.getId(), node.getValue().getValue() );
-        }
-
         Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry

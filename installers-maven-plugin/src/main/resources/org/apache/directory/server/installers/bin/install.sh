@@ -48,14 +48,25 @@ echo "Installing..."
 # Filtering apacheds script file
 sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
 verifyExitCode
+
 mv ../server/bin/apacheds.tmp ../server/bin/apacheds
 verifyExitCode
+
 sed -e "s;@instances.directory@;${INSTANCES_HOME_DIRECTORY};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
 verifyExitCode
+
 mv ../server/bin/apacheds.tmp ../server/bin/apacheds
 verifyExitCode
+
 sed -e "s;@user@;${RUN_AS_USER};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
 verifyExitCode
+
+mv ../server/bin/apacheds.tmp ../server/bin/apacheds
+verifyExitCode
+
+sed -e "s;@group@;${RUN_AS_GROUP};" ../server/bin/apacheds > ../server/bin/apacheds.tmp
+verifyExitCode
+
 mv ../server/bin/apacheds.tmp ../server/bin/apacheds
 verifyExitCode
 
@@ -67,6 +78,10 @@ verifyExitCode
 
 # Creating instances home directory
 mkdir -p $INSTANCES_HOME_DIRECTORY
+verifyExitCode
+
+# Creating initd directory if needed
+mkdir -p $STARTUP_SCRIPT_DIRECTORY
 verifyExitCode
 
 # Creating the default instance home directory
@@ -84,9 +99,9 @@ mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/run
 verifyExitCode
 
 # Filtering default instance wrapper.conf file
-sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/wrapper.conf > ../instance/wrapper.conf.tmp
+sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/wrapper-instance.conf > ../instance/wrapper-instance.conf.tmp
 verifyExitCode
-mv ../instance/wrapper.conf.tmp ../instance/wrapper.conf
+mv ../instance/wrapper-instance.conf.tmp ../instance/wrapper-instance.conf
 verifyExitCode
 
 # Copying the default instance files
@@ -94,7 +109,7 @@ cp ../instance/config.ldif $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
 cp ../instance/log4j.properties $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
-cp ../instance/wrapper.conf $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
+cp ../instance/wrapper-instance.conf $DEFAULT_INSTANCE_HOME_DIRECTORY/conf/
 verifyExitCode
 
 # Filtering and copying the init.d script
@@ -117,13 +132,28 @@ verifyExitCode
 chmod +x $APACHEDS_HOME_DIRECTORY/bin/wrapper
 verifyExitCode
 
-# Creating the apacheds user (only if needed)
+# Creating the apacheds user and group (only if needed)
 USER=`eval "id -u -n $RUN_AS_USER"`
+
+# If we don't have any group, use the user's group
+if [ "X$RUN_AS_GROUP" = "X" ]
+then
+        RUN_AS_GROUP=$RUN_AS_USER
+fi
+
+# Check that the group exists
+GROUP=`eval "if grep -q $RUN_AS_GROUP /etc/group; then echo "$RUN_AS_GROUP"; else echo ""; fi"`
+
+# Create the group if it does not exist
+if [ ! "X$RUN_AS_GROUP" = "XGROUP" ]
+then
+	/usr/sbin/groupadd $RUN_AS_GROUP >/dev/null 2>&1 || :
+	verifyExitCode
+fi
+
 if [ ! "X$RUN_AS_USER" = "X$USER" ]
 then
-	/usr/sbin/groupadd $RUN_AS_USER >/dev/null 2>&1 || :
-	verifyExitCode
-	/usr/sbin/useradd -g $RUN_AS_USER -d $APACHEDS_HOME_DIRECTORY $RUN_AS_USER >/dev/null 2>&1 || :
+	/usr/sbin/useradd -g $RUN_AS_GROUP -d $APACHEDS_HOME_DIRECTORY $RUN_AS_USER >/dev/null 2>&1 || :
 	verifyExitCode
 fi
 

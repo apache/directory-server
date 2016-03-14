@@ -3,7 +3,7 @@ Version: ${version.debian}
 Section: devel
 Priority: optional
 Architecture: ${arch}
-Installed-Size: 11504
+Installed-Size: 16000
 Maintainer: Apache Directory Project <dev@directory.apache.org>
 Description: LDAP Server
  ApacheDS is an embeddable directory server entirely written in Java, which 

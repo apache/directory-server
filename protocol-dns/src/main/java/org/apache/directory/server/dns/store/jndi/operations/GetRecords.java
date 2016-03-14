@@ -157,8 +157,8 @@ public class GetRecords implements DnsOperation
      */
     private ResourceRecord getRecord( Attributes attrs, Name relative ) throws NamingException
     {
-        String SOA_MINIMUM = "86400";
-        String SOA_CLASS = "IN";
+        String soaMinimum = "86400";
+        String soaClass = "IN";
 
         ResourceRecordModifier modifier = new ResourceRecordModifier();
 
@@ -193,11 +193,13 @@ public class GetRecords implements DnsOperation
         }
 
         // class defaults to SOA CLASS
-        String dnsClass = ( attr = attrs.get( DnsAttribute.CLASS ) ) != null ? ( String ) attr.get() : SOA_CLASS;
+        attr = attrs.get( DnsAttribute.CLASS );
+        String dnsClass = attr != null ? ( String ) attr.get() : soaClass;
         modifier.setDnsClass( RecordClass.valueOf( dnsClass ) );
 
         // ttl defaults to SOA MINIMUM
-        String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? ( String ) attr.get() : SOA_MINIMUM;
+        attr = attrs.get( DnsAttribute.TTL );
+        String dnsTtl = attr != null ? ( String ) attr.get() : soaMinimum;
         modifier.setDnsTtl( Integer.parseInt( dnsTtl ) );
 
         NamingEnumeration<String> ids = attrs.getIDs();

@@ -26,18 +26,21 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
+import org.apache.directory.server.core.api.CacheService;
+import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
+import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +59,8 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 public class HttpServerConfigReaderTest
 {
     private static SchemaManager schemaManager;
+    private static DnFactory dnFactory;
+    private static CacheService cacheService;
 
     private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
@@ -92,6 +97,10 @@ public class HttpServerConfigReaderTest
         {
             throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
+
+        cacheService = new CacheService();
+        cacheService.initialize( null );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
     }
 
 
@@ -101,12 +110,13 @@ public class HttpServerConfigReaderTest
         File configDir = new File( workDir, "httpServer" ); // could be any directory, cause the config is now in a single file
         String configFile = LdifConfigExtractor.extractSingleFileConfig( configDir, "httpServer.ldif", true );
 
-        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager );
+        SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, dnFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
         configPartition.setSuffixDn( new Dn( "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
 
+        configPartition.setCacheService( cacheService );
         configPartition.initialize();
 
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );

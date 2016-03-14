@@ -110,17 +110,17 @@ public class RegistrySynchronizerAdaptor
 
     static
     {
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NORMALIZERS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.COMPARATORS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.SYNTAX_CHECKERS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( "syntaxes" ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.MATCHING_RULES_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.MATCHING_RULE_USE_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.OBJECT_CLASSES_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.NAME_FORMS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.DIT_CONTENT_RULES_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCase( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.NORMALIZERS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.COMPARATORS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.SYNTAX_CHECKERS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( "syntaxes" ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.MATCHING_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.MATCHING_RULE_USE_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.OBJECT_CLASSES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.NAME_FORMS_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.DIT_CONTENT_RULES_AT ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.DIT_STRUCTURE_RULES_AT ) );
     }
 
 
@@ -201,8 +201,8 @@ public class RegistrySynchronizerAdaptor
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, msg );
             }
 
-            String ouValue = addContext.getDn().getRdn().getNormValue().getString();
-            ouValue = Strings.toLowerCase( Strings.trim( ouValue ) );
+            String ouValue = addContext.getDn().getRdn().getNormValue();
+            ouValue = Strings.toLowerCaseAscii( Strings.trim( ouValue ) );
 
             if ( !VALID_OU_VALUES.contains( ouValue ) )
             {
@@ -256,8 +256,8 @@ public class RegistrySynchronizerAdaptor
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_378 ) );
             }
 
-            String ouValue = deleteContext.getDn().getRdn().getNormValue().getString();
-            ouValue = Strings.toLowerCase( Strings.trim( ouValue ) );
+            String ouValue = deleteContext.getDn().getRdn().getNormValue();
+            ouValue = Strings.toLowerCaseAscii( Strings.trim( ouValue ) );
 
             if ( !VALID_OU_VALUES.contains( ouValue ) )
             {

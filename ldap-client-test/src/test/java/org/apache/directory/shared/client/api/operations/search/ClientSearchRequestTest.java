@@ -51,6 +51,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -354,6 +355,33 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         Entry resultEntry = ( ( SearchResultEntry ) response ).getEntry();
         assertEquals( "cn=user1,ou=users,ou=system", resultEntry.getDn().getName() );
     
-        cursor.close();
+        searchCursor.close();
+    }
+    
+    
+    /**
+     * Test to demonstrate https://issues.apache.org/jira/browse/DIRAPI-140
+     * Fixed to demonstrate that it works, if we loop until we don't have anymore results
+     */
+    @Test
+    @Ignore("The test has been fixed, it's now ignored as it takes 180seconds")
+    public void test_DIRAPI140() throws Exception
+    {
+        for ( int i = 0; i < 10000; i++ )
+        {
+            SearchRequest req = new SearchRequestImpl();
+            req.setScope( SearchScope.SUBTREE );
+            req.addAttributes( "*" );
+            req.setTimeLimit( 0 );
+            req.setBase( new Dn( "ou=system" ) );
+            req.setFilter( "(cn=user1)" );
+    
+            SearchCursor searchCursor = connection.search( req );
+    
+            // We should have only one entry
+            assertTrue( searchCursor.next() );
+    
+            searchCursor.close();
+        }
     }
 }

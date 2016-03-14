@@ -45,7 +45,6 @@ import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
 import org.apache.directory.server.xdbm.EmptyIndexCursor;
-import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
+public class JdbmIndex<K> extends AbstractIndex<K, String>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class );
@@ -154,7 +153,6 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
         {
             NullPointerException e = new NullPointerException( "The index working directory has not be set" );
 
-            e.printStackTrace();
             throw e;
         }
 
@@ -164,7 +162,16 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
         TransactionManager transactionManager = base.getTransactionManager();
         transactionManager.setMaximumTransactionsInLog( 2000 );
 
-        recMan = new CacheRecordManager( base, new MRU( DEFAULT_INDEX_CACHE_SIZE ) );
+        // see DIRSERVER-2002
+        // prevent the OOM when more than 50k users are loaded at a stretch
+        // adding this system property to make it configurable till JDBM gets replaced by Mavibot
+        String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "100" );
+        
+        int recCacheSize = Integer.parseInt( cacheSizeVal );
+        
+        LOG.info( "Setting CacheRecondManager's cache size to {}", recCacheSize );
+
+        recMan = new CacheRecordManager( base, new MRU( recCacheSize ) );
 
         try
         {
@@ -311,7 +318,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public int count() throws IOException
+    public long count() throws IOException
     {
         return forward.count();
     }
@@ -320,13 +327,13 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * {@inheritDoc}
      */
-    public int count( K attrVal ) throws Exception
+    public long count( K attrVal ) throws Exception
     {
         return forward.count( attrVal );
     }
 
 
-    public int greaterThanCount( K attrVal ) throws Exception
+    public long greaterThanCount( K attrVal ) throws Exception
     {
         return forward.greaterThanCount( attrVal );
     }
@@ -335,7 +342,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     /**
      * @see org.apache.directory.server.xdbm.Index#lessThanCount(java.lang.Object)
      */
-    public int lessThanCount( K attrVal ) throws Exception
+    public long lessThanCount( K attrVal ) throws Exception
     {
         return forward.lessThanCount( attrVal );
     }
@@ -379,7 +386,7 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
      */
     public synchronized void add( K attrVal, String id ) throws Exception
     {
-        // The pair to be removed must exists
+        // The pair to be added must exists
         forward.put( attrVal, id );
 
         if ( withReverse )
@@ -548,106 +555,6 @@ public class JdbmIndex<K, V> extends AbstractIndex<K, V, String>
     public boolean reverse( String id, K attrVal ) throws Exception
     {
         return forward.has( attrVal, id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean forwardGreaterOrEq( K attrVal ) throws Exception
-    {
-        return forward.hasGreaterOrEqual( attrVal );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean forwardGreaterOrEq( K attrVal, String id ) throws Exception
-    {
-        return forward.hasGreaterOrEqual( attrVal, id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean forwardLessOrEq( K attrVal ) throws Exception
-    {
-        return forward.hasLessOrEqual( attrVal );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean forwardLessOrEq( K attrVal, String id ) throws Exception
-    {
-        return forward.hasLessOrEqual( attrVal, id );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseGreaterOrEq( String id ) throws Exception
-    {
-        if ( withReverse )
-        {
-            return reverse.hasGreaterOrEqual( id );
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseGreaterOrEq( String id, K attrVal ) throws LdapException
-    {
-        if ( withReverse )
-        {
-            return reverse.hasGreaterOrEqual( id, attrVal );
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseLessOrEq( String id ) throws Exception
-    {
-        if ( withReverse )
-        {
-            return reverse.hasLessOrEqual( id );
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverseLessOrEq( String id, K attrVal ) throws Exception
-    {
-        if ( withReverse )
-        {
-            return reverse.hasLessOrEqual( id, attrVal );
-        }
-        else
-        {
-            return false;
-        }
     }
 
 

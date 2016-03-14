@@ -32,7 +32,6 @@ import org.apache.directory.api.asn1.util.BitString;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@SuppressWarnings("serial")
 public abstract class AbstractKerberosFlags extends BitString
 {
     /**

@@ -40,6 +40,7 @@ ads-certificatePassword: secret
 ads-searchBaseDN: ou=users,ou=system
 ads-enabled: true
 ads-replEnabled: true
+ads-replPingerSleep: 5
 
 dn: ou=transports,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: transports
@@ -63,6 +64,15 @@ ads-systemport: 10636
 ads-transportenablessl: true
 ads-transportaddress: localhost
 ads-transportid: ldaps
+ads-needClientAuth: false
+ads-wantClientAuth: true
+ads-enabledCiphers: AAA
+ads-enabledCiphers: BBB
+ads-enabledCiphers: CCC
+ads-enabledCiphers: DDD
+ads-enabledProtocols: TLSv1
+ads-enabledProtocols: TLSv1.1
+ads-enabledProtocols: TLSv1.2
 objectclass: ads-transport
 objectclass: ads-tcpTransport
 objectclass: top
@@ -100,21 +110,21 @@ objectclass: organizationalUnit
 objectclass: top
 
 dn: ads-saslMechName=cram-md5,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: top
 ads-saslMechName: CRAM-MD5
 ads-enabled: true
 
 dn: ads-saslMechName=digest-md5,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.digestMD5.DigestMd5MechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: top
 ads-saslMechName: DIGEST-MD5
 ads-enabled: true
 
 dn: ads-saslMechName=gss-spnego,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: top
 ads-saslMechName: GSS-SPNEGO
@@ -122,14 +132,14 @@ ads-ntlmMechProvider: com.foo.Bar
 ads-enabled: true
 
 dn: ads-saslMechName=gssapi,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.gssapi.GssapiMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: top
 ads-saslMechName: GSSAPI
 ads-enabled: true
 
 dn: ads-saslMechName=ntlm,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.ntlm.NtlmMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: top
 ads-saslMechName: NTLM
@@ -137,7 +147,7 @@ ads-ntlmMechProvider: com.foo.Bar
 ads-enabled: true
 
 dn: ads-saslMechName=simple,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-saslMechClassName: org.apache.directory.server.ldap.handlers.bind.SimpleMechanismHandler
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.SimpleMechanismHandler
 objectclass: ads-saslMechHandler
 objectclass: top
 ads-saslMechName: SIMPLE

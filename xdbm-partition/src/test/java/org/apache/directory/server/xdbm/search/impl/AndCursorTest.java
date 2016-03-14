@@ -20,14 +20,15 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -35,12 +36,13 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.FilterParser;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.schemaextractor.SchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaextractor.impl.DefaultSchemaLdifExtractor;
-import org.apache.directory.api.ldap.schemaloader.LdifSchemaLoader;
-import org.apache.directory.api.ldap.schemamanager.impl.DefaultSchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
@@ -67,6 +69,7 @@ public class AndCursorTest extends AbstractCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class );
 
     File wkdir;
+    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -101,6 +104,9 @@ public class AndCursorTest extends AbstractCursorTest
         {
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
+
+        cacheService = new CacheService();
+        cacheService.initialize( null );
     }
 
 
@@ -112,6 +118,8 @@ public class AndCursorTest extends AbstractCursorTest
     @Before
     public void createStore() throws Exception
     {
+        directoryService = new MockDirectoryService();
+
         // setup the working directory for the store
         wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
         wkdir.delete();
@@ -119,22 +127,22 @@ public class AndCursorTest extends AbstractCursorTest
         wkdir.mkdirs();
 
         // initialize the store
-        store = new AvlPartition( schemaManager );
+        store = new AvlPartition( schemaManager, directoryService.getDnFactory() );
         ( ( Partition ) store ).setId( "example" );
         store.setCacheSize( 10 );
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
+        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
 
         evaluatorBuilder = new EvaluatorBuilder( store, schemaManager );
         cursorBuilder = new CursorBuilder( store, evaluatorBuilder );
-        directoryService = new MockDirectoryService();
         directoryService.setSchemaManager( schemaManager );
         session = new MockCoreSession( new LdapPrincipal(), directoryService );
 
@@ -167,6 +175,11 @@ public class AndCursorTest extends AbstractCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
 
+        Set<String> expectedUuid = new HashSet<String>();
+        expectedUuid.add( Strings.getUUID( 5 ) );
+        expectedUuid.add( Strings.getUUID( 6 ) );
+        expectedUuid.add( Strings.getUUID( 8 ) );
+
         Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.beforeFirst();
@@ -174,20 +187,23 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
+        String uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        expectedUuid.remove( uuid );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -202,6 +218,13 @@ public class AndCursorTest extends AbstractCursorTest
     {
         ExprNode exprNode = FilterParser.parse( schemaManager, "(&(cn=J*)(sn=*))" );
 
+        Set<String> expectedUuid = new HashSet<String>();
+        expectedUuid.add( Strings.getUUID( 5 ) );
+        expectedUuid.add( Strings.getUUID( 6 ) );
+        expectedUuid.add( Strings.getUUID( 8 ) );
+
+        Set<String> foundUuid = new HashSet<String>();
+
         Cursor<Entry> cursor = buildCursor( exprNode );
 
         cursor.beforeFirst();
@@ -209,22 +232,28 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         Entry entry = cursor.get();
-        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
+        String uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         cursor.first();
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( expectedUuid.contains( uuid ) );
+        foundUuid.add( uuid );
+        expectedUuid.remove( uuid );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -234,22 +263,25 @@ public class AndCursorTest extends AbstractCursorTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 8 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "Jack Daniels", entry.get( "cn" ).getString() );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         cursor.last();
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 6 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JIM BEAN", entry.get( "cn" ).getString() );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         entry = cursor.get();
-        assertEquals( Strings.getUUID( 5 ), entry.get( "entryUUID" ).getString() );
-        assertEquals( "JOhnny WAlkeR", entry.get( "cn" ).getString() );
+        uuid = entry.get( "entryUUID" ).getString();
+        assertTrue( foundUuid.contains( uuid ) );
+        foundUuid.remove( uuid );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );

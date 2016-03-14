@@ -81,7 +81,7 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
      */
     protected void putDomainName( IoBuffer byteBuffer, String domainName )
     {
-        if ( ! Strings.isEmpty( domainName ) )
+        if ( !Strings.isEmpty( domainName ) )
         {
             String[] labels = domainName.split( "\\." );
         
