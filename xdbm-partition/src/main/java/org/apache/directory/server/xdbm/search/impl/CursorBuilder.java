@@ -172,9 +172,10 @@ public class CursorBuilder
 
             String uuid = indexEntry.getId();
 
-            if ( !uuidSet.contains( uuid ) )
+            boolean added = uuidSet.add( uuid );
+            // if the UUID was added increment the result count
+            if ( added )
             {
-                uuidSet.add( uuid );
                 nbResults++;
             }
         }
@@ -277,10 +278,10 @@ public class CursorBuilder
 
                 String uuid = indexEntry.getId();
 
-                if ( !uuidSet.contains( uuid ) )
+                boolean added = uuidSet.add( uuid );
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -329,10 +330,10 @@ public class CursorBuilder
 
                 String uuid = indexEntry.getId();
 
-                if ( !uuidSet.contains( uuid ) )
+                boolean added = uuidSet.add( uuid );
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -377,10 +378,10 @@ public class CursorBuilder
 
                 String uuid = indexEntry.getId();
 
-                if ( !uuidSet.contains( uuid ) )
+                boolean added = uuidSet.add( uuid );
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -438,29 +439,30 @@ public class CursorBuilder
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
-                    if ( !candidateSet.contains( aliasedId ) )
+                    boolean added = candidateSet.add( aliasedId );
+                    if ( added )
                     {
-                        candidateSet.add( aliasedId );
                         nbResults++;
                     }
                 }
                 else
                 {
+                    // The UUID is not present in the Set, we add it
+                    boolean added = candidateSet.add( uuid );
                     // This is not an alias
-                    if ( !candidateSet.contains( uuid ) )
+                    if ( added )
                     {
-                        // The UUID is not present in the Set, we add it
-                        candidateSet.add( uuid );
                         nbResults++;
                     }
                 }
             }
             else
             {
-                if ( !candidateSet.contains( uuid ) )
+                // The UUID is not present in the Set, we add it
+                boolean added = candidateSet.add( uuid );
+                // This is not an alias
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    candidateSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -526,9 +528,9 @@ public class CursorBuilder
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
-                    if ( !candidateSet.contains( aliasedId ) )
+                    boolean added = candidateSet.add( aliasedId );
+                    if ( added )
                     {
-                        candidateSet.add( aliasedId );
                         nbResults++;
 
                         ScopeNode newScopeNode = new ScopeNode(
@@ -542,21 +544,21 @@ public class CursorBuilder
                 }
                 else
                 {
+                    // The UUID is not present in the Set, we add it
+                    boolean added = candidateSet.add( uuid );
                     // This is not an alias
-                    if ( !candidateSet.contains( uuid ) )
+                    if ( added )
                     {
-                        // The UUID is not present in the Set, we add it
-                        candidateSet.add( uuid );
                         nbResults++;
                     }
                 }
             }
             else
             {
-                if ( !candidateSet.contains( uuid ) )
+                // The UUID is not present in the Set, we add it
+                boolean added = candidateSet.add( uuid );
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    candidateSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -658,10 +660,10 @@ public class CursorBuilder
                 
                 String uuid = indexEntry.getId();
 
-                if ( !uuidSet.contains( uuid ) )
+                boolean added = uuidSet.add( uuid );
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
