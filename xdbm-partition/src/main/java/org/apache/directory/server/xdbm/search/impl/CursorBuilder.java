@@ -225,10 +225,10 @@ public class CursorBuilder
 
                 String uuid = indexEntry.getId();
 
-                if ( !uuidSet.contains( uuid ) )
+                boolean added = uuidSet.add( uuid );
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
