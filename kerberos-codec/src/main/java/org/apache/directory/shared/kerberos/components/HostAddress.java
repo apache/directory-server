@@ -20,6 +20,7 @@
 package org.apache.directory.shared.kerberos.components;
 
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.BufferOverflowException;
@@ -111,7 +112,7 @@ public class HostAddress implements Asn1Object
      */
     public HostAddress( InetAddress internetAddress )
     {
-        addrType = HostAddrType.ADDRTYPE_INET;
+        addrType = ( internetAddress instanceof Inet6Address ) ? HostAddrType.ADDRTYPE_INET6 : HostAddrType.ADDRTYPE_INET;
         byte[] newAddress = internetAddress.getAddress();
         address = new byte[newAddress.length];
         System.arraycopy( newAddress, 0, address, 0, newAddress.length );
