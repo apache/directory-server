@@ -176,7 +176,7 @@ public class Keytab
      * @param bytes
      * @return The keytab.
      */
-    static Keytab read( byte[] bytes )
+    static Keytab read( byte[] bytes ) throws IOException
     {
         ByteBuffer buffer = ByteBuffer.wrap( bytes );
         return readKeytab( buffer );
@@ -200,7 +200,7 @@ public class Keytab
      * @param buffer
      * @return The keytab.
      */
-    private static Keytab readKeytab( ByteBuffer buffer )
+    private static Keytab readKeytab( ByteBuffer buffer ) throws IOException
     {
         KeytabDecoder reader = new KeytabDecoder();
         byte[] keytabVersion = reader.getKeytabVersion( buffer );
