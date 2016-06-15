@@ -30,11 +30,9 @@ import java.util.Set;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidSearchFilterException;
@@ -200,9 +198,9 @@ public class MockCoreSession implements CoreSession
     }
 
 
-    private Value<?> convertToValue( String oid, Object value ) throws LdapException
+    private Value convertToValue( String oid, Object value ) throws LdapException
     {
-        Value<?> val = null;
+        Value val = null;
 
         AttributeType attributeType = directoryService.getSchemaManager().lookupAttributeTypeRegistry( oid );
 
@@ -211,11 +209,11 @@ public class MockCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new StringValue( attributeType, ( String ) value );
+                val = new Value( attributeType, ( String ) value );
             }
             else if ( value instanceof byte[] )
             {
-                val = new StringValue( attributeType, Strings.utf8ToString( ( byte[] ) value ) );
+                val = new Value( attributeType, Strings.utf8ToString( ( byte[] ) value ) );
             }
             else
             {
@@ -226,11 +224,11 @@ public class MockCoreSession implements CoreSession
         {
             if ( value instanceof String )
             {
-                val = new BinaryValue( attributeType, Strings.getBytesUtf8( ( String ) value ) );
+                val = new Value( attributeType, Strings.getBytesUtf8( ( String ) value ) );
             }
             else if ( value instanceof byte[] )
             {
-                val = new BinaryValue( attributeType, ( byte[] ) value );
+                val = new Value( attributeType, ( byte[] ) value );
             }
             else
             {

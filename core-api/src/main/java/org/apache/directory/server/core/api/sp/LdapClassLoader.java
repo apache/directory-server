@@ -28,9 +28,9 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
@@ -80,14 +80,14 @@ public class LdapClassLoader extends ClassLoader
     }
 
 
-    private byte[] findClassInDIT( List<Dn> searchContexts, String name ) throws ClassNotFoundException
+    private byte[] findClassInDIT( List<Dn> searchContexts, String name ) throws ClassNotFoundException, LdapInvalidAttributeValueException
     {
         // Set up the search filter
         BranchNode filter = new AndNode();
         AttributeType fqjcnAt = directoryService.getSchemaManager().getAttributeType( "fullyQualifiedJavaClassName" );
-        filter.addNode( new EqualityNode<String>( fqjcnAt, new StringValue( name ) ) );
+        filter.addNode( new EqualityNode<String>( fqjcnAt, new Value( fqjcnAt, name ) ) );
         filter.addNode( new EqualityNode<String>( objectClassAT,
-            new StringValue( ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
+            new Value( objectClassAT, ApacheSchemaConstants.JAVA_CLASS_OC ) ) );
 
         try
         {
@@ -133,6 +133,10 @@ public class LdapClassLoader extends ClassLoader
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Class<?> findClass( String name ) throws ClassNotFoundException
     {
         byte[] classBytes = null;
@@ -157,12 +161,12 @@ public class LdapClassLoader extends ClassLoader
 
             if ( configEntry != null )
             {
-                List<Dn> searchContexts = new ArrayList<Dn>();
+                List<Dn> searchContexts = new ArrayList<>();
                 Attribute attr = configEntry.get( "classLoaderDefaultSearchContext" );
 
-                for ( Value<?> val : attr )
+                for ( Value val : attr )
                 {
-                    Dn dn = directoryService.getDnFactory().create( val.getString() );
+                    Dn dn = directoryService.getDnFactory().create( val.getValue() );
                     searchContexts.add( dn );
                 }
 
@@ -180,14 +184,14 @@ public class LdapClassLoader extends ClassLoader
 
             if ( classBytes == null )
             {
-                List<Dn> namingContexts = new ArrayList<Dn>();
+                List<Dn> namingContexts = new ArrayList<>();
 
                 Set<String> suffixes = directoryService.getPartitionNexus().listSuffixes();
 
                 for ( String suffix : suffixes )
                 {
-                    Dn dn = directoryService.getDnFactory().create( suffix );
-                    namingContexts.add( dn );
+                    Dn suffixDn = directoryService.getDnFactory().create( suffix );
+                    namingContexts.add( suffixDn );
                 }
 
                 classBytes = findClassInDIT( namingContexts, name );

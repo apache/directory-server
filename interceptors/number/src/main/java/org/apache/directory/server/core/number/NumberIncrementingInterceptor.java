@@ -62,7 +62,7 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
     private Dn numberHolder;
     
     /** a map of integer attribute and it's present value */
-    private Map<String, AtomicInteger> incMap = new HashMap<String, AtomicInteger>();
+    private Map<String, AtomicInteger> incMap = new HashMap<>();
     
     
     @Override
@@ -100,13 +100,11 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
             for ( Attribute at : entry )
             {
                 MatchingRule mr = at.getAttributeType().getEquality();
-                if ( mr != null )
+                
+                if ( ( mr != null ) && SchemaConstants.INTEGER_MATCH_MR_OID.equals( mr.getOid() ) )
                 {
-                    if ( SchemaConstants.INTEGER_MATCH_MR_OID.equals( mr.getOid() ) )
-                    {
-                        int t = Integer.parseInt( at.getString() );
-                        incMap.put( at.getId(), new AtomicInteger( t ) );
-                    }
+                    int t = Integer.parseInt( at.getString() );
+                    incMap.put( at.getId(), new AtomicInteger( t ) );
                 }
             }
         }
@@ -116,6 +114,7 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the number incrementing interceptor, addRequest" );
@@ -129,7 +128,7 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
 
         Entry entry = addContext.getEntry();
 
-        List<Attribute> lst = new ArrayList<Attribute>();
+        List<Attribute> lst = new ArrayList<>();
         
         for ( String oid : incMap.keySet() )
         {
@@ -160,7 +159,7 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
         bindModCtx.setDn( numberHolder );
         bindModCtx.setPushToEvtInterceptor( true );
 
-        List<Modification> mods = new ArrayList<Modification>();
+        List<Modification> mods = new ArrayList<>();
 
         for ( Attribute at : lst )
         {

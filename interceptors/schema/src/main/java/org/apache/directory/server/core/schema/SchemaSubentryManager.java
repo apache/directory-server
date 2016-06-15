@@ -79,7 +79,7 @@ public class SchemaSubentryManager
     private static final int DIT_CONTENT_RULE_INDEX = 9;
     private static final int NAME_FORM_INDEX = 10;
 
-    private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
+    private static final Set<String> VALID_OU_VALUES = new HashSet<>();
 
     /** The schemaManager */
     private final SchemaManager schemaManager;
@@ -93,7 +93,7 @@ public class SchemaSubentryManager
      * Maps the OID of a subschemaSubentry operational attribute to the index of
      * the handler in the schemaObjectHandlers array.
      */
-    private final Map<String, Integer> opAttr2handlerIndex = new HashMap<String, Integer>( 11 );
+    private final Map<String, Integer> opAttr2handlerIndex = new HashMap<>( 11 );
     private static final String CASCADING_ERROR =
         "Cascading has not yet been implemented: standard operation is in effect.";
 
@@ -102,7 +102,7 @@ public class SchemaSubentryManager
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.NORMALIZERS_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.COMPARATORS_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.SYNTAX_CHECKERS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( "syntaxes" ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.SYNTAXES ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.MATCHING_RULES_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.MATCHING_RULE_USE_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
@@ -303,7 +303,7 @@ public class SchemaSubentryManager
 
         switch ( index )
         {
-            case ( COMPARATOR_INDEX ):
+            case COMPARATOR_INDEX :
                 LdapComparatorDescription[] comparatorDescriptions = parsers.parseComparators( mods );
 
                 for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
@@ -313,7 +313,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( NORMALIZER_INDEX ):
+            case NORMALIZER_INDEX :
                 NormalizerDescription[] normalizerDescriptions = parsers.parseNormalizers( mods );
 
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
@@ -323,7 +323,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( SYNTAX_CHECKER_INDEX ):
+            case SYNTAX_CHECKER_INDEX :
                 SyntaxCheckerDescription[] syntaxCheckerDescriptions = parsers.parseSyntaxCheckers( mods );
 
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
@@ -333,7 +333,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( SYNTAX_INDEX ):
+            case SYNTAX_INDEX :
                 LdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( mods );
 
                 for ( LdapSyntax syntax : syntaxes )
@@ -343,7 +343,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( MATCHING_RULE_INDEX ):
+            case MATCHING_RULE_INDEX :
                 MatchingRule[] mrs = parsers.parseMatchingRules( mods );
 
                 for ( MatchingRule mr : mrs )
@@ -353,7 +353,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( ATTRIBUTE_TYPE_INDEX ):
+            case ATTRIBUTE_TYPE_INDEX :
                 AttributeType[] ats = parsers.parseAttributeTypes( mods );
 
                 for ( AttributeType at : ats )
@@ -363,7 +363,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( OBJECT_CLASS_INDEX ):
+            case OBJECT_CLASS_INDEX :
                 ObjectClass[] ocs = parsers.parseObjectClasses( mods );
 
                 for ( ObjectClass oc : ocs )
@@ -373,7 +373,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( MATCHING_RULE_USE_INDEX ):
+            case MATCHING_RULE_USE_INDEX :
                 MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( mods );
 
                 for ( MatchingRuleUse mru : mrus )
@@ -383,7 +383,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( DIT_STRUCTURE_RULE_INDEX ):
+            case DIT_STRUCTURE_RULE_INDEX :
                 DitStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
 
                 for ( DitStructureRule dsr : dsrs )
@@ -393,7 +393,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( DIT_CONTENT_RULE_INDEX ):
+            case DIT_CONTENT_RULE_INDEX :
                 DitContentRule[] dcrs = parsers.parseDitContentRules( mods );
 
                 for ( DitContentRule dcr : dcrs )
@@ -403,7 +403,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( NAME_FORM_INDEX ):
+            case NAME_FORM_INDEX :
                 NameForm[] nfs = parsers.parseNameForms( mods );
 
                 for ( NameForm nf : nfs )
@@ -442,7 +442,7 @@ public class SchemaSubentryManager
 
         switch ( index )
         {
-            case ( COMPARATOR_INDEX ):
+            case COMPARATOR_INDEX :
                 LdapComparatorDescription[] comparatorDescriptions = parsers.parseComparators( mods );
 
                 for ( LdapComparatorDescription comparatorDescription : comparatorDescriptions )
@@ -452,7 +452,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( NORMALIZER_INDEX ):
+            case NORMALIZER_INDEX :
                 NormalizerDescription[] normalizerDescriptions = parsers.parseNormalizers( mods );
 
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
@@ -462,7 +462,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( SYNTAX_CHECKER_INDEX ):
+            case SYNTAX_CHECKER_INDEX :
                 SyntaxCheckerDescription[] syntaxCheckerDescriptions = parsers.parseSyntaxCheckers( mods );
 
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
@@ -472,7 +472,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( SYNTAX_INDEX ):
+            case SYNTAX_INDEX :
                 LdapSyntax[] syntaxes = parsers.parseLdapSyntaxes( mods );
 
                 for ( LdapSyntax syntax : syntaxes )
@@ -482,7 +482,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( MATCHING_RULE_INDEX ):
+            case MATCHING_RULE_INDEX :
                 MatchingRule[] mrs = parsers.parseMatchingRules( mods );
 
                 for ( MatchingRule mr : mrs )
@@ -492,7 +492,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( ATTRIBUTE_TYPE_INDEX ):
+            case ATTRIBUTE_TYPE_INDEX :
                 AttributeType[] ats = parsers.parseAttributeTypes( mods );
 
                 for ( AttributeType at : ats )
@@ -502,7 +502,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( OBJECT_CLASS_INDEX ):
+            case OBJECT_CLASS_INDEX :
                 ObjectClass[] ocs = parsers.parseObjectClasses( mods );
 
                 for ( ObjectClass oc : ocs )
@@ -512,7 +512,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( MATCHING_RULE_USE_INDEX ):
+            case MATCHING_RULE_USE_INDEX :
                 MatchingRuleUse[] mrus = parsers.parseMatchingRuleUses( mods );
 
                 for ( MatchingRuleUse mru : mrus )
@@ -522,7 +522,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( DIT_STRUCTURE_RULE_INDEX ):
+            case DIT_STRUCTURE_RULE_INDEX :
                 DitStructureRule[] dsrs = parsers.parseDitStructureRules( mods );
 
                 for ( DitStructureRule dsr : dsrs )
@@ -532,7 +532,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( DIT_CONTENT_RULE_INDEX ):
+            case DIT_CONTENT_RULE_INDEX :
                 DitContentRule[] dcrs = parsers.parseDitContentRules( mods );
 
                 for ( DitContentRule dcr : dcrs )
@@ -542,7 +542,7 @@ public class SchemaSubentryManager
 
                 break;
 
-            case ( NAME_FORM_INDEX ):
+            case NAME_FORM_INDEX :
                 NameForm[] nfs = parsers.parseNameForms( mods );
 
                 for ( NameForm nf : nfs )

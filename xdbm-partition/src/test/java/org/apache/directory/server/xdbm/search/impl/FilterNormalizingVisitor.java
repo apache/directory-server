@@ -23,8 +23,6 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.*;
@@ -228,24 +226,13 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * @param value The value to normalize
      * @return the normalized value
      */
-    private Value<?> normalizeValue( String attribute, Value<?> value )
+    private Value normalizeValue( String attribute, String value )
     {
         try
         {
-            Value<?> normalized = null;
-
             AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( attribute );
 
-            if ( attributeType.getSyntax().isHumanReadable() )
-            {
-                normalized = new StringValue( ( String ) ncn.normalizeByName( attribute, value.getString() ) );
-            }
-            else
-            {
-                normalized = new BinaryValue( ( byte[] ) ncn.normalizeByName( attribute, value.getBytes() ) );
-            }
-
-            return normalized;
+            return new Value( attributeType, value );
         }
         catch ( LdapException ne )
         {
@@ -289,7 +276,16 @@ public class FilterNormalizingVisitor implements FilterVisitor
             return null;
         }
 
-        Value<?> normalized = normalizeValue( node.getAttribute(), node.getValue() );
+        Value normalized;
+        
+        if ( node.getValue().isSchemaAware() )
+        {
+            normalized = node.getValue();
+        }
+        else
+        {
+            normalized = normalizeValue( node.getAttribute(), node.getValue().getValue() );
+        }
 
         if ( normalized == null )
         {
@@ -319,12 +315,14 @@ public class FilterNormalizingVisitor implements FilterVisitor
         {
             return null;
         }
+        
+        String nodeAttribute = node.getAttribute();
 
-        Value<?> normInitial = null;
+        Value normInitial = null;
 
         if ( node.getInitial() != null )
         {
-            normInitial = normalizeValue( node.getAttribute(), new StringValue( node.getInitial() ) );
+            normInitial = normalizeValue( nodeAttribute, node.getInitial() );
 
             if ( normInitial == null )
             {
@@ -340,11 +338,11 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             for ( String any : node.getAny() )
             {
-                Value<?> normAny = normalizeValue( node.getAttribute(), new StringValue( any ) );
+                Value normAny = normalizeValue( nodeAttribute, any );
 
                 if ( normAny != null )
                 {
-                    normAnys.add( normAny.getString() );
+                    normAnys.add( normAny.getValue() );
                 }
             }
 
@@ -354,11 +352,11 @@ public class FilterNormalizingVisitor implements FilterVisitor
             }
         }
 
-        Value<?> normFinal = null;
+        Value normFinal = null;
 
         if ( node.getFinal() != null )
         {
-            normFinal = normalizeValue( node.getAttribute(), new StringValue( node.getFinal() ) );
+            normFinal = normalizeValue( nodeAttribute, node.getFinal() );
 
             if ( normFinal == null )
             {
@@ -370,7 +368,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         if ( normInitial != null )
         {
-            node.setInitial( normInitial.getString() );
+            node.setInitial( normInitial.getValue() );
         }
         else
         {
@@ -381,7 +379,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         if ( normFinal != null )
         {
-            node.setFinal( normFinal.getString() );
+            node.setFinal( normFinal.getValue() );
         }
         else
         {

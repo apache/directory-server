@@ -61,15 +61,16 @@ public class LookupPerfIT extends AbstractLdapTestUnit
 
         assertNotNull( entry );
 
-        int nbIterations = 1500000;
+        long nbIterations = 15000000L;
+        long nbWarming =     5000000L;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
 
-        for ( int i = 0; i < nbIterations; i++ )
+        for ( long i = 0L; i < nbIterations; i++ )
         {
-            if ( i % 100000 == 0 )
+            if ( i % 1000000L == 0L )
             {
                 long tt1 = System.currentTimeMillis();
 
@@ -77,7 +78,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
 
-            if ( i == 500000 )
+            if ( i == nbWarming )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -88,7 +89,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta all user attrs: " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta all user attrs: " + deltaWarmed + "( " + ( ( ( ( nbIterations - nbWarming ) * 1000L ) / deltaWarmed ) )
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
@@ -181,15 +182,16 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     
         assertNotNull( entry );
     
-        int nbIterations = 1500000;
+        long nbIterations = 15000000L;
+        long nbWarming =     5000000L;
     
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
     
-        for ( int i = 0; i < nbIterations; i++ )
+        for ( long i = 0L; i < nbIterations; i++ )
         {
-            if ( i % 100000 == 0 )
+            if ( i % 1000000L == 0L )
             {
                 long tt1 = System.currentTimeMillis();
     
@@ -197,7 +199,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
     
-            if ( i == 500000 )
+            if ( i == nbWarming )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -207,8 +209,8 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     
         long t1 = System.currentTimeMillis();
     
-        Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta rootDSE all user attrs : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+        long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta rootDSE all user attrs : " + deltaWarmed + "( " + ( ( ( ( nbIterations - nbWarming ) * 1000L ) / deltaWarmed ) )
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }
@@ -227,15 +229,16 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     
         assertNotNull( entry );
     
-        int nbIterations = 1500000;
+        long nbIterations = 15000000L;
+        long nbWarming =     5000000L;
     
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
         long tt0 = System.currentTimeMillis();
     
-        for ( int i = 0; i < nbIterations; i++ )
+        for ( long i = 0L; i < nbIterations; i++ )
         {
-            if ( i % 100000 == 0 )
+            if ( i % 1000000L == 0 )
             {
                 long tt1 = System.currentTimeMillis();
     
@@ -243,7 +246,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
                 tt0 = tt1;
             }
     
-            if ( i == 500000 )
+            if ( i == nbWarming )
             {
                 t00 = System.currentTimeMillis();
             }
@@ -254,7 +257,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
     
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta rootDSE all attrs : " + deltaWarmed + "( " + ( ( ( nbIterations - 500000 ) * 1000 ) / deltaWarmed )
+        System.out.println( "Delta rootDSE all attrs : " + deltaWarmed + "( " + ( ( ( ( nbIterations - nbWarming ) * 1000L ) / deltaWarmed ) )
             + " per s ) /" + ( t1 - t0 ) );
         connection.close();
     }

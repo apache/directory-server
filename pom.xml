@@ -46,7 +46,7 @@
     <additionalparam>-Xdoclint:none</additionalparam>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>1.0.0-M34-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.0.0-M1-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>0.3</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
@@ -55,18 +55,17 @@
     
     <!-- Set versions for depending jars -->
     <ant.version>1.9.6</ant.version>
-    <bcprov.version>1.54</bcprov.version>
+    <bcprov.version>1.53</bcprov.version>
     <commons.cli.version>1.3.1</commons.cli.version>
     <commons.collections.version>3.2.2</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
-    <commons.io.version>2.4</commons.io.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.net.version>3.4</commons.net.version>
     <commons.pool.version>1.6</commons.pool.version>
     <dnsjava.version>2.1.7</dnsjava.version>
     <ehcache.version>2.8.5</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
-    <jetty.version>6.1.26</jetty.version>
+    <jetty.version>9.2.16.v20160414</jetty.version>
     <junit.version>4.12</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
@@ -138,7 +137,7 @@
     <module>kerberos-client</module>
     <module>service</module>
     <module>wrapper</module>
-    <module>installers-maven-plugin</module>
+    <!-- module>installers-maven-plugin</module -->
     <module>installers</module>
     <!--module>bulkloader</module-->
     <!--Uncomment to build OSGi-related bundles-->
@@ -1046,12 +1045,6 @@
       <!-- Commons dependencies -->
       
       <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons.io.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <version>${commons.collections.version}</version>
@@ -1220,23 +1213,11 @@
       </dependency>
 
       <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty</artifactId>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-webapp</artifactId>
         <version>${jetty.version}</version>
       </dependency>
     
-      <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>servlet-api-2.5</artifactId>
-        <version>6.1.14</version>
-      </dependency>
-    
-      <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty-util</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>findbugs</groupId>
         <artifactId>annotations</artifactId>

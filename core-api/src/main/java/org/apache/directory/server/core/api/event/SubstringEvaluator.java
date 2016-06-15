@@ -97,9 +97,9 @@ public class SubstringEvaluator implements Evaluator
          * substring matching rule.
          */
 
-        for ( Value<?> value : attr )
+        for ( Value value : attr )
         {
-            String normValue = normalizer.normalize( value.getString() );
+            String normValue = normalizer.normalize( value.getValue() );
 
             // Once match is found cleanup and return true
 

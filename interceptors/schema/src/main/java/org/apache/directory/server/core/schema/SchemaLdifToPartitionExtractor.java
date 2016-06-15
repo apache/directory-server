@@ -38,7 +38,6 @@ import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.ldif.LdapLdifException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -60,10 +59,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
 {
-
-    /** The base path. */
-    private static final String BASE_PATH = "";
-
     /** The logger. */
     private static final Logger LOG = LoggerFactory.getLogger( SchemaLdifToPartitionExtractor.class );
 
@@ -114,6 +109,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
      *
      * @return true if schema has already been added to the schema partition
      */
+    @Override
     public boolean isExtracted()
     {
         return extracted;
@@ -123,12 +119,13 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void extractOrCopy( boolean overwrite ) throws IOException
     {
         Map<String, Boolean> resources = ResourceMap.getResources( EXTRACT_PATTERN );
 
         // must sort the map to ensure parent entries are added before children
-        resources = new TreeMap<String, Boolean>( resources );
+        resources = new TreeMap<>( resources );
 
         if ( !extracted || overwrite )
         {
@@ -153,6 +150,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void extractOrCopy() throws IOException
     {
         extractOrCopy( false );
@@ -245,16 +243,13 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
                 ldifReader.close();
             }
 
-            // inject the entry
-            Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
-            AddOperationContext addContext = new AddOperationContext( null, entry );
-            partition.add( addContext );
-        }
-        catch ( LdapLdifException ne )
-        {
-            String msg = I18n.err( I18n.ERR_08004, source, ne.getLocalizedMessage() );
-            LOG.error( msg );
-            throw new InvalidObjectException( msg );
+            // inject the entry if any
+            if ( ldifEntry != null )
+            {
+                Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
+                AddOperationContext addContext = new AddOperationContext( null, entry );
+                partition.add( addContext );
+            }
         }
         catch ( LdapException ne )
         {

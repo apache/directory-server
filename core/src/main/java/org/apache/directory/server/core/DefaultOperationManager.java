@@ -41,6 +41,7 @@ import org.apache.directory.api.ldap.model.exception.LdapURLEncodingException;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.url.LdapUrl;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -219,10 +220,10 @@ public class DefaultOperationManager implements OperationManager
         try
         {
             // manage each Referral, building the correct URL for each of them
-            for ( Value<?> url : refs )
+            for ( Value url : refs )
             {
                 // we have to replace the parent by the referral
-                LdapUrl ldapUrl = new LdapUrl( url.getString() );
+                LdapUrl ldapUrl = new LdapUrl( url.getValue() );
 
                 // We have a problem with the Dn : we can't use the UpName,
                 // as we may have some spaces around the ',' and '+'.
@@ -259,12 +260,12 @@ public class DefaultOperationManager implements OperationManager
         List<String> urls = new ArrayList<String>();
 
         // manage each Referral, building the correct URL for each of them
-        for ( Value<?> url : refs )
+        for ( Value url : refs )
         {
             // we have to replace the parent by the referral
             try
             {
-                LdapUrl ldapUrl = new LdapUrl( url.getString() );
+                LdapUrl ldapUrl = new LdapUrl( url.getValue() );
 
                 StringBuilder urlString = new StringBuilder();
 
@@ -309,7 +310,7 @@ public class DefaultOperationManager implements OperationManager
             catch ( LdapURLEncodingException luee )
             {
                 // The URL is not correct, returns it as is
-                urls.add( url.getString() );
+                urls.add( url.getValue() );
             }
         }
 
@@ -355,7 +356,12 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the addContext Dn
         Dn dn = addContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
+        
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            addContext.setDn( dn );
+        }
 
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
@@ -435,6 +441,15 @@ public class DefaultOperationManager implements OperationManager
         // Call the Delete method
         Interceptor head = directoryService.getInterceptor( bindContext.getNextInterceptor() );
 
+        // Normalize the addContext Dn
+        Dn dn = bindContext.getDn();
+        
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            bindContext.setDn( dn );
+        }
+
         lockRead();
 
         try
@@ -476,9 +491,15 @@ public class DefaultOperationManager implements OperationManager
         }
 
         ensureStarted();
+        
         // Normalize the compareContext Dn
         Dn dn = compareContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            compareContext.setDn( dn );
+        }
 
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
@@ -581,7 +602,12 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the deleteContext Dn
         Dn dn = deleteContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            deleteContext.setDn( dn );
+        }
 
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
@@ -722,6 +748,15 @@ public class DefaultOperationManager implements OperationManager
 
         lockRead();
 
+        // Normalize the addContext Dn
+        Dn dn = hasEntryContext.getDn();
+        
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            hasEntryContext.setDn( dn );
+        }
+
         try
         {
             result = head.hasEntry( hasEntryContext );
@@ -767,6 +802,15 @@ public class DefaultOperationManager implements OperationManager
         Interceptor head = directoryService.getInterceptor( lookupContext.getNextInterceptor() );
 
         Entry entry = null;
+
+        // Normalize the modifyContext Dn
+        Dn dn = lookupContext.getDn();
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            lookupContext.setDn( dn );
+        }
 
         lockRead();
 
@@ -814,7 +858,12 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the modifyContext Dn
         Dn dn = modifyContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            modifyContext.setDn( dn );
+        }
 
         ReferralManager referralManager = directoryService.getReferralManager();
 
@@ -923,11 +972,21 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the moveContext Dn
         Dn dn = moveContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            moveContext.setDn( dn );
+        }
 
         // Normalize the moveContext superior Dn
         Dn newSuperiorDn = moveContext.getNewSuperior();
-        newSuperiorDn.apply( directoryService.getSchemaManager() );
+
+        if ( !newSuperiorDn.isSchemaAware() )
+        {
+            newSuperiorDn = new Dn( directoryService.getSchemaManager(), newSuperiorDn );
+            moveContext.setNewSuperior( newSuperiorDn );
+        }
 
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
@@ -1042,7 +1101,12 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the moveAndRenameContext Dn
         Dn dn = moveAndRenameContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            moveAndRenameContext.setDn( dn );
+        }
 
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
@@ -1090,7 +1154,12 @@ public class DefaultOperationManager implements OperationManager
             // Now, check the destination
             // Normalize the moveAndRenameContext Dn
             Dn newSuperiorDn = moveAndRenameContext.getNewSuperiorDn();
-            newSuperiorDn.apply( directoryService.getSchemaManager() );
+
+            if ( !newSuperiorDn.isSchemaAware() )
+            {
+                newSuperiorDn = new Dn( directoryService.getSchemaManager(), newSuperiorDn );
+                moveAndRenameContext.setNewSuperiorDn( newSuperiorDn );
+            }
 
             // If he parent Dn is a referral, or has a referral ancestor, we have to issue a AffectMultipleDsas result
             // as stated by RFC 3296 Section 5.6.2
@@ -1161,13 +1230,26 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the renameContext Dn
         Dn dn = renameContext.getDn();
-        dn.apply( directoryService.getSchemaManager() );
+
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            renameContext.setDn( dn );
+        }
 
         // Inject the newDn into the operation context
         // Inject the new Dn into the context
         if ( !dn.isEmpty() )
         {
             Dn newDn = dn.getParent();
+            Rdn newRdn = renameContext.getNewRdn();
+            
+            if ( !newRdn.isSchemaAware() )
+            {
+                newRdn = new Rdn( directoryService.getSchemaManager(), newRdn );
+                renameContext.setNewRdn( newRdn );
+            }
+            
             newDn = newDn.add( renameContext.getNewRdn() );
             renameContext.setNewDn( newDn );
         }
@@ -1277,7 +1359,11 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the searchContext Dn
         Dn dn = searchContext.getDn();
 
-        dn.apply( directoryService.getSchemaManager() );
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( directoryService.getSchemaManager(), dn );
+            searchContext.setDn( dn );
+        }
 
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();

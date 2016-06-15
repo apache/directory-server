@@ -82,12 +82,20 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public GreaterEqNode getExpression()
     {
         return ( GreaterEqNode ) node;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
@@ -153,6 +161,10 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( Entry entry ) throws Exception
     {
         // get the attribute
@@ -205,14 +217,13 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
          */
         for ( Value value : attribute )
         {
-            //noinspection unchecked
-            if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) >= 0 )
+            if ( ldapComparator.compare( value.getNormalized(), node.getValue().getNormalized() ) >= 0 )
             {
                 if ( indexEntry != null )
                 {
-                    indexEntry.setKey( value.getNormValue() );
+                    indexEntry.setKey( value.getValue() );
                 }
-
+                
                 return true;
             }
         }
@@ -224,6 +235,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -237,6 +249,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return toString( "" );

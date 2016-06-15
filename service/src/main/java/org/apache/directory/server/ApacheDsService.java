@@ -207,7 +207,7 @@ public class ApacheDsService
         LOG.info( "Registering config change listener" );
         ConfigChangeListener configListener = new ConfigChangeListener( cpReader, directoryService );
 
-        NotificationCriteria criteria = new NotificationCriteria();
+        NotificationCriteria criteria = new NotificationCriteria( directoryService.getSchemaManager() );
         criteria.setBase( configPartition.getSuffixDn() );
         criteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
         

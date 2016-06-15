@@ -76,6 +76,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void initialize() throws LdapException
     {
         if ( initialized )
@@ -113,6 +114,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void repair() throws Exception
     {
         // Do nothing. It will be handled by the implementation classes
@@ -146,6 +148,7 @@ public abstract class AbstractPartition implements Partition
      * and clears default properties.  Once this method is invoked, {@link #isInitialized()}
      * will return <tt>false</tt>.
      */
+    @Override
     public final void destroy() throws Exception
     {
         try
@@ -162,6 +165,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public final boolean isInitialized()
     {
         return initialized;
@@ -171,6 +175,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setSchemaManager( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
@@ -180,6 +185,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public final SchemaManager getSchemaManager()
     {
         return schemaManager;
@@ -189,6 +195,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public final String getId()
     {
         return id;
@@ -198,6 +205,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setId( String id )
     {
         checkInitialized( "id" );
@@ -208,6 +216,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public final Dn getSuffixDn()
     {
         return suffixDn;
@@ -217,19 +226,26 @@ public abstract class AbstractPartition implements Partition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setSuffixDn( Dn suffixDn ) throws LdapInvalidDnException
     {
         checkInitialized( "suffixDn" );
 
-        this.suffixDn = suffixDn;
-
-        this.suffixDn.apply( schemaManager );
+        if ( suffixDn.isSchemaAware() )
+        {
+            this.suffixDn = suffixDn;
+        }
+        else
+        {
+            this.suffixDn = new Dn( schemaManager, this.suffixDn );
+        }
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void dumpIndex( OutputStream stream, String name ) throws IOException
     {
         stream.write( Strings.getBytesUtf8( "Nothing to dump for index " + name ) );

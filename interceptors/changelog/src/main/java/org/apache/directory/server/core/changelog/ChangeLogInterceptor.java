@@ -92,6 +92,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
      * The init method will initialize the local variables and load the
      * entryDeleted AttributeType.
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -108,6 +109,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         next( addContext );
@@ -147,6 +149,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         // @todo make sure we're not putting in operational attributes that cannot be user modified
@@ -198,11 +201,12 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Entry serverEntry = null;
         Modification modification = ServerEntryUtils.getModificationItem( modifyContext.getModItems(), entryDeleted );
-        boolean isDelete = ( modification != null );
+        boolean isDelete = modification != null;
 
         if ( !isDelete && ( changeLog.isEnabled() ) )
         {
@@ -211,7 +215,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         }
 
         // Duplicate modifications so that the reverse does not contain the operational attributes
-        List<Modification> clonedMods = new ArrayList<Modification>();
+        List<Modification> clonedMods = new ArrayList<>();
 
         for ( Modification mod : modifyContext.getModItems() )
         {
@@ -230,7 +234,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
             // existing attributes then we will have no modification items and
             // should ignore not this without registering it with the changelog
 
-            || modifyContext.getModItems().size() == 0 )
+            || modifyContext.getModItems().isEmpty() )
         {
             if ( isDelete )
             {
@@ -244,7 +248,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.Modify );
         forward.setDn( modifyContext.getDn() );
 
-        List<Modification> mods = new ArrayList<Modification>( clonedMods.size() );
+        List<Modification> mods = new ArrayList<>( clonedMods.size() );
 
         for ( Modification modItem : clonedMods )
         {
@@ -273,6 +277,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         next( moveContext );
@@ -295,6 +300,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry serverEntry = null;
@@ -337,6 +343,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Entry serverEntry = null;

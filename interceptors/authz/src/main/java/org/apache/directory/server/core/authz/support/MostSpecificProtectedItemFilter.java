@@ -50,6 +50,10 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
  */
 public class MostSpecificProtectedItemFilter implements ACITupleFilter
 {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {
@@ -58,7 +62,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
             return aciContext.getAciTuples();
         }
 
-        Collection<ACITuple> filteredTuples = new ArrayList<ACITuple>();
+        Collection<ACITuple> filteredTuples = new ArrayList<>();
 
         // If the protected item is an attribute and there are tuples that
         // specify the attribute type explicitly, discard all other tuples.
@@ -75,7 +79,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
             }
         }
 
-        if ( filteredTuples.size() > 0 )
+        if ( !filteredTuples.isEmpty() )
         {
             return filteredTuples;
         }
@@ -95,7 +99,7 @@ public class MostSpecificProtectedItemFilter implements ACITupleFilter
             }
         }
 
-        if ( filteredTuples.size() > 0 )
+        if ( !filteredTuples.isEmpty() )
         {
             return filteredTuples;
         }

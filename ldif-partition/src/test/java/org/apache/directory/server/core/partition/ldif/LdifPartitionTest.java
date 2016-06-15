@@ -28,7 +28,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -63,6 +67,8 @@ import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
@@ -142,7 +148,7 @@ public class LdifPartitionTest
         // initialize the partition
         partition = new LdifPartition( schemaManager, dnFactory );
         partition.setId( "test-ldif" );
-        partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
+        partition.setSuffixDn( new Dn( schemaManager, "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
         partition.setPartitionPath( wkdir.toURI() );
 
@@ -409,8 +415,7 @@ public class LdifPartitionTest
 
         SearchOperationContext searchCtx = new SearchOperationContext( session );
 
-        Dn dn = new Dn( "dc=test,ou=test,ou=system" );
-        dn.apply( schemaManager );
+        Dn dn = new Dn( schemaManager, "dc=test,ou=test,ou=system" );
         searchCtx.setDn( dn );
         ExprNode filter = FilterParser.parse( schemaManager, "(ObjectClass=domain)" );
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
@@ -423,10 +428,10 @@ public class LdifPartitionTest
 
         assertNotNull( cursor );
 
-        Set<String> expectedDns = new HashSet<String>();
-        expectedDns.add( entry1.getDn().getNormName() );
-        expectedDns.add( entry2.getDn().getNormName() );
-        expectedDns.add( entry3.getDn().getNormName() );
+        Set<Dn> expectedDns = new HashSet<>();
+        expectedDns.add( entry1.getDn() );
+        expectedDns.add( entry2.getDn() );
+        expectedDns.add( entry3.getDn() );
 
         cursor.beforeFirst();
         int nbRes = 0;
@@ -437,7 +442,7 @@ public class LdifPartitionTest
             assertNotNull( entry );
             nbRes++;
 
-            expectedDns.remove( entry.getDn().getNormName() );
+            expectedDns.remove( entry.getDn() );
         }
 
         assertEquals( 3, nbRes );
@@ -484,7 +489,7 @@ public class LdifPartitionTest
 
         Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
+        Rdn newRdn = new Rdn( schemaManager, SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, true );
         partition.rename( renameOpCtx );
 
@@ -511,7 +516,7 @@ public class LdifPartitionTest
 
         Dn childDn1 = new Dn( schemaManager, "dc=child1,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( "dc=renamedChild1" );
+        Rdn newRdn = new Rdn( schemaManager, "dc=renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, false );
         partition.rename( renameOpCtx );
 
@@ -532,7 +537,7 @@ public class LdifPartitionTest
         // the renamed LDIF must contain the old an new Rdn attribute
         String content = FileUtils.readFileToString( new File( wkdir, "ou=test,ou=system/dc=renamedchild1.ldif" ) );
         assertFalse( content.contains( "dc: child1" ) );
-        assertTrue( content.contains( "dc: renamedchild1" ) );
+        assertTrue( content.contains( "dc: renamedChild1" ) );
     }
 
 
@@ -545,9 +550,28 @@ public class LdifPartitionTest
 
         Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        Rdn newRdn = new Rdn( schemaManager, "dc=movedChild1" );
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
             childDn2, newRdn, true );
+        
+        Entry originalEntry = partition.lookup( new LookupOperationContext( session, childDn1 ) );
+        Entry modifiedEntry = originalEntry.clone();
+        modifiedEntry.remove( "dc", "child1" );
+        modifiedEntry.add( "dc", "movedChild1" );
+
+        moveAndRenameOpCtx.setEntry( originalEntry );
+        moveAndRenameOpCtx.setModifiedEntry( modifiedEntry );
+        
+        // The dc=movedChild1 RDN that will be added. The dc=child1 Ryan RDN will be removed
+        Map<String, List<ModDnAva>> modDnAvas = new HashMap<>();
+
+        List<ModDnAva> modAvas = new ArrayList<>();
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.ADD, newRdn.getAva() ) );
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.DELETE, childDn1.getRdn().getAva()) );
+        modDnAvas.put( SchemaConstants.DOMAIN_COMPONENT_AT_OID, modAvas );
+        
+        moveAndRenameOpCtx.setModifiedAvas( modDnAvas );
+        
         partition.moveAndRename( moveAndRenameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
@@ -575,9 +599,29 @@ public class LdifPartitionTest
 
         Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( "dc=movedChild1" );
+        Rdn newRdn = new Rdn( schemaManager, "dc=movedChild1" );
+
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
-            childDn2, newRdn, false );
+            childDn2, newRdn, true );
+        
+        Entry originalEntry = partition.lookup( new LookupOperationContext( session, childDn1 ) );
+        Entry modifiedEntry = originalEntry.clone();
+        modifiedEntry.remove( "dc", "child1" );
+        modifiedEntry.add( "dc", "movedChild1" );
+
+        moveAndRenameOpCtx.setEntry( originalEntry );
+        moveAndRenameOpCtx.setModifiedEntry( modifiedEntry );
+        
+        // The dc=movedChild1 RDN that will be added. The dc=child1 Ryan RDN will be removed
+        Map<String, List<ModDnAva>> modDnAvas = new HashMap<>();
+
+        List<ModDnAva> modAvas = new ArrayList<>();
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.ADD, newRdn.getAva() ) );
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.DELETE, childDn1.getRdn().getAva() ) );
+        modDnAvas.put( SchemaConstants.DOMAIN_COMPONENT_AT_OID, modAvas );
+        
+        moveAndRenameOpCtx.setModifiedAvas( modDnAvas );
+
         partition.moveAndRename( moveAndRenameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
@@ -594,11 +638,11 @@ public class LdifPartitionTest
         assertTrue( new File( wkdir,
             "ou=test,ou=system/dc=child2/dc=movedchild1/dc=grandchild11/dc=greatgrandchild111.ldif" ).exists() );
 
-        // the renamed LDIF must contain the old an new Rdn attribute
+        // the renamed LDIF must not contain the old an new Rdn attribute, because DC is single value
         String content = FileUtils
             .readFileToString( new File( wkdir, "ou=test,ou=system/dc=child2/dc=movedchild1.ldif" ) );
         assertFalse( content.contains( "dc: child1" ) );
-        assertTrue( content.contains( "dc: movedchild1" ) );
+        assertTrue( content.contains( "dc: movedChild1" ) );
     }
 
 

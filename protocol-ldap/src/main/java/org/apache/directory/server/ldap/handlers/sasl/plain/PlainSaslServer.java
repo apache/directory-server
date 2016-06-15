@@ -28,7 +28,7 @@ import javax.security.sasl.SaslException;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.BindRequest;
@@ -56,7 +56,7 @@ import org.apache.directory.server.ldap.handlers.sasl.AbstractSaslServer;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PlainSaslServer extends AbstractSaslServer
+public final class PlainSaslServer extends AbstractSaslServer
 {
     /** The authzid property stored into the LdapSession instance */
     public static final String SASL_PLAIN_AUTHZID = "authzid";
@@ -89,7 +89,6 @@ public class PlainSaslServer extends AbstractSaslServer
 
     /** The current negotiation state */
     private NegotiationState state;
-
 
     /**
      * 
@@ -179,7 +178,7 @@ public class PlainSaslServer extends AbstractSaslServer
                             {
                                 case AUTHZID_EXPECTED:
                                     element = InitialResponse.AUTHCID_EXPECTED;
-                                    authzId = PrepareString.normalize( value, PrepareString.StringType.CASE_EXACT_IA5 );
+                                    authzId = PrepareString.normalize( value );
                                     end++;
                                     start = end;
                                     break;
@@ -187,7 +186,7 @@ public class PlainSaslServer extends AbstractSaslServer
                                 case AUTHCID_EXPECTED:
                                     element = InitialResponse.PASSWORD_EXPECTED;
                                     authcId = PrepareString
-                                        .normalize( value, PrepareString.StringType.DIRECTORY_STRING );
+                                        .normalize( value );
                                     end++;
                                     start = end;
                                     break;
@@ -212,7 +211,7 @@ public class PlainSaslServer extends AbstractSaslServer
                 start++;
                 String value = Strings.utf8ToString( initialResponse, start, end - start + 1 );
 
-                password = PrepareString.normalize( value, PrepareString.StringType.CASE_EXACT_IA5 );
+                password = PrepareString.normalize( value );
 
                 if ( ( authcId == null ) || ( password == null ) )
                 {
@@ -264,7 +263,7 @@ public class PlainSaslServer extends AbstractSaslServer
 
         // first, we have to find the entries which has the uid value
         EqualityNode<String> filter = new EqualityNode<String>(
-            directoryService.getSchemaManager().getAttributeType( SchemaConstants.UID_AT ), new StringValue( user ) );
+            directoryService.getSchemaManager().getAttributeType( SchemaConstants.UID_AT ), new Value( user ) );
 
         SearchOperationContext searchContext = new SearchOperationContext( directoryService.getAdminSession() );
         searchContext.setDn( directoryService.getDnFactory().create( ldapServer.getSearchBaseDn() ) );

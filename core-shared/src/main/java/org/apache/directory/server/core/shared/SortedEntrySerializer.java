@@ -208,9 +208,7 @@ public class SortedEntrySerializer implements Serializer
                 LOG.debug( "Serialize " + entry );
             }
 
-            byte[] bytes = baos.toByteArray();
-
-            return bytes;
+            return baos.toByteArray();
         }
         catch ( Exception e )
         {

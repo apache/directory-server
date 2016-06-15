@@ -34,6 +34,7 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -505,9 +506,10 @@ public class ConfigWriter
      * @throws LdapInvalidDnException
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
+     * @throws LdapInvalidAttributeValueException 
      */
     private Dn getDn( Dn baseDn, AdsBaseBean bean ) throws LdapInvalidDnException, IllegalArgumentException,
-        IllegalAccessException
+        IllegalAccessException, LdapInvalidAttributeValueException
     {
         // Getting the class of the bean
         Class<?> beanClass = bean.getClass();

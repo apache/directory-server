@@ -72,6 +72,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
@@ -97,6 +98,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -145,7 +147,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
      */
     private List<SchemaObject> checkInUse( String oid )
     {
-        List<SchemaObject> dependees = new ArrayList<SchemaObject>();
+        List<SchemaObject> dependees = new ArrayList<>();
 
         for ( AttributeType attributeType : schemaManager.getAttributeTypeRegistry() )
         {
@@ -196,6 +198,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -222,7 +225,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         // Test that the Oid exists
         LdapSyntax syntax = ( LdapSyntax ) checkOidExists( entry );
 
-        List<Throwable> errors = new ArrayList<Throwable>();
+        List<Throwable> errors = new ArrayList<>();
 
         if ( schema.isEnabled() && syntax.isEnabled() )
         {
@@ -249,6 +252,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String oldOid = getOid( entry );
@@ -257,15 +261,15 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         // Check that this syntax is not used by an AttributeType
         List<SchemaObject> dependees = checkInUse( oldOid );
 
-        if ( dependees.size() != 0 )
+        if ( !dependees.isEmpty() )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_401,
                 oldOid,
                 getNames( dependees ) ) );
         }
 
-        Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRdn.getNormValue();
+        Entry targetEntry = entry.clone();
+        String newOid = newRdn.getValue();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -287,6 +291,10 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
@@ -298,14 +306,14 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         // Check that this syntax is not used by an AttributeType
         List<SchemaObject> dependees = checkInUse( oldOid );
 
-        if ( dependees.size() != 0 )
+        if ( !dependees.isEmpty() )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
                 I18n.err( I18n.ERR_401, oldOid, getNames( dependees ) ) );
         }
 
-        Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRn.getNormValue();
+        Entry targetEntry = entry.clone();
+        String newOid = newRn.getValue();
         checkOidIsUnique( newOid );
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -333,25 +341,16 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
-
-        // schema dep check before delete to be handled by the SchemaPartition
-        //        
-        //        Set<Entry> dependees = dao.listSyntaxDependents( oid );
-        //        
-        //        if ( dependees != null && dependees.size() > 0 )
-        //        {
-        //            throw new LdapUnwillingToPerformException( "The syntax with OID " + oid 
-        //                + " cannot be deleted until all entities" 
-        //                + " using this syntax have also been deleted.  The following dependees exist: " 
-        //                + getOids( dependees ), 
-        //                ResultCodeEnum.UNWILLING_TO_PERFORM );
-        //        }
 
         LdapSyntax syntax = factory.getSyntax( schemaManager, entry, schemaManager.getRegistries(),
             getSchemaName( newParentName ) );
@@ -391,7 +390,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_403 ) );
         }
 
-        if ( !rdn.getNormValue().equalsIgnoreCase( "syntaxes" ) )
+        if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.SYNTAXES ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_363 ) );
         }

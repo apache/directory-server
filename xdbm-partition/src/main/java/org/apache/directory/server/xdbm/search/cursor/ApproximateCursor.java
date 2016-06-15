@@ -88,12 +88,12 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
         this.approximateEvaluator = approximateEvaluator;
 
         AttributeType attributeType = approximateEvaluator.getExpression().getAttributeType();
-        Value<V> value = approximateEvaluator.getExpression().getValue();
+        Value value = approximateEvaluator.getExpression().getValue();
 
         if ( store.hasIndexOn( attributeType ) )
         {
             Index<V, String> index = ( Index<V, String> ) store.getIndex( attributeType );
-            userIdxCursor = index.forwardCursor( value.getValue() );
+            userIdxCursor = index.forwardCursor( ( V ) value.getValue() );
             uuidIdxCursor = null;
         }
         else

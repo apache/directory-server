@@ -27,7 +27,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -86,7 +86,7 @@ public class StoredProcExecutionManager
         AttributeType storeProcUnitNamAT = session.getDirectoryService()
             .getSchemaManager().lookupAttributeTypeRegistry( "storedProcUnitName" );
         ExprNode filter = new EqualityNode<String>( storeProcUnitNamAT,
-            new StringValue( storeProcUnitNamAT, spUnitName ) );
+            new Value( storeProcUnitNamAT, spUnitName ) );
         Dn dn = session.getDirectoryService().getDnFactory().create( storedProcContainer );
         Cursor<Entry> results = session.search( dn, SearchScope.SUBTREE, filter,
             AliasDerefMode.DEREF_ALWAYS );
@@ -113,7 +113,7 @@ public class StoredProcExecutionManager
      */
     public StoredProcEngine getStoredProcEngineInstance( Entry spUnitEntry ) throws LdapException
     {
-        String spLangId = ( String ) ( ( ClonedServerEntry ) spUnitEntry ).getOriginalEntry().get( "storedProcLangId" )
+        String spLangId = ( ( ClonedServerEntry ) spUnitEntry ).getOriginalEntry().get( "storedProcLangId" )
             .getString();
 
         for ( StoredProcEngineConfig engineConfig : storedProcEngineConfigs )

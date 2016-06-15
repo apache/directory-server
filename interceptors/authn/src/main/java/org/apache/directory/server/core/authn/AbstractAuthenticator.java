@@ -109,6 +109,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * {@inheritDoc}
      */
+    @Override
     public AuthenticationLevel getAuthenticatorType()
     {
         return authenticatorType;
@@ -121,6 +122,7 @@ public abstract class AbstractAuthenticator implements Authenticator
      * @param directoryService the directory core for this authenticator
      * @throws LdapException if there is a problem starting up the authenticator
      */
+    @Override
     public final void init( DirectoryService directoryService ) throws LdapException
     {
         this.directoryService = directoryService;
@@ -141,6 +143,7 @@ public abstract class AbstractAuthenticator implements Authenticator
      * (<tt>factoryConfiguration</tt> and <tt>configuration</tt>).
      * Please put your deinitialization code into {@link #doDestroy()}.
      */
+    @Override
     public final void destroy()
     {
         try
@@ -165,6 +168,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * Does nothing leaving it so subclasses can override.
      */
+    @Override
     public void invalidateCache( Dn bindDn )
     {
     }
@@ -173,6 +177,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isValid( Dn bindDn )
     {
         // The authenticator is valid if the baseDn is null or if it's a parent of the bindDn
@@ -183,6 +188,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * {@inheritDoc}
      */
+    @Override
     public Dn getBaseDn()
     {
         return baseDn;
@@ -192,6 +198,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setBaseDn( Dn baseDn )
     {
         this.baseDn = baseDn;
@@ -201,6 +208,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * {@inheritDoc}
      */
+    @Override
     public void checkPwdPolicy( Entry userEntry ) throws LdapException
     {
         if ( !directoryService.isPwdPolicyEnabled() )
@@ -223,7 +231,8 @@ public abstract class AbstractAuthenticator implements Authenticator
             if ( accountLockAttr != null )
             {
                 String lockedTime = accountLockAttr.getString();
-                if ( lockedTime.equals( "000001010000Z" ) )
+                
+                if ( "000001010000Z".equals( lockedTime ) )
                 {
                     throw new PasswordPolicyException( "account was permanently locked", ACCOUNT_LOCKED.getValue() );
                 }
@@ -313,13 +322,10 @@ public abstract class AbstractAuthenticator implements Authenticator
                 Attribute pwdGraceUseAttr = userEntry.get( PWD_GRACE_USE_TIME_AT );
 
                 // check for grace authentication count
-                if ( pwdGraceUseAttr != null )
+                if ( ( pwdGraceUseAttr != null ) && ( pwdGraceUseAttr.size() >= pPolicyConfig.getPwdGraceAuthNLimit() ) )
                 {
-                    if ( pwdGraceUseAttr.size() >= pPolicyConfig.getPwdGraceAuthNLimit() )
-                    {
-                        throw new PasswordPolicyException( "password expired and max grace logins were used",
-                            PASSWORD_EXPIRED.getValue() );
-                    }
+                    throw new PasswordPolicyException( "password expired and max grace logins were used",
+                        PASSWORD_EXPIRED.getValue() );
                 }
             }
             else

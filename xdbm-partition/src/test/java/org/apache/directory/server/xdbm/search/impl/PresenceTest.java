@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -76,6 +77,7 @@ public class PresenceTest
     static SchemaManager schemaManager = null;
     private static DnFactory dnFactory;
     private static CacheService cacheService;
+    private static String NORMALIZED_CN_OID;
 
 
     @BeforeClass
@@ -113,6 +115,8 @@ public class PresenceTest
         cacheService = new CacheService();
         cacheService.initialize( null );
         dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        
+        NORMALIZED_CN_OID = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_PRESENCE_AT ).getEquality().getNormalizer().normalize( SchemaConstants.CN_AT_OID );
     }
 
 
@@ -125,6 +129,8 @@ public class PresenceTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
 
+        StoreUtils.createdExtraAttributes( schemaManager );
+        
         // initialize the store
         store = new AvlPartition( schemaManager, dnFactory );
         ( ( Partition ) store ).setId( "example" );
@@ -132,8 +138,8 @@ public class PresenceTest
         store.setPartitionPath( wkdir.toURI() );
         store.setSyncOnWrite( false );
 
-        store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
-        store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID, false ) );
+        store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID, false ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
@@ -174,6 +180,7 @@ public class PresenceTest
         assertEquals( node, evaluator.getExpression() );
 
         cursor.beforeFirst();
+        
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
@@ -198,26 +205,26 @@ public class PresenceTest
         // test first()
         cursor.first();
         assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getKey() );
+        assertEquals( NORMALIZED_CN_OID, cursor.get().getKey() );
 
         // test last()
         cursor.last();
         assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getKey() );
+        assertEquals( NORMALIZED_CN_OID, cursor.get().getKey() );
 
         // test beforeFirst()
         cursor.beforeFirst();
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getKey() );
+        assertEquals( NORMALIZED_CN_OID, cursor.get().getKey() );
 
         // test afterLast()
         cursor.afterLast();
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getKey() );
+        assertEquals( NORMALIZED_CN_OID, cursor.get().getKey() );
 
         // test before()
         IndexEntry<String, String> entry = new IndexEntry<String, String>();
@@ -225,14 +232,14 @@ public class PresenceTest
         cursor.before( entry );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getKey() );
+        assertEquals( NORMALIZED_CN_OID, cursor.get().getKey() );
 
         // test after()
         entry = new IndexEntry<String, String>();
         cursor.after( entry );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( SchemaConstants.CN_AT_OID, cursor.get().getKey() );
+        assertEquals( NORMALIZED_CN_OID, cursor.get().getKey() );
         cursor.close();
 
         node = new PresenceNode( schemaManager.getAttributeType( "ou" ) );

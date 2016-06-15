@@ -65,8 +65,8 @@ public class RelatedUserClassFilterTest
 
     private static Dn GROUP_NAME;
     private static Dn USER_NAME;
-    private static final Set<Dn> USER_NAMES = new HashSet<Dn>();
-    private static final Set<Dn> GROUP_NAMES = new HashSet<Dn>();
+    private static final Set<String> USER_NAMES = new HashSet<>();
+    private static final Set<String> GROUP_NAMES = new HashSet<>();
 
     private static SubtreeEvaluator SUBTREE_EVALUATOR;
 
@@ -91,8 +91,8 @@ public class RelatedUserClassFilterTest
             throw new Error();
         }
 
-        USER_NAMES.add( USER_NAME );
-        GROUP_NAMES.add( GROUP_NAME );
+        USER_NAMES.add( USER_NAME.getNormName() );
+        GROUP_NAMES.add( GROUP_NAME.getNormName() );
     }
 
 
@@ -199,8 +199,8 @@ public class RelatedUserClassFilterTest
 
         assertEquals( 1, filter.filter( aciContext, OperationScope.ENTRY, null ).size() );
 
-        Set<Dn> wrongGroupNames = new HashSet<Dn>();
-        wrongGroupNames.add( new Dn( schemaManager, "ou=unrelatedgroup" ) );
+        Set<String> wrongGroupNames = new HashSet<>();
+        wrongGroupNames.add( new Dn( schemaManager, "ou=unrelatedgroup" ).getNormName() );
 
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
@@ -290,11 +290,11 @@ public class RelatedUserClassFilterTest
         }
         else
         {
-            Set<Dn> names = new HashSet<Dn>();
+            Set<String> names = new HashSet<>();
 
             try
             {
-                names.add( new Dn( schemaManager, "cn=dummy" ) );
+                names.add( new Dn( schemaManager, "cn=dummy" ).getNormName() );
             }
             catch ( LdapInvalidDnException e )
             {

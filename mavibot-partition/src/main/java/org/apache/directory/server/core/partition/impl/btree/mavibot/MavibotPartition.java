@@ -417,7 +417,7 @@ public class MavibotPartition extends AbstractBTreePartition
 
                 if ( entryAttr != null )
                 {
-                    for ( Value<?> value : entryAttr )
+                    for ( Value value : entryAttr )
                     {
                         index.add( value.getValue(), id );
                     }

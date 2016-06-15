@@ -34,7 +34,6 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
@@ -76,7 +75,7 @@ public class TriggerSpecCache
     private static final Logger LOG = LoggerFactory.getLogger( TriggerSpecCache.class );
 
     /** a map of strings to TriggerSpecification collections */
-    private final Map<String, List<TriggerSpecification>> triggerSpecs = new HashMap<String, List<TriggerSpecification>>();
+    private final Map<Dn, List<TriggerSpecification>> triggerSpecs = new HashMap<>();
 
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
@@ -98,6 +97,7 @@ public class TriggerSpecCache
 
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
         {
+            @Override
             public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
             {
                 return schemaManager.getNormalizerMapping();
@@ -122,7 +122,7 @@ public class TriggerSpecCache
         {
             Dn baseDn = directoryService.getDnFactory().create( suffix );
             ExprNode filter = new EqualityNode<String>( objectClassAt,
-                new StringValue( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
+                new Value( objectClassAt, ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
@@ -149,8 +149,14 @@ public class TriggerSpecCache
                         continue;
                     }
 
-                    Dn normSubentryName = subentryDn.apply( directoryService.getSchemaManager() );
-                    subentryAdded( normSubentryName, resultEntry );
+                    Dn normSubentryDn = subentryDn;
+                    
+                    if ( !subentryDn.isSchemaAware() )
+                    {
+                        normSubentryDn = new Dn( directoryService.getSchemaManager(), subentryDn );
+                    }
+                    
+                    subentryAdded( normSubentryDn, resultEntry );
                 }
 
                 results.close();
@@ -182,15 +188,15 @@ public class TriggerSpecCache
             return;
         }
 
-        List<TriggerSpecification> subentryTriggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> subentryTriggerSpecs = new ArrayList<>();
 
-        for ( Value<?> value : triggerSpec )
+        for ( Value value : triggerSpec )
         {
             TriggerSpecification item = null;
 
             try
             {
-                item = triggerSpecParser.parse( value.getString() );
+                item = triggerSpecParser.parse( value.getValue() );
                 subentryTriggerSpecs.add( item );
             }
             catch ( ParseException e )
@@ -201,7 +207,7 @@ public class TriggerSpecCache
 
         }
 
-        triggerSpecs.put( normName.getNormName(), subentryTriggerSpecs );
+        triggerSpecs.put( normName, subentryTriggerSpecs );
     }
 
 
@@ -212,7 +218,7 @@ public class TriggerSpecCache
             return;
         }
 
-        triggerSpecs.remove( normName.toString() );
+        triggerSpecs.remove( normName );
     }
 
 
@@ -241,19 +247,21 @@ public class TriggerSpecCache
     }
 
 
-    public List<TriggerSpecification> getSubentryTriggerSpecs( String subentryDn )
+    public List<TriggerSpecification> getSubentryTriggerSpecs( Dn subentryDn )
     {
         List<TriggerSpecification> subentryTriggerSpecs = triggerSpecs.get( subentryDn );
+        
         if ( subentryTriggerSpecs == null )
         {
             return Collections.emptyList();
         }
+        
         return Collections.unmodifiableList( subentryTriggerSpecs );
     }
 
 
     public void subentryRenamed( Dn oldName, Dn newName )
     {
-        triggerSpecs.put( newName.getNormName(), triggerSpecs.remove( oldName.getNormName() ) );
+        triggerSpecs.put( newName, triggerSpecs.remove( oldName ) );
     }
 }

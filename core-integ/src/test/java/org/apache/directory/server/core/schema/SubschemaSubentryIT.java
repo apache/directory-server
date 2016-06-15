@@ -238,9 +238,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attrTypes = subschemaSubentry.get( "syntaxCheckers" );
         SyntaxCheckerDescription syntaxCheckerDescription = null;
 
-        for ( Value<?> value : attrTypes )
+        for ( Value value : attrTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -401,9 +401,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attrTypes = subschemaSubentry.get( "comparators" );
         LdapComparatorDescription comparatorDescription = null;
 
-        for ( Value<?> value : attrTypes )
+        for ( Value value : attrTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -547,9 +547,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attrTypes = subschemaSubentry.get( "normalizers" );
         NormalizerDescription normalizerDescription = null;
 
-        for ( Value<?> value : attrTypes )
+        for ( Value value : attrTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -695,9 +695,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attrTypes = subschemaSubentry.get( "ldapSyntaxes" );
         LdapSyntax ldapSyntax = null;
 
-        for ( Value<?> value : attrTypes )
+        for ( Value value : attrTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -857,9 +857,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attrTypes = subschemaSubentry.get( "matchingRules" );
         MatchingRule matchingRule = null;
 
-        for ( Value<?> value : attrTypes )
+        for ( Value value : attrTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -1059,9 +1059,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attrTypes = subschemaSubentry.get( "attributeTypes" );
         AttributeType attributeType = null;
 
-        for ( Value<?> value : attrTypes )
+        for ( Value value : attrTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -1338,9 +1338,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attributeTypes = subschemaSubentry.get( "attributeTypes" );
         AttributeType attributeType = null;
 
-        for ( Value<?> value : attributeTypes )
+        for ( Value value : attributeTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
@@ -1390,9 +1390,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attributeTypes = subschemaSubentry.get( "attributeTypes" );
         AttributeType attributeType = null;
 
-        for ( Value<?> value : attributeTypes )
+        for ( Value value : attributeTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
@@ -1471,9 +1471,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attributeTypes = subschemaSubentry.get( "attributeTypes" );
         AttributeType attributeType = null;
 
-        for ( Value<?> value : attributeTypes )
+        for ( Value value : attributeTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
@@ -1527,9 +1527,9 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         Attribute attrTypes = subschemaSubentry.get( "objectClasses" );
         ObjectClass objectClass = null;
 
-        for ( Value<?> value : attrTypes )
+        for ( Value value : attrTypes )
         {
-            String desc = value.getString();
+            String desc = value.getValue();
 
             if ( desc.indexOf( oid ) != -1 )
             {

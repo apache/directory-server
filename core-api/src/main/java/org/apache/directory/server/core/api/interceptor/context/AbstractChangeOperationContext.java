@@ -104,6 +104,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /**
      * @see org.apache.directory.server.core.api.interceptor.context.ChangeOperationContext#getChangeLogEvent()
      */
+    @Override
     public ChangeLogEvent getChangeLogEvent()
     {
         return changeLogEvent;
@@ -119,6 +120,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setLogChange( LogChange logChange )
     {
         this.logChange = logChange;
@@ -128,6 +130,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isLogChange()
     {
         return logChange != LogChange.FALSE;

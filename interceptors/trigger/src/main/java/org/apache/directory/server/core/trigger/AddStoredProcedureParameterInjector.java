@@ -49,6 +49,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
 
     MicroInjector entryInjector = new MicroInjector()
     {
+        @Override
         public Object inject( OperationContext opContext, StoredProcedureParameter param )
             throws LdapInvalidDnException
         {

@@ -69,9 +69,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     private Tag latest;
 
     /** A Map of tags and revisions */
-    private final Map<Long, Tag> tags = new HashMap<Long, Tag>( 100 );
+    private final Map<Long, Tag> tags = new HashMap<>( 100 );
 
-    private final List<ChangeLogEvent> events = new ArrayList<ChangeLogEvent>();
+    private final List<ChangeLogEvent> events = new ArrayList<>();
     private File workingDirectory;
 
     /** The DirectoryService */
@@ -81,6 +81,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /**
      * {@inheritDoc}
      */
+    @Override
     public Tag tag( long revision ) throws Exception
     {
         if ( tags.containsKey( revision ) )
@@ -97,6 +98,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /**
      * {@inheritDoc}
      */
+    @Override
     public Tag tag() throws Exception
     {
         if ( ( latest != null ) && ( latest.getRevision() == currentRevision ) )
@@ -110,6 +112,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    @Override
     public Tag tag( String description ) throws Exception
     {
         if ( ( latest != null ) && ( latest.getRevision() == currentRevision ) )
@@ -123,6 +126,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    @Override
     public void init( DirectoryService service ) throws Exception
     {
         workingDirectory = service.getInstanceLayout().getLogDirectory();
@@ -175,12 +179,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     {
         File revFile = new File( workingDirectory, REV_FILE );
 
-        if ( revFile.exists() )
+        if ( revFile.exists() && !revFile.delete() )
         {
-            if ( !revFile.delete() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, revFile.getAbsolutePath() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, revFile.getAbsolutePath() ) );
         }
 
         try ( PrintWriter out = new PrintWriter( new FileWriter( revFile ) ) )
@@ -201,12 +202,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     {
         File tagFile = new File( workingDirectory, TAG_FILE );
 
-        if ( tagFile.exists() )
+        if ( tagFile.exists() && !tagFile.delete() )
         {
-            if ( !tagFile.delete() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, tagFile.getAbsolutePath() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, tagFile.getAbsolutePath() ) );
         }
 
         FileOutputStream out = null;
@@ -270,7 +268,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             {
                 in = new FileInputStream( revFile );
                 props.load( in );
-                ArrayList<Long> revList = new ArrayList<Long>();
+                ArrayList<Long> revList = new ArrayList<>();
 
                 for ( Object key : props.keySet() )
                 {
@@ -288,7 +286,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
                     String rev = String.valueOf( lkey );
                     String desc = props.getProperty( rev );
 
-                    if ( desc != null && desc.equals( "null" ) )
+                    if ( ( desc != null ) && desc.equals( "null" ) )
                     {
                         tag = new Tag( lkey, null );
                     }
@@ -339,7 +337,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
                 in = new ObjectInputStream( new FileInputStream( file ) );
                 int size = in.readInt();
 
-                ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<ChangeLogEvent>( size );
+                ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<>( size );
 
                 for ( int i = 0; i < size; i++ )
                 {
@@ -381,12 +379,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
 
-        if ( file.exists() )
+        if ( file.exists() && !file.delete() )
         {
-            if ( !file.delete() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, file.getAbsolutePath() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, file.getAbsolutePath() ) );
         }
 
         try
@@ -434,6 +429,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    @Override
     public void sync() throws Exception
     {
         saveRevision();
@@ -445,6 +441,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /**
      * Save logs, tags and revision on disk, and clean everything in memory
      */
+    @Override
     public void destroy() throws Exception
     {
         saveRevision();
@@ -453,6 +450,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    @Override
     public long getCurrentRevision()
     {
         return currentRevision;
@@ -462,6 +460,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /**
      * {@inheritDoc}
      */
+    @Override
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
     {
         currentRevision++;
@@ -475,6 +474,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /**
      * {@inheritDoc}
      */
+    @Override
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception
     {
         currentRevision++;
@@ -485,6 +485,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    @Override
     public ChangeLogEvent lookup( long revision ) throws Exception
     {
         if ( revision < 0 )
@@ -501,30 +502,35 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    @Override
     public Cursor<ChangeLogEvent> find() throws Exception
     {
-        return new ListCursor<ChangeLogEvent>( events );
+        return new ListCursor<>( events );
     }
 
 
+    @Override
     public Cursor<ChangeLogEvent> findBefore( long revision ) throws Exception
     {
-        return new ListCursor<ChangeLogEvent>( events, ( int ) revision );
+        return new ListCursor<>( events, ( int ) revision );
     }
 
 
+    @Override
     public Cursor<ChangeLogEvent> findAfter( long revision ) throws LdapException
     {
-        return new ListCursor<ChangeLogEvent>( ( int ) revision, events );
+        return new ListCursor<>( ( int ) revision, events );
     }
 
 
+    @Override
     public Cursor<ChangeLogEvent> find( long startRevision, long endRevision ) throws Exception
     {
-        return new ListCursor<ChangeLogEvent>( ( int ) startRevision, events, ( int ) ( endRevision + 1 ) );
+        return new ListCursor<>( ( int ) startRevision, events, ( int ) ( endRevision + 1 ) );
     }
 
 
+    @Override
     public Tag getLatest() throws LdapException
     {
         return latest;
@@ -534,6 +540,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /**
      * @see TaggableChangeLogStore#removeTag(long)
      */
+    @Override
     public Tag removeTag( long revision ) throws Exception
     {
         return tags.remove( revision );
@@ -543,6 +550,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /**
      * @see TaggableChangeLogStore#tag(long, String)
      */
+    @Override
     public Tag tag( long revision, String descrition ) throws Exception
     {
         if ( tags.containsKey( revision ) )
@@ -559,6 +567,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

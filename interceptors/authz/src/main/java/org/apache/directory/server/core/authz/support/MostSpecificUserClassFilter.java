@@ -43,6 +43,10 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
  */
 public class MostSpecificUserClassFilter implements ACITupleFilter
 {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {
@@ -51,7 +55,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             return aciContext.getAciTuples();
         }
 
-        Collection<ACITuple> filteredTuples = new ArrayList<ACITuple>();
+        Collection<ACITuple> filteredTuples = new ArrayList<>();
 
         // If there are any tuples matching the requestor with UserClasses
         // element name or thisEntry, discard all other tuples.
@@ -67,7 +71,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             }
         }
 
-        if ( filteredTuples.size() > 0 )
+        if ( !filteredTuples.isEmpty() )
         {
             return filteredTuples;
         }
@@ -86,7 +90,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             }
         }
 
-        if ( filteredTuples.size() > 0 )
+        if ( !filteredTuples.isEmpty() )
         {
             return filteredTuples;
         }
@@ -105,7 +109,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             }
         }
 
-        if ( filteredTuples.size() > 0 )
+        if ( !filteredTuples.isEmpty() )
         {
             return filteredTuples;
         }

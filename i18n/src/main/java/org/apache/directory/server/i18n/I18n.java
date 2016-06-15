@@ -829,7 +829,7 @@ public enum I18n
         }
         catch ( Exception e )
         {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             boolean comma = false;
 
             for ( Object obj : args )
@@ -873,7 +873,7 @@ public enum I18n
             }
             catch ( Exception e )
             {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 boolean comma = false;
 
                 for ( Object obj : args )

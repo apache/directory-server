@@ -45,8 +45,8 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     {
         super( opContext );
         this.deleteOldRn = deleteOldRn;
-        this.oldRdn = ( Rdn ) oldRDN.clone();
-        this.newRdn = ( Rdn ) newRdn.clone();
+        this.oldRdn = oldRDN.clone();
+        this.newRdn = newRdn.clone();
         this.oldSuperiorDn = oldSuperiorDn;
         this.newSuperiorDn = newSuperiorDn;
         this.oldDn = oldDn;

@@ -73,13 +73,75 @@ public class AndEvaluator implements Evaluator<AndNode>
     private List<Evaluator<? extends ExprNode>> optimize(
         List<Evaluator<? extends ExprNode>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
-            unoptimized.size() );
-        optimized.addAll( unoptimized );
+        switch ( unoptimized.size() )
+        {
+            case 0 :
+            case 1 :
+                return unoptimized;
+                
+            case 2 :
+                Object count1 = unoptimized.get( 0 ).getExpression().get( "count" );
+                Object count2 = unoptimized.get( 1 ).getExpression().get( "count" );
+                
+                if ( count1 == null )
+                {
+                    if ( count2 != null )
+                    {
+                        unoptimized.add( unoptimized.remove( 0 ) );
+                    }
+                }
+                else
+                {
+                    if ( ( count2 != null ) && ( ( Long ) count1 > ( Long ) count2 ) )
+                    {
+                        unoptimized.add( unoptimized.remove( 0 ) );
+                    }
+                }
+                
+                return unoptimized;
 
-        Collections.sort( optimized, new ScanCountComparator() );
+            default :
+                List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
+                    unoptimized.size() );
+                optimized.addAll( unoptimized );
 
-        return optimized;
+                Collections.sort( optimized, new ScanCountComparator() );
+
+                return evaluators;
+        }
+        
+        /* Potential speed up, for when we do'nt care about the evaluation itself.
+    private List<Evaluator<? extends ExprNode>> optimize(
+        List<Evaluator<? extends ExprNode>> evaluators )
+    {
+        long minCount = Long.MAX_VALUE;
+        int pos = 0;
+        int minPos = 0;
+        
+        for ( Evaluator<? extends ExprNode> evaluator : evaluators )
+        {
+            long count = ( Long ) evaluator.getExpression().get( "count" );
+            
+            if ( count < minCount )
+            {
+                minCount = count;
+                minPos = pos;
+            }
+            
+            pos++;
+        }
+        
+        if ( minPos > 0 )
+        {
+            Evaluator<? extends ExprNode> minEvaluator = evaluators.remove( minPos );
+            evaluators.set( 0,  minEvaluator );
+            
+        }
+
+        return evaluators;
+    }
+
+         */
     }
 
 

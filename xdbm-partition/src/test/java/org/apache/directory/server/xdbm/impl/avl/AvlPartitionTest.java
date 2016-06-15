@@ -28,7 +28,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -57,6 +61,7 @@ import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
@@ -139,6 +144,8 @@ public class AvlPartitionTest
     @Before
     public void createStore() throws Exception
     {
+        StoreUtils.createdExtraAttributes( schemaManager );
+
         // initialize the partition
         partition = new AvlPartition( schemaManager, dnFactory );
         partition.setId( "example" );
@@ -460,7 +467,7 @@ public class AvlPartitionTest
         AddOperationContext addContext = new AddOperationContext( null, entry );
         partition.add( addContext );
 
-        Rdn rdn = new Rdn( "sn=Ja\\+es" );
+        Rdn rdn = new Rdn( schemaManager, "sn=Ja\\+es" );
 
         partition.rename( dn, rdn, true, null );
 
@@ -468,8 +475,8 @@ public class AvlPartitionTest
         String id = partition.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = partition.fetch( id );
-        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
-        assertEquals( "ja+es", entry2.get( "sn" ).get().getNormValue() );
+        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( " ja+es ", entry2.get( "sn" ).get().getNormalized() );
     }
 
 
@@ -491,9 +498,17 @@ public class AvlPartitionTest
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
 
-        Rdn rdn = new Rdn( "cn=Ryan" );
+        Rdn rdn = new Rdn( schemaManager, "cn=Ryan" );
 
-        partition.moveAndRename( childDn, parentDn, rdn, new ClonedServerEntry( childEntry ), true );
+        // The cn=Ryan RDN that will be added. The cn=Private Ryan RDN will be removed
+        Map<String, List<ModDnAva>> modDnAvas = new HashMap<>();
+
+        List<ModDnAva> modAvas = new ArrayList<>();
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.ADD, rdn.getAva()) );
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.DELETE, childDn.getRdn().getAva()) );
+        modDnAvas.put( SchemaConstants.CN_AT_OID, modAvas );
+
+        partition.moveAndRename( childDn, parentDn, rdn, modDnAvas, new ClonedServerEntry( childEntry ) );
 
         // to drop the alias indices
         childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -549,14 +564,14 @@ public class AvlPartitionTest
 
         Entry lookedup = partition.fetch( partition.getEntryId( dn ) );
 
-        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
+        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getValue() ); // before replacing
 
         lookedup = partition.modify( dn, add );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().getValue() );
 
         lookedup = partition.modify( dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT,
             "JWalker" ) );
-        assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
+        assertEquals( "JWalker", lookedup.get( "sn" ).get().getValue() );
     }
 
 
@@ -612,6 +627,6 @@ public class AvlPartitionTest
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
         lookedup = partition.modify( dn, add );
-        assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
+        assertEquals( attribVal, lookedup.get( "ou" ).get().getValue() );
     }
 }

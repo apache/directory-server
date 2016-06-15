@@ -94,7 +94,8 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     @Test(expected = LdapNoPermissionException.class)
     public void testNoRdnChangesOnAdminByAdmin() throws Exception
     {
-        getAdminConnection().rename( new Dn( "uid=admin,ou=system" ), new Rdn( "uid=alex" ) );
+        getAdminConnection().rename( new Dn( getService().getSchemaManager(), "uid=admin,ou=system" ), 
+            new Rdn( getService().getSchemaManager(), "uid=alex" ) );
     }
 
 
@@ -107,7 +108,7 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
     public void testModifyOnAdminByAdmin() throws Exception
     {
         LdapConnection connection = getAdminConnection();
-        Dn adminDn = new Dn( "uid=admin,ou=system" );
+        Dn adminDn = new Dn( getService().getSchemaManager(), "uid=admin,ou=system" );
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( adminDn );
         String newPwd = "replaced";

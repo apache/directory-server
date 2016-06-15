@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaObject;
 import org.apache.directory.api.ldap.model.schema.SchemaObjectWrapper;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
 import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -69,7 +70,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     protected final SchemaEntityFactory factory;
 
     /** A map associating a SchemaObject type with its path on the partition*/
-    private static final Map<String, String> OBJECT_TYPE_TO_PATH = new HashMap<String, String>();
+    private static final Map<String, String> OBJECT_TYPE_TO_PATH = new HashMap<>();
 
     static
     {
@@ -134,7 +135,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         Schema schema = schemaManager.getLoadedSchema( schemaName );
 
-        return ( ( schema != null ) && schema.isEnabled() );
+        return ( schema != null ) && schema.isEnabled();
     }
 
 
@@ -161,7 +162,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         Rdn rdn = dn.getRdn( size - 2 );
 
-        return rdn.getNormValue();
+        return Strings.trim( rdn.getAva().getValue().getNormalized() );
     }
 
 
@@ -215,7 +216,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
                 I18n.err( I18n.ERR_338, objectType ) );
         }
 
-        if ( !rdn.getNormValue().equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
+        if ( !rdn.getValue().equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_339, objectType, OBJECT_TYPE_TO_PATH.get( objectType ) ) );
@@ -323,18 +324,19 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * {@inheritDoc}
      */
+    @Override
     public abstract boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException;
 
 
     protected Set<String> getOids( Set<Entry> results ) throws Exception
     {
-        Set<String> oids = new HashSet<String>( results.size() );
+        Set<String> oids = new HashSet<>( results.size() );
 
         for ( Entry result : results )
         {
             Dn dn = result.getDn();
-            oids.add( dn.getRdn().getNormValue() );
+            oids.add( dn.getRdn().getValue() );
         }
 
         return oids;

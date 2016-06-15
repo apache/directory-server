@@ -122,7 +122,7 @@ public class ConfigWriterTest
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, dnFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
-        configPartition.setSuffixDn( new Dn( "ou=config" ) );
+        configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
         configPartition.setCacheService( cacheService );
         configPartition.initialize();
@@ -168,7 +168,7 @@ public class ConfigWriterTest
             Entry generatedConfigEntry = generatedConfigEntries.get( i ).getEntry();
 
             // Comparing DNs
-            assertTrue( originalConfigEntry.getDn().getNormName().equals( generatedConfigEntry.getDn().getNormName() ) );
+            assertTrue( originalConfigEntry.getDn().equals( generatedConfigEntry.getDn() ) );
         }
 
         // Destroying the config partition

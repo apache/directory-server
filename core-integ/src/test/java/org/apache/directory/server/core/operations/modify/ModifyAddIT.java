@@ -338,7 +338,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( "12345".getBytes() ) );
+        assertTrue( attr.contains( "12345" ) );
         assertEquals( 1, attr.size() );
     }
 
@@ -364,7 +364,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( StringConstants.EMPTY_BYTES ) );
+        assertTrue( attr.contains( "" ) );
         assertEquals( 1, attr.size() );
     }
 
@@ -425,7 +425,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a AT part of the MAY/MUST, with an invalid value
      */
-    @Test( expected = InvalidAttributeValueException.class )
+    @Test( expected = IllegalArgumentException.class )
     public void testModifyAddExistingEntryExistingATInvalidValue() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
@@ -557,8 +557,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( "12345".getBytes() ) );
-        assertTrue( attr.contains( StringConstants.EMPTY_BYTES ) );
+        assertTrue( attr.contains( "12345" ) );
+        assertTrue( attr.contains( "" ) );
         assertEquals( 2, attr.size() );
     }
     

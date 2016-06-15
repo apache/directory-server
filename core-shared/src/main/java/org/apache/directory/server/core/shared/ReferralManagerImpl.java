@@ -27,7 +27,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
@@ -77,7 +77,7 @@ public class ReferralManagerImpl implements ReferralManager
 
         try
         {
-            referrals = new DnNode<Entry>();
+            referrals = new DnNode<>();
             PartitionNexus nexus = directoryService.getPartitionNexus();
     
             Set<String> suffixes = nexus.listSuffixes();
@@ -98,6 +98,7 @@ public class ReferralManagerImpl implements ReferralManager
      * No read operation can be done on the referralManager if this
      * method is not called before.
      */
+    @Override
     public void lockRead()
     {
         mutex.readLock().lock();
@@ -109,6 +110,7 @@ public class ReferralManagerImpl implements ReferralManager
      * No write operation can be done on the referralManager if this
      * method is not called before.
      */
+    @Override
     public void lockWrite()
     {
         mutex.writeLock().lock();
@@ -120,6 +122,7 @@ public class ReferralManagerImpl implements ReferralManager
      * This method must be called after having read or modified the
      * ReferralManager
      */
+    @Override
     public void unlock()
     {
         if ( mutex.isWriteLockedByCurrentThread() )
@@ -138,6 +141,7 @@ public class ReferralManagerImpl implements ReferralManager
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
+    @Override
     public void addReferral( Entry entry )
     {
         try
@@ -154,10 +158,11 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init( DirectoryService directoryService, String... suffixes ) throws LdapException
     {
         ExprNode referralFilter = new EqualityNode<String>( objectClassAT,
-            new StringValue( SchemaConstants.REFERRAL_OC ) );
+            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value
         SearchControls searchControl = new SearchControls();
@@ -214,10 +219,11 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
+    @Override
     public void remove( DirectoryService directoryService, Dn suffix ) throws Exception
     {
         ExprNode referralFilter = new EqualityNode<String>( objectClassAT,
-            new StringValue( SchemaConstants.REFERRAL_OC ) );
+            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ) );
 
         // Lookup for each entry with the ObjectClass = Referral value
         SearchControls searchControl = new SearchControls();
@@ -249,6 +255,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean hasParentReferral( Dn dn )
     {
         DnNode<Entry> referral = referrals.getNode( dn );
@@ -260,6 +267,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry getParentReferral( Dn dn )
     {
         if ( !hasParentReferral( dn ) )
@@ -274,6 +282,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isReferral( Dn dn )
     {
         Entry parent = referrals.getElement( dn );
@@ -292,6 +301,7 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeReferral( Entry entry ) throws LdapException
     {
         referrals.remove( entry.getDn() );

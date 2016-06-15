@@ -39,7 +39,8 @@ import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapSchemaException;
 import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -48,6 +49,7 @@ import org.apache.directory.api.ldap.model.schema.MutableAttributeType;
 import org.apache.directory.api.ldap.model.schema.MutableMatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.StringComparator;
+import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
@@ -89,7 +91,6 @@ public class GreaterEqTest
     static SchemaManager schemaManager = null;
     private static DnFactory dnFactory;
     private static CacheService cacheService;
-
 
     @BeforeClass
     public static void setup() throws Exception
@@ -139,6 +140,8 @@ public class GreaterEqTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
 
+        StoreUtils.createdExtraAttributes( schemaManager );
+
         // initialize the store
         store = new AvlPartition( schemaManager, dnFactory );
         ( ( Partition ) store ).setId( "example" );
@@ -148,7 +151,7 @@ public class GreaterEqTest
 
         store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
-        store.addIndex( new AvlIndex<String>( SchemaConstants.POSTALCODE_AT_OID ) );
+        store.addIndex( new AvlIndex<String>( StoreUtils.TEST_INT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
         ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
@@ -179,8 +182,8 @@ public class GreaterEqTest
     @Test
     public void testCursorIndexed() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
-        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new StringValue( at, "3" ) );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_OID );
+        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "3" ) );
         GreaterEqEvaluator<String> evaluator = new GreaterEqEvaluator<String>( node, store, schemaManager );
         GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator );
         assertNotNull( cursor );
@@ -415,8 +418,8 @@ public class GreaterEqTest
     @Test
     public void testCursorNotIndexed() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
-        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new StringValue( at, "3" ) );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_NO_INDEX_OID );
+        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "3" ) );
         GreaterEqEvaluator<String> evaluator = new GreaterEqEvaluator<String>( node, store, schemaManager );
         GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator );
         assertNotNull( cursor );
@@ -574,12 +577,12 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorIndexed() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTALCODE_AT_OID );
-        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new StringValue( at, "3" ) );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_OID );
+        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "3" ) );
         GreaterEqEvaluator<String> evaluator = new GreaterEqEvaluator<String>( node, store, schemaManager );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
-        assertEquals( SchemaConstants.POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
+        assertEquals( StoreUtils.TEST_INT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
@@ -619,19 +622,19 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorWithDescendantValue() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.STREET_AT_OID );
-        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new StringValue( at, "2" ) );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_OID);
+        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "2" ) );
         GreaterEqEvaluator<String> evaluator = new GreaterEqEvaluator<String>( node, store, schemaManager );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
-        assertEquals( SchemaConstants.STREET_AT_OID, evaluator.getAttributeType().getOid() );
+        assertEquals( StoreUtils.TEST_INT_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
         Dn dn = new Dn( schemaManager, "cn=jane doe,o=good times co." );
         Entry attrs = new DefaultEntry( schemaManager, dn );
         attrs.add( "objectClass", "person" );
-        attrs.add( "c-street", "3" );
+        attrs.add( "testIntDescendant", "3" );
         attrs.add( "cn", "jane doe" );
         attrs.add( "sn", "doe" );
         attrs.add( "entryCSN", new CsnFactory( 1 ).newInstance().toString() );
@@ -648,13 +651,13 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorWithoutDescendants() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.C_POSTALCODE_AT_OID );
-        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new StringValue( at, "2" ) );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_DESCENDANT_NO_INDEX_OID );
+        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "2" ) );
 
         GreaterEqEvaluator<String> evaluator = new GreaterEqEvaluator<String>( node, store, schemaManager );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
-        assertEquals( SchemaConstants.C_POSTALCODE_AT_OID, evaluator.getAttributeType().getOid() );
+        assertEquals( StoreUtils.TEST_INT_DESCENDANT_NO_INDEX_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
@@ -666,13 +669,13 @@ public class GreaterEqTest
     @Test
     public void testEvaluatorNotIndexed() throws Exception
     {
-        AttributeType at = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.POSTOFFICEBOX_AT_OID );
-        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new StringValue( at, "3" ) );
+        AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_NO_INDEX_OID );
+        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "3" ) );
 
         GreaterEqEvaluator<String> evaluator = new GreaterEqEvaluator<String>( node, store, schemaManager );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         assertEquals( node, evaluator.getExpression() );
-        assertEquals( SchemaConstants.POSTOFFICEBOX_AT_OID, evaluator.getAttributeType().getOid() );
+        assertEquals( StoreUtils.TEST_INT_NO_INDEX_OID, evaluator.getAttributeType().getOid() );
         assertNotNull( evaluator.getNormalizer() );
         assertNotNull( evaluator.getComparator() );
 
@@ -709,7 +712,7 @@ public class GreaterEqTest
     }
 
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = LdapSchemaException.class)
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
         LdapSyntax syntax = new BogusSyntax( 1 );
@@ -723,7 +726,7 @@ public class GreaterEqTest
 
         try
         {
-            GreaterEqNode<String> node = new GreaterEqNode<String>( at, new StringValue( at, "3" ) );
+            GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "3" ) );
             new GreaterEqEvaluator<String>( node, store, schemaManager );
         }
         finally
@@ -741,6 +744,7 @@ public class GreaterEqTest
         MutableMatchingRule mr = new MutableMatchingRule( "1.1" );
         mr.setSyntax( syntax );
         mr.setLdapComparator( new StringComparator( "1.1" ) );
+        mr.setNormalizer( new DeepTrimToLowerNormalizer() );
 
         MutableAttributeType at = new MutableAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".5000" );
         at.addName( "bogus" );
@@ -761,7 +765,7 @@ public class GreaterEqTest
         desc.setObsolete( false );
         //schemaManager.register( at.getSyntax().getSyntaxChecker() );
 
-        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new StringValue( at, "3" ) );
+        GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "3" ) );
         new GreaterEqEvaluator<String>( node, store, schemaManager );
         schemaManager.delete( at );
     }

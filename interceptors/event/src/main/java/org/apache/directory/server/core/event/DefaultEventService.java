@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
@@ -45,7 +46,7 @@ import org.apache.directory.server.core.api.normalization.FilterNormalizingVisit
 class DefaultEventService implements EventService
 {
     /** The list of RegistrationEntries being registered */
-    private List<RegistrationEntry> registrations = new CopyOnWriteArrayList<RegistrationEntry>();
+    private List<RegistrationEntry> registrations = new CopyOnWriteArrayList<>();
 
     /** The DirectoryService instance */
     private DirectoryService directoryService;
@@ -71,9 +72,14 @@ class DefaultEventService implements EventService
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addListener( DirectoryListener listener, NotificationCriteria criteria ) throws Exception
     {
-        criteria.getBase().apply( directoryService.getSchemaManager() );
+        if ( !criteria.getBase().isSchemaAware() )
+        {
+            criteria.setBase( new Dn( directoryService.getSchemaManager(), criteria.getBase() ) );
+        }
+
         ExprNode result = ( ExprNode ) criteria.getFilter().accept( filterNormalizer );
         criteria.setFilter( result );
         registrations.add( new RegistrationEntry( listener, criteria ) );
@@ -83,6 +89,7 @@ class DefaultEventService implements EventService
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeListener( DirectoryListener listener )
     {
         for ( RegistrationEntry entry : registrations )
@@ -98,6 +105,7 @@ class DefaultEventService implements EventService
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<RegistrationEntry> getRegistrationEntries()
     {
         return Collections.unmodifiableList( registrations );

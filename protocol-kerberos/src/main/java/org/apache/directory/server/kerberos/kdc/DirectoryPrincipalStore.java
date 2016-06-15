@@ -98,7 +98,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
 
             CoreSession bySession = null;
 
-            boolean isAdmin = ebyPrincipalEntry.getDn().getNormName()
+            boolean isAdmin = ebyPrincipalEntry.getDn()
                 .equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
 
             if ( !isInitialTicket && !isAdmin )

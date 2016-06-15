@@ -1246,7 +1246,7 @@ public class AddIT extends AbstractLdapTestUnit
         javax.naming.directory.Attribute cnAttribute = res.next().getAttributes().get( "cn" );
         assertEquals( 2, cnAttribute.size() );
         assertTrue( cnAttribute.contains( "Tori,Amos" ) );
-        assertTrue( cnAttribute.contains( "Amos\\,Tori" ) );
+        assertTrue( cnAttribute.contains( "Amos,Tori" ) );
         assertFalse( res.hasMore() );
 
         // search for the implicit added userPassword

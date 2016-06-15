@@ -69,6 +69,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
@@ -96,6 +97,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -116,7 +118,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         // existing Registries. It will be checked there, if the schema and the 
         // Normalizer are both enabled.
         Schema schema = schemaManager.getLoadedSchema( schemaName );
-        List<Throwable> errors = new ArrayList<Throwable>();
+        List<Throwable> errors = new ArrayList<>();
 
         if ( schema.isEnabled() && normalizer.isEnabled() )
         {
@@ -153,6 +155,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -196,6 +199,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String oldOid = getOid( entry );
@@ -207,13 +211,13 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_367, oldOid ) );
         }
 
-        String newOid = newRdn.getNormValue();
+        String newOid = newRdn.getValue();
         checkOidIsUniqueForNormalizer( newOid );
 
         if ( isSchemaEnabled( schemaName ) )
         {
             // Inject the new OID
-            Entry targetEntry = ( Entry ) entry.clone();
+            Entry targetEntry = entry.clone();
             targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
             // Inject the new Dn
@@ -229,6 +233,10 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRdn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
@@ -243,7 +251,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_367, oldOid ) );
         }
 
-        String oid = newRdn.getNormValue();
+        String oid = newRdn.getValue();
         checkOidIsUniqueForNormalizer( oid );
         Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
             newSchemaName );
@@ -260,6 +268,10 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
@@ -325,7 +337,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_371 ) );
         }
 
-        if ( !rdn.getNormValue().equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
+        if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_372 ) );
         }

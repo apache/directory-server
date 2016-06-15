@@ -38,10 +38,14 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
  */
 public class MicroOperationFilter implements ACITupleFilter
 {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {
-        if ( aciContext.getAciTuples().size() == 0 )
+        if ( aciContext.getAciTuples().isEmpty() )
         {
             return aciContext.getAciTuples();
         }

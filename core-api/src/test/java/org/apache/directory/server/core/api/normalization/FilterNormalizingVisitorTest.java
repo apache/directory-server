@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.List;
 
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
@@ -90,7 +90,7 @@ public class FilterNormalizingVisitorTest
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
         Object result = ncn.normalizeByName( "jpegPhoto", "test\\5Cescaped" );
         
-        assertTrue( result instanceof BinaryValue );
-        assertEquals( "0x74 0x65 0x73 0x74 0x5C 0x65 0x73 0x63 0x61 0x70 0x65 0x64 ", ((BinaryValue)result).toString() );
+        assertTrue( result instanceof String );
+        assertEquals( "test\\escaped", result.toString() );
     }
 }

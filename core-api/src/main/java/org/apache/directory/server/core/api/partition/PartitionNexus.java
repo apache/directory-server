@@ -65,7 +65,7 @@ public interface PartitionNexus extends Partition
      * @param attributeType The attribute type for which we want a value
      * @return the values associated with the given attributeType
      */
-    Value<?> getRootDseValue( AttributeType attributeType );
+    Value getRootDseValue( AttributeType attributeType );
 
 
     /**
@@ -83,7 +83,7 @@ public interface PartitionNexus extends Partition
      * @param partitionDn the partition Dn
      * @throws Exception If the removal can't be done
      */
-    void removeContextPartition( Dn partitionDn ) throws LdapException;
+    void removeContextPartition( String partitionDn ) throws LdapException;
 
 
     /**

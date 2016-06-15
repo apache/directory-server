@@ -216,6 +216,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     /**
      * {@inheritDoc}
      */
+    @Override
     public LdapPrincipal authenticate( BindOperationContext bindContext )
         throws Exception
     {
@@ -326,6 +327,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     /**
      * We don't handle any password policy when using a delegated authentication
      */
+    @Override
     public void checkPwdPolicy( Entry userEntry ) throws LdapException
     {
         // no check for delegating authentication
@@ -335,6 +337,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     /**
      * We don't handle any cache when using a delegated authentication
      */
+    @Override
     public void invalidateCache( Dn bindDn )
     {
         // cache is not implemented here

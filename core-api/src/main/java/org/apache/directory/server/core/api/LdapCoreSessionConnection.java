@@ -134,6 +134,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         try
@@ -152,6 +153,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean connect() throws LdapException
     {
         return true;
@@ -161,6 +163,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public AddResponse add( AddRequest addRequest ) throws LdapException
     {
         if ( addRequest == null )
@@ -204,6 +207,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( Entry entry ) throws LdapException
     {
         if ( entry == null )
@@ -226,6 +230,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public CompareResponse compare( CompareRequest compareRequest ) throws LdapException
     {
         if ( compareRequest == null )
@@ -257,6 +262,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean compare( Dn dn, String attributeName, byte[] value ) throws LdapException
     {
         CompareRequest compareRequest = new CompareRequestImpl();
@@ -273,6 +279,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean compare( Dn dn, String attributeName, String value ) throws LdapException
     {
         CompareRequest compareRequest = new CompareRequestImpl();
@@ -289,6 +296,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean compare( String dn, String attributeName, byte[] value ) throws LdapException
     {
         return compare( new Dn( schemaManager, dn ), attributeName, value );
@@ -298,6 +306,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean compare( String dn, String attributeName, String value ) throws LdapException
     {
         return compare( new Dn( schemaManager, dn ), attributeName, value );
@@ -307,7 +316,8 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public boolean compare( Dn dn, String attributeName, Value<?> value ) throws LdapException
+    @Override
+    public boolean compare( Dn dn, String attributeName, Value value ) throws LdapException
     {
         CompareRequest compareRequest = new CompareRequestImpl();
         compareRequest.setName( dn );
@@ -315,7 +325,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         if ( value.isHumanReadable() )
         {
-            compareRequest.setAssertionValue( value.getString() );
+            compareRequest.setAssertionValue( value.getValue() );
         }
         else
         {
@@ -331,7 +341,8 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
-    public boolean compare( String dn, String attributeName, Value<?> value ) throws LdapException
+    @Override
+    public boolean compare( String dn, String attributeName, Value value ) throws LdapException
     {
         return compare( new Dn( schemaManager, dn ), attributeName, value );
     }
@@ -340,6 +351,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public DeleteResponse delete( DeleteRequest deleteRequest ) throws LdapException
     {
         if ( deleteRequest == null )
@@ -375,6 +387,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( Dn dn ) throws LdapException
     {
         DeleteRequest deleteRequest = new DeleteRequestImpl();
@@ -389,6 +402,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( String dn ) throws LdapException
     {
         delete( new Dn( schemaManager, dn ) );
@@ -398,6 +412,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean doesFutureExistFor( int messageId )
     {
         return false;
@@ -407,6 +422,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public SchemaManager getSchemaManager()
     {
         return schemaManager;
@@ -416,6 +432,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public LdapApiService getCodecService()
     {
         return codec;
@@ -425,6 +442,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<String> getSupportedControls() throws LdapException
     {
         return null;
@@ -434,15 +452,17 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isAuthenticated()
     {
-        return ( session != null );
+        return session != null;
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isConnected()
     {
         return true;
@@ -452,6 +472,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isControlSupported( String controlOID ) throws LdapException
     {
         return false;
@@ -461,6 +482,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void loadSchema() throws LdapException
     {
         // do nothing, cause we already have SchemaManager in the session's DirectoryService
@@ -480,6 +502,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( Dn dn, String... attributes ) throws LdapException
     {
         return lookup( dn, null, attributes );
@@ -489,6 +512,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( Dn dn, Control[] controls, String... attributes ) throws LdapException
     {
         messageId.incrementAndGet();
@@ -511,6 +535,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( String dn, String... attributes ) throws LdapException
     {
         Dn baseDn = new Dn( schemaManager, dn );
@@ -522,6 +547,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( String dn, Control[] controls, String... attributes ) throws LdapException
     {
         Dn baseDn = new Dn( schemaManager, dn );
@@ -533,6 +559,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean exists( String dn ) throws LdapException
     {
         return exists( new Dn( schemaManager, dn ) );
@@ -542,6 +569,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean exists( Dn dn ) throws LdapException
     {
         try
@@ -553,6 +581,8 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         catch ( LdapNoPermissionException lnpe )
         {
             // Special case to deal with insufficient permissions
+            LOG.info( lnpe.getMessage(), lnpe );
+            
             return false;
         }
         catch ( LdapException le )
@@ -565,6 +595,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry getRootDse() throws LdapException
     {
         return lookup( Dn.ROOT_DSE, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
@@ -574,6 +605,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry getRootDse( String... attributes ) throws LdapException
     {
         return lookup( Dn.ROOT_DSE, attributes );
@@ -583,6 +615,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( Dn dn ) throws LdapException
     {
         return lookup( dn, ( String[] ) null );
@@ -592,6 +625,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( String dn ) throws LdapException
     {
         return lookup( new Dn( schemaManager, dn ), ( String[] ) null );
@@ -601,6 +635,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( Dn dn, Modification... modifications ) throws LdapException
     {
         if ( dn == null )
@@ -637,6 +672,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( String dn, Modification... modifications ) throws LdapException
     {
         modify( new Dn( schemaManager, dn ), modifications );
@@ -646,6 +682,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( Entry entry, ModificationOperation modOp ) throws LdapException
     {
         if ( entry == null )
@@ -676,6 +713,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public ModifyResponse modify( ModifyRequest modRequest ) throws LdapException
     {
         if ( modRequest == null )
@@ -712,6 +750,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public ModifyDnResponse modifyDn( ModifyDnRequest modDnRequest ) throws LdapException
     {
         if ( modDnRequest == null )
@@ -733,21 +772,28 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setDiagnosticMessage( msg );
+            
             return resp;
         }
 
         try
         {
-            Dn newRdn = null;
-
-            if ( modDnRequest.getNewRdn() != null )
+            Rdn newRdn = modDnRequest.getNewRdn();
+            
+            if ( ( newRdn != null ) && !newRdn.isSchemaAware() )
             {
-                newRdn = new Dn( schemaManager, modDnRequest.getNewRdn().getName() );
+                modDnRequest.setNewRdn( new Rdn( schemaManager, newRdn ) );
             }
 
-            Dn oldRdn = new Dn( schemaManager, modDnRequest.getName().getRdn().getName() );
+            Rdn oldRdn = modDnRequest.getName().getRdn();
 
-            boolean rdnChanged = modDnRequest.getNewRdn() != null
+            if ( !modDnRequest.getName().isSchemaAware() )
+            {
+                modDnRequest.setName( new Dn( schemaManager, modDnRequest.getName() ) );
+                oldRdn = modDnRequest.getName().getRdn();
+            }
+
+            boolean rdnChanged = modDnRequest.getNewRdn() != null 
                 && !newRdn.getNormName().equals( oldRdn.getNormName() );
 
             if ( rdnChanged )
@@ -790,6 +836,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( Dn entryDn, Dn newSuperiorDn ) throws LdapException
     {
         if ( entryDn == null )
@@ -806,11 +853,11 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             throw new IllegalArgumentException( msg );
         }
 
-        ModifyDnRequest iModDnReq = new ModifyDnRequestImpl();
-        iModDnReq.setName( entryDn );
-        iModDnReq.setNewSuperior( newSuperiorDn );
+        ModifyDnRequest modDnReq = new ModifyDnRequestImpl();
+        modDnReq.setName( entryDn );
+        modDnReq.setNewSuperior( newSuperiorDn );
 
-        ModifyDnResponse modifyDnResponse = modifyDn( iModDnReq );
+        ModifyDnResponse modifyDnResponse = modifyDn( modDnReq );
         processResponse( modifyDnResponse );
     }
 
@@ -818,6 +865,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( String entryDn, String newSuperiorDn ) throws LdapException
     {
         if ( entryDn == null )
@@ -841,6 +889,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( Dn entryDn, Rdn newRdn, boolean deleteOldRdn ) throws LdapException
     {
         if ( entryDn == null )
@@ -871,6 +920,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( Dn entryDn, Rdn newRdn ) throws LdapException
     {
         rename( entryDn, newRdn, false );
@@ -880,6 +930,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( String entryDn, String newRdn, boolean deleteOldRdn ) throws LdapException
     {
         rename( new Dn( schemaManager, entryDn ), new Rdn( newRdn ), deleteOldRdn );
@@ -889,6 +940,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( String entryDn, String newRdn ) throws LdapException
     {
         if ( entryDn == null )
@@ -905,7 +957,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             throw new IllegalArgumentException( msg );
         }
 
-        rename( new Dn( schemaManager, entryDn ), new Rdn( newRdn ) );
+        rename( new Dn( schemaManager, entryDn ), new Rdn( schemaManager, newRdn ) );
     }
 
 
@@ -914,6 +966,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      *
      * @see #moveAndRename(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.name.Dn, boolean)
      */
+    @Override
     public void moveAndRename( Dn entryDn, Dn newDn ) throws LdapException
     {
         moveAndRename( entryDn, newDn, true );
@@ -925,6 +978,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      *
      * @see #moveAndRename(org.apache.directory.api.ldap.model.name.Dn, org.apache.directory.api.ldap.model.name.Dn, boolean)
      */
+    @Override
     public void moveAndRename( String entryDn, String newDn ) throws LdapException
     {
         moveAndRename( new Dn( schemaManager, entryDn ), new Dn( schemaManager, newDn ), true );
@@ -938,6 +992,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      * @param newDn The new Entry Dn
      * @param deleteOldRdn Tells if the old Rdn must be removed
      */
+    @Override
     public void moveAndRename( Dn entryDn, Dn newDn, boolean deleteOldRdn ) throws LdapException
     {
         // Check the parameters first
@@ -983,6 +1038,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      * @param newDn The new Entry Dn
      * @param deleteOldRdn Tells if the old Rdn must be removed
      */
+    @Override
     public void moveAndRename( String entryDn, String newDn, boolean deleteOldRdn ) throws LdapException
     {
         moveAndRename( new Dn( schemaManager, entryDn ), new Dn( schemaManager, newDn ), deleteOldRdn );
@@ -992,6 +1048,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public SearchCursor search( SearchRequest searchRequest ) throws LdapException
     {
         if ( searchRequest == null )
@@ -1025,6 +1082,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryCursor search( Dn baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
@@ -1050,6 +1108,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryCursor search( String baseDn, String filter, SearchScope scope, String... attributes )
         throws LdapException
     {
@@ -1060,6 +1119,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void unBind() throws LdapException
     {
         messageId.set( 0 );
@@ -1080,6 +1140,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public ExtendedResponse extended( String oid ) throws LdapException
     {
         throw new UnsupportedOperationException(
@@ -1090,6 +1151,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public ExtendedResponse extended( ExtendedRequest extendedRequest ) throws LdapException
     {
         if ( extendedRequest == null )
@@ -1107,6 +1169,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public ExtendedResponse extended( Oid oid, byte[] value ) throws LdapException
     {
         return extended( ( String ) null );
@@ -1116,6 +1179,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public ExtendedResponse extended( Oid oid ) throws LdapException
     {
         return extended( ( String ) null );
@@ -1125,6 +1189,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public ExtendedResponse extended( String oid, byte[] value ) throws LdapException
     {
         return extended( ( String ) null );
@@ -1134,6 +1199,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setTimeOut( long timeOut )
     {
         throw new UnsupportedOperationException( "setting timeout is not supported on CoreSession" );
@@ -1143,6 +1209,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void abandon( AbandonRequest abandonRequest )
     {
         throw new UnsupportedOperationException( "abandon operation is not supported" );
@@ -1152,6 +1219,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void abandon( int messageId )
     {
         abandon( null );
@@ -1161,6 +1229,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void bind() throws LdapException
     {
         throw new UnsupportedOperationException(
@@ -1171,6 +1240,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public void anonymousBind() throws LdapException
     {
         BindRequest bindRequest = new BindRequestImpl();
@@ -1186,6 +1256,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public BindResponse bind( BindRequest bindRequest ) throws LdapException
     {
         if ( bindRequest == null )
@@ -1200,7 +1271,14 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
 
-        bindContext.setDn( bindRequest.getDn().apply( directoryService.getSchemaManager() ) );
+        Dn bindDn =  bindRequest.getDn();
+        
+        if ( !bindDn.isSchemaAware() )
+        {
+            bindDn = new Dn( directoryService.getSchemaManager(), bindDn );
+        }
+        
+        bindContext.setDn( bindDn );
         bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
         for ( Control control : bindRequest.getControls().values() )

@@ -102,10 +102,8 @@ public class MemoryChangeLogStoreTest
     public void testChangeLogSerialization() throws LdapException, IOException, ClassNotFoundException
     {
         Dn systemDn = new Dn( schemaManager, "ou=system" );
-        systemDn.apply( schemaManager );
 
         Dn adminDn = new Dn( schemaManager, "uid=admin, ou=system" );
-        adminDn.apply( schemaManager );
 
         LdifEntry forward = new LdifEntry();
         forward.setDn( systemDn );
@@ -114,7 +112,6 @@ public class MemoryChangeLogStoreTest
         forward.putAttribute( "ou", "system" );
 
         Dn reverseDn = forward.getDn();
-        reverseDn.apply( schemaManager );
 
         LdifEntry reverse = LdifRevertor.reverseAdd( reverseDn );
 

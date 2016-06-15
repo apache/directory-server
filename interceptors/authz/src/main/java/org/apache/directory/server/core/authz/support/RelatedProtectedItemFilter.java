@@ -71,10 +71,14 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {
-        if ( aciContext.getAciTuples().size() == 0 )
+        if ( aciContext.getAciTuples().isEmpty() )
         {
             return aciContext.getAciTuples();
         }
@@ -95,8 +99,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
 
     private boolean isRelated( ACITuple tuple, OperationScope scope, Dn userName, Dn entryName,
-        AttributeType attributeType,
-        Value<?> attrValue, Entry entry ) throws LdapException, InternalError
+        AttributeType attributeType, Value attrValue, Entry entry ) throws LdapException, InternalError
     {
         String oid = null;
 
@@ -186,7 +189,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     Attribute entryAttribute = j.next();
 
                     AttributeType attr = entryAttribute.getAttributeType();
-                    String attrOid = null;
+                    String attrOid;
 
                     if ( attr != null )
                     {
@@ -283,9 +286,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                     {
                         Attribute entryAttribute = entry.get( oid );
 
-                        if ( ( entryAttribute != null )
-                            && ( ( entryAttribute.contains( userName.getNormName() ) 
-                                || ( entryAttribute.contains( userName.getName() ) ) ) ) )
+                        if ( ( entryAttribute != null ) && entryAttribute.contains( userName.getNormName() ) )
                         {
                             return true;
                         }

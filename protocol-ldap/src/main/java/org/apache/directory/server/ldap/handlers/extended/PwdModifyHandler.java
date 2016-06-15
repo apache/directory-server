@@ -108,14 +108,17 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             }
             
             Attribute at = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
+            
             if ( ( oldPassword != null ) && ( at != null ) )
             {
-                for ( Value<?> v : at )
+                for ( Value value : at )
                 {
-                    boolean equal = PasswordUtil.compareCredentials( oldPassword, v.getBytes() );
+                    byte[] bytes = value.getBytes();
+                    boolean equal = PasswordUtil.compareCredentials( oldPassword, bytes );
+                    
                     if ( equal )
                     {
-                        oldPassword = v.getBytes();
+                        oldPassword = bytes;
                     }
                 }
             }

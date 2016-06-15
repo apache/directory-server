@@ -123,7 +123,7 @@ public class ChangePasswordConfigReaderTest
         SingleFileLdifPartition configPartition = new SingleFileLdifPartition( schemaManager, dnFactory );
         configPartition.setId( "config" );
         configPartition.setPartitionPath( new File( configFile ).toURI() );
-        configPartition.setSuffixDn( new Dn( "ou=config" ) );
+        configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
 
         configPartition.setCacheService( cacheService );

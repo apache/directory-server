@@ -116,7 +116,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         AttributeType objectClassAT = session.getCoreSession().getDirectoryService().getAtProvider().getObjectClass();
 
         EqualityNode<String> ocIsReferral = new EqualityNode<String>( objectClassAT,
-            new org.apache.directory.api.ldap.model.entry.StringValue( objectClassAT, SchemaConstants.REFERRAL_OC ) );
+            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ) );
 
         return ocIsReferral;
     }
@@ -162,7 +162,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         // compose notification criteria and add the listener to the event
         // service using that notification criteria to determine which events
         // are to be delivered to the persistent search issuing client
-        NotificationCriteria criteria = new NotificationCriteria();
+        NotificationCriteria criteria = new NotificationCriteria( session.getCoreSession().getDirectoryService().getSchemaManager() );
         criteria.setAliasDerefMode( req.getDerefAliases() );
         criteria.setBase( req.getBase() );
         criteria.setFilter( req.getFilter() );
@@ -886,9 +886,9 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             respRef = new SearchResultReferenceImpl( req.getMessageId() );
             respRef.setReferral( new ReferralImpl() );
 
-            for ( Value<?> val : ref )
+            for ( Value val : ref )
             {
-                String url = val.getString();
+                String url = val.getValue();
 
                 if ( !url.startsWith( "ldap" ) )
                 {
@@ -1225,7 +1225,10 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         ReferralManager referralManager = directoryService.getReferralManager();
         Dn reqTargetDn = req.getBase();
 
-        reqTargetDn.apply( directoryService.getSchemaManager() );
+        if ( !reqTargetDn.isSchemaAware() )
+        {
+            reqTargetDn = new Dn( directoryService.getSchemaManager(), reqTargetDn );
+        }
 
         // Check if the entry itself is a referral
         referralManager.lockRead();
@@ -1386,9 +1389,9 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         Attribute refAttr = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get( SchemaConstants.REF_AT );
 
-        for ( Value<?> refval : refAttr )
+        for ( Value refval : refAttr )
         {
-            String refstr = refval.getString();
+            String refstr = refval.getValue();
 
             // need to add non-ldap URLs as-is
             if ( !refstr.startsWith( "ldap" ) )
@@ -1446,16 +1449,14 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     private boolean isSubSchemaSubEntrySearch( LdapSession session, SearchRequest req ) throws Exception
     {
         Dn base = req.getBase();
-        String baseNormForm = ( base.isSchemaAware() ? base.getNormName() : base.getNormName() );
 
         DirectoryService ds = session.getCoreSession().getDirectoryService();
         PartitionNexus nexus = ds.getPartitionNexus();
 
-        Value<?> subschemaSubentry = nexus.getRootDseValue( ds.getAtProvider().getSubschemaSubentry() );
-        Dn subschemaSubentryDn = ds.getDnFactory().create( subschemaSubentry.getString() );
-        String subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
+        Value subschemaSubentry = nexus.getRootDseValue( ds.getAtProvider().getSubschemaSubentry() );
+        Dn subschemaSubentryDn = ds.getDnFactory().create( subschemaSubentry.getValue() );
 
-        return subschemaSubentryDnNorm.equals( baseNormForm );
+        return subschemaSubentryDn.equals( base );
     }
 
 
@@ -1478,9 +1479,9 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         Attribute refAttr = ( ( ClonedServerEntry ) referralAncestor ).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
-        for ( Value<?> value : refAttr )
+        for ( Value value : refAttr )
         {
-            String ref = value.getString();
+            String ref = value.getValue();
 
             if ( IS_DEBUG )
             {
@@ -1511,7 +1512,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             Dn urlDn = new Dn( session.getCoreSession().getDirectoryService()
                 .getSchemaManager(), ldapUrl.getDn().getName() );
 
-            if ( urlDn.getNormName().equals( req.getBase().getNormName() ) )
+            if ( urlDn.equals( req.getBase() ) )
             {
                 ldapUrl.setForceScopeRendering( true );
                 ldapUrl.setAttributes( req.getAttributes() );
@@ -1558,9 +1559,9 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         Attribute refAttr = ( ( ClonedServerEntry ) referralAncestor ).getOriginalEntry().get( SchemaConstants.REF_AT );
         Referral referral = new ReferralImpl();
 
-        for ( Value<?> value : refAttr )
+        for ( Value value : refAttr )
         {
-            String ref = value.getString();
+            String ref = value.getValue();
 
             if ( IS_DEBUG )
             {
@@ -1590,7 +1591,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             Dn urlDn = new Dn( session.getCoreSession().getDirectoryService()
                 .getSchemaManager(), ldapUrl.getDn().getName() );
 
-            if ( urlDn.getNormName().equals( referralAncestor.getDn().getNormName() ) )
+            if ( urlDn.equals( referralAncestor.getDn() ) )
             {
                 // according to the protocol there is no need for the dn since it is the same as this request
                 StringBuilder buf = new StringBuilder();

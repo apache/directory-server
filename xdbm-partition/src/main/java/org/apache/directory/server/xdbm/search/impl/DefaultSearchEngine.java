@@ -102,6 +102,7 @@ public class DefaultSearchEngine implements SearchEngine
      *
      * @return the optimizer
      */
+    @Override
     public Optimizer getOptimizer()
     {
         return optimizer;
@@ -111,6 +112,7 @@ public class DefaultSearchEngine implements SearchEngine
     /**
      * {@inheritDoc}
      */
+    @Override
     public PartitionSearchResult computeResult( SchemaManager schemaManager, SearchOperationContext searchContext )
         throws Exception
     {
@@ -124,7 +126,7 @@ public class DefaultSearchEngine implements SearchEngine
 
         // Prepare the instance containing the search result
         PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
-        Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
+        Set<IndexEntry<String, String>> resultSet = new HashSet<>();
 
         // Check that we have an entry, otherwise we can immediately get out
         if ( baseId == null )
@@ -173,7 +175,15 @@ public class DefaultSearchEngine implements SearchEngine
              * finding the base, or always then we set the effective base to the alias target
              * got from the alias index.
              */
-            effectiveBase = aliasedBase.apply( schemaManager );
+            if ( !aliasedBase.isSchemaAware() )
+            {
+                effectiveBase = new Dn( schemaManager, aliasedBase );
+            }
+            else
+            {
+                effectiveBase = aliasedBase;
+            }
+            
             effectiveBaseId = db.getEntryId( effectiveBase );
         }
 
@@ -182,18 +192,18 @@ public class DefaultSearchEngine implements SearchEngine
         // --------------------------------------------------------------------
         if ( scope == SearchScope.OBJECT )
         {
-            IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
+            IndexEntry<String, String> indexEntry = new IndexEntry<>();
             indexEntry.setId( effectiveBaseId );
 
             // Fetch the entry, as we have only one
             Entry entry = db.fetch( indexEntry.getId(), effectiveBase );
 
-            Evaluator<? extends ExprNode> evaluator = null;
+            Evaluator<? extends ExprNode> evaluator;
 
             if ( filter instanceof ObjectClassNode )
             {
                 ScopeNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
-                evaluator = new BaseLevelScopeEvaluator<Entry>( db, node );
+                evaluator = new BaseLevelScopeEvaluator<>( db, node );
             }
             else
             {
@@ -204,7 +214,7 @@ public class DefaultSearchEngine implements SearchEngine
                 if ( evaluator == null )
                 {
                     ScopeNode node = new ScopeNode( aliasDerefMode, effectiveBase, effectiveBaseId, scope );
-                    evaluator = new BaseLevelScopeEvaluator<Entry>( db, node );
+                    evaluator = new BaseLevelScopeEvaluator<>( db, node );
                 }
             }
 
@@ -220,7 +230,7 @@ public class DefaultSearchEngine implements SearchEngine
         // This is not a BaseObject scope search.
 
         // Add the scope node using the effective base to the filter
-        ExprNode root = null;
+        ExprNode root;
 
         if ( filter instanceof ObjectClassNode )
         {
@@ -238,7 +248,7 @@ public class DefaultSearchEngine implements SearchEngine
         optimizer.annotate( root );
         Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( root );
 
-        Set<String> uuidSet = new HashSet<String>();
+        Set<String> uuidSet = new HashSet<>();
         searchResult.setAliasDerefMode( aliasDerefMode );
         searchResult.setCandidateSet( uuidSet );
 
@@ -250,7 +260,7 @@ public class DefaultSearchEngine implements SearchEngine
         {
             for ( String uuid : uuidSet )
             {
-                IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
+                IndexEntry<String, String> indexEntry = new IndexEntry<>();
                 indexEntry.setId( uuid );
                 resultSet.add( indexEntry );
             }
@@ -265,7 +275,7 @@ public class DefaultSearchEngine implements SearchEngine
                 IndexEntry<String, String> indexEntry = cursor.get();
 
                 // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID>
-                IndexEntry<String, String> forwardIndexEntry = new IndexEntry<String, String>();
+                IndexEntry<String, String> forwardIndexEntry = new IndexEntry<>();
                 forwardIndexEntry.setKey( indexEntry.getKey() );
                 forwardIndexEntry.setId( indexEntry.getKey() );
                 forwardIndexEntry.setEntry( null );
@@ -284,6 +294,7 @@ public class DefaultSearchEngine implements SearchEngine
     /**
      * @see SearchEngine#evaluator(ExprNode)
      */
+    @Override
     public Evaluator<? extends ExprNode> evaluator( ExprNode filter ) throws Exception
     {
         return evaluatorBuilder.build( filter );

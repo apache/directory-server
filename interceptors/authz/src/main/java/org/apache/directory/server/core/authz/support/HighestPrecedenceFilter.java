@@ -36,6 +36,10 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
  */
 public class HighestPrecedenceFilter implements ACITupleFilter
 {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {

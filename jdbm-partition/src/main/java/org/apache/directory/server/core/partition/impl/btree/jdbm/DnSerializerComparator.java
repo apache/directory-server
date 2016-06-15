@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.comparators.DnComparator;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 
 
@@ -33,6 +34,9 @@ public class DnSerializerComparator extends SerializableComparator<Dn>
 {
     /** The serialVersionUID */
     private static final long serialVersionUID = 1L;
+    
+    /** The DN comparator */
+    private static DnComparator dnComparator = new DnComparator( null );
 
 
     /**
@@ -52,21 +56,6 @@ public class DnSerializerComparator extends SerializableComparator<Dn>
     @Override
     public int compare( Dn dn1, Dn dn2 )
     {
-        if ( dn1 == null )
-        {
-            if ( dn2 == null )
-            {
-                return 0;
-            }
-
-            return -1;
-        }
-
-        if ( dn2 == null )
-        {
-            return 1;
-        }
-
-        return dn1.getNormName().compareTo( dn2.getNormName() );
+        return dnComparator.compare( dn1, dn2 );
     }
 }

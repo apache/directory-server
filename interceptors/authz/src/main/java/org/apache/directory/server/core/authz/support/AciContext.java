@@ -48,7 +48,7 @@ public class AciContext
     private OperationContext operationContext;
 
     /** The Users belonging to a group */
-    private Collection<Dn> userGroupNames;
+    private Collection<String> userGroupNames;
 
     /** The user's Dn */
     private Dn userDn;
@@ -63,7 +63,7 @@ public class AciContext
     private AttributeType attributeType;
 
     /** The attribute's values */
-    private Value<?> attrValue;
+    private Value attrValue;
 
     /** The allowed operations */
     private Collection<MicroOperation> microOperations;
@@ -130,7 +130,7 @@ public class AciContext
     /**
      * @return the userGroupNames
      */
-    public Collection<Dn> getUserGroupNames()
+    public Collection<String> getUserGroupNames()
     {
         return userGroupNames;
     }
@@ -139,7 +139,7 @@ public class AciContext
     /**
      * @param userGroupNames the userGroupNames to set
      */
-    public void setUserGroupNames( Collection<Dn> userGroupNames )
+    public void setUserGroupNames( Collection<String> userGroupNames )
     {
         this.userGroupNames = userGroupNames;
     }
@@ -220,7 +220,7 @@ public class AciContext
     /**
      * @return the attrValue
      */
-    public Value<?> getAttrValue()
+    public Value getAttrValue()
     {
         return attrValue;
     }
@@ -229,7 +229,7 @@ public class AciContext
     /**
      * @param attrValue the attrValue to set
      */
-    public void setAttrValue( Value<?> attrValue )
+    public void setAttrValue( Value attrValue )
     {
         this.attrValue = attrValue;
     }

@@ -205,7 +205,8 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
         if ( userIdxCursor != null )
         {
             IndexEntry<V, String> advanceTo = new IndexEntry<V, String>();
-            advanceTo.setKey( ( V ) greaterEqEvaluator.getExpression().getValue().getValue() );
+            String normalizedNode = greaterEqEvaluator.getNormalizer().normalize( greaterEqEvaluator.getExpression().getValue().getValue() );
+            advanceTo.setKey( ( V ) normalizedNode );
             userIdxCursor.before( advanceTo );
         }
         else

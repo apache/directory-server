@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
+import org.apache.directory.api.ldap.model.schema.PrepareString;
 import org.apache.directory.api.ldap.model.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -159,7 +160,7 @@ public class CursorBuilder
     private <T> long computeApproximate( ApproximateNode<T> node, PartitionSearchResult searchResult )
         throws Exception
     {
-        ApproximateCursor<T> cursor = new ApproximateCursor<T>( db,
+        ApproximateCursor<T> cursor = new ApproximateCursor<>( db,
             ( ApproximateEvaluator<T> ) evaluatorBuilder
                 .build( node ) );
 
@@ -171,10 +172,11 @@ public class CursorBuilder
             IndexEntry<T, String> indexEntry = cursor.get();
 
             String uuid = indexEntry.getId();
+            boolean added = uuidSet.add( uuid );
 
-            if ( !uuidSet.contains( uuid ) )
+            // if the UUID was added increment the result count
+            if ( added )
             {
-                uuidSet.add( uuid );
                 nbResults++;
             }
         }
@@ -207,7 +209,7 @@ public class CursorBuilder
         }
 
         AttributeType attributeType = node.getAttributeType();
-        Value<T> value = node.getValue();
+        Value value = node.getValue();
         int nbResults = 0;
 
         // Fetch all the UUIDs if we have an index
@@ -215,7 +217,7 @@ public class CursorBuilder
         {
             // Get the cursor using the index
             Index<T, String> userIndex = ( Index<T, String> ) db.getIndex( attributeType );
-            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( value.getValue() );
+            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( ( T ) value.getValue() );
             Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
@@ -224,11 +226,11 @@ public class CursorBuilder
                 IndexEntry<T, String> indexEntry = userIdxCursor.get();
 
                 String uuid = indexEntry.getId();
-
-                if ( !uuidSet.contains( uuid ) )
+                boolean added = uuidSet.add( uuid );
+                
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -253,7 +255,7 @@ public class CursorBuilder
         throws Exception
     {
         AttributeType attributeType = node.getAttributeType();
-        Value<T> value = node.getValue();
+        Value value = node.getValue();
         int nbResults = 0;
 
         // Fetch all the UUIDs if we have an index
@@ -264,8 +266,8 @@ public class CursorBuilder
             Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
-            IndexEntry<T, String> indexEntry = new IndexEntry<T, String>();
-            indexEntry.setKey( value.getValue() );
+            IndexEntry<T, String> indexEntry = new IndexEntry<>();
+            indexEntry.setKey( ( T ) value.getValue() );
 
             userIdxCursor.before( indexEntry );
             Set<String> uuidSet = searchResult.getCandidateSet();
@@ -276,11 +278,11 @@ public class CursorBuilder
                 indexEntry = userIdxCursor.get();
 
                 String uuid = indexEntry.getId();
+                boolean added = uuidSet.add( uuid );
 
-                if ( !uuidSet.contains( uuid ) )
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -305,7 +307,7 @@ public class CursorBuilder
         throws Exception
     {
         AttributeType attributeType = node.getAttributeType();
-        Value<T> value = node.getValue();
+        Value value = node.getValue();
         int nbResults = 0;
 
         // Fetch all the UUIDs if we have an index
@@ -316,8 +318,8 @@ public class CursorBuilder
             Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
-            IndexEntry<T, String> indexEntry = new IndexEntry<T, String>();
-            indexEntry.setKey( value.getValue() );
+            IndexEntry<T, String> indexEntry = new IndexEntry<>();
+            indexEntry.setKey( ( T ) value.getValue() );
 
             userIdxCursor.after( indexEntry );
             Set<String> uuidSet = searchResult.getCandidateSet();
@@ -328,11 +330,11 @@ public class CursorBuilder
                 indexEntry = userIdxCursor.get();
 
                 String uuid = indexEntry.getId();
+                boolean added = uuidSet.add( uuid );
 
-                if ( !uuidSet.contains( uuid ) )
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -367,7 +369,7 @@ public class CursorBuilder
                 attributeType.getOid() );
 
             // Position the index on the element we should start from
-            IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
+            IndexEntry<String, String> indexEntry = new IndexEntry<>();
             Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
@@ -376,11 +378,11 @@ public class CursorBuilder
                 indexEntry = presenceCursor.get();
 
                 String uuid = indexEntry.getId();
+                boolean added = uuidSet.add( uuid );
 
-                if ( !uuidSet.contains( uuid ) )
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -410,7 +412,7 @@ public class CursorBuilder
         // and below up to the number of children
         Cursor<IndexEntry<ParentIdAndRdn, String>> rdnCursor = db.getRdnIndex().forwardCursor();
 
-        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<>();
         startingPos.setKey( new ParentIdAndRdn( node.getBaseId(), ( Rdn[] ) null ) );
         rdnCursor.before( startingPos );
 
@@ -433,34 +435,42 @@ public class CursorBuilder
 
                 if ( aliasedDn != null )
                 {
-                    aliasedDn.apply( evaluatorBuilder.getSchemaManager() );
+                    if ( !aliasedDn.isSchemaAware() )
+                    {
+                        aliasedDn = new Dn( evaluatorBuilder.getSchemaManager(), aliasedDn );
+                    }
+
                     String aliasedId = db.getEntryId( aliasedDn );
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
-                    if ( !candidateSet.contains( aliasedId ) )
+                    boolean added = candidateSet.add( aliasedId );
+                    
+                    if ( added )
                     {
-                        candidateSet.add( aliasedId );
                         nbResults++;
                     }
                 }
                 else
                 {
+                    // The UUID is not present in the Set, we add it
+                    boolean added = candidateSet.add( uuid );
+                    
                     // This is not an alias
-                    if ( !candidateSet.contains( uuid ) )
+                    if ( added )
                     {
-                        // The UUID is not present in the Set, we add it
-                        candidateSet.add( uuid );
                         nbResults++;
                     }
                 }
             }
             else
             {
-                if ( !candidateSet.contains( uuid ) )
+                // The UUID is not present in the Set, we add it
+                boolean added = candidateSet.add( uuid );
+                
+                // This is not an alias
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    candidateSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -493,12 +503,12 @@ public class CursorBuilder
         // and below up to the number of descendant
         String baseId = node.getBaseId();
         ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
-        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<>();
 
         startingPos.setKey( parentIdAndRdn );
         startingPos.setId( baseId );
 
-        Cursor<IndexEntry<ParentIdAndRdn, String>> rdnCursor = new SingletonIndexCursor<ParentIdAndRdn>(
+        Cursor<IndexEntry<ParentIdAndRdn, String>> rdnCursor = new SingletonIndexCursor<>(
             startingPos );
         String parentId = parentIdAndRdn.getParentId();
 
@@ -521,14 +531,19 @@ public class CursorBuilder
 
                 if ( aliasedDn != null )
                 {
-                    aliasedDn.apply( evaluatorBuilder.getSchemaManager() );
+                    if ( !aliasedDn.isSchemaAware() )
+                    {
+                        aliasedDn = new Dn( evaluatorBuilder.getSchemaManager(), aliasedDn );
+                    }
+
                     String aliasedId = db.getEntryId( aliasedDn );
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
-                    if ( !candidateSet.contains( aliasedId ) )
+                    boolean added = candidateSet.add( aliasedId );
+                    
+                    if ( added )
                     {
-                        candidateSet.add( aliasedId );
                         nbResults++;
 
                         ScopeNode newScopeNode = new ScopeNode(
@@ -543,20 +558,22 @@ public class CursorBuilder
                 else
                 {
                     // This is not an alias
-                    if ( !candidateSet.contains( uuid ) )
+                    // The UUID is not present in the Set, we add it
+                    boolean added = candidateSet.add( uuid );
+                    
+                    if ( added )
                     {
-                        // The UUID is not present in the Set, we add it
-                        candidateSet.add( uuid );
                         nbResults++;
                     }
                 }
             }
             else
             {
-                if ( !candidateSet.contains( uuid ) )
+                // The UUID is not present in the Set, we add it
+                boolean added = candidateSet.add( uuid );
+                
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    candidateSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -576,15 +593,22 @@ public class CursorBuilder
         throws Exception
     {
         AttributeType attributeType = node.getAttributeType();
+        
+        // Check if the AttributeType has a SubstringMatchingRule
+        if ( attributeType.getSubstring() == null )
+        {
+            // No SUBSTRING matching rule : return 0
+            return 0L;
+        }
 
         // Fetch all the UUIDs if we have an index
         if ( db.hasIndexOn( attributeType ) )
         {
-            Index<String, String> userIndex = ( ( Index<String, String> ) db.getIndex( attributeType ) );
+            Index<String, String> userIndex = ( Index<String, String> ) db.getIndex( attributeType );
             Cursor<IndexEntry<String, String>> cursor = userIndex.forwardCursor();
 
             // Position the index on the element we should start from
-            IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
+            IndexEntry<String, String> indexEntry = new IndexEntry<>();
             String initial = node.getInitial();
             
             boolean fullIndexScan = false;
@@ -596,7 +620,7 @@ public class CursorBuilder
             }
             else
             {
-                indexEntry.setKey( initial );
+                indexEntry.setKey( attributeType.getEquality().getNormalizer().normalize( initial, PrepareString.AssertionType.SUBSTRING_INITIAL ) );
                 
                 cursor.before( indexEntry );
             }
@@ -635,6 +659,11 @@ public class CursorBuilder
 
             Set<String> uuidSet = searchResult.getCandidateSet();
 
+            if ( regexp == null )
+            {
+                return nbResults;
+            }
+            
             // And loop on it
             while ( cursor.next() )
             {
@@ -644,7 +673,7 @@ public class CursorBuilder
 
                 boolean matched = regexp.matcher( key ).matches();
                 
-                if ( !fullIndexScan & !matched )
+                if ( !fullIndexScan && !matched )
                 {
                     cursor.close();
 
@@ -658,10 +687,11 @@ public class CursorBuilder
                 
                 String uuid = indexEntry.getId();
 
-                if ( !uuidSet.contains( uuid ) )
+                boolean added = uuidSet.add( uuid );
+                
+                // if the UUID was added increment the result count
+                if ( added )
                 {
-                    // The UUID is not present in the Set, we add it
-                    uuidSet.add( uuid );
                     nbResults++;
                 }
             }
@@ -776,9 +806,8 @@ public class CursorBuilder
 
         // Once found we return the number of candidates for this child
         ExprNode minChild = children.get( minIndex );
-        long nbResults = build( minChild, searchResult );
 
-        return nbResults;
+        return build( minChild, searchResult );
     }
 
 

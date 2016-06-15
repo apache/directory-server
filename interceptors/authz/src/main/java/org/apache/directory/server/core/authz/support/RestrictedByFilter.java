@@ -50,7 +50,7 @@ public class RestrictedByFilter implements ACITupleFilter
             return aciContext.getAciTuples();
         }
 
-        if ( aciContext.getAciTuples().size() == 0 )
+        if ( aciContext.getAciTuples().isEmpty() )
         {
             return aciContext.getAciTuples();
         }
@@ -74,7 +74,7 @@ public class RestrictedByFilter implements ACITupleFilter
     }
 
 
-    public boolean isRemovable( ACITuple tuple, AttributeType attributeType, Value<?> attrValue, Entry entry )
+    public boolean isRemovable( ACITuple tuple, AttributeType attributeType, Value attrValue, Entry entry )
         throws LdapException
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )

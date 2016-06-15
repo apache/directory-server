@@ -429,8 +429,6 @@ public final class SchemaService
             addAttribute( attrs, SchemaConstants.ENTRY_DN_AT );
         }
 
-        Entry result = new ClonedServerEntry( attrs );
-
-        return result;
+        return new ClonedServerEntry( attrs );
     }
 }

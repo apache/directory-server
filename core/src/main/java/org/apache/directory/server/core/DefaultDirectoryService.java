@@ -31,7 +31,6 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -527,7 +526,7 @@ public class DefaultDirectoryService implements DirectoryService
         for ( Method method : methods )
         {
             Class<?>[] param = method.getParameterTypes();
-            boolean hasCorrestSig = false;
+            boolean hasCorrestSig;
 
             // check for the correct signature
             if ( ( param == null ) || ( param.length > 1 ) || ( param.length == 0 ) )
@@ -660,7 +659,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public void setInterceptors( List<Interceptor> interceptors )
     {
-        Map<String, Interceptor> interceptorNames = new HashMap<String, Interceptor>();
+        Map<String, Interceptor> interceptorNames = new ConcurrentHashMap<>();
 
         // Check if we don't have duplicate names in the interceptors list
         for ( Interceptor interceptor : interceptors )
@@ -910,7 +909,7 @@ public class DefaultDirectoryService implements DirectoryService
             // can be null when called before starting up
             if ( partitionNexus != null )
             {
-                partitionNexus.removeContextPartition( partition.getSuffixDn() );
+                partitionNexus.removeContextPartition( partition.getSuffixDn().getNormName() );
             }
         }
         catch ( LdapException le )
@@ -995,7 +994,16 @@ public class DefaultDirectoryService implements DirectoryService
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( credentials );
-        bindContext.setDn( principalDn.apply( schemaManager ) );
+        
+        if ( principalDn.isSchemaAware() )
+        {
+            bindContext.setDn( principalDn );
+        }
+        else
+        {
+            bindContext.setDn( new Dn( schemaManager, principalDn ) );
+        }
+        
         bindContext.setInterceptors( getInterceptors( OperationEnum.BIND ) );
 
         operationManager.bind( bindContext );
@@ -1021,7 +1029,16 @@ public class DefaultDirectoryService implements DirectoryService
 
         BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( credentials );
-        bindContext.setDn( principalDn.apply( schemaManager ) );
+
+        if ( principalDn.isSchemaAware() )
+        {
+            bindContext.setDn( principalDn );
+        }
+        else
+        {
+            bindContext.setDn( new Dn( schemaManager, principalDn ) );
+        }
+
         bindContext.setSaslMechanism( saslMechanism );
         bindContext.setInterceptors( getInterceptors( OperationEnum.BIND ) );
 
@@ -1097,7 +1114,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
             else
             {
-                adminSession.moveAndRename( oldDn, target, new Rdn( newRdn ), delOldRdn );
+                adminSession.moveAndRename( oldDn, target, newRdn, delOldRdn );
             }
         }
     }
@@ -1678,12 +1695,12 @@ public class DefaultDirectoryService implements DirectoryService
     protected void showSecurityWarnings() throws Exception
     {
         // Warn if the default password is not changed.
-        boolean needToChangeAdminPassword = false;
+        boolean needToChangeAdminPassword;
 
         Dn adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
 
         Entry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
-        Value<?> userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
+        Value userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
         needToChangeAdminPassword = Arrays.equals( PartitionNexus.ADMIN_PASSWORD_BYTES, userPassword.getBytes() );
 
         if ( needToChangeAdminPassword )
@@ -1802,7 +1819,11 @@ public class DefaultDirectoryService implements DirectoryService
         schemaPartition.initialize();
         partitions.add( schemaPartition );
         systemPartition.setCacheService( cacheService );
-        systemPartition.getSuffixDn().apply( schemaManager );
+        
+        if ( !systemPartition.getSuffixDn().isSchemaAware() )
+        {
+            systemPartition.setSuffixDn( new Dn( schemaManager, systemPartition.getSuffixDn() ) );
+        }
 
         adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
@@ -1944,8 +1965,7 @@ public class DefaultDirectoryService implements DirectoryService
             entry.setDn( newDn );
 
             // TODO Let's get rid of this Attributes crap
-            Entry serverEntry = new DefaultEntry( schemaManager, entry );
-            return serverEntry;
+            return new DefaultEntry( schemaManager, entry );
         }
         catch ( Exception e )
         {
@@ -2016,16 +2036,16 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public Interceptor getInterceptor( String interceptorName )
     {
-        readLock.lock();
+        //readLock.lock();
 
-        try
-        {
+        //try
+        //{
             return interceptorNames.get( interceptorName );
-        }
-        finally
-        {
-            readLock.unlock();
-        }
+        //}
+        //finally
+        //{
+            //readLock.unlock();
+        //}
     }
 
 

@@ -185,8 +185,7 @@ public class LeafEvaluator implements Evaluator
          * and use the comparator to determine if a match exists.
          */
         Normalizer normalizer = getNormalizer( attributeType );
-        Comparator comparator = getComparator( attributeType );
-        Object filterValue = normalizer.normalize( node.getValue() );
+        Value filterValue = node.getValue();
 
         /*
          * Cheaper to not check isGreater in one loop - better to separate
@@ -194,12 +193,10 @@ public class LeafEvaluator implements Evaluator
          */
         if ( isGreaterOrLesser == COMPARE_GREATER )
         {
-            for ( Value<?> value : attr )
+            for ( Value value : attr )
             {
-                Object normValue = normalizer.normalize( value );
-
                 // Found a value that is greater than or equal to the ava value
-                if ( comparator.compare( normValue, filterValue ) >= 0 )
+                if ( value.compareTo( filterValue ) >= 0 )
                 {
                     return true;
                 }
@@ -207,12 +204,10 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-            for ( Value<?> value : attr )
+            for ( Value value : attr )
             {
-                Object normValue = normalizer.normalize( value );
-
                 // Found a value that is less than or equal to the ava value
-                if ( comparator.compare( normValue, filterValue ) <= 0 )
+                if ( value.compareTo( filterValue ) <= 0 )
                 {
                     return true;
                 }
@@ -269,7 +264,7 @@ public class LeafEvaluator implements Evaluator
 
         // check if Ava value exists in attribute
         AttributeType attributeType = node.getAttributeType();
-        Value<?> value = null;
+        Value value = null;
 
         if ( attributeType.getSyntax().isHumanReadable() )
         {
@@ -279,7 +274,7 @@ public class LeafEvaluator implements Evaluator
             }
             else
             {
-                value = new org.apache.directory.api.ldap.model.entry.StringValue( node.getValue().getString() );
+                value = new Value( attributeType, node.getValue().getValue() );
             }
         }
         else
@@ -292,11 +287,8 @@ public class LeafEvaluator implements Evaluator
             return true;
         }
 
-        // get the normalized Ava filter value
-        Value<?> filterValue = normalizer.normalize( value );
-
         // check if the normalized value is present
-        if ( attr.contains( filterValue ) )
+        if ( attr.contains( value ) )
         {
             return true;
         }
@@ -306,11 +298,9 @@ public class LeafEvaluator implements Evaluator
          * a lookup to work.  For each value we normalize and use the comparator
          * to determine if a match exists.
          */
-        for ( Value<?> val : attr )
+        for ( Value val : attr )
         {
-            Value<?> normValue = normalizer.normalize( val );
-
-            if ( 0 == comparator.compare( normValue.getValue(), filterValue.getValue() ) )
+            if ( 0 == val.compareTo( value ) )
             {
                 return true;
             }

@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
@@ -117,7 +118,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 throw new LdapInvalidDnException( msg );
             }
 
-            suffixDn.apply( schemaManager );
+            if ( !suffixDn.isSchemaAware() )
+            {
+                suffixDn = new Dn( schemaManager, suffixDn );
+            }
 
             super.doInit();
 
@@ -132,7 +136,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      */
     private void loadEntries() throws Exception
     {
-        RandomAccessLdifReader parser = new RandomAccessLdifReader();
+        RandomAccessLdifReader parser = new RandomAccessLdifReader( schemaManager );
 
         Iterator<LdifEntry> itr = parser.iterator();
 
@@ -182,6 +186,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         synchronized ( lock )
@@ -207,6 +212,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         synchronized ( lock )
@@ -236,6 +242,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         synchronized ( lock )
@@ -250,6 +257,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         synchronized ( lock )
@@ -264,6 +272,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws LdapException
     {
         synchronized ( lock )
@@ -351,7 +360,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         // Start with the root
         Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
 
-        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<ParentIdAndRdn, String>();
+        IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
         cursor.before( startingPos );
         int countChildren = 0;
@@ -409,6 +418,24 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             try
             {
+                len = ldifFile.length();
+                super.init();
+            }
+            catch ( IOException e )
+            {
+                LdapException le = new LdapException( e.getMessage(), e );
+                le.initCause( e );
+
+                throw le;
+            }
+        }
+
+
+        public RandomAccessLdifReader( SchemaManager schemaManager ) throws LdapException
+        {
+            try
+            {
+                this.schemaManager = schemaManager;
                 len = ldifFile.length();
                 super.init();
             }

@@ -48,7 +48,6 @@ import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.AttributeUtils;
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -716,12 +715,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
                 if ( value instanceof byte[] )
                 {
-                    node = new EqualityNode<byte[]>( attributeType, new BinaryValue( ( byte[] ) value ) );
+                    node = new EqualityNode<>( attributeType, ( byte[] ) value  );
                 }
                 else
                 {
-                    node = new EqualityNode<String>( attributeType,
-                        new org.apache.directory.api.ldap.model.entry.StringValue( ( String ) value ) );
+                    node = new EqualityNode<>( attributeType,  ( String ) value );
                 }
 
                 AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
@@ -775,8 +773,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 // Add simpel Ava node if its value is a String
                 if ( val instanceof String )
                 {
-                    node = new EqualityNode<String>( attr.getID(),
-                        new org.apache.directory.api.ldap.model.entry.StringValue( ( String ) val ) );
+                    node = new EqualityNode<String>( attr.getID(), ( String ) val );
                     filter.addNode( node );
                 }
             }
@@ -855,7 +852,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             isfe.setRootCause( pe );
             throw isfe;
         }
-
+        
         AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
 
         try
@@ -975,7 +972,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         try
         {
             DirectoryListener listener = new EventListenerAdapter( ( ServerLdapContext ) this, namingListener );
-            NotificationCriteria criteria = new NotificationCriteria();
+            NotificationCriteria criteria = new NotificationCriteria( schemaManager );
             criteria.setFilter( filter );
             criteria.setScope( SearchScope.getSearchScope( searchControls.getSearchScope() ) );
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( getEnvironment() ) );

@@ -311,16 +311,16 @@ public class JdbmIndexTest
     public void testCountOneArg() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count( "foo" ) );
+        assertEquals( 0, idx.count( " foo " ) );
 
         idx.add( "bar", Strings.getUUID( 1234L ) );
-        assertEquals( 0, idx.count( "foo" ) );
+        assertEquals( 0, idx.count( " foo " ) );
 
-        idx.add( "foo", Strings.getUUID( 1234L ) );
-        assertEquals( 1, idx.count( "foo" ) );
+        idx.add( " foo ", Strings.getUUID( 1234L ) );
+        assertEquals( 1, idx.count( " foo " ) );
 
-        idx.add( "foo", Strings.getUUID( 333L ) );
-        assertEquals( 2, idx.count( "foo" ) );
+        idx.add( " foo ", Strings.getUUID( 333L ) );
+        assertEquals( 2, idx.count( " foo " ) );
     }
 
 
@@ -387,23 +387,23 @@ public class JdbmIndexTest
     public void testLookups() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
+        assertNull( idx.forwardLookup( " foo " ) );
+        assertNull( idx.forwardLookup( " bar " ) );
 
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
+        idx.add( " foo ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
+        assertTrue( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
 
-        idx.add( "foo", Strings.getUUID( 1L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
+        idx.add( " foo ", Strings.getUUID( 1L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
+        assertTrue( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
+        assertTrue( idx.forward( " foo ", Strings.getUUID( 1L ) ) );
 
         idx.add( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
-        assertTrue( idx.forward( "bar", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( "foo", Strings.getUUID( 1L ) ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " bar " ) );
+        assertTrue( idx.forward( " bar ", Strings.getUUID( 0L ) ) );
+        assertTrue( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
+        assertTrue( idx.forward( " foo ", Strings.getUUID( 1L ) ) );
     }
 
 
@@ -411,32 +411,32 @@ public class JdbmIndexTest
     public void testAddDropById() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
+        assertNull( idx.forwardLookup( " foo " ) );
+        assertNull( idx.forwardLookup( " bar " ) );
 
         // test add/drop without adding any duplicates
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
+        idx.add( " foo ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
 
-        idx.drop( "foo", Strings.getUUID( 0L ) );
-        assertNull( idx.forwardLookup( "foo" ) );
+        idx.drop( " foo ", Strings.getUUID( 0L ) );
+        assertNull( idx.forwardLookup( " foo " ) );
 
         // test add/drop with duplicates in bulk
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        idx.add( "foo", Strings.getUUID( 1L ) );
-        idx.add( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
+        idx.add( " foo ", Strings.getUUID( 0L ) );
+        idx.add( " foo ", Strings.getUUID( 1L ) );
+        idx.add( " bar ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " bar " ) );
 
-        idx.drop( "foo", Strings.getUUID( 0L ) );
-        idx.drop( "bar", Strings.getUUID( 0L ) );
-        assertFalse( idx.forward( "bar", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forward( "foo", Strings.getUUID( 0L ) ) );
+        idx.drop( " foo ", Strings.getUUID( 0L ) );
+        idx.drop( " bar ", Strings.getUUID( 0L ) );
+        assertFalse( idx.forward( " bar ", Strings.getUUID( 0L ) ) );
+        assertFalse( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
 
-        idx.drop( "bar", Strings.getUUID( 1L ) );
-        idx.drop( "foo", Strings.getUUID( 1L ) );
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
+        idx.drop( " bar ", Strings.getUUID( 1L ) );
+        idx.drop( " foo ", Strings.getUUID( 1L ) );
+        assertNull( idx.forwardLookup( " foo " ) );
+        assertNull( idx.forwardLookup( " bar " ) );
         assertEquals( 0, idx.count() );
     }
 
@@ -445,34 +445,34 @@ public class JdbmIndexTest
     public void testAddDropOneByOne() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
+        assertNull( idx.forwardLookup( " foo " ) );
+        assertNull( idx.forwardLookup( " bar " ) );
 
         // test add/drop without adding any duplicates
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
+        idx.add( " foo ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
 
-        idx.drop( "foo", Strings.getUUID( 0L ) );
-        assertNull( idx.forwardLookup( "foo" ) );
+        idx.drop( " foo ", Strings.getUUID( 0L ) );
+        assertNull( idx.forwardLookup( " foo " ) );
 
         // test add/drop with duplicates but one at a time
-        idx.add( "foo", Strings.getUUID( 0L ) );
-        idx.add( "foo", Strings.getUUID( 1L ) );
-        idx.add( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "bar" ) );
+        idx.add( " foo ", Strings.getUUID( 0L ) );
+        idx.add( " foo ", Strings.getUUID( 1L ) );
+        idx.add( " bar ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " bar " ) );
 
-        idx.drop( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( "foo" ) );
-        assertFalse( idx.forward( "bar", Strings.getUUID( 0L ) ) );
+        idx.drop( " bar ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
+        assertFalse( idx.forward( " bar ", Strings.getUUID( 0L ) ) );
 
-        idx.drop( "foo", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 1L ), idx.forwardLookup( "foo" ) );
-        assertFalse( idx.forward( "foo", Strings.getUUID( 0L ) ) );
+        idx.drop( " foo ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 1L ), idx.forwardLookup( " foo " ) );
+        assertFalse( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
 
-        idx.drop( "foo", Strings.getUUID( 1L ) );
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
+        idx.drop( " foo ", Strings.getUUID( 1L ) );
+        assertNull( idx.forwardLookup( " foo " ) );
+        assertNull( idx.forwardLookup( " bar " ) );
         assertEquals( 0, idx.count() );
     }
 
@@ -487,10 +487,10 @@ public class JdbmIndexTest
         initIndex();
         assertEquals( 0, idx.count() );
 
-        idx.add( "foo", Strings.getUUID( 1234L ) );
+        idx.add( " foo ", Strings.getUUID( 1234L ) );
         assertEquals( 1, idx.count() );
 
-        idx.add( "foo", Strings.getUUID( 333L ) );
+        idx.add( " foo ", Strings.getUUID( 333L ) );
         assertEquals( 2, idx.count() );
 
         idx.add( "bar", Strings.getUUID( 555L ) );
@@ -510,12 +510,12 @@ public class JdbmIndexTest
         cursor.next();
         IndexEntry<String, String> e2 = cursor.get();
         assertEquals( Strings.getUUID( 333L ), e2.getId() );
-        assertEquals( "foo", e2.getKey() );
+        assertEquals( " foo ", e2.getKey() );
 
         cursor.next();
         IndexEntry<String, String> e3 = cursor.get();
         assertEquals( Strings.getUUID( 1234L ), e3.getId() );
-        assertEquals( "foo", e3.getKey() );
+        assertEquals( " foo ", e3.getKey() );
 
         cursor.close();
     }

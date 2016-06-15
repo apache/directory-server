@@ -52,6 +52,11 @@ public class PasswordHistory implements Comparable<PasswordHistory>
     private static final char DELIMITER = '#';
 
 
+    /**
+     * Create a new instance of PasswordHistory
+     * 
+     * @param pwdHistoryVal The history date
+     */
     public PasswordHistory( String pwdHistoryVal )
     {
         int pos = pwdHistoryVal.indexOf( DELIMITER );
@@ -69,6 +74,10 @@ public class PasswordHistory implements Comparable<PasswordHistory>
     }
 
 
+    /**
+     * Create a new instance of PasswordHistory
+     * 
+     */
     public PasswordHistory( String time, byte[] password )
     {
         this.time = time;
@@ -117,12 +126,19 @@ public class PasswordHistory implements Comparable<PasswordHistory>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int compareTo( PasswordHistory o )
     {
         return o.getTime().compareTo( time );
     }
 
 
+    /**
+     * @see Object#toString()
+     */
     @Override
     public boolean equals( Object o )
     {

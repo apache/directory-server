@@ -44,6 +44,10 @@ public class LdapJavaStoredProcClassLoader extends ClassLoader
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Class<?> findClass( String name ) throws ClassNotFoundException
     {
         byte[] classBytes;

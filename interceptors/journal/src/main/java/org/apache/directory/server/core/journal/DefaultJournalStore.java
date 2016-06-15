@@ -57,6 +57,7 @@ public class DefaultJournalStore implements JournalStore
     /**
      * {@inheritDoc}
      */
+    @Override
     public void destroy() throws Exception
     {
         if ( writer != null )
@@ -69,6 +70,7 @@ public class DefaultJournalStore implements JournalStore
     /**
      * Initialize the interceptor
      */
+    @Override
     public void init( DirectoryService service ) throws Exception
     {
         if ( workingDirectory == null )
@@ -98,6 +100,7 @@ public class DefaultJournalStore implements JournalStore
      * @param revision The operation revision
      * @param forward The change to log
      */
+    @Override
     public boolean log( LdapPrincipal principal, long revision, LdifEntry forward )
     {
         synchronized ( writer )
@@ -144,6 +147,7 @@ public class DefaultJournalStore implements JournalStore
      * @return <code>true</code> if the ack has been written
      * @throws Exception if there are problems logging the ack
      */
+    @Override
     public boolean ack( long revision )
     {
         synchronized ( writer )
@@ -174,6 +178,7 @@ public class DefaultJournalStore implements JournalStore
      * @return <code>true</code> if the nack has been written
      * @throws Exception if there are problems logging the nack
      */
+    @Override
     public boolean nack( long revision )
     {
         synchronized ( writer )
@@ -197,6 +202,7 @@ public class DefaultJournalStore implements JournalStore
     }
 
 
+    @Override
     public void sync() throws Exception
     {
         // TODO Auto-generated method stub
@@ -204,6 +210,7 @@ public class DefaultJournalStore implements JournalStore
     }
 
 
+    @Override
     public long getCurrentRevision()
     {
         // TODO Auto-generated method stub
@@ -223,6 +230,7 @@ public class DefaultJournalStore implements JournalStore
     /**
      * @param fileName the fileName to set
      */
+    @Override
     public void setFileName( String fileName )
     {
         this.fileName = fileName;
@@ -232,6 +240,7 @@ public class DefaultJournalStore implements JournalStore
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setWorkingDirectory( String workingDirectoryName )
     {
         this.workingDirectory = new File( workingDirectoryName );

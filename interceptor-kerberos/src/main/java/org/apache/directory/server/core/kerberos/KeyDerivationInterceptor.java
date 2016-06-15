@@ -29,13 +29,12 @@ import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -140,8 +139,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             LOG.debug( "Adding the entry '{}' for Dn '{}'.", entry, normName.getName() );
 
             // Get the entry's password. We will use the first one.
-            BinaryValue userPassword = ( BinaryValue ) entry.get( userPasswordAT ).get();
-            String strUserPassword = userPassword.getString();
+            Value userPassword = entry.get( userPasswordAT ).get();
+            String strUserPassword = userPassword.getValue();
 
             if ( LOG.isDebugEnabled() )
             {
@@ -256,24 +255,24 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             if ( userPasswordAT.equals( attr.getAttributeType() ) )
             {
-                Object firstValue = attr.get();
+                Value firstValue = attr.get();
                 String password = null;
 
-                if ( firstValue instanceof StringValue )
+                if ( firstValue.isHumanReadable() )
                 {
-                    password = ( ( StringValue ) firstValue ).getString();
+                    password = firstValue.getValue();
                     LOG.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                     LOG_KRB.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                 }
-                else if ( firstValue instanceof BinaryValue )
+                else
                 {
-                    password = ( ( BinaryValue ) firstValue ).getString();
+                    password = Strings.utf8ToString( firstValue.getBytes() );
 
                     if ( LOG.isDebugEnabled() )
                     {
                         StringBuffer sb = new StringBuffer();
                         sb.append( "'" + password + "' ( " );
-                        sb.append( Strings.dumpBytes( ( ( BinaryValue ) firstValue ).getBytes() ).trim() );
+                        sb.append( Strings.dumpBytes( firstValue.getBytes() ).trim() );
                         sb.append( " )" );
                         LOG.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
                         LOG_KRB.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );

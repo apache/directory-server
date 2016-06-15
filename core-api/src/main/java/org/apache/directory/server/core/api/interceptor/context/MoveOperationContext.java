@@ -74,7 +74,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         super( session, oldDn );
         this.newSuperior = newSuperior;
         oldSuperior = oldDn.getParent();
-        rdn = ( oldDn.getRdn().clone() );
+        rdn = oldDn.getRdn().clone();
 
         if ( session != null )
         {
@@ -124,7 +124,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
         }
 
         oldSuperior = modifyDnRequest.getName().getParent();
-        rdn = ( modifyDnRequest.getName().getRdn().clone() );
+        rdn = modifyDnRequest.getName().getRdn().clone();
 
         try
         {
@@ -147,11 +147,29 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
 
     /**
+     * @param oldSuperior the oldSuperior to set
+     */
+    public void setOldSuperior( Dn oldSuperior )
+    {
+        this.oldSuperior = oldSuperior;
+    }
+
+
+    /**
      *  @return The newSuperior Dn
      */
     public Dn getNewSuperior()
     {
         return newSuperior;
+    }
+
+
+    /**
+     * @param newSuperior the newSuperior to set
+     */
+    public void setNewSuperior( Dn newSuperior )
+    {
+        this.newSuperior = newSuperior;
     }
 
 
@@ -165,6 +183,15 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
 
     /**
+     * @param rdn the rdn to set
+     */
+    public void setRdn( Rdn rdn )
+    {
+        this.rdn = rdn;
+    }
+
+
+    /**
      *  @return The new Dn
      */
     public Dn getNewDn()
@@ -174,8 +201,18 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
 
     /**
+     * @param newDn the newDn to set
+     */
+    public void setNewDn( Dn newDn )
+    {
+        this.newDn = newDn;
+    }
+
+
+    /**
      * @return the operation name
      */
+    @Override
     public String getName()
     {
         return MessageTypeEnum.MODIFYDN_REQUEST.name();
@@ -185,6 +222,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return "ReplaceContext for old Dn '" + getDn().getName() + "'" + ", newSuperior '" + newSuperior + "'";

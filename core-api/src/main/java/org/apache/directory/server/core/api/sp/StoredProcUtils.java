@@ -41,16 +41,16 @@ public final class StoredProcUtils
     public static String extractStoredProcName( String fullSPName )
     {
         int delimiter = fullSPName.lastIndexOf( SP_UNIT_DELIMITER );
-        String spName = fullSPName.substring( delimiter + SP_UNIT_DELIMITER.length() );
-        return spName;
+        
+        return fullSPName.substring( delimiter + SP_UNIT_DELIMITER.length() );
     }
 
 
     public static String extractStoredProcUnitName( String fullSPName )
     {
         int delimiter = fullSPName.lastIndexOf( SP_UNIT_DELIMITER );
-        String className = fullSPName.substring( 0, delimiter );
-        return className;
+
+        return fullSPName.substring( 0, delimiter );
     }
 
 }

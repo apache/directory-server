@@ -92,11 +92,11 @@ public class JdbmPartition extends AbstractBTreePartition
 
     private static final FilenameFilter DB_FILTER = new FilenameFilter()
     {
-
+        @Override
         public boolean accept( File dir, String name )
         {
             // really important to filter master.db and master.lg files
-            return ( name.endsWith( JDBM_DB_FILE_EXTN ) && !name.startsWith( "master." ) );
+            return name.endsWith( JDBM_DB_FILE_EXTN ) && !name.startsWith( "master." );
         }
     };
 
@@ -182,14 +182,12 @@ public class JdbmPartition extends AbstractBTreePartition
                 {
                     String msg = I18n.err( I18n.ERR_217, dn, entry );
                     ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
-                    LdapSchemaViolationException e = new LdapSchemaViolationException( rc, msg );
-                    //e.setResolvedName( entryDn );
-                    throw e;
+                    throw new LdapSchemaViolationException( rc, msg );
                 }
 
-                for ( Value<?> value : objectClass )
+                for ( Value value : objectClass )
                 {
-                    String valueStr = ( String ) value.getNormValue();
+                    String valueStr = value.getValue();
 
                     if ( valueStr.equals( SchemaConstants.TOP_OC ) )
                     {
@@ -225,9 +223,9 @@ public class JdbmPartition extends AbstractBTreePartition
                     // We may have more than one role
                     Attribute adminRoles = entry.get( administrativeRoleAT );
 
-                    for ( Value<?> value : adminRoles )
+                    for ( Value value : adminRoles )
                     {
-                        adminRoleIdx.add( ( String ) value.getNormValue(), id );
+                        adminRoleIdx.add( value.getValue(), id );
                     }
 
                     // Adds only those attributes that are indexed
@@ -248,9 +246,9 @@ public class JdbmPartition extends AbstractBTreePartition
                         // here lookup by attributeId is OK since we got attributeId from
                         // the entry via the enumeration - it's in there as is for sure
 
-                        for ( Value<?> value : attribute )
+                        for ( Value value : attribute )
                         {
-                            idx.add( value.getNormValue(), id );
+                            idx.add( value.getValue(), id );
                         }
 
                         // Adds only those attributes that are indexed
@@ -328,7 +326,7 @@ public class JdbmPartition extends AbstractBTreePartition
         List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
 
         // then add all index objects to a list
-        List<String> allIndices = new ArrayList<String>();
+        List<String> allIndices = new ArrayList<>();
 
         // Iterate on the declared indexes, deleting the old ones
         for ( Index<?, String> index : getIndexedAttributes() )
@@ -370,6 +368,7 @@ public class JdbmPartition extends AbstractBTreePartition
     }
 
 
+    @Override
     protected void doInit() throws Exception
     {
         if ( !initialized )
@@ -403,9 +402,9 @@ public class JdbmPartition extends AbstractBTreePartition
             List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
 
             // then add all index objects to a list
-            List<String> allIndices = new ArrayList<String>();
+            List<String> allIndices = new ArrayList<>();
 
-            List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
+            List<Index<?, String>> indexToBuild = new ArrayList<>();
             
             // Iterate on the declared indexes
             for ( Index<?, String> index : getIndexedAttributes() )
@@ -458,7 +457,7 @@ public class JdbmPartition extends AbstractBTreePartition
             // Create the master table (the table containing all the entries)
             master = new JdbmMasterTable( recMan, schemaManager );
 
-            if ( indexToBuild.size() > 0 )
+            if ( !indexToBuild.isEmpty() )
             {
                 buildUserIndex( indexToBuild );
             }
@@ -485,7 +484,7 @@ public class JdbmPartition extends AbstractBTreePartition
                 // Checking if the context entry DN is schema aware
                 if ( !contextEntryDn.isSchemaAware() )
                 {
-                    contextEntryDn.apply( schemaManager );
+                    contextEntryDn = new Dn( schemaManager, contextEntryDn );
                 }
 
                 // We're only adding the entry if the two DNs are equal
@@ -554,6 +553,7 @@ public class JdbmPartition extends AbstractBTreePartition
      * 
      * @throws Exception on failures to sync database files to disk
      */
+    @Override
     public synchronized void sync() throws Exception
     {
         if ( !initialized )
@@ -618,9 +618,9 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 if ( entryAttr != null )
                 {
-                    for ( Value<?> value : entryAttr )
+                    for ( Value value : entryAttr )
                     {
-                        index.add( value.getNormValue(), id );
+                        index.add( value.getValue(), id );
                     }
 
                     // Adds only those attributes that are indexed
@@ -690,6 +690,7 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
+    @Override
     protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
     {
         JdbmIndex<?> jdbmIndex;
@@ -730,6 +731,7 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
+    @Override
     protected synchronized void doDestroy() throws Exception
     {
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
@@ -754,7 +756,7 @@ public class JdbmPartition extends AbstractBTreePartition
             recMan.close();
             LOG.debug( "Closed record manager for {} partition.", suffixDn );
         }
-        catch ( Throwable t )
+        catch ( IOException t )
         {
             LOG.error( I18n.err( I18n.ERR_127 ), t );
             errors.addThrowable( t );
@@ -777,6 +779,7 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
+    @Override
     protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws Exception
     {
         LOG.debug( "Supplied index {} is not a JdbmIndex.  "
@@ -864,7 +867,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
         if ( el != null )
         {
-            return ( Entry ) el.getValue();
+            return ( Entry ) el.getObjectValue();
         }
 
         return null;
@@ -879,12 +882,14 @@ public class JdbmPartition extends AbstractBTreePartition
             return;
         }
 
+        Entry addedEntry = entry;
+        
         if ( entry instanceof ClonedServerEntry )
         {
-            entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
+            addedEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
         }
 
-        entryCache.put( new Element( id, entry ) );
+        entryCache.put( new Element( id, addedEntry ) );
     }
 
 }

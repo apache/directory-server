@@ -54,7 +54,6 @@ import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -114,7 +113,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@SuppressWarnings("unchecked")
 public class SyncReplRequestHandler implements ReplicationRequestHandler
 {
     /** A logger for the replication provider */
@@ -216,7 +214,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             registerPersistentSearches();
 
             cledListener = new ConsumerLogEntryChangeListener();
-            NotificationCriteria criteria = new NotificationCriteria();
+            NotificationCriteria criteria = new NotificationCriteria( dirService.getSchemaManager() );
             criteria.setBase( new Dn( dirService.getSchemaManager(), ServerDNConstants.REPL_CONSUMER_DN_STR ) );
             criteria.setEventMask( EventType.DELETE );
 
@@ -532,7 +530,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         ReplicaEventLog replicaLog = createReplicaEventLog( hostName, originalFilter );
 
         replicaLog.setRefreshNPersist( refreshNPersist );
-        StringValue contexCsnValue = new StringValue( contextCsn );
+        Value contexCsnValue = new Value( dirService.getAtProvider().getEntryCSN(), contextCsn );
 
         // modify the filter to include the context Csn
         GreaterEqNode csnGeNode = new GreaterEqNode( csnAT, contexCsnValue );
@@ -551,7 +549,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         // compose notification criteria and add the listener to the event
         // service using that notification criteria to determine which events
         // are to be delivered to the persistent search issuing client
-        NotificationCriteria criteria = new NotificationCriteria();
+        NotificationCriteria criteria = new NotificationCriteria( dirService.getSchemaManager() );
         criteria.setAliasDerefMode( request.getDerefAliases() );
         criteria.setBase( request.getBase() );
         criteria.setFilter( request.getFilter() );
@@ -800,9 +798,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             respRef = new SearchResultReferenceImpl( req.getMessageId() );
             respRef.setReferral( new ReferralImpl() );
 
-            for ( Value<?> val : ref )
+            for ( Value val : ref )
             {
-                String url = val.getString();
+                String url = val.getValue();
 
                 if ( !url.startsWith( "ldap" ) )
                 {
@@ -983,8 +981,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
-        EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, new StringValue(
-            objectClassAT, SchemaConstants.REFERRAL_OC ) );
+        EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ).getValue() );
 
         return ocIsReferral;
     }
@@ -1206,7 +1204,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         private ReplicaEventLog getEventLog( OperationContext opCtx )
         {
             Dn consumerLogDn = opCtx.getDn();
-            String name = ReplicaEventLog.REPLICA_EVENT_LOG_NAME_PREFIX + consumerLogDn.getRdn().getNormValue();
+            String name = ReplicaEventLog.REPLICA_EVENT_LOG_NAME_PREFIX + consumerLogDn.getRdn().getValue();
 
             for ( ReplicaEventLog log : replicaLogMap.values() )
             {

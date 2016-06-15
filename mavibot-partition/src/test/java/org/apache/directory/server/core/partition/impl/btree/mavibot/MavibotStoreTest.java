@@ -28,7 +28,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.directory.api.util.FileUtils;
@@ -64,6 +68,7 @@ import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
@@ -162,6 +167,8 @@ public class MavibotStoreTest
     @Before
     public void createStore() throws Exception
     {
+        StoreUtils.createdExtraAttributes( schemaManager );
+        
         // setup the working directory for the store
         wkdir = tmpDir.newFolder( getClass().getSimpleName() );
 
@@ -495,7 +502,6 @@ public class MavibotStoreTest
         assertEquals( Strings.getUUID( 1L ), store.getEntryId( dn ) );
         assertEquals( 11, store.count() );
         assertEquals( "o=Good Times Co.", store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
-        assertEquals( dn.getNormName(), store.getEntryDn( Strings.getUUID( 1L ) ).getNormName() );
         assertEquals( dn.getName(), store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
@@ -608,7 +614,7 @@ public class MavibotStoreTest
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
-        Rdn rdn = new Rdn( "sn=James" );
+        Rdn rdn = new Rdn( schemaManager, "sn=James" );
 
         store.rename( dn, rdn, true, null );
 
@@ -635,7 +641,7 @@ public class MavibotStoreTest
         AddOperationContext addContext = new AddOperationContext( null, entry );
         store.add( addContext );
 
-        Rdn rdn = new Rdn( "sn=Ja\\+es" );
+        Rdn rdn = new Rdn( schemaManager, "sn=Ja\\+es" );
 
         store.rename( dn, rdn, true, null );
 
@@ -643,7 +649,7 @@ public class MavibotStoreTest
         String id = store.getEntryId( dn2 );
         assertNotNull( id );
         Entry entry2 = store.fetch( id, dn2 );
-        assertEquals( "ja+es", entry2.get( "sn" ).getString() );
+        assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
     }
 
 
@@ -669,9 +675,17 @@ public class MavibotStoreTest
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
 
-        Rdn rdn = new Rdn( "cn=Ryan" );
+        Rdn rdn = new Rdn( schemaManager, "cn=Ryan" );
 
-        store.moveAndRename( childDn, parentDn, rdn, childEntry, true );
+        // The cn=Ryan RDN that will be added. The cn=Private Ryan RDN will be removed
+        Map<String, List<ModDnAva>> modDnAvas = new HashMap<>();
+
+        List<ModDnAva> modAvas = new ArrayList<>();
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.ADD, rdn.getAva()) );
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.DELETE, childDn.getRdn().getAva()) );
+        modDnAvas.put( SchemaConstants.CN_AT_OID, modAvas );
+
+        store.moveAndRename( childDn, parentDn, rdn, modDnAvas, childEntry );
 
         // to drop the alias indices
         childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -721,16 +735,16 @@ public class MavibotStoreTest
 
         Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
 
-        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
+        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getValue() ); // before replacing
 
         lookedup = store.modify( dn, add );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().getValue() );
 
         // testing the store.modify( dn, mod, entry ) API
         Modification replace = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" );
 
         lookedup = store.modify( dn, replace );
-        assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
+        assertEquals( "JWalker", lookedup.get( "sn" ).get().getValue() );
         assertEquals( 1, lookedup.get( "sn" ).size() );
     }
 
@@ -789,7 +803,7 @@ public class MavibotStoreTest
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
         lookedup = store.modify( dn, add );
-        assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
+        assertEquals( attribVal, lookedup.get( "ou" ).get().getValue() );
     }
 
 

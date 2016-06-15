@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.shared.keytab;
 
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -57,13 +58,19 @@ class KeytabDecoder
      * @param buffer
      * @return The keytab entries.
      */
-    List<KeytabEntry> getKeytabEntries( ByteBuffer buffer )
+    List<KeytabEntry> getKeytabEntries( ByteBuffer buffer ) throws IOException
     {
         List<KeytabEntry> entries = new ArrayList<KeytabEntry>();
 
         while ( buffer.remaining() > 0 )
         {
             int size = buffer.getInt();
+            
+            if ( ( size < 0 ) || ( size > buffer.capacity() ) )
+            {
+                throw new IOException( "Invalid size for the keytab entry" );
+            }
+            
             byte[] entry = new byte[size];
 
             buffer.get( entry );
@@ -78,7 +85,7 @@ class KeytabDecoder
      * Reads off a "keytab entry," which consists of a principal name,
      * principal type, key version number, and key material.
      */
-    private KeytabEntry getKeytabEntry( ByteBuffer buffer )
+    private KeytabEntry getKeytabEntry( ByteBuffer buffer ) throws IOException
     {
         String principalName = getPrincipalName( buffer );
 
@@ -101,7 +108,7 @@ class KeytabDecoder
      * @param buffer
      * @return The principal name.
      */
-    private String getPrincipalName( ByteBuffer buffer )
+    private String getPrincipalName( ByteBuffer buffer ) throws IOException
     {
         int count = buffer.getShort();
 
@@ -131,7 +138,7 @@ class KeytabDecoder
     /**
      * Read off a 16-bit encryption type and symmetric key material.
      */
-    private EncryptionKey getKeyBlock( ByteBuffer buffer )
+    private EncryptionKey getKeyBlock( ByteBuffer buffer ) throws IOException
     {
         int type = buffer.getShort();
         byte[] keyblock = getCountedBytes( buffer );
@@ -147,9 +154,15 @@ class KeytabDecoder
      * Use a prefixed 16-bit length to read off a String.  Realm and name
      * components are ASCII encoded text with no zero terminator.
      */
-    private String getCountedString( ByteBuffer buffer )
+    private String getCountedString( ByteBuffer buffer ) throws IOException
     {
         int length = buffer.getShort();
+        
+        if ( ( length < 0 ) || ( length > buffer.capacity() ) )
+        {
+            throw new IOException( "Invalid size for the keytab entry" );
+        }
+
         byte[] data = new byte[length];
         buffer.get( data );
 
@@ -168,9 +181,15 @@ class KeytabDecoder
     /**
      * Use a prefixed 16-bit length to read off raw bytes.
      */
-    private byte[] getCountedBytes( ByteBuffer buffer )
+    private byte[] getCountedBytes( ByteBuffer buffer ) throws IOException
     {
         int length = buffer.getShort();
+        
+        if ( ( length < 0 ) || ( length > buffer.capacity() ) )
+        {
+            throw new IOException( "Invalid size for the keytab entry" );
+        }
+
         byte[] data = new byte[length];
         buffer.get( data );
 

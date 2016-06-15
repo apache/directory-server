@@ -296,7 +296,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         assertNotNull( loadedEntry );
         assertTrue( loadedEntry.containsAttribute( "cn" ) );
 
-        String cn = loadedEntry.get( "cn" ).get().getString();
+        String cn = loadedEntry.get( "cn" ).get().getValue();
 
         assertEquals( "a\\+B", cn );
     }
@@ -322,7 +322,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         assertNotNull( loadedEntry );
         assertTrue( loadedEntry.containsAttribute( "cn" ) );
 
-        String cn = loadedEntry.get( "cn" ).get().getString();
+        String cn = loadedEntry.get( "cn" ).get().getValue();
 
         assertEquals( "a+b", cn );
     }
@@ -354,9 +354,9 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         expected.add( "c" );
         int count = 0;
 
-        for ( Value<?> value : attribute )
+        for ( Value value : attribute )
         {
-            String val = value.getString();
+            String val = value.getValue();
 
             assertTrue( expected.contains( val ) );
             count++;

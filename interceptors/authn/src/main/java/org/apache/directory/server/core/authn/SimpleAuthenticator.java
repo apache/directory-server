@@ -141,7 +141,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             synchronized ( credentialCache )
             {
-                principal = ( LdapPrincipal ) credentialCache.get( bindContext.getDn().getNormName() );
+                principal = ( LdapPrincipal ) credentialCache.get( bindContext.getDn() );
             }
         }
 
@@ -189,6 +189,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * authenticates a user with the plain-text password.
      * </p>
      */
+    @Override
     public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -280,7 +281,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             if ( userEntry == null )
             {
                 Dn dn = bindContext.getDn();
-                String upDn = ( dn == null ? "" : dn.getName() );
+                String upDn = dn == null ? "" : dn.getName();
 
                 throw new LdapAuthenticationException( I18n.err( I18n.ERR_231, upDn ) );
             }
@@ -321,7 +322,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             byte[][] userPasswords = new byte[userPasswordAttr.size()][];
             int pos = 0;
 
-            for ( Value<?> userPassword : userPasswordAttr )
+            for ( Value userPassword : userPasswordAttr )
             {
                 userPasswords[pos] = userPassword.getBytes();
                 pos++;
@@ -336,6 +337,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Remove the principal form the cache. This is used when the user changes
      * his password.
      */
+    @Override
     public void invalidateCache( Dn bindDn )
     {
         synchronized ( credentialCache )

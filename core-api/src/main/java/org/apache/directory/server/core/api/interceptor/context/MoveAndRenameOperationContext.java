@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
@@ -41,6 +44,8 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /** The new superior Dn */
     private Dn newSuperiorDn;
 
+    /** The map of modified AVAs */
+    private Map<String, List<ModDnAva>> modifiedAvas;
 
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
@@ -89,7 +94,19 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         // super sets the newRdn and the delOldRdn members and tests
         super( session, modifyDnRequest );
-        this.newSuperiorDn = modifyDnRequest.getNewSuperior();
+        newSuperiorDn = modifyDnRequest.getNewSuperior();
+        
+        if ( !newSuperiorDn.isSchemaAware() )
+        {
+            try
+            {
+                newSuperiorDn = new Dn( session.getDirectoryService().getSchemaManager(), newSuperiorDn );
+            }
+            catch ( LdapInvalidDnException lide )
+            {
+                throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ), lide );
+            }
+        }
 
         if ( session != null )
         {
@@ -112,11 +129,11 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
 
         try
         {
-            newDn = newSuperiorDn.add( newRdn ).apply( session.getDirectoryService().getSchemaManager() );
+            newDn = newSuperiorDn.add( newRdn );
         }
         catch ( LdapInvalidDnException lide )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ), lide );
         }
     }
 
@@ -144,8 +161,27 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return "ReplaceContext for old Dn '" + getDn().getName() + "' : " + newDn;
+    }
+
+
+    /**
+     * @return the modifiedAvas
+     */
+    public Map<String, List<ModDnAva>> getModifiedAvas()
+    {
+        return modifiedAvas;
+    }
+
+
+    /**
+     * @param modifiedAvas the modifiedAvas to set
+     */
+    public void setModifiedAvas( Map<String, List<ModDnAva>> modifiedAvas )
+    {
+        this.modifiedAvas = modifiedAvas;
     }
 }

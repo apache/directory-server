@@ -138,7 +138,8 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void init( DirectoryService directoryService ) throws LdapException
+    @Override
+public void init( DirectoryService directoryService ) throws LdapException
     {
     }
 
@@ -146,7 +147,8 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
-    public void destroy()
+    @Override
+public void destroy()
     {
     }
 
@@ -154,6 +156,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -183,6 +186,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void bind( BindOperationContext bindContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -212,6 +216,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -243,6 +248,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -272,6 +278,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -303,6 +310,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -334,6 +342,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -365,6 +374,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -394,6 +404,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -423,6 +434,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -453,6 +465,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -482,6 +495,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         long t0 = System.nanoTime();
@@ -513,6 +527,7 @@ public class TimerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         long t0 = System.nanoTime();

@@ -35,7 +35,7 @@ import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttribut
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
@@ -207,7 +207,7 @@ public void testLookup() throws Exception
 
         String uuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
 
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new StringValue( uuid ) );
+        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new Value( uuid ) );
 
         EntryCursor cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
         cursor.next();

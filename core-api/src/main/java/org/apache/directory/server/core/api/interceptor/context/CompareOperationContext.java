@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.api.interceptor.context;
 
 
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.message.CompareRequest;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
@@ -47,7 +46,7 @@ public class CompareOperationContext extends AbstractOperationContext
     private AttributeType attributeType;
 
     /** The value to be compared */
-    private Value<?> value;
+    private Value value;
 
 
     /**
@@ -121,7 +120,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareOperationContext( CoreSession session, Dn dn, String oid, Value<?> value )
+    public CompareOperationContext( CoreSession session, Dn dn, String oid, Value value )
     {
         super( session, dn );
         this.oid = oid;
@@ -179,7 +178,7 @@ public class CompareOperationContext extends AbstractOperationContext
     /**
      * @return The value to compare
      */
-    public Value<?> getValue()
+    public Value getValue()
     {
         return value;
     }
@@ -189,7 +188,7 @@ public class CompareOperationContext extends AbstractOperationContext
      * Set the value to compare
      * @param value The value to compare
      */
-    public void setValue( Value<?> value )
+    public void setValue( Value value )
     {
         this.value = value;
     }
@@ -234,9 +233,9 @@ public class CompareOperationContext extends AbstractOperationContext
             + ( ( value != null ) 
                 ? ", value :'"
                     + ( ( value.isHumanReadable() )
-                        ? value.getString()
+                        ? value.getValue()
                         : ( ( !value.isHumanReadable() )
-                            ? Strings.dumpBytes( ( ( BinaryValue ) value ).getReference() )
+                            ? Strings.dumpBytes( value.getBytes() )
                             : "unknown value type" ) )
                 + "'"
                 : "" );

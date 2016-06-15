@@ -75,7 +75,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /** the distinguished {@link Name} for the administrator group */
     private Dn adminGroupDn;
 
-    private Set<String> administrators = new HashSet<String>( 2 );
+    private Set<String> administrators = new HashSet<>( 2 );
 
     private PartitionNexus nexus;
 
@@ -133,7 +133,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     private void loadAdministrators( DirectoryService directoryService ) throws LdapException
     {
         // read in the administrators and cache their normalized names
-        Set<String> newAdministrators = new HashSet<String>( 2 );
+        Set<String> newAdministrators = new HashSet<>( 2 );
         CoreSession adminSession = directoryService.getAdminSession();
 
         Entry adminGroup = nexus.lookup( new LookupOperationContext( adminSession, adminGroupDn ) );
@@ -145,9 +145,9 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         Attribute uniqueMember = adminGroup.get( directoryService.getAtProvider().getUniqueMember() );
 
-        for ( Value<?> value : uniqueMember )
+        for ( Value value : uniqueMember )
         {
-            Dn memberDn = dnFactory.create( value.getString() );
+            Dn memberDn = dnFactory.create( value.getValue() );
             newAdministrators.add( memberDn.getNormName() );
         }
 
@@ -263,7 +263,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             next( modifyContext );
 
             // update administrators if we change administrators group
-            if ( dn.equals( adminGroupDn ) )
+            if ( dn.getNormName().equals( adminGroupDn.getNormName() ) )
             {
                 loadAdministrators( modifyContext.getSession().getDirectoryService() );
             }
@@ -345,7 +345,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
     private boolean isTheAdministrator( Dn dn )
     {
-        return dn.equals( adminSystemDn );
+        return dn.getNormName().equals( adminSystemDn.getNormName() );
     }
 
 
@@ -468,7 +468,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                 if ( normalizedDn.isDescendantOf( adminSystemDn ) )
                 {
                     // allow for self reads
-                    if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
+                    if ( normalizedDn.equals( principalDn ) )
                     {
                         return;
                     }
@@ -495,7 +495,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             if ( isTheAdministrator( normalizedDn ) )
             {
                 // allow for self reads
-                if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
+                if ( normalizedDn.equals( principalDn ) )
                 {
                     return;
                 }
@@ -514,8 +514,11 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     {
         Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();
         Dn dn = entry.getDn();
-
-        dn.apply( schemaManager );
+        
+        if ( !dn.isSchemaAware() )
+        {
+            dn = new Dn( schemaManager, dn );
+        }
 
         // Admin users gets full access to all entries
         if ( isAnAdministrator( principalDn ) )

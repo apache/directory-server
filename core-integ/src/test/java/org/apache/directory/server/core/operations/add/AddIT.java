@@ -157,9 +157,8 @@ public class AddIT extends AbstractLdapTestUnit
         connection.add( entry );
 
         entry = connection.lookup( entry.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES );
-        System.out.println( entry );
         assertEquals( 1, entry.get( "cn" ).size() );
-        assertEquals( "#\\+, \"\u00F6\u00E9\"", entry.get( "cn" ).get().getString() );
+        assertEquals( "#\\+, \"\u00F6\u00E9\"", entry.get( "cn" ).get().getValue() );
     }
 
 
@@ -179,9 +178,8 @@ public class AddIT extends AbstractLdapTestUnit
         connection.add( entry );
 
         entry = connection.lookup( entry.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES );
-        System.out.println( entry );
         assertEquals( 1, entry.get( "cn" ).size() );
-        assertEquals( "a\\b", entry.get( "cn" ).get().getString() );
+        assertEquals( "a\\b", entry.get( "cn" ).get().getValue() );
     }
 
 }

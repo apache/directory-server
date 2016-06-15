@@ -36,6 +36,7 @@ public class JavaStoredProcEngineConfig implements StoredProcEngineConfig
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.sp.StoredProcEngineConfig#getStoredProcEngineType()
      */
+    @Override
     public Class<? extends StoredProcEngine> getStoredProcEngineType()
     {
         return JavaStoredProcEngine.class;
@@ -45,6 +46,7 @@ public class JavaStoredProcEngineConfig implements StoredProcEngineConfig
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.sp.StoredProcEngineConfig#getStoredProcLangId()
      */
+    @Override
     public String getStoredProcLangId()
     {
         return JavaStoredProcEngine.STORED_PROC_LANG_ID;
