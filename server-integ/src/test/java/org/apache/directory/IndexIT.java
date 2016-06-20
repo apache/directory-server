@@ -30,6 +30,7 @@ import java.io.File;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.Normalizer;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
@@ -51,6 +52,7 @@ public class IndexIT
 {
     private static File dbFileDir;
     private static SchemaManager schemaManager;
+    private Normalizer normalizer;
 
     private JdbmIndex<String> jdbmIndex;
     private AvlIndex<String> avlIndex;
@@ -93,6 +95,7 @@ public class IndexIT
         dbFileDir.mkdirs();
 
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
+        normalizer = attributeType.getEquality().getNormalizer();
 
         jdbmIndex = new JdbmIndex<String>( attributeType.getName(), false );
         jdbmIndex.setWkDirPath( dbFileDir.toURI() );
@@ -125,7 +128,7 @@ public class IndexIT
         for ( int i = 0; i < 26; i++ )
         {
             String val = alphabet.substring( i, i + 1 );
-            idx.add( val, Strings.getUUID( i + 1 ) );
+            idx.add( normalizer.normalize( val ), Strings.getUUID( i + 1 ) );
         }
 
         assertEquals( 26, idx.count() );
@@ -136,7 +139,7 @@ public class IndexIT
         assertHasNext( cursor1, Strings.getUUID( 1L ) );
         assertHasNext( cursor1, Strings.getUUID( 2L ) );
 
-        idx.drop( "c", Strings.getUUID( 3L ) );
+        idx.drop( normalizer.normalize( "c" ), Strings.getUUID( 3L ) );
 
         for ( long i = 4L; i < 27L; i++ )
         {
