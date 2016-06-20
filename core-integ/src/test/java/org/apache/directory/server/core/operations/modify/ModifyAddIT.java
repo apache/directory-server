@@ -42,6 +42,7 @@ import javax.naming.directory.SchemaViolationException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.api.util.StringConstants;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -338,7 +339,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( "12345" ) );
+        assertTrue( attr.contains( "12345".getBytes() ) );
         assertEquals( 1, attr.size() );
     }
 
@@ -364,7 +365,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( "" ) );
+        assertTrue( attr.contains( Strings.EMPTY_BYTES ) );
         assertEquals( 1, attr.size() );
     }
 
@@ -557,8 +558,8 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( "12345" ) );
-        assertTrue( attr.contains( "" ) );
+        assertTrue( attr.contains( "12345".getBytes() ) );
+        assertTrue( attr.contains( Strings.EMPTY_BYTES ) );
         assertEquals( 2, attr.size() );
     }
     

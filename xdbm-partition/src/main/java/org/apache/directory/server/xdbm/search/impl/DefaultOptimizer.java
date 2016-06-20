@@ -305,7 +305,16 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             Index<V, String> idx = ( Index<V, String> ) db.getIndex( node.getAttributeType() );
 
-            String normalizedKey = node.getAttributeType().getEquality().getNormalizer().normalize( node.getValue().getValue() );
+            String normalizedKey;
+            
+            if ( node.getValue().isSchemaAware() )
+            {
+                normalizedKey = node.getValue().getNormalized();
+            }
+            else
+            {
+                normalizedKey = node.getAttributeType().getEquality().getNormalizer().normalize( node.getValue().getValue() );
+            }
             
             Cursor<String> result = idx.forwardValueCursor( ( V ) normalizedKey );
             Set<String> values = new HashSet<String>();
@@ -337,7 +346,7 @@ public class DefaultOptimizer<E> implements Optimizer
                 // Reset the candidates annotation
                 node.set( CANDIDATES_ANNOTATION_KEY, null );
 
-                return idx.count( ( V ) node.getValue().getValue() );
+                return idx.count( ( V ) node.getValue().getNormalized() );
             }
         }
 

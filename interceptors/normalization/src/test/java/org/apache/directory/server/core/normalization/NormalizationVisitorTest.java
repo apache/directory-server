@@ -93,7 +93,7 @@ public class NormalizationVisitorTest
         assertTrue( result instanceof EqualityNode<?> );
         EqualityNode<?> equalityNode = (org.apache.directory.api.ldap.model.filter.EqualityNode<?> ) result;
 
-        assertEquals( " test  1 ", equalityNode.getValue().getValue() );
+        assertEquals( " test  1 ", equalityNode.getValue().getNormalized() );
         assertEquals( "2.5.4.11", equalityNode.getAttributeType().getOid() );
     }
 

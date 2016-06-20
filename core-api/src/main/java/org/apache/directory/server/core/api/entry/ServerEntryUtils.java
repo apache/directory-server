@@ -83,7 +83,14 @@ public final class ServerEntryUtils
 
         for ( Value value : entryAttribute )
         {
-            attribute.add( value.getValue() );
+            if ( attributeType.isHR() )
+            {
+                attribute.add( value.getValue() );
+            }
+            else
+            {
+                attribute.add( value.getBytes() );
+            }
         }
 
         return attribute;

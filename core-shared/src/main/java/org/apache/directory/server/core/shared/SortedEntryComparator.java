@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
@@ -32,6 +33,7 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.LdapComparator;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.ParsedDnComparator;
 
 /**
  * A comparator to sort the entries as per <a href="http://tools.ietf.org/html/rfc2891">RFC 2891</a>
@@ -74,26 +76,37 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
         {
             multivalued = true;
         }
-
-        hr = at.getSyntax().isHumanReadable();
-
-        if ( mrule != null )
+        
+        // Special case : entryDn
+        if ( SchemaConstants.ENTRY_DN_AT_OID.equals( at.getOid() ) )
         {
-            comparator = schemaManager.lookupComparatorRegistry( mrule );
+            // We will use the Entry's DN comparator.
+            comparator = new ParsedDnComparator( SchemaConstants.ENTRY_DN_AT_OID );
+            comparator.setSchemaManager( schemaManager );
+            hr = true;
         }
         else
-        {
-            MatchingRule mr = at.getOrdering();
-            
-            if ( mr == null )
+        { 
+            hr = at.getSyntax().isHumanReadable();
+    
+            if ( mrule != null )
             {
-                mr = at.getEquality();
+                comparator = schemaManager.lookupComparatorRegistry( mrule );
+            }
+            else
+            {
+                MatchingRule mr = at.getOrdering();
+                
+                if ( mr == null )
+                {
+                    mr = at.getEquality();
+                }
+                
+                comparator = schemaManager.lookupComparatorRegistry( mr.getOid() );
             }
             
-            comparator = schemaManager.lookupComparatorRegistry( mr.getOid() );
+            comparator.setSchemaManager( schemaManager );
         }
-        
-        comparator.setSchemaManager( schemaManager );
     }
 
 

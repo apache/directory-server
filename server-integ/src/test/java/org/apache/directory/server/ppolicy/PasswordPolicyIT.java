@@ -1119,7 +1119,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         policyConfig.setPwdMaxFailure( 3 );
         policyConfig.setPwdLockout( true );
 
-        Dn userDn = new Dn( "cn=userLockout,ou=system" );
+        Dn userDn = new Dn( getService().getSchemaManager(), "cn=userLockout,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         addUser( adminConnection, "userLockout", "12345" );

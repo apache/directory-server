@@ -1303,6 +1303,8 @@ public class SchemaInterceptor extends BaseInterceptor
         
         for ( List<ModDnAva> modDnAvas : modifiedAvas.values() )
         {
+            List<ModDnAva> addedModDnAvs = new ArrayList<>();
+            
             for ( ModDnAva modDnAva : modDnAvas )
             {
                 Ava ava = modDnAva.getAva();
@@ -1322,7 +1324,7 @@ public class SchemaInterceptor extends BaseInterceptor
                                 removedSVs = new ArrayList<>();
                             }
                             
-                            modDnAvas.add( new ModDnAva( ModDnAva.ModDnType.UPDATE_DELETE, ava ) );
+                            addedModDnAvs.add( new ModDnAva( ModDnAva.ModDnType.UPDATE_DELETE, ava ) );
                             removedSVs.add( new ModDnAva( ModDnAva.ModDnType.UPDATE_DELETE, new Ava( schemaManager, svAttribute.getId(), svAttribute.getString() ) ) );
                         }
                         
@@ -1338,6 +1340,8 @@ public class SchemaInterceptor extends BaseInterceptor
                         break;
                 }
             }
+            
+            modDnAvas.addAll( addedModDnAvs );
         }
         
         // Add the SV attributes that has to be removed to the list of ModDnAva

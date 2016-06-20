@@ -107,7 +107,7 @@ public class AndEvaluator implements Evaluator<AndNode>
 
                 Collections.sort( optimized, new ScanCountComparator() );
 
-                return evaluators;
+                return optimized;
         }
         
         /* Potential speed up, for when we do'nt care about the evaluation itself.

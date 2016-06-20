@@ -168,7 +168,11 @@ public class NtlmSaslServer extends AbstractSaslServer
                     result = provider.authenticate( getLdapSession().getIoSession(), response );
                     Dn dn = getBindRequest().getDn();
                     
-                    if ( !dn.isSchemaAware() )
+                    if ( dn == null )
+                    {
+                        dn = new Dn( getLdapSession().getLdapServer().getDirectoryService().getSchemaManager() );
+                    }
+                    else if ( !dn.isSchemaAware() ) 
                     {
                         dn = new Dn( getLdapSession().getLdapServer().getDirectoryService().getSchemaManager(), dn );
                     }

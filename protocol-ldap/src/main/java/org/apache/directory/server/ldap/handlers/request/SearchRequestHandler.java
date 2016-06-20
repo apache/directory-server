@@ -1228,6 +1228,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         if ( !reqTargetDn.isSchemaAware() )
         {
             reqTargetDn = new Dn( directoryService.getSchemaManager(), reqTargetDn );
+            req.setBase( reqTargetDn );
         }
 
         // Check if the entry itself is a referral

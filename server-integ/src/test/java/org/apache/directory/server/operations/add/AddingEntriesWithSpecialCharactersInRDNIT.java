@@ -396,7 +396,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
             "objectClass: person",
             "objectClass: organizationalPerson",
             "objectClass: inetOrgPerson",
-            "cn:  User",
+            "cn:  User1",
             "sn:  Name " );
 
         connection.add( entry );
@@ -406,9 +406,9 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
         assertNotNull( addedEntry );
 
         assertEquals( "Name", addedEntry.get( "sn" ).getString() );
-        assertEquals( "User", addedEntry.get( "cn" ).getString() );
+        assertEquals( "User1", addedEntry.get( "cn" ).getString() );
         assertEquals( 2, addedEntry.get( "cn" ).size() );
-        assertTrue( addedEntry.contains( "cn", "User" ) );
-        assertTrue( addedEntry.contains( "cn", "\\ User" ) );
+        assertTrue( addedEntry.contains( "cn", " User" ) );
+        assertTrue( addedEntry.contains( "cn", "User1" ) );
     }
 }

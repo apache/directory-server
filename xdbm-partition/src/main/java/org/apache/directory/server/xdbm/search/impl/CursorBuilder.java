@@ -217,7 +217,7 @@ public class CursorBuilder
         {
             // Get the cursor using the index
             Index<T, String> userIndex = ( Index<T, String> ) db.getIndex( attributeType );
-            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( ( T ) value.getValue() );
+            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( ( T ) value.getNormalized() );
             Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
