@@ -142,8 +142,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
             if ( attributeType.getSyntax().isHumanReadable() )
             {
-                normalized = new Value( attributeType, 
-                    ( String ) ncn.normalizeByName( attributeType.getOid(), value.getValue() ) );
+                normalized = new Value( attributeType, value.getValue() );
             }
             else
             {
