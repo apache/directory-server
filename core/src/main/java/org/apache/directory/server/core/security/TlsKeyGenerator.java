@@ -301,13 +301,19 @@ public final class TlsKeyGenerator
     }
 
 
+    public static void addKeyPair( Entry entry, String issuerDN, String subjectDN, String keyAlgo ) throws LdapException
+    {
+        addKeyPair( entry, issuerDN, subjectDN, keyAlgo, KEY_SIZE );
+    }
+
+
     /**
      * @see #addKeyPair(org.apache.directory.api.ldap.model.entry.Entry)
      * 
      * TODO the code is duplicate atm, will eliminate this redundancy after finding
      * a better thought (an instant one is to call this method from the aboveaddKeyPair(entry) and remove the impl there)
      */
-    public static void addKeyPair( Entry entry, String issuerDN, String subjectDN, String keyAlgo )
+    public static void addKeyPair( Entry entry, String issuerDN, String subjectDN, String keyAlgo, int keySize )
         throws LdapException
     {
         Attribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
@@ -333,7 +339,7 @@ public final class TlsKeyGenerator
             throw ne;
         }
 
-        generator.initialize( KEY_SIZE );
+        generator.initialize( keySize );
         KeyPair keypair = generator.genKeyPair();
         entry.put( KEY_ALGORITHM_AT, keyAlgo );
 
