@@ -1631,7 +1631,7 @@ public final class ServiceBuilder
                 // Replace '\n' to real LF
                 String entryStr = contextEntry.replaceAll( "\\\\n", "\n" );
 
-                LdifReader ldifReader = new LdifReader();
+                LdifReader ldifReader = new LdifReader( partition.getSchemaManager() );
 
                 List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
 
