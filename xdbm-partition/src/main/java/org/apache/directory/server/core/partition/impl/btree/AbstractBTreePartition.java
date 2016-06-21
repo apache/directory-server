@@ -1288,15 +1288,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 // Replace the entry's DN with the provided one
                 Attribute entryDnAt = entry.get( entryDnAT );
+                Value dnValue = new Value( entryDnAT, dn.getName(), dn.getNormName() );
 
                 if ( entryDnAt == null )
                 {
-                    entry.add( entryDnAT, dn.getName() );
+                    entry.add( entryDnAT, dnValue );
                 }
                 else
                 {
                     entryDnAt.clear();
-                    entryDnAt.add( dn.getName() );
+                    entryDnAt.add( dnValue );
                 }
 
                 return entry;
