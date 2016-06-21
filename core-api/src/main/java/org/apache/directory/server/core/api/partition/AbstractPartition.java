@@ -237,7 +237,7 @@ public abstract class AbstractPartition implements Partition
         }
         else
         {
-            this.suffixDn = new Dn( schemaManager, this.suffixDn );
+            this.suffixDn = new Dn( schemaManager, suffixDn );
         }
     }
 
