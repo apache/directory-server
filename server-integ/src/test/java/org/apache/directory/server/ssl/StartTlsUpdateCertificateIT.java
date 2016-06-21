@@ -176,7 +176,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         String newSubjectDN = "cn=new_subject_dn";
         Entry entry = getLdapServer().getDirectoryService().getAdminSession().lookup(
             new Dn( "uid=admin,ou=system" ) );
-        TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA" );
+        TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA", 1024 );
 
         // now update the certificate (over the wire)
         ModificationItem[] mods = new ModificationItem[3];
