@@ -207,7 +207,7 @@ public void testLookup() throws Exception
 
         String uuid = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();
 
-        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new Value( uuid ) );
+        EqualityNode<String> filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, uuid );
 
         EntryCursor cursor = connection.search( ADMIN_DN, filter.toString(), SearchScope.SUBTREE, "+" );
         cursor.next();
