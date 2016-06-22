@@ -50,6 +50,7 @@ import org.apache.directory.api.ldap.model.exception.LdapAliasException;
 import org.apache.directory.api.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.api.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
@@ -186,6 +187,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected AttributeType aliasedObjectNameAT;
     protected AttributeType administrativeRoleAT;
     protected AttributeType contextCsnAT;
+    
+    /** Cached value for TOP */
+    private Value topOCValue;
 
     private static final boolean NO_REVERSE = Boolean.FALSE;
     private static final boolean WITH_REVERSE = Boolean.TRUE;
@@ -252,6 +256,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         entryUuidAT = schemaManager.getAttributeType( SchemaConstants.ENTRY_UUID_AT );
         administrativeRoleAT = schemaManager.getAttributeType( SchemaConstants.ADMINISTRATIVE_ROLE_AT );
         contextCsnAT = schemaManager.getAttributeType( SchemaConstants.CONTEXT_CSN_AT );
+        
+        // Initialize a Value for TOP_OC
+        try
+        {
+            topOCValue = new Value( schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID ), SchemaConstants.TOP_OC_OID );
+        }
+        catch ( LdapInvalidAttributeValueException e )
+        {
+            // There is nothing we can do...
+        }
         
         // Relax the entryDnAT so that we don't check the EntryDN twice
         entryDnAT.setRelaxed( true );
@@ -796,7 +810,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             for ( Value value : objectClass )
             {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
+                if ( value.equals( topOCValue ) )
                 {
                     continue;
                 }
@@ -1059,7 +1073,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // Update the ObjectClass index
             for ( Value value : objectClass )
             {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
+                if ( value.equals( topOCValue ) )
                 {
                     continue;
                 }
@@ -1446,7 +1460,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             for ( Value value : mods )
             {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
+                if ( value.equals( topOCValue ) )
                 {
                     continue;
                 }
@@ -1555,7 +1569,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // value index entries and add new ones
             for ( Value value : entry.get( objectClassAT ) )
             {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
+                if ( value.equals( topOCValue ) )
                 {
                     continue;
                 }
@@ -1567,7 +1581,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             for ( Value value : mods )
             {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
+                if ( value.equals( topOCValue ) )
                 {
                     continue;
                 }
@@ -1614,7 +1628,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // Remove the previous values
             for ( Value value : entry.get( administrativeRoleAT ) )
             {
-                if ( value.equals( SchemaConstants.TOP_OC ) )
+                if ( value.equals( topOCValue ) )
                 {
                     continue;
                 }
@@ -1629,7 +1643,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 String valueStr = value.getValue();
 
-                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                if ( valueStr.equals( topOCValue ) )
                 {
                     continue;
                 }
@@ -1701,7 +1715,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 for ( Value value : entry.get( objectClassAT ) )
                 {
-                    if ( value.equals( SchemaConstants.TOP_OC ) )
+                    if ( value.equals( topOCValue ) )
                     {
                         continue;
                     }
@@ -1715,7 +1729,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 for ( Value value : mods )
                 {
-                    if ( value.equals( SchemaConstants.TOP_OC ) )
+                    if ( value.equals( topOCValue ) )
                     {
                         continue;
                     }
