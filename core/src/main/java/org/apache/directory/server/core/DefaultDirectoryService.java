@@ -910,7 +910,7 @@ public class DefaultDirectoryService implements DirectoryService
             // can be null when called before starting up
             if ( partitionNexus != null )
             {
-                partitionNexus.removeContextPartition( partition.getSuffixDn() );
+                partitionNexus.removeContextPartition( partition.getSuffixDn().getNormName() );
             }
         }
         catch ( LdapException le )

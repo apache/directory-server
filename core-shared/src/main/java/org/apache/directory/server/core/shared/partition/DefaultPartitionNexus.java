@@ -284,7 +284,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             try
             {
-                removeContextPartition( directoryService.getDnFactory().create( suffix ) );
+                removeContextPartition( suffix );
             }
             catch ( Exception e )
             {
@@ -840,18 +840,15 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /**
      * {@inheritDoc}
      */
-    public synchronized void removeContextPartition( Dn partitionDn )
+    public synchronized void removeContextPartition( String partitionDn )
         throws LdapException
     {
-        // Get the Partition name. It's a Dn.
-        String key = partitionDn.getNormName();
-
         // Retrieve this partition from the aprtition's table
-        Partition partition = partitions.get( key );
+        Partition partition = partitions.get( partitionDn );
 
         if ( partition == null )
         {
-            String msg = I18n.err( I18n.ERR_34, key );
+            String msg = I18n.err( I18n.ERR_34, partitionDn );
             LOG.error( msg );
             throw new LdapNoSuchObjectException( msg );
         }
@@ -870,7 +867,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             }
             else
             {
-                String msg = I18n.err( I18n.ERR_35, key );
+                String msg = I18n.err( I18n.ERR_35, partitionDn );
                 LOG.error( msg );
                 throw new LdapNoSuchObjectException( msg );
             }
@@ -882,7 +879,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             partitionLookupTree.remove( partition.getSuffixDn() );
         }
 
-        partitions.remove( key );
+        partitions.remove( partitionDn );
 
         try
         {

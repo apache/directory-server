@@ -83,7 +83,7 @@ public interface PartitionNexus extends Partition
      * @param partitionDn the partition Dn
      * @throws Exception If the removal can't be done
      */
-    void removeContextPartition( Dn partitionDn ) throws LdapException;
+    void removeContextPartition( String partitionDn ) throws LdapException;
 
 
     /**
