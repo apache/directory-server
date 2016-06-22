@@ -168,6 +168,7 @@ public class UberjarMain
      */
     public void repair( String instanceDirectory )
     {
+        System.out.println( "Trying to repair the following data :" + instanceDirectory );
         InstanceLayout layout = new InstanceLayout( instanceDirectory );
         
         // Creating ApacheDS service
@@ -175,7 +176,9 @@ public class UberjarMain
         
         try
         {
+            System.out.println( "Starting the service." );
             service.start( layout );
+            System.out.println( "Service started." );
         }
         catch ( Exception e )
         {
@@ -185,9 +188,9 @@ public class UberjarMain
         // Initializing the service
         try
         {
-            LOG.info( "Starting the service." );
+            System.out.println( "Repairing the database." );
             service.repair( layout );
-            LOG.info( "Database repaired." );
+            System.out.println( "Database repaired." );
         }
         catch ( Exception e )
         {
