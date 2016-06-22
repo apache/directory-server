@@ -31,8 +31,6 @@ import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,14 +44,18 @@ import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.bouncycastle.jce.provider.X509CertParser;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.jetty.webapp.WebAppContext;
-import org.mortbay.xml.XmlConfiguration;
-import org.slf4j.Logger;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.xml.XmlConfiguration;import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
@@ -169,7 +171,7 @@ public class HttpServer
 
             if ( httpTransport != null )
             {
-                SelectChannelConnector httpConnector = new SelectChannelConnector();
+                ServerConnector httpConnector = new ServerConnector( jetty );
                 httpConnector.setPort( httpTransport.getPort() );
                 httpConnector.setHost( httpTransport.getAddress() );
                 jetty.addConnector( httpConnector );
@@ -208,24 +210,32 @@ public class HttpServer
                     ks.store( stream, password.toCharArray() );
                 }
 
-                SslSocketConnector httpsConnector = new SslSocketConnector();
+                SslContextFactory sslContextFactory = new SslContextFactory();
+                sslContextFactory.setKeyStoreType( "JKS" );
+                sslContextFactory.setKeyStorePath( ksFile.getAbsolutePath() );
+                sslContextFactory.setKeyStorePassword( password );
+                sslContextFactory.setKeyManagerPassword( password );
+
+                HttpConfiguration httpsConfiguration = new HttpConfiguration();
+                httpsConfiguration.setSecureScheme( "https" );
+                httpsConfiguration.setSecurePort( httpsTransport.getPort() );
+                httpsConfiguration.addCustomizer( new SecureRequestCustomizer() );
+
+                ServerConnector httpsConnector = new ServerConnector( jetty, 
+                    new SslConnectionFactory( sslContextFactory, "http/1.1" ), new HttpConnectionFactory( httpsConfiguration ) );
                 httpsConnector.setPort( httpsTransport.getPort() );
                 httpsConnector.setHost( httpsTransport.getAddress() );
-                httpsConnector.setKeystoreType( ks.getType() );
-                httpsConnector.setKeystore( ksFile.getAbsolutePath() );
-                httpsConnector.setPassword( password );
-                httpsConnector.setKeyPassword( password );
 
                 jetty.addConnector( httpsConnector );
             }
 
-            List<Handler> handlers = new ArrayList<Handler>();
+            HandlerList handlers = new HandlerList();
             for ( WebApp w : webApps )
             {
                 WebAppContext webapp = new WebAppContext();
                 webapp.setWar( w.getWarFile() );
                 webapp.setContextPath( w.getContextPath() );
-                handlers.add( webapp );
+                handlers.addHandler( webapp );
 
                 webapp.setParentLoaderPriority( true );
             }
@@ -258,13 +268,13 @@ public class HttpServer
                     }
 
                     webapp.setContextPath( "/" + ctxName );
-                    handlers.add( webapp );
+                    handlers.addHandler( webapp );
 
                     webapp.setParentLoaderPriority( true );
                 }
             }
 
-            jetty.setHandlers( handlers.toArray( new Handler[handlers.size()] ) );
+            jetty.setHandler( handlers );
 
             configured = true;
         }
