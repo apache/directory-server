@@ -157,6 +157,27 @@ if [ "$ADS_ACTION" = "start" ]; then
         org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" \
         > "$ADS_OUT" 2>&1 "&"
     echo $! > "$ADS_PID"
+elif [ "$ADS_ACTION" = "repair" ]; then
+    # Printing instance information
+    [ $HAVE_TTY -eq 1 ] && echo "Repairing ApacheDS instance '$ADS_INSTANCE_NAME'..."
+
+    if [ -f $ADS_PID ]; then
+        PID=`cat $ADS_PID`
+        if kill -0 $PID > /dev/null 2>&1; then
+            echo "ApacheDS is already running as $PID"
+            exit 0
+        fi
+    fi
+
+    # Repairing ApacheDS
+    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+        -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
+        -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
+        -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
+        -classpath "\"$CLASSPATH\"" \
+        org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" repair \
+        > "$ADS_OUT" 2>&1 "&"
+    echo $! > "$ADS_PID"
 elif [ "$ADS_ACTION" = "run" ]; then
     # Printing instance information
     [ $HAVE_TTY -eq 1 ] && echo "Running ApacheDS instance '$ADS_INSTANCE_NAME'..."
