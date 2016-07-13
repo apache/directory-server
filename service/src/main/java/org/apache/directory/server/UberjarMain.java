@@ -73,7 +73,7 @@ public class UberjarMain
         {
             case START :
                 // Starts the server
-                LOG.debug( "Staring runtime" );
+                LOG.debug( "Starting runtime" );
                 instance.start( instanceDirectory );
 
                 break;
@@ -83,7 +83,7 @@ public class UberjarMain
                 LOG.debug( "Stopping runtime" );
                 InstanceLayout layout = new InstanceLayout( instanceDirectory );
                 try ( Socket socket = new Socket( Network.LOOPBACK, readShutdownPort( layout ) );
-                    PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
+                        PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
                 {
                     writer.print( readShutdownPassword( layout ) );
                 }
