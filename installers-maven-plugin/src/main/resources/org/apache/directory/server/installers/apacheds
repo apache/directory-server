@@ -375,6 +375,7 @@ usage() {
     echo "                    or start if it wasn't already running"
     echo "      status      - Display the status of the instance (running or stopped)"
     echo "      dump        - Request a JVM dump of the running process"
+    echo "      repair      - Try to repair the database before starting the server"
 }
 
 console() {
@@ -397,7 +398,7 @@ start() {
      if [ "X$pid" = "X" ]
      then
          # The string passed to eval must handles spaces in paths correctly.
-         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" set.INSTANCE_DIRECTORY=\"$INSTANCE_DIRECTORY\" set.INSTANCE=\"$INSTANCE\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
+         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" set.INSTANCE_DIRECTORY=\"$INSTANCE_DIRECTORY\" set.APACHEDS_COMMAND=\"repair\" set.INSTANCE=\"$INSTANCE\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
          eval $COMMAND_LINE
      else
          echo "$APP_LONG_NAME is already running."
@@ -411,7 +412,7 @@ repair() {
      if [ "X$pid" = "X" ]
      then
          # The string passed to eval must handles spaces in paths correctly.
-         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" wrapper.java.additional.1=repair \"$WRAPPER_CONF\" set.INSTANCE_DIRECTORY=\"$INSTANCE_DIRECTORY\" set.INSTANCE=\"$INSTANCE\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
+         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" wrapper.app.parameter.1=repair \"$WRAPPER_CONF\" set.INSTANCE_DIRECTORY=\"$INSTANCE_DIRECTORY\" set.INSTANCE=\"$INSTANCE\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
          eval $COMMAND_LINE
      else
          echo "$APP_LONG_NAME is already running."
@@ -531,6 +532,8 @@ then
   exit 2
 fi
 
+APACHEDS_COMMAND=$1
+
 # Instance parameter
 if [ "x$2" = "x" ]; 
 then
@@ -582,7 +585,7 @@ case "$1" in
         ;;
 
     *)
-        echo "Usage: $0 { console | start | stop | restart | status | dump } <instance name>"
+        echo "Usage: $0 { console | start | stop | restart | status | dump | repair } <instance name>"
         exit 1
         ;;
 esac
