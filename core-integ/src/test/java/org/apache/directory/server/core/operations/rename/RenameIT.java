@@ -19,13 +19,9 @@
  */
 package org.apache.directory.server.core.operations.rename;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -39,8 +35,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Test the rename operation performances
@@ -77,14 +75,15 @@ public class RenameIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        String oldDn = "cn=test,ou=system";
+        String oldDn = "cn=test1,ou=system";
+        String newDn = "cn=test2,ou=system";
 
         Dn dn = new Dn( oldDn );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
             "ObjectClass: top",
             "ObjectClass: person",
             "sn: TEST",
-            "cn: test0" );
+            "cn: test1" );
 
         connection.add( entry );
         
@@ -92,26 +91,266 @@ public class RenameIT extends AbstractLdapTestUnit
         
         assertNotNull( original );
 
-        connection.rename( oldDn, "cn=TEST" );
+        connection.rename( oldDn, "cn=TEST2" );
         
-        Entry renamed = connection.lookup( oldDn );
+        Entry renamed = connection.lookup( newDn );
         
         assertNotNull( renamed );
-        assertEquals( original.getDn(), renamed.getDn() );
+        assertEquals( newDn, renamed.getDn().toString() );
         Attribute attribute = renamed.get( "cn" );
-        Set<String> expected = new HashSet<String>();
-        expected.add( " test0 " );
-        expected.add( " test " );
-        int found = 0;
         
-        for ( Value value : attribute )
+        assertTrue( attribute.contains(  "test1" ) );
+        assertTrue( attribute.contains(  "test2" ) );
+    }
+    
+    
+    /**
+     * Check that when doing a rename, with a MV RDN, and teh deleteOldRdn flag set to true,
+     * we don't have the previous RDN in the entry.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRenameMVAttributeDeleteOldRdn() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "cn=test1,ou=system";
+        String newDn = "cn=test2,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test1" );
+
+        connection.add( entry );
+        
+        Entry original = connection.lookup( oldDn );
+        
+        assertNotNull( original );
+
+        connection.rename( oldDn, "cn=test2", true );
+        
+        assertNull( connection.lookup( oldDn ) );
+        Entry renamed = connection.lookup( newDn );
+        
+        assertNotNull( renamed );
+        assertEquals( newDn, renamed.getDn().toString() );
+        Attribute attribute = renamed.get( "cn" );
+        
+        assertFalse( attribute.contains( "test1" ) );
+        assertTrue( attribute.contains( "test2" ) );
+    }
+    
+    
+    /**
+     * Check that when doing a rename, with a MV RDN, and the deleteOldRdn flag set to false,
+     * we have the previous RDN in the entry.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRenameMVAttributeKeepOldRdn() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "cn=test1,ou=system";
+        String newDn = "cn=test2,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test1" );
+
+        connection.add( entry );
+        
+        Entry original = connection.lookup( oldDn );
+        
+        assertNotNull( original );
+
+        connection.rename( oldDn, "cn=test2", false );
+        
+        assertNull( connection.lookup( oldDn ) );
+        Entry renamed = connection.lookup( newDn );
+        
+        assertNotNull( renamed );
+        assertEquals( newDn, renamed.getDn().toString() );
+        Attribute attribute = renamed.get( "cn" );
+        
+        assertTrue( attribute.contains( "test1" ) );
+        assertTrue( attribute.contains( "test2" ) );
+    }
+    
+    
+    /**
+     * Check that when doing a rename, with a SV RDN, we get an error if the deleteOldRdn flag is
+     * set to false
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRenameSVAttributeKeepOldRdn() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "c=FR,ou=system";
+        String newDn = "c=DE,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top",
+            "ObjectClass: country",
+            "c: FR" );
+
+        connection.add( entry );
+        
+        Entry original = connection.lookup( oldDn );
+        
+        assertNotNull( original );
+
+        try
         {
-            String val = value.getNormalized();
-            
-            assertTrue( expected.contains( val ) );
-            found++;
+            connection.rename( oldDn, "c=DE", false );
+        }
+        catch ( Exception e )
+        {
+            System.out.println( e.getMessage() );
         }
         
-        assertEquals( 2, found );
+        assertNotNull( connection.lookup( oldDn ) );
+        assertNull( connection.lookup( newDn ) );
+    }
+    
+    
+    /**
+     * Check that when doing a rename, with a SV RDN, we don't have the previous RDN in the entry,
+     * if the deleteOldrdn flgg is set to true
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRenameSVAttributeDeleteOldRdn() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "c=FR,ou=system";
+        String newDn = "c=DE,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top",
+            "ObjectClass: country",
+            "c: FR" );
+
+        connection.add( entry );
+        
+        Entry original = connection.lookup( oldDn );
+        
+        assertNotNull( original );
+
+        connection.rename( oldDn, "c=DE", true );
+        
+        assertNull( connection.lookup( oldDn ) );
+        Entry renamed = connection.lookup( newDn );
+        
+        assertNotNull( renamed );
+        assertEquals( newDn, renamed.getDn().toString() );
+        Attribute countryName = renamed.get( "c" );
+        
+        assertTrue( countryName.contains( "DE" ) );
+        assertFalse( countryName.contains( "FR" ) );
+    }
+    
+    
+    /**
+     * Check that when doing a rename, with a SV RDN, we get an error if the deleteOldRdn flag is
+     * set to false
+     * 
+     * @throws Exception
+     */
+    @Test 
+    public void testRenameMvAttributeSVAttributeKeepOldRdn() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "cn=test,ou=system";
+        String newDn = "displayName=MyTest,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: organizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "sn: TEST",
+            "cn: test" );
+
+        connection.add( entry );
+        
+        Entry original = connection.lookup( oldDn );
+        
+        assertNotNull( original );
+
+        connection.rename( oldDn, "displayName=myTest", false );
+        
+        assertNull( connection.lookup( oldDn ) );
+        Entry renamed = connection.lookup( newDn );
+        
+        assertNotNull( renamed );
+        assertEquals( newDn, renamed.getDn().toString() );
+        Attribute displayName = renamed.get( "displayName" );
+        Attribute cn = renamed.get( "cn" );
+        
+        assertTrue( displayName.contains( "mytest" ) );
+        assertTrue( cn.contains( "test" ) );
+    }
+    
+    
+    /**
+     * Check that when doing a rename, from a MV attribute to a SV attribute, we don't have 
+     * the previous RDN in the entry, if the deleteOldrdn flgg is set to true
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRenameMvAttributeSVAttributeDeleteOldRdn() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "gn=test,ou=system";
+        String newDn = "displayName=MyTest,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top",
+            "ObjectClass: person",
+            "ObjectClass: organizationalPerson",
+            "ObjectClass: inetOrgPerson",
+            "sn: TEST",
+            "cn: test",
+            "gn: test");
+
+        connection.add( entry );
+        
+        Entry original = connection.lookup( oldDn );
+        
+        assertNotNull( original );
+
+        connection.rename( oldDn, "displayName=MyTest", true );
+        
+        assertNull( connection.lookup( oldDn ) );
+        Entry renamed = connection.lookup( newDn );
+        
+        assertNotNull( renamed );
+        assertEquals( newDn, renamed.getDn().toString() );
+        Attribute displayName = renamed.get( "displayName" );
+        Attribute cn = renamed.get( "gn" );
+        
+        assertTrue( displayName.contains( "mytest" ) );
+        assertNull( cn );
     }
 }
