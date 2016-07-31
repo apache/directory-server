@@ -3630,6 +3630,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             String contextEntryId = getEntryId( getSuffixDn() );
             Entry origEntry = fetch( contextEntryId );
             
+            // The Context Entry may have been deleted. Get out if we don't find it
+            if ( origEntry == null )
+            {
+                return;
+            }
+
             origEntry = ( ( ClonedServerEntry ) origEntry ).getOriginalEntry();
             
             origEntry.removeAttributes( contextCsnAT, entryDnAT );
