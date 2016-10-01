@@ -30,7 +30,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>2.0.0-M22-SNAPSHOT</version>
+  <version>2.0.0-M24-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ApacheDS</name>
@@ -137,7 +137,7 @@
     <module>kerberos-client</module>
     <module>service</module>
     <module>wrapper</module>
-    <!-- module>installers-maven-plugin</module -->
+    <module>installers-maven-plugin</module>
     <module>installers</module>
     <!--module>bulkloader</module-->
     <!--Uncomment to build OSGi-related bundles-->
