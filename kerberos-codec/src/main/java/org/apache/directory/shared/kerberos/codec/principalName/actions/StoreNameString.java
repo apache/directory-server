@@ -46,6 +46,18 @@ public class StoreNameString extends GrammarAction<PrincipalNameContainer>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+    /** A flag used to allow UTF-8 chars in the name. THanks Microsoft for, once again, blowing a specification */
+    private static boolean ALLOW_UTF8_NAMES = false;
+
+    static 
+    {
+        String allowUTF8Names = System.getProperty( "sun.security.krb5.msinterop.kstring" );
+
+        if ( "true".equalsIgnoreCase( Strings.trim( allowUTF8Names ) ) )
+        {
+            ALLOW_UTF8_NAMES = true;
+        }
+    }
 
     /**
      * Instantiates a new PrincipalNameInit action.
@@ -77,8 +89,9 @@ public class StoreNameString extends GrammarAction<PrincipalNameContainer>
 
         BerValue value = tlv.getValue();
 
-        // The PrincipalName must be pure ASCII witout any control character
-        if ( KerberosUtils.isKerberosString( value.getData() ) )
+        // The PrincipalName must be pure ASCII without any control character. We accept UTF-8 if the
+        // ALLOW-UTF8-NAMES flag is set, for the sake of being nice to Microsoft.
+        if ( ALLOW_UTF8_NAMES || KerberosUtils.isKerberosString( value.getData() ) )
         {
             String nameString = Strings.utf8ToString( value.getData() );
 
