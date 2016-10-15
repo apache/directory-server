@@ -412,6 +412,15 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    public boolean isRequestCompleted( int messageId )
+    {
+        return false;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean doesFutureExistFor( int messageId )
     {
