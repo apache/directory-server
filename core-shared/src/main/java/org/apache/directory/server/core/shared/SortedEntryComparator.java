@@ -65,7 +65,7 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
      * @param mrOid the OID or name of the matchingrule
      * @param reverse flag to indicate the sort order
      */
-    public SortedEntryComparator( AttributeType at, String mrule, boolean reverse, SchemaManager schemaManager ) throws LdapException
+    SortedEntryComparator( AttributeType at, String mrule, boolean reverse, SchemaManager schemaManager ) throws LdapException
     {
         this.type = at;
         this.reverse = reverse;

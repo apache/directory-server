@@ -51,7 +51,7 @@ public enum CheckQualityEnum
     /**
      * Create a new instance of this enum
      */
-    private CheckQualityEnum( int value )
+    CheckQualityEnum( int value )
     {
         this.value = value;
     }

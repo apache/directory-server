@@ -51,7 +51,7 @@ public enum InterceptorEnum
      * The private constructor
      * @param methodName The associated interceptor name
      */
-    private InterceptorEnum( String name )
+    InterceptorEnum( String name )
     {
         this.name = name;
     }

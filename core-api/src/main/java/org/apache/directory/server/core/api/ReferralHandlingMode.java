@@ -50,7 +50,7 @@ public enum ReferralHandlingMode
      * @see Context#REFERRAL
      * @param jndiValue the JNDI Context.REFERRAL key's value
      */
-    private ReferralHandlingMode( String jndiValue )
+    ReferralHandlingMode( String jndiValue )
     {
         this.jndiValue = jndiValue;
     }

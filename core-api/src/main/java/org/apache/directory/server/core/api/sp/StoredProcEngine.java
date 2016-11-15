@@ -46,7 +46,7 @@ public interface StoredProcEngine
      * <p>
      * This method should be called before an attempt to invoke a stored procedure via this Engine.
      */
-    void setSPUnitEntry( final Entry spUnit );
+    void setSPUnitEntry( Entry spUnit );
 
 
     /**

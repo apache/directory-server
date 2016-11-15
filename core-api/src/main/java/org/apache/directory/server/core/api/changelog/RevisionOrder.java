@@ -34,7 +34,7 @@ public enum RevisionOrder
     private final boolean ascending;
 
 
-    private RevisionOrder( boolean ascending )
+    RevisionOrder( boolean ascending )
     {
         this.ascending = ascending;
     }
