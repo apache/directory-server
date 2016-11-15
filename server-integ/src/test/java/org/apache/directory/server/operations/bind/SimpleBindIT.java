@@ -214,10 +214,10 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         {
             new InitialDirContext( env );
         }
-        catch ( InvalidNameException ine )
+        catch ( AuthenticationException ine )
         {
             // Error code 34 : LDAP_INVALID_DN_SYNTAX
-            assertTrue( ine.getMessage().startsWith( "[LDAP: error code 34 - Incorrect DN given" ) );
+            assertTrue( ine.getMessage().startsWith( "[LDAP: error code 49 - INVALID_CREDENTIALS: Bind failed: Invalid authentication]" ) );
         }
         catch ( NamingException e )
         {
