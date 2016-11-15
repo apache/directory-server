@@ -70,7 +70,7 @@ public enum MessageType
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private MessageType( byte ordinal, String name )
+    MessageType( byte ordinal, String name )
     {
         this.ordinal = ordinal;
         this.name = name;

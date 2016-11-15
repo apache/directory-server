@@ -194,7 +194,7 @@ public enum RecordType implements EnumConverter<Short>
     private final short value;
 
 
-    private RecordType( int value )
+    RecordType( int value )
     {
         this.value = ( short ) value;
     }

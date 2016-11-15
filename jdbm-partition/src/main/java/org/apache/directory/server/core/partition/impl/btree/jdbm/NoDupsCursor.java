@@ -64,7 +64,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param table the JDBM Table to build a Cursor over
      * @throws IOException of there are problems accessing the BTree
      */
-    public NoDupsCursor( JdbmTable<K, V> table )
+    NoDupsCursor( JdbmTable<K, V> table )
     {
         if ( IS_DEBUG )
         {

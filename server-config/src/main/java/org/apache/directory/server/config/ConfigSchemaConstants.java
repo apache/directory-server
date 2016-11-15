@@ -285,7 +285,7 @@ public enum ConfigSchemaConstants
 
 
     /** A private constructor */
-    private ConfigSchemaConstants( String value, String oid )
+    ConfigSchemaConstants( String value, String oid )
     {
         this.value = value;
         this.oid = oid;

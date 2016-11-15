@@ -92,7 +92,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private boolean valueAvailable;
 
 
-    public DupsCursor( JdbmTable<K, V> table )
+    DupsCursor( JdbmTable<K, V> table )
     {
         if ( IS_DEBUG )
         {

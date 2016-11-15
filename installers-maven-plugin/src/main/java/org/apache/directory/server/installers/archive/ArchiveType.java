@@ -41,7 +41,7 @@ public enum ArchiveType
     /**
      * Creates a new instance of ArchiveType.
      */
-    private ArchiveType( String type )
+    ArchiveType( String type )
     {
         this.type = type;
     }

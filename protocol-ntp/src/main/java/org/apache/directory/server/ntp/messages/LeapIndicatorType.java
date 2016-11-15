@@ -71,7 +71,7 @@ public enum LeapIndicatorType
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private LeapIndicatorType( int ordinal, String name )
+    LeapIndicatorType( int ordinal, String name )
     {
         this.ordinal = ordinal;
         this.name = name;

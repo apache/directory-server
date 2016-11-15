@@ -41,7 +41,7 @@ public enum MessageType implements EnumConverter<Byte>
     private final byte value;
 
 
-    private MessageType( int value )
+    MessageType( int value )
     {
         this.value = ( byte ) value;
     }

@@ -405,7 +405,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         private long len;
 
 
-        public RandomAccessLdifReader() throws LdapException
+        RandomAccessLdifReader() throws LdapException
         {
             try
             {

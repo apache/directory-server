@@ -53,7 +53,7 @@ public enum ResponseCode implements EnumConverter<Byte>
     private final byte value;
 
 
-    private ResponseCode( int value )
+    ResponseCode( int value )
     {
         this.value = ( byte ) value;
     }

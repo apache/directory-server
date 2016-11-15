@@ -164,7 +164,7 @@ public enum ProtocolType implements EnumConverter<Byte>
     private final byte value;
 
 
-    private ProtocolType( int value )
+    ProtocolType( int value )
     {
         this.value = ( byte ) value;
     }

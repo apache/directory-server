@@ -62,7 +62,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      *
      * @param table the JDBM Table to build a Cursor over
      */
-    public MavibotCursor( MavibotTable<K, V> table )
+    MavibotCursor( MavibotTable<K, V> table )
     {
         LOG_CURSOR.debug( "Creating MavibotCursor {}", this );
         this.table = table;
