@@ -24,8 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
-
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -36,6 +34,7 @@ import org.apache.directory.api.ldap.model.message.BindRequestImpl;
 import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.SaslCramMd5Request;
@@ -183,7 +182,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     public void init() throws Exception
     {
         ldapServer = getLdapServer();
-        KerberosTestUtils.fixServicePrincipalName( "ldap/" + InetAddress.getLocalHost().getHostName() + "@EXAMPLE.COM",
+        KerberosTestUtils.fixServicePrincipalName( "ldap/" + Network.LOOPBACK_HOSTNAME + "@EXAMPLE.COM",
             new Dn( "uid=ldap,ou=users,dc=example,dc=com" ), getLdapServer() );
     }
 
@@ -199,7 +198,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         ldapServer.getDirectoryService().setAllowAnonymousAccess( true );
 
         // Point on rootDSE
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
 
@@ -224,7 +223,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslBindPLAIN() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
 
@@ -256,7 +255,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Ignore("Activate and fix when DIRAPI-36 (Provide a SaslBindRequest extending BindRequest that can be used in LdapConnection.bind(...) method) is solved")
     public void testSaslBindNoMech() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
 
@@ -287,7 +286,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslCramMd5Bind() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
 
@@ -313,7 +312,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslCramMd5BindBadPassword() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
 
@@ -335,7 +334,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5Bind() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -361,7 +360,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5BindSaslQoPAuth() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -389,7 +388,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Ignore
     public void testSaslDigestMd5BindSaslQoPAuthInt() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -417,7 +416,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Ignore
     public void testSaslDigestMd5BindSaslQoPAuthConf() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -443,7 +442,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5BindBadRealm() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -465,7 +464,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslDigestMd5BindBadPassword() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
@@ -487,7 +486,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslGssApiBind() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
 
@@ -499,7 +498,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         request.setUsername( userDn.getRdn().getValue() );
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase() );
-        request.setKdcHost( InetAddress.getLocalHost().getHostName() );
+        request.setKdcHost( Network.LOOPBACK_HOSTNAME );
         request.setKdcPort( 6088 );
         BindResponse resp = connection.bind( request );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
@@ -517,7 +516,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslGssApiBindBadRealm() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
 
@@ -527,7 +526,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         request.setUsername( userDn.getRdn().getValue() );
         request.setCredentials( "secret" );
         request.setRealmName( "badrealm.com" );
-        request.setKdcHost( InetAddress.getLocalHost().getHostName() );
+        request.setKdcHost( Network.LOOPBACK_HOSTNAME );
         request.setKdcPort( 6088 );
         
         try
@@ -551,7 +550,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     @Test
     public void testSaslGssApiBindBadPassword() throws Exception
     {
-        String hostName = InetAddress.getLoopbackAddress().getHostName();
+        String hostName = Network.LOOPBACK_HOSTNAME;
         LdapNetworkConnection connection = new LdapNetworkConnection( hostName, ldapServer.getPort() );
         connection.connect();
 
@@ -561,7 +560,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         request.setUsername( userDn.getRdn().getValue() );
         request.setCredentials( "badsecret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase() );
-        request.setKdcHost( InetAddress.getLocalHost().getHostName() );
+        request.setKdcHost( Network.LOOPBACK_HOSTNAME );
         request.setKdcPort( 6088 );
         
         try
