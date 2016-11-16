@@ -177,7 +177,7 @@ public class UberjarMain
         try
         {
             System.out.println( "Starting the service." );
-            service.start( layout );
+            service.start( layout, false );
             System.out.println( "Service started." );
         }
         catch ( Exception e )
@@ -312,7 +312,7 @@ public class UberjarMain
     }
 
     
-    private static enum Action
+    private enum Action
     {
         START, STOP, REPAIR;
 

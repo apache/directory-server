@@ -142,13 +142,27 @@ public class ApacheDsService
 
 
     /**
-     * starts various services configured according to the
+     * Starts various services configured according to the
      * configuration present in the given instance's layout
      *
-     * @param instanceLayout the on disk location's layout of the intance to be started
-     * @throws Exception
+     * @param instanceLayout the on disk location's layout of the instance to be started
+     * @throws Exception If we failed to start the server
      */
     public void start( InstanceLayout instanceLayout ) throws Exception
+    {
+        start( instanceLayout, true );
+    }
+
+
+    /**
+     * Starts various services configured according to the
+     * configuration present in the given instance's layout
+     *
+     * @param instanceLayout the on disk location's layout of the instance to be started
+     * @param startServers Tell the server that the various servers have to be started too
+     * @throws Exception If we failed to start the server
+     */
+    public void start( InstanceLayout instanceLayout, boolean startServers ) throws Exception
     {
         File partitionsDir = instanceLayout.getPartitionsDirectory();
 
@@ -184,10 +198,10 @@ public class ApacheDsService
             dnFactory );
 
         // start the LDAP server
-        startLdap( directoryServiceBean.getLdapServerBean(), directoryService );
-
+        startLdap( directoryServiceBean.getLdapServerBean(), directoryService, startServers );
+    
         // start the NTP server
-        startNtp( directoryServiceBean.getNtpServerBean(), directoryService );
+        startNtp( directoryServiceBean.getNtpServerBean(), directoryService, startServers );
 
         // Initialize the DNS server (Not ready yet)
         // initDns( configBean );
@@ -196,14 +210,14 @@ public class ApacheDsService
         // initDhcp( configBean );
 
         // start the ChangePwd server (Not ready yet)
-        //startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService );
+        //startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService, startServers );
 
         // start the Kerberos server
-        startKerberos( directoryServiceBean, directoryService );
+        startKerberos( directoryServiceBean, directoryService, startServers );
 
         // start the jetty http server
-        startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService );
-        
+        startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService, startServers );
+    
         LOG.info( "Registering config change listener" );
         ConfigChangeListener configListener = new ConfigChangeListener( cpReader, directoryService );
 
@@ -406,7 +420,7 @@ public class ApacheDsService
     /**
      * start the LDAP server
      */
-    private void startLdap( LdapServerBean ldapServerBean, DirectoryService directoryService ) throws Exception
+    private void startLdap( LdapServerBean ldapServerBean, DirectoryService directoryService, boolean startServers ) throws Exception
     {
         LOG.info( "Starting the LDAP server" );
         long startTime = System.currentTimeMillis();
@@ -421,8 +435,11 @@ public class ApacheDsService
 
         printBanner( BANNER_LDAP );
 
-        // And start the server now
-        ldapServer.start();
+        // And start the server now if required
+        if ( startServers )
+        {
+            ldapServer.start();
+        }
 
         LOG.info( "LDAP server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "" );
     }
@@ -431,7 +448,7 @@ public class ApacheDsService
     /**
      * start the NTP server
      */
-    private void startNtp( NtpServerBean ntpServerBean, DirectoryService directoryService ) throws Exception
+    private void startNtp( NtpServerBean ntpServerBean, DirectoryService directoryService, boolean startServers ) throws Exception
     {
         LOG.info( "Starting the NTP server" );
         long startTime = System.currentTimeMillis();
@@ -446,7 +463,10 @@ public class ApacheDsService
 
         printBanner( BANNER_NTP );
 
-        ntpServer.start();
+        if ( startServers )
+        {
+            ntpServer.start();
+        }
 
         if ( LOG.isInfoEnabled() )
         {
@@ -493,7 +513,7 @@ public class ApacheDsService
     /**
      * start the KERBEROS server
      */
-    private void startKerberos( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService )
+    private void startKerberos( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService, boolean startServers )
         throws Exception
     {
         LOG.info( "Starting the Kerberos server" );
@@ -514,7 +534,10 @@ public class ApacheDsService
 
         printBanner( BANNER_KERBEROS );
 
-        kdcServer.start();
+        if ( startServers )
+        {
+            kdcServer.start();
+        }
 
         if ( LOG.isInfoEnabled() )
         {
@@ -559,7 +582,7 @@ public class ApacheDsService
     /**
      * start the embedded HTTP server
      */
-    private void startHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService ) throws Exception
+    private void startHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService, boolean startServers ) throws Exception
     {
         httpServer = ServiceBuilder.createHttpServer( httpServerBean, directoryService );
 
@@ -572,7 +595,10 @@ public class ApacheDsService
         LOG.info( "Starting the Http server" );
         long startTime = System.currentTimeMillis();
 
-        httpServer.start( getDirectoryService() );
+        if ( startServers )
+        {
+            httpServer.start( getDirectoryService() );
+        }
 
         if ( LOG.isInfoEnabled() )
         {
