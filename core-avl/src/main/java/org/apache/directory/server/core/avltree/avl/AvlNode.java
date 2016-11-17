@@ -37,7 +37,7 @@ final class AvlNode<T extends Comparable<T>>
     T value = null;
 
 
-    public AvlNode( AvlNode<T> parent, T value )
+    AvlNode( AvlNode<T> parent, T value )
     {
         this.parent = parent;
         this.value = value;

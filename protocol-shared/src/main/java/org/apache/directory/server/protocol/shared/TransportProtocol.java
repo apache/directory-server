@@ -32,7 +32,7 @@ public enum TransportProtocol
     private final String stringValue;
 
 
-    private TransportProtocol( int intValue, String stringValue )
+    TransportProtocol( int intValue, String stringValue )
     {
         this.intValue = intValue;
         this.stringValue = stringValue;

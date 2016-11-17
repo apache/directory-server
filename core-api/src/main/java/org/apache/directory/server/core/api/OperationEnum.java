@@ -69,7 +69,7 @@ public enum OperationEnum
      * The private constructor
      * @param methodName The associated method name
      */
-    private OperationEnum( String methodName )
+    OperationEnum( String methodName )
     {
         this.methodName = methodName;
     }

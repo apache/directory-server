@@ -50,7 +50,7 @@ public enum OpCode implements EnumConverter<Byte>
     private final byte value;
 
 
-    private OpCode( int value )
+    OpCode( int value )
     {
         this.value = ( byte ) value;
     }

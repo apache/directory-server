@@ -60,7 +60,7 @@ class DefaultEventService implements EventService
      * @param directoryService The associated DirectoryService
      * @param registrations The list of Registrations
      */
-    public DefaultEventService( DirectoryService directoryService )
+    DefaultEventService( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
         SchemaManager schemaManager = directoryService.getSchemaManager();

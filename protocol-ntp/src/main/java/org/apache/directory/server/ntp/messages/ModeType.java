@@ -94,7 +94,7 @@ public enum ModeType
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ModeType( int ordinal, String name )
+    ModeType( int ordinal, String name )
     {
         this.ordinal = ordinal;
         this.name = name;

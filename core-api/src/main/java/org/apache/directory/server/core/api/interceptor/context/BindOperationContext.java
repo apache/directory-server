@@ -24,6 +24,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.OperationEnum;
@@ -88,11 +89,11 @@ public class BindOperationContext extends AbstractOperationContext
     public AuthenticationLevel getAuthenticationLevel() throws LdapAuthenticationException
     {
         // First check if the SASL mechanism has been set
-        if ( ( saslMechanism == null ) )
+        if ( saslMechanism == null )
         {
             // No, it's either a SIMPLE, ANONYMOUS, UNAUTHENT or an error
             //
-            if ( dn.isEmpty() )
+            if ( Dn.isNullOrEmpty( dn ) )
             {
                 if ( Strings.isEmpty( credentials ) )
                 {

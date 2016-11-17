@@ -73,7 +73,7 @@ public class UberjarMain
         {
             case START :
                 // Starts the server
-                LOG.debug( "Staring runtime" );
+                LOG.debug( "Starting runtime" );
                 instance.start( instanceDirectory );
 
                 break;

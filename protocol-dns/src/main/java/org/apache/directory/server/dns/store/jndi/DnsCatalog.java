@@ -41,7 +41,7 @@ class DnsCatalog implements Catalog
      *
      * @param map
      */
-    public DnsCatalog( Map<String, Object> map )
+    DnsCatalog( Map<String, Object> map )
     {
         this.map = map;
     }

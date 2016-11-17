@@ -36,7 +36,7 @@ final class AvlTreeIterator<T extends Comparable<T>> implements Iterator<T>
     private boolean initial = true;
 
 
-    public AvlTreeIterator( AvlNode<T> root )
+    AvlTreeIterator( AvlNode<T> root )
     {
         this.root = root;
         findNext();

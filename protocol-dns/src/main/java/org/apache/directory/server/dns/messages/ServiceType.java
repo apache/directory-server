@@ -275,7 +275,7 @@ public enum ServiceType implements EnumConverter<Byte>
     private final byte value;
 
 
-    private ServiceType( int value )
+    ServiceType( int value )
     {
         this.value = ( byte ) value;
     }

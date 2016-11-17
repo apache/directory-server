@@ -48,7 +48,7 @@ public enum EventType
     private int mask;
 
 
-    private EventType( int mask )
+    EventType( int mask )
     {
         this.mask = mask;
     }
