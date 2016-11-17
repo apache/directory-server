@@ -199,7 +199,12 @@ public class KerberosProtocolHandler implements IoHandler
                     AuthenticationContext authContext = new AuthenticationContext();
                     authContext.setConfig( kdcServer.getConfig() );
                     authContext.setStore( store );
-                    authContext.setClientAddress( clientAddress );
+                    
+                    if ( request.getKdcReqBody().getAddresses() != null )
+                    {
+                        authContext.setClientAddress( clientAddress );
+                    }
+                    
                     authContext.setRequest( request );
                     session.setAttribute( CONTEXT_KEY, authContext );
 
