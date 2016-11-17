@@ -347,4 +347,14 @@ public void testLookup() throws Exception
 
         connection.close();
     }
+    
+    
+    @Test
+    public void testConfigSetting() throws LdapException, IOException
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
+        connection.connect();
+
+        connection.close();
+    }
 }

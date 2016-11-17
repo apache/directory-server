@@ -117,7 +117,7 @@ public class BindIT extends AbstractLdapTestUnit
             getWiredContext( getLdapServer(), "system", "blah" );
             fail( "should never get here due to a " );
         }
-        catch ( InvalidNameException e )
+        catch ( AuthenticationException e )
         {
         }
     }
