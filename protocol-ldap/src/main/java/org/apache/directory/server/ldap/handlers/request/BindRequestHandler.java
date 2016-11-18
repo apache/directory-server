@@ -29,7 +29,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.message.BindRequest;
@@ -145,7 +144,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             {
                 principalEntry = directoryService.getAdminSession().lookup( bindRequest.getDn() );
             }
-            catch ( LdapException le )
+            catch ( Exception le )
             {
                 // this is OK
             }
