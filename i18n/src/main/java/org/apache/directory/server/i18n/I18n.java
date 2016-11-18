@@ -798,7 +798,7 @@ public enum I18n
     /**
      * Creates a new instance of I18n.
      */
-    private I18n( String errorCode )
+    I18n( String errorCode )
     {
         this.errorCode = errorCode;
     }
