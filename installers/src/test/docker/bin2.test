@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License. 
+
+# 
+# Script to test binary installer within Docker container.
+# Tests DIRSERVER-2173 (Linux binary installation fails because RUN_AS_GROUP not used in chown commands)
+#
+
+NAME="apacheds-${project.version}"
+DIRNAME="${NAME}"
+SERVICE_NAME="${NAME}-default"
+
+wait_for_apacheds() {
+    timeout 30  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
+}
+
+# stop execution if any command fails (i.e. exits with status code > 0)
+set -e
+
+# trace commands
+set -x
+
+# install
+chmod +x /apacheds.bin
+# skip license text
+#export MORE="-10000"
+# agree to license terms and accept default install options
+./apacheds.bin << END_OF_RESPONSES
+yes
+
+
+
+
+aaaaa
+bbbbb
+END_OF_RESPONSES
+
+# assert files and directories exist
+test -f /opt/${DIRNAME}/LICENSE
+test -f /opt/${DIRNAME}/NOTICE
+test -d /var/lib/${DIRNAME}/default
+
+# assert not running: output and exit status
+service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+service ${SERVICE_NAME} status || test $? -ne 0
+
+# install ldapsearch and tools
+apt-get -qq update
+apt-get -qq -y install ldap-utils netcat
+
+# start
+service ${SERVICE_NAME} start
+wait_for_apacheds
+
+# assert running: output and exit status
+service ${SERVICE_NAME} status | grep "ApacheDS - default is running"
+service ${SERVICE_NAME} status && test $? -eq 0
+
+
+# search
+ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
+
+# restart and search a few times
+for i in 1 2 3
+do
+    service ${SERVICE_NAME} restart
+    wait_for_apacheds
+    ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
+done
+
+# stop
+service ${SERVICE_NAME} stop
+
+# assert not running: output and exit status
+service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
+service ${SERVICE_NAME} status || test $? -ne 0
+
+# assert password warning in log
+grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log/apacheds.log
+# assert no error in log
+! grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log
+
+# SUCCESS
+echo "SUCCESS"
+
