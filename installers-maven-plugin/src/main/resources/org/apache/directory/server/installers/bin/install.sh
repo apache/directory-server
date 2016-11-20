@@ -145,7 +145,7 @@ fi
 GROUP=`eval "if grep -q $RUN_AS_GROUP /etc/group; then echo "$RUN_AS_GROUP"; else echo ""; fi"`
 
 # Create the group if it does not exist
-if [ ! "X$RUN_AS_GROUP" = "XGROUP" ]
+if [ ! "X$RUN_AS_GROUP" = "X$GROUP" ]
 then
 	/usr/sbin/groupadd $RUN_AS_GROUP >/dev/null 2>&1 || :
 	verifyExitCode
@@ -158,6 +158,6 @@ then
 fi
 
 # Modifying owner
-chown -R $RUN_AS_USER:$RUN_AS_USER $APACHEDS_HOME_DIRECTORY
-chown -R $RUN_AS_USER:$RUN_AS_USER $INSTANCES_HOME_DIRECTORY
-chown $RUN_AS_USER:$RUN_AS_USER $STARTUP_SCRIPT_DIRECTORY/apacheds-$APACHEDS_VERSION-$DEFAULT_INSTANCE_NAME
+chown -R $RUN_AS_USER:$RUN_AS_GROUP $APACHEDS_HOME_DIRECTORY
+chown -R $RUN_AS_USER:$RUN_AS_GROUP $INSTANCES_HOME_DIRECTORY
+chown $RUN_AS_USER:$RUN_AS_GROUP $STARTUP_SCRIPT_DIRECTORY/apacheds-$APACHEDS_VERSION-$DEFAULT_INSTANCE_NAME
