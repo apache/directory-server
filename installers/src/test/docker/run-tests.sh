@@ -63,7 +63,7 @@ then
 fi
 
 
-# Binalry installer 64bit
+# Binary installer 64bit
 BIN64="${project.build.directory}/installers/apacheds-${project.version}-64bit.bin"
 if [ -f ${BIN64} ]
 then
@@ -74,6 +74,14 @@ then
       -v ${BIN64}:/apacheds.bin \
       -v ${project.build.directory}/docker/bin.test:/bin.test \
       java:8 bash /bin.test
+
+    echo
+    echo
+    echo "Testing bin installer (DIRSERVER-2173) with official Java image (Debian 8, OpenJDK 8, 64bit)"
+    docker run -i --rm \
+      -v ${BIN64}:/apacheds.bin \
+      -v ${project.build.directory}/docker/bin2.test:/bin2.test \
+      java:8 bash /bin2.test
 fi
 
 
