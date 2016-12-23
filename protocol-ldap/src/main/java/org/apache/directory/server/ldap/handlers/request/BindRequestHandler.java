@@ -36,7 +36,6 @@ import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -304,7 +303,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         // SaslServer will throw an exception if the credentials are null.
         if ( bindRequest.getCredentials() == null )
         {
-            bindRequest.setCredentials( StringConstants.EMPTY_BYTES );
+            bindRequest.setCredentials( Strings.EMPTY_BYTES );
         }
 
         try

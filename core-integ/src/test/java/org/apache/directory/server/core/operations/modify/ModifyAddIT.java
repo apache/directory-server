@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.AttributeInUseException;
@@ -41,7 +40,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.api.util.StringConstants;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -355,7 +354,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
 
         // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
         // The value is empty
-        Attributes attrs = new BasicAttributes( "crossCertificatePair", StringConstants.EMPTY_BYTES, true );
+        Attributes attrs = new BasicAttributes( "crossCertificatePair", Strings.EMPTY_BYTES, true );
 
         // Add the Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
@@ -364,7 +363,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( StringConstants.EMPTY_BYTES ) );
+        assertTrue( attr.contains( Strings.EMPTY_BYTES ) );
         assertEquals( 1, attr.size() );
     }
 
@@ -548,7 +547,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // Add the first Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
 
-        attrs = new BasicAttributes( "crossCertificatePair", StringConstants.EMPTY_BYTES, true );
+        attrs = new BasicAttributes( "crossCertificatePair", Strings.EMPTY_BYTES, true );
         
         // Add the second Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
@@ -558,7 +557,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
         assertTrue( attr.contains( "12345".getBytes() ) );
-        assertTrue( attr.contains( StringConstants.EMPTY_BYTES ) );
+        assertTrue( attr.contains( Strings.EMPTY_BYTES ) );
         assertEquals( 2, attr.size() );
     }
     

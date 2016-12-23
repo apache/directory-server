@@ -98,7 +98,6 @@ import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.asn1.ber.tlv.BerValue;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.api.asn1.ber.tlv.UniversalTag;
-import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosUtils;
@@ -399,7 +398,7 @@ public class PrincipalName implements Asn1Object
                 }
                 else
                 {
-                    nameBytes.add( StringConstants.EMPTY_BYTES );
+                    nameBytes.add( Strings.EMPTY_BYTES );
                     principalStringsSeqLength += 1 + 1;
                 }
             }

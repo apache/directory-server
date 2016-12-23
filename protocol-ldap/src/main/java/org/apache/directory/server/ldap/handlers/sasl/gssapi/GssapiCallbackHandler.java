@@ -28,7 +28,7 @@ import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.util.StringConstants;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -86,7 +86,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
 
         LdapPrincipal ldapPrincipal = new LdapPrincipal( adminSession.getDirectoryService().getSchemaManager(),
             new Dn( entry.getDistinguishedName() ),
-            AuthenticationLevel.STRONG, StringConstants.EMPTY_BYTES );
+            AuthenticationLevel.STRONG, Strings.EMPTY_BYTES );
         ldapSession.putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
         ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );
 

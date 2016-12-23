@@ -71,7 +71,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.util.DateUtils;
-import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
@@ -518,7 +517,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 // remove creds so there is no security risk
                 bindContext.setCredentials( null );
-                clonedPrincipal.setUserPassword( StringConstants.EMPTY_BYTES );
+                clonedPrincipal.setUserPassword( Strings.EMPTY_BYTES );
 
                 // authentication was successful
                 CoreSession newSession = new DefaultCoreSession( clonedPrincipal, directoryService );

@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.api.util.StringConstants;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.SynchronizedLRUMap;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
@@ -650,7 +651,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             }
 
             BTree tree = getBTree( values.getBTreeRedirect() );
-            replaced = ( V ) tree.insert( value, StringConstants.EMPTY_BYTES, true );
+            replaced = ( V ) tree.insert( value, Strings.EMPTY_BYTES, true );
 
             if ( replaced == null )
             {
@@ -1161,7 +1162,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         while ( keys.next() )
         {
-            bTree.insert( keys.get(), ( K ) StringConstants.EMPTY_BYTES, true );
+            bTree.insert( keys.get(), ( K ) Strings.EMPTY_BYTES, true );
         }
 
         keys.close();
