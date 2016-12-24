@@ -39,7 +39,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.SynchronizedLRUMap;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
