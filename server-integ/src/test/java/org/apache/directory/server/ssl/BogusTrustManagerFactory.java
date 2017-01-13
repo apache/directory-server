@@ -52,12 +52,12 @@ class BogusTrustManagerFactory extends TrustManagerFactorySpi
 
         @Override
         public void checkClientTrusted( X509Certificate[] chain, String authType ) throws CertificateException {
-            // Nothing to do
+            lastReceivedServerCertificates = chain;
         }
 
         @Override
         public void checkServerTrusted( X509Certificate[] chain, String authType ) throws CertificateException {
-            // Nothing to do
+            lastReceivedServerCertificates = chain;
         }
 
         @Override
@@ -68,25 +68,25 @@ class BogusTrustManagerFactory extends TrustManagerFactorySpi
         @Override
         public void checkClientTrusted( X509Certificate[] chain, String authType, Socket socket )
             throws CertificateException {
-            // Nothing to do
+            lastReceivedServerCertificates = chain;
         }
 
         @Override
         public void checkClientTrusted( X509Certificate[] chain, String authType, SSLEngine engine )
             throws CertificateException {
-            // Nothing to do
+            lastReceivedServerCertificates = chain;
         }
 
         @Override
         public void checkServerTrusted( X509Certificate[] chain, String authType, Socket socket )
             throws CertificateException {
-            // Nothing to do
+            lastReceivedServerCertificates = chain;
         }
 
         @Override
         public void checkServerTrusted( X509Certificate[] chain, String authType, SSLEngine engine )
             throws CertificateException {
-            // Nothing to do
+            lastReceivedServerCertificates = chain;
         }
     };
 
