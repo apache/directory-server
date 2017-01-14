@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
@@ -338,7 +339,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     }
 
 
-    @Test(expected = InvalidConnectionException.class)
+    @Test(expected = LdapAuthenticationException.class)
     public void testStallingSsl() throws Exception
     {
         LdapConnectionConfig sslConfig = new LdapConnectionConfig();
