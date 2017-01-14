@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>35</version>
+    <version>38</version>
     <relativePath />
   </parent>
 
@@ -46,12 +46,12 @@
     <additionalparam>-Xdoclint:none</additionalparam>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>1.0.0-RC2</org.apache.directory.api.version>
+    <org.apache.directory.api.version>1.0.0-RC3-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>0.3</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
-    <skin.version>1.0.2</skin.version>
+    <skin.version>1.0.3</skin.version>
     
     <!-- Set versions for depending jars -->
     <ant.version>1.9.6</ant.version>
