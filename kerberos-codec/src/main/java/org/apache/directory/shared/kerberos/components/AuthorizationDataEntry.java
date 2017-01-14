@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.util.Arrays;
 
-import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 
@@ -92,7 +91,7 @@ public class AuthorizationDataEntry
     {
         if ( Strings.isEmpty( adData ) )
         {
-            return StringConstants.EMPTY_BYTES;
+            return Strings.EMPTY_BYTES;
         }
         else
         {
@@ -121,7 +120,7 @@ public class AuthorizationDataEntry
     {
         if ( Strings.isEmpty( adData ) )
         {
-            this.adData = StringConstants.EMPTY_BYTES;
+            this.adData = Strings.EMPTY_BYTES;
         }
         else
         {
