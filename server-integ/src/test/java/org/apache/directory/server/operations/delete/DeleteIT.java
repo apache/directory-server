@@ -26,12 +26,15 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapContextNotEmptyException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.message.Control;
@@ -39,6 +42,7 @@ import org.apache.directory.api.ldap.model.message.DeleteRequest;
 import org.apache.directory.api.ldap.model.message.DeleteRequestImpl;
 import org.apache.directory.api.ldap.model.message.DeleteResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -46,6 +50,10 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
+import org.apache.directory.server.core.annotations.ContextEntry;
+import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Test;
@@ -145,6 +153,58 @@ public class DeleteIT extends AbstractLdapTestUnit
 
         conn.unBind();
         conn.close();
+    }
+
+
+    /**
+     * Tests normal delete operation on normal non-referral entries without
+     * the ManageDsaIT control.
+     */
+    @Test
+    @CreateDS(
+        name = "MethodDSWithPartition",
+        partitions =
+            {
+                @CreatePartition(
+                    name = "example",
+                    suffix = "dc=example,dc=com",
+                    contextEntry = @ContextEntry(
+                        entryLdif =
+                        "dn: dc=example,dc=com\n" +
+                            "dc: example\n" +
+                            "objectClass: top\n" +
+                            "objectClass: domain\n\n"),
+                    indexes =
+                        {
+                            @CreateIndex(attribute = "objectClass"),
+                            @CreateIndex(attribute = "dc"),
+                            @CreateIndex(attribute = "ou")
+                    })
+        })
+    public void testDeleteContextEntry() throws Exception
+    {
+        getService().shutdown();
+        getService().startup();
+
+        LdapConnection conn = getAdminConnection( getLdapServer() );
+
+        // delete success
+        conn.delete( "dc=example,dc=com" );
+        
+        // Check that the context entry has been deleted
+        Entry contextEntry = conn.lookup( "dc=example,dc=com" );
+        
+        assertNull( contextEntry );
+
+        getService().shutdown();
+        getService().startup();
+
+        conn = getAdminConnection( getLdapServer() );
+
+        // Check that the context entry has been deleted
+        EntryCursor cursor = conn.search( "dc=example,dc=com", "(objectClass=*)", SearchScope.SUBTREE, "*" );
+        
+        assertFalse( cursor.available() );
     }
 
 
