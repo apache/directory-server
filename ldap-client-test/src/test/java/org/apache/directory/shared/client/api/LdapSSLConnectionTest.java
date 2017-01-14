@@ -23,12 +23,13 @@ package org.apache.directory.shared.client.api;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
@@ -49,7 +50,6 @@ import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -114,22 +114,55 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
      * @throws IOException
      */
     @Test
-    public void testBindRequest() throws Exception
+    public void testBindRequestSSLConfig() throws Exception
     {
-        LdapConnection connection = null;
-        try
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
         {
-            connection = new LdapNetworkConnection( sslConfig );
             connection.bind( "uid=admin,ou=system", "secret" );
 
+            assertTrue( connection.getConfig().isUseSsl() );
             assertTrue( connection.isAuthenticated() );
+            assertTrue( connection.isSecured() );
         }
-        finally
+    }
+
+
+    /**
+     * Test a successful bind request
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testBindRequestSSLAuto() throws Exception
+    {
+        try ( LdapNetworkConnection connection = 
+            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPortSSL(), true ) )
         {
-            if ( connection != null )
-            {
-                connection.close();
-            }
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertTrue( connection.getConfig().isUseSsl() );
+
+            assertTrue( connection.isAuthenticated() );
+            assertTrue( connection.isSecured() );
+        }
+    }
+
+
+    /**
+     * Test a successful bind request
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testBindRequestSSLWithTrustManager() throws Exception
+    {
+        try ( LdapNetworkConnection connection = 
+            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPortSSL(), new NoVerificationTrustManager() ) )
+        {
+            connection.bind( "uid=admin,ou=system", "secret" );
+            
+            assertTrue( connection.getConfig().isUseSsl() );
+            assertTrue( connection.isAuthenticated() );
+            assertTrue( connection.isSecured() );
         }
     }
 
@@ -137,16 +170,15 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testGetSupportedControls() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( sslConfig );
-
-        Dn dn = new Dn( "uid=admin,ou=system" );
-        connection.bind( dn.getName(), "secret" );
-
-        List<String> controlList = connection.getSupportedControls();
-        assertNotNull( controlList );
-        assertFalse( controlList.isEmpty() );
-
-        connection.close();
+        try ( LdapConnection connection = new LdapNetworkConnection( sslConfig ) )
+        {    
+            Dn dn = new Dn( "uid=admin,ou=system" );
+            connection.bind( dn.getName(), "secret" );
+    
+            List<String> controlList = connection.getSupportedControls();
+            assertNotNull( controlList );
+            assertFalse( controlList.isEmpty() );
+        }
     }
 
 
@@ -158,10 +190,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testStartTLSBindRequest() throws Exception
     {
-        LdapNetworkConnection connection = null;
-        try
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
         {
-            connection = new LdapNetworkConnection( tlsConfig );
             tlsConfig.setUseTls( true );
             connection.connect();
 
@@ -174,15 +204,105 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             
             connection.bind( "uid=admin,ou=system", "secret" );
             assertTrue( connection.isAuthenticated() );
+            assertTrue( connection.isSecured() );
 
             connection.unBind();
         }
-        finally
+    }
+
+
+    /**
+     * Test a request before setting up TLS
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testStartTLSAfterBind() throws Exception
+    {
+        try ( LdapNetworkConnection connection = 
+            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() ) )
         {
-            if ( connection != null )
-            {
-                connection.close();
-            }
+            connection.connect();
+
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertFalse( connection.isSecured() );
+
+            Entry rootDse = connection.getRootDse( "*", "+" );
+            
+            assertNotNull( rootDse );
+
+            // startTLS
+            connection.startTls();
+            
+            // try multiple binds with startTLS DIRAPI-173
+            assertTrue( connection.isSecured() );
+
+            Entry admin = connection.lookup( "uid=admin,ou=system" );
+
+            assertNotNull( admin );
+            assertEquals( "uid=admin,ou=system", admin.getDn().getName() );
+
+            connection.unBind();
+        }
+    }
+
+
+    /**
+     * Test the startTLS call
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testStartTLS() throws Exception
+    {
+        try ( LdapNetworkConnection connection = 
+            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() ) )
+        {
+            assertFalse( connection.isConnected() );
+            
+            // Send the startTLS extended operation
+            connection.startTls();
+            assertTrue( connection.isSecured() );
+
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertTrue( connection.isSecured() );
+
+            Entry admin = connection.lookup( "uid=admin,ou=system" );
+
+            assertNotNull( admin );
+            assertEquals( "uid=admin,ou=system", admin.getDn().getName() );
+
+            connection.unBind();
+        }
+    }
+
+
+    /**
+     * Test the startTLS call
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testStartTLSWithConfig() throws Exception
+    {
+        try ( LdapNetworkConnection connection = 
+            new LdapNetworkConnection( tlsConfig ) )
+        {
+            assertFalse( connection.isConnected() );
+            
+            // Send the startTLS extended operation
+            connection.startTls();
+            assertTrue( connection.isSecured() );
+
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertTrue( connection.isSecured() );
+
+            Entry admin = connection.lookup( "uid=admin,ou=system" );
+
+            assertNotNull( admin );
+            assertEquals( "uid=admin,ou=system", admin.getDn().getName() );
+
+            connection.unBind();
         }
     }
 
@@ -190,45 +310,49 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testGetSupportedControlsWithStartTLS() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig );
-        tlsConfig.setUseTls( true );
-        connection.connect();
-
-        Dn dn = new Dn( "uid=admin,ou=system" );
-        connection.bind( dn.getName(), "secret" );
-
-        List<String> controlList = connection.getSupportedControls();
-        assertNotNull( controlList );
-        assertFalse( controlList.isEmpty() );
-
-        connection.close();
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+        {
+            tlsConfig.setUseTls( true );
+            connection.connect();
+    
+            Dn dn = new Dn( "uid=admin,ou=system" );
+            connection.bind( dn.getName(), "secret" );
+    
+            List<String> controlList = connection.getSupportedControls();
+            assertNotNull( controlList );
+            assertFalse( controlList.isEmpty() );
+        }
     }
 
 
     @Test(expected = LdapException.class)
     public void testFailsStartTLSWhenSSLIsInUse() throws Exception
     {
-        LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig );
-        tlsConfig.setUseSsl( true );
-        tlsConfig.setLdapPort( ldapServer.getPortSSL() );
-        connection.connect();
-        connection.startTls();
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+        {
+            tlsConfig.setUseSsl( true );
+            tlsConfig.setLdapPort( ldapServer.getPortSSL() );
+            connection.connect();
+            connection.startTls();
+        }
     }
 
 
     @Test(expected = InvalidConnectionException.class)
-    @Ignore( "This test is failing from time to time when runnig integ tests... To be investgated")
     public void testStallingSsl() throws Exception
     {
         LdapConnectionConfig sslConfig = new LdapConnectionConfig();
         sslConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
-        //sslConfig.setTrustManagers( new NoVerificationTrustManager() );
 
-        LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig );
-
-        // We should get an exception here, as we don't have a trustManager defined
-        connection.bind();
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+        {
+            // We should get an exception here, as we don't have a trustManager defined
+            connection.bind();
+            
+            assertTrue( connection.getConfig().isUseSsl() );
+            assertTrue( connection.isConnected() );
+        }
     }
 }
