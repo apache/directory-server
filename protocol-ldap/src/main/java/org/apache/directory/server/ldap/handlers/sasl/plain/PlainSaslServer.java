@@ -34,7 +34,6 @@ import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.schema.PrepareString;
-import org.apache.directory.api.util.StringConstants;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -239,7 +238,7 @@ public final class PlainSaslServer extends AbstractSaslServer
             }
         }
 
-        return StringConstants.EMPTY_BYTES;
+        return Strings.EMPTY_BYTES;
     }
 
 
