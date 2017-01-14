@@ -35,6 +35,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.message.CompareRequest;
 import org.apache.directory.api.ldap.model.message.CompareRequestImpl;
@@ -46,7 +47,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -104,18 +104,18 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testNormalCompare() throws Exception
     {
-        LdapConnection conn = getAdminConnection( getLdapServer() );
-
-        // comparison success
-        boolean response = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
-        assertTrue( response );
-
-        // comparison failure
-        response = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "lecharny" );
-        assertFalse( response );
-
-        conn.unBind();
-        conn.close();
+        try ( LdapConnection conn = getAdminConnection( getLdapServer() ) )
+        {
+            // comparison success
+            boolean response = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" );
+            assertTrue( response );
+    
+            // comparison failure
+            response = conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "lecharny" );
+            assertFalse( response );
+    
+            conn.unBind();
+        }
     }
 
 
@@ -127,23 +127,22 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testNormalCompareMissingAttribute() throws Exception
     {
-        LdapConnection conn = getWiredConnection( getLdapServer() );
-
-        // comparison success
-        assertTrue( conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" ) );
-
-        // non-existing attribute
-        try
+        try ( LdapConnection conn = getWiredConnection( getLdapServer() ) )
         {
-            conn.compare( "uid=akarasulu,ou=users,ou=system", "mail", "akarasulu@apache.org" );
-            fail( "Should never get here" );
+            // comparison success
+            assertTrue( conn.compare( "uid=akarasulu,ou=users,ou=system", "sn", "karasulu" ) );
+    
+            // non-existing attribute
+            try
+            {
+                conn.compare( "uid=akarasulu,ou=users,ou=system", "mail", "akarasulu@apache.org" );
+                fail( "Should never get here" );
+            }
+            catch ( LdapOperationException e )
+            {
+                assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE, e.getResultCode() );
+            }
         }
-        catch ( LdapOperationException e )
-        {
-            assertEquals( ResultCodeEnum.NO_SUCH_ATTRIBUTE, e.getResultCode() );
-        }
-
-        conn.close();
     }
 
 
@@ -153,24 +152,23 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
-        LdapConnection conn = getWiredConnection( getLdapServer() );
-
-        // comparison success
-        assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", "uid", "akarasuluref" ) );
-
-        // comparison failure
-        CompareRequest compareRequest = new CompareRequestImpl();
-        compareRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
-        compareRequest.setAttributeId( "uid" );
-        compareRequest.setAssertionValue( "elecharny" );
-        ManageDsaIT manageDSAIT = new ManageDsaITImpl();
-        manageDSAIT.setCritical( true );
-        compareRequest.addControl( manageDSAIT );
-
-        CompareResponse compareResponse = conn.compare( compareRequest );
-        assertEquals( ResultCodeEnum.COMPARE_FALSE, compareResponse.getLdapResult().getResultCode() );
-
-        conn.close();
+        try ( LdapConnection conn = getWiredConnection( getLdapServer() ) )
+        {
+            // comparison success
+            assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", "uid", "akarasuluref" ) );
+    
+            // comparison failure
+            CompareRequest compareRequest = new CompareRequestImpl();
+            compareRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+            compareRequest.setAttributeId( "uid" );
+            compareRequest.setAssertionValue( "elecharny" );
+            ManageDsaIT manageDSAIT = new ManageDsaITImpl();
+            manageDSAIT.setCritical( true );
+            compareRequest.addControl( manageDSAIT );
+    
+            CompareResponse compareResponse = conn.compare( compareRequest );
+            assertEquals( ResultCodeEnum.COMPARE_FALSE, compareResponse.getLdapResult().getResultCode() );
+        }
     }
 
 
@@ -182,37 +180,36 @@ public class CompareIT extends AbstractLdapTestUnit
     @Test
     public void testOnReferral() throws Exception
     {
-        LdapConnection conn = getWiredConnection( getLdapServer() );
-
-        // comparison success
-        CompareRequest compareRequest = new CompareRequestImpl();
-        compareRequest.setName( new Dn( "uid=akarasulu,ou=users,ou=system" ) );
-        compareRequest.setAttributeId( "uid" );
-        compareRequest.setAssertionValue( "akarasulu" );
-        ManageDsaIT manageDSAIT = new ManageDsaITImpl();
-        manageDSAIT.setCritical( false );
-        compareRequest.addControl( manageDSAIT );
-
-        CompareResponse compareResponse = conn.compare( compareRequest );
-        assertEquals( ResultCodeEnum.COMPARE_TRUE, compareResponse.getLdapResult().getResultCode() );
-
-        // referrals failure
-        compareRequest = new CompareRequestImpl();
-        compareRequest.setName( new Dn( "uid=akarasuluREF,ou=users,ou=system" ) );
-        compareRequest.setAttributeId( "uid" );
-        compareRequest.setAssertionValue( "akarasulu" );
-
-        compareResponse = conn.compare( compareRequest );
-        assertEquals( ResultCodeEnum.REFERRAL, compareResponse.getLdapResult().getResultCode() );
-
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
-            .contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
-            .contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
-            .contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
-
-        conn.close();
+        try ( LdapConnection conn = getWiredConnection( getLdapServer() ) )
+        {
+            // comparison success
+            CompareRequest compareRequest = new CompareRequestImpl();
+            compareRequest.setName( new Dn( "uid=akarasulu,ou=users,ou=system" ) );
+            compareRequest.setAttributeId( "uid" );
+            compareRequest.setAssertionValue( "akarasulu" );
+            ManageDsaIT manageDSAIT = new ManageDsaITImpl();
+            manageDSAIT.setCritical( false );
+            compareRequest.addControl( manageDSAIT );
+    
+            CompareResponse compareResponse = conn.compare( compareRequest );
+            assertEquals( ResultCodeEnum.COMPARE_TRUE, compareResponse.getLdapResult().getResultCode() );
+    
+            // referrals failure
+            compareRequest = new CompareRequestImpl();
+            compareRequest.setName( new Dn( "uid=akarasuluREF,ou=users,ou=system" ) );
+            compareRequest.setAttributeId( "uid" );
+            compareRequest.setAssertionValue( "akarasulu" );
+    
+            compareResponse = conn.compare( compareRequest );
+            assertEquals( ResultCodeEnum.REFERRAL, compareResponse.getLdapResult().getResultCode() );
+    
+            assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+                .contains( "ldap://localhost:10389/uid=akarasulu,ou=users,ou=system" ) );
+            assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+                .contains( "ldap://foo:10389/uid=akarasulu,ou=users,ou=system" ) );
+            assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+                .contains( "ldap://bar:10389/uid=akarasulu,ou=users,ou=system" ) );
+        }
     }
 
 
@@ -260,14 +257,16 @@ public class CompareIT extends AbstractLdapTestUnit
      * anonymous
      * @throws LdapException
      */
-    @Test(expected = InvalidConnectionException.class)
+    @Test(expected = LdapNoPermissionException.class)
     public void testCompareWithoutAuthentication() throws LdapException, Exception
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
-        LdapConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-
-        conn.compare( "uid=admin,ou=system", "uid", "admin" );
-        fail( "Compare success without authentication" );
+        
+        try ( LdapConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() ) )
+        {
+            conn.compare( "uid=admin,ou=system", "uid", "admin" );
+            fail( "Compare success without authentication" );
+        }
     }
 
 
@@ -279,24 +278,23 @@ public class CompareIT extends AbstractLdapTestUnit
     {
         LOG.debug( "" );
 
-        LdapConnection conn = getWiredConnection( getLdapServer() );
-
-        // referrals failure
-        CompareRequest compareRequest = new CompareRequestImpl();
-        compareRequest.setName( new Dn( "ou=Computers,uid=akarasuluref,ou=users,ou=system" ) );
-        compareRequest.setAttributeId( "ou" );
-        compareRequest.setAssertionValue( "Computers" );
-
-        CompareResponse compareResponse = conn.compare( compareRequest );
-        assertEquals( ResultCodeEnum.REFERRAL, compareResponse.getLdapResult().getResultCode() );
-
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
-            .contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
-            .contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-        assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
-            .contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
-
-        conn.close();
+        try ( LdapConnection conn = getWiredConnection( getLdapServer() ) )
+        {
+            // referrals failure
+            CompareRequest compareRequest = new CompareRequestImpl();
+            compareRequest.setName( new Dn( "ou=Computers,uid=akarasuluref,ou=users,ou=system" ) );
+            compareRequest.setAttributeId( "ou" );
+            compareRequest.setAssertionValue( "Computers" );
+    
+            CompareResponse compareResponse = conn.compare( compareRequest );
+            assertEquals( ResultCodeEnum.REFERRAL, compareResponse.getLdapResult().getResultCode() );
+    
+            assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+                .contains( "ldap://localhost:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+            assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+                .contains( "ldap://foo:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+            assertTrue( compareResponse.getLdapResult().getReferral().getLdapUrls()
+                .contains( "ldap://bar:10389/ou=Computers,uid=akarasulu,ou=users,ou=system" ) );
+        }
     }
 }
