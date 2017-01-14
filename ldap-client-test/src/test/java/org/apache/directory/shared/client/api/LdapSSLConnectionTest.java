@@ -38,7 +38,6 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
-import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -278,8 +277,10 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     }
 
 
+
+
     /**
-     * Test the startTLS call
+     * Test the startTLS call using a config
      *
      * @throws IOException
      */
@@ -291,15 +292,22 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         {
             assertFalse( connection.isConnected() );
             
+            // Connect
+            connection.connect();
+            assertFalse( connection.isSecured() );
+
+            connection.bind( "uid=admin,ou=system", "secret" );
+            Entry admin = connection.lookup( "uid=admin,ou=system" );
+            
+            assertNotNull( admin );
+            assertEquals( "uid=admin,ou=system", admin.getDn().getName() );
+            assertFalse( connection.isSecured() );
+
             // Send the startTLS extended operation
             connection.startTls();
             assertTrue( connection.isSecured() );
 
-            connection.bind( "uid=admin,ou=system", "secret" );
-            assertTrue( connection.isSecured() );
-
-            Entry admin = connection.lookup( "uid=admin,ou=system" );
-
+            admin = connection.lookup( "uid=admin,ou=system" );
             assertNotNull( admin );
             assertEquals( "uid=admin,ou=system", admin.getDn().getName() );
 
