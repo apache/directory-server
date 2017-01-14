@@ -35,6 +35,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.message.CompareRequest;
 import org.apache.directory.api.ldap.model.message.CompareRequestImpl;
@@ -46,7 +47,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -260,14 +260,16 @@ public class CompareIT extends AbstractLdapTestUnit
      * anonymous
      * @throws LdapException
      */
-    @Test(expected = InvalidConnectionException.class)
+    @Test(expected = LdapNoPermissionException.class)
     public void testCompareWithoutAuthentication() throws LdapException, Exception
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
-        LdapConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-
-        conn.compare( "uid=admin,ou=system", "uid", "admin" );
-        fail( "Compare success without authentication" );
+        
+        try ( LdapConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() ) )
+        {
+            conn.compare( "uid=admin,ou=system", "uid", "admin" );
+            fail( "Compare success without authentication" );
+        }
     }
 
 
