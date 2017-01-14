@@ -444,7 +444,7 @@ public class DefaultOperationManager implements OperationManager
         // Normalize the addContext Dn
         Dn dn = bindContext.getDn();
         
-        if ( !dn.isSchemaAware() )
+        if ( ( dn != null ) && !dn.isSchemaAware() )
         {
             dn = new Dn( directoryService.getSchemaManager(), dn );
             bindContext.setDn( dn );
