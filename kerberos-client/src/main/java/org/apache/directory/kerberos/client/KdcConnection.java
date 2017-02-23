@@ -377,8 +377,8 @@ public class KdcConnection
         catch ( Exception e )
         {
             // We didn't received anything : this is an error
-            LOG.error( "Authentication failed" );
-            throw new KerberosException( ErrorType.KRB_ERR_GENERIC, TIME_OUT_ERROR );
+            LOG.error( "Authentication failed : {0}", e.getMessage() );
+            throw new KerberosException( ErrorType.KRB_ERR_GENERIC, e.getMessage() );
         }
         finally
         {
