@@ -105,12 +105,10 @@ public class KerberosChannel
             repData = ByteBuffer.allocate( len + 4 );
             repData.putInt( len );
             
-            byte[] tmp = new byte[ 1024 * 8 ];
-            while ( in.available() > 0 )
-            {
-                int read = in.read( tmp );
-                repData.put( tmp, 0, read );
-            }
+            byte[] tmp = new byte[ len ];
+            
+            in.readFully( tmp ); 
+            repData.put( tmp );
         }
         
         repData.flip();
