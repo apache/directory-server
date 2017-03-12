@@ -38,6 +38,9 @@ import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 
 
@@ -74,7 +77,16 @@ public class GetPrincipal
             return null;
         }
 
-        return getEntry( StoreUtils.findPrincipalEntry( session, base, principal.getName() ) );
+        Entry entry = StoreUtils.findPrincipalEntry( session, base, principal.getName() );
+        
+        if ( entry == null )
+        {
+            return null;
+        }
+        else
+        {
+            return getEntry( entry );
+        }
     }
 
 
@@ -84,16 +96,16 @@ public class GetPrincipal
      * @param dn the distinguished name of the Kerberos principal
      * @param attrs the attributes of the Kerberos principal
      * @return the entry for the principal
-     * @throws Exception if there are any access problems
+     * @throws LdapException if there are any access problems
      */
-    private PrincipalStoreEntry getEntry( Entry entry ) throws Exception
+    private PrincipalStoreEntry getEntry( Entry entry ) throws LdapException
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 
         modifier.setDistinguishedName( entry.getDn().getName() );
 
-        String principal = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).getString();
-        modifier.setPrincipal( new KerberosPrincipal( principal, PrincipalNameType.KRB_NT_PRINCIPAL.getValue() ) );
+        String principalname = entry.get( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT ).getString();
+        modifier.setPrincipal( new KerberosPrincipal( principalname, PrincipalNameType.KRB_NT_PRINCIPAL.getValue() ) );
 
         String keyVersionNumber = entry.get( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT ).getString();
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
@@ -119,8 +131,10 @@ public class GetPrincipal
             }
             catch ( ParseException e )
             {
-                throw new Exception( "Account expiration attribute "
-                    + KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT + " contained an invalid value for generalizedTime: "
+                throw new LdapInvalidAttributeValueException( ResultCodeEnum.OPERATIONS_ERROR,
+                    "Account expiration attribute "
+                    + KerberosAttribute.KRB5_ACCOUNT_EXPIRATION_TIME_AT 
+                    + " contained an invalid value for generalizedTime: "
                     + val );
             }
         }
@@ -142,7 +156,8 @@ public class GetPrincipal
             }
             catch ( KerberosException ioe )
             {
-                throw new Exception( I18n.err( I18n.ERR_623, KerberosAttribute.KRB5_KEY_AT ) );
+                throw new LdapInvalidAttributeValueException( ResultCodeEnum.OPERATIONS_ERROR, 
+                    I18n.err( I18n.ERR_623, KerberosAttribute.KRB5_KEY_AT ), ioe );
             }
         }
 
