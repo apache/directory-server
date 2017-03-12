@@ -531,6 +531,54 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
 
     @Test
+    public void testBCRYPT() throws Exception
+    {
+        apply( getService(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapConnection connection = getConnectionAs( getService(), userDn, "test" );
+
+        // Check that we can get the attributes
+        Entry entry = connection.lookup( userDn );
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
+
+        // now modify the password for akarasulu : 'secret', encrypted using CRYPT
+        ModifyRequest modReq = new ModifyRequestImpl();
+        modReq.setName( new Dn( userDn ) );
+        
+        // The hash is for 'secret'
+        modReq.replace( "userPassword", "{crypt}$2a$06$LH2xIb/TZmajuLJGDNuegeeY.SCwkg6YAVLNXTh8n4Xfb1uwmLXg6" );
+        connection.modify( modReq );
+
+        // close and try with old password (should fail)
+        connection.close();
+
+        try
+        {
+            connection.bind( userDn, "test" );
+            fail();
+        }
+        catch ( LdapAuthenticationException lae )
+        {
+            assertTrue( true );
+        }
+
+        // try again now with new password (should be successful)
+        connection.bind( userDn, "secret" );
+        entry = connection.lookup( userDn );
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
+
+        // try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        connection.bind( userDn, "secret" );
+        entry = connection.lookup( userDn );
+        assertNotNull( entry );
+        assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+
+    @Test
     public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws Exception
     {
         apply( getService(), getUserAddLdif() );
