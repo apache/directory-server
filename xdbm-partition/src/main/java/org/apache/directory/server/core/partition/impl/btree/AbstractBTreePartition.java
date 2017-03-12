@@ -882,6 +882,209 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         }
     }
 
+    public void addFast( AddOperationContext addContext ) throws LdapException
+    {
+        try
+        {
+            setRWLock( addContext );
+            Entry entry = ( ( ClonedServerEntry ) addContext.getEntry() ).getClonedEntry();
+
+            Dn entryDn = entry.getDn();
+
+            // check if the entry already exists
+            lockRead();
+
+            //
+            // Suffix entry cannot have a parent since it is the root so it is
+            // capped off using the zero value which no entry can have since
+            // entry sequences start at 1.
+            //
+            Dn parentDn = null;
+            String parentId;
+            ParentIdAndRdn key = null;
+
+            if ( entryDn.equals( suffixDn ) )
+            {
+                parentId = Partition.ROOT_ID;
+                key = new ParentIdAndRdn( parentId, suffixDn.getRdns() );
+            }
+            else
+            {
+                parentDn = entryDn.getParent();
+
+                lockRead();
+
+                try
+                {
+                    parentId = getEntryId( parentDn );
+                }
+                finally
+                {
+                    unlockRead();
+                }
+
+                key = new ParentIdAndRdn( parentId, entryDn.getRdn() );
+            }
+
+            // don't keep going if we cannot find the parent Id
+            if ( parentId == null )
+            {
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216_ID_FOR_PARENT_NOT_FOUND, parentDn ) );
+            }
+
+            try
+            {
+                if ( getEntryId( parentId, entryDn.getRdn() ) != null )
+                {
+                    LdapEntryAlreadyExistsException ne = new LdapEntryAlreadyExistsException(
+                        I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+                    throw ne;
+                }
+            }
+            finally
+            {
+                unlockRead();
+            }
+
+            // Get a new UUID for the added entry if it does not have any already
+            Attribute entryUUID = entry.get( entryUuidAT );
+
+            String id = null;
+
+            if ( entryUUID == null )
+            {
+                id = master.getNextId( entry );
+            }
+            else
+            {
+                id = entryUUID.getString();
+            }
+
+            // Update the ObjectClass index
+            Attribute objectClass = entry.get( objectClassAT );
+
+            if ( objectClass == null )
+            {
+                String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
+                ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
+                LdapSchemaViolationException e = new LdapSchemaViolationException( rc, msg );
+                //e.setResolvedName( entryDn );
+                throw e;
+            }
+
+            for ( Value<?> value : objectClass )
+            {
+                String valueStr = ( String ) value.getNormValue();
+
+                if ( valueStr.equals( SchemaConstants.TOP_OC ) )
+                {
+                    continue;
+                }
+
+                objectClassIdx.add( valueStr, id );
+            }
+
+            if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
+            {
+                Attribute aliasAttr = entry.get( aliasedObjectNameAT );
+                addAliasIndices( id, entryDn, new Dn( schemaManager, aliasAttr.getString() ) );
+            }
+
+            // Update the EntryCsn index
+            Attribute entryCsn = entry.get( entryCsnAT );
+
+            if ( entryCsn == null )
+            {
+                String msg = I18n.err( I18n.ERR_219, entryDn.getName(), entry );
+                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
+            }
+
+            entryCsnIdx.add( entryCsn.getString(), id );
+
+            // Update the AdministrativeRole index, if needed
+            if ( entry.containsAttribute( administrativeRoleAT ) )
+            {
+                // We may have more than one role
+                Attribute adminRoles = entry.get( administrativeRoleAT );
+
+                for ( Value<?> value : adminRoles )
+                {
+                    adminRoleIdx.add( ( String ) value.getNormValue(), id );
+                }
+
+                // Adds only those attributes that are indexed
+                presenceIdx.add( administrativeRoleAT.getOid(), id );
+            }
+
+            // Now work on the user defined userIndices
+            for ( Attribute attribute : entry )
+            {
+                AttributeType attributeType = attribute.getAttributeType();
+                String attributeOid = attributeType.getOid();
+
+                if ( hasUserIndexOn( attributeType ) )
+                {
+                    Index<Object, String> idx = ( Index<Object, String> ) getUserIndex( attributeType );
+
+                    // here lookup by attributeId is OK since we got attributeId from
+                    // the entry via the enumeration - it's in there as is for sure
+
+                    for ( Value<?> value : attribute )
+                    {
+                        idx.add( value.getNormValue(), id );
+                    }
+
+                    // Adds only those attributes that are indexed
+                    presenceIdx.add( attributeOid, id );
+                }
+            }
+
+            // Add the parentId in the entry
+            entry.put( ApacheSchemaConstants.ENTRY_PARENT_ID_AT, parentId );
+
+            lockWrite();
+
+            try
+            {
+                // Update the RDN index
+                rdnIdx.add( key, id );
+
+                // Update the parent's nbChildren and nbDescendants values
+                if ( parentId != Partition.ROOT_ID )
+                {
+                    updateRdnIdx( parentId, ADD_CHILD, 0 );
+                }
+
+                // Remove the EntryDN attribute
+                entry.removeAttributes( entryDnAT );
+
+                Attribute at = entry.get( SchemaConstants.ENTRY_CSN_AT );
+                setContextCsn( at.getString() );
+
+                // And finally add the entry into the master table
+                master.put( id, entry );
+            }
+            finally
+            {
+                unlockWrite();
+            }
+
+            if ( isSyncOnWrite.get() )
+            {
+                sync();
+            }
+        }
+        catch ( LdapException le )
+        {
+            throw le;
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw new LdapException( e );
+        }
+    }
+
 
     //---------------------------------------------------------------------------------------------
     // The Delete operation
@@ -2539,6 +2742,35 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                         break;
                     }
                 }
+
+                return currentId;
+            }
+            finally
+            {
+                rwLock.readLock().unlock();
+            }
+        }
+        catch ( Exception e )
+        {
+            throw new LdapException( e.getMessage(), e );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public final String getEntryId( String parentId, Rdn rdn ) throws LdapException
+    {
+        try
+        {
+            ParentIdAndRdn suffixKey = new ParentIdAndRdn( parentId, rdn );
+
+            // Check into the Rdn index
+            try
+            {
+                rwLock.readLock().lock();
+                String currentId = rdnIdx.forwardLookup( suffixKey );
 
                 return currentId;
             }

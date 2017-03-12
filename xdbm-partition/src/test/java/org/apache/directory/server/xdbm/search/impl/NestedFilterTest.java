@@ -243,7 +243,7 @@ public class NestedFilterTest extends AbstractCursorTest
     {
         String filter = "(&(|(postalCode=5)(postalCode=6))(!(ou=sales)))";
 
-        UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
+        UuidSyntaxChecker uuidSynChecker = UuidSyntaxChecker.INSTANCE;
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         optimizer.annotate( exprNode );

@@ -297,7 +297,45 @@ public class DefaultOptimizer<E> implements Optimizer
      * @param node the node to get a scan count for 
      * @return the worst case
      * @throws Exception if there is an error accessing an index
-     */
+     *
+    @SuppressWarnings("unchecked")
+    private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
+    {
+        if ( db.hasIndexOn( node.getAttributeType() ) )
+        {
+            Index<V, String> idx = ( Index<V, String> ) db.getIndex( node.getAttributeType() );
+
+            long count = idx.count( node.getValue().getValue() );
+            
+            if ( count < 100L )
+            {
+                Cursor<String> result = idx.forwardValueCursor( node.getValue().getValue() );
+                Set<String> values = new HashSet<String>();
+
+                for ( String value : result )
+                {
+                    values.add( value );
+                }
+
+                result.close();
+
+                // Store the found candidates in the node
+                node.set( CANDIDATES_ANNOTATION_KEY, values );
+
+                return values.size();
+            }
+            else
+            {
+                node.set( CANDIDATES_ANNOTATION_KEY, null );
+                
+                return count;
+            }
+        }
+
+        // count for non-indexed attribute is unknown so we presume da worst
+        return Long.MAX_VALUE;
+    }
+    */
     @SuppressWarnings("unchecked")
     private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
     {
