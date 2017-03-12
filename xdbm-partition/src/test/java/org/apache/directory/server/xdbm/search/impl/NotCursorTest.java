@@ -77,7 +77,7 @@ public class NotCursorTest extends AbstractCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( NotCursorTest.class );
 
-    UuidSyntaxChecker uuidSynChecker = new UuidSyntaxChecker();
+    UuidSyntaxChecker uuidSynChecker = UuidSyntaxChecker.INSTANCE;
 
     File wkdir;
     static SchemaManager schemaManager = null;

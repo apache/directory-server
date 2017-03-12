@@ -45,6 +45,6 @@ public class BogusSyntax extends LdapSyntax
 
     public SyntaxChecker getSyntaxChecker()
     {
-        return new OctetStringSyntaxChecker();
+        return OctetStringSyntaxChecker.INSTANCE;
     }
 }
