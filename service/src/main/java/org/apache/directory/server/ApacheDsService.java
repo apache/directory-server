@@ -128,12 +128,12 @@ public class ApacheDsService
     // variables used during the initial startup to update the mandatory operational
     // attributes
     /** The UUID syntax checker instance */
-    private UuidSyntaxChecker uuidChecker = new UuidSyntaxChecker();
+    private UuidSyntaxChecker uuidChecker = UuidSyntaxChecker.INSTANCE;
 
     /** The CSN syntax checker instance */
-    private CsnSyntaxChecker csnChecker = new CsnSyntaxChecker();
+    private CsnSyntaxChecker csnChecker = CsnSyntaxChecker.INSTANCE;
 
-    private GeneralizedTimeSyntaxChecker timeChecker = new GeneralizedTimeSyntaxChecker();
+    private GeneralizedTimeSyntaxChecker timeChecker = GeneralizedTimeSyntaxChecker.INSTANCE;
 
     private static final Map<String, AttributeTypeOptions> MANDATORY_ENTRY_ATOP_MAP = new HashMap<String, AttributeTypeOptions>();
     private static final String[] MANDATORY_ENTRY_ATOP_AT = new String[5];
