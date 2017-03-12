@@ -30,7 +30,6 @@ import java.util.Hashtable;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
-import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
