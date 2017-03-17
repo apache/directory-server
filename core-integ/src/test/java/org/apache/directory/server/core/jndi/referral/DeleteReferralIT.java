@@ -39,6 +39,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.exception.LdapReferralException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -213,7 +214,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
         
         try
         {
-            session.lookup( dn, new String[]{} );
+            session.lookup( dn, Strings.EMPTY_STRING_ARRAY );
             fail();
         }
         catch ( LdapNoSuchObjectException lnsoe )
@@ -277,7 +278,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
         // We should not find the entry
         try
         {
-            session.lookup( dn, new String[]{} );
+            session.lookup( dn, Strings.EMPTY_STRING_ARRAY );
             fail();
         }
         catch ( LdapNoSuchObjectException lnsoe )
@@ -337,7 +338,7 @@ public class DeleteReferralIT extends AbstractLdapTestUnit
         // We should not find the entry
         try
         {
-            session.lookup( dn, new String[]{} );
+            session.lookup( dn, Strings.EMPTY_STRING_ARRAY );
             fail();
         }
         catch ( LdapNoSuchObjectException lnsoe )
