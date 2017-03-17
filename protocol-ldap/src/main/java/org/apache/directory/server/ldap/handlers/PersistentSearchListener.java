@@ -32,6 +32,7 @@ import org.apache.directory.api.ldap.model.message.controls.EntryChange;
 import org.apache.directory.api.ldap.model.message.controls.EntryChangeImpl;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
@@ -78,7 +79,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         req.addAbandonListener( this );
         this.psearchControl = ( PersistentSearch ) req.getControls().get( PersistentSearch.OID );
         
-        filterCtx = new LookupOperationContext( session.getCoreSession(), req.getAttributes().toArray( new String[]{} ) );
+        filterCtx = new LookupOperationContext( session.getCoreSession(), req.getAttributes().toArray( Strings.EMPTY_STRING_ARRAY ) );
         schemaManager = session.getCoreSession().getDirectoryService().getSchemaManager();
     }
 
