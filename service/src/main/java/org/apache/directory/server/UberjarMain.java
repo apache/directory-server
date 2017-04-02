@@ -140,7 +140,7 @@ public class UberjarMain
     public void start( String instanceDirectory )
     {
         InstanceLayout layout = new InstanceLayout( instanceDirectory );
-        
+
         // Creating ApacheDS service
         service = new ApacheDsService();
 
@@ -149,7 +149,7 @@ public class UberjarMain
         {
             LOG.info( "Starting the service." );
             service.start( layout );
-            
+
             startShutdownListener( layout );
         }
         catch ( Exception e )
@@ -170,22 +170,27 @@ public class UberjarMain
     {
         System.out.println( "Trying to repair the following data :" + instanceDirectory );
         InstanceLayout layout = new InstanceLayout( instanceDirectory );
-        
+
         // Creating ApacheDS service
         service = new ApacheDsService();
-        
+
+        // Initializing the service
         try
         {
             System.out.println( "Starting the service." );
-            service.start( layout, false );
+            // must start servers otherwise stop() won't work
+            service.start( layout, true );
+            // no need to start the shutdown listener
             System.out.println( "Service started." );
         }
         catch ( Exception e )
         {
-            return;
+            LOG.error( "Failed to start the service.", e );
+            stop();
+            System.exit( 1 );
         }
 
-        // Initializing the service
+        // Repairing the database
         try
         {
             System.out.println( "Repairing the database." );
@@ -194,11 +199,15 @@ public class UberjarMain
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to start the service.", e );
+            LOG.error( "Failed to repair the database.", e );
+            stop();
             System.exit( 1 );
         }
+
+        // Stop the service
+        stop();
     }
-    
+
 
     public void stop()
     {

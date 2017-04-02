@@ -360,12 +360,9 @@ public class UberJarMainTest
         // Stop the server
         uberjarMain.stop();
 
-        // Try to repair it
+        // Try to repair it (also starts and stops the server)
         uberjarMain.repair( instanceDirectory.toString() );
 
-        // Stop the server again
-        uberjarMain.stop();
-        
         // And restart it
         connectionVerificationThread = createServer();
         
