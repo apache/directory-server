@@ -36,8 +36,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -301,7 +299,6 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Ignore("Issue with loading syntax checker with inner Builder class")
     @Test
     public void testAddRemoveReplaceSyntaxCheckers() throws Exception
     {
