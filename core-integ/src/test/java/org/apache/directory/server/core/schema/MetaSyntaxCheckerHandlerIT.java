@@ -156,7 +156,6 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     }
 
 
-    @Ignore("Issue with loading syntax checker with inner Builder class")
     @Test
     public void testAddSyntaxCheckerWithByteCodeOnEnabledSchema() throws Exception
     {
@@ -193,7 +192,6 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     }
 
 
-    @Ignore("Issue with loading syntax checker with inner Builder class")
     @Test
     public void testAddSyntaxCheckerWithByteCodeOnDisabledSchema() throws Exception
     {
