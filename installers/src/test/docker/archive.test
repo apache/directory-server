@@ -88,6 +88,16 @@ fi
 # search
 ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
 
+# repair (stop before, should be started afterwards)
+/opt/${DIRNAME}/bin/apacheds.sh stop
+wait_for_apacheds_down
+/opt/${DIRNAME}/bin/apacheds.sh repair
+wait_for_apacheds_up
+if [ $HAVE_TTY -eq 1 ]
+then
+    /opt/${DIRNAME}/bin/apacheds.sh status | grep "ApacheDS is running"
+fi
+
 # restart and search a few times
 for i in 1 2 3
 do

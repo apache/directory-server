@@ -412,7 +412,7 @@ repair() {
      if [ "X$pid" = "X" ]
      then
          # The string passed to eval must handles spaces in paths correctly.
-         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" set.INSTANCE_DIRECTORY=\"$INSTANCE_DIRECTORY\" set.APACHEDS_COMMAND=\"repair\" set.INSTANCE=\"$INSTANCE\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $LOCKPROP"
+         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" set.INSTANCE_DIRECTORY=\"$INSTANCE_DIRECTORY\" set.APACHEDS_COMMAND=\"repair\" set.INSTANCE=\"$INSTANCE\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" $ANCHORPROP $LOCKPROP"
          eval $COMMAND_LINE
      else
          echo "$APP_LONG_NAME is already running."
@@ -555,7 +555,6 @@ case "$1" in
 
     'repair')
         checkUser touchlock $1 $INSTANCE
-        stopit
         repair
         start
         ;;

@@ -175,14 +175,18 @@ public class UberjarMain
         
         try
         {
-            service.start( layout, false );
+            System.out.println( "Starting the service." );
+            // must start servers otherwise stop() won't work
+            service.start( layout, true );
+            // no need to start the shutdown listener
+            System.out.println( "Service started." );
         }
         catch ( Exception e )
         {
             return;
         }
 
-        // Initializing the service
+        // Repairing the database
         try
         {
             LOG.info( "Starting the service." );
@@ -191,9 +195,14 @@ public class UberjarMain
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to start the service.", e );
+            LOG.error( "Failed to repair the database.", e );
+            stop();
             System.exit( 1 );
         }
+        
+        // Stop the service
+        stop();
+
     }
     
 

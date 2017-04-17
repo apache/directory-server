@@ -233,7 +233,7 @@ public class ApacheDsService
 
 
     /**
-     * Try to repair the partitions. For each partition, we need its directory and its DN
+     * Try to repair the partitions. Precondition is that this service was started before.
      *
      * @param instanceLayout the on disk location's layout of the intance to be repaired
      * @throws Exception If the repair failed
@@ -242,25 +242,8 @@ public class ApacheDsService
     {
         File partitionsDir = instanceLayout.getPartitionsDirectory();
 
-        if ( !partitionsDir.exists() )
-        {
-            System.out.println( "partition directory doesn't exist, creating " + partitionsDir.getAbsolutePath() );
-
-            if ( !partitionsDir.mkdirs() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionsDir ) );
-            }
-        }
-
         System.out.println( "Repairing partition dir " + partitionsDir.getAbsolutePath() );
 
-        CacheService cacheService = new CacheService();
-        cacheService.initialize( instanceLayout );
-
-        initSchemaManager( instanceLayout );
-        DnFactory dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
-        initSchemaLdifPartition( instanceLayout, dnFactory );
-        initConfigPartition( instanceLayout, dnFactory, cacheService );
         Set<? extends Partition> partitions = getDirectoryService().getPartitions();
 
         // Iterate on the partitions to repair them

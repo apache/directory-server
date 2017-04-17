@@ -21,14 +21,6 @@
 package org.apache.directory.server.wrapper;
 
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.ApacheDsService;
 import org.apache.directory.server.core.api.InstanceLayout;
@@ -65,23 +57,6 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
         WrapperManager.start( new ApacheDsTanukiWrapper(), args );
     }
 
-
-    
-    private static int readShutdownPort( InstanceLayout layout ) throws IOException 
-    {
-        return Integer.parseInt( new String( Files.readAllBytes( 
-                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.port" ) ),
-                Charset.forName( "utf-8" ) ) );
-    }
-    
-
-    private static String readShutdownPassword( InstanceLayout layout ) throws IOException 
-    {
-        return new String( Files.readAllBytes( 
-                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.pwd" ) ),
-                Charset.forName( "utf-8" ) );
-    }
-
     
     /**
      * Try to repair the databases
@@ -96,18 +71,22 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
         // Creating ApacheDS service
         service = new ApacheDsService();
         
+        // Initializing the service
         try
         {
             System.out.println( "Starting the service." );
-            service.start( layout );
+            // must start servers otherwise stop() won't work
+            service.start( layout, true );
             System.out.println( "Service started." );
         }
         catch ( Exception e )
         {
-            return;
+            LOG.error( "Failed to start the service.", e );
+            stop( 1 );
+            System.exit( ExitCodes.START );
         }
 
-        // Initializing the service
+        // Repairing the database
         try
         {
             System.out.println( "Repairing the database." );
@@ -116,9 +95,13 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to start the service.", e );
-            System.exit( 1 );
+            LOG.error( "Failed to repair the database.", e );
+            stop( 1 );
+            System.exit( ExitCodes.START );
         }
+        
+        // Stop the service
+        stop( 0 );
     }
 
 
@@ -172,18 +155,7 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
                         case "stop" :
                             // Stops the server
                             LOG.debug( "Stopping runtime" );
-                            InstanceLayout layout = new InstanceLayout( instanceDirectory );
-                            
-                            try ( Socket socket = new Socket( Network.LOOPBACK, readShutdownPort( layout ) );
-                                    PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
-                            {
-                                writer.print( readShutdownPassword( layout ) );
-                            }
-                            catch ( IOException e )
-                            {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
+                            stop( 1 );
                             
                             break;
 

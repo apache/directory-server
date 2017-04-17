@@ -175,7 +175,19 @@ elif [ "$ADS_ACTION" = "repair" ]; then
         -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
         -classpath "\"$CLASSPATH\"" \
-        org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" repair \
+        org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" repair
+        org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" repair
+    
+    # Printing instance information
+    [ $HAVE_TTY -eq 1 ] && echo "Starting ApacheDS instance '$ADS_INSTANCE_NAME'..."
+
+    # Launching ApacheDS
+    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+        -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
+        -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
+        -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
+        -classpath "\"$CLASSPATH\"" \
+        org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" \
         > "$ADS_OUT" 2>&1 "&"
     echo $! > "$ADS_PID"
 elif [ "$ADS_ACTION" = "run" ]; then

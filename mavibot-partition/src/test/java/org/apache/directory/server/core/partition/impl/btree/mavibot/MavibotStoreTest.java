@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -259,8 +258,7 @@ public class MavibotStoreTest
         assertEquals( 2, lookup.getDn().size() );
 
         // make sure all files are closed so that they can be deleted on Windows.
-        //store2.destroy();
-        FileUtils.deleteDirectory( wkdir2 );
+        // wkdir2 is deleted by TemporaryFolder rule
     }
 
 

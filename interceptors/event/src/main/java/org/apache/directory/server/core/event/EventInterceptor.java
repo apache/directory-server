@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -95,6 +97,21 @@ public class EventInterceptor extends BaseInterceptor
 
         evaluator = new ExpressionEvaluator( schemaManager );
         executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ) );
+        
+        ThreadFactory threadFactory = new ThreadFactory() 
+        {
+            @Override
+            public Thread newThread( Runnable runnable ) 
+            {
+                Thread newThread = Executors.defaultThreadFactory().newThread( runnable );
+                newThread.setDaemon( true );
+                
+                return newThread;
+            }
+        };
+        
+        executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ),
+            threadFactory );
 
         this.directoryService.setEventService( new DefaultEventService( directoryService ) );
         LOG.info( "Initialization complete." );
