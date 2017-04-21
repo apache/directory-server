@@ -1305,14 +1305,22 @@ public class DefaultDirectoryService implements DirectoryService
             LOG.debug( "--- Destroying the journal " );
             journal.destroy();
         }
-
         
         // --------------------------------------------------------------------
         // Shutdown the partition
         // --------------------------------------------------------------------
-
         LOG.debug( "--- Destroying the nexus" );
         partitionNexus.destroy();
+        
+        // --------------------------------------------------------------------
+        // Shutdown the interceptors
+        // --------------------------------------------------------------------
+        LOG.debug( "--- Destroying the interceptors" );
+        
+        for ( Interceptor interceptor : interceptors )
+        {
+            interceptor.destroy();
+        }
         
         // --------------------------------------------------------------------
         // And shutdown the server
