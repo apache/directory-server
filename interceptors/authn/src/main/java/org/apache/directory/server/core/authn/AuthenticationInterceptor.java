@@ -78,8 +78,10 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
+import org.apache.directory.server.core.api.authn.ppolicy.DefaultPasswordValidator;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordValidator;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -1433,7 +1435,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // perform the length validation
         validatePasswordLength( strPassword, policyConfig );
 
-        policyConfig.getPwdValidator().validate( strPassword, entry );
+        PasswordValidator passwordValidator = policyConfig.getPwdValidator();
+        
+        if ( passwordValidator == null )
+        {
+            // Use the default one
+            passwordValidator = new DefaultPasswordValidator();
+        }
+        
+        passwordValidator.validate( strPassword, entry );
     }
 
 
