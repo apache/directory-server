@@ -469,4 +469,14 @@ public class EventInterceptor extends BaseInterceptor
 
         return selecting;
     }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void destroy()
+    {
+       executor.shutdown();
+    }
 }

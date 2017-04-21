@@ -1332,6 +1332,16 @@ public class DefaultDirectoryService implements DirectoryService
         partitionNexus.destroy();
         
         // --------------------------------------------------------------------
+        // Shutdown the interceptors
+        // --------------------------------------------------------------------
+        LOG.debug( "--- Destroying the interceptors" );
+        
+        for ( Interceptor interceptor : interceptors )
+        {
+            interceptor.destroy();
+        }
+
+        // --------------------------------------------------------------------
         // And shutdown the server
         // --------------------------------------------------------------------
         LOG.debug( "--- Deleting the cache service" );
