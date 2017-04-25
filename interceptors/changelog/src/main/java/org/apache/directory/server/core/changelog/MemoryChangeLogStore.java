@@ -21,14 +21,15 @@ package org.apache.directory.server.core.changelog;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -209,11 +210,11 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             }
         }
 
-        FileOutputStream out = null;
+        OutputStream out = null;
 
         try
         {
-            out = new FileOutputStream( tagFile );
+            out = Files.newOutputStream( tagFile.toPath() );
 
             Properties props = new Properties();
 
@@ -264,11 +265,11 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         if ( revFile.exists() )
         {
             Properties props = new Properties();
-            FileInputStream in = null;
+            InputStream in = null;
 
             try
             {
-                in = new FileInputStream( revFile );
+                in = Files.newInputStream( revFile.toPath() );
                 props.load( in );
                 ArrayList<Long> revList = new ArrayList<Long>();
 
@@ -336,7 +337,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
             try
             {
-                in = new ObjectInputStream( new FileInputStream( file ) );
+                in = new ObjectInputStream( Files.newInputStream( file.toPath() ) );
                 int size = in.readInt();
 
                 ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<ChangeLogEvent>( size );
@@ -402,7 +403,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
         try
         {
-            out = new ObjectOutputStream( new FileOutputStream( file ) );
+            out = new ObjectOutputStream( Files.newOutputStream( file.toPath() ) );
 
             out.writeInt( events.size() );
 

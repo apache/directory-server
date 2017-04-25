@@ -21,9 +21,10 @@ package org.apache.directory.server.protocol.shared.store;
 
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
@@ -264,11 +265,11 @@ public class LdifFileLoader
      * @return the input stream to the ldif file.
      * @throws FileNotFoundException if the file cannot be found.
      */
-    private InputStream getLdifStream() throws FileNotFoundException
+    private InputStream getLdifStream() throws FileNotFoundException, IOException
     {
         if ( ldif.exists() )
         {
-            return new FileInputStream( ldif );
+            return Files.newInputStream( ldif.toPath() );
         }
         else
         {
