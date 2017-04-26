@@ -21,11 +21,11 @@ package org.apache.directory.server.core.schema;
 
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidObjectException;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -172,7 +172,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
             throw new FileNotFoundException( I18n.err( I18n.ERR_08002, source.getAbsolutePath() ) );
         }
 
-        FileInputStream in = new FileInputStream( source );
+        InputStream in = Files.newInputStream( source.toPath() );
         addFromStream( in, source.getAbsolutePath() );
     }
 

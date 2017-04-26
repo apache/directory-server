@@ -21,11 +21,10 @@ package org.apache.directory.kerberos.credentials.cache;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class CredentialsCache
 	
     public static CredentialsCache load( File cacheFile ) throws IOException 
     {
-        return load(new FileInputStream( cacheFile ));
+        return load( Files.newInputStream( cacheFile.toPath() ) );
     }
     
     public static CredentialsCache load( InputStream is ) throws IOException 
@@ -60,7 +59,7 @@ public class CredentialsCache
     
     public static void store( File fileName, CredentialsCache credCache ) throws IOException 
     {
-        store( new FileOutputStream(fileName), credCache );
+        store( Files.newOutputStream( fileName.toPath() ), credCache );
     }
     
     public static void store( OutputStream os, CredentialsCache credCache ) throws IOException 

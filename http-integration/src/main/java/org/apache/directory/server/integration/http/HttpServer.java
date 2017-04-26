@@ -23,10 +23,11 @@ package org.apache.directory.server.integration.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -115,7 +116,8 @@ public class HttpServer
 
         if ( confFile != null )
         {
-            jettyConf = new XmlConfiguration( new FileInputStream( confFile ) );
+            InputStream input = Files.newInputStream( Paths.get( confFile ) );
+            jettyConf = new XmlConfiguration( input );
 
             LOG.info( "configuring jetty http server from the configuration file {}", confFile );
 
@@ -206,7 +208,7 @@ public class HttpServer
                 ks.setKeyEntry( "privatekey", keyPair.getPrivate(), password.toCharArray(), new Certificate[]
                     { cert } );
 
-                try ( OutputStream stream = new FileOutputStream( ksFile ) )
+                try ( OutputStream stream = Files.newOutputStream( ksFile.toPath() ) )
                 {
                     ks.store( stream, password.toCharArray() );
                 }

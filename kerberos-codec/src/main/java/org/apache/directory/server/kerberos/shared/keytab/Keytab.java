@@ -21,12 +21,13 @@ package org.apache.directory.server.kerberos.shared.keytab;
 
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -224,7 +225,7 @@ public class Keytab
      */
     protected static byte[] getBytesFromFile( File file ) throws IOException
     {
-        try (InputStream is = new FileInputStream( file ))
+        try ( InputStream is = Files.newInputStream( file.toPath() ) )
         {
 
             long length = file.length();
@@ -267,16 +268,16 @@ public class Keytab
     protected void writeFile( ByteBuffer buffer, File file ) throws IOException
     {
         // Set append false to replace existing.
-        FileOutputStream fout = new FileOutputStream( file, false );
+        OutputStream out = Files.newOutputStream( file.toPath() );
 
-        try (FileChannel wChannel = fout.getChannel())
+        try ( WritableByteChannel channel = Channels.newChannel( out ) )
         {
             // Write the bytes between the position and limit.
-            wChannel.write( buffer );
+            channel.write( buffer );
         }
         finally
         {
-            fout.close();
+            out.close();
         }
     }
 }

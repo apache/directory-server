@@ -22,14 +22,14 @@ package org.apache.directory.server.installers;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -63,7 +63,7 @@ public final class MojoHelperUtils
     {
         mojo.getLog().info( "Copying " + fileName + " to " + to );
 
-        try ( FileOutputStream out = new FileOutputStream( to ) )
+        try ( OutputStream out = Files.newOutputStream( to.toPath() ) )
         {
             IOUtil.copy( from, out );
         }
@@ -79,7 +79,8 @@ public final class MojoHelperUtils
     {
         // buffer so it isn't reading a byte at a time!
         try ( Reader fileReader = new BufferedReader( new InputStreamReader( from ) );
-            Writer fileWriter = new OutputStreamWriter( new FileOutputStream( to ) ) )
+            OutputStream out = Files.newOutputStream( to.toPath() );
+            Writer fileWriter = new OutputStreamWriter( out ) )
         {
             Reader reader = null;
             if ( filtering )
@@ -111,7 +112,8 @@ public final class MojoHelperUtils
     public static void copyAsciiFile( GenerateMojo mymojo, Properties filterProperties, File from, File to,
         boolean filtering ) throws IOException
     {
-        copyAsciiFile( mymojo, filterProperties, from.getAbsolutePath(), new FileInputStream( from ), to, filtering );
+        InputStream input = Files.newInputStream( from.toPath() );
+        copyAsciiFile( mymojo, filterProperties, from.getAbsolutePath(), input, to, filtering );
     }
 
 
