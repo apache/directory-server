@@ -55,7 +55,7 @@
     
     <!-- Set versions for depending jars -->
     <ant.version>1.10.1</ant.version>
-    <bcprov.version>1.57</bcprov.version>
+    <bcprov.version>1.56</bcprov.version>
     <commons.cli.version>1.4</commons.cli.version>
     <commons.collections.version>3.2.2</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
@@ -79,8 +79,8 @@
     <pax-exam.version>4.11.0</pax-exam.version>
     <pax-url.version>2.5.2</pax-url.version>
     <plexus.utils.version>3.0.24</plexus.utils.version>
-    <slf4j.api.version>1.8.0-alpha2</slf4j.api.version>
-    <slf4j.log4j12.version>1.8.0-alpha2</slf4j.log4j12.version>
+    <slf4j.api.version>1.7.25</slf4j.api.version>
+    <slf4j.log4j12.version>1.7.25</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
   </properties>
 
