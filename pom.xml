@@ -147,7 +147,7 @@
     <!--<module>component-hub</module>-->
     
     <!-- Temporarily commented becuse it fails with surefire 2.19.1 -->
-    <!-- module>osgi-integ</module -->
+    <module>osgi-integ</module>
   </modules>
 
   <build>
