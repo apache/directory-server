@@ -75,7 +75,7 @@
     <maven.plugin.api.version>3.3.9</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
     <mina.core.version>2.0.16</mina.core.version>
-    <org.apache.felix.version>5.6.1</org.apache.felix.version>
+    <org.apache.felix.version>5.6.4</org.apache.felix.version>
     <pax-exam.version>4.11.0</pax-exam.version>
     <pax-url.version>2.5.2</pax-url.version>
     <plexus.utils.version>3.0.24</plexus.utils.version>
