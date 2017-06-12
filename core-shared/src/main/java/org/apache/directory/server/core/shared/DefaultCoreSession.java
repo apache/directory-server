@@ -91,6 +91,8 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.mina.core.session.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -103,6 +105,9 @@ import org.apache.mina.core.session.IoSession;
  */
 public class DefaultCoreSession implements CoreSession
 {
+    /** A logger for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultCoreSession.class );
+
     /** The DirectoryService we are connected to */
     private final DirectoryService directoryService;
 
@@ -1392,7 +1397,19 @@ public class DefaultCoreSession implements CoreSession
         SortedEntrySerializer keySerializer = new SortedEntrySerializer();
         SortedEntrySerializer.setSchemaManager( schemaManager );
         
-        File file = File.createTempFile( "replica", ".sorted-data" );// see DIRSERVER-2007
+        File file = null;
+        
+        try 
+        {
+            file = File.createTempFile( "replica", ".sorted-data" );    // see DIRSERVER-2007
+        } 
+        catch ( IOException e ) 
+        {
+            // see DIRSERVER-2091
+            LOG.error("Error creating temp file in directory {} for sorting: {}",  System.getProperty( "java.io.tmpdir" ),  e.getMessage(), e);
+            throw e;
+        }
+
         BaseRecordManager recMan = new BaseRecordManager( file.getAbsolutePath() );
 
         jdbm.btree.BTree<Entry, String> btree = new jdbm.btree.BTree<>( recMan, comparator, keySerializer, NullStringSerializer.INSTANCE );
