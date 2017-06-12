@@ -1347,7 +1347,6 @@ public class DefaultCoreSession implements CoreSession
             throw e;
         }
         
-        file = File.createTempFile( "replica", ".sorted-data" );// see DIRSERVER-2007
         BaseRecordManager recMan = new BaseRecordManager( file.getAbsolutePath() );
 
         jdbm.btree.BTree<Entry, String> btree = new jdbm.btree.BTree<Entry, String>( recMan, comparator, keySerializer, NullStringSerializer.INSTANCE );
