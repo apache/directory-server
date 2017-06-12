@@ -423,7 +423,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( ( levelAuthenticators == null ) || levelAuthenticators.isEmpty() )
         {
             // No authenticators associated with this level : get out
-            throw new LdapAuthenticationException( "Cannot Bind for Dn "
+            throw new LdapAuthenticationException( "Cannot Bind for Dn " +
          bindDn.getName() + ", no authenticator for the requested level " + level );
         }
 
@@ -440,9 +440,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 else
                 {
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                        "Cannot Bind for Dn "
-                     bindDn.getName() + ", its not a descendant of the authenticator base DN '"
-                     authenticator.getBaseDn() + "'" );
+                        "Cannot Bind for Dn " + bindDn.getName() + 
+                        ", its not a descendant of the authenticator base DN '" + authenticator.getBaseDn() + "'" );
                 }
             }
         }
@@ -499,8 +498,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
             // This is a case where the Bind request contains a Dn, but no password.
             // We don't check the Dn, we just return a UnwillingToPerform error
             // Cf RFC 4513, chap. 5.1.2
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for Dn "
-         bindDn.getName() );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot Bind for Dn " +
+                bindDn.getName() );
         }
 
         PasswordPolicyException ppe = null;
