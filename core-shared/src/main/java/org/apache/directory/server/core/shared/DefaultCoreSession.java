@@ -1343,7 +1343,8 @@ public class DefaultCoreSession implements CoreSession
         catch ( IOException e ) 
         {
             // see DIRSERVER-2091
-            LOG.error("Error creating temp file in directory {} for sorting: {}",  System.getProperty( "java.io.tmpdir" ),  e.getMessage(), e);
+            LOG.error( "Error creating temp file in directory {} for sorting: {}",  
+                System.getProperty( "java.io.tmpdir" ),  e.getMessage(), e );
             throw e;
         }
         
