@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.api.asn1.util.Oid;
 import org.apache.directory.api.ldap.codec.api.BinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
@@ -85,6 +86,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
+import org.apache.directory.ldap.client.api.SaslRequest;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,6 +226,21 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         AddResponse addResponse = add( addRequest );
 
         processResponse( addResponse );
+    }
+    
+    
+    /**
+     * Process the SASL Bind. It's a dialog with the server, we will send a first BindRequest, receive
+     * a response and the, if this response is a challenge, continue by sending a new BindRequest with
+     * the requested informations.
+     *
+     * @param saslRequest The SASL request object containing all the needed parameters
+     * @return A {@link BindResponse} containing the result
+     * @throws LdapException if some error occurred
+     */
+    public BindResponse bind( SaslRequest saslRequest ) throws LdapException
+    {
+        throw new NotImplementedException();
     }
 
 
