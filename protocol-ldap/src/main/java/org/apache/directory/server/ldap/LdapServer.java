@@ -630,7 +630,7 @@ public class LdapServer extends DirectoryBackedService
                 for ( WriteFuture future : writeFutures )
                 {
                     future.await( 1000L );
-                    sessionIt.next().close( true );
+                    sessionIt.next().closeNow();
                 }
 
                 if ( replicationReqHandler != null )
