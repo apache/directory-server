@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M25-SNAPSHOT</version>
+    <version>2.0.0.AM25-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-server-integ</artifactId>
@@ -234,8 +234,21 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
             <Export-Package>
-              {local-packages};version=${project.version};-noimport:=true
+              org.apache.directory.server.integ;version=${project.version}
             </Export-Package>
+            <Import-Package>
+                javax.naming,
+                javax.naming.ldap,
+                netscape.ldap,
+                org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.util;version=${org.apache.directory.api.version},
+                org.apache.directory.api.util;version=${org.apache.directory.api.version},
+                org.apache.directory.ldap.client.api;version=${org.apache.directory.api.version},
+                org.apache.directory.server.constants;version=${project.version},
+                org.apache.directory.server.core.integ;version=${project.version},
+                org.apache.directory.server.ldap;version=${project.version},
+                org.slf4j;version=${slf4j.api.version}
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>
@@ -312,6 +325,7 @@
                 <include>**/*PasswordPolicyServiceIT.java</include>
                 <include>**/*StoredProcedureIT.java</include>
               </includes>
+              
               <systemPropertyVariables>
                 <apacheds.partition.factory>org.apache.directory.server.core.factory.JdbmPartitionFactory</apacheds.partition.factory>
                 <felix.cache.rootdir>
@@ -331,58 +345,60 @@
                 </codec.plugin.directory>
               </systemPropertyVariables>              
             </configuration>
+            
             <executions>
               <!-- AVL execution -->
-       		  <execution>
-       		    <id>avl</id>
-       		    <goals>
-       		      <goal>test</goal>
-       		    </goals>
+              <execution>
+                <id>avl</id>
+                <goals>
+                  <goal>test</goal>
+                </goals>
                 <configuration>
                   <systemPropertyVariables>
                     <apacheds.partition.factory>org.apache.directory.server.core.factory.AvlPartitionFactory</apacheds.partition.factory>
-	                <felix.cache.rootdir>
-	                  ${project.build.directory}
-	                </felix.cache.rootdir>
-	                <felix.cache.locking>
-	                  false
-	                </felix.cache.locking>
-	                <org.osgi.framework.storage.clean>
-	                  onFirstInit
-	                </org.osgi.framework.storage.clean>
-	                <org.osgi.framework.storage>
-	                  ${project.build.directory}/osgi-cache
-	                </org.osgi.framework.storage>
-                        <codec.plugin.directory>
-                          ${codec.plugin.directory}
-                        </codec.plugin.directory>
+                    <felix.cache.rootdir>
+                      ${project.build.directory}
+                    </felix.cache.rootdir>
+                    <felix.cache.locking>
+                      false
+                    </felix.cache.locking>
+                    <org.osgi.framework.storage.clean>
+                      onFirstInit
+                    </org.osgi.framework.storage.clean>
+                    <org.osgi.framework.storage>
+                      ${project.build.directory}/osgi-cache
+                    </org.osgi.framework.storage>
+                    <codec.plugin.directory>
+                      ${codec.plugin.directory}
+                    </codec.plugin.directory>
                   </systemPropertyVariables>
                 </configuration>
               </execution>
+              
               <!-- LDIF execution -->
-       		  <execution>
-       		    <id>ldif</id>
-       		    <goals>
-       		      <goal>test</goal>
-       		    </goals>
+              <execution>
+                <id>ldif</id>
+                <goals>
+                  <goal>test</goal>
+                </goals>
                 <configuration>
                   <systemPropertyVariables>
                     <apacheds.partition.factory>org.apache.directory.server.core.factory.LdifPartitionFactory</apacheds.partition.factory>
-	                <felix.cache.rootdir>
-	                  ${project.build.directory}
-	                </felix.cache.rootdir>
-	                <felix.cache.locking>
-	                  false
-	                </felix.cache.locking>
-	                <org.osgi.framework.storage.clean>
-	                  onFirstInit
-	                </org.osgi.framework.storage.clean>
-	                <org.osgi.framework.storage>
-	                  ${project.build.directory}/osgi-cache
-	                </org.osgi.framework.storage>
-                        <codec.plugin.directory>
-                          ${codec.plugin.directory}
-                        </codec.plugin.directory>
+                    <felix.cache.rootdir>
+                      ${project.build.directory}
+                    </felix.cache.rootdir>
+                    <felix.cache.locking>
+                      false
+                    </felix.cache.locking>
+                    <org.osgi.framework.storage.clean>
+                      onFirstInit
+                    </org.osgi.framework.storage.clean>
+                    <org.osgi.framework.storage>
+                      ${project.build.directory}/osgi-cache
+                    </org.osgi.framework.storage>
+                    <codec.plugin.directory>
+                      ${codec.plugin.directory}
+                    </codec.plugin.directory>
                   </systemPropertyVariables>
                 </configuration>
               </execution>

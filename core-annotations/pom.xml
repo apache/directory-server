@@ -22,7 +22,7 @@
     <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M25-SNAPSHOT</version>
+    <version>2.0.0.AM25-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-core-annotations</artifactId>
@@ -154,8 +154,44 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.core.annotations</Bundle-SymbolicName>
             <Export-Package>
-                {local-packages};version=${project.version};-noimport:=true
+                org.apache.directory.server.core.annotations;version=${project.version},
+                org.apache.directory.server.core.factory;version=${project.version}
             </Export-Package>
+            <Import-Package>
+                org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.ldif;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.schema;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.schema.comparators;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.schema.registries;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.schema.extractor;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.schema.extractor.impl;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.schema.loader;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.schema.manager.impl;version=${org.apache.directory.api.version},
+                org.apache.directory.api.util;version=${org.apache.directory.api.version},
+                org.apache.directory.api.util.exception;version=${org.apache.directory.api.version},
+                org.apache.directory.server.constants;version=${project.version},
+                org.apache.directory.server.core;version=${project.version},
+                org.apache.directory.server.core.annotations;version=${project.version},
+                org.apache.directory.server.core.api;version=${project.version},
+                org.apache.directory.server.core.api.interceptor;version=${project.version},
+                org.apache.directory.server.core.api.partition;version=${project.version},
+                org.apache.directory.server.core.api.schema;version=${project.version},
+                org.apache.directory.server.core.authn;version=${project.version},
+                org.apache.directory.server.core.factory;version=${project.version},
+                org.apache.directory.server.core.partition.impl.avl;version=${project.version},
+                org.apache.directory.server.core.partition.impl.btree;version=${project.version},
+                org.apache.directory.server.core.partition.impl.btree.jdbm;version=${project.version},
+                org.apache.directory.server.core.partition.impl.btree.mavibot;version=${project.version},
+                org.apache.directory.server.core.partition.ldif;version=${project.version},
+                org.apache.directory.server.i18n;version=${project.version},
+                org.apache.directory.server.xdbm;version=${project.version},
+                org.apache.directory.server.xdbm.impl.avl;version=${project.version},
+                org.junit.runner;version=${junit.version},
+                org.slf4j;version=${slf4j.log4j12.version}
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>

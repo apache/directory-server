@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M25-SNAPSHOT</version>
+    <version>2.0.0.AM25-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-core-jndi</artifactId>
@@ -128,8 +128,50 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.core.jndi</Bundle-SymbolicName>
             <Export-Package>
-                {local-packages};version=${project.version};-noimport:=true
+                org.apache.directory.server.core.jndi;version=${project.version}
             </Export-Package>
+            <Import-Package>
+                javax.naming,
+                javax.naming.directory,
+                javax.naming.event,
+                javax.naming.ldap,
+                javax.naming.spi,
+                org.apache.directory.api.asn1;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.controls.cascade;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.controls.manageDsaIT;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.controls.proxiedauthz;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.controls.search.entryChange;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.controls.search.pagedSearch;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.controls.search.persistentSearch;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.controls.search.subentries;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.controls.ppolicy;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.controls.ppolicy_impl;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.controls.syncrepl.syncState;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.controls.syncrepl_impl;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.filter;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.message.controls;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.schema;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.util;version=${org.apache.directory.api.version},
+                org.apache.directory.api.util;version=${org.apache.directory.api.version},
+                org.apache.directory.api.util.exception;version=${org.apache.directory.api.version},
+                org.apache.directory.server.core.api;version=${project.version},
+                org.apache.directory.server.core.api.entry;version=${project.version},
+                org.apache.directory.server.core.api.event;version=${project.version},
+                org.apache.directory.server.core.api.filtering;version=${project.version},
+                org.apache.directory.server.core.api.interceptor.context;version=${project.version},
+                org.apache.directory.server.core.shared;version=${project.version},
+                org.apache.directory.server.i18n;version=${project.version},
+                org.slf4j;version=${slf4j.api.version}
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>

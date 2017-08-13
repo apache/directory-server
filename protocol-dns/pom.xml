@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M25-SNAPSHOT</version>
+    <version>2.0.0.AM25-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-protocol-dns</artifactId>
@@ -111,8 +111,41 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.protocol.dns</Bundle-SymbolicName>
             <Export-Package>
-                {local-packages};version=${project.version};-noimport:=true
+                org.apache.directory.server.dns;version=${project.version},
+                org.apache.directory.server.dns.io.decoder;version=${project.version},
+                org.apache.directory.server.dns.io.encoder;version=${project.version},
+                org.apache.directory.server.dns.messages;version=${project.version},
+                org.apache.directory.server.dns.protocol;version=${project.version},
+                org.apache.directory.server.dns.service;version=${project.version},
+                org.apache.directory.server.dns.store;version=${project.version},
+                org.apache.directory.server.dns.store.jndi;version=${project.version},
+                org.apache.directory.server.dns.store.jndi.operations;version=${project.version},
+                org.apache.directory.server.dns.util;version=${project.version}
             </Export-Package>
+            <Import-Package>
+                javax.naming,
+                javax.naming.directory,
+                javax.naming.ldap,
+                org.apache.commons.lang.builder;version=${commons.lang.version},
+                org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
+                org.apache.directory.api.util;version=${org.apache.directory.api.version},
+                org.apache.directory.server.core;version=${project.version},
+                org.apache.directory.server.core.api;version=${project.version},
+                org.apache.directory.server.core.jndi;version=${project.version},
+                org.apache.directory.server.i18n;version=${project.version},
+                org.apache.directory.server.protocol.shared;version=${project.version},
+                org.apache.directory.server.protocol.shared.catalog;version=${project.version},
+                org.apache.directory.server.protocol.shared.transport;version=${project.version},
+                org.apache.mina.core.buffer;version=${mina.core.version},
+                org.apache.mina.core.service;version=${mina.core.version},
+                org.apache.mina.core.session;version=${mina.core.version},
+                org.apache.mina.filter.codec;version=${mina.core.version},
+                org.apache.mina.handler.chain;version=${mina.core.version},
+                org.apache.mina.transport.socket;version=${mina.core.version},
+                org.apache.mina.transport.socket.nio;version=${mina.core.version},
+                org.slf4j;version=${slf4j.api.version}
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>
