@@ -164,7 +164,7 @@
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.ldap;version=${project.version},
                 org.apache.directory.server.protocol.shared.store;version=${project.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

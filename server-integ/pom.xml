@@ -247,7 +247,7 @@
                 org.apache.directory.server.constants;version=${project.version},
                 org.apache.directory.server.core.integ;version=${project.version},
                 org.apache.directory.server.ldap;version=${project.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

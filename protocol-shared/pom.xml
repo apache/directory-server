@@ -125,7 +125,7 @@
                 org.apache.mina.core.service;version=${mina.core.version},
                 org.apache.mina.transport.socket;version=${mina.core.version},
                 org.apache.mina.transport.socket.nio;version=${mina.core.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

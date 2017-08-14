@@ -88,7 +88,7 @@
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},
                 org.apache.directory.server.i18n;version=${project.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

@@ -190,7 +190,7 @@
                 org.apache.directory.server.xdbm;version=${project.version},
                 org.apache.directory.server.xdbm.impl.avl;version=${project.version},
                 org.junit.runner;version=${junit.version},
-                org.slf4j;version=${slf4j.log4j12.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

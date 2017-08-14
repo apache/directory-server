@@ -278,7 +278,7 @@
                 org.apache.mina.handler.demux;version=${mina.core.version},
                 org.apache.mina.transport.socket;version=${mina.core.version},
                 org.bouncycastle.jce.provider;version=${bcprov.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

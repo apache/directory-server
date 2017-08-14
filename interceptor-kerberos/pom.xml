@@ -135,7 +135,7 @@
                 org.apache.directory.shared.kerberos.codec.types;version=${project.version},
                 org.apache.directory.shared.kerberos.components;version=${project.version},
                 org.apache.directory.shared.kerberos.exceptions;version=${project.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

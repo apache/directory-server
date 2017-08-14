@@ -120,7 +120,7 @@
             </Export-Package>
             <Import-Package>
                 org.apache.commons.pool;version=${commons.pool.version},
-                org.apache.commons.pool.impl.GenericObjectPool;version=${commons.pool.version},
+                org.apache.commons.pool.impl;version=${commons.pool.version},
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
@@ -148,7 +148,7 @@
                 org.junit.runner.notification;version=${junit.version},
                 org.junit.runners;version=${junit.version},
                 org.junit.runners.model;version=${junit.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

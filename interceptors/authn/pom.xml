@@ -177,7 +177,7 @@
                 org.apache.directory.server.core.shared;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.mina.core.session;version=${mina.core.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

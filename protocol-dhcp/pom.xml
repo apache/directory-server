@@ -101,7 +101,7 @@
                 org.apache.mina.core.service;version=${mina.core.version},
                 org.apache.mina.core.session;version=${mina.core.version},
                 org.apache.mina.filter.codec;version=${mina.core.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

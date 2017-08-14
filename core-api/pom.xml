@@ -205,7 +205,7 @@
                 org.apache.directory.server.constants;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.mina.core.session;version=${mina.core.version},
-                org.slf4j;version=${slf4j.api.version},
+                org.slf4j;version=${slf4j.api.bundleversion},
                 javax.naming,
                 javax.naming.directory
             </Import-Package>

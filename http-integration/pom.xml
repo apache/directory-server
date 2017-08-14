@@ -134,7 +134,7 @@
                 org.eclipse.jetty.util.ssl;version=${jetty.bundle.version},
                 org.eclipse.jetty.webapp;version=${jetty.bundle.version},
                 org.eclipse.jetty.xml;version=${jetty.bundle.version}
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>

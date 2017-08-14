@@ -126,7 +126,7 @@
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.xdbm;version=${project.version},
                 org.apache.directory.server.xdbm.search;version=${project.version},
-                org.slf4j;version=${slf4j.api.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
         </configuration>
