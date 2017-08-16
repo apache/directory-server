@@ -127,6 +127,7 @@
             <Import-Package>
                 javax.naming,
                 net.sf.ehcache;version=${ehcache.version},
+                net.sf.ehcache.config;version=${ehcache.version},
                 net.sf.ehcache.store;version=${ehcache.version},
                 org.apache.commons.collections;version=${commons.collections.version},
                 org.apache.directory.api.i18n;version=${org.apache.directory.api.version},

@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.LruPolicy;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -616,16 +617,18 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             aliasCache = cacheService.getCache( "alias" );
     
-            int cacheSizeConfig = aliasCache.getCacheConfiguration().getMaxElementsInMemory();
+            CacheConfiguration cacheConfiguration = aliasCache.getCacheConfiguration();
+            
+            int cacheSizeConfig = ( int ) cacheConfiguration.getMaxEntriesLocalHeap();
     
             if ( cacheSizeConfig < cacheSize )
             {
-                aliasCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
+                aliasCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize );
             }
             
             piarCache = cacheService.getCache( "piar" );
             
-            cacheSizeConfig = piarCache.getCacheConfiguration().getMaxElementsInMemory();
+            cacheSizeConfig = ( int ) piarCache.getCacheConfiguration().getMaxEntriesLocalHeap();
     
             if ( cacheSizeConfig < cacheSize )
             {
