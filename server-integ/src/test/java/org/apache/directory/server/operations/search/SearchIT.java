@@ -20,6 +20,8 @@
 package org.apache.directory.server.operations.search;
 
 
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
+import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
@@ -72,6 +74,8 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.api.LdapCoreSessionConnection;
+import org.apache.directory.server.core.authz.AutzIntegUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Ignore;
@@ -2099,5 +2103,65 @@ public class SearchIT extends AbstractLdapTestUnit
         cursor.close();
 
         connection.close();
+    }
+    
+    /**
+     * Checks allow anonymous users access to entries based on the "classes" protected item 
+     * 
+     * This is a test case for the bug - DIRSERVER-2206
+     * 
+     * @throws Exception if the test encounters an error
+     */
+    @Test
+    @Ignore("need to fix this")
+    public void testGrantSearchAllUsersByClassesProtectedItem() throws Exception
+    {
+        // the test will not work unless the access control mechanism is enabled
+        service.setAccessControlEnabled(true);
+        // and enable the anon access
+        service.setAllowAnonymousAccess(true);
+
+        // this try block is to just reset the above two flags
+        // cause the rest of the tests are ran without them
+        try 
+        {
+            // now add a subentry that enables anyone to search an entry below ou=system
+            createAccessControlSubentry( "allowReadUsers", "{}",
+                    "{ " +
+                            "  identificationTag \"allowReadUsers\", " +
+                            "  precedence 14, " +
+                            "  authenticationLevel none, " +
+                            "  itemOrUserFirst userFirst: " +
+                            "  { " +
+                            "    userClasses { allUsers }, " +
+                            "    userPermissions " +
+                            "    { " +
+                            "      { " +
+                            "        protectedItems {entry, classes or: { item: inetOrgPerson, item: person} }, " +
+                            "        grantsAndDenials { grantRead, grantReturnDN, grantBrowse } " +
+                            "      } " +
+                            "    } " +
+                            "  } " +
+                    "}" );
+            
+            LdapConnection anonCon = new LdapNetworkConnection("localhost", ldapServer.getPort());
+            SearchRequest req = new SearchRequestImpl();
+            req.setBase(new Dn("cn=Janis Joplin,ou=system"));
+            req.setFilter(FILTER);
+            req.setScope(SearchScope.OBJECT);
+            req.addAttributes("cn");
+            
+            SearchCursor cursor = anonCon.search(req);
+            assertTrue(cursor.next());
+            cursor.close();
+            anonCon.close();
+        }
+        finally 
+        {
+            // reset the flags to the original state, cause tests are not gauranteed to
+            // execute in the order of declaration
+            service.setAccessControlEnabled(false);
+            service.setAllowAnonymousAccess(false);
+        }
     }
 }
