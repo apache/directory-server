@@ -247,9 +247,16 @@ public class ConfigPartitionReader
         {
             return;
         }
-
+        
+        
         Value value = fieldAttr.get();
-        String valueStr = value.getValue();
+        String valueStr = ""; 
+        
+        if ( value != null )
+        {
+            valueStr = value.getValue();
+        }
+
         Class<?> type = beanField.getType();
 
         // Process the value accordingly to its type.
@@ -451,15 +458,31 @@ public class ConfigPartitionReader
         // Get the entry attribute for this attribute type
         Attribute attribute = entry.get( attributeTypeName );
 
-        if ( ( attribute != null ) && ( attribute.size() > 0 ) )
+        if ( attribute != null )
         {
-            if ( !isMultiple( field.getType() ) )
+            if ( attribute.size() > 0 )
             {
+                if ( !isMultiple( field.getType() ) )
+                {
+                    readSingleValueField( bean, field, attribute );
+                }
+                else
+                {
+                    readMultiValuedField( bean, field, attribute );
+                }
+            }
+            else if ( attribute.size() == 0 )
+            {
+                // No value ? May be valid
                 readSingleValueField( bean, field, attribute );
             }
-            else
+            else if ( mandatory )
             {
-                readMultiValuedField( bean, field, attribute );
+                // the requested element is mandatory so let's throw an exception
+                String message = "No value was configured for entry with DN '"
+                    + entry.getDn() + "' and attribute type '" + attributeTypeName + "'.";
+                LOG.error( message );
+                throw new ConfigurationException( message );
             }
         }
         else
