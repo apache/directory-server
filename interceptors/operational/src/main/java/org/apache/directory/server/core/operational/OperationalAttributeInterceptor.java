@@ -640,7 +640,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
     
     
-    private void processSubordinates( Set<AttributeTypeOptions> returningAttributes, boolean allAttributes, Entry entry ) 
+    private void processSubordinates( Set<AttributeTypeOptions> returningAttributes, boolean allOpAttributes, Entry entry ) 
         throws LdapException
     {
         // Bypass the rootDSE : we won't get the nbChildren and nbSubordiantes for this special entry
@@ -657,8 +657,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         if ( returningAttributes != null )
         {
-            boolean nbChildrenRequested = returningAttributes.contains( nbChildrenAto ) | allAttributes;
-            boolean nbSubordinatesRequested = returningAttributes.contains( nbSubordinatesAto ) | allAttributes;
+            boolean nbChildrenRequested = returningAttributes.contains( nbChildrenAto ) || allOpAttributes;
+            boolean nbSubordinatesRequested = returningAttributes.contains( nbSubordinatesAto ) || allOpAttributes;
 
             if ( nbChildrenRequested || nbSubordinatesRequested )
             {
