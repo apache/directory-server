@@ -20,8 +20,6 @@
 package org.apache.directory.server.operations.search;
 
 
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
-import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.junit.Assert.assertEquals;
@@ -74,8 +72,6 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
-import org.apache.directory.server.core.api.LdapCoreSessionConnection;
-import org.apache.directory.server.core.authz.AutzIntegUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Ignore;
