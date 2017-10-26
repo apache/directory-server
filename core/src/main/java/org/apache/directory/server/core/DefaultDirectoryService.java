@@ -1245,7 +1245,7 @@ public class DefaultDirectoryService implements DirectoryService
         else if ( LOG.isWarnEnabled() )
         {
             LOG.warn( "ApacheDS shutdown hook has NOT been registered with the runtime."
-                + "  This default setting for standalone operation has been overriden." );
+                + "  This default setting for standalone operation has been overridden." );
         }
 
         initialize();

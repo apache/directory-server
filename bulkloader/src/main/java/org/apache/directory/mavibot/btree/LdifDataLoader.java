@@ -101,7 +101,7 @@ public class LdifDataLoader
         Set<String> existing = rm.getManagedTrees();
         if( existing.size() > 2 )
         {
-            LOG.warn( "Looks like the given partition directory {} already contains data of a mavibot partiton, please delete this data file and rerun this tool", ldifFile );
+            LOG.warn( "Looks like the given partition directory {} already contains data of a mavibot partition, please delete this data file and rerun this tool", ldifFile );
             return false;
         }
         

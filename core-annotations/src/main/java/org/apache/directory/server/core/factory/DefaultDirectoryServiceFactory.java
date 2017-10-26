@@ -99,7 +99,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
         }
         catch ( Exception e )
         {
-            LOG.error( "Error instantiating custom partiton factory", e );
+            LOG.error( "Error instantiating custom partition factory", e );
             throw new RuntimeException( e );
         }
     }
