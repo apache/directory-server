@@ -113,6 +113,7 @@
             </Export-Package>
             <Import-Package>
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},

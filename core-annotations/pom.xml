@@ -155,12 +155,7 @@
             <Bundle-SymbolicName>${project.groupId}.core.annotations</Bundle-SymbolicName>
             <Export-Package>
                 org.apache.directory.server.core.annotations;version=${project.version},
-                org.apache.directory.server.core.factory;version=${project.version},
-                org.apache.directory.server.xdbm;version=${project.version},
-                org.apache.directory.server.xdbm.search;version=${project.version},
-                org.apache.directory.server.xdbm.search.cursor;version=${project.version},
-                org.apache.directory.server.xdbm.search.evaluator;version=${project.version},
-                org.apache.directory.server.xdbm.search.impl;version=${project.version}
+                org.apache.directory.server.core.factory;version=${project.version}
             </Export-Package>
             <Import-Package>
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},

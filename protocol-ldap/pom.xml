@@ -184,6 +184,8 @@
             <Bundle-SymbolicName>${project.groupId}.protocol.ldap</Bundle-SymbolicName>
             <Export-Package>
                 org.apache.directory.server.ldap;version=${project.version},
+                org.apache.directory.server.ldap.handlers;version=${project.version},
+                org.apache.directory.server.ldap.handlers.controls;version=${project.version},
                 org.apache.directory.server.ldap.handlers.extended;version=${project.version},
                 org.apache.directory.server.ldap.handlers.request;version=${project.version},
                 org.apache.directory.server.ldap.handlers.response;version=${project.version},
