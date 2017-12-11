@@ -143,7 +143,6 @@ public class AddIT extends AbstractLdapTestUnit
      * Test for DIRSERVER-2109.
      */
     @Test
-    @Ignore
     public void test_DIRSERVER_2109_1() throws Exception
     {
         Dn dn = new Dn( "cn=\\#\\\\\\+\\, \\\"\u00F6\u00E9\\\",ou=users,ou=system" );
@@ -166,7 +165,6 @@ public class AddIT extends AbstractLdapTestUnit
      * Test for DIRSERVER-2109.
      */
     @Test
-    @Ignore
     public void test_DIRSERVER_2109_2() throws Exception
     {
         Entry entry = new DefaultEntry( new Dn( "cn=a\\\\b,ou=users,ou=system" ) );
