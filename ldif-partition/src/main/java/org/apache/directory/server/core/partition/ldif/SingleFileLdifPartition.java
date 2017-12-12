@@ -431,7 +431,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         }
 
 
-        public RandomAccessLdifReader( SchemaManager schemaManager ) throws LdapException
+        RandomAccessLdifReader( SchemaManager schemaManager ) throws LdapException
         {
             try
             {
