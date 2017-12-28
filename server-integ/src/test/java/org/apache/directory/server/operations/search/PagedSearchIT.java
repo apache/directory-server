@@ -70,7 +70,7 @@ import org.junit.runner.RunWith;
 /**
  * Test the PagedSearchControl. The following tables covers all the
  * possible cases for both an admin and a simple user, combining the
- * Server SizeLimit (SL), the requested SizeLimit (SL) and the paged
+ * Server SizeLimit (SL), the requested SizeLimit (RL) and the paged
  * size limit (PL). The 'X' column tells if we are supposed to receive
  * a SizeLimitExceededException.<br>
  * <br>
