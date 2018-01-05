@@ -55,11 +55,4 @@ public class MavibotMasterTable extends MavibotTable<String, Entry> implements M
     {
         return UUID.randomUUID().toString();
     }
-
-
-    @Override
-    public void close() throws Exception
-    {
-        // do nothing here, the RecordManager will be closed in MavibotMasterTable.close()
-    }
 }

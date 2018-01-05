@@ -54,7 +54,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
         boolean dupsEnabled )
     {
         super( null, name, keyComparator, valueComparator );
-        this.avl = new AvlTreeMapImpl<K, V>( keyComparator, valueComparator, dupsEnabled );
+        this.avl = new AvlTreeMapImpl<>( keyComparator, valueComparator, dupsEnabled );
         allowsDuplicates = this.avl.isDupsAllowed();
         this.keyOnlytupleComparator = new Comparator<Tuple<K, V>>()
         {
@@ -71,7 +71,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      */
     public void close() throws Exception
     {
-        ( ( AvlTreeMapImpl ) avl ).removeAll();
+        ( ( AvlTreeMapImpl<K, V> ) avl ).removeAll();
     }
 
 
@@ -332,11 +332,11 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     {
         if ( !allowsDuplicates )
         {
-            return new AvlTreeMapNoDupsWrapperCursor<K, V>(
+            return new AvlTreeMapNoDupsWrapperCursor<>(
                 new AvlSingletonOrOrderedSetCursor<K, V>( avl ) );
         }
 
-        return new AvlTableDupsCursor<K, V>( this );
+        return new AvlTableDupsCursor<>( this );
     }
 
 
@@ -347,22 +347,22 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     {
         if ( key == null )
         {
-            return new EmptyCursor<Tuple<K, V>>();
+            return new EmptyCursor<>();
         }
 
         LinkedAvlMapNode<K, V> node = avl.find( key );
 
         if ( node == null )
         {
-            return new EmptyCursor<Tuple<K, V>>();
+            return new EmptyCursor<>();
         }
 
         if ( node.getValue().isOrderedSet() )
         {
-            return new KeyTupleAvlCursor<K, V>( node.getValue().getOrderedSet(), key );
+            return new KeyTupleAvlCursor<>( node.getValue().getOrderedSet(), key );
         }
 
-        return new SingletonCursor<Tuple<K, V>>( new Tuple<K, V>( key, node.getValue().getSingleton() ),
+        return new SingletonCursor<>( new Tuple<K, V>( key, node.getValue().getSingleton() ),
             keyOnlytupleComparator );
     }
 
@@ -374,22 +374,22 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     {
         if ( key == null )
         {
-            return new EmptyCursor<V>();
+            return new EmptyCursor<>();
         }
 
         LinkedAvlMapNode<K, V> node = avl.find( key );
 
         if ( node == null )
         {
-            return new EmptyCursor<V>();
+            return new EmptyCursor<>();
         }
 
         if ( node.getValue().isOrderedSet() )
         {
-            return new AvlTreeCursor<V>( node.getValue().getOrderedSet() );
+            return new AvlTreeCursor<>( node.getValue().getOrderedSet() );
         }
 
-        return new SingletonCursor<V>( node.getValue().getSingleton(), valueComparator );
+        return new SingletonCursor<>( node.getValue().getSingleton(), valueComparator );
     }
 
 
