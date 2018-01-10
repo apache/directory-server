@@ -51,10 +51,14 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {
-        if ( aciContext.getAciTuples().size() == 0 )
+        if ( aciContext.getAciTuples().isEmpty() )
         {
             return aciContext.getAciTuples();
         }
@@ -94,7 +98,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( Collection<Dn> userGroupNames, Dn userName, Entry userEntry,
+    private boolean isRelated( Collection<String> userGroupNames, Dn userName, Entry userEntry,
         Dn entryName, Collection<UserClass> userClasses ) throws LdapException
     {
         for ( UserClass userClass : userClasses )
@@ -120,7 +124,8 @@ public class RelatedUserClassFilter implements ACITupleFilter
             else if ( userClass instanceof UserClass.Name )
             {
                 UserClass.Name nameUserClass = ( UserClass.Name ) userClass;
-                if ( nameUserClass.getNames().contains( userName ) )
+                
+                if ( ( userName != null ) && nameUserClass.getNames().contains( userName.getNormName() ) )
                 {
                     return true;
                 }
@@ -129,15 +134,15 @@ public class RelatedUserClassFilter implements ACITupleFilter
             {
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
 
-                for ( Dn userGroupName : userGroupNames )
+                for ( String userGroupName : userGroupNames )
                 {
-                    Set<Dn> dns = userGroupUserClass.getNames();
+                    Set<String> dns = userGroupUserClass.getNames();
 
                     if ( userGroupName != null )
                     {
-                        for ( Dn dn : dns )
+                        for ( String dn : dns )
                         {
-                            if ( userGroupName.getNormName().equals( dn.getNormName() ) )
+                            if ( userGroupName.equals( dn ) )
                             {
                                 return true;
                             }

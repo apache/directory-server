@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
@@ -123,7 +123,7 @@ public class RefinementLeafEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new GreaterEqNode( "", new StringValue( "" ) ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new GreaterEqNode( "", "" ), objectClasses ) );
             fail( "should never get here due to an NE" );
         }
         catch ( LdapException ne )
@@ -132,7 +132,7 @@ public class RefinementLeafEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( "", new StringValue( "" ) ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( "", "" ), objectClasses ) );
             fail( "should never get here due to an NE" );
         }
         catch ( IllegalArgumentException iae )
@@ -141,7 +141,7 @@ public class RefinementLeafEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "" ) ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "" ) ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -151,7 +151,7 @@ public class RefinementLeafEvaluatorTest
         try
         {
             objectClasses = new DefaultAttribute( "cn", OBJECT_CLASS_AT.getName() );
-            assertFalse( evaluator.evaluate( new EqualityNode( CN_AT, new StringValue( "" ) ), objectClasses ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( CN_AT, new Value( "" ) ), objectClasses ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -167,20 +167,20 @@ public class RefinementLeafEvaluatorTest
         // positive test
         Attribute objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
         assertTrue( evaluator
-            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "person" ) ), objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
         assertTrue( evaluator
-            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "person" ) ), objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "blah" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "blah" ) ), objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ),
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "person" ) ),
             objectClasses ) );
     }
 
@@ -191,22 +191,22 @@ public class RefinementLeafEvaluatorTest
         Attribute objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
 
         // positive test
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ),
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "2.5.6.6" ) ),
             objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT );
         objectClasses.add( "person" );
         objectClasses.add( "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ),
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "2.5.6.6" ) ),
             objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ),
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "2.5.6.5" ) ),
             objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ),
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "2.5.6.5" ) ),
             objectClasses ) );
     }
 }

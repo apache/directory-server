@@ -22,6 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.comparators.DnComparator;
 import org.apache.directory.mavibot.btree.Tuple;
 
 /**
@@ -31,6 +32,8 @@ import org.apache.directory.mavibot.btree.Tuple;
  */
 public class LdifTupleComparator implements Comparator<Tuple<Dn, String>>
 {
+    /** The DN comparator to use */
+    DnComparator comparator = new DnComparator( null );
 
     @Override
     public int compare( Tuple<Dn, String> t1, Tuple<Dn, String> t2 )
@@ -51,7 +54,6 @@ public class LdifTupleComparator implements Comparator<Tuple<Dn, String>>
             return 0;
         }
 
-        return dn1.getNormName().compareTo( dn2.getNormName() );
+        return comparator.compare( dn1,  dn2 );
     }
-
 }

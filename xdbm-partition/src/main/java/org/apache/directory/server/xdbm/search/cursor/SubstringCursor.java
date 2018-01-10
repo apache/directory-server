@@ -27,6 +27,7 @@ import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.schema.PrepareString;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
@@ -110,7 +111,9 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
             IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
-            indexEntry.setKey( evaluator.getExpression().getInitial() );
+            String normalizedKey = evaluator.getExpression().getAttributeType().getEquality().getNormalizer().normalize( 
+                evaluator.getExpression().getInitial(), PrepareString.AssertionType.SUBSTRING_INITIAL );
+            indexEntry.setKey( normalizedKey );
             wrapped.before( indexEntry );
         }
         else

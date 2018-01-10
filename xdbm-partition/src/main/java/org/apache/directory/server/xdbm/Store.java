@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -38,6 +40,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
 
 
 /**
@@ -189,6 +192,12 @@ public interface Store
      * @return The SubAlias system index
      */
     Index<String, String> getSubAliasIndex();
+
+
+    /**
+     * Retrieve the SuffixID
+     */
+    String getSuffixId() throws Exception;
 
 
     /**
@@ -389,7 +398,20 @@ public interface Store
     void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
 
 
-    void moveAndRename( Dn oldChildDn, Dn newParentDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
+    /**
+     * Move and Rename operation. The entry is moved from one part of the DIT to another part of 
+     * the DIT. Its RDN is also changed in the process.
+     * 
+     * @param oldDn The previous DN
+     * @param newSuperiorDn The previous parent's DN
+     * @param newDn The new DN
+     * @param modAvas The changed Attributes caused by the renaming (added and removed attributes)
+     * @param entry the entry to move
+     * @throws Exception If the modification failed
+     */
+    void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Map<String, List<ModDnAva>> modAvas, 
+        Entry modifiedEntry ) throws Exception;
+    //void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
 
 
     /**

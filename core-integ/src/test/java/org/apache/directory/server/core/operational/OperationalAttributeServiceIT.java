@@ -42,6 +42,7 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -95,6 +96,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
+    @Ignore
     public void testBinaryAttributeFilterExtension() throws Exception
     {
         Entry entry = new DefaultEntry(
@@ -140,6 +142,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
+    @Ignore
     public void testAddShouldAddOperationalOpAttrs() throws Exception
     {
         /*
@@ -185,6 +188,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
+    @Ignore
     public void testSystemContextRoot() throws Exception
     {
         EntryCursor responses = connection
@@ -228,6 +232,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
+    @Ignore
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
         Entry entry = new DefaultEntry(
@@ -263,6 +268,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
+    @Ignore
     public void testModifyShouldLeadToModifiersAttributes() throws Exception
     {
         Entry entry = connection.lookup( DN_KATE_BUSH, "modifiersName", "modifyTimestamp" );
@@ -289,6 +295,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws InterruptedException on error
      */
     @Test
+    @Ignore
     public void testModifyShouldChangeModifyTimestamp() throws Exception, InterruptedException
     {
         // Add attribute description to entry
@@ -330,6 +337,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * this will succeed look at DIRSERVER-1416
      */
     @Test
+    @Ignore
     public void testModifyOperationalAttributeAdd() throws Exception
     {
         // Add attribute description to entry
@@ -346,6 +354,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test(expected = LdapNoPermissionException.class)
+    @Ignore
     public void testModifyOperationalAttributeRemove() throws Exception
     {
         Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
@@ -361,6 +370,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test(expected = LdapNoPermissionException.class)
+    @Ignore
     public void testModifyOperationalAttributeReplace() throws Exception
     {
         Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
@@ -374,6 +384,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * Rename an entry and check whether attribute modifyTimestamp changes.
      */
     @Test
+    @Ignore
     public void testRenameShouldChangeModifyTimestamp() throws Exception, InterruptedException
     {
         Entry entry = connection.lookup( DN_KATE_BUSH, "*", "+" );
@@ -400,6 +411,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * Move an entry and check whether attribute modifyTimestamp changes.
      */
     @Test
+    @Ignore
     public void testMoveShouldChangeModifyTimestamp() throws Exception, InterruptedException
     {
         Entry entry = connection.lookup( DN_KATE_BUSH, "*", "+" );

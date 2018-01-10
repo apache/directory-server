@@ -38,15 +38,16 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.ObjectClass;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.config.beans.AdsBaseBean;
@@ -123,9 +124,9 @@ public class ConfigPartitionReader
         try
         {
             // Create the set of candidates
-            for ( Value<?> ocValue : objectClass )
+            for ( Value ocValue : objectClass )
             {
-                String ocName = ocValue.getString();
+                String ocName = ocValue.getValue();
                 String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
                 ObjectClass oc = schemaManager.getObjectClassRegistry().get( ocOid );
 
@@ -141,9 +142,9 @@ public class ConfigPartitionReader
         }
 
         // Now find the parent OC
-        for ( Value<?> ocValue : objectClass )
+        for ( Value ocValue : objectClass )
         {
-            String ocName = ocValue.getString();
+            String ocName = ocValue.getValue();
             String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
             ObjectClass oc = schemaManager.getObjectClassRegistry().get( ocOid );
 
@@ -246,9 +247,16 @@ public class ConfigPartitionReader
         {
             return;
         }
+        
+        
+        Value value = fieldAttr.get();
+        String valueStr = ""; 
+        
+        if ( value != null )
+        {
+            valueStr = value.getValue();
+        }
 
-        Value<?> value = fieldAttr.get();
-        String valueStr = value.getString();
         Class<?> type = beanField.getType();
 
         // Process the value accordingly to its type.
@@ -322,9 +330,9 @@ public class ConfigPartitionReader
         String addMethodName = "add" + Character.toUpperCase( fieldName.charAt( 0 ) ) + fieldName.substring( 1 );
 
         // loop on the values and inject them in the bean
-        for ( Value<?> value : attribute )
+        for ( Value value : attribute )
         {
-            String valueStr = value.getString();
+            String valueStr = value.getValue();
 
             try
             {
@@ -450,15 +458,31 @@ public class ConfigPartitionReader
         // Get the entry attribute for this attribute type
         Attribute attribute = entry.get( attributeTypeName );
 
-        if ( ( attribute != null ) && ( attribute.size() > 0 ) )
+        if ( attribute != null )
         {
-            if ( !isMultiple( field.getType() ) )
+            if ( attribute.size() > 0 )
             {
+                if ( !isMultiple( field.getType() ) )
+                {
+                    readSingleValueField( bean, field, attribute );
+                }
+                else
+                {
+                    readMultiValuedField( bean, field, attribute );
+                }
+            }
+            else if ( attribute.size() == 0 )
+            {
+                // No value ? May be valid
                 readSingleValueField( bean, field, attribute );
             }
-            else
+            else if ( mandatory )
             {
-                readMultiValuedField( bean, field, attribute );
+                // the requested element is mandatory so let's throw an exception
+                String message = "No value was configured for entry with DN '"
+                    + entry.getDn() + "' and attribute type '" + attributeTypeName + "'.";
+                LOG.error( message );
+                throw new ConfigurationException( message );
             }
         }
         else
@@ -477,6 +501,7 @@ public class ConfigPartitionReader
 
     /**
      * Read some configuration element from the DIT using its name
+     * @throws LdapInvalidAttributeValueException 
      */
     public List<AdsBaseBean> read( Dn baseDn, String name, SearchScope scope, boolean mandatory )
         throws ConfigurationException
@@ -485,8 +510,18 @@ public class ConfigPartitionReader
 
         // Search for the element starting at some point in the DIT
         // Prepare the search request
-        EqualityNode<String> filter = new EqualityNode<String>(
-            schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT ), new StringValue( name ) );
+        AttributeType ocAt = schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        EqualityNode<String> filter = null;
+        
+        try
+        {
+            filter = new EqualityNode<String>( ocAt, new Value( ocAt, name ) );
+        }
+        catch ( LdapInvalidAttributeValueException liave )
+        {
+            throw new ConfigurationException( liave.getMessage() );
+        }
+        
         Cursor<IndexEntry<String, String>> cursor = null;
 
         // Create a container for all the read beans

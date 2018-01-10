@@ -33,8 +33,6 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -189,7 +187,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public boolean compare( Dn name, String oid, Object value ) throws NamingException
     {
-        Value<?> val = null;
+        Value val = null;
 
         AttributeType attributeType = null;
 
@@ -209,11 +207,11 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             {
                 if ( value instanceof String )
                 {
-                    val = new StringValue( attributeType, ( String ) value );
+                    val = new Value( attributeType, ( String ) value );
                 }
                 else if ( value instanceof byte[] )
                 {
-                    val = new StringValue( attributeType, Strings.utf8ToString( ( byte[] ) value ) );
+                    val = new Value( attributeType, Strings.utf8ToString( ( byte[] ) value ) );
                 }
                 else
                 {
@@ -224,11 +222,11 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
             {
                 if ( value instanceof String )
                 {
-                    val = new BinaryValue( attributeType, Strings.getBytesUtf8( ( String ) value ) );
+                    val = new Value( attributeType, Strings.getBytesUtf8( ( String ) value ) );
                 }
                 else if ( value instanceof byte[] )
                 {
-                    val = new BinaryValue( attributeType, ( byte[] ) value );
+                    val = new Value( attributeType, ( byte[] ) value );
                 }
                 else
                 {

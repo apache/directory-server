@@ -91,9 +91,9 @@ public class NormalizationVisitorTest
 
         assertNotNull( result );
         assertTrue( result instanceof EqualityNode<?> );
-        EqualityNode<?> equalityNode = ( EqualityNode<?> ) result;
+        EqualityNode<?> equalityNode = (org.apache.directory.api.ldap.model.filter.EqualityNode<?> ) result;
 
-        assertEquals( "test 1", equalityNode.getValue().getNormValue() );
+        assertEquals( " test  1 ", equalityNode.getValue().getNormalized() );
         assertEquals( "2.5.4.11", equalityNode.getAttributeType().getOid() );
     }
 

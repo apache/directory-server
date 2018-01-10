@@ -38,8 +38,6 @@ import org.apache.directory.server.i18n.I18n;
  */
 public final class LdapPrincipal implements Principal, Cloneable
 {
-    private static final long serialVersionUID = 3906650782395676720L;
-
     /** the normalized distinguished name of the principal */
     private Dn dn = Dn.EMPTY_DN;
 
@@ -140,6 +138,7 @@ public final class LdapPrincipal implements Principal, Cloneable
     /**
      * Returns the normalized distinguished name of the principal as a String.
      */
+    @Override
     public String getName()
     {
         return dn.getNormName();
@@ -181,6 +180,7 @@ public final class LdapPrincipal implements Principal, Cloneable
      * Clone the object. This is done so that we don't store the 
      * password in a LdapPrincipal more than necessary.
      */
+    @Override
     public Object clone() throws CloneNotSupportedException
     {
         LdapPrincipal clone = ( LdapPrincipal ) super.clone();
@@ -210,13 +210,16 @@ public final class LdapPrincipal implements Principal, Cloneable
     {
         this.schemaManager = schemaManager;
 
-        try
+        if ( !dn.isSchemaAware() )
         {
-            dn.apply( schemaManager );
-        }
-        catch ( LdapInvalidDnException lide )
-        {
-            // TODO: manage this exception
+            try
+            {
+                dn = new Dn( schemaManager, dn );
+            }
+            catch ( LdapInvalidDnException lide )
+            {
+                // TODO: manage this exception
+            }
         }
     }
 
@@ -261,6 +264,7 @@ public final class LdapPrincipal implements Principal, Cloneable
      * Returns string representation of the normalized distinguished name
      * of this principal.
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

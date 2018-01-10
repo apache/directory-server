@@ -180,11 +180,11 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
 
         Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
 
-        assertTrue( collectiveAttributeSubentries.contains( "2.5.4.3=collectiveattributetestsubentry,2.5.4.11=system" ) );
+        assertTrue( collectiveAttributeSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ) );
 
         assertFalse( "'collectiveAttributeSubentries' operational attribute SHOULD NOT " +
             "contain references to non-'collectiveAttributeSubentry's like 'accessControlSubentry's",
-            collectiveAttributeSubentries.contains( "2.5.4.3=accesscontroltestsubentry,2.5.4.11=system" ) );
+            collectiveAttributeSubentries.contains( "cn=accessControlTestSubentry,ou=system" ) );
 
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
@@ -192,13 +192,12 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
 
         Attribute accessControlSubentries = testEntry.get( "accessControlSubentries" );
 
-        assertTrue( accessControlSubentries.contains( "2.5.4.3=accesscontroltestsubentry,2.5.4.11=system" ) );
+        assertTrue( accessControlSubentries.contains( "cn=accessControlTestSubentry,ou=system" ) );
 
         assertFalse( "'accessControlSubentries' operational attribute SHOULD NOT " +
             "contain references to non-'accessControlSubentry's like 'collectiveAttributeSubentry's",
-            accessControlSubentries.contains( "2.5.4.3=collectiveattributetestsubentry,2.5.4.11=system" ) );
+            accessControlSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ) );
 
         assertEquals( 1, accessControlSubentries.size() );
-
     }
 }

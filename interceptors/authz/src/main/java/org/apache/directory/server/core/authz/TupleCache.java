@@ -37,7 +37,6 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
@@ -47,6 +46,7 @@ import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameComponentNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
@@ -74,7 +74,7 @@ public class TupleCache
     private static final Logger LOG = LoggerFactory.getLogger( TupleCache.class );
 
     /** a map of strings to ACITuple collections */
-    private final Map<String, List<ACITuple>> tuples = new HashMap<String, List<ACITuple>>();
+    private final Map<String, List<ACITuple>> tuples = new HashMap<>();
 
     /** the directory service */
     private final DirectoryService directoryService;
@@ -107,13 +107,6 @@ public class TupleCache
     }
 
 
-    private Dn parseNormalized( String name ) throws LdapException
-    {
-        Dn dn = dnFactory.create( name );
-        return dn;
-    }
-
-
     private void initialize( CoreSession session ) throws LdapException
     {
         // search all naming contexts for access control subentenries
@@ -123,13 +116,16 @@ public class TupleCache
 
         for ( String suffix : suffixes )
         {
-            Dn baseDn = parseNormalized( suffix );
-            ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(),
-                new StringValue( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
+            AttributeType ocAt = directoryService.getAtProvider().getObjectClass();
+
+            ExprNode filter = new EqualityNode<String>( ocAt, 
+                new Value( ocAt, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             ctls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES } );
+
+            Dn baseDn = dnFactory.create( suffix );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
@@ -142,7 +138,14 @@ public class TupleCache
                 while ( results.next() )
                 {
                     Entry result = results.get();
-                    Dn subentryDn = result.getDn().apply( session.getDirectoryService().getSchemaManager() );
+                    
+                    Dn subentryDn = result.getDn();
+                    
+                    if ( !subentryDn.isSchemaAware() )
+                    {
+                        subentryDn = new Dn( session.getDirectoryService().getSchemaManager(), subentryDn );
+                    }
+
                     Attribute aci = result.get( directoryService.getAtProvider().getPrescriptiveACI() );
 
                     if ( aci == null )
@@ -204,13 +207,13 @@ public class TupleCache
         // Get the prescriptiveACI
         Attribute prescriptiveAci = entry.get( directoryService.getAtProvider().getPrescriptiveACI() );
 
-        List<ACITuple> entryTuples = new ArrayList<ACITuple>();
+        List<ACITuple> entryTuples = new ArrayList<>();
 
         // Loop on all the ACI, parse each of them and
         // store the associated tuples into the cache
-        for ( Value<?> value : prescriptiveAci )
+        for ( Value value : prescriptiveAci )
         {
-            String aci = value.getString();
+            String aci = value.getValue();
             ACIItem item = null;
 
             try
@@ -232,14 +235,14 @@ public class TupleCache
     }
 
 
-    public void subentryDeleted( Dn normName, Entry entry ) throws LdapException
+    public void subentryDeleted( Dn dn, Entry entry ) throws LdapException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
 
-        tuples.remove( normName.toString() );
+        tuples.remove( dn.getNormName().toString() );
     }
 
 

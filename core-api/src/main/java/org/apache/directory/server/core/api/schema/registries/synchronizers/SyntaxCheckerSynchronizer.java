@@ -67,6 +67,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
@@ -94,6 +95,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -140,6 +142,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -215,6 +218,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String oldOid = getOid( entry );
@@ -227,7 +231,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         }
 
         Entry targetEntry = entry.clone();
-        String newOid = newRdn.getNormValue();
+        String newOid = newRdn.getValue();
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
@@ -247,6 +251,10 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRdn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
@@ -263,7 +271,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
 
         Entry targetEntry = entry.clone();
 
-        String newOid = newRdn.getNormValue();
+        String newOid = newRdn.getValue();
 
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
@@ -287,6 +295,10 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
@@ -363,7 +375,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_397 ) );
         }
 
-        if ( !rdn.getNormValue().equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
+        if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_372 ) );

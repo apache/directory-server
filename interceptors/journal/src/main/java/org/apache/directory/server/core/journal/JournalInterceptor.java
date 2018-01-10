@@ -80,6 +80,7 @@ public class JournalInterceptor extends BaseInterceptor
      * The init method will initialize the local variables and load the
      * entryDeleted AttributeType.
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -110,6 +111,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         long opRevision = 0;
@@ -160,6 +162,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         long opRevision = 0;
@@ -202,6 +205,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         long opRevision = 0;
@@ -249,6 +253,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         long opRevision = 0;
@@ -261,7 +266,7 @@ public class JournalInterceptor extends BaseInterceptor
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModDn );
             ldif.setDn( moveContext.getDn() );
-            ldif.setNewSuperior( moveContext.getNewSuperior().getNormName() );
+            ldif.setNewSuperior( moveContext.getNewSuperior().getName() );
 
             journal.log( getPrincipal( moveContext ), opRevision, ldif );
         }
@@ -292,6 +297,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         long opRevision = 0;
@@ -304,9 +310,9 @@ public class JournalInterceptor extends BaseInterceptor
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModDn );
             ldif.setDn( moveAndRenameContext.getDn() );
-            ldif.setNewRdn( moveAndRenameContext.getNewRdn().getNormName() );
+            ldif.setNewRdn( moveAndRenameContext.getNewRdn().getName() );
             ldif.setDeleteOldRdn( moveAndRenameContext.getDeleteOldRdn() );
-            ldif.setNewSuperior( moveAndRenameContext.getNewDn().getNormName() );
+            ldif.setNewSuperior( moveAndRenameContext.getNewDn().getName() );
 
             journal.log( getPrincipal( moveAndRenameContext ), opRevision, ldif );
         }
@@ -337,6 +343,7 @@ public class JournalInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         long opRevision = 0;
@@ -349,7 +356,7 @@ public class JournalInterceptor extends BaseInterceptor
             LdifEntry ldif = new LdifEntry();
             ldif.setChangeType( ChangeType.ModRdn );
             ldif.setDn( renameContext.getDn() );
-            ldif.setNewRdn( renameContext.getNewRdn().getNormName() );
+            ldif.setNewRdn( renameContext.getNewRdn().getName() );
             ldif.setDeleteOldRdn( renameContext.getDeleteOldRdn() );
 
             journal.log( getPrincipal( renameContext ), opRevision, ldif );

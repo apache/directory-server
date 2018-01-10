@@ -135,7 +135,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testBindRequestSSLAuto() throws Exception
     {
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPortSSL(), true ) )
+        try ( LdapNetworkConnection connection = 
+            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPortSSL(), true ) )
         {
             connection.bind( "uid=admin,ou=system", "secret" );
             assertTrue( connection.getConfig().isUseSsl() );
@@ -170,7 +171,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     public void testGetSupportedControls() throws Exception
     {
         try ( LdapConnection connection = new LdapNetworkConnection( sslConfig ) )
-        {
+        {    
             Dn dn = new Dn( "uid=admin,ou=system" );
             connection.bind( dn.getName(), "secret" );
     
@@ -276,6 +277,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     }
 
 
+
+
     /**
      * Test the startTLS call using a config
      *
@@ -316,7 +319,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testGetSupportedControlsWithStartTLS() throws Exception
     {
-        try ( LdapConnection connection = new LdapNetworkConnection( tlsConfig ) )
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
         {
             tlsConfig.setUseTls( true );
             connection.connect();
@@ -352,9 +355,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
 
-        try (LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
         {
-    
             // We should get an exception here, as we don't have a trustManager defined
             connection.bind();
             

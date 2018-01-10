@@ -191,7 +191,7 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     
         for ( long i = 0L; i < nbIterations; i++ )
         {
-            if ( i % 1000000L == 0 )
+            if ( i % 1000000L == 0L )
             {
                 long tt1 = System.currentTimeMillis();
     

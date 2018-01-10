@@ -61,6 +61,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
      * If the context is not configured to allow anonymous connections,
      * this method throws a {@link javax.naming.NoPermissionException}.
      */
+    @Override
     public LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapNoPermissionException
     {
         // We only allow Anonymous binds if the service allows them

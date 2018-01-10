@@ -176,6 +176,7 @@ elif [ "$ADS_ACTION" = "repair" ]; then
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
         -classpath "\"$CLASSPATH\"" \
         org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" repair
+        org.apache.directory.server.UberjarMain "\"$ADS_INSTANCE\"" repair
     
     # Printing instance information
     [ $HAVE_TTY -eq 1 ] && echo "Starting ApacheDS instance '$ADS_INSTANCE_NAME'..."

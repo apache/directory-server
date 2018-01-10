@@ -71,6 +71,7 @@ public class ConfigurableHashingInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         if ( algorithm == null )
@@ -112,9 +113,11 @@ public class ConfigurableHashingInterceptor extends BaseInterceptor
 
         // hash any values if necessary
         List<byte[]> values = new ArrayList<>();
-        for ( Value<?> value : attribute ) 
+        
+        for ( Value value : attribute ) 
         {
             byte[] bytes = value.getBytes();
+            
             if ( bytes == null )
             {
                 // value may be empty, dont wanna attempt to hash empty
@@ -123,6 +126,7 @@ public class ConfigurableHashingInterceptor extends BaseInterceptor
 
             // check if the given field is already hashed
             LdapSecurityConstants existingAlgo = PasswordUtil.findAlgorithm( bytes );
+            
             if ( existingAlgo == null ) 
             {
                 // not already hashed, so hash it
@@ -163,6 +167,7 @@ public class ConfigurableHashingInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( algorithm == null )

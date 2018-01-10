@@ -518,7 +518,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             PasswordPolicyDecorator passwordPolicyRequestControl =
                 new PasswordPolicyDecorator( LdapApiServiceFactory.getSingleton(), new PasswordPolicyImpl() );
             PasswordModifyRequest selfPwdModifyRequest = new PasswordModifyRequestImpl();
-            selfPwdModifyRequest.setUserIdentity( Dn.getBytes( userDn ) );
+            selfPwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( userDn.getNormName() ) );
             selfPwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret3" ) );
             selfPwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "1234567" ) );
             selfPwdModifyRequest.addControl( passwordPolicyRequestControl );
@@ -538,7 +538,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             Dn otherUserDn = new Dn( "cn=UserZZ,ou=system" );
 
             PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
-            pwdModifyRequest.setUserIdentity( Dn.getBytes( otherUserDn ) );
+            pwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( otherUserDn.getNormName() ) );
             pwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret4" ) );
             pwdModifyRequest.setNewPassword( Strings.getBytesUtf8( "1234567" ) );
             pwdModifyResponse = ( PasswordModifyResponse ) userConnection.extended( pwdModifyRequest );

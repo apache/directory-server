@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.i18n.I18n;
@@ -284,9 +283,9 @@ public class PrincipalStoreEntryModifier
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 
-        for ( Value<?> val : krb5key )
+        for ( Value val : krb5key )
         {
-            if ( val instanceof StringValue )
+            if ( val.isHumanReadable() )
             {
                 throw new IllegalStateException( I18n.err( I18n.ERR_626 ) );
             }

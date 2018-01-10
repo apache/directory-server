@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
@@ -32,6 +33,7 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.LdapComparator;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.ParsedDnComparator;
 
 /**
  * A comparator to sort the entries as per <a href="http://tools.ietf.org/html/rfc2891">RFC 2891</a>
@@ -74,26 +76,37 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
         {
             multivalued = true;
         }
-
-        hr = at.getSyntax().isHumanReadable();
-
-        if ( mrule != null )
+        
+        // Special case : entryDn
+        if ( SchemaConstants.ENTRY_DN_AT_OID.equals( at.getOid() ) )
         {
-            comparator = schemaManager.lookupComparatorRegistry( mrule );
+            // We will use the Entry's DN comparator.
+            comparator = new ParsedDnComparator( SchemaConstants.ENTRY_DN_AT_OID );
+            comparator.setSchemaManager( schemaManager );
+            hr = true;
         }
         else
-        {
-            MatchingRule mr = at.getOrdering();
-            
-            if ( mr == null )
+        { 
+            hr = at.getSyntax().isHumanReadable();
+    
+            if ( mrule != null )
             {
-                mr = at.getEquality();
+                comparator = schemaManager.lookupComparatorRegistry( mrule );
+            }
+            else
+            {
+                MatchingRule mr = at.getOrdering();
+                
+                if ( mr == null )
+                {
+                    mr = at.getEquality();
+                }
+                
+                comparator = schemaManager.lookupComparatorRegistry( mr.getOid() );
             }
             
-            comparator = schemaManager.lookupComparatorRegistry( mr.getOid() );
+            comparator.setSchemaManager( schemaManager );
         }
-        
-        ( ( LdapComparator ) comparator ).setSchemaManager( schemaManager );
     }
 
 
@@ -107,15 +120,15 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
         // as per section 2.2 of the spec null values are considered larger
         if ( at1 == null )
         {
-            return ( reverse ? -1 : 1 );
+            return reverse ? -1 : 1;
         }
         else if ( at2 == null )
         {
-            return ( reverse ? 1 : -1 );
+            return reverse ? 1 : -1;
         }
 
-        Object o1 = null;
-        Object o2 = null;
+        Object o1;
+        Object o2;
 
         if ( multivalued )
         {
@@ -128,13 +141,13 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
         }
         else
         {
-            Value<?> v1 = at1.get();
-            Value<?> v2 = at2.get();
+            Value v1 = at1.get();
+            Value v2 = at2.get();
 
             if ( hr )
             {
-                o1 = v1.getString();
-                o2 = v2.getString();
+                o1 = v1.getValue();
+                o2 = v2.getValue();
             }
             else
             {
@@ -143,23 +156,30 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
             }
         }
 
-        int c = 1;
+        int c;
 
-        if ( reverse )
+        try
         {
-            c = comparator.compare( o2, o1 );
-        }
-        else
-        {
-            c = comparator.compare( o1, o2 );
-        }
+            if ( reverse )
+            {
+                c = comparator.compare( comparator.getNormalizer().normalize( ( String ) o2 ), o1 );
+            }
+            else
+            {
+                c = comparator.compare( comparator.getNormalizer().normalize( ( String ) o1 ), o2 );
+            }
+    
+            if ( c == 0 )
+            {
+                return 1;
+            }
 
-        if ( c == 0 )
-        {
-            return 1;
+            return c;
         }
-
-        return c;
+        catch ( LdapException le )
+        {
+            return 0;
+        }
     }
 
 
@@ -176,7 +196,7 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
         {
             if ( hr )
             {
-                ts.add( v.getString() );
+                ts.add( v.getNormalized() );
             }
             else
             {

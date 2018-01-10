@@ -23,7 +23,6 @@ package org.apache.directory.server.core.referral;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapURLEncodingException;
@@ -70,11 +69,18 @@ public class ReferralInterceptor extends BaseInterceptor
     private Dn subschemaSubentryDn;
 
 
-    private static void checkRefAttributeValue( Value<?> value ) throws LdapException, LdapURLEncodingException
+    /**
+     * Creates a new instance of a ReferralInterceptor.
+     */
+    public ReferralInterceptor()
     {
-        StringValue ref = ( StringValue ) value;
+        super( InterceptorEnum.REFERRAL_INTERCEPTOR );
+    }
 
-        String refVal = ref.getString();
+
+    private static void checkRefAttributeValue( Value value ) throws LdapException, LdapURLEncodingException
+    {
+        String refVal = value.getValue();
 
         LdapUrl ldapUrl = new LdapUrl( refVal );
 
@@ -102,21 +108,21 @@ public class ReferralInterceptor extends BaseInterceptor
             throw new LdapException( message );
         }
 
-        if ( ( ldapUrl.getAttributes() != null ) && ( ldapUrl.getAttributes().size() != 0 ) )
+        if ( ( ldapUrl.getAttributes() != null ) && !ldapUrl.getAttributes().isEmpty() )
         {
             String message = I18n.err( I18n.ERR_38 );
             LOG.error( message );
             throw new LdapException( message );
         }
 
-        if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
+        if ( ( ldapUrl.getExtensions() != null ) && !ldapUrl.getExtensions().isEmpty() )
         {
             String message = I18n.err( I18n.ERR_39 );
             LOG.error( message );
             throw new LdapException( message );
         }
 
-        if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
+        if ( ( ldapUrl.getExtensions() != null ) && !ldapUrl.getExtensions().isEmpty() )
         {
             String message = I18n.err( I18n.ERR_40 );
             LOG.error( message );
@@ -174,7 +180,7 @@ public class ReferralInterceptor extends BaseInterceptor
                 throw new LdapException( message );
             }
 
-            for ( Value<?> value : refAttr )
+            for ( Value value : refAttr )
             {
                 try
                 {
@@ -192,15 +198,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    /**
-     * Creates a new instance of a ReferralInterceptor.
-     */
-    public ReferralInterceptor()
-    {
-        super( InterceptorEnum.REFERRAL_INTERCEPTOR );
-    }
-
-
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -211,8 +209,8 @@ public class ReferralInterceptor extends BaseInterceptor
         referralManager = new ReferralManagerImpl( directoryService );
         directoryService.setReferralManager( referralManager );
 
-        Value<?> subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
+        Value subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
     }
 
 
@@ -236,6 +234,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         Entry entry = addContext.getEntry();
@@ -280,6 +279,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         // First delete the entry into the server
@@ -309,6 +309,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Dn dn = modifyContext.getDn();
@@ -360,6 +361,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         // Check if the entry is a referral itself
@@ -388,6 +390,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         // Check if the entry is a referral itself
@@ -418,6 +421,7 @@ public class ReferralInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      **/
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         // Check if the entry is a referral itself

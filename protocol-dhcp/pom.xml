@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M25-SNAPSHOT</version>
+    <version>2.0.0.AM25-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-protocol-dhcp</artifactId>
@@ -77,8 +77,32 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.protocol.dhcp</Bundle-SymbolicName>
             <Export-Package>
-                {local-packages};version=${project.version};-noimport:=true
+                org.apache.directory.server.dhcp;version=${project.version},
+                org.apache.directory.server.dhcp.io;version=${project.version},
+                org.apache.directory.server.dhcp.messages;version=${project.version},
+                org.apache.directory.server.dhcp.options;version=${project.version},
+                org.apache.directory.server.dhcp.options.dhcp;version=${project.version},
+                org.apache.directory.server.dhcp.options.linklayer;version=${project.version},
+                org.apache.directory.server.dhcp.option.miscs;version=${project.version},
+                org.apache.directory.server.dhcp.options.perhost;version=${project.version},
+                org.apache.directory.server.dhcp.options.perinterface;version=${project.version},
+                org.apache.directory.server.dhcp.options.tcp;version=${project.version},
+                org.apache.directory.server.dhcp.options.vendor;version=${project.version},
+                org.apache.directory.server.dhcp.protocol;version=${project.version},
+                org.apache.directory.server.dhcp.service;version=${project.version},
+                org.apache.directory.server.dhcp.store;version=${project.version},
             </Export-Package>
+            <Import-Package>
+                javax.naming,
+                javax.naming.directory,
+                org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
+                org.apache.directory.server.i18n;version=${project.version},
+                org.apache.mina.core.buffer;version=${mina.core.version},
+                org.apache.mina.core.service;version=${mina.core.version},
+                org.apache.mina.core.session;version=${mina.core.version},
+                org.apache.mina.filter.codec;version=${mina.core.version},
+                org.slf4j;version=${slf4j.api.bundleversion}
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>

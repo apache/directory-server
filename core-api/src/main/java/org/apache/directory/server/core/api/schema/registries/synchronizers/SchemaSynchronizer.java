@@ -67,9 +67,6 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     private final SchemaManager schemaManager;
 
-    /** The global registries */
-    //private final Registries registries;
-
     /** The m-disable AttributeType */
     private final AttributeType disabledAT;
 
@@ -108,6 +105,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Depending in the existence of this attribute in the previous entry, we will
      * have to update the entry or not.
      */
+    @Override
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
@@ -140,10 +138,14 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn, Entry entry,
         boolean cascaded ) throws LdapException
     {
-
+        // Not implemented yet
     }
 
 
@@ -153,6 +155,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param name the dn of the new metaSchema object
      * @param entry the attributes of the new metaSchema object
      */
+    @Override
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -162,7 +165,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_380,
                 ouSchemaDn.getName(),
-                parentDn.getNormName() ) );
+                parentDn.getName() ) );
         }
 
         // check if the new schema is enabled or disabled
@@ -222,6 +225,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param name the dn of the metaSchema object being deleted
      * @param entry the attributes of the metaSchema object
      */
+    @Override
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Attribute cn = entry.get( cnAT );
@@ -255,6 +259,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
+    @Override
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String rdnAttribute = newRdn.getNormType();
@@ -349,6 +354,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
+    @Override
     public void move( Dn oriChildName, Dn newParentName,
         Entry entry, boolean cascade ) throws LdapUnwillingToPerformException
     {
@@ -432,7 +438,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
                 if ( disabledInMods != null )
                 {
-                    Value<?> val = disabledInMods.get();
+                    Value val = disabledInMods.get();
 
                     if ( val == null )
                     {
@@ -440,7 +446,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                     }
                     else
                     {
-                        isNewStateDisabled = "TRUE".equalsIgnoreCase( val.getString() );
+                        isNewStateDisabled = "TRUE".equalsIgnoreCase( val.getValue() );
                     }
                 }
 
@@ -466,7 +472,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
     private String getSchemaName( Dn schema )
     {
-        return schema.getRdn().getNormValue();
+        return schema.getRdn().getValue();
     }
 
 
@@ -528,9 +534,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
             // check to make sure all the dependencies are also enabled
             Map<String, Schema> loaded = schemaManager.getRegistries().getLoadedSchemas();
 
-            for ( Value<?> value : dependencies )
+            for ( Value value : dependencies )
             {
-                String dependency = value.getString();
+                String dependency = value.getValue();
 
                 if ( !loaded.containsKey( dependency ) )
                 {
@@ -543,9 +549,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         }
         else
         {
-            for ( Value<?> value : dependencies )
+            for ( Value value : dependencies )
             {
-                String dependency = value.getString();
+                String dependency = value.getValue();
 
                 if ( schemaManager.getLoadedSchema( Strings.toLowerCaseAscii( dependency ) ) == null )
                 {

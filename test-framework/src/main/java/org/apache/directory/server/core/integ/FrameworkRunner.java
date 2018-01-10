@@ -137,7 +137,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 // Apply the class LDIFs
                 DSAnnotationProcessor.applyLdifs( getDescription(), directoryService );
             }
-
+            
             updateTlsKey( classDS );
 
             // check if it has a LdapServerBuilder
@@ -266,7 +266,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 DSAnnotationProcessor.applyLdifs( methodDescription, methodDS );
 
                 directoryService = methodDS;
-
+                
                 updateTlsKey( directoryService );
             }
             else if ( classDS != null )

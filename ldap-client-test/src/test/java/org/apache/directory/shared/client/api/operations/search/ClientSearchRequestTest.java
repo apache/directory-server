@@ -232,9 +232,9 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
      * @throws Exception
      */
     @Test
-    public void testSearchPersonSubstring() throws Exception
+    public void testSearchSubstring() throws Exception
     {
-        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*ers*)", SearchScope.SUBTREE,
+        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(cn=*e*)", SearchScope.SUBTREE,
             "*", "+" );
         int count = 0;
         Response searchResponse = null;

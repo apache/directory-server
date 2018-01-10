@@ -105,7 +105,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public Entry add( AttributeType attributeType, Value<?>... values ) throws LdapException
+    public Entry add( AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.add( attributeType, values );
     }
@@ -123,7 +123,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public Entry add( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
+    public Entry add( String upId, AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.add( attributeType, values );
     }
@@ -141,7 +141,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean contains( AttributeType attributeType, Value<?>... values )
+    public boolean contains( AttributeType attributeType, Value... values )
     {
         return clonedEntry.contains( attributeType, values );
     }
@@ -186,7 +186,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public Attribute put( AttributeType attributeType, Value<?>... values ) throws LdapException
+    public Attribute put( AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
@@ -204,7 +204,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public Attribute put( String upId, AttributeType attributeType, Value<?>... values ) throws LdapException
+    public Attribute put( String upId, AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
@@ -222,7 +222,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean remove( AttributeType attributeType, Value<?>... values ) throws LdapException
+    public boolean remove( AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
@@ -258,7 +258,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public Entry add( String upId, Value<?>... values ) throws LdapException
+    public Entry add( String upId, Value... values ) throws LdapException
     {
         return clonedEntry.add( upId, values );
     }
@@ -288,7 +288,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean contains( String upId, Value<?>... values )
+    public boolean contains( String upId, Value... values )
     {
         return clonedEntry.contains( upId, values );
     }
@@ -351,7 +351,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public Attribute put( String upId, Value<?>... values )
+    public Attribute put( String upId, Value... values )
     {
         return clonedEntry.put( upId, values );
     }
@@ -369,7 +369,7 @@ public class ClonedServerEntry implements Entry
     }
 
 
-    public boolean remove( String upId, Value<?>... values ) throws LdapException
+    public boolean remove( String upId, Value... values ) throws LdapException
     {
         return clonedEntry.remove( upId, values );
     }

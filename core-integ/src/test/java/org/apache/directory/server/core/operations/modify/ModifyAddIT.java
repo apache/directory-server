@@ -424,7 +424,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a AT part of the MAY/MUST, with an invalid value
      */
-    @Test( expected = InvalidAttributeValueException.class )
+    @Test( expected = IllegalArgumentException.class )
     public void testModifyAddExistingEntryExistingATInvalidValue() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );

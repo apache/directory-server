@@ -65,6 +65,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -112,6 +113,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
@@ -141,6 +143,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -192,6 +195,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String schemaName = getSchemaName( entry.getDn() );
@@ -199,8 +203,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             .getAttributeType( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
         // Inject the new OID
-        Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRdn.getNormValue();
+        Entry targetEntry =  entry.clone();
+        String newOid = newRdn.getValue();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
@@ -233,6 +237,10 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
@@ -241,8 +249,8 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
         String newSchemaName = getSchemaName( newParentName );
         AttributeType oldAt = factory.getAttributeType( schemaManager, entry, schemaManager.getRegistries(),
             oldSchemaName );
-        Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRn.getNormValue();
+        Entry targetEntry = entry.clone();
+        String newOid = newRn.getValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         checkOidIsUnique( newOid );
         AttributeType newAt = factory.getAttributeType( schemaManager, targetEntry, schemaManager.getRegistries(),
@@ -285,6 +293,10 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkParent( newParentName, schemaManager, SchemaConstants.ATTRIBUTE_TYPE );

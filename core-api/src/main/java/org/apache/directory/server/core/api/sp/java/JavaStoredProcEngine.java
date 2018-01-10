@@ -47,10 +47,12 @@ public class JavaStoredProcEngine implements StoredProcEngine
 
     private Entry spUnit;
 
+    private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
 
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.sp.StoredProcEngine#invokeProcedure(OperationContext, String, Object[])
      */
+    @Override
     public Object invokeProcedure( CoreSession session, String fullSPName, Object[] spArgs ) throws LdapException
     {
         Attribute javaByteCode = spUnit.get( "javaByteCode" );
@@ -102,6 +104,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.sp.StoredProcEngine#getSPLangId()
      */
+    @Override
     public String getSPLangId()
     {
         return STORED_PROC_LANG_ID;
@@ -111,6 +114,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.sp.StoredProcEngine#setSPUnitEntry(javax.naming.directory.Attributes)
      */
+    @Override
     public void setSPUnitEntry( Entry spUnit )
     {
         this.spUnit = spUnit;
@@ -119,7 +123,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
 
     private Class<?>[] getTypesFromValues( Object[] values )
     {
-        List<Class<?>> types = new ArrayList<Class<?>>();
+        List<Class<?>> types = new ArrayList<>();
 
         for ( Object obj : values )
         {
@@ -128,7 +132,4 @@ public class JavaStoredProcEngine implements StoredProcEngine
 
         return types.toArray( EMPTY_CLASS_ARRAY );
     }
-
-    private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
-
 }

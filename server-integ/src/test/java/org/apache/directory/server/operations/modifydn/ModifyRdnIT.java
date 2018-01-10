@@ -309,7 +309,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( Strings.toLowerCaseAscii( newCn ) ) );
+        assertTrue( cn.contains( newCn ) );
         assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
@@ -356,7 +356,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( Strings.toLowerCaseAscii( newCn ) ) );
+        assertTrue( cn.contains( newCn ) );
         assertTrue( cn.contains( oldCn ) ); // old value is still there
         assertEquals( 2, cn.size() );
 
@@ -411,7 +411,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of cn
         cn = tori.getAttributes( "" ).get( "cn" );
-        assertTrue( cn.contains( Strings.toLowerCaseAscii( newCn ) ) );
+        assertTrue( cn.contains( newCn ) );
         assertTrue( !cn.contains( oldCn ) ); // old value is gone
         assertTrue( cn.contains( alternateCn ) ); // alternate value is still available
         assertEquals( 2, cn.size() );
@@ -462,7 +462,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertTrue( cn.contains( cnVal ) );
         assertEquals( "Number of cn occurences", 1, cn.size() );
         Attribute sn = tori.getAttributes( "" ).get( "sn" );
-        assertTrue( sn.contains( Strings.toLowerCaseAscii( snVal ) ) );
+        assertTrue( sn.contains( snVal ) );
         assertEquals( "Number of sn occurences", 1, sn.size() );
 
         // Remove entry (use new rdn)
@@ -550,7 +550,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check values of ou
         Attribute ou = org.getAttributes( "" ).get( "ou" );
-        assertTrue( ou.contains( Strings.toLowerCaseAscii( newOu ) ) );
+        assertTrue( ou.contains( newOu ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
 
@@ -706,10 +706,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "tori amos" ) );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "amos" ) );
+        assertTrue( snAttr.contains( "Amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertEquals( 1, descriptionAttr.size() );
 
@@ -746,10 +746,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "tori amos" ) );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "amos" ) );
+        assertTrue( snAttr.contains( "Amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertEquals( 1, descriptionAttr.size() );
 
@@ -786,10 +786,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "tori amos" ) );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "amos" ) );
+        assertTrue( snAttr.contains( "Amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertEquals( 1, descriptionAttr.size() );
 
@@ -826,10 +826,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "tori amos" ) );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "amos" ) );
+        assertTrue( snAttr.contains( "Amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertNull( descriptionAttr );
 
@@ -872,7 +872,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         assertTrue( cnAttr.contains( "Tori Amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
-        assertTrue( snAttr.contains( "amos" ) );
+        assertTrue( snAttr.contains( "Amos" ) );
         Attribute descriptionAttr = newCtx.getAttributes( "" ).get( "description" );
         assertEquals( 1, descriptionAttr.size() );
         Attribute telephoneNumberAttr = newCtx.getAttributes( "" ).get( "telephoneNumber" );
@@ -974,7 +974,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // Check attributes
         Attribute cnAttr = newCtx.getAttributes( "" ).get( "cn" );
         assertEquals( 1, cnAttr.size() );
-        assertTrue( cnAttr.contains( "tori amos" ) );
+        assertTrue( cnAttr.contains( "Tori Amos" ) );
         Attribute snAttr = newCtx.getAttributes( "" ).get( "sn" );
         assertEquals( 1, snAttr.size() );
         assertTrue( snAttr.contains( "Amos" ) );

@@ -70,6 +70,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
@@ -97,6 +98,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -144,6 +146,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -171,7 +174,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         try
         {
-            comparator = ( LdapComparator<?> ) checkComparatorOidExists( entry );
+            comparator = checkComparatorOidExists( entry );
         }
         catch ( LdapSchemaViolationException lsve )
         {
@@ -195,7 +198,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             }
         }
 
-        List<Throwable> errors = new ArrayList<Throwable>();
+        List<Throwable> errors = new ArrayList<>();
 
         if ( schema.isEnabled() && comparator.isEnabled() )
         {
@@ -221,6 +224,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String oldOid = getOid( entry );
@@ -231,7 +235,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_353, oldOid ) );
         }
 
-        String oid = newRdn.getNormValue();
+        String oid = newRdn.getValue();
         checkOidIsUniqueForComparator( oid );
 
         String schemaName = getSchemaName( entry.getDn() );
@@ -239,8 +243,8 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( isSchemaEnabled( schemaName ) )
         {
             // Inject the new OID in the entry
-            Entry targetEntry = ( Entry ) entry.clone();
-            String newOid = newRdn.getNormValue();
+            Entry targetEntry = entry.clone();
+            String newOid = newRdn.getValue();
             checkOidIsUnique( newOid );
             targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
@@ -258,6 +262,10 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRdn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
@@ -270,7 +278,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_353, oldOid ) );
         }
 
-        String oid = newRdn.getNormValue();
+        String oid = newRdn.getValue();
         checkOidIsUniqueForComparator( oid );
 
         String newSchemaName = getSchemaName( newParentName );
@@ -292,6 +300,10 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
@@ -354,7 +366,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
 
         if ( schemaManager.getComparatorRegistry().contains( oid ) )
         {
-            return ( LdapComparator<?> ) schemaManager.getComparatorRegistry().get( oid );
+            return schemaManager.getComparatorRegistry().get( oid );
         }
         else
         {
@@ -380,7 +392,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_358 ) );
         }
 
-        if ( !rdn.getNormValue().equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
+        if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_359 ) );
         }

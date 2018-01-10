@@ -83,7 +83,7 @@ public class UberjarMain
                 LOG.debug( "Stopping runtime" );
                 InstanceLayout layout = new InstanceLayout( instanceDirectory );
                 try ( Socket socket = new Socket( Network.LOOPBACK, readShutdownPort( layout ) );
-                        PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
+                    PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
                 {
                     writer.print( readShutdownPassword( layout ) );
                 }
@@ -140,7 +140,7 @@ public class UberjarMain
     public void start( String instanceDirectory )
     {
         InstanceLayout layout = new InstanceLayout( instanceDirectory );
-
+        
         // Creating ApacheDS service
         service = new ApacheDsService();
 
@@ -149,7 +149,7 @@ public class UberjarMain
         {
             LOG.info( "Starting the service." );
             service.start( layout );
-
+            
             startShutdownListener( layout );
         }
         catch ( Exception e )
@@ -168,13 +168,11 @@ public class UberjarMain
      */
     public void repair( String instanceDirectory )
     {
-        System.out.println( "Trying to repair the following data :" + instanceDirectory );
         InstanceLayout layout = new InstanceLayout( instanceDirectory );
-
+        
         // Creating ApacheDS service
         service = new ApacheDsService();
-
-        // Initializing the service
+        
         try
         {
             System.out.println( "Starting the service." );
@@ -185,17 +183,15 @@ public class UberjarMain
         }
         catch ( Exception e )
         {
-            LOG.error( "Failed to start the service.", e );
-            stop();
-            System.exit( 1 );
+            return;
         }
 
         // Repairing the database
         try
         {
-            System.out.println( "Repairing the database." );
+            LOG.info( "Starting the service." );
             service.repair( layout );
-            System.out.println( "Database repaired." );
+            LOG.info( "Database repaired." );
         }
         catch ( Exception e )
         {
@@ -203,11 +199,12 @@ public class UberjarMain
             stop();
             System.exit( 1 );
         }
-
+        
         // Stop the service
         stop();
-    }
 
+    }
+    
 
     public void stop()
     {

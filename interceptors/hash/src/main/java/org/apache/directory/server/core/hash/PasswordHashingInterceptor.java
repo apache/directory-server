@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
@@ -34,6 +33,7 @@ import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -70,6 +70,7 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         if ( algorithm == null )
@@ -97,6 +98,7 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( algorithm == null )
@@ -147,28 +149,26 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
         Attribute newPwd = new DefaultAttribute( pwdAt.getAttributeType() );
 
         // Special case : deal with a potential empty value. We may have more than one
-        for ( Value<?> userPassword : pwdAt )
+        for ( Value userPassword : pwdAt )
         {
-            if ( userPassword.getValue() == null )
+            if ( Strings.isEmpty( userPassword.getValue() ) )
             {
                 continue;
             }
 
             // check if the given password is already hashed
-            LdapSecurityConstants existingAlgo = PasswordUtil.findAlgorithm( ( ( BinaryValue ) userPassword )
-                .getValue() );
+            LdapSecurityConstants existingAlgo = PasswordUtil.findAlgorithm( userPassword.getBytes() );
 
             // if there exists NO algorithm, then hash the password
             if ( existingAlgo == null )
             {
-                byte[] hashedPassword = PasswordUtil.createStoragePassword(
-                    ( ( BinaryValue ) userPassword ).getValue(), algorithm );
+                byte[] hashedPassword = PasswordUtil.createStoragePassword( userPassword.getBytes(), algorithm );
 
                 newPwd.add( hashedPassword );
             }
             else
             {
-                newPwd.add( ( ( BinaryValue ) userPassword ).getValue() );
+                newPwd.add( userPassword.getBytes() );
             }
         }
 

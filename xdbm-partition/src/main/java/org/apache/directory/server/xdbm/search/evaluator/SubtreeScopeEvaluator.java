@@ -86,7 +86,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
         }
 
         baseId = node.getBaseId();
-        baseIsContextEntry = getContextEntryId() == baseId;
+        baseIsContextEntry = db.getSuffixId() == baseId;
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
     }
 

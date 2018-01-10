@@ -49,7 +49,6 @@ import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -92,6 +91,18 @@ import org.junit.runner.RunWith;
         "m-oid: 2.2.0",
         "m-name: integerAttribute",
         "m-description: the precursor for all integer attributes",
+        "m-equality: integerMatch",
+        "m-ordering: integerOrderingMatch",
+        "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
+        "m-length: 0",
+        "",
+        "dn: m-oid=1.1.1.1.1.1, ou=attributeTypes, cn=other, ou=schema",
+        "objectclass: metaAttributeType",
+        "objectclass: metaTop",
+        "objectclass: top",
+        "m-oid: 1.1.1.1.1.1",
+        "m-name: testInt",
+        "m-description: An attributeType used for testing the ORDERING MR",
         "m-equality: integerMatch",
         "m-ordering: integerOrderingMatch",
         "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27",
@@ -164,32 +175,43 @@ import org.junit.runner.RunWith;
         "dn: cn=testGroup0,ou=groups,ou=system",
         "objectClass: top",
         "objectClass: posixGroup",
+        "objectClass: extensibleObject",
         "cn: testGroup0",
         "gidNumber: 0",
+        "testInt: 0",
         "",
         "dn: cn=testGroup1,ou=groups,ou=system",
         "objectClass: top",
         "objectClass: posixGroup",
+        "objectClass: extensibleObject",
         "cn: testGroup1",
         "gidNumber: 1",
+        "testInt: 1",
         "",
         "dn: cn=testGroup2,ou=groups,ou=system",
         "objectClass: top",
         "objectClass: posixGroup",
+        "objectClass: extensibleObject",
         "cn: testGroup2",
         "gidNumber: 2",
+        "testInt: 2",
         "",
         "dn: cn=testGroup4,ou=groups,ou=system",
         "objectClass: top",
         "objectClass: posixGroup",
+        "objectClass: extensibleObject",
         "cn: testGroup4",
         "gidNumber: 4",
+        "testInt: 4",
         "",
         "dn: cn=testGroup5,ou=groups,ou=system",
         "objectClass: top",
         "objectClass: posixGroup",
+        "objectClass: extensibleObject",
         "cn: testGroup5",
-        "gidNumber: 5" })
+        "gidNumber: 5",
+        "testInt: 5"
+        })
 public class SearchIT extends AbstractLdapTestUnit
 {
     private static final String RDN = "cn=Heather Nova";
@@ -315,21 +337,30 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        // 16 because it also matches organizationalPerson which the admin is
-        assertEquals( "Expected number of results returned was incorrect", 17, map.size() );
-        assertTrue( map.containsKey( "ou=system" ) );
-        assertTrue( map.containsKey( "ou=configuration,ou=system" ) );
-        assertTrue( map.containsKey( "ou=interceptors,ou=configuration,ou=system" ) );
-        assertTrue( map.containsKey( "ou=partitions,ou=configuration,ou=system" ) );
-        assertTrue( map.containsKey( "ou=services,ou=configuration,ou=system" ) );
-        assertTrue( map.containsKey( "ou=groups,ou=system" ) );
+        // 0 because the filter does not have a SUBSTRING MR
+        assertEquals( "Expected number of results returned was incorrect", 0, map.size() );
+
+        // 
+        list = sysRoot.search( "", "(ou=*es*)", controls );
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        list.close();
+
+        assertEquals( "Expected number of results returned was incorrect", 8, map.size() );
+        
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
-        assertTrue( map.containsKey( "ou=users,ou=system" ) );
-        assertTrue( map.containsKey( "prefNodeName=sysPrefRoot,ou=system" ) );
-        assertTrue( map.containsKey( "uid=admin,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing03,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing04,ou=system" ) );
+        assertTrue( map.containsKey( "ou=testing05,ou=system" ) );
+        assertTrue( map.containsKey( "ou=services,ou=configuration,ou=system" ) );
+        assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
     }
 
 
@@ -591,7 +622,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         Attributes attrs = map.get( "ou=testing00,ou=system" );
-        assertEquals( "normalized creator's name", "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system", attrs.get(
+        assertEquals( "normalized creator's name", "0.9.2342.19200300.100.1.1= admin ,2.5.4.11= system ", attrs.get(
             "creatorsName" ).get() );
     }
 
@@ -1140,7 +1171,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testLessThanSearch() throws Exception
     {
-        Set<String> results = searchGroups( "(gidNumber<=5)" );
+        Set<String> results = searchGroups( "(testInt<=5)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1148,7 +1179,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=4)" );
+        results = searchGroups( "(testInt<=4)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1156,7 +1187,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=3)" );
+        results = searchGroups( "(testInt<=3)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1164,7 +1195,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=0)" );
+        results = searchGroups( "(testInt<=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1172,7 +1203,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=-1)" );
+        results = searchGroups( "(testInt<=-1)" );
         assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1185,7 +1216,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testGreaterThanSearch() throws Exception
     {
-        Set<String> results = searchGroups( "(gidNumber>=0)" );
+        Set<String> results = searchGroups( "(testInt>=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1193,7 +1224,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber>=1)" );
+        results = searchGroups( "(testInt>=1)" );
         assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1201,7 +1232,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber>=3)" );
+        results = searchGroups( "(testInt>=3)" );
         assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1209,7 +1240,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber>=6)" );
+        results = searchGroups( "(testInt>=6)" );
         assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1222,7 +1253,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testNotOperator() throws Exception
     {
-        Set<String> results = searchGroups( "(!(gidNumber=4))" );
+        Set<String> results = searchGroups( "(!(testInt=4))" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1920,7 +1951,7 @@ public class SearchIT extends AbstractLdapTestUnit
     private void testUseCases( String filterCsnVal, String[] expectedCsns, LdapConnection connection, int useCaseNum )
         throws Exception
     {
-        Value<String> val = new StringValue( filterCsnVal );
+        Value val = new Value( filterCsnVal );
         AttributeType entryCsnAt = getService().getSchemaManager().getAttributeType( SchemaConstants.ENTRY_CSN_AT );
         ExprNode filter = null;
 
@@ -2065,7 +2096,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         LdapConnection con = new LdapCoreSessionConnection( service.getAdminSession() );
 
-        EntryCursor cursor = con.search( "ou=groups,ou=system", "(!(gidNumber=00001))", SearchScope.ONELEVEL, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        EntryCursor cursor = con.search( "ou=groups,ou=system", "(!(gidNumber=1))", SearchScope.ONELEVEL, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
         int count = 0;
         while ( cursor.next() )

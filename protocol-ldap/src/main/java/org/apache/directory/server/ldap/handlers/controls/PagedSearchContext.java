@@ -30,6 +30,7 @@ import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
@@ -236,9 +237,15 @@ public class PagedSearchContext
         // Compare the baseDN
         try
         {
-            request.getBase().apply( schemaManager );
+            if ( !request.getBase().isSchemaAware() )
+            {
+                request.setBase( new Dn( schemaManager, request.getBase() ) );
+            }
 
-            previousSearchRequest.getBase().apply( schemaManager );
+            if ( !previousSearchRequest.getBase().isSchemaAware() )
+            {
+                previousSearchRequest.setBase( new Dn( schemaManager, previousSearchRequest.getBase() ) );
+            }
 
             if ( !request.getBase().equals( previousSearchRequest.getBase() ) )
             {

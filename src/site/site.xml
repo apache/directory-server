@@ -19,35 +19,11 @@
   @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
 -->
 <project name="${project.name}">
-  <bannerLeft>
-    <src>images/server-icon_128x128.png</src>
-    <href>http://directory.apache.org/apacheds/1.5/</href>
-    <name>${project.name}</name>
-  </bannerLeft>
-  <skin>
-    <groupId>org.apache.directory.skins</groupId>
-    <artifactId>directory-skin</artifactId>
-    <version>${skin.version}</version>
-  </skin>
-  <publishDate position="navigation-bottom" format="dd-MM-yyyy HH:mm"/>
-  <version position="right"/>
   <body>
-    <breadcrumbs>
-      <item name="Apache Directory DS" href="http://vm094.oxylos.org/projects/apacheds/" />
-    </breadcrumbs>
-    <links>
-       <!--
-         Need to encode a part of the url due to Issue
-         http://jira.codehaus.org/browse/MSITE-159
-         and as of https://bugzilla.mozilla.org/show_bug.cgi?id=43659
-         this workaround doesn't works in FF 3.x ...
-        -->
-       <item name="Apache Directory DS" href="http://directory.apache%2eorg/apacheds/1.5/"/>
-       <item name="Apache Directory" href="http://directory.apache%2eorg/"/>
-       <item name="Apache" href="http://www.apache%2eorg/"/>
-       <item name="Maven" href="http://maven.apache%2eorg/"/>
-    </links>
-    <menu ref="reports"/>
-    <menu ref="modules"/>
+    <menu ref="parent" />
+    <menu name="Overview">
+      <item name="Goals" href="plugin-info.html" />
+    </menu>
+    <menu ref="reports" />
   </body>
 </project>

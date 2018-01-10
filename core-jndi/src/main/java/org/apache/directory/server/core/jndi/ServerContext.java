@@ -707,8 +707,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent,
-            new Rdn(
-                newRdn ), delOldDn );
+            newRdn, delOldDn );
         moveAndRenameContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
@@ -1237,7 +1236,7 @@ public abstract class ServerContext implements EventContext
          * a move operation.  Furthermore if the Rdn in the move operation
          * changes it is both an Rdn change and a move operation.
          */
-        if ( oldParent.equals( newParent ) )
+        if ( oldParent.getNormName().equals( newParent.getNormName() ) )
         {
             try
             {
@@ -1250,7 +1249,7 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            if ( newRdn.equals( oldRdn ) )
+            if ( newRdn.getNormName().equals( oldRdn.getNormName() ) )
             {
                 try
                 {
@@ -1618,7 +1617,7 @@ public abstract class ServerContext implements EventContext
         try
         {
             DirectoryListener listener = new EventListenerAdapter( ( ServerLdapContext ) this, namingListener );
-            NotificationCriteria criteria = new NotificationCriteria();
+            NotificationCriteria criteria = new NotificationCriteria( schemaManager );
             criteria.setFilter( filter );
             criteria.setScope( SearchScope.getSearchScope( scope ) );
             criteria.setAliasDerefMode( AliasDerefMode.getEnum( env ) );
@@ -1696,7 +1695,11 @@ public abstract class ServerContext implements EventContext
         try
         {
             target = target.add( relativeName );
-            target.apply( schemaManager );
+            
+            if ( !target.isSchemaAware() )
+            {
+                target = new Dn( schemaManager, target );
+            }
         }
         catch ( LdapInvalidDnException lide )
         {

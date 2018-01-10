@@ -20,8 +20,8 @@
 package org.apache.directory.server.ldap;
 
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -382,6 +382,7 @@ public class LdapServer extends DirectoryBackedService
         else
         {
             keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
+            
             try ( InputStream is = Files.newInputStream( Paths.get( keystoreFile ) ) )
             {
                 keyStore.load( is, null );
@@ -629,7 +630,7 @@ public class LdapServer extends DirectoryBackedService
                 for ( WriteFuture future : writeFutures )
                 {
                     future.await( 1000L );
-                    sessionIt.next().close( true );
+                    sessionIt.next().closeNow();
                 }
 
                 if ( replicationReqHandler != null )

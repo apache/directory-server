@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 
 
 /**
@@ -53,24 +54,28 @@ public class NotificationCriteria
     /** The event mask to use (default to everything) */
     private int eventMask = EventType.ALL_EVENT_TYPES_MASK;
 
+    /** The SchemaManager */
+    private SchemaManager schemaManager;
 
     /**
      * Create a new instance of a NotiticationCriteria
      */
-    public NotificationCriteria()
+    public NotificationCriteria( SchemaManager schemaManager )
     {
+        this.schemaManager = schemaManager;
     }
 
 
     /**
      * Create a new instance of a NotiticationCriteria initialized with a search request
      */
-    public NotificationCriteria( SearchRequest req )
+    public NotificationCriteria( SchemaManager schemaManager, SearchRequest req )
     {
         this.scope = req.getScope();
         this.aliasDerefMode = req.getDerefAliases();
         this.base = req.getBase();
         this.filter = req.getFilter();
+        this.schemaManager = schemaManager;
     }
 
 
@@ -142,7 +147,7 @@ public class NotificationCriteria
      */
     public void setFilter( String filter ) throws Exception
     {
-        this.filter = FilterParser.parse( filter );
+        this.filter = FilterParser.parse( schemaManager, filter );
     }
 
 

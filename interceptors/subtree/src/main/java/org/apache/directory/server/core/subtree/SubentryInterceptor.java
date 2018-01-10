@@ -36,7 +36,6 @@ import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -98,7 +97,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = Subentries.OID;
 
-    private Value<String> subentryOC;
+    private Value subentryOC;
 
     /** The SubTree specification parser instance */
     private SubtreeSpecificationParser ssParser;
@@ -134,6 +133,7 @@ public class SubentryInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public boolean accept( SearchOperationContext searchContext, Entry entry ) throws LdapException
         {
             // See if the requested entry is a subentry
@@ -150,6 +150,7 @@ public class SubentryInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public String toString( String tabs )
         {
             return tabs + "HideSubentriesFilter";
@@ -165,6 +166,7 @@ public class SubentryInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public boolean accept( SearchOperationContext searchContext, Entry entry ) throws LdapException
         {
             // See if the requested entry is a subentry
@@ -181,6 +183,7 @@ public class SubentryInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public String toString( String tabs )
         {
             return tabs + "HideEntriesFilter";
@@ -196,6 +199,7 @@ public class SubentryInterceptor extends BaseInterceptor
      *
      * @param directoryService The DirectoryService instance
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -203,24 +207,24 @@ public class SubentryInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
 
         ssParser = new SubtreeSpecificationParser( schemaManager );
+        AttributeType ocAt = directoryService.getAtProvider().getObjectClass();
 
         // prepare to find all subentries in all namingContexts
         Set<String> suffixes = nexus.listSuffixes();
-        ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), new StringValue(
-            SchemaConstants.SUBENTRY_OC ) );
+        ExprNode filter = new EqualityNode<String>( ocAt, new Value( ocAt, SchemaConstants.SUBENTRY_OC ) );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
-        subentryOC = new StringValue( directoryService.getAtProvider().getObjectClass(), SchemaConstants.SUBENTRY_OC );
+        subentryOC = new Value( ocAt, SchemaConstants.SUBENTRY_OC );
 
         // search each namingContext for subentries
         for ( String suffix : suffixes )
         {
-            Dn suffixDn = dnFactory.create( suffix );
-
             CoreSession adminSession = directoryService.getAdminSession();
+
+            Dn suffixDn = dnFactory.create( suffix );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, filter,
                 controls );
@@ -286,7 +290,7 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private Set<AdministrativeRole> getSubentryAdminRoles( Entry subentry ) throws LdapException
     {
-        Set<AdministrativeRole> adminRoles = new HashSet<AdministrativeRole>();
+        Set<AdministrativeRole> adminRoles = new HashSet<>();
 
         Attribute oc = subentry.get( directoryService.getAtProvider().getObjectClass() );
 
@@ -527,7 +531,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
     private List<Modification> getModsOnEntryRdnChange( Dn oldName, Dn newName, Entry entry ) throws LdapException
     {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
 
         /*
          * There are two different situations warranting action.  First if
@@ -569,7 +573,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( opAttr != null )
                     {
                         opAttr = opAttr.clone();
-                        opAttr.remove( subentryDn.getNormName() );
+                        opAttr.remove( subentryDn.getName() );
 
                         if ( opAttr.size() < 1 )
                         {
@@ -588,7 +592,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     Attribute opAttr = new DefaultAttribute( operationalAttribute );
-                    opAttr.add( subentryDn.getNormName() );
+                    opAttr.add( subentryDn.getName() );
                     modifications.add( new DefaultModification( op, opAttr ) );
                 }
             }
@@ -614,17 +618,17 @@ public class SubentryInterceptor extends BaseInterceptor
                 switch ( mod.getOperation() )
                 {
                     case ADD_ATTRIBUTE:
-                        for ( Value<?> value : mod.getAttribute() )
+                        for ( Value value : mod.getAttribute() )
                         {
-                            ocFinalState.add( value.getString() );
+                            ocFinalState.add( value.getValue() );
                         }
 
                         break;
 
                     case REMOVE_ATTRIBUTE:
-                        for ( Value<?> value : mod.getAttribute() )
+                        for ( Value value : mod.getAttribute() )
                         {
-                            ocFinalState.remove( value.getString() );
+                            ocFinalState.remove( value.getValue() );
                         }
 
                         break;
@@ -652,8 +656,8 @@ public class SubentryInterceptor extends BaseInterceptor
     private void getOperationalModForReplace( boolean hasRole, AttributeType attributeType, Entry entry, Dn oldDn,
         Dn newDn, List<Modification> modifications ) throws LdapInvalidAttributeValueException
     {
-        String oldDnStr = oldDn.getNormName();
-        String newDnStr = newDn.getNormName();
+        String oldDnStr = oldDn.getName();
+        String newDnStr = newDn.getName();
 
         if ( hasRole )
         {
@@ -681,7 +685,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private List<Modification> getOperationalModsForReplace( Dn oldDn, Dn newDn, Subentry subentry, Entry entry )
         throws Exception
     {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
 
         getOperationalModForReplace( subentry.isAccessControlAdminRole(), directoryService.getAtProvider()
             .getAccessControlSubentries(), entry, oldDn, newDn, modifications );
@@ -702,33 +706,33 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private List<Attribute> getSubentryOperationalAttributes( Dn dn, Subentry subentry ) throws LdapException
     {
-        List<Attribute> attributes = new ArrayList<Attribute>();
+        List<Attribute> attributes = new ArrayList<>();
 
         if ( subentry.isAccessControlAdminRole() )
         {
             Attribute accessControlSubentries = new DefaultAttribute( directoryService.getAtProvider()
-                .getAccessControlSubentries(), dn.getNormName() );
+                .getAccessControlSubentries(), dn.getName() );
             attributes.add( accessControlSubentries );
         }
 
         if ( subentry.isSchemaAdminRole() )
         {
             Attribute subschemaSubentry = new DefaultAttribute(
-                directoryService.getAtProvider().getSubschemaSubentry(), dn.getNormName() );
+                directoryService.getAtProvider().getSubschemaSubentry(), dn.getName() );
             attributes.add( subschemaSubentry );
         }
 
         if ( subentry.isCollectiveAdminRole() )
         {
             Attribute collectiveAttributeSubentries = new DefaultAttribute( directoryService.getAtProvider()
-                .getCollectiveAttributeSubentries(), dn.getNormName() );
+                .getCollectiveAttributeSubentries(), dn.getName() );
             attributes.add( collectiveAttributeSubentries );
         }
 
         if ( subentry.isTriggersAdminRole() )
         {
             Attribute tiggerExecutionSubentries = new DefaultAttribute( directoryService.getAtProvider()
-                .getTriggerExecutionSubentries(), dn.getNormName() );
+                .getTriggerExecutionSubentries(), dn.getName() );
             attributes.add( tiggerExecutionSubentries );
         }
 
@@ -751,8 +755,8 @@ public class SubentryInterceptor extends BaseInterceptor
      */
     private List<Modification> getOperationalModsForRemove( Dn subentryDn, Entry candidate ) throws LdapException
     {
-        List<Modification> modifications = new ArrayList<Modification>();
-        String dn = subentryDn.getNormName();
+        List<Modification> modifications = new ArrayList<>();
+        String dn = subentryDn.getName();
 
         for ( AttributeType operationalAttribute : directoryService.getAtProvider().getSubentryOperationalAttributes() )
         {
@@ -781,7 +785,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private List<Modification> getOperationalModsForAdd( Entry entry, List<Attribute> operationalAttributes )
         throws LdapException
     {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
 
         for ( Attribute operationalAttribute : operationalAttributes )
         {
@@ -791,7 +795,7 @@ public class SubentryInterceptor extends BaseInterceptor
             {
                 Attribute newOperationalAttribute = operationalAttribute.clone();
 
-                for ( Value<?> value : opAttrInEntry )
+                for ( Value value : opAttrInEntry )
                 {
                     newOperationalAttribute.add( value );
                 }
@@ -816,7 +820,7 @@ public class SubentryInterceptor extends BaseInterceptor
     private List<Modification> getModsOnEntryModification( Dn name, Entry oldEntry, Entry newEntry )
         throws LdapException
     {
-        List<Modification> modList = new ArrayList<Modification>();
+        List<Modification> modList = new ArrayList<>();
 
         for ( Dn subentryDn : directoryService.getSubentryCache() )
         {
@@ -843,7 +847,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     if ( opAttr != null )
                     {
                         opAttr = opAttr.clone();
-                        opAttr.remove( subentryDn.getNormName() );
+                        opAttr.remove( subentryDn.getName() );
 
                         if ( opAttr.size() < 1 )
                         {
@@ -862,7 +866,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     ModificationOperation op = ModificationOperation.ADD_ATTRIBUTE;
                     Attribute opAttr = new DefaultAttribute( operationalAttribute );
-                    opAttr.add( subentryDn.getNormName() );
+                    opAttr.add( subentryDn.getName() );
                     modList.add( new DefaultModification( op, opAttr ) );
                 }
             }
@@ -885,7 +889,7 @@ public class SubentryInterceptor extends BaseInterceptor
             entry.put( operational );
         }
 
-        operational.add( subentryDn.getNormName() );
+        operational.add( subentryDn.getName() );
     }
 
 
@@ -895,6 +899,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn dn = addContext.getDn();
@@ -1023,6 +1028,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
@@ -1067,6 +1073,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         Dn dn = modifyContext.getDn();
@@ -1225,7 +1232,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 List<Modification> subentriesOpAttrMods = getModsOnEntryModification( dn, entry, newEntry );
 
-                if ( subentriesOpAttrMods.size() > 0 )
+                if ( !subentriesOpAttrMods.isEmpty() )
                 {
                     nexus.modify( new ModifyOperationContext( modifyContext.getSession(), dn, subentriesOpAttrMods ) );
                 }
@@ -1262,6 +1269,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * @param moveContext The context containing all the needed informations to proceed
      * @throws LdapException If the move failed
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oldDn = moveContext.getDn();
@@ -1287,7 +1295,11 @@ public class SubentryInterceptor extends BaseInterceptor
             baseDn = baseDn.add( ss.getBase() );
             Dn newName = newSuperiorDn;
             newName = newName.add( oldDn.getRdn() );
-            newName.apply( schemaManager );
+            
+            if ( !newName.isSchemaAware() )
+            {
+                newName = new Dn( schemaManager, newName );
+            }
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
 
@@ -1315,7 +1327,11 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     Entry candidate = subentries.get();
                     Dn dn = candidate.getDn();
-                    dn.apply( schemaManager );
+                    
+                    if ( !dn.isSchemaAware() )
+                    {
+                        dn = new Dn( schemaManager, dn );
+                    }
 
                     if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
@@ -1365,7 +1381,7 @@ public class SubentryInterceptor extends BaseInterceptor
             List<Modification> mods = getModsOnEntryRdnChange( oldDn, newDn, entry );
 
             // Update the entry operational attributes
-            if ( mods.size() > 0 )
+            if ( !mods.isEmpty() )
             {
                 nexus.modify( new ModifyOperationContext( moveContext.getSession(), newDn, mods ) );
             }
@@ -1376,6 +1392,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
@@ -1393,7 +1410,11 @@ public class SubentryInterceptor extends BaseInterceptor
             Dn newName = newSuperiorDn.getParent();
 
             newName = newName.add( moveAndRenameContext.getNewRdn() );
-            newName.apply( schemaManager );
+            
+            if ( !newName.isSchemaAware() )
+            {
+                newName = new Dn( schemaManager, newName );
+            }
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
 
@@ -1420,7 +1441,11 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     Entry candidate = subentries.get();
                     Dn dn = candidate.getDn();
-                    dn.apply( schemaManager );
+                    
+                    if ( !dn.isSchemaAware() )
+                    {
+                        dn = new Dn( schemaManager, dn );
+                    }
 
                     if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
@@ -1462,7 +1487,7 @@ public class SubentryInterceptor extends BaseInterceptor
             Dn newDn = moveAndRenameContext.getNewDn();
             List<Modification> mods = getModsOnEntryRdnChange( oldDn, newDn, entry );
 
-            if ( mods.size() > 0 )
+            if ( !mods.isEmpty() )
             {
                 nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), newDn, mods ) );
             }
@@ -1473,6 +1498,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldDn = renameContext.getDn();
@@ -1490,7 +1516,11 @@ public class SubentryInterceptor extends BaseInterceptor
             Dn newName = oldDn.getParent();
 
             newName = newName.add( renameContext.getNewRdn() );
-            newName.apply( schemaManager );
+
+            if ( !newName.isSchemaAware() )
+            {
+                newName = new Dn( schemaManager, newName );
+            }
 
             directoryService.getSubentryCache().addSubentry( newName, subentry );
             next( renameContext );
@@ -1515,7 +1545,11 @@ public class SubentryInterceptor extends BaseInterceptor
                 {
                     Entry candidate = subentries.get();
                     Dn dn = candidate.getDn();
-                    dn.apply( schemaManager );
+
+                    if ( !dn.isSchemaAware() )
+                    {
+                        dn = new Dn( schemaManager, dn );
+                    }
 
                     if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
@@ -1558,7 +1592,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
             List<Modification> mods = getModsOnEntryRdnChange( oldDn, newName, entry );
 
-            if ( mods.size() > 0 )
+            if ( !mods.isEmpty() )
             {
                 nexus.modify( new ModifyOperationContext( renameContext.getSession(), newName, mods ) );
             }
@@ -1569,6 +1603,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = next( searchContext );

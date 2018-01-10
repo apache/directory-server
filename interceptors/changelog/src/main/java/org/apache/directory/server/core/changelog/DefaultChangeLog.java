@@ -93,6 +93,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public ChangeLogStore getChangeLogStore()
     {
         return store;
@@ -104,6 +105,7 @@ public class DefaultChangeLog implements ChangeLog
      * 
      * If there is an existing changeLog store, we don't switch it 
      */
+    @Override
     public void setChangeLogStore( ChangeLogStore store )
     {
         if ( storeInitialized )
@@ -120,7 +122,8 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
-    public long getCurrentRevision() throws LdapException
+    @Override
+public long getCurrentRevision() throws LdapException
     {
         synchronized ( store )
         {
@@ -132,6 +135,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws LdapException
     {
         if ( !enabled )
@@ -141,9 +145,7 @@ public class DefaultChangeLog implements ChangeLog
 
         try
         {
-            ChangeLogEvent event = store.log( principal, forward, reverse );
-
-            return event;
+            return store.log( principal, forward, reverse );
         }
         catch ( Exception e )
         {
@@ -155,6 +157,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses )
         throws LdapException
     {
@@ -177,6 +180,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isLogSearchSupported()
     {
         return store instanceof SearchableChangeLogStore;
@@ -186,6 +190,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isTagSearchSupported()
     {
         return store instanceof TaggableSearchableChangeLogStore;
@@ -195,6 +200,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isTagStorageSupported()
     {
         return store instanceof TaggableChangeLogStore;
@@ -204,6 +210,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public ChangeLogSearchEngine getChangeLogSearchEngine()
     {
         if ( isLogSearchSupported() )
@@ -218,6 +225,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public TagSearchEngine getTagSearchEngine()
     {
         if ( isTagSearchSupported() )
@@ -232,6 +240,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public Tag tag( long revision, String description ) throws Exception
     {
         if ( revision < 0 )
@@ -258,6 +267,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public Tag tag( long revision ) throws Exception
     {
         return tag( revision, null );
@@ -267,6 +277,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public Tag tag( String description ) throws Exception
     {
         return tag( store.getCurrentRevision(), description );
@@ -276,6 +287,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public Tag tag() throws Exception
     {
         return tag( store.getCurrentRevision(), null );
@@ -285,6 +297,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setEnabled( boolean enabled )
     {
         this.enabled = enabled;
@@ -294,6 +307,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isEnabled()
     {
         return enabled;
@@ -303,6 +317,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public Tag getLatest() throws LdapException
     {
         if ( latest != null )
@@ -323,6 +338,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * Initialize the ChangeLog system. We will initialize the associated store.
      */
+    @Override
     public void init( DirectoryService service ) throws Exception
     {
         if ( enabled )
@@ -356,6 +372,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sync() throws Exception
     {
         if ( enabled )
@@ -368,6 +385,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public void destroy() throws Exception
     {
         if ( enabled )
@@ -382,6 +400,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isExposed()
     {
         return exposed;
@@ -391,6 +410,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setExposed( boolean exposed )
     {
         this.exposed = exposed;
@@ -400,6 +420,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setPartitionSuffix( String suffix )
     {
         this.partitionSuffix = suffix;
@@ -409,6 +430,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setRevisionsContainerName( String revContainerName )
     {
         this.revContainerName = revContainerName;
@@ -418,6 +440,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setTagsContainerName( String tagContainerName )
     {
         this.tagContainerName = tagContainerName;
@@ -427,6 +450,7 @@ public class DefaultChangeLog implements ChangeLog
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

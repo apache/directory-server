@@ -83,12 +83,12 @@ public class SchemaSubentryModifier
 
     private Dn getDn( SchemaObject obj ) throws LdapInvalidDnException
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append( "m-oid=" ).append( obj.getOid() ).append( ",ou=" );
 
         if ( obj instanceof LdapSyntax )
         {
-            buf.append( "syntaxes" );
+            buf.append( SchemaConstants.SYNTAXES );
         }
         else if ( obj instanceof MatchingRule )
         {

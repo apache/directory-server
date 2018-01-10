@@ -38,6 +38,7 @@ import java.util.UUID;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.PartialResultException;
 import javax.naming.ReferralException;
 import javax.naming.directory.Attributes;
@@ -50,6 +51,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
+
+import netscape.ldap.LDAPException;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -1155,41 +1158,37 @@ public class AddIT extends AbstractLdapTestUnit
     {
         // Limit the PDU size to 1024
         getLdapServer().getDirectoryService().setMaxPDUSize( 1024 );
-        
-        try ( LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() ) )
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Inject a 1024 bytes long description
+        StringBuilder sb = new StringBuilder();
+
+        for ( int i = 0; i < 128; i++ )
         {
-            connection.bind( "uid=admin,ou=system", "secret" );
-    
-            // Inject a 1024 bytes long description
-            StringBuilder sb = new StringBuilder();
-    
-            for ( int i = 0; i < 128; i++ )
+            sb.append( "0123456789ABCDEF" );
+        }
+
+        Attribute description = new DefaultAttribute( "description", sb.toString() );
+
+        try
+        {
+            Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, description );
+            connection.modify( "cn=the person, ou=system", modification );
+            fail();
+        }
+        catch ( Exception e )
+        {
+            // We are expecting the session to be close here.
+            if ( connection.isConnected() )
             {
-                sb.append( "0123456789ABCDEF" );
+                // Race condition:
+                // Upon NoticeOfDisconnection the API sends an abandon request but does not immediately close the connection.
+                // So at this point it is not guaranteed that the connnection is already closed.
+                // TODO: This is just a workaround, better check the connection for any outstanding abandon requests
+                Thread.sleep( 1000 );
             }
-    
-            Attribute description = new DefaultAttribute( "description", sb.toString() );
-    
-            try
-            {
-                Modification modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, description );
-                connection.modify( "cn=the person, ou=system", modification );
-                fail();
-            }
-            catch ( Exception e )
-            {
-                // We are expecting the session to be close here.
-                if ( connection.isConnected() )
-                {
-                    // Race condition:
-                    // Upon NoticeOfDisconnection the API sends an abandon request but does not immediately close the connection.
-                    // So at this point it is not guaranteed that the connnection is already closed.
-                    // TODO: This is just a workaround, better check the connection for any outstanding abandon requests
-                    Thread.sleep( 1000 );
-                }
-                
-                assertFalse( connection.isConnected() );
-            }
+            assertFalse( connection.isConnected() );
         }
     }
 
@@ -1247,7 +1246,7 @@ public class AddIT extends AbstractLdapTestUnit
         javax.naming.directory.Attribute cnAttribute = res.next().getAttributes().get( "cn" );
         assertEquals( 2, cnAttribute.size() );
         assertTrue( cnAttribute.contains( "Tori,Amos" ) );
-        assertTrue( cnAttribute.contains( "Amos\\,Tori" ) );
+        assertTrue( cnAttribute.contains( "Amos,Tori" ) );
         assertFalse( res.hasMore() );
 
         // search for the implicit added userPassword

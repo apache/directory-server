@@ -19,14 +19,15 @@
  */
 package org.apache.directory.server.ssl;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.Security;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+
 
 /**
  * Factory to create a bougus SSLContext.
@@ -35,38 +36,28 @@ import javax.net.ssl.SSLContext;
  */
 public class BogusSSLContextFactory
 {
+
     /**
      * Protocol to use.
      */
-    private static final String PROTOCOL = "TLSv1.2";
+    private static final String PROTOCOL = "TLS";
 
-    private static final String KEY_MANAGER_FACTORY_ALGORITHM;
-
-    static {
-        String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
-        
-        if (algorithm == null) {
-            algorithm = KeyManagerFactory.getDefaultAlgorithm();
-        }
-
-        KEY_MANAGER_FACTORY_ALGORITHM = algorithm;
-    }
-    
     /**
-     * Bogus Server certificate keystore file name.
+     * Bougus Server certificate keystore file name.
      */
-    private static final String BOGUS_KEYSTORE = "bogus.cert";
+    private static final String BOGUS_KEYSTORE = "/bogus.cert";
 
     // NOTE: The keystore was generated using keytool:
-    // keytool -genkey -alias bogus -keysize 2048 -validity 3650 
-    //         -keyalg RSA -dname "CN=bogus.com, OU=XXX CA,
-    //               O=Bogus Inc, L=Stockholm, S=Stockholm, C=SE" 
-    //         -keypass boguspw -storepass boguspw -keystore bogus.cert
+    //   keytool -genkey -alias bogus -keysize 512 -validity 3650
+    //           -keyalg RSA -dname "CN=bogus.com, OU=XXX CA,
+    //               O=Bogus Inc, L=Stockholm, S=Stockholm, C=SE"
+    //           -keypass boguspw -storepass boguspw -keystore bogus.cert
 
     /**
      * Bougus keystore password.
      */
-    private static final char[] BOGUS_PW = { 'b', 'o', 'g', 'u', 's', 'p', 'w' };
+    private static final char[] BOGUS_PW =
+        { 'b', 'o', 'g', 'u', 's', 'p', 'w' };
 
     private static SSLContext serverInstance = null;
 
@@ -76,46 +67,48 @@ public class BogusSSLContextFactory
     /**
      * Get SSLContext singleton.
      *
-     * @param server A flag to tell if this is a Client or Server instance we want to create
-     * @return SSLContext The created SSLContext 
-     * @throws GeneralSecurityException If we had an issue creating the SSLContext
+     * @return SSLContext
+     * @throws java.security.GeneralSecurityException
+     *
      */
     public static SSLContext getInstance( boolean server ) throws GeneralSecurityException
     {
         SSLContext retInstance = null;
-        
         if ( server )
         {
-            synchronized ( BogusSSLContextFactory.class )
+            if ( serverInstance == null )
             {
-                if ( serverInstance == null )
+                synchronized ( BogusSSLContextFactory.class )
                 {
-                    try
+                    if ( serverInstance == null )
                     {
-                        serverInstance = createBougusServerSSLContext();
-                    }
-                    catch ( Exception ioe )
-                    {
-                        throw new GeneralSecurityException( "Can't create Server SSLContext:" + ioe );
+                        try
+                        {
+                            serverInstance = createBougusServerSSLContext();
+                        }
+                        catch ( Exception ioe )
+                        {
+                            throw new GeneralSecurityException( "Can't create Server SSLContext:" + ioe );
+                        }
                     }
                 }
             }
-            
             retInstance = serverInstance;
         }
         else
         {
-            synchronized ( BogusSSLContextFactory.class )
+            if ( clientInstance == null )
             {
-                if ( clientInstance == null )
+                synchronized ( BogusSSLContextFactory.class )
                 {
-                    clientInstance = createBougusClientSSLContext();
+                    if ( clientInstance == null )
+                    {
+                        clientInstance = createBougusClientSSLContext();
+                    }
                 }
             }
-            
             retInstance = clientInstance;
         }
-        
         return retInstance;
     }
 
@@ -125,7 +118,6 @@ public class BogusSSLContextFactory
         // Create keystore
         KeyStore ks = KeyStore.getInstance( "JKS" );
         InputStream in = null;
-        
         try
         {
             in = BogusSSLContextFactory.class.getResourceAsStream( BOGUS_KEYSTORE );
@@ -161,7 +153,6 @@ public class BogusSSLContextFactory
     {
         SSLContext context = SSLContext.getInstance( PROTOCOL );
         context.init( null, BogusTrustManagerFactory.X509_MANAGERS, null );
-        
         return context;
     }
 

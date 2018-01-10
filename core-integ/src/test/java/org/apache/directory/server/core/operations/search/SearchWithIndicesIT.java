@@ -34,6 +34,7 @@ import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.schema.MutableAttributeType;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -57,6 +58,7 @@ import org.junit.runner.RunWith;
 public class SearchWithIndicesIT extends AbstractLdapTestUnit
 {
     private static LdapConnection connection;
+    public static final String TEST_INT_OID = "1.1.1.1.1.1";
 
     @Before
     public void createData() throws Exception
@@ -92,6 +94,18 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         getService().shutdown();
         getService().startup();
 
+        // Add an AttributeType with an ORDERING MatchingRule
+        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_OID );
+        attributeType.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
+        attributeType.setNames( "testInt" );
+        attributeType.setEqualityOid( "2.5.13.14" );
+        attributeType.setOrderingOid( "2.5.13.15" );
+        attributeType.setSubstringOid( null );
+        attributeType.setEnabled( true );
+
+        // Add the AttributeType
+        getService().getSchemaManager().add( attributeType );
+
         // -------------------------------------------------------------------
         // Add a bunch of nis groups
         // -------------------------------------------------------------------
@@ -111,8 +125,10 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
                 "cn=" + name + ",ou=groups,ou=system",
                 "objectClass: top",
                 "objectClass: posixGroup",
+                "objectClass: extensibleObject",
                 "cn", name,
-                "gidNumber", Integer.toString( gid )
+                "gidNumber", Integer.toString( gid ),
+                "testInt", Integer.toString( gid )
                 ) );
     }
 
@@ -146,7 +162,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
     @Test
     public void testLessThanSearchWithIndices() throws Exception
     {
-        Set<String> results = searchGroups( "(gidNumber<=5)" );
+        Set<String> results = searchGroups( "(testInt<=5)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -154,7 +170,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=4)" );
+        results = searchGroups( "(testInt<=4)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -162,7 +178,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=3)" );
+        results = searchGroups( "(testInt<=3)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -170,7 +186,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=0)" );
+        results = searchGroups( "(testInt<=0)" );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -178,7 +194,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
 
-        results = searchGroups( "(gidNumber<=-1)" );
+        results = searchGroups( "(testInt<=-1)" );
         assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );

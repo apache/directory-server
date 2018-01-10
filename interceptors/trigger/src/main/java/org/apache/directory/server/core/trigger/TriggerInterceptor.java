@@ -153,9 +153,9 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
 
-        for ( Value<?> value : subentries )
+        for ( Value value : subentries )
         {
-            String subentryDn = value.getString();
+            Dn subentryDn = new Dn( directoryService.getSchemaManager(), value.getValue() );
             triggerSpecs.addAll( triggerSpecCache.getSubentryTriggerSpecs( subentryDn ) );
         }
     }
@@ -179,9 +179,9 @@ public class TriggerInterceptor extends BaseInterceptor
             return;
         }
 
-        for ( Value<?> value : entryTrigger )
+        for ( Value value : entryTrigger )
         {
-            String triggerString = value.getString();
+            String triggerString = value.getValue();
             TriggerSpecification item;
 
             try
@@ -212,17 +212,15 @@ public class TriggerInterceptor extends BaseInterceptor
     public Map<ActionTime, List<TriggerSpecification>> getActionTimeMappedTriggerSpecsForOperation(
         List<TriggerSpecification> triggerSpecs, LdapOperation ldapOperation )
     {
-        List<TriggerSpecification> afterTriggerSpecs = new ArrayList<TriggerSpecification>();
-        Map<ActionTime, List<TriggerSpecification>> triggerSpecMap = new HashMap<ActionTime, List<TriggerSpecification>>();
+        List<TriggerSpecification> afterTriggerSpecs = new ArrayList<>();
+        Map<ActionTime, List<TriggerSpecification>> triggerSpecMap = new HashMap<>();
 
         for ( TriggerSpecification triggerSpec : triggerSpecs )
         {
-            if ( triggerSpec.getLdapOperation().equals( ldapOperation ) )
+            if ( triggerSpec.getLdapOperation().equals( ldapOperation )
+                 && triggerSpec.getActionTime().equals( ActionTime.AFTER ) )
             {
-                if ( triggerSpec.getActionTime().equals( ActionTime.AFTER ) )
-                {
-                    afterTriggerSpecs.add( triggerSpec );
-                }
+                afterTriggerSpecs.add( triggerSpec );
             }
         }
 
@@ -236,6 +234,7 @@ public class TriggerInterceptor extends BaseInterceptor
     // Interceptor Overrides
     ////////////////////////////////////////////////////////////////////////////
 
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -244,16 +243,15 @@ public class TriggerInterceptor extends BaseInterceptor
 
         triggerParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
         {
+            @Override
             public Map<String, OidNormalizer> getNormalizerMapping() throws Exception
             {
                 return schemaManager.getNormalizerMapping();
             }
         } );
 
-        //StoredProcEngineConfig javaxScriptSPEngineConfig = new JavaxStoredProcEngineConfig();
         StoredProcEngineConfig javaSPEngineConfig = new JavaStoredProcEngineConfig();
-        List<StoredProcEngineConfig> spEngineConfigs = new ArrayList<StoredProcEngineConfig>();
-        //spEngineConfigs.add( javaxScriptSPEngineConfig );
+        List<StoredProcEngineConfig> spEngineConfigs = new ArrayList<>();
         spEngineConfigs.add( javaSPEngineConfig );
         String spContainer = "ou=Stored Procedures,ou=system";
         manager = new StoredProcExecutionManager( spContainer, spEngineConfigs );
@@ -268,6 +266,7 @@ public class TriggerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn name = addContext.getDn();
@@ -284,7 +283,7 @@ public class TriggerInterceptor extends BaseInterceptor
         StoredProcedureParameterInjector injector = new AddStoredProcedureParameterInjector( addContext, name, entry );
 
         // Gather Trigger Specifications which apply to the entry being added.
-        List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> triggerSpecs = new ArrayList<>();
         addPrescriptiveTriggerSpecs( addContext, triggerSpecs, name, entry );
 
         /**
@@ -306,6 +305,7 @@ public class TriggerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn name = deleteContext.getDn();
@@ -323,7 +323,7 @@ public class TriggerInterceptor extends BaseInterceptor
         StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( deleteContext, name );
 
         // Gather Trigger Specifications which apply to the entry being deleted.
-        List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> triggerSpecs = new ArrayList<>();
         addPrescriptiveTriggerSpecs( deleteContext, triggerSpecs, name, deletedEntry );
         addEntryTriggerSpecs( triggerSpecs, deletedEntry );
 
@@ -343,6 +343,7 @@ public class TriggerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // Bypass trigger handling if the service is disabled.
@@ -360,7 +361,7 @@ public class TriggerInterceptor extends BaseInterceptor
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( modifyContext );
 
         // Gather Trigger Specifications which apply to the entry being modified.
-        List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> triggerSpecs = new ArrayList<>();
         addPrescriptiveTriggerSpecs( modifyContext, triggerSpecs, normName, originalEntry );
         addEntryTriggerSpecs( triggerSpecs, originalEntry );
 
@@ -380,6 +381,7 @@ public class TriggerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         // Bypass trigger handling if the service is disabled.
@@ -398,13 +400,11 @@ public class TriggerInterceptor extends BaseInterceptor
         // Gather supplementary data.
         Entry movedEntry = moveContext.getOriginalEntry();
 
-        //Rdn newRDN = dn.getRdn();
-
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector( moveContext, false,
             rdn, rdn, oldSuperior, newSuperior, dn, newDn );
 
         // Gather Trigger Specifications which apply to the entry being exported.
-        List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> exportTriggerSpecs = new ArrayList<>();
         addPrescriptiveTriggerSpecs( moveContext, exportTriggerSpecs, dn, movedEntry );
         addEntryTriggerSpecs( exportTriggerSpecs, movedEntry );
 
@@ -433,7 +433,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
-        List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> importTriggerSpecs = new ArrayList<>();
         addPrescriptiveTriggerSpecs( moveContext, importTriggerSpecs, newDn, fakeImportedEntry );
 
         Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation(
@@ -456,6 +456,7 @@ public class TriggerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
@@ -482,7 +483,7 @@ public class TriggerInterceptor extends BaseInterceptor
             deleteOldRn, oldRdn, newRdn, oldSuperiorDn, newSuperiorDn, oldDN, newDn );
 
         // Gather Trigger Specifications which apply to the entry being exported.
-        List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> exportTriggerSpecs = new ArrayList<>();
         addPrescriptiveTriggerSpecs( moveAndRenameContext, exportTriggerSpecs, oldDn, movedEntry );
         addEntryTriggerSpecs( exportTriggerSpecs, movedEntry );
 
@@ -511,7 +512,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
-        List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> importTriggerSpecs = new ArrayList<>();
         addPrescriptiveTriggerSpecs( moveAndRenameContext, importTriggerSpecs, newDn, fakeImportedEntry );
 
         Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation(
@@ -534,6 +535,7 @@ public class TriggerInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn name = renameContext.getDn();
@@ -562,7 +564,7 @@ public class TriggerInterceptor extends BaseInterceptor
             deleteOldRn, oldRdn, newRdn, oldSuperiorDn, newSuperiorDn, oldDn, newDn );
 
         // Gather Trigger Specifications which apply to the entry being renamed.
-        List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
+        List<TriggerSpecification> triggerSpecs = new ArrayList<>();
         addPrescriptiveTriggerSpecs( renameContext, triggerSpecs, name, renamedEntry );
         addEntryTriggerSpecs( triggerSpecs, renamedEntry );
 
@@ -611,12 +613,12 @@ public class TriggerInterceptor extends BaseInterceptor
     private Object executeTrigger( OperationContext opContext, TriggerSpecification tsec,
         StoredProcedureParameterInjector injector ) throws LdapException
     {
-        List<Object> returnValues = new ArrayList<Object>();
+        List<Object> returnValues = new ArrayList<>();
         List<SPSpec> spSpecs = tsec.getSPSpecs();
 
         for ( SPSpec spSpec : spSpecs )
         {
-            List<Object> arguments = new ArrayList<Object>();
+            List<Object> arguments = new ArrayList<>();
             arguments.addAll( injector.getArgumentsToInject( opContext, spSpec.getParameters() ) );
             Object[] values = arguments.toArray();
             Object returnValue = executeProcedure( opContext, spSpec.getName(), values );

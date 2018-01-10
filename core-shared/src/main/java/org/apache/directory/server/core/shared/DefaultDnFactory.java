@@ -70,6 +70,7 @@ public class DefaultDnFactory implements DnFactory
     /**
      * {@inheritDoc}
      */
+    @Override
     public Dn create( String dn ) throws LdapInvalidDnException
     {
         if ( dn == null )
@@ -134,16 +135,28 @@ public class DefaultDnFactory implements DnFactory
     /**
      * {@inheritDoc}
      */
+    @Override
     public Dn create( String... upRdns ) throws LdapInvalidDnException
     {
         StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+        
         for ( String s : upRdns )
         {
-            sb.append( s ).append( ',' );
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( ',' );
+            }
+            
+            sb.append( s );
         }
 
         String dn = sb.toString();
-        dn = dn.substring( 0, dn.length() - 1 );
+        
         return create( dn );
     }
 

@@ -111,6 +111,24 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         bindContext.setTransaction( ldapServer.getDirectoryService().getPartitionNexus().beginReadTransaction() );
 
         // Stores the Dn of the user to check, and its password
+        Dn bindDn = bindRequest.getDn();
+        
+        if ( bindDn == null )
+        {
+            String name = bindRequest.getName();
+            
+            try
+            {
+                bindDn = new Dn( directoryService.getSchemaManager(), name );
+                bindRequest.setDn( bindDn );
+            }
+            catch ( LdapInvalidDnException e )
+            {
+                // This might still be a valid DN (Windows AD binding for instance)
+                LOG.debug( "Unable to convert the name to a DN." );
+            }
+        }
+        
         bindContext.setDn( bindRequest.getDn() );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setIoSession( ldapSession.getIoSession() );

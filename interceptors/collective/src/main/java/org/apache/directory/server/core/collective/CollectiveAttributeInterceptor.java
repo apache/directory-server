@@ -86,6 +86,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
         {
             addCollectiveAttributes( operation, entry );
@@ -97,6 +98,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public String toString( String tabs )
         {
             return tabs + "CollectiveAttributeFilter";
@@ -113,6 +115,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -127,6 +130,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         checkAdd( addContext.getDn(), addContext.getEntry() );
@@ -138,6 +142,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Entry result = next( lookupContext );
@@ -158,6 +163,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         checkModify( modifyContext );
@@ -169,6 +175,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = next( searchContext );
@@ -353,7 +360,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          */
         Attribute collectiveExclusions = ( ( ClonedServerEntry ) entry ).getOriginalEntry().get(
             directoryService.getAtProvider().getCollectiveExclusions() );
-        Set<AttributeType> exclusions = new HashSet<AttributeType>();
+        Set<AttributeType> exclusions = new HashSet<>();
 
         if ( collectiveExclusions != null )
         {
@@ -371,9 +378,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 return;
             }
 
-            for ( Value<?> value : collectiveExclusions )
+            for ( Value value : collectiveExclusions )
             {
-                AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( value.getString() );
+                AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( value.getValue() );
                 exclusions.add( attrType );
                 LOG.debug( "Adding {} in the list of excluded collectiveAttributes", attrType.getName() );
             }
@@ -384,9 +391,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          * attributes of the subentry and copy collective attributes from the
          * subentry into the entry.
          */
-        for ( Value<?> value : collectiveAttributeSubentries )
+        for ( Value value : collectiveAttributeSubentries )
         {
-            String subentryDnStr = value.getString();
+            String subentryDnStr = value.getValue();
             Dn subentryDn = dnFactory.create( subentryDnStr );
 
             LOG.debug( "Applying subentries {}", subentryDn.getName() );
@@ -453,10 +460,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                  *  Add all the collective attribute values in the subentry
                  *  to the currently processed collective attribute in the entry.
                  */
-                for ( Value<?> subentryColVal : subentryColAttr )
+                for ( Value subentryColVal : subentryColAttr )
                 {
                     LOG.debug( "Adding the {} collective attribute into the entry", subentryColAttr );
-                    entryColAttr.add( subentryColVal.getString() );
+                    entryColAttr.add( subentryColVal.getValue() );
                 }
             }
         }

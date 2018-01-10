@@ -26,7 +26,6 @@ import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -116,7 +115,7 @@ public final class StoreUtils
     private static ExprNode getFilter( SchemaManager schemaManager, String principal ) throws Exception
     {
         AttributeType type = schemaManager.lookupAttributeTypeRegistry( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT );
-        Value<String> value = new StringValue( type, principal );
+        Value value = new Value( type, principal );
 
         return new EqualityNode<String>( type, value );
     }

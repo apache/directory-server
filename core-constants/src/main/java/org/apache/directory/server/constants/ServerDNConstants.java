@@ -47,13 +47,13 @@ public final class ServerDNConstants
     public static final String ADMIN_SYSTEM_DN = "uid=admin,ou=system";
 
     /** the normalized user principal or DN */
-    public static final String ADMIN_SYSTEM_DN_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
+    public static final String ADMIN_SYSTEM_DN_NORMALIZED = "0.9.2342.19200300.100.1.1= admin ,2.5.4.11= system ";
 
     /** the DN for the global schema subentry */
     public static final String CN_SCHEMA_DN = "cn=schema";
 
     /** The DN for the gloval schema subentry normalized */
-    public static final String CN_SCHEMA_DN_NORMALIZED = "2.5.4.3=schema";
+    public static final String CN_SCHEMA_DN_NORMALIZED = "2.5.4.3= schema ";
 
     /** the base dn under which all users reside */
     public static final String USERS_SYSTEM_DN = "ou=users,ou=system";

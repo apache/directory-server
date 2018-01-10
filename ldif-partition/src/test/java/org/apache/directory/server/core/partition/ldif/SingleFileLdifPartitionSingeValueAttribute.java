@@ -31,8 +31,10 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -76,6 +78,7 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
@@ -111,7 +114,7 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
     private static Entry contextEntry;
 
-    private static LdifReader reader = new LdifReader();
+    private static LdifReader reader;
 
     /** the file in use during the current test method's execution */
     private File ldifFileInUse;
@@ -146,6 +149,8 @@ public class SingleFileLdifPartitionSingeValueAttribute
         {
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
+
+        reader = new LdifReader( schemaManager );
 
         defaultCSNFactory = new CsnFactory( 0 );
 
@@ -238,7 +243,7 @@ public class SingleFileLdifPartitionSingeValueAttribute
         SingleFileLdifPartition partition = new SingleFileLdifPartition( schemaManager, dnFactory );
         partition.setId( "test-ldif" );
         partition.setPartitionPath( new File( fileName ).toURI() );
-        partition.setSuffixDn( new Dn( "ou=test,ou=system" ) );
+        partition.setSuffixDn( new Dn( schemaManager, "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
         partition.setCacheService( cacheService );
         partition.initialize();
@@ -703,8 +708,7 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         SearchOperationContext searchCtx = new SearchOperationContext( mockSession );
 
-        Dn dn = new Dn( "dc=test,ou=test,ou=system" );
-        dn.apply( schemaManager );
+        Dn dn = new Dn( schemaManager, "dc=test,ou=test,ou=system" );
         searchCtx.setDn( dn );
         ExprNode filter = FilterParser.parse( schemaManager, "(ObjectClass=domain)" );
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( schemaManager );
@@ -717,10 +721,10 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         assertNotNull( cursor );
 
-        Set<String> expectedDns = new HashSet<String>();
-        expectedDns.add( entry1.getDn().getNormName() );
-        expectedDns.add( entry2.getDn().getNormName() );
-        expectedDns.add( entry3.getDn().getNormName() );
+        Set<Dn> expectedDns = new HashSet<>();
+        expectedDns.add( entry1.getDn() );
+        expectedDns.add( entry2.getDn() );
+        expectedDns.add( entry3.getDn() );
 
         cursor.beforeFirst();
         int nbRes = 0;
@@ -731,7 +735,7 @@ public class SingleFileLdifPartitionSingeValueAttribute
             assertNotNull( entry );
             nbRes++;
 
-            expectedDns.remove( entry.getDn().getNormName() );
+            expectedDns.remove( entry.getDn() );
         }
 
         assertEquals( 3, nbRes );
@@ -846,9 +850,32 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
+        Rdn newRdn = new Rdn( schemaManager, "dc=movedChild1" );
+        
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, true );
+        
+        Entry originalEntry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        Entry modifiedEntry = originalEntry.clone();
+        modifiedEntry.setDn( childDn2.add( newRdn ) );
+        modifiedEntry.remove( "dc", "child1" );
+        modifiedEntry.add( "dc", "movedChild1" );
+        modifiedEntry.removeAttributes( "entryDn" );
+        modifiedEntry.removeAttributes( "entryParentId" );
+
+        moveAndRenameOpCtx.setEntry( originalEntry );
+        moveAndRenameOpCtx.setModifiedEntry( modifiedEntry );
+        
+        // The dc=movedChild1 RDN that will be added. The dc=child1 Ryan RDN will be removed
+        Map<String, List<ModDnAva>> modDnAvas = new HashMap<>();
+
+        List<ModDnAva> modAvas = new ArrayList<>();
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.ADD, newRdn.getAva() ) );
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.DELETE, childDn1.getRdn().getAva() ) );
+        modDnAvas.put( SchemaConstants.DOMAIN_COMPONENT_AT_OID, modAvas );
+        
+        moveAndRenameOpCtx.setModifiedAvas( modDnAvas );
+        
         partition.moveAndRename( moveAndRenameOpCtx );
 
         partition = reloadPartition();
@@ -873,11 +900,34 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         Dn childDn2 = new Dn( schemaManager, "dc=child2,ou=test,ou=system" );
 
-        Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "movedChild1" );
-        MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
-            childDn2, newRdn, false );
-        partition.moveAndRename( moveAndRenameOpCtx );
+        Rdn newRdn = new Rdn( schemaManager, "dc=movedChild1" );
 
+        MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
+            childDn2, newRdn, true );
+        
+        Entry originalEntry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        Entry modifiedEntry = originalEntry.clone();
+        modifiedEntry.setDn( childDn2.add( newRdn ) );
+        modifiedEntry.remove( "dc", "child1" );
+        modifiedEntry.add( "dc", "movedChild1" );
+        modifiedEntry.removeAttributes( "entryDn" );
+        modifiedEntry.removeAttributes( "entryParentId" );
+
+        moveAndRenameOpCtx.setEntry( originalEntry );
+        moveAndRenameOpCtx.setModifiedEntry( modifiedEntry );
+        
+        // The dc=movedChild1 RDN that will be added. The dc=child1 Ryan RDN will be removed
+        Map<String, List<ModDnAva>> modDnAvas = new HashMap<>();
+
+        List<ModDnAva> modAvas = new ArrayList<>();
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.ADD, newRdn.getAva() ) );
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.DELETE, childDn1.getRdn().getAva() ) );
+        modDnAvas.put( SchemaConstants.DOMAIN_COMPONENT_AT_OID, modAvas );
+        
+        moveAndRenameOpCtx.setModifiedAvas( modDnAvas );
+
+        partition.moveAndRename( moveAndRenameOpCtx );
+        
         partition = reloadPartition();
 
         childDn1 = new Dn( schemaManager, "dc=movedChild1,dc=child2,ou=test,ou=system" );

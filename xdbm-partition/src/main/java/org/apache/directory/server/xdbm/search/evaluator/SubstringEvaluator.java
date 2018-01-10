@@ -123,7 +123,11 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
+    @Override
     public boolean evaluate( IndexEntry<?, String> indexEntryQM ) throws LdapException
     {
         IndexEntry<String, String> indexEntry = ( IndexEntry<String, String> ) indexEntryQM;
@@ -164,12 +168,13 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
              */
             if ( attr.isHumanReadable() )
             {
-                for ( Value<?> value : attr )
+                for ( Value value : attr )
                 {
-                    String strValue = ( String ) value.getNormValue();
+                    String strValue = value.getValue();
+                    String normalizedValue = attr.getAttributeType().getEquality().getNormalizer().normalize( strValue );
 
                     // Once match is found cleanup and return true
-                    if ( regex.matcher( strValue ).matches() )
+                    if ( regex.matcher( normalizedValue ).matches() )
                     {
                         // before returning we set the normalized value
                         indexEntry.setKey( strValue );
@@ -181,9 +186,9 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
             {
                 // Slightly more complex. We won't be able to use a regex to check
                 // the value.
-                for ( Value<?> value : attr )
+                for ( Value value : attr )
                 {
-                    byte[] byteValue = ( byte[] ) value.getNormValue();
+                    byte[] byteValue = value.getBytes();
 
                     // Once match is found cleanup and return true
                     // @TODO : implement this check.
@@ -226,12 +231,13 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
                      * The test uses the comparator obtained from the appropriate
                      * substring matching rule.
                      */
-                    for ( Value<?> value : attr )
+                    for ( Value value : attr )
                     {
-                        String strValue = ( String ) value.getNormValue();
+                        String strValue = value.getValue();
+                        String normalizedValue = attr.getAttributeType().getEquality().getNormalizer().normalize( strValue );
 
                         // Once match is found cleanup and return true
-                        if ( regex.matcher( strValue ).matches() )
+                        if ( regex.matcher( normalizedValue ).matches() )
                         {
                             // before returning we set the normalized value
                             indexEntry.setKey( strValue );
@@ -247,6 +253,10 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( Entry entry ) throws Exception
     {
         // get the attribute
@@ -261,9 +271,9 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
              * The test uses the comparator obtained from the appropriate
              * substring matching rule.
              */
-            for ( Value<?> value : attr )
+            for ( Value value : attr )
             {
-                String strValue = ( String ) value.getNormValue();
+                String strValue = value.getValue();
 
                 // Once match is found cleanup and return true
                 if ( regex.matcher( strValue ).matches() )
@@ -300,9 +310,9 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
                      * The test uses the comparator obtained from the appropriate
                      * substring matching rule.
                      */
-                    for ( Value<?> value : attr )
+                    for ( Value value : attr )
                     {
-                        String strValue = ( String ) value.getNormValue();
+                        String strValue = value.getValue();
 
                         // Once match is found cleanup and return true
                         if ( regex.matcher( strValue ).matches() )
@@ -325,6 +335,10 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public SubstringNode getExpression()
     {
         return node;
@@ -334,6 +348,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -347,6 +362,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return toString( "" );

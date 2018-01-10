@@ -79,6 +79,7 @@ public abstract class ServerOsgiTestBase
         File targetTestClassesDir = new File( resource.getFile() );
         File targetDependenciesDir = new File( targetTestClassesDir.getParent(), "dependency" );
         File[] files = targetDependenciesDir.listFiles();
+        
         for ( File file : files )
         {
             if ( !SKIPS.contains( file.getName() ) )
@@ -95,8 +96,10 @@ public abstract class ServerOsgiTestBase
             systemProperty( "logback.configurationFile" ).value(
                 "file:" + PathUtils.getBaseDir() + "/src/test/resources/logback.xml" ),
             systemPackages( "javax.xml.stream;version=1.0.0", "javax.xml.stream.util;version=1.0.0",
-                "javax.xml.stream.events;version=1.0.0" ), mavenBundle( "ch.qos.logback", "logback-classic", "1.0.6" ),
-            mavenBundle( "ch.qos.logback", "logback-core", "1.0.6" ), junitBundles(),
+                "javax.xml.stream.events;version=1.0.0" ), 
+            mavenBundle( "ch.qos.logback", "logback-classic", "1.0.6" ),
+            mavenBundle( "ch.qos.logback", "logback-core", "1.0.6" ), 
+            junitBundles(),
             composite( dependencies.toArray( new Option[0] ) ) );
     }
 
@@ -116,12 +119,14 @@ public abstract class ServerOsgiTestBase
         boolean bundleFound = false;
         boolean bundleActive = false;
         Bundle[] bundles = context.getBundles();
+        
         for ( Bundle bundle : bundles )
         {
             //System.out.println( "### bundle=" + bundle + " " + bundle.getState() );
             if ( bundle != null && bundle.getSymbolicName() != null && bundle.getSymbolicName().equals( bundleName ) )
             {
                 bundleFound = true;
+                
                 if ( bundle.getState() == Bundle.ACTIVE )
                 {
                     bundleActive = true;

@@ -99,7 +99,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
     public boolean checkCanModifyAs( String uid, String password, String entryRdn, Modification[] mods )
         throws Exception
     {
-        Dn entryDn = new Dn( entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( getService().getSchemaManager(), entryRdn + ",ou=system" );
         boolean result;
 
         // create the entry with the telephoneNumber attribute to compare
@@ -113,7 +113,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
         // create the entry as admin
         adminConnection.add( testEntry );
 
-        Dn userName = new Dn( "uid=" + uid + ",ou=users,ou=system" );
+        Dn userName = new Dn( getService().getSchemaManager(), "uid=" + uid + ",ou=users,ou=system" );
         // compare the telephone numbers
         LdapConnection userConnection = getConnectionAs( userName, password );
 
@@ -332,14 +332,32 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
         // Gives grantModify, and grantRead perm to all users in the TestGroup group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorModifyAdd", "{ " + "  identificationTag \"addAci\", "
-            + "  precedence 14, " + "  authenticationLevel none, " + "  itemOrUserFirst userFirst: " + "  { "
-            + "    userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "    userPermissions "
-            + "    { " + "      { " + "        protectedItems {entry}, "
-            + "        grantsAndDenials { grantModify, grantBrowse } " + "      }, " + "      { "
-            + "        protectedItems " + "        {" + "          attributeType {registeredAddress}, "
-            + "          allAttributeValues {registeredAddress}" + "        }, "
-            + "        grantsAndDenials { grantAdd } " + "      } " + "    } " + "  } " + "}" );
+        createAccessControlSubentry( 
+            "administratorModifyAdd", 
+            "{ " + 
+            "  identificationTag \"addAci\", " +
+            "  precedence 14, " + 
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: " + 
+            "  { " +
+            "    userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + 
+            "    userPermissions " +
+            "    { " + 
+            "      { " + 
+            "        protectedItems {entry}, " +
+            "        grantsAndDenials { grantModify, grantBrowse } " + 
+            "      }, " + 
+            "      { " +
+            "        protectedItems " + 
+            "        {" + 
+            "          attributeType {registeredAddress}, " +
+            "          allAttributeValues {registeredAddress}" + 
+            "        }, " +
+            "        grantsAndDenials { grantAdd } " + 
+            "      } " + 
+            "    } " + 
+            "  } " + 
+            "}" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group

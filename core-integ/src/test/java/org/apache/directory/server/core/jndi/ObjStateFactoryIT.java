@@ -74,7 +74,7 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
         Person me = ( Person ) obj;
         assertEquals( attrs.get( "sn" ).get(), me.getLastname() );
         assertEquals( attrs.get( "cn" ).get(), me.getCn() );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), Strings.getBytesUtf8( "test" ) ) );
+        assertEquals( "test", Strings.utf8ToString( ( byte[] ) attrs.get( "userPassword" ).get() ) );
         assertEquals( attrs.get( "telephonenumber" ).get(), me.getTelephoneNumber() );
         assertNull( me.getSeealso() );
         assertNull( me.getDescription() );
@@ -92,7 +92,7 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
         Attributes attrs = sysRoot.getAttributes( "sn=Rodriguez, ou=users" );
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), Strings.getBytesUtf8( "noices" ) ) );
+        assertEquals( "noices", Strings.utf8ToString( ( byte[] ) attrs.get( "userPassword" ).get() ) );
         assertEquals( "555-1212", attrs.get( "telephonenumber" ).get() );
         assertEquals( "sn=erodriguez", attrs.get( "seealso" ).get() );
         assertEquals( "committer", attrs.get( "description" ).get() );

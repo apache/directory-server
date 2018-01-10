@@ -29,7 +29,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.store.AbstractStore;
 
@@ -54,6 +58,7 @@ import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlPartitionTest;
@@ -88,7 +93,6 @@ public class PartitionTest
     private static AttributeType CN_AT;
 
     private static CacheService cacheService;
-
 
     @BeforeClass
     public static void setup() throws Exception
@@ -127,6 +131,7 @@ public class PartitionTest
     @Before
     public void createStore() throws Exception
     {
+        StoreUtils.createdExtraAttributes( schemaManager );
 
         // initialize the partition
         partition = new AvlPartition( schemaManager, dnFactory );
@@ -200,13 +205,13 @@ public class PartitionTest
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: no "uidObject" tuple in objectClass index
-        assertFalse( partition.getObjectClassIndex().forward( "uidObject", entryId ) );
+        assertFalse( partition.getObjectClassIndex().forward( "1.3.6.1.1.3.1", entryId ) );
         assertFalse( lookedup.get( "objectClass" ).contains( "uidObject" ) );
 
         lookedup = partition.modify( dn, add );
 
         // after modification: expect "uidObject" tuple in objectClass index
-        assertTrue( partition.getObjectClassIndex().forward( "uidObject", entryId ) );
+        assertTrue( partition.getObjectClassIndex().forward( "1.3.6.1.1.3.1", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "uidObject" ) );
     }
 
@@ -224,20 +229,20 @@ public class PartitionTest
         String attribVal = "sales";
         attrib.add( attribVal );
 
-        Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        Modification remove = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
         String entryId = partition.getEntryId( dn );
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "sales" tuple in ou index
         Index<String, String> ouIndex = ( Index<String, String> ) partition.getUserIndex( OU_AT );
-        assertTrue( ouIndex.forward( "sales", entryId ) );
+        assertTrue( ouIndex.forward( " sales ", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
-        lookedup = partition.modify( dn, add );
+        lookedup = partition.modify( dn, remove );
 
         // after modification: no "sales" tuple in ou index
-        assertFalse( ouIndex.forward( "sales", entryId ) );
+        assertFalse( ouIndex.forward( " sales ", entryId ) );
         assertNull( lookedup.get( "ou" ) );
     }
 
@@ -253,23 +258,23 @@ public class PartitionTest
 
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
-        Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
+        Modification mod = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
         String entryId = partition.getEntryId( dn );
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "sales" tuple in ou index
         Index<String, String> ouIndex = ( Index<String, String> ) partition.getUserIndex( OU_AT );
-        assertTrue( partition.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
-        assertTrue( ouIndex.forward( "sales", entryId ) );
+        assertTrue( partition.getPresenceIndex().forward( "2.5.4.11", entryId ) );
+        assertTrue( ouIndex.forward( " sales ", entryId ) );
         assertTrue( lookedup.get( "ou" ).contains( "sales" ) );
 
-        lookedup = partition.modify( dn, add );
+        lookedup = partition.modify( dn, mod );
 
         // after modification: no "sales" tuple in ou index
-        assertFalse( partition.getPresenceIndex().forward( SchemaConstants.OU_AT_OID, entryId ) );
+        assertFalse( partition.getPresenceIndex().forward( "2.5.4.11", entryId ) );
         assertFalse( ouIndex.reverse( entryId ) );
-        assertFalse( ouIndex.forward( "sales", entryId ) );
+        assertFalse( ouIndex.forward( " sales ", entryId ) );
         assertNull( lookedup.get( "ou" ) );
     }
 
@@ -294,13 +299,13 @@ public class PartitionTest
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "person" tuple in objectClass index
-        assertTrue( partition.getObjectClassIndex().forward( "person", entryId ) );
+        assertTrue( partition.getObjectClassIndex().forward( "2.5.6.6", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
         lookedup = partition.modify( dn, add );
 
         // after modification: no "person" tuple in objectClass index
-        assertFalse( partition.getObjectClassIndex().forward( "person", entryId ) );
+        assertFalse( partition.getObjectClassIndex().forward( "2.5.6.6", entryId ) );
         assertFalse( lookedup.get( "objectClass" ).contains( "person" ) );
     }
 
@@ -322,13 +327,13 @@ public class PartitionTest
         Entry lookedup = partition.fetch( entryId );
 
         // before modification: expect "person" tuple in objectClass index
-        assertTrue( partition.getObjectClassIndex().forward( "person", entryId ) );
+        assertTrue( partition.getObjectClassIndex().forward( "2.5.6.6", entryId ) );
         assertTrue( lookedup.get( "objectClass" ).contains( "person" ) );
 
         lookedup = partition.modify( dn, add );
 
         // after modification: no tuple in objectClass index
-        assertFalse( partition.getObjectClassIndex().forward( "person", entryId ) );
+        assertFalse( partition.getObjectClassIndex().forward( "2.5.6.6", entryId ) );
         assertNull( lookedup.get( "objectClass" ) );
     }
 
@@ -397,7 +402,15 @@ public class PartitionTest
         Dn oldDn = newDn;
         Rdn newRdn = new Rdn( schemaManager, "cn=userMovedAndRenamed" );
 
-        partition.moveAndRename( oldDn, newParentDn, newRdn, entry, false );
+        // The cn=userMovedAndRenamed RDN that will be added. We keep the 
+        // cn=user attribute
+        Map<String, List<ModDnAva>> modDnAvas = new HashMap<>();
+
+        List<ModDnAva> modAvas = new ArrayList<>();
+        modAvas.add( new ModDnAva( ModDnAva.ModDnType.ADD, newRdn.getAva()) );
+        modDnAvas.put( SchemaConstants.CN_AT_OID, modAvas );
+
+        partition.moveAndRename( oldDn, newParentDn, newRdn, modDnAvas, entry );
         verifyParentId( newParentDn.add( newRdn ) );
     }
 

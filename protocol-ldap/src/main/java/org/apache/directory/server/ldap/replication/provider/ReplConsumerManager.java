@@ -35,7 +35,7 @@ import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
@@ -263,8 +263,8 @@ public class ReplConsumerManager
         List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
 
         // Search for all the consumers
-        ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), new StringValue(
-            SchemaConstants.ADS_REPL_EVENT_LOG ) );
+        ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), 
+            new Value( directoryService.getAtProvider().getObjectClass(), SchemaConstants.ADS_REPL_EVENT_LOG ) );
         SearchRequest searchRequest = new SearchRequestImpl();
         searchRequest.setBase( replConsumerDn );
         searchRequest.setScope( SearchScope.ONELEVEL );
@@ -296,7 +296,7 @@ public class ReplConsumerManager
         String id = entry.get( SchemaConstants.ADS_DS_REPLICA_ID ).getString();
         ReplicaEventLog replica = new ReplicaEventLog( directoryService, Integer.parseInt( id ) );
 
-        NotificationCriteria searchCriteria = new NotificationCriteria();
+        NotificationCriteria searchCriteria = new NotificationCriteria( schemaManager );
 
         String aliasMode = entry.get( SchemaConstants.ADS_REPL_ALIAS_DEREF_MODE ).getString();
         searchCriteria.setAliasDerefMode( AliasDerefMode.getDerefMode( aliasMode ) );

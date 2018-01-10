@@ -132,6 +132,8 @@ public class NestedFilterTest extends AbstractCursorTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
 
+        StoreUtils.createdExtraAttributes( schemaManager );
+        
         // initialize the store
         store = new AvlPartition( schemaManager, directoryService.getDnFactory() );
         ( ( Partition ) store ).setId( "example" );

@@ -143,8 +143,7 @@ public class ApacheDsService
 
     /**
      * Starts various services configured according to the
-     * configuration present in the given instance's layout
-     *
+     * 
      * @param instanceLayout the on disk location's layout of the instance to be started
      * @throws Exception If we failed to start the server
      */
@@ -153,9 +152,9 @@ public class ApacheDsService
         start( instanceLayout, true );
     }
 
-
+    
     /**
-     * Starts various services configured according to the
+     * starts various services configured according to the
      * configuration present in the given instance's layout
      *
      * @param instanceLayout the on disk location's layout of the instance to be started
@@ -199,7 +198,7 @@ public class ApacheDsService
 
         // start the LDAP server
         startLdap( directoryServiceBean.getLdapServerBean(), directoryService, startServers );
-    
+
         // start the NTP server
         startNtp( directoryServiceBean.getNtpServerBean(), directoryService, startServers );
 
@@ -210,18 +209,18 @@ public class ApacheDsService
         // initDhcp( configBean );
 
         // start the ChangePwd server (Not ready yet)
-        //startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService, startServers );
+        //startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService );
 
         // start the Kerberos server
         startKerberos( directoryServiceBean, directoryService, startServers );
 
         // start the jetty http server
         startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService, startServers );
-    
+        
         LOG.info( "Registering config change listener" );
         ConfigChangeListener configListener = new ConfigChangeListener( cpReader, directoryService );
 
-        NotificationCriteria criteria = new NotificationCriteria();
+        NotificationCriteria criteria = new NotificationCriteria( directoryService.getSchemaManager() );
         criteria.setBase( configPartition.getSuffixDn() );
         criteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
         

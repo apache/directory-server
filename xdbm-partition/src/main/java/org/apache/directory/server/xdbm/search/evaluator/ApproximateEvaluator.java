@@ -82,6 +82,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
     /**
      * {@inheritDoc}
      */
+    @Override
     public ApproximateNode<T> getExpression()
     {
         return ( ApproximateNode<T> ) node;
@@ -91,6 +92,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean evaluate( Entry entry ) throws LdapException
     {
         // get the attribute
@@ -133,6 +135,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
@@ -166,9 +169,9 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
          * appropriate matching rule to perform the check.
          */
 
-        for ( Value<?> value : attribute )
+        for ( Value value : attribute )
         {
-            if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) == 0 )
+            if ( value.compareTo( node.getValue() )  == 0 )
             {
                 return true;
             }
@@ -181,6 +184,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -194,6 +198,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return toString( "" );

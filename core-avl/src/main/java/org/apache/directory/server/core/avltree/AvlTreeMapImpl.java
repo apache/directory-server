@@ -100,6 +100,47 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
         return valueComparator;
     }
 
+    
+    private void dump( LinkedAvlMapNode<K, V> node )
+    {
+        if ( node.left != null )
+        {
+            dump( node.left );
+        }
+        
+        if ( node.value.isSingleton() )
+        {
+            System.out.print( "<" + node.key + "," + node.value.getSingleton()  + ">" );
+        }
+        else
+        {
+            AvlTree<V> values = node.value.getOrderedSet();
+            System.out.print( "<" + node.key + "," );
+            boolean isFirst = true;
+            
+            for ( V value : values.getKeys() )
+            {
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    System.out.print( "," );
+                }
+                
+                System.out.print( value );
+            }
+            
+            System.out.print( ">" );
+            
+        }
+        
+        if ( node.right != null )
+        {
+            dump( node.right );
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -122,7 +163,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
         node = new LinkedAvlMapNode<K, V>( key, value );
 
         temp = root;
-
+        
         List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<LinkedAvlMapNode<K, V>>();
 
         while ( temp != null )
@@ -134,15 +175,19 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
 
             if ( c == 0 )
             {
+                V returnValue;
+                
                 if ( allowDuplicates )
                 {
-                    return insertDupKey( value, temp ); // key already exists add another value
+                    returnValue = insertDupKey( value, temp ); // key already exists add another value
                 }
                 else
                 {
                     // replace the existing value with the new value
-                    return temp.value.setSingleton( value );
+                    returnValue = temp.value.setSingleton( value );
                 }
+                
+                return returnValue;
             }
 
             if ( c < 0 )
@@ -158,6 +203,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
         }
 
         c = keyComparator.compare( key, parent.getKey() );
+        
         if ( c < 0 )
         {
             parent.setLeft( node );
@@ -173,6 +219,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
         balance( treePath );
 
         size++;
+
         return null;
     }
 

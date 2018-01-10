@@ -124,5 +124,5 @@ public interface ReferralManager
      * @param suffixes The partition Dn to remove
      * @exception If the removal failed
      */
-    void remove( DirectoryService directoryService, Dn suffix ) throws Exception;
+    void remove( DirectoryService directoryService, Dn suffixes ) throws Exception;
 }

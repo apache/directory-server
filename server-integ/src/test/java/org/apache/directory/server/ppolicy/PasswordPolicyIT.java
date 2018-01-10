@@ -1,5 +1,5 @@
 /*
- *   Licensed to the Apache Software Foundation (ASF) under one
+x@x@@ *   Licensed to the Apache Software Foundation (ASF) under one
  *   or more contributor license agreements.  See the NOTICE file
  *   distributed with this work for additional information
  *   regarding copyright ownership.  The ASF licenses this file
@@ -1119,7 +1119,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         policyConfig.setPwdMaxFailure( 3 );
         policyConfig.setPwdLockout( true );
 
-        Dn userDn = new Dn( "cn=userLockout,ou=system" );
+        Dn userDn = new Dn( getService().getSchemaManager(), "cn=userLockout,ou=system" );
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
         addUser( adminConnection, "userLockout", "12345" );

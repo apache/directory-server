@@ -151,7 +151,10 @@ public class LdifPartition extends AbstractLdifPartition
                 throw new LdapInvalidDnException( msg );
             }
 
-            suffixDn.apply( schemaManager );
+            if ( !suffixDn.isSchemaAware() )
+            {
+                suffixDn = new Dn( schemaManager, suffixDn );
+            }
 
             String suffixDirName = getFileName( suffixDn );
             suffixDirectory = new File( partitionDir, suffixDirName );
@@ -207,7 +210,7 @@ public class LdifPartition extends AbstractLdifPartition
                     // Checking if the context entry DN is schema aware
                     if ( !contextEntryDn.isSchemaAware() )
                     {
-                        contextEntryDn.apply( schemaManager );
+                        contextEntryDn = new Dn( schemaManager, contextEntryDn );
                     }
 
                     // We're only adding the entry if the two DNs are equal
@@ -501,7 +504,7 @@ public class LdifPartition extends AbstractLdifPartition
 
         if ( ( entries != null ) && ( entries.length != 0 ) )
         {
-            LdifReader ldifReader = new LdifReader();
+            LdifReader ldifReader = new LdifReader( schemaManager );
 
             for ( File entry : entries )
             {
@@ -529,6 +532,7 @@ public class LdifPartition extends AbstractLdifPartition
 
                     // call add on the wrapped partition not on the self
                     AddOperationContext addContext = new AddOperationContext( null, serverEntry );
+                    
                     super.add( addContext );
                 }
             }
@@ -635,11 +639,11 @@ public class LdifPartition extends AbstractLdifPartition
             
             if ( at.getSyntax().isHumanReadable() )
             {
-                normValue = ava.getValue().getNormValue().toString();
+                normValue = ava.getValue().getValue();
             }
             else
             {
-                normValue = Strings.utf8ToString( ( byte[] ) ava.getValue().getNormValue() );
+                normValue = Strings.utf8ToString( ava.getValue().getBytes() );
             }
 
             fileName.append( atName ).append( "=" ).append( normValue );
@@ -674,7 +678,7 @@ public class LdifPartition extends AbstractLdifPartition
             String atName = at.getName();
 
             // Now, get the normalized value
-            String normValue = rdn.getNormValue();
+            String normValue = rdn.getAva().getValue().getValue();
 
             if ( isFirst )
             {

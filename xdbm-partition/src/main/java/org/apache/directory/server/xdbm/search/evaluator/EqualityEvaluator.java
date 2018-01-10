@@ -20,7 +20,6 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
-import java.util.Comparator;
 import java.util.Iterator;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -31,10 +30,7 @@ import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.api.ldap.model.schema.comparators.ByteArrayComparator;
-import org.apache.directory.api.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.api.ldap.model.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -48,13 +44,6 @@ import org.apache.directory.server.xdbm.Store;
  */
 public class EqualityEvaluator<T> extends LeafEvaluator<T>
 {
-    /** The default byte[] comparator if no comparator has been defined */
-    private static final Comparator<byte[]> BINARY_COMPARATOR = new ByteArrayComparator( null );
-
-    /** The default String comparator if no comparator has been defined */
-    private static final Comparator<String> STRING_COMPARATOR = new StringComparator( null );
-
-
     @SuppressWarnings("unchecked")
     public EqualityEvaluator( EqualityNode<T> node, Store db, SchemaManager schemaManager )
         throws Exception
@@ -81,12 +70,20 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public EqualityNode<T> getExpression()
     {
         return ( EqualityNode<T> ) node;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
@@ -109,6 +106,10 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( Entry entry ) throws LdapException
     {
         // get the attribute
@@ -163,58 +164,28 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
          * normalizer.  The test uses the comparator obtained from the
          * appropriate matching rule to perform the check.
          */
-        for ( Value<?> value : attribute )
+        for ( Value value : attribute )
         {
             //noinspection unchecked
             if ( value.isHumanReadable() )
             {
                 // Deal with a String value
-                String serverValue = ( ( Value<String> ) value ).getNormValue();
-                String nodeValue = null;
+                String serverValue = value.getNormalized();
+                String nodeValue = node.getValue().getNormalized();
 
-                if ( node.getValue().isHumanReadable() )
+                if ( serverValue.compareTo( nodeValue ) == 0 )
                 {
-                    nodeValue = ( ( Value<String> ) node.getValue() ).getNormValue();
-                }
-                else
-                {
-                    nodeValue = Strings.utf8ToString( ( ( Value<byte[]> ) node.getValue() ).getNormValue() );
-                }
-
-                if ( ldapComparator != null )
-                {
-                    if ( ldapComparator.compare( serverValue, nodeValue ) == 0 )
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    if ( STRING_COMPARATOR.compare( serverValue, nodeValue ) == 0 )
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
             else
             {
                 // Deal with a binary value
-                byte[] serverValue = ( ( Value<byte[]> ) value ).getNormValue();
-                byte[] nodeValue = ( ( Value<byte[]> ) node.getValue() ).getNormValue();
+                byte[] nodeValue = node.getValue().getBytes();
 
-                if ( ldapComparator != null )
+                if ( value.compareTo( nodeValue ) == 0 )
                 {
-                    if ( ldapComparator.compare( ( Object ) serverValue, ( Object ) nodeValue ) == 0 )
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    if ( BINARY_COMPARATOR.compare( serverValue, nodeValue ) == 0 )
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
@@ -226,6 +197,7 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -239,6 +211,7 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return toString( "" );

@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.comparators.DnComparator;
 import org.apache.directory.mavibot.btree.serializer.AbstractElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.BufferHandler;
 import org.apache.directory.server.i18n.I18n;
@@ -59,25 +60,12 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
 
     private static Comparator<Dn> comp = new Comparator<Dn>()
     {
+        DnComparator comparator = new DnComparator( null );
+        
         @Override
         public int compare( Dn dn1, Dn dn2 )
         {
-            if ( dn1 == null )
-            {
-                if ( dn2 == null )
-                {
-                    return 0;
-                }
-
-                return -1;
-            }
-
-            if ( dn2 == null )
-            {
-                return 1;
-            }
-
-            return dn1.getNormName().compareTo( dn2.getNormName() );
+            return comparator.compare( dn1,  dn2 );
         }
     };
 
@@ -133,6 +121,7 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
      *  @return An instance of a Dn object 
      *  @throws IOException if we can't deserialize the Dn
      */
+    @Override
     public Dn deserialize( ByteBuffer buffer ) throws IOException
     {
         return deserialize( new BufferHandler( buffer.array() ) );

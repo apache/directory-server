@@ -28,7 +28,7 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 
 
 /**
- * TODO - can we get some documentation on this?
+ * An interface defining the way STored Procedure parameter get injected 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

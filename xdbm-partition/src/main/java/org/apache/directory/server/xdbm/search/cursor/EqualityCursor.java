@@ -86,12 +86,13 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         this.equalityEvaluator = equalityEvaluator;
 
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
-        Value<V> value = equalityEvaluator.getExpression().getValue();
+        Value value = equalityEvaluator.getExpression().getValue();
 
         if ( store.hasIndexOn( attributeType ) )
         {
             Index<V, String> userIndex = ( Index<V, String> ) store.getIndex( attributeType );
-            userIdxCursor = userIndex.forwardCursor( value.getValue() );
+            String normalizedValue = attributeType.getEquality().getNormalizer().normalize( value.getValue() );
+            userIdxCursor = userIndex.forwardCursor( ( V ) normalizedValue );
             uuidIdxCursor = null;
         }
         else

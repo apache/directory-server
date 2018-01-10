@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M25-SNAPSHOT</version>
+    <version>2.0.0.AM25-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-core-integ</artifactId>
@@ -162,19 +162,37 @@
       </plugin>
       
       <plugin>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>maven-bundle-plugin</artifactId>
-            <inherited>true</inherited>
-            <extensions>true</extensions>
-            <configuration>
-              <instructions>
-                <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                <Export-Package>
-                    {local-packages};version=${project.version};-noimport:=true
-                </Export-Package>
-              </instructions>
-            </configuration>
-          </plugin> 
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <inherited>true</inherited>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>
+                org.apache.directory.server.core.integ;version=${project.version}
+            </Export-Package>
+            <Import-Package>
+                javax.naming,
+                javax.naming.ldap,
+                org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.ldif;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.schema.registries;version=${org.apache.directory.api.version},
+                org.apache.directory.api.util;version=${org.apache.directory.api.version},
+                org.apache.directory.ldap.client.api;version=${org.apache.directory.api.version},
+                org.apache.directory.server.constants;version=${project.version},
+                org.apache.directory.server.core.api;version=${project.version},
+                org.apache.directory.server.core.jndi;version=${project.version},
+                org.apache.directory.server.i18n;version=${project.version},
+                org.apache.directory.server.ldap;version=${project.version},
+                org.slf4j;version=${slf4j.api.bundleversion}
+            </Import-Package>
+          </instructions>
+        </configuration>
+      </plugin> 
     </plugins>
   </build>
 

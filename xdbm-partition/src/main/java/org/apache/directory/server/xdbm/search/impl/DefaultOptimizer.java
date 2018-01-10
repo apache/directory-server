@@ -297,7 +297,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @param node the node to get a scan count for 
      * @return the worst case
      * @throws Exception if there is an error accessing an index
-     *
+     */
     @SuppressWarnings("unchecked")
     private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
     {
@@ -305,45 +305,18 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             Index<V, String> idx = ( Index<V, String> ) db.getIndex( node.getAttributeType() );
 
-            long count = idx.count( node.getValue().getValue() );
+            String normalizedKey;
             
-            if ( count < 100L )
+            if ( node.getValue().isSchemaAware() )
             {
-                Cursor<String> result = idx.forwardValueCursor( node.getValue().getValue() );
-                Set<String> values = new HashSet<String>();
-
-                for ( String value : result )
-                {
-                    values.add( value );
-                }
-
-                result.close();
-
-                // Store the found candidates in the node
-                node.set( CANDIDATES_ANNOTATION_KEY, values );
-
-                return values.size();
+                normalizedKey = node.getValue().getNormalized();
             }
             else
             {
-                node.set( CANDIDATES_ANNOTATION_KEY, null );
-                
-                return count;
+                normalizedKey = node.getAttributeType().getEquality().getNormalizer().normalize( node.getValue().getValue() );
             }
-        }
-
-        // count for non-indexed attribute is unknown so we presume da worst
-        return Long.MAX_VALUE;
-    }
-    */
-    @SuppressWarnings("unchecked")
-    private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
-    {
-        if ( db.hasIndexOn( node.getAttributeType() ) )
-        {
-            Index<V, String> idx = ( Index<V, String> ) db.getIndex( node.getAttributeType() );
-
-            Cursor<String> result = idx.forwardValueCursor( node.getValue().getValue() );
+            
+            Cursor<String> result = idx.forwardValueCursor( ( V ) normalizedKey );
             Set<String> values = new HashSet<String>();
             int nbFound = 0;
 
@@ -373,7 +346,7 @@ public class DefaultOptimizer<E> implements Optimizer
                 // Reset the candidates annotation
                 node.set( CANDIDATES_ANNOTATION_KEY, null );
 
-                return idx.count( node.getValue().getValue() );
+                return idx.count( ( V ) node.getValue().getNormalized() );
             }
         }
 
@@ -400,11 +373,11 @@ public class DefaultOptimizer<E> implements Optimizer
 
             if ( isGreaterThan )
             {
-                return idx.greaterThanCount( node.getValue().getValue() );
+                return idx.greaterThanCount( ( V ) node.getValue().getValue() );
             }
             else
             {
-                return idx.lessThanCount( node.getValue().getValue() );
+                return idx.lessThanCount( ( V ) node.getValue().getValue() );
             }
         }
 

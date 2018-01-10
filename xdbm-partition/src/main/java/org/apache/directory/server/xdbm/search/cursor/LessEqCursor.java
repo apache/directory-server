@@ -222,11 +222,15 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     public void afterLast() throws LdapException, CursorException
     {
         checkNotClosed( "afterLast()" );
+        
         if ( userIdxCursor != null )
         {
             IndexEntry<V, String> advanceTo = new IndexEntry<V, String>();
             //noinspection unchecked
-            advanceTo.setKey( lessEqEvaluator.getExpression().getValue().getValue() );
+            String normalizedKey = lessEqEvaluator.getAttributeType().getEquality().getNormalizer().normalize( 
+                lessEqEvaluator.getExpression().getValue().getValue() );
+            
+            advanceTo.setKey( ( V ) normalizedKey );
             userIdxCursor.after( advanceTo );
         }
         else

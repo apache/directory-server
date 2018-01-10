@@ -57,7 +57,7 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
         WrapperManager.start( new ApacheDsTanukiWrapper(), args );
     }
 
-
+    
     /**
      * Try to repair the databases
      *
@@ -67,10 +67,10 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
     {
         System.out.println( "Trying to repair the following data :" + instanceDirectory );
         InstanceLayout layout = new InstanceLayout( instanceDirectory );
-
+        
         // Creating ApacheDS service
         service = new ApacheDsService();
-
+        
         // Initializing the service
         try
         {
@@ -99,7 +99,7 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
             stop( 1 );
             System.exit( ExitCodes.START );
         }
-
+        
         // Stop the service
         stop( 0 );
     }
@@ -152,21 +152,21 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
                     // Process the action
                     switch ( Strings.toLowerCaseAscii( action ) )
                     {
-                        case "stop":
+                        case "stop" :
                             // Stops the server
                             LOG.debug( "Stopping runtime" );
                             stop( 1 );
-
+                            
                             break;
 
-                        case "repair":
+                        case "repair" :
                             // Try to fix the JDBM database
                             LOG.debug( "Fixing the database runtime" );
                             repair( instanceDirectory );
-
+                            
                             break;
-
-                        default:
+                            
+                        default :
                             // Starts the server
                             LOG.debug( "Starting runtime" );
 
@@ -179,7 +179,7 @@ public final class ApacheDsTanukiWrapper implements WrapperListener
                                 LOG.error( "Failed to start the service.", e );
                                 System.exit( ExitCodes.START );
                             }
-
+                            
                             break;
                     }
                     

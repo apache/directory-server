@@ -41,6 +41,10 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
  */
 public class MaxValueCountFilter implements ACITupleFilter
 {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {
@@ -49,7 +53,7 @@ public class MaxValueCountFilter implements ACITupleFilter
             return aciContext.getAciTuples();
         }
 
-        if ( aciContext.getAciTuples().size() == 0 )
+        if ( aciContext.getAciTuples().isEmpty() )
         {
             return aciContext.getAciTuples();
         }

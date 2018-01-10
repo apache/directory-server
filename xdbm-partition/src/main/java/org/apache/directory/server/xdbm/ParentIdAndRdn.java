@@ -189,6 +189,7 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
     /**
      * {@inheritDoc}
      */
+    @Override
     public int compareTo( ParentIdAndRdn that )
     {
         // Special case when that.rdns = null : we are searching for oneLevel or subLevel scope
@@ -229,7 +230,6 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
         }
 
         // The ID is the same, check the RDNs now
-
         val = rdns.length - that.rdns.length;
 
         if ( val != 0 )
@@ -240,15 +240,29 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
         if ( rdns.length == 1 )
         {
             // Special case : we only have one rdn.
-            val = rdns[0].getNormName().compareTo( that.rdns[0].getNormName() );
+            // first try with the normalized name
+            if ( rdns[0].getNormName() != null )
+            {
+                return rdns[0].getNormName().compareTo( that.rdns[0].getNormName() );
+            }
+
+            val = rdns[0].compareTo( that.rdns[0] );
 
             return val;
         }
         else
         {
+            // We need to compare the Rdns in the order they are given.
+            // Actually, this is a Dn, not a Rdn.
             for ( int i = 0; i < rdns.length; i++ )
             {
-                val = rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
+                // first try with the normalized name
+                if ( rdns[i].getNormName() != null )
+                {
+                    return rdns[i].getNormName().compareTo( that.rdns[i].getNormName() );
+                }
+
+                val = rdns[i].compareTo( that.rdns[i] );
 
                 if ( val != 0 )
                 {
@@ -261,6 +275,10 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         out.writeUTF( parentId );
@@ -275,7 +293,11 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
+    @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         parentId = in.readUTF();
@@ -334,6 +356,7 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

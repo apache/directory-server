@@ -37,7 +37,7 @@ public class PpolicyConfigContainer
 {
 
     /** a map holding the entry specific password policies */
-    private Map<Dn, PasswordPolicyConfiguration> ppolicyConfigMap = new HashMap<Dn, PasswordPolicyConfiguration>();
+    private Map<Dn, PasswordPolicyConfiguration> ppolicyConfigMap = new HashMap<>();
 
     /** the default password policy Dn */
     private Dn defaultPolicyDn;
@@ -65,7 +65,7 @@ public class PpolicyConfigContainer
      */
     public boolean hasCustomConfigs()
     {
-        return ( !ppolicyConfigMap.isEmpty() );
+        return !ppolicyConfigMap.isEmpty();
     }
 
 

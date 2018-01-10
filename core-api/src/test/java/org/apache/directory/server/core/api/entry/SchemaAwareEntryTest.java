@@ -43,11 +43,9 @@ import javax.naming.directory.BasicAttributes;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -245,7 +243,7 @@ public class SchemaAwareEntryTest
         Attribute attributePWD = entry.get( "userPassword" );
         assertEquals( 1, attributePWD.size() );
         assertNotNull( attributePWD.get() );
-        assertNull( attributePWD.get().getValue() );
+        assertTrue( attributePWD.get().isNull() );
 
         entry.clear();
 
@@ -321,13 +319,13 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test for method add( String, Value<?>...)
+     * Test for method add( String, Value...)
      */
     @Test
     public void testAddStringValueArray() throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
-        Value<String> value = new StringValue( atDC, ( String ) null );
+        Value value = new Value( atDC, ( String ) null );
 
         entry.add( "dc", value );
         assertEquals( 1, entry.size() );
@@ -336,9 +334,9 @@ public class SchemaAwareEntryTest
         assertNotNull( attributeCN.get() );
         assertNull( attributeCN.get().getValue() );
 
-        Value<String> value1 = new StringValue( atCN, "test1" );
-        Value<String> value2 = new StringValue( atCN, "test2" );
-        Value<String> value3 = new StringValue( atCN, "test1" );
+        Value value1 = new Value( atCN, "test1" );
+        Value value2 = new Value( atCN, "test2" );
+        Value value3 = new Value( atCN, "test1" );
 
         entry.add( "sn", value1, value2, value3 );
         assertEquals( 2, entry.size() );
@@ -348,7 +346,7 @@ public class SchemaAwareEntryTest
         assertTrue( attributeSN.contains( value1 ) );
         assertTrue( attributeSN.contains( value2 ) );
 
-        Value<byte[]> value4 = new BinaryValue( atPwd, BYTES1 );
+        Value value4 = new Value( atPwd, BYTES1 );
         entry.add( "l", value1, value4 );
         assertEquals( 3, entry.size() );
         Attribute attributeL = entry.get( "l" );
@@ -424,21 +422,21 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test method for add( AttributeType, Value<?>... )
+     * Test method for add( AttributeType, Value... )
      */
     @Test
     public void testAddAttributeTypeValueArray() throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value strValue1 = new Value( atDC, "test1" );
+        Value strValue2 = new Value( atDC, "test2" );
+        Value strValue3 = new Value( atDC, "test3" );
+        Value strNullValue = new Value( atDC, (String)null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
-        Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
-        Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
+        Value binValue1 = new Value( atPwd, BYTES1 );
+        Value binValue2 = new Value( atPwd, BYTES2 );
+        Value binValue3 = new Value( atPwd, BYTES3 );
 
         try
         {
@@ -540,21 +538,21 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test method for add( String, AttributeType, Value<?>... )
+     * Test method for add( String, AttributeType, Value... )
      */
     @Test
     public void testAddStringAttributeTypeValueArray() throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value strValue1 = new Value( atDC, "test1" );
+        Value strValue2 = new Value( atDC, "test2" );
+        Value strValue3 = new Value( atDC, "test3" );
+        Value strNullValue = new Value( atDC, (String)null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
-        Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
-        Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
+        Value binValue1 = new Value( atPwd, BYTES1 );
+        Value binValue2 = new Value( atPwd, BYTES2 );
+        Value binValue3 = new Value( atPwd, BYTES3 );
 
         try
         {
@@ -621,7 +619,7 @@ public class SchemaAwareEntryTest
         entry.add( atEMail, "test1" );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getString() );
+        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
 
         // Test some more addition
         entry.add( atEMail, "test2", "test3" );
@@ -754,15 +752,15 @@ public class SchemaAwareEntryTest
         byte[] b2 = Strings.getBytesUtf8( "test2" );
         byte[] b3 = Strings.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new StringValue( atDC, "test1" );
+        Value test1 = new Value( atDC, "test1" );
 
-        Value<String> testEMail1 = new StringValue( atEMail, "test1" );
-        Value<String> testEMail2 = new StringValue( atEMail, "test2" );
-        Value<String> testEMail3 = new StringValue( atEMail, "test3" );
+        Value testEMail1 = new Value( atEMail, "test1" );
+        Value testEMail2 = new Value( atEMail, "test2" );
+        Value testEMail3 = new Value( atEMail, "test3" );
 
-        Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
-        Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
-        Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
+        Value testB1 = new Value( atPassword, b1 );
+        Value testB2 = new Value( atPassword, b2 );
+        Value testB3 = new Value( atPassword, b3 );
 
         // Test that we can't inject a null AT
         try
@@ -779,7 +777,7 @@ public class SchemaAwareEntryTest
         entry.add( atEMail, testEMail1 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getString() );
+        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
 
         // Test some more addition
         entry.add( atEMail, testEMail2, testEMail3 );
@@ -874,7 +872,7 @@ public class SchemaAwareEntryTest
         assertEquals( "1.2.840.113549.1.9.1", entry.get( atEMail ).getId() );
         assertEquals( "EMail", entry.get( atEMail ).getUpId() );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getString() );
+        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
 
         // Test some more addition
         entry.add( "EMail", "test2", "test3" );
@@ -984,19 +982,19 @@ public class SchemaAwareEntryTest
         byte[] b2 = Strings.getBytesUtf8( "test2" );
         byte[] b3 = Strings.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new StringValue( atEMail, "test1" );
-        Value<String> test2 = new StringValue( atEMail, "test2" );
-        Value<String> test3 = new StringValue( atEMail, "test3" );
+        Value test1 = new Value( atEMail, "test1" );
+        Value test2 = new Value( atEMail, "test2" );
+        Value test3 = new Value( atEMail, "test3" );
 
-        Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
-        Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
-        Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
+        Value testB1 = new Value( atPassword, b1 );
+        Value testB2 = new Value( atPassword, b2 );
+        Value testB3 = new Value( atPassword, b3 );
 
         // Test a simple addition in atDC
         entry.add( "eMail", test1 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getString() );
+        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
         assertTrue( entry.containsAttribute( atEMail ) );
         assertEquals( "eMail", entry.get( atEMail ).getUpId() );
 
@@ -1094,7 +1092,7 @@ public class SchemaAwareEntryTest
         entry.add( "email", atEMail, "test1" );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getString() );
+        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
 
         // Test some more addition
         entry.add( "EMAIL", atEMail, "test2", "test3" );
@@ -1204,19 +1202,19 @@ public class SchemaAwareEntryTest
         byte[] b2 = Strings.getBytesUtf8( "test2" );
         byte[] b3 = Strings.getBytesUtf8( "test3" );
 
-        Value<String> test1 = new StringValue( atEMail, "test1" );
-        Value<String> test2 = new StringValue( atEMail, "test2" );
-        Value<String> test3 = new StringValue( atEMail, "test3" );
+        Value test1 = new Value( atEMail, "test1" );
+        Value test2 = new Value( atEMail, "test2" );
+        Value test3 = new Value( atEMail, "test3" );
 
-        Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
-        Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
-        Value<byte[]> testB3 = new BinaryValue( atPassword, b3 );
+        Value testB1 = new Value( atPassword, b1 );
+        Value testB2 = new Value( atPassword, b2 );
+        Value testB3 = new Value( atPassword, b3 );
 
         // Test a simple addition in atCN
         entry.add( "eMail", atEMail, test1 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getString() );
+        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
         assertTrue( entry.containsAttribute( atEMail ) );
         assertEquals( "eMail", entry.get( atEMail ).getUpId() );
 
@@ -1409,22 +1407,22 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test for method contains( AttributeType, Value<?>... )
+     * Test for method contains( AttributeType, Value... )
      */
     @Test
     public void testContainsAttributeTypeValuesArray() throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value strValue1 = new Value( atDC, "test1" );
+        Value strValue2 = new Value( atDC, "test2" );
+        Value strValue3 = new Value( atDC, "test3" );
+        Value strNullValue = new Value( atDC, (String)null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
-        Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
-        Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
-        Value<byte[]> binNullValue = new BinaryValue( atPwd, null );
+        Value binValue1 = new Value( atPwd, BYTES1 );
+        Value binValue2 = new Value( atPwd, BYTES2 );
+        Value binValue3 = new Value( atPwd, BYTES3 );
+        Value binNullValue = new Value( atPwd, (byte[])null );
 
         assertFalse( entry.contains( ( String ) null, strValue1 ) );
         assertFalse( entry.contains( atDC, binValue1 ) );
@@ -1522,7 +1520,7 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test for method contains( String, Value<?>... )
+     * Test for method contains( String, Value... )
      */
     @Test
     public void testContainsStringValueArray() throws Exception
@@ -1537,15 +1535,15 @@ public class SchemaAwareEntryTest
 
         entry.add( attrEMail, attrPWD );
 
-        Value<String> strValue1 = new StringValue( atEMail, "test1" );
-        Value<String> strValue2 = new StringValue( atEMail, "test2" );
-        Value<String> strValue3 = new StringValue( atEMail, "test3" );
-        Value<String> strNullValue = new StringValue( atEMail, null );
+        Value strValue1 = new Value( atEMail, "test1" );
+        Value strValue2 = new Value( atEMail, "test2" );
+        Value strValue3 = new Value( atEMail, "test3" );
+        Value strNullValue = new Value( atEMail,(String) null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
-        Value<byte[]> binValue2 = new BinaryValue( atPwd, BYTES2 );
-        Value<byte[]> binValue3 = new BinaryValue( atPwd, BYTES3 );
-        Value<byte[]> binNullValue = new BinaryValue( atPwd, null );
+        Value binValue1 = new Value( atPwd, BYTES1 );
+        Value binValue2 = new Value( atPwd, BYTES2 );
+        Value binValue3 = new Value( atPwd, BYTES3 );
+        Value binNullValue = new Value( atPwd, (byte[])null );
 
         assertTrue( entry.contains( "EMail", strValue1, strValue2 ) );
         assertTrue( entry.contains( "userpassword", binValue1, binValue2, binNullValue ) );
@@ -2015,19 +2013,19 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test for method put( AttributeType, Value<?>... )
+     * Test for method put( AttributeType, Value... )
      */
     @Test
     public void testPutAttributeTypeValueArray() throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value strValue1 = new Value( atDC, "test1" );
+        Value strValue2 = new Value( atDC, "test2" );
+        Value strValue3 = new Value( atDC, "test3" );
+        Value strNullValue = new Value( atDC, (String)null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value binValue1 = new Value( atPwd, BYTES1 );
 
         try
         {
@@ -2262,19 +2260,19 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test for method put( String, AttributeType, Value<?>... )
+     * Test for method put( String, AttributeType, Value... )
      */
     @Test
     public void testPutStringAttributeTypeValueArray() throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value strValue1 = new Value( atDC, "test1" );
+        Value strValue2 = new Value( atDC, "test2" );
+        Value strValue3 = new Value( atDC, "test3" );
+        Value strNullValue = new Value( atDC, (String)null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value binValue1 = new Value( atPwd, BYTES1 );
 
         try
         {
@@ -2385,7 +2383,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "userPassword" ) );
         assertEquals( 1, entry.get( "userPassword" ).size() );
-        assertNull( entry.get( "userPassword" ).get().getValue() );
+        assertTrue( entry.get( "userPassword" ).get().isNull() );
 
         replaced = entry.put( "UserPassword", BYTES1 );
         assertNotNull( replaced );
@@ -2465,7 +2463,7 @@ public class SchemaAwareEntryTest
 
         replaced = entry.put( "cN", "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( "test", replaced.get().getString() );
+        assertEquals( "test", replaced.get().getValue() );
 
         assertEquals( 2, entry.size() );
         assertNotNull( entry.get( "cn" ) );
@@ -2480,19 +2478,19 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test method for put( String, Value<?>... )
+     * Test method for put( String, Value... )
      */
     @Test
     public void testPutStringValueArray() throws LdapException
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atDC, "test1" );
-        Value<String> strValue2 = new StringValue( atDC, "test2" );
-        Value<String> strValue3 = new StringValue( atDC, "test3" );
-        Value<String> strNullValue = new StringValue( atDC, null );
+        Value strValue1 = new Value( atDC, "test1" );
+        Value strValue2 = new Value( atDC, "test2" );
+        Value strValue3 = new Value( atDC, "test3" );
+        Value strNullValue = new Value( atDC, (String)null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value binValue1 = new Value( atPwd, BYTES1 );
 
         try
         {
@@ -2591,7 +2589,7 @@ public class SchemaAwareEntryTest
 
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "l" ) );
-        assertEquals( "france", entry.get( "l" ).get().getString() );
+        assertEquals( "france", entry.get( "l" ).get().getValue() );
 
         Attribute sb = new DefaultAttribute( atC, "countryTest" );
         Attribute sc = new DefaultAttribute( atGN, "test" );
@@ -2600,11 +2598,11 @@ public class SchemaAwareEntryTest
 
         assertEquals( 4, entry.size() );
         assertNotNull( entry.get( atC ) );
-        assertEquals( "countryTest", entry.get( atC ).get().getString() );
+        assertEquals( "countryTest", entry.get( atC ).get().getValue() );
         assertNotNull( entry.get( atGN ) );
-        assertEquals( "test", entry.get( atGN ).get().getString() );
+        assertEquals( "test", entry.get( atGN ).get().getValue() );
         assertNotNull( entry.get( atStreet ) );
-        assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
+        assertEquals( "testStreet", entry.get( atStreet ).get().getValue() );
 
         // Test a replacement
         Attribute sbb = new DefaultAttribute( atC, "countryTestTest" );
@@ -2612,15 +2610,15 @@ public class SchemaAwareEntryTest
         List<Attribute> result = entry.put( sbb, scc );
 
         assertEquals( 2, result.size() );
-        assertEquals( "countryTest", result.get( 0 ).get().getString() );
-        assertEquals( "test", result.get( 1 ).get().getString() );
+        assertEquals( "countryTest", result.get( 0 ).get().getValue() );
+        assertEquals( "test", result.get( 1 ).get().getValue() );
         assertEquals( 4, entry.size() );
         assertNotNull( entry.get( atC ) );
-        assertEquals( "countryTestTest", entry.get( atC ).get().getString() );
+        assertEquals( "countryTestTest", entry.get( atC ).get().getValue() );
         assertNotNull( entry.get( atGN ) );
-        assertEquals( "testtest", entry.get( atGN ).get().getString() );
+        assertEquals( "testtest", entry.get( atGN ).get().getValue() );
         assertNotNull( entry.get( atStreet ) );
-        assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
+        assertEquals( "testStreet", entry.get( atStreet ).get().getValue() );
 
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
@@ -2674,7 +2672,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test", entry.get( atEMail ).get().getString() );
+        assertEquals( "test", entry.get( atEMail ).get().getValue() );
 
         // Add more than one value
         entry.put( atEMail, "test1", "test2", "test3" );
@@ -2712,7 +2710,7 @@ public class SchemaAwareEntryTest
         entry.put( atPwd, ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPwd ).getUpId() );
-        assertNull( entry.get( atPwd ).get().getValue() );
+        assertTrue( entry.get( atPwd ).get().isNull() );
 
         // Check that we can't use invalid arguments
         try
@@ -2772,7 +2770,7 @@ public class SchemaAwareEntryTest
         DefaultEntry entry = new DefaultEntry( schemaManager, dn );
 
         // Adding a null value to an attribute
-        entry.put( atDC, ( Value<?> ) null );
+        entry.put( atDC, ( Value ) null );
 
         assertEquals( 1, entry.size() );
         assertEquals( "dc", entry.get( atDC ).getUpId() );
@@ -2780,7 +2778,7 @@ public class SchemaAwareEntryTest
         // Check that we can't use invalid arguments
         try
         {
-            entry.put( ( AttributeType ) null, ( Value<?> ) null );
+            entry.put( ( AttributeType ) null, ( Value ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -2790,16 +2788,16 @@ public class SchemaAwareEntryTest
 
         // Add a single value
         atCN = schemaManager.lookupAttributeTypeRegistry( "cn" );
-        Value<?> ssv = new StringValue( atCN, "test" );
+        Value ssv = new Value( atCN, "test" );
         entry.put( atCN, ssv );
 
         assertEquals( 2, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test", entry.get( atCN ).get().getString() );
+        assertEquals( "test", entry.get( atCN ).get().getValue() );
 
         // Add more than one value
-        entry.put( atCN, new StringValue( atCN, "test1" ), new StringValue( atCN, "test2" ), new StringValue( atCN,
+        entry.put( atCN, new Value( atCN, "test1" ), new Value( atCN, "test2" ), new Value( atCN,
             "test3" ) );
 
         assertEquals( 2, entry.size() );
@@ -2810,8 +2808,8 @@ public class SchemaAwareEntryTest
         assertTrue( entry.contains( "cn", "test3" ) );
 
         // Add twice the same value
-        Attribute sa = entry.put( atCN, new StringValue( atCN, "test1" ), new StringValue( atCN, "test2" ),
-            new StringValue( atCN, "test1" ) );
+        Attribute sa = entry.put( atCN, new Value( atCN, "test1" ), new Value( atCN, "test2" ),
+            new Value( atCN, "test1" ) );
 
         assertEquals( 3, sa.size() );
         assertTrue( sa.contains( "test1", "test2", "test3" ) );
@@ -2856,7 +2854,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test", entry.get( atEMail ).get().getString() );
+        assertEquals( "test", entry.get( atEMail ).get().getValue() );
 
         // Add more than one value
         entry.put( "email", "test1", "test2", "test3" );
@@ -2900,7 +2898,7 @@ public class SchemaAwareEntryTest
         entry.put( "userPassword", ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
-        assertNull( entry.get( atPassword ).get().getValue() );
+        assertTrue( entry.get( atPassword ).get().isNull() );
 
         // Check that we can't use invalid arguments
         try
@@ -3040,21 +3038,21 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertTrue( entry.containsAttribute( "userPassword" ) );
-        assertNull( entry.get( atPassword ).get().getValue() );
+        assertTrue( entry.get( atPassword ).get().isNull() );
 
         // Check that we can use a null AttributeType
         entry.put( "userPassword", ( AttributeType ) null, ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertTrue( entry.containsAttribute( "userPassword" ) );
-        assertNull( entry.get( atPassword ).get().getValue() );
+        assertTrue( entry.get( atPassword ).get().isNull() );
 
         // Test that we can use a null upId
         entry.put( null, atPassword, ( byte[] ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "userPassword", entry.get( atPassword ).getUpId() );
         assertTrue( entry.containsAttribute( "userPassword" ) );
-        assertNull( entry.get( atPassword ).get().getValue() );
+        assertTrue( entry.get( atPassword ).get().isNull() );
 
         // Test that if we use an upId which is not compatible
         // with the AT, it is changed to the AT default name
@@ -3100,7 +3098,7 @@ public class SchemaAwareEntryTest
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( null, ( AttributeType ) null, ( Value<?> ) null );
+            entry.put( null, ( AttributeType ) null, ( Value ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -3109,14 +3107,14 @@ public class SchemaAwareEntryTest
         }
 
         // Test an empty AT
-        entry.put( "domainComponent", atDC, ( Value<?> ) null );
+        entry.put( "domainComponent", atDC, ( Value ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
         assertNull( entry.get( atDC ).get().getValue() );
 
         // Check that we can use a null AttributeType
-        entry.put( "domainComponent", ( AttributeType ) null, ( Value<?> ) null );
+        entry.put( "domainComponent", ( AttributeType ) null, ( Value ) null );
 
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
@@ -3124,7 +3122,7 @@ public class SchemaAwareEntryTest
         assertNull( entry.get( atDC ).get().getValue() );
 
         // Test that we can use a null upId
-        entry.put( null, atDC, ( Value<?> ) null );
+        entry.put( null, atDC, ( Value ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "dc", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
@@ -3134,7 +3132,7 @@ public class SchemaAwareEntryTest
         // with the AT
         try
         {
-            entry.put( "sn", atDC, ( Value<?> ) null );
+            entry.put( "sn", atDC, ( Value ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -3143,9 +3141,9 @@ public class SchemaAwareEntryTest
         }
 
         // Test that we can add some new attributes with values
-        Value<String> test1 = new StringValue( atDC, "test1" );
-        Value<String> test2 = new StringValue( atDC, "test2" );
-        Value<String> test3 = new StringValue( atDC, "test3" );
+        Value test1 = new Value( atDC, "test1" );
+        Value test2 = new Value( atDC, "test2" );
+        Value test3 = new Value( atDC, "test3" );
 
         Attribute result = entry.put( "DC", atDC, test1, test2, test3 );
         assertNotNull( result );
@@ -3171,7 +3169,7 @@ public class SchemaAwareEntryTest
         // Test that we get an error when the ID or AT are null
         try
         {
-            entry.put( ( String ) null, ( Value<?> ) null );
+            entry.put( ( String ) null, ( Value ) null );
             fail();
         }
         catch ( IllegalArgumentException iae )
@@ -3180,16 +3178,16 @@ public class SchemaAwareEntryTest
         }
 
         // Test an null valued AT
-        entry.put( "domainComponent", ( Value<?> ) null );
+        entry.put( "domainComponent", ( Value ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
         assertNull( entry.get( atDC ).get().getValue() );
 
         // Test that we can add some new attributes with values
-        Value<String> test1 = new StringValue( atDC, "test1" );
-        Value<String> test2 = new StringValue( atDC, "test2" );
-        Value<String> test3 = new StringValue( atDC, "test3" );
+        Value test1 = new Value( atDC, "test1" );
+        Value test2 = new Value( atDC, "test2" );
+        Value test3 = new Value( atDC, "test3" );
 
         Attribute result = entry.put( "DC", test1, test2, test3 );
         assertNotNull( result );
@@ -3266,19 +3264,19 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test method for remove( AttributeType, Value<?>... )
+     * Test method for remove( AttributeType, Value... )
      */
     @Test
     public void testRemoveAttributeTypeValueArray() throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atEMail, "test1" );
-        Value<String> strValue2 = new StringValue( atEMail, "test2" );
-        Value<String> strValue3 = new StringValue( atEMail, "test3" );
-        Value<String> strNullValue = new StringValue( atEMail, null );
+        Value strValue1 = new Value( atEMail, "test1" );
+        Value strValue2 = new Value( atEMail, "test2" );
+        Value strValue3 = new Value( atEMail, "test3" );
+        Value strNullValue = new Value( atEMail, (String)null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value binValue1 = new Value( atPwd, BYTES1 );
 
         Attribute attrPWD = new DefaultAttribute( atEMail, "test1", ( String ) null, "test2" );
 
@@ -3449,19 +3447,19 @@ public class SchemaAwareEntryTest
 
 
     /**
-     * Test method for remove( String, Value<?>... )
+     * Test method for remove( String, Value... )
      */
     @Test
     public void testRemoveStringValueArray() throws Exception
     {
         Entry entry = new DefaultEntry( schemaManager, EXAMPLE_DN );
 
-        Value<String> strValue1 = new StringValue( atEMail, "test1" );
-        Value<String> strValue2 = new StringValue( atEMail, "test2" );
-        Value<String> strValue3 = new StringValue( atEMail, "test3" );
-        Value<String> strNullValue = new StringValue( atEMail, null );
+        Value strValue1 = new Value( atEMail, "test1" );
+        Value strValue2 = new Value( atEMail, "test2" );
+        Value strValue3 = new Value( atEMail, "test3" );
+        Value strNullValue = new Value( atEMail, (String)null );
 
-        Value<byte[]> binValue1 = new BinaryValue( atPwd, BYTES1 );
+        Value binValue1 = new Value( atPwd, BYTES1 );
 
         Attribute attrPWD = new DefaultAttribute( atEMail, "test1", ( String ) null, "test2" );
 
@@ -3498,11 +3496,11 @@ public class SchemaAwareEntryTest
         byte[] b1 = Strings.getBytesUtf8( "test1" );
         byte[] b2 = Strings.getBytesUtf8( "test2" );
 
-        Value<String> test1 = new StringValue( atCN, "test1" );
-        Value<String> test2 = new StringValue( atCN, "test2" );
+        Value test1 = new Value( atCN, "test1" );
+        Value test2 = new Value( atCN, "test2" );
 
-        Value<byte[]> testB1 = new BinaryValue( atPassword, b1 );
-        Value<byte[]> testB2 = new BinaryValue( atPassword, b2 );
+        Value testB1 = new Value( atPassword, b1 );
+        Value testB2 = new Value( atPassword, b2 );
 
         // test a removal of an non existing attribute
         entry.removeAttributes( atCN );
@@ -3623,12 +3621,12 @@ public class SchemaAwareEntryTest
 
         assertEquals( "Entry\n    dn[n]: dc=example,dc=com\n\n", entry.toString() );
 
-        Value<String> strValueTop = new StringValue( "top" );
-        Value<String> strValuePerson = new StringValue( "person" );
+        Value strValueTop = new Value( "top" );
+        Value strValuePerson = new Value( "person" );
 
-        Value<byte[]> binValue1 = new BinaryValue( BYTES1 );
-        Value<byte[]> binValue2 = new BinaryValue( BYTES2 );
-        Value<byte[]> binNullValue = new BinaryValue( ( byte[] ) null );
+        Value binValue1 = new Value( BYTES1 );
+        Value binValue2 = new Value( BYTES2 );
+        Value binNullValue = new Value( ( byte[] ) null );
 
         entry.put( "ObjectClass", atOC, strValueTop, strValuePerson );
         entry.put( "UserPassword", atPwd, binValue1, binValue2, binNullValue );

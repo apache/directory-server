@@ -49,7 +49,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.subtree.AdministrativeRole;
 import org.apache.directory.api.ldap.util.tree.DnNode;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
@@ -94,16 +93,11 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /** A {@link Logger} for this class */
     private static final Logger LOG = LoggerFactory.getLogger( AdministrativePointInterceptor.class );
 
-    /**
-     * Speedup for logs
-     */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
     /** A reference to the nexus for direct backend operations */
     private PartitionNexus nexus;
 
     /** The possible roles */
-    private static final Set<String> ROLES = new HashSet<String>();
+    private static final Set<String> ROLES = new HashSet<>();
 
     // Initialize the ROLES field
     static
@@ -127,7 +121,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
     /** A Map to associate a role with it's OID */
-    private static final Map<String, String> ROLES_OID = new HashMap<String, String>();
+    private static final Map<String, String> ROLES_OID = new HashMap<>();
 
     // Initialize the roles/oid map
     static
@@ -150,7 +144,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
     /** The possible inner area roles */
-    private static final Set<String> INNER_AREA_ROLES = new HashSet<String>();
+    private static final Set<String> INNER_AREA_ROLES = new HashSet<>();
 
     static
     {
@@ -163,7 +157,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     }
 
     /** The possible specific area roles */
-    private static final Set<String> SPECIFIC_AREA_ROLES = new HashSet<String>();
+    private static final Set<String> SPECIFIC_AREA_ROLES = new HashSet<>();
 
     static
     {
@@ -260,9 +254,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             return;
         }
 
-        for ( Value<?> value : adminPoint )
+        for ( Value value : adminPoint )
         {
-            String role = value.getString();
+            String role = value.getValue();
 
             // Deal with AccessControl AP
             if ( isAccessControlSpecificRole( role ) )
@@ -606,9 +600,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * Check if we can safely add a role. If it's an AAP, we have to be sure that
      * it's the only role present in the AT.
      */
-    private void checkAddRole( Value<?> role, Attribute adminPoint, Dn dn ) throws LdapException
+    private void checkAddRole( Value role, Attribute adminPoint, Dn dn ) throws LdapException
     {
-        String roleStr = Strings.toLowerCaseAscii( Strings.trim( role.getString() ) );
+        String roleStr = Strings.toLowerCaseAscii( Strings.trim( role.getValue() ) );
 
         // Check that the added AdministrativeRole is valid
         if ( !ROLES.contains( roleStr ) )
@@ -661,9 +655,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Check if we can safely delete a role
      */
-    private void checkDelRole( Value<?> role, Attribute adminPoint, Dn dn ) throws LdapException
+    private void checkDelRole( Value role, Attribute adminPoint, Dn dn ) throws LdapException
     {
-        String roleStr = Strings.toLowerCaseAscii( Strings.trim( role.getString() ) );
+        String roleStr = Strings.toLowerCaseAscii( Strings.trim( role.getValue() ) );
 
         // Check that the removed AdministrativeRole is valid
         if ( !ROLES.contains( roleStr ) )
@@ -754,9 +748,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     //-------------------------------------------------------------------------------------------
     private List<Entry> getAdministrativePoints() throws LdapException
     {
-        List<Entry> entries = new ArrayList<Entry>();
-
-        Dn adminDn = new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN );
+        List<Entry> entries = new ArrayList<>();
 
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -832,9 +824,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         Dn dn = deleteContext.getDn();
 
         // Remove the APs in the AP cache
-        for ( Value<?> value : adminPoint )
+        for ( Value value : adminPoint )
         {
-            String role = value.getString();
+            String role = value.getValue();
 
             // Deal with Autonomous AP : delete the 4 associated SAP/AAP
             if ( isAutonomousAreaRole( role ) )
@@ -975,8 +967,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private boolean isAAP( Attribute adminPoint )
     {
-        return ( adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) 
-            || adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA_OID ) );
+        return adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA ) 
+            || adminPoint.contains( SchemaConstants.AUTONOMOUS_AREA_OID );
     }
 
 
@@ -1127,6 +1119,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         LOG.debug( "Initializing the AdministrativeInterceptor" );
@@ -1137,8 +1130,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Load all the AdministratvePoint :
         // Autonomous Administrative Point first, then Specific
         // administrative point, finally the Inner administrative Point
-        Dn adminDn = new Dn( schemaManager, ServerDNConstants.ADMIN_SYSTEM_DN );
-
         // get the list of all the AAPs
         List<Entry> administrativePoints = getAdministrativePoints();
 
@@ -1158,6 +1149,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void destroy()
     {
     }
@@ -1174,6 +1166,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * 
      * @throws LdapException If we had some error while processing the Add operation
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, addRequest" );
@@ -1201,7 +1194,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         try
         {
             // Loop on all the added roles to check if they are valid
-            for ( Value<?> role : adminPoint )
+            for ( Value role : adminPoint )
             {
                 checkAddRole( role, adminPoint, dn );
             }
@@ -1234,6 +1227,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * </ul>
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, delRequest" );
@@ -1262,9 +1256,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         {
             // Check that the removed AdministrativeRoles are valid. We don't have to do
             // any other check, as the deleted entry has no children.
-            for ( Value<?> role : adminPoint )
+            for ( Value role : adminPoint )
             {
-                if ( !isValidRole( role.getString() ) )
+                if ( !isValidRole( role.getValue() ) )
                 {
                     String message = "Cannot remove the given role, it's not a valid one :" + role;
                     LOG.error( message );
@@ -1301,6 +1295,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * 
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, modifyRequest" );
@@ -1367,9 +1362,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                         switch ( modification.getOperation() )
                         {
                             case ADD_ATTRIBUTE:
-                                for ( Value<?> role : attribute )
+                                for ( Value role : attribute )
                                 {
-                                    addRole( role.getString(), dn, uuid, acapCache, caapCache, teapCache,
+                                    addRole( role.getValue(), dn, uuid, acapCache, caapCache, teapCache,
                                         ssapCache );
 
                                     // Add the role to the modified attribute
@@ -1383,10 +1378,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                                 if ( attribute.size() == 0 )
                                 {
                                     // Complete removal. Loop on all the existing roles and remove them
-                                    for ( Value<?> role : modifiedAdminRole )
+                                    for ( Value role : modifiedAdminRole )
                                     {
-                                        //checkDelRole( role, modifiedAdminRole, dn, directoryService.getAdministrativePoints() );
-                                        delRole( role.getString(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
+                                        delRole( role.getValue(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
                                     }
 
                                     modifiedAdminRole.clear();
@@ -1394,12 +1388,12 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                                 }
 
                                 // Now deal with the values to remove
-                                for ( Value<?> value : attribute )
+                                for ( Value value : attribute )
                                 {
-                                    if ( !isValidRole( value.getString() ) )
+                                    if ( !isValidRole( value.getValue() ) )
                                     {
                                         // Not a valid role : we will throw an exception
-                                        String msg = "Invalid role : " + value.getString();
+                                        String msg = "Invalid role : " + value.getValue();
                                         LOG.error( msg );
                                         throw new LdapInvalidAttributeValueException(
                                             ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX,
@@ -1416,7 +1410,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                                     }
 
                                     modifiedAdminRole.remove( value );
-                                    delRole( value.getString(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
+                                    delRole( value.getValue(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
 
                                 }
 
@@ -1457,6 +1451,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, moveRequest" );
@@ -1485,6 +1480,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, moveAndRenameRequest" );
@@ -1513,6 +1509,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         LOG.debug( ">>> Entering into the Administrative Interceptor, renameRequest" );

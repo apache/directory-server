@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -101,6 +102,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
         {
             if ( operation.getReturningAttributesString() == null )
@@ -118,6 +120,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public String toString( String tabs )
         {
             return tabs + "OperationalAttributeDenormalizingSearchFilter";
@@ -133,6 +136,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
         {
             if ( operation.getReturningAttributesString() == null )
@@ -141,9 +145,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             }
 
             // Add the SubschemaSubentry AttributeType if it's requested
+            SchemaManager schemaManager = operation.getSession().getDirectoryService().getSchemaManager();
+            
             if ( operation.isAllOperationalAttributes()
-                || operation.getReturningAttributes().contains( SchemaConstants.SUBSCHEMA_SUBENTRY_AT )
-                || operation.getReturningAttributes().contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
+                || operation.getReturningAttributes().contains( 
+                    new AttributeTypeOptions( schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) ) ) )
             {
                 AttributeType subschemaSubentryAt = schemaManager.getAttributeType( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
                 entry.add( new DefaultAttribute( subschemaSubentryAt, 
@@ -157,6 +163,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public String toString( String tabs )
         {
             return tabs + "OperationalAttributeSearchFilter";
@@ -172,6 +179,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
         {
             // Add the nbChildren/nbSubordinates attributes if required
@@ -184,6 +192,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         /**
          * {@inheritDoc}
          */
+        @Override
         public String toString( String tabs )
         {
             return tabs + "SubordinatesSearchFilter";
@@ -200,20 +209,22 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
 
 
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
 
         // stuff for dealing with subentries (garbage for now)
-        Value<?> subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
+        Value subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
             directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
 
         // Create the Admin Dn
         adminDn = dnFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
     }
 
 
+    @Override
     public void destroy()
     {
     }
@@ -258,6 +269,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         String principal = getPrincipal( addContext ).getName();
@@ -266,8 +278,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         // If we are using replication, the below four OAs may already be present and we retain
         // those values if the user is admin.
-        boolean isAdmin = addContext.getSession().getAuthenticatedPrincipal().getName().equals(
-            ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+        boolean isAdmin = addContext.getSession().getAuthenticatedPrincipal().getDn().equals( adminDn );
 
         // The EntryUUID attribute
         if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getEntryUUID() ) )
@@ -314,11 +325,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         Dn dn = lookupContext.getDn();
 
-        if ( dn.equals( subschemaSubentryDn ) )
+        if ( dn.getNormName().equals( subschemaSubentryDn.getNormName() ) )
         {
             Entry serverEntry = SchemaService.getSubschemaEntry( directoryService, lookupContext );
             serverEntry.setDn( dn );
@@ -340,6 +352,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // We must check that the user hasn't injected either the modifiersName
@@ -453,6 +466,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Entry modifiedEntry = moveContext.getOriginalEntry().clone();
@@ -473,9 +487,10 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
-        Entry modifiedEntry = moveAndRenameContext.getOriginalEntry().clone();
+        Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
         modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
@@ -493,6 +508,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
@@ -516,6 +532,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = next( searchContext );
@@ -613,19 +630,19 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             else if ( rdn.size() == 1 )
             {
                 String name = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                String value = rdn.getNormValue();
+                String value = rdn.getValue();
                 newDn = newDn.add( new Rdn( name, value ) );
                 continue;
             }
 
             // below we only process multi-valued rdns
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
 
             for ( Iterator<Ava> atavs = rdn.iterator(); atavs.hasNext(); /**/)
             {
                 Ava atav = atavs.next();
                 String type = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                buf.append( type ).append( '=' ).append( atav.getValue().getNormValue() );
+                buf.append( type ).append( '=' ).append( atav.getValue().getValue() );
 
                 if ( atavs.hasNext() )
                 {
@@ -640,7 +657,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
     
     
-    private void processSubordinates( Set<AttributeTypeOptions> returningAttributes, boolean allOpAttributes, Entry entry ) 
+    private void processSubordinates( Set<AttributeTypeOptions> returningAttributes, boolean allAttributes, Entry entry ) 
         throws LdapException
     {
         // Bypass the rootDSE : we won't get the nbChildren and nbSubordiantes for this special entry
@@ -657,8 +674,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         if ( returningAttributes != null )
         {
-            boolean nbChildrenRequested = returningAttributes.contains( nbChildrenAto ) || allOpAttributes;
-            boolean nbSubordinatesRequested = returningAttributes.contains( nbSubordinatesAto ) || allOpAttributes;
+            boolean nbChildrenRequested = returningAttributes.contains( nbChildrenAto ) || allAttributes;
+            boolean nbSubordinatesRequested = returningAttributes.contains( nbSubordinatesAto ) || allAttributes;
 
             if ( nbChildrenRequested || nbSubordinatesRequested )
             {

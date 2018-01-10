@@ -44,7 +44,7 @@ public class CredentialsCache
 	
     public static CredentialsCache load( File cacheFile ) throws IOException 
     {
-        return load(Files.newInputStream( cacheFile.toPath() ));
+        return load( Files.newInputStream( cacheFile.toPath() ) );
     }
     
     public static CredentialsCache load( InputStream is ) throws IOException 

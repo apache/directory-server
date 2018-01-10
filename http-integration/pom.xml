@@ -24,7 +24,7 @@
   <parent>
     <artifactId>apacheds-parent</artifactId>
     <groupId>org.apache.directory.server</groupId>
-    <version>2.0.0-M25-SNAPSHOT</version>
+    <version>2.0.0.AM25-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-http-integration</artifactId>
@@ -116,8 +116,26 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.http.integration</Bundle-SymbolicName>
             <Export-Package>
-                {local-packages};version=${project.version};-noimport:=true
+                org.apache.directory.server.integration.http;version=${project.version}
             </Export-Package>
+            <Import-Package>
+                org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
+                org.apache.directory.server.bridge.http;version=${project.version},
+                org.apache.directory.server.constants;version=${project.version},
+                org.apache.directory.server.core.api;version=${project.version},
+                org.apache.directory.server.core.security;version=${project.version},
+                org.apache.directory.server.i18n;version=${project.version},
+                org.apache.directory.server.protocol.shared.transport;version=${project.version},
+                org.bouncycastle.jce.provider;version=${bcprov.version},
+                org.eclipse.jetty.server;version=${jetty.bundle.version},
+                org.eclipse.jetty.server.handler;version=${jetty.bundle.version},
+                org.eclipse.jetty.util.ssl;version=${jetty.bundle.version},
+                org.eclipse.jetty.webapp;version=${jetty.bundle.version},
+                org.eclipse.jetty.xml;version=${jetty.bundle.version}
+                org.slf4j;version=${slf4j.api.bundleversion}
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>

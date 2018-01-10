@@ -78,7 +78,7 @@ public class SortedEntryCursor extends AbstractCursor<Entry> implements EntryFil
     @Override
     public boolean available()
     {
-        return ( tuple.getKey() != null );
+        return tuple.getKey() != null;
     }
 
 

@@ -75,6 +75,10 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<ACITuple> filter( AciContext aciContext, OperationScope scope, Entry userEntry )
         throws LdapException
     {
@@ -85,7 +89,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             return aciContext.getAciTuples();
         }
 
-        if ( aciContext.getAciTuples().size() == 0 )
+        if ( aciContext.getAciTuples().isEmpty() )
         {
             return aciContext.getAciTuples();
         }

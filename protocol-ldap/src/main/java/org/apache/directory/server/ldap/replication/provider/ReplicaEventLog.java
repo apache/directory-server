@@ -130,7 +130,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         PROVIDER_LOG.debug( "Creating the replication queue for replica {}", replicaId );
         SchemaManager schemaManager = directoryService.getSchemaManager();
         this.replicaId = replicaId;
-        this.searchCriteria = new NotificationCriteria();
+        this.searchCriteria = new NotificationCriteria( schemaManager );
         this.searchCriteria.setEventMask( EventType.ALL_EVENT_TYPES_MASK );
 
         // Create the journal file, or open if already exists

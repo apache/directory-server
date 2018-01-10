@@ -57,6 +57,7 @@ public class DefaultJournal implements Journal
     /**
      * {@inheritDoc}
      */
+    @Override
     public void destroy() throws Exception
     {
         LOG.debug( "Stopping the journal" );
@@ -73,6 +74,7 @@ public class DefaultJournal implements Journal
     /**
      * {@inheritDoc}
      */
+    @Override
     public JournalStore getJournalStore()
     {
         return store;
@@ -82,6 +84,7 @@ public class DefaultJournal implements Journal
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init( DirectoryService directoryService ) throws Exception
     {
         LOG.debug( "Starting the journal" );
@@ -100,6 +103,7 @@ public class DefaultJournal implements Journal
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isEnabled()
     {
         return enabled;
@@ -109,6 +113,7 @@ public class DefaultJournal implements Journal
     /**
      * {@inheritDoc}
      */
+    @Override
     public void log( LdapPrincipal principal, long revision, LdifEntry entry ) throws LdapException
     {
         store.log( principal, revision, entry );
@@ -118,6 +123,7 @@ public class DefaultJournal implements Journal
     /**
      * {@inheritDoc}
      */
+    @Override
     public void ack( long revision )
     {
         store.ack( revision );
@@ -127,6 +133,7 @@ public class DefaultJournal implements Journal
     /**
      * {@inheritDoc}
      */
+    @Override
     public void nack( long revision )
     {
         store.nack( revision );
@@ -136,6 +143,7 @@ public class DefaultJournal implements Journal
     /**
      * @return the rotation
      */
+    @Override
     public int getRotation()
     {
         return rotation;
@@ -145,18 +153,21 @@ public class DefaultJournal implements Journal
     /**
      * @param rotation the rotation to set
      */
+    @Override
     public void setRotation( int rotation )
     {
         this.rotation = rotation;
     }
 
 
+    @Override
     public void setEnabled( boolean enabled )
     {
         this.enabled = enabled;
     }
 
 
+    @Override
     public void setJournalStore( JournalStore store )
     {
         this.store = store;

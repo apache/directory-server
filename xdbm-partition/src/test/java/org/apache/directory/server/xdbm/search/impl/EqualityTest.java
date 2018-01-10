@@ -34,10 +34,11 @@ import java.util.Set;
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
@@ -129,6 +130,8 @@ public class EqualityTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
 
+        StoreUtils.createdExtraAttributes( schemaManager );
+        
         // initialize the store
         store = new AvlPartition( schemaManager, dnFactory );
         ( ( Partition ) store ).setId( "example" );
@@ -169,8 +172,8 @@ public class EqualityTest
     @Test
     public void testIndexedServerEntry() throws Exception
     {
-        EqualityNode<String> node = new EqualityNode<String>( schemaManager.getAttributeType( "cn" ), new StringValue(
-            "JOhnny WAlkeR" ) );
+        AttributeType cnAt = schemaManager.getAttributeType( "cn" );
+        EqualityNode<String> node = new EqualityNode<String>( cnAt,  new Value( cnAt, "JOhnny WAlkeR" ) );
         EqualityEvaluator<String> evaluator = new EqualityEvaluator<String>( node, store, schemaManager );
         EqualityCursor<String> cursor = new EqualityCursor<String>( store, evaluator );
 
@@ -190,43 +193,44 @@ public class EqualityTest
         assertFalse( cursor.available() );
 
         // test first()
+        String normalizedKey = cnAt.getEquality().getNormalizer().normalize( "JOhnny WAlkeR" );
         cursor.first();
         assertTrue( cursor.available() );
-        assertEquals( "JOhnny WAlkeR", cursor.get().getKey() );
+        assertEquals( normalizedKey, cursor.get().getKey() );
 
         // test last()
         cursor.last();
         assertTrue( cursor.available() );
-        assertEquals( "JOhnny WAlkeR", cursor.get().getKey() );
+        assertEquals( normalizedKey, cursor.get().getKey() );
 
         // test beforeFirst()
         cursor.beforeFirst();
         assertFalse( cursor.available() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( "JOhnny WAlkeR", cursor.get().getKey() );
+        assertEquals( normalizedKey, cursor.get().getKey() );
 
         // test afterLast()
         cursor.afterLast();
         assertFalse( cursor.available() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( "JOhnny WAlkeR", cursor.get().getKey() );
+        assertEquals( normalizedKey, cursor.get().getKey() );
 
         // test before()
         IndexEntry<String, String> entry = new IndexEntry<String, String>();
-        entry.setKey( "JOhnny WAlkeR" );
+        entry.setKey( normalizedKey );
         cursor.before( entry );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
-        assertEquals( "JOhnny WAlkeR", cursor.get().getKey() );
+        assertEquals( normalizedKey, cursor.get().getKey() );
 
         // test after()
         entry = new IndexEntry<String, String>();
         cursor.after( entry );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
-        assertEquals( "JOhnny WAlkeR", cursor.get().getKey() );
+        assertEquals( normalizedKey, cursor.get().getKey() );
         cursor.close();
 
         assertTrue( cursor.isClosed() );
@@ -236,8 +240,9 @@ public class EqualityTest
     @Test
     public void testEntryUUID() throws Exception
     {
-        EqualityNode<String> node = new EqualityNode<String>( schemaManager.getAttributeType( "entryUuid" ),
-            new StringValue( "00000000-0000-0000-0000-000000000005" ) );
+        AttributeType entryUuidAt = schemaManager.getAttributeType( "entryUuid" );
+        EqualityNode<String> node = new EqualityNode<String>( entryUuidAt,
+            new Value( entryUuidAt, "00000000-0000-0000-0000-000000000005" ) );
         EqualityEvaluator<String> evaluator = new EqualityEvaluator<String>( node, store, schemaManager );
         EqualityCursor<String> cursor = new EqualityCursor<String>( store, evaluator );
 

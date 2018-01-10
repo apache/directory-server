@@ -76,7 +76,7 @@ public interface PartitionNexus extends Partition
      * @param attributeType The attribute type for which we want a value
      * @return the values associated with the given attributeType
      */
-    Value<?> getRootDseValue( AttributeType attributeType );
+    Value getRootDseValue( AttributeType attributeType );
 
 
     /**

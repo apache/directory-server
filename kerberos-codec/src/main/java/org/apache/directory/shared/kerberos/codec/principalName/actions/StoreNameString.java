@@ -89,7 +89,8 @@ public class StoreNameString extends GrammarAction<PrincipalNameContainer>
 
         BerValue value = tlv.getValue();
 
-        // The PrincipalName must be pure ASCII witout any control character
+        // The PrincipalName must be pure ASCII without any control character. We accept UTF-8 if the
+        // ALLOW-UTF8-NAMES flag is set, for the sake of being nice to Microsoft.
         if ( ALLOW_UTF8_NAMES || KerberosUtils.isKerberosString( value.getData() ) )
         {
             String nameString = Strings.utf8ToString( value.getData() );

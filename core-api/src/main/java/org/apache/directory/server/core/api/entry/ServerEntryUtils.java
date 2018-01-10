@@ -81,9 +81,16 @@ public final class ServerEntryUtils
 
         javax.naming.directory.Attribute attribute = new BasicAttribute( attributeType.getName() );
 
-        for ( Value<?> value : entryAttribute )
+        for ( Value value : entryAttribute )
         {
-            attribute.add( value.getValue() );
+            if ( attributeType.isHR() )
+            {
+                attribute.add( value.getValue() );
+            }
+            else
+            {
+                attribute.add( value.getBytes() );
+            }
         }
 
         return attribute;
@@ -289,7 +296,7 @@ public final class ServerEntryUtils
 
                     if ( existing != null )
                     {
-                        for ( Value<?> value : toBeRemoved )
+                        for ( Value value : toBeRemoved )
                         {
                             existing.remove( value );
                         }
@@ -304,13 +311,13 @@ public final class ServerEntryUtils
 
                 if ( existing != null )
                 {
-                    for ( Value<?> value : existing )
+                    for ( Value value : existing )
                     {
                         combined.add( value );
                     }
                 }
 
-                for ( Value<?> value : toBeAdded )
+                for ( Value value : toBeAdded )
                 {
                     combined.add( value );
                 }
@@ -360,7 +367,7 @@ public final class ServerEntryUtils
 
         Attribute attr = attr0.clone();
 
-        for ( Value<?> value : attr1 )
+        for ( Value value : attr1 )
         {
             attr.add( value );
         }

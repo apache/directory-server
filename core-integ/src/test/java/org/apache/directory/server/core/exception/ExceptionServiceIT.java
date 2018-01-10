@@ -152,16 +152,20 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getService() );
 
-        Entry entry = new DefaultEntry( "ou=users,ou=groups,ou=system",
+        Entry entry = new DefaultEntry(
+            getService().getSchemaManager(),
+            "ou=users,ou=groups,ou=system",
             "ObjectClass: top",
             "ObjectClass: OrganizationalUnit",
             "ou: users" );
 
         connection.add( entry );
 
-        connection.rename( entry.getDn(), new Rdn( "ou=users" ) );
+        connection.rename( entry.getDn(), new Rdn( getService().getSchemaManager(), "ou=users" ) );
 
-        Entry userzEntry = new DefaultEntry( "ou=userz,ou=groups,ou=system",
+        Entry userzEntry = new DefaultEntry(
+            getService().getSchemaManager(),
+            "ou=userz,ou=groups,ou=system",
             "ObjectClass: top",
             "ObjectClass: OrganizationalUnit",
             "ou: userz" );
@@ -257,7 +261,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
 
         assertNotNull( entry );
         assertEquals( 1, entry.get( "ou" ).size() );
-        assertEquals( "users", entry.get( "ou" ).getString() );
+        assertEquals( "Users", entry.get( "ou" ).getString() );
     }
 
 

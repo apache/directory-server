@@ -38,7 +38,7 @@ import org.apache.directory.api.ldap.aci.protectedItem.RestrictedByItem;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -164,7 +164,7 @@ public class RestrictedByFilterTest
         AciContext aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
         aciContext.setAttributeType( SN_AT );
-        aciContext.setAttrValue( new StringValue( "1" ) );
+        aciContext.setAttrValue( new Value( "1" ) );
         aciContext.setEntry( ENTRY );
 
         assertEquals( 1, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
@@ -172,7 +172,7 @@ public class RestrictedByFilterTest
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
         aciContext.setAttributeType( SN_AT );
-        aciContext.setAttrValue( new StringValue( "2" ) );
+        aciContext.setAttrValue( new Value( "2" ) );
         aciContext.setEntry( ENTRY );
 
         assertEquals( 1, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
@@ -180,7 +180,7 @@ public class RestrictedByFilterTest
         aciContext = new AciContext( null, null );
         aciContext.setAciTuples( tuples );
         aciContext.setAttributeType( SN_AT );
-        aciContext.setAttrValue( new StringValue( "3" ) );
+        aciContext.setAttrValue( new Value( "3" ) );
         aciContext.setEntry( ENTRY );
 
         assertEquals( 0, filter.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );

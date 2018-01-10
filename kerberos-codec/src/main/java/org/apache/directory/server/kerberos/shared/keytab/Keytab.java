@@ -225,7 +225,7 @@ public class Keytab
      */
     protected static byte[] getBytesFromFile( File file ) throws IOException
     {
-        try (InputStream is = Files.newInputStream( file.toPath() ))
+        try ( InputStream is = Files.newInputStream( file.toPath() ) )
         {
 
             long length = file.length();
@@ -270,7 +270,7 @@ public class Keytab
         // Set append false to replace existing.
         OutputStream out = Files.newOutputStream( file.toPath() );
 
-        try (WritableByteChannel channel = Channels.newChannel( out ))
+        try ( WritableByteChannel channel = Channels.newChannel( out ) )
         {
             // Write the bytes between the position and limit.
             channel.write( buffer );

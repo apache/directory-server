@@ -64,24 +64,40 @@ public class ExpandingVisitor implements FilterVisitor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean canVisit( ExprNode node )
     {
         return node instanceof BranchNode;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<ExprNode> getOrder( BranchNode node, List<ExprNode> children )
     {
         return children;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isPrefix()
     {
         return false;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object visit( ExprNode node )
     {
         BranchNode bnode = ( BranchNode ) node;
@@ -117,7 +133,7 @@ public class ExpandingVisitor implements FilterVisitor
 
                         while ( descendants.hasNext() )
                         {
-                            LeafNode newLeaf = null;
+                            LeafNode newLeaf;
                             AttributeType descendant = descendants.next();
 
                             if ( leaf instanceof PresenceNode )

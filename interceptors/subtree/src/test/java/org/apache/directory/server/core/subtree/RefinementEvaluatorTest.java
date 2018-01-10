@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.FilterParser;
@@ -123,7 +123,7 @@ public class RefinementEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( ( String ) null, new StringValue( "" ) ), null ) );
+            assertFalse( evaluator.evaluate( new EqualityNode( ( String ) null, "" ), null ) );
             fail( "should never get here due to an IAE" );
         }
         catch ( IllegalArgumentException iae )
@@ -132,7 +132,7 @@ public class RefinementEvaluatorTest
 
         try
         {
-            assertFalse( evaluator.evaluate( new EqualityNode( ( String ) null, new StringValue( "" ) ),
+            assertFalse( evaluator.evaluate( new EqualityNode( ( String ) null, "" ),
                 new DefaultAttribute( "cn", CN_AT ) ) );
             fail( "should never get here due to an IAE" );
         }
@@ -150,18 +150,18 @@ public class RefinementEvaluatorTest
         // positive test
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
         assertTrue( evaluator
-            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "person" ) ), objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person", "blah" );
         assertTrue( evaluator
-            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ), objectClasses ) );
+            .evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "person" ) ), objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "blah" ) ), objectClasses ) );
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "blah" ) ), objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "person" ) ),
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "person" ) ),
             objectClasses ) );
     }
 
@@ -172,20 +172,20 @@ public class RefinementEvaluatorTest
         Attribute objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
 
         // positive test
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ),
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "2.5.6.6" ) ),
             objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person", "blah" );
-        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.6" ) ),
+        assertTrue( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "2.5.6.6" ) ),
             objectClasses ) );
 
         // negative tests
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "person" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ),
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "2.5.6.5" ) ),
             objectClasses ) );
 
         objectClasses = new DefaultAttribute( OBJECT_CLASS_AT, "blah" );
-        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new StringValue( "2.5.6.5" ) ),
+        assertFalse( evaluator.evaluate( new EqualityNode( OBJECT_CLASS_AT, new Value( "2.5.6.5" ) ),
             objectClasses ) );
     }
 

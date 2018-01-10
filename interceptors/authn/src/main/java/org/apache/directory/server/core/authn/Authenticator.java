@@ -118,12 +118,4 @@ public interface Authenticator
      * @param baseDn The Base DN to set
      */
     void setBaseDn( Dn baseDn );
-
-    /**
-     * Performs an unbind on the given context
-     * 
-     * @param unbindContext The Unbind context
-     * @exception If the unbind failed
-     */
-    //void unbind( UnbindOperationContext unbindContext ) throws Exception;
 }

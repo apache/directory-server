@@ -224,8 +224,7 @@ public class HttpServer
                 httpsConfiguration.setSecurePort( httpsTransport.getPort() );
                 httpsConfiguration.addCustomizer( new SecureRequestCustomizer() );
 
-                ServerConnector httpsConnector = new ServerConnector( jetty, 
-                    new SslConnectionFactory( sslContextFactory, "http/1.1" ), new HttpConnectionFactory( httpsConfiguration ) );
+                ServerConnector httpsConnector = new ServerConnector( jetty, new SslConnectionFactory( sslContextFactory, "http/1.1" ), new HttpConnectionFactory( httpsConfiguration ) );
                 httpsConnector.setPort( httpsTransport.getPort() );
                 httpsConnector.setHost( httpsTransport.getAddress() );
 

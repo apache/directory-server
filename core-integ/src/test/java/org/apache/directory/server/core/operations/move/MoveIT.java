@@ -21,6 +21,8 @@ package org.apache.directory.server.core.operations.move;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -33,8 +35,10 @@ import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -110,10 +114,6 @@ public class MoveIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        String oldDn = "cn=test,ou=system";
-        String newDn = "cn=test,ou=users,ou=system";
-        String newSuperior = "ou=users,ou=system";
-
         Entry test1 = new DefaultEntry( getService().getSchemaManager(), "cn=test1,ou=system",
             "ObjectClass: top", 
             "ObjectClass: person",
@@ -156,6 +156,48 @@ public class MoveIT extends AbstractLdapTestUnit
         assertNotNull( connection.lookup( "cn=childTest2,cn=test2,ou=system" ) );
         assertNotNull( connection.lookup( "cn=test1,cn=test2,ou=system" ) );
         assertNotNull( connection.lookup( "cn=childTest1,cn=test1,cn=test2,ou=system" ) );
+        
+        connection.close();
+    }
+    
+    
+    /**
+     * Test a move operation to a non existing parent:
+     * cn=test,ou=system will be moved to cn=test,ou=users,ou=system
+     */
+    @Test
+    public void testMoveNonExistingParent() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "cn=test,ou=system";
+        String newDn = "cn=test,ou=nonExisting,ou=system";
+        String newSuperior = "ou=nonExisting,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top", 
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test" );
+
+        connection.add( entry );
+
+        assertNull( connection.lookup( newDn ) );
+        assertNotNull( connection.lookup( oldDn ) );
+
+        try
+        {
+            connection.move( oldDn, newSuperior );
+            fail();
+        }
+        catch ( LdapOperationErrorException loee )
+        {
+            assertEquals( ResultCodeEnum.OPERATIONS_ERROR, loee.getResultCode() );
+        }
+
+        assertNull( connection.lookup( newDn ) );
+        assertNotNull( connection.lookup( oldDn ) );
         
         connection.close();
     }

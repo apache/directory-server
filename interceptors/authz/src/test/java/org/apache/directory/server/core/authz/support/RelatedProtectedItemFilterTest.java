@@ -46,7 +46,7 @@ import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.StringValue;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -287,7 +287,7 @@ public class RelatedProtectedItemFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        aciContext.setAttrValue( new StringValue( "valueA" ) );
+        aciContext.setAttrValue( new Value( CN_AT, "valueA" ) );
 
         assertEquals( 1, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
@@ -295,7 +295,7 @@ public class RelatedProtectedItemFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( CN_AT );
-        aciContext.setAttrValue( new StringValue( "valueB" ) );
+        aciContext.setAttrValue( new Value( CN_AT, "valueB" ) );
 
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
 
@@ -305,7 +305,7 @@ public class RelatedProtectedItemFilterTest
         aciContext.setAciTuples( tuples );
         aciContext.setUserDn( USER_NAME );
         aciContext.setAttributeType( SN_AT );
-        aciContext.setAttrValue( new StringValue( "valueA" ) );
+        aciContext.setAttrValue( new Value( SN_AT, "valueA" ) );
 
         assertEquals( 0, filterA.filter( aciContext, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null ).size() );
     }

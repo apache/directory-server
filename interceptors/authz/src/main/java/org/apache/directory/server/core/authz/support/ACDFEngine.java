@@ -151,7 +151,7 @@ public class ACDFEngine
         // Filter unrelated and invalid tuples
         for ( ACITupleFilter filter : filters )
         {
-            if ( aciContext.getAciTuples().size() == 0 )
+            if ( aciContext.getAciTuples().isEmpty() )
             {
                 // No need to continue filtering
                 return false;
@@ -162,7 +162,7 @@ public class ACDFEngine
         }
 
         // Deny access if no tuples left.
-        if ( aciContext.getAciTuples().size() == 0 )
+        if ( aciContext.getAciTuples().isEmpty() )
         {
             return false;
         }

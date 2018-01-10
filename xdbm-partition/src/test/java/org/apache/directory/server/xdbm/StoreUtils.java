@@ -19,12 +19,13 @@
  */
 package org.apache.directory.server.xdbm;
 
-
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.MutableAttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -41,7 +42,92 @@ public class StoreUtils
     /** CSN factory instance */
     private static final CsnFactory CSN_FACTORY = new CsnFactory( 0 );
 
+    public static final String TEST_INT_OID = "1.1.1.1.1.1";
+    public static final String TEST_INT_DESCENDANT_OID = "1.1.1.1.1.1.1";
+    public static final String TEST_INT_NO_INDEX_OID = "1.1.1.1.1.2";
+    public static final String TEST_INT_DESCENDANT_NO_INDEX_OID = "1.1.1.1.1.2.1";
 
+    /**
+     * Create 4 attributeTypes that have an ORDERING MatchingRule. 2 of them
+     * will be indexed :
+     * 
+     * <pre>
+     * testInt : indexed
+     *   ^
+     *   |
+     *   +-- testIntDescendant : indexed, with testInt being the SUPERIOR
+     *   
+     * testIntNoIndex : not indexed
+     *   ^
+     *   |
+     *   +-- testIntDescendantNoIndex : not indexed, with testIntNoIndex being the SUPERIOR
+     * </pre>
+     * 
+     * @param schemaManager
+     * @throws LdapException
+     */
+    public static void createdExtraAttributes( SchemaManager schemaManager ) throws LdapException
+    {
+        createTestInt( schemaManager );
+        createTestIntDescendant( schemaManager );
+        createTestIntNoIndex( schemaManager );
+        createTestIntDescendantNoIndex( schemaManager );
+    }
+
+    private static void createTestInt( SchemaManager schemaManager ) throws LdapException
+    {
+        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_OID );
+        attributeType.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
+        attributeType.setNames( "testInt" );
+        attributeType.setEqualityOid( "2.5.13.14" );
+        attributeType.setOrderingOid( "2.5.13.15" );
+        attributeType.setSubstringOid( null );
+        attributeType.setEnabled( true );
+
+        // Add the AttributeType
+        schemaManager.add( attributeType );
+    }
+    
+
+    private static void createTestIntDescendant( SchemaManager schemaManager ) throws LdapException
+    {
+        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_DESCENDANT_OID );
+        attributeType.setNames( "testIntDescendant" );
+        attributeType.setSuperior( schemaManager.getAttributeType( TEST_INT_OID ) );
+        attributeType.setEnabled( true );
+
+        // Add the AttributeType
+        schemaManager.add( attributeType );
+    }
+
+
+    private static void createTestIntNoIndex( SchemaManager schemaManager ) throws LdapException
+    {
+        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_NO_INDEX_OID );
+        attributeType.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
+        attributeType.setNames( "testIntNoIndex" );
+        attributeType.setEqualityOid( "2.5.13.14" );
+        attributeType.setOrderingOid( "2.5.13.15" );
+        attributeType.setSubstringOid( null );
+        attributeType.setEnabled( true );
+
+        // Add the AttributeType
+        schemaManager.add( attributeType );
+    }
+    
+
+    private static void createTestIntDescendantNoIndex( SchemaManager schemaManager ) throws LdapException
+    {
+        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_DESCENDANT_NO_INDEX_OID );
+        attributeType.setNames( "testIntDescendantNoIndex" );
+        attributeType.setSuperior( schemaManager.getAttributeType( TEST_INT_NO_INDEX_OID ) );
+        attributeType.setEnabled( true );
+
+        // Add the AttributeType
+        schemaManager.add( attributeType );
+    }
+
+    
     /**
      * Initializes and loads a store with the example data shown in
      * <a href="http://cwiki.apache.org/confluence/display/DIRxSRVx11/Structure+and+Organization">
@@ -64,7 +150,8 @@ public class StoreUtils
             "objectClass: organization",
             "o: Good Times Co.",
             "postalCode: 1",
-            "postOfficeBox: 1" );
+            "testInt: 1",
+            "testIntNoIndex: 1" );
         injectEntryInStore( store, entry, index++ );
 
         // Entry #2
@@ -74,7 +161,8 @@ public class StoreUtils
             "objectClass: organizationalUnit",
             "ou: Sales",
             "postalCode: 1",
-            "postOfficeBox: 1" );
+            "testInt: 1",
+            "testIntNoIndex: 1" );
         injectEntryInStore( store, entry, index++ );
 
         // Entry #3
@@ -84,7 +172,8 @@ public class StoreUtils
             "objectClass: organizationalUnit",
             "ou: Board of Directors",
             "postalCode: 1",
-            "postOfficeBox: 1" );
+            "testInt: 1",
+            "testIntNoIndex: 1" );
         injectEntryInStore( store, entry, index++ );
 
         // Entry #4
@@ -94,7 +183,8 @@ public class StoreUtils
             "objectClass: organizationalUnit",
             "ou: Engineering",
             "postalCode: 2",
-            "postOfficeBox: 2" );
+            "testInt: 2",
+            "testIntNoIndex: 2" );
         injectEntryInStore( store, entry, index++ );
 
         // Entry #5
@@ -107,7 +197,8 @@ public class StoreUtils
             "cn: JOhnny WAlkeR",
             "sn: WAlkeR",
             "postalCode: 3",
-            "postOfficeBox: 3" );
+            "testInt: 3",
+            "testIntNoIndex: 3" );
         injectEntryInStore( store, entry, index++ );
 
         // Entry #6
@@ -120,7 +211,8 @@ public class StoreUtils
             "cn: JIM BEAN",
             "surName: BEAN",
             "postalCode: 4",
-            "postOfficeBox: 4" );
+            "testInt: 4",
+            "testIntNoIndex: 4" );
         injectEntryInStore( store, entry, index++ );
 
         // Entry #7
@@ -130,7 +222,8 @@ public class StoreUtils
             "objectClass: organizationalUnit",
             "ou: Apache",
             "postalCode: 5",
-            "postOfficeBox: 5" );
+            "testInt: 5",
+            "testIntNoIndex: 5" );
         injectEntryInStore( store, entry, index++ );
 
         // Entry #8
@@ -143,7 +236,8 @@ public class StoreUtils
             "cn: Jack Daniels",
             "SN: Daniels",
             "postalCode: 6",
-            "postOfficeBox: 6" );
+            "testInt: 6",
+            "testIntNoIndex: 6" );
         injectEntryInStore( store, entry, index++ );
 
         // aliases -------------

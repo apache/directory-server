@@ -91,9 +91,8 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
 
         SchemaManager schemaManager = directoryService.getSchemaManager();
 
-        ppolicyConfigDnRoot = new Dn(
+        ppolicyConfigDnRoot = new Dn( schemaManager,
             "ou=passwordPolicies,ads-interceptorId=authenticationInterceptor,ou=interceptors,ads-directoryServiceId=default,ou=config" );
-        ppolicyConfigDnRoot.apply( schemaManager );
 
         AuthenticationInterceptor authInterceptor = ( AuthenticationInterceptor ) directoryService
             .getInterceptor( AUTHENTICATION_INTERCEPTOR.getName() );

@@ -65,6 +65,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
         throws LdapException
     {
@@ -90,6 +91,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( Entry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -138,6 +140,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( Entry entry, boolean cascade ) throws LdapException
     {
         Dn dn = entry.getDn();
@@ -189,25 +192,14 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
     {
         String schemaName = getSchemaName( entry.getDn() );
         ObjectClass oldOc = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), schemaName );
 
-        // Dependency constraints are not managed by this class
-        //        Set<Entry> dependees = dao.listObjectClassDependents( oldOc );
-        //        
-        //        if ( dependees != null && dependees.size() > 0 )
-        //        {
-        //            throw new LdapUnwillingToPerformException( "The objectClass with OID " + oldOc.getOid()
-        //                + " cannot be deleted until all entities" 
-        //                + " using this objectClass have also been deleted.  The following dependees exist: " 
-        //                + getOids( dependees ), 
-        //                ResultCodeEnum.UNWILLING_TO_PERFORM );
-        //        }
-
-        Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRdn.getNormValue();
+        Entry targetEntry = entry.clone();
+        String newOid = newRdn.getValue();
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
 
         // Inject the new Dn
@@ -238,6 +230,10 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void moveAndRename( Dn oriChildName, Dn newParentName, Rdn newRdn, boolean deleteOldRn,
         Entry entry, boolean cascade ) throws LdapException
     {
@@ -245,20 +241,9 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
         String oldSchemaName = getSchemaName( oriChildName );
         ObjectClass oldOc = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), oldSchemaName );
 
-        // this class does not handle dependencies
-        //        Set<Entry> dependees = dao.listObjectClassDependents( oldOc );
-        //        if ( dependees != null && dependees.size() > 0 )
-        //        {
-        //            throw new LdapUnwillingToPerformException( "The objectClass with OID " + oldOc.getOid()
-        //                + " cannot be deleted until all entities" 
-        //                + " using this objectClass have also been deleted.  The following dependees exist: " 
-        //                + getOids( dependees ), 
-        //                ResultCodeEnum.UNWILLING_TO_PERFORM );
-        //        }
-
         String newSchemaName = getSchemaName( newParentName );
-        Entry targetEntry = ( Entry ) entry.clone();
-        String newOid = newRdn.getNormValue();
+        Entry targetEntry = entry.clone();
+        String newOid = newRdn.getValue();
         checkOidIsUnique( newOid );
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
         ObjectClass oc = factory.getObjectClass( schemaManager, targetEntry, schemaManager.getRegistries(),
@@ -284,23 +269,16 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void move( Dn oriChildName, Dn newParentName, Entry entry, boolean cascade ) throws LdapException
     {
         checkNewParent( newParentName );
         String oldSchemaName = getSchemaName( oriChildName );
         String newSchemaName = getSchemaName( newParentName );
         ObjectClass oldAt = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), oldSchemaName );
-
-        // dependencies are not managed by this class
-        //        Set<Entry> dependees = dao.listObjectClassDependents( oldAt );
-        //        if ( dependees != null && dependees.size() > 0 )
-        //        {s
-        //            throw new LdapUnwillingToPerformException( "The objectClass with OID " + oldAt.getOid() 
-        //                + " cannot be deleted until all entities" 
-        //                + " using this objectClass have also been deleted.  The following dependees exist: " 
-        //                + getOids( dependees ), 
-        //                ResultCodeEnum.UNWILLING_TO_PERFORM );
-        //        }
 
         ObjectClass oc = factory.getObjectClass( schemaManager, entry, schemaManager.getRegistries(), newSchemaName );
 
@@ -342,7 +320,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
                 I18n.err( I18n.ERR_376 ) );
         }
 
-        if ( !rdn.getNormValue().equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
+        if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
                 I18n.err( I18n.ERR_377 ) );

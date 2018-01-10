@@ -54,10 +54,10 @@ public abstract class AbstractOperationContext implements OperationContext
     protected Entry originalEntry;
 
     /** The associated request's controls */
-    protected Map<String, Control> requestControls = new HashMap<String, Control>( 4 );
+    protected Map<String, Control> requestControls = new HashMap<>( 4 );
 
     /** The associated response's controls */
-    protected Map<String, Control> responseControls = new HashMap<String, Control>( 4 );
+    protected Map<String, Control> responseControls = new HashMap<>( 4 );
 
     /** the Interceptors bypassed by this operation */
     protected Collection<String> byPassed;
@@ -109,6 +109,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public CoreSession getSession()
     {
         return session;
@@ -136,6 +137,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return The associated Dn
      */
+    @Override
     public Dn getDn()
     {
         return dn;
@@ -147,6 +149,7 @@ public abstract class AbstractOperationContext implements OperationContext
      *
      * @param dn The Dn to set
      */
+    @Override
     public void setDn( Dn dn )
     {
         this.dn = dn;
@@ -156,6 +159,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addRequestControl( Control requestControl )
     {
         requestControls.put( requestControl.getOid(), requestControl );
@@ -165,6 +169,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public Control getRequestControl( String numericOid )
     {
         return requestControls.get( numericOid );
@@ -174,6 +179,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean hasRequestControl( String numericOid )
     {
         return requestControls.containsKey( numericOid );
@@ -183,6 +189,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean hasRequestControls()
     {
         return !requestControls.isEmpty();
@@ -192,6 +199,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addResponseControl( Control responseControl )
     {
         responseControls.put( responseControl.getOid(), responseControl );
@@ -201,6 +209,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public Control getResponseControl( String numericOid )
     {
         return responseControls.get( numericOid );
@@ -210,6 +219,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean hasResponseControl( String numericOid )
     {
         return responseControls.containsKey( numericOid );
@@ -219,6 +229,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public Control[] getResponseControls()
     {
         if ( responseControls.isEmpty() )
@@ -233,6 +244,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean hasResponseControls()
     {
         return !responseControls.isEmpty();
@@ -242,6 +254,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getResponseControlCount()
     {
         return responseControls.size();
@@ -251,6 +264,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addRequestControls( Control[] requestControls )
     {
         for ( Control c : requestControls )
@@ -272,6 +286,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return the operation name
      */
+    @Override
     public abstract String getName();
 
 
@@ -296,6 +311,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setInterceptors( List<String> interceptors )
     {
         this.interceptors = interceptors;
@@ -305,6 +321,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public final String getNextInterceptor()
     {
         if ( currentInterceptor == interceptors.size() )
@@ -322,6 +339,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return The number of the current interceptor in the list
      */
+    @Override
     public int getCurrentInterceptor()
     {
         return currentInterceptor;
@@ -333,6 +351,7 @@ public abstract class AbstractOperationContext implements OperationContext
      * 
      * @param currentInterceptor The new current interceptor value
      */
+    @Override
     public void setCurrentInterceptor( int currentInterceptor )
     {
         this.currentInterceptor = currentInterceptor;
@@ -348,6 +367,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( Dn dn ) throws LdapException
     {
         DeleteOperationContext deleteContext = new DeleteOperationContext( session, dn );
@@ -359,6 +379,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         return session.getDirectoryService().getOperationManager().lookup( lookupContext );
@@ -369,6 +390,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public LookupOperationContext newLookupContext( Dn dn, String... attributes )
     {
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn, attributes );
@@ -381,6 +403,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public LdapPrincipal getEffectivePrincipal()
     {
         if ( authorizedPrincipal != null )
@@ -398,6 +421,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @param entry the entry to set
      */
+    @Override
     public void setEntry( Entry entry )
     {
         this.entry = entry;
@@ -407,6 +431,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return the entry
      */
+    @Override
     public Entry getEntry()
     {
         return entry;
@@ -416,6 +441,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Set the throwReferral flag to true
      */
+    @Override
     public void throwReferral()
     {
         throwReferral = true;
@@ -425,6 +451,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return <code>true</code> if the referrals are thrown
      */
+    @Override
     public boolean isReferralThrown()
     {
         return throwReferral;
@@ -434,6 +461,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Set the throwReferral flag to false
      */
+    @Override
     public void ignoreReferral()
     {
         throwReferral = false;
@@ -443,6 +471,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return <code>true</code> if the referrals are ignored
      */
+    @Override
     public boolean isReferralIgnored()
     {
         return !throwReferral;

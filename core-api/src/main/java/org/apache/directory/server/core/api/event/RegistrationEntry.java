@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.api.event;
 
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
 
 /**
  * Entry for a {@link DirectoryListener} in the {@link EventService}.
@@ -38,9 +39,9 @@ public class RegistrationEntry
      * Creates a new instance of RegistrationEntry associated with a listener
      * @param listener The associated listener
      */
-    RegistrationEntry( DirectoryListener listener )
+    RegistrationEntry( SchemaManager schemaManager, DirectoryListener listener )
     {
-        this( listener, new NotificationCriteria() );
+        this( listener, new NotificationCriteria( schemaManager ) );
     }
 
 

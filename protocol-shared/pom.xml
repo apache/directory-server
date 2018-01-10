@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0-M25-SNAPSHOT</version>
+    <version>2.0.0.AM25-SNAPSHOT</version>
   </parent>
   
   <name>ApacheDS Protocol Shared</name>
@@ -97,8 +97,36 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.protocol.shared</Bundle-SymbolicName>
             <Export-Package>
-                {local-packages};version=${project.version};-noimport:=true
+                org.apache.directory.server.protocol.shared;version=${project.version},
+                org.apache.directory.server.protocol.shared.catalog;version=${project.version},
+                org.apache.directory.server.protocol.shared.kerberos;version=${project.version},
+                org.apache.directory.server.protocol.shared.store;version=${project.version},
+                org.apache.directory.server.protocol.shared.transport;version=${project.version}
             </Export-Package>
+            <Import-Package>
+                javax.security.auth.kerberos,
+                org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.filter;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.ldif;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.schema;version=${org.apache.directory.api.version},
+                org.apache.directory.api.util;version=${org.apache.directory.api.version},
+                org.apache.directory.server.constants;version=${project.version},
+                org.apache.directory.server.core.api;version=${project.version},
+                org.apache.directory.server.i18n;version=${project.version},
+                org.apache.directory.shared.kerberos;version=${project.version},
+                org.apache.directory.shared.kerberos.codec.types;version=${project.version},
+                org.apache.directory.shared.kerberos.components;version=${project.version},
+                org.apache.directory.shared.kerberos.exceptions;version=${project.version},
+                org.apache.mina.core.service;version=${mina.core.version},
+                org.apache.mina.transport.socket;version=${mina.core.version},
+                org.apache.mina.transport.socket.nio;version=${mina.core.version},
+                org.slf4j;version=${slf4j.api.bundleversion}
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>

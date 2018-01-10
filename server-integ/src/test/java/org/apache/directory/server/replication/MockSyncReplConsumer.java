@@ -919,7 +919,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             }
 
             // Check if the OldRdn has been deleted
-            boolean deleteOldRdn = remoteEntry.contains( localRdn.getNormType(), localRdn.getNormValue() );
+            boolean deleteOldRdn = remoteEntry.contains( localRdn.getNormType(), localRdn.getNormName() );
 
             switch ( modDnType )
             {
@@ -1063,8 +1063,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
         if ( size == 1 )
         {
             String uuid = Strings.uuidToString( limitedUuidList.get( 0 ) );
-            filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
-                new org.apache.directory.api.ldap.model.entry.StringValue( uuid ) );
+            filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, uuid );
             if ( isRefreshPresent )
             {
                 filter = new NotNode( filter );
@@ -1084,8 +1083,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             for ( int i = 0; i < size; i++ )
             {
                 String uuid = Strings.uuidToString( limitedUuidList.get( i ) );
-                ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT,
-                    new org.apache.directory.api.ldap.model.entry.StringValue( uuid ) );
+                ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, uuid );
 
                 if ( isRefreshPresent )
                 {

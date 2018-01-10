@@ -93,7 +93,7 @@ public class SubentryUtils
                         subentryAttrs.put( operational );
                     }
 
-                    operational.add( subentryDn.getNormName() );
+                    operational.add( subentryDn.getName() );
                 }
  
                 if ( subentry.isSchemaAdminRole() )
@@ -106,7 +106,7 @@ public class SubentryUtils
                         subentryAttrs.put( operational );
                     }
 
-                    operational.add( subentryDn.getNormName() );
+                    operational.add( subentryDn.getName() );
                 }
 
                 if ( subentry.isCollectiveAdminRole() )
@@ -121,7 +121,7 @@ public class SubentryUtils
                         subentryAttrs.put( operational );
                     }
 
-                    operational.add( subentryDn.getNormName() );
+                    operational.add( subentryDn.getName() );
                 }
 
                 if ( subentry.isTriggersAdminRole() )
@@ -135,7 +135,7 @@ public class SubentryUtils
                         subentryAttrs.put( operational );
                     }
 
-                    operational.add( subentryDn.getNormName() );
+                    operational.add( subentryDn.getName() );
                 }
             }
         }

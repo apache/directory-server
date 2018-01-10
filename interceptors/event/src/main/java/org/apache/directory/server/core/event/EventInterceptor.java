@@ -89,12 +89,14 @@ public class EventInterceptor extends BaseInterceptor
      * Initialize the event interceptor. It creates a pool of executor which will be used
      * to call the listeners in separate threads.
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         LOG.info( "Initializing ..." );
         super.init( directoryService );
 
         evaluator = new ExpressionEvaluator( schemaManager );
+        executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ) );
         
         ThreadFactory threadFactory = new ThreadFactory() 
         {
@@ -132,6 +134,7 @@ public class EventInterceptor extends BaseInterceptor
                 {
                     executor.execute( new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             listener.entryAdded( ( AddOperationContext ) opContext );
@@ -150,6 +153,7 @@ public class EventInterceptor extends BaseInterceptor
                 {
                     executor.execute( new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             listener.entryDeleted( ( DeleteOperationContext ) opContext );
@@ -168,6 +172,7 @@ public class EventInterceptor extends BaseInterceptor
                 {
                     executor.execute( new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             listener.entryModified( ( ModifyOperationContext ) opContext );
@@ -186,6 +191,7 @@ public class EventInterceptor extends BaseInterceptor
                 {
                     executor.execute( new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             listener.entryMoved( ( MoveOperationContext ) opContext );
@@ -204,6 +210,7 @@ public class EventInterceptor extends BaseInterceptor
                 {
                     executor.execute( new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             listener.entryRenamed( ( RenameOperationContext ) opContext );
@@ -222,6 +229,7 @@ public class EventInterceptor extends BaseInterceptor
                 {
                     executor.execute( new Runnable()
                     {
+                        @Override
                         public void run()
                         {
                             listener.entryMovedAndRenamed( ( MoveAndRenameOperationContext ) opContext );
@@ -240,6 +248,7 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( final AddOperationContext addContext ) throws LdapException
     {
         next( addContext );
@@ -264,6 +273,7 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( final DeleteOperationContext deleteContext ) throws LdapException
     {
         next( deleteContext );
@@ -288,6 +298,7 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( final ModifyOperationContext modifyContext ) throws LdapException
     {
         Entry oriEntry = modifyContext.getEntry();
@@ -326,6 +337,7 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Entry oriEntry = moveContext.getOriginalEntry();
@@ -352,6 +364,7 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( final MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Entry oriEntry = moveAndRenameContext.getOriginalEntry();
@@ -377,6 +390,7 @@ public class EventInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Entry oriEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry();
@@ -421,7 +435,7 @@ public class EventInterceptor extends BaseInterceptor
             return Collections.emptyList();
         }
 
-        List<RegistrationEntry> selecting = new ArrayList<RegistrationEntry>();
+        List<RegistrationEntry> selecting = new ArrayList<>();
 
         for ( RegistrationEntry registration : registrations )
         {

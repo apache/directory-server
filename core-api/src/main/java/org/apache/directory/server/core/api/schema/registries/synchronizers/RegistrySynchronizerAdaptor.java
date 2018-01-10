@@ -82,7 +82,7 @@ public class RegistrySynchronizerAdaptor
     private static final int DIT_CONTENT_RULE_INDEX = 9;
     private static final int NAME_FORM_INDEX = 10;
 
-    private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
+    private static final Set<String> VALID_OU_VALUES = new HashSet<>();
     private static final String[] META_OBJECT_CLASSES = new String[]
         {
             MetaSchemaConstants.META_COMPARATOR_OC,
@@ -105,7 +105,7 @@ public class RegistrySynchronizerAdaptor
     private final AttributeType objectClassAT;
     
     private final RegistrySynchronizer[] registrySynchronizers = new RegistrySynchronizer[11];
-    private final Map<String, RegistrySynchronizer> objectClass2synchronizerMap = new HashMap<String, RegistrySynchronizer>();
+    private final Map<String, RegistrySynchronizer> objectClass2synchronizerMap = new HashMap<>();
     private final SchemaSynchronizer schemaSynchronizer;
 
     static
@@ -113,7 +113,7 @@ public class RegistrySynchronizerAdaptor
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.NORMALIZERS_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.COMPARATORS_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.SYNTAX_CHECKERS_AT ) );
-        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( "syntaxes" ) );
+        VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.SYNTAXES ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.MATCHING_RULES_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.MATCHING_RULE_USE_AT ) );
         VALID_OU_VALUES.add( Strings.toLowerCaseAscii( SchemaConstants.ATTRIBUTE_TYPES_AT ) );
@@ -163,10 +163,10 @@ public class RegistrySynchronizerAdaptor
         Attribute oc = addContext.getEntry().get( objectClassAT );
 
         // First check if we are adding a schemaObject
-        for ( Value<?> value : oc )
+        for ( Value value : oc )
         {
 
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -201,7 +201,7 @@ public class RegistrySynchronizerAdaptor
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, msg );
             }
 
-            String ouValue = addContext.getDn().getRdn().getNormValue();
+            String ouValue = addContext.getDn().getRdn().getValue();
             ouValue = Strings.toLowerCaseAscii( Strings.trim( ouValue ) );
 
             if ( !VALID_OU_VALUES.contains( ouValue ) )
@@ -231,9 +231,9 @@ public class RegistrySynchronizerAdaptor
 
         Attribute oc = entry.get( objectClassAT );
 
-        for ( Value<?> value : oc )
+        for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -256,7 +256,7 @@ public class RegistrySynchronizerAdaptor
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_378 ) );
             }
 
-            String ouValue = deleteContext.getDn().getRdn().getNormValue();
+            String ouValue = deleteContext.getDn().getRdn().getValue();
             ouValue = Strings.toLowerCaseAscii( Strings.trim( ouValue ) );
 
             if ( !VALID_OU_VALUES.contains( ouValue ) )
@@ -286,22 +286,21 @@ public class RegistrySynchronizerAdaptor
         Entry entry = modifyContext.getEntry();
         Attribute oc = entry.get( objectClassAT );
 
-        for ( Value<?> value : oc )
+        for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
                 RegistrySynchronizer synchronizer = objectClass2synchronizerMap.get( oid );
-                boolean hasModification = synchronizer.modify( modifyContext, targetEntry, doCascadeModify );
-                return hasModification;
+                
+                return synchronizer.modify( modifyContext, targetEntry, doCascadeModify );
             }
         }
 
         if ( oc.contains( MetaSchemaConstants.META_SCHEMA_OC ) )
         {
-            boolean hasModification = schemaSynchronizer.modify( modifyContext, targetEntry, doCascadeModify );
-            return hasModification;
+            return schemaSynchronizer.modify( modifyContext, targetEntry, doCascadeModify );
         }
 
         if ( oc.contains( ApacheSchemaConstants.SCHEMA_MODIFICATION_ATTRIBUTES_OC ) )
@@ -328,9 +327,9 @@ public class RegistrySynchronizerAdaptor
         Entry originalEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry();
         Attribute oc = originalEntry.get( objectClassAT );
 
-        for ( Value<?> value : oc )
+        for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -357,9 +356,9 @@ public class RegistrySynchronizerAdaptor
     {
         Attribute oc = entry.get( objectClassAT );
 
-        for ( Value<?> value : oc )
+        for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -387,9 +386,9 @@ public class RegistrySynchronizerAdaptor
     {
         Attribute oc = entry.get( objectClassAT );
 
-        for ( Value<?> value : oc )
+        for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {

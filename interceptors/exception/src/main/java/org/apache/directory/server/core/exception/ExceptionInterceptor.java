@@ -99,15 +99,17 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
-        Value<?> attr = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemSubentryDn = dnFactory.create( attr.getString() );
+        Value attr = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
+        subschemSubentryDn = dnFactory.create( attr.getValue() );
     }
 
 
+    @Override
     public void destroy()
     {
     }
@@ -117,6 +119,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         Dn name = addContext.getDn();
@@ -193,6 +196,7 @@ public class ExceptionInterceptor extends BaseInterceptor
      * Checks to make sure the entry being deleted exists, and has no children, otherwise throws the appropriate
      * LdapException.
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         Dn dn = deleteContext.getDn();
@@ -219,6 +223,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         // check if entry to modify exists
@@ -256,6 +261,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         Dn oriChildName = moveContext.getDn();
@@ -282,12 +288,13 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         Dn oldDn = moveAndRenameContext.getDn();
 
         // Don't allow M&R in the SSSE
-        if ( oldDn.equals( subschemSubentryDn ) )
+        if ( oldDn.getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
                 subschemSubentryDn, subschemSubentryDn ) );
@@ -309,6 +316,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn dn = renameContext.getDn();

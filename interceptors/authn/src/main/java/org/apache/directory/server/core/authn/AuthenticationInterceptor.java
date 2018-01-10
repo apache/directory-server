@@ -54,7 +54,6 @@ import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
-import org.apache.directory.api.ldap.model.entry.BinaryValue;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -120,10 +119,10 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** A Set of all the existing Authenticator to be used by the bind operation */
-    private Set<Authenticator> authenticators = new HashSet<Authenticator>();
+    private Set<Authenticator> authenticators = new HashSet<>();
 
     /** A map of authenticators associated with the authentication level required */
-    private final Map<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new HashMap<AuthenticationLevel, Collection<Authenticator>>();
+    private final Map<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new HashMap<>();
 
     private CoreSession adminSession;
 
@@ -164,13 +163,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
 
         adminSession = directoryService.getAdminSession();
 
-        if ( ( authenticators == null ) || ( authenticators.size() == 0 ) )
+        if ( ( authenticators == null ) || authenticators.isEmpty() )
         {
             setDefaultAuthenticators();
         }
@@ -192,7 +192,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         if ( authenticators == null )
         {
-            authenticators = new HashSet<Authenticator>();
+            authenticators = new HashSet<>();
         }
 
         authenticators.clear();
@@ -254,11 +254,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
+    @Override
     public void destroy()
     {
         authenticatorsMapByType.clear();
-        Set<Authenticator> copy = new HashSet<Authenticator>( authenticators );
-        authenticators = new HashSet<Authenticator>();
+        Set<Authenticator> copy = new HashSet<>( authenticators );
+        authenticators = new HashSet<>();
 
         for ( Authenticator authenticator : copy )
         {
@@ -284,7 +285,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( authenticatorList == null )
         {
-            authenticatorList = new ArrayList<Authenticator>();
+            authenticatorList = new ArrayList<>();
             authenticatorsMapByType.put( authenticator.getAuthenticatorType(), authenticatorList );
         }
 
@@ -305,7 +306,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         Collection<Authenticator> result = authenticatorsMapByType.get( type );
 
-        if ( ( result != null ) && ( result.size() > 0 ) )
+        if ( ( result != null ) && ( !result.isEmpty() ) )
         {
             return result;
         }
@@ -319,6 +320,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -354,11 +356,11 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         if ( userPasswordAttribute != null )
         {
-            BinaryValue userPassword = ( BinaryValue ) userPasswordAttribute.get();
+            Value userPassword = userPasswordAttribute.get();
 
             try
             {
-                check( addContext, entry, userPassword.getValue(), policyConfig );
+                check( addContext, entry, userPassword.getBytes(), policyConfig );
             }
             catch ( PasswordPolicyException e )
             {
@@ -399,7 +401,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( policyConfig.getPwdInHistory() > 0 )
             {
                 Attribute pwdHistoryAt = new DefaultAttribute( pwdHistoryAT );
-                byte[] pwdHistoryVal = new PasswordHistory( pwdChangedTime, userPassword.getValue() ).getHistoryValue();
+                byte[] pwdHistoryVal = new PasswordHistory( pwdChangedTime, userPassword.getBytes() ).getHistoryValue();
                 pwdHistoryAt.add( pwdHistoryVal );
                 entry.add( pwdHistoryAt );
             }
@@ -416,19 +418,19 @@ public class AuthenticationInterceptor extends BaseInterceptor
         throws LdapUnwillingToPerformException, LdapAuthenticationException
     {
         Authenticator selectedAuthenticator = null;
-        Collection<Authenticator> authenticators = authenticatorsMapByType.get( level );
+        Collection<Authenticator> levelAuthenticators = authenticatorsMapByType.get( level );
 
-        if ( ( authenticators == null ) || ( authenticators.size() == 0 ) )
+        if ( ( levelAuthenticators == null ) || levelAuthenticators.isEmpty() )
         {
             // No authenticators associated with this level : get out
             throw new LdapAuthenticationException( "Cannot Bind for Dn "
                 + bindDn.getName() + ", no authenticator for the requested level " + level );
         }
 
-        if ( authenticators.size() == 1 )
+        if ( levelAuthenticators.size() == 1 )
         {
             // Just pick the existing one
-            for ( Authenticator authenticator : authenticators )
+            for ( Authenticator authenticator : levelAuthenticators )
             {
                 // Check that the bindDN fits
                 if ( authenticator.isValid( bindDn ) )
@@ -438,9 +440,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 else
                 {
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                        "Cannot Bind for Dn "
-                            + bindDn.getName() + ", its not a descendant of the authenticator base DN '"
-                            + authenticator.getBaseDn() + "'" );
+                        "Cannot Bind for Dn " + bindDn.getName() 
+                        + ", its not a descendant of the authenticator base DN '" + authenticator.getBaseDn() + "'" );
                 }
             }
         }
@@ -449,7 +450,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         // select the one that fits the bindDN
         Dn innerDn = Dn.ROOT_DSE;
 
-        for ( Authenticator authenticator : authenticators )
+        for ( Authenticator authenticator : levelAuthenticators )
         {
             if ( authenticator.isValid( bindDn ) )
             {
@@ -469,6 +470,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void bind( BindOperationContext bindContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -597,7 +599,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 pwdFailTimeAt.add( failureTime );
                 Modification pwdFailTimeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdFailTimeAt );
 
-                List<Modification> mods = new ArrayList<Modification>();
+                List<Modification> mods = new ArrayList<>();
                 mods.add( pwdFailTimeMod );
 
                 int numFailures = pwdFailTimeAt.size();
@@ -666,12 +668,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 }
             }
 
-            String upDn = ( bindDn == null ? "" : bindDn.getName() );
+            String upDn = bindDn == null ? "" : bindDn.getName();
             throw new LdapAuthenticationException( I18n.err( I18n.ERR_229, upDn ) );
         }
         else if ( policyConfig != null )
         {
-            List<Modification> mods = new ArrayList<Modification>();
+            List<Modification> mods = new ArrayList<>();
 
             if ( policyConfig.getPwdMaxIdle() > 0 )
             {
@@ -710,7 +712,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     if ( expired )
                     {
                         Attribute pwdGraceUseAttr = userEntry.get( pwdGraceUseTimeAT );
-                        int numGraceAuth = 0;
+                        int numGraceAuth;
 
                         if ( pwdGraceUseAttr != null )
                         {
@@ -771,6 +773,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean compare( CompareOperationContext compareContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -780,15 +783,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         checkAuthenticated( compareContext );
         checkPwdReset( compareContext );
-        boolean result = next( compareContext );
-
-        return result;
+        return next( compareContext );
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -806,6 +808,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry getRootDse( GetRootDseOperationContext getRootDseContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -823,6 +826,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -840,6 +844,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -858,10 +863,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
     {
         for ( AuthenticationLevel authMech : authenticatorsMapByType.keySet() )
         {
-            Collection<Authenticator> authenticators = getAuthenticators( authMech );
-
             // try each authenticator
-            for ( Authenticator authenticator : authenticators )
+            for ( Authenticator authenticator : getAuthenticators( authMech ) )
             {
                 authenticator.invalidateCache( principalDn );
             }
@@ -872,6 +875,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -949,7 +953,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
             boolean removePwdReset = false;
 
-            List<Modification> mods = new ArrayList<Modification>();
+            List<Modification> mods = new ArrayList<>();
 
             if ( pwdModDetails.isAddOrReplace() )
             {
@@ -1041,7 +1045,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 if ( policyConfig.isPwdMustChange() )
                 {
                     Attribute pwdMustChangeAt = new DefaultAttribute( pwdResetAT );
-                    Modification pwdMustChangeMod = null;
+                    Modification pwdMustChangeMod;
 
                     if ( modifyContext.getSession().isAnAdministrator() )
                     {
@@ -1088,9 +1092,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
     Modification buildPwdHistory( ModifyOperationContext modifyContext, Attribute pwdHistoryAt, 
         int histSize, byte[] newPassword, boolean isPPolicyReqCtrlPresent ) throws LdapOperationException
     {
-        List<PasswordHistory> pwdHistLst = new ArrayList<PasswordHistory>();
+        List<PasswordHistory> pwdHistLst = new ArrayList<>();
 
-        for ( Value<?> value : pwdHistoryAt )
+        for ( Value value : pwdHistoryAt )
         {
             PasswordHistory pwdh = new PasswordHistory( Strings.utf8ToString( value.getBytes() ) );
 
@@ -1265,6 +1269,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -1282,6 +1287,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -1299,6 +1305,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -1316,6 +1323,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         if ( IS_DEBUG )
@@ -1333,6 +1341,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void unbind( UnbindOperationContext unbindContext ) throws LdapException
     {
         next( unbindContext );
@@ -1458,22 +1467,16 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         int pwdLen = password.length();
 
-        if ( maxLen > 0 )
+        if ( ( maxLen > 0 ) && ( pwdLen > maxLen ) )
         {
-            if ( pwdLen > maxLen )
-            {
-                throw new PasswordPolicyException( "Password should not have more than " + maxLen + " characters",
-                    INSUFFICIENT_PASSWORD_QUALITY.getValue() );
-            }
+            throw new PasswordPolicyException( "Password should not have more than " + maxLen + " characters",
+                INSUFFICIENT_PASSWORD_QUALITY.getValue() );
         }
 
-        if ( minLen > 0 )
+        if ( ( minLen > 0 ) && ( pwdLen < minLen ) )
         {
-            if ( pwdLen < minLen )
-            {
-                throw new PasswordPolicyException( "Password should have a minimum of " + minLen + " characters",
-                    PASSWORD_TOO_SHORT.getValue() );
-            }
+            throw new PasswordPolicyException( "Password should have a minimum of " + minLen + " characters",
+                PASSWORD_TOO_SHORT.getValue() );
         }
     }
 
@@ -1803,9 +1806,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     public boolean isPwdPolicyEnabled()
     {
-        return ( ( pwdPolicyContainer != null )
+        return ( pwdPolicyContainer != null )
         && ( ( pwdPolicyContainer.getDefaultPolicy() != null )
-        || ( pwdPolicyContainer.hasCustomConfigs() ) ) );
+        || ( pwdPolicyContainer.hasCustomConfigs() ) );
     }
 
 
@@ -1844,12 +1847,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
 
-        Iterator<Value<?>> itr = pwdFailTimeAt.iterator();
+        Iterator<Value> itr = pwdFailTimeAt.iterator();
 
         while ( itr.hasNext() )
         {
-            Value<?> value = itr.next();
-            String failureTime = value.getString();
+            Value value = itr.next();
+            String failureTime = value.getValue();
             long time = DateUtils.getDate( failureTime ).getTime();
             time += interval;
 

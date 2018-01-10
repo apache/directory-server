@@ -63,6 +63,7 @@ public final class OperationScope
     /**
      * Returns the name of this scope.
      */
+    @Override
     public String toString()
     {
         return name;

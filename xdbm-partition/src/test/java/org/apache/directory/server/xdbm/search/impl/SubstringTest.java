@@ -121,6 +121,8 @@ public class SubstringTest
         wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
         wkdir.mkdirs();
 
+        StoreUtils.createdExtraAttributes( schemaManager );
+        
         // initialize the store
         store = new AvlPartition( schemaManager, dnFactory );
         ( ( Partition ) store ).setId( "example" );
@@ -175,29 +177,29 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        assertEquals( " jack  daniels ", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        assertEquals( " johnny  walker ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 11 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        assertEquals( " johnny  walker ", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -213,29 +215,29 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        assertEquals( " jack  daniels ", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        assertEquals( " johnny  walker ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 11 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        assertEquals( " johnny  walker ", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -250,29 +252,29 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 11 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        assertEquals( " johnny  walker ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        assertEquals( " johnny  walker ", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        assertEquals( " jack  daniels ", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -285,29 +287,29 @@ public class SubstringTest
         assertTrue( cursor.available() );
 
         assertEquals( Strings.getUUID( 11 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        assertEquals( " johnny  walker ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "johnny walker", cursor.get().getKey() );
+        assertEquals( " johnny  walker ", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 8 ), cursor.get().getId() );
-        assertEquals( "jack daniels", cursor.get().getKey() );
+        assertEquals( " jack  daniels ", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -329,15 +331,15 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -350,15 +352,15 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -373,15 +375,15 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -394,15 +396,15 @@ public class SubstringTest
         assertTrue( cursor.available() );
 
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -424,15 +426,15 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -446,15 +448,15 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -469,15 +471,15 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -490,15 +492,15 @@ public class SubstringTest
         assertTrue( cursor.available() );
 
         assertEquals( Strings.getUUID( 10 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 9 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "jim bean", cursor.get().getKey() );
+        assertEquals( " jim  bean ", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -520,7 +522,7 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "bean", cursor.get().getKey() );
+        assertEquals( "BEAN", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -533,7 +535,7 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "bean", cursor.get().getKey() );
+        assertEquals( "BEAN", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -548,7 +550,7 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "bean", cursor.get().getKey() );
+        assertEquals( "BEAN", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -562,7 +564,7 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 6 ), cursor.get().getId() );
-        assertEquals( "bean", cursor.get().getKey() );
+        assertEquals( "BEAN", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -584,7 +586,7 @@ public class SubstringTest
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        assertEquals( "WAlkeR", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -597,7 +599,7 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        assertEquals( "WAlkeR", cursor.get().getKey() );
 
         assertFalse( cursor.next() );
         assertFalse( cursor.available() );
@@ -612,7 +614,7 @@ public class SubstringTest
         assertTrue( cursor.previous() );
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5 ), cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        assertEquals( "WAlkeR", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -626,7 +628,7 @@ public class SubstringTest
 
         assertTrue( cursor.available() );
         assertEquals( Strings.getUUID( 5L ), cursor.get().getId() );
-        assertEquals( "walker", cursor.get().getKey() );
+        assertEquals( "WAlkeR", cursor.get().getKey() );
 
         assertFalse( cursor.previous() );
         assertFalse( cursor.available() );
@@ -639,12 +641,15 @@ public class SubstringTest
     {
         SubstringNode node = new SubstringNode( schemaManager.getAttributeType( "sn" ), "walk", null );
         SubstringEvaluator evaluator = new SubstringEvaluator( node, store, schemaManager );
+        
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 5L ) );
         assertTrue( evaluator.evaluate( indexEntry ) );
+        
         indexEntry.setId( Strings.getUUID( 3L ) );
         indexEntry.setEntry( null );
         assertFalse( evaluator.evaluate( indexEntry ) );
+        
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( null );
         assertFalse( evaluator.evaluate( indexEntry ) );
@@ -658,6 +663,7 @@ public class SubstringTest
 
         node = new SubstringNode( schemaManager.getAttributeType( "searchGuide" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
+        
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
@@ -665,6 +671,7 @@ public class SubstringTest
 
         node = new SubstringNode( schemaManager.getAttributeType( "st" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
+        
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
@@ -672,6 +679,7 @@ public class SubstringTest
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "j", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
+        
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );
@@ -679,6 +687,7 @@ public class SubstringTest
 
         node = new SubstringNode( schemaManager.getAttributeType( "name" ), "s", null );
         evaluator = new SubstringEvaluator( node, store, schemaManager );
+        
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
         indexEntry.setEntry( store.fetch( Strings.getUUID( 6L ) ) );

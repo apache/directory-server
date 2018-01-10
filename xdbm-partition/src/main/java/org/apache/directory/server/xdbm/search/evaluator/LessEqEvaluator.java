@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.api.ldap.model.schema.LdapComparator;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.i18n.I18n;
@@ -82,12 +83,20 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public LessEqNode<T> getExpression()
     {
         return ( LessEqNode<T> ) node;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
@@ -145,6 +154,10 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( Entry entry ) throws Exception
     {
         // get the attribute
@@ -189,21 +202,22 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
     private boolean evaluate( IndexEntry<Object, String> indexEntry, Attribute attribute )
         throws LdapException
     {
+        LdapComparator ldapComparator = attribute.getAttributeType().getOrdering().getLdapComparator();
         /*
          * Cycle through the attribute values testing normalized version
          * obtained from using the ordering or equality matching rule's
          * normalizer.  The test uses the comparator obtained from the
          * appropriate matching rule to perform the check.
          */
-        for ( Value<?> value : attribute )
+        for ( Value value : attribute )
         {
-            //noinspection unchecked
-            if ( ldapComparator.compare( value.getNormValue(), node.getValue().getNormValue() ) <= 0 )
+            if ( ldapComparator.compare( value.getValue(), node.getValue().getValue() ) <= 0 )
             {
                 if ( indexEntry != null )
                 {
-                    indexEntry.setKey( value.getNormValue() );
+                    indexEntry.setKey( value.getValue() );
                 }
+                
                 return true;
             }
         }
@@ -215,6 +229,7 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -228,6 +243,7 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return toString( "" );
