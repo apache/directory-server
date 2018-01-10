@@ -205,6 +205,7 @@ public class NtlmSaslServer extends AbstractSaslServer
     private CoreSession authenticate( String user, String password ) throws InvalidNameException, Exception
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
+        bindContext.setTransaction( getLdapSession().getCoreSession().getDirectoryService().getPartitionNexus().beginReadTransaction() );
         bindContext.setDn( new Dn( user ) );
         bindContext.setCredentials( Strings.getBytesUtf8( password ) );
 

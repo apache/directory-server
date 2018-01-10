@@ -1206,7 +1206,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         int newId = messageId.incrementAndGet();
 
-        BindOperationContext bindContext = new BindOperationContext( null );
+        BindOperationContext bindContext = new BindOperationContext( directoryService, null );
         bindContext.setCredentials( bindRequest.getCredentials() );
 
         bindContext.setDn( bindRequest.getDn().apply( directoryService.getSchemaManager() ) );

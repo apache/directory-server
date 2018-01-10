@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -119,9 +121,41 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
     /**
      * {@inheritDoc}
      */
-    public long count() throws IOException
+    public long count( PartitionTxn transaction ) throws LdapException
     {
         return count;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long greaterThanCount( PartitionTxn transaction, K key ) throws LdapException
+    {
+        // take a best guess
+        return Math.min( count, 10L );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long lessThanCount( PartitionTxn transaction, K key ) throws LdapException
+    {
+        // take a best guess
+        return Math.min( count, 10L );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isDupsEnabled()
+    {
+        return allowsDuplicates;
     }
 
 

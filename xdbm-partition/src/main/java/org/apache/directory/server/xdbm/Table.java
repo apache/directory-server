@@ -24,6 +24,9 @@ import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 
 
 /**
@@ -80,22 +83,24 @@ public interface Table<K, V>
      * this is exactly the same as a get call with a check to see if the
      * returned value is null or not.
      *
+     * @param transaction The transaction we are running in
      * @param key the Object of the key to check for
      * @return true if the key exists, false otherwise
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      */
-    boolean has( K key ) throws Exception;
+    boolean has( PartitionTxn transaction, K key ) throws LdapException;
 
 
     /**
      * Checks to see if this table has a key with a specific value.
      *
+     * @param transaction The transaction we are running in
      * @param key the key to check for
      * @param value the value to check for
      * @return true if a record with the key and value exists, false otherwise
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      */
-    boolean has( K key, V value ) throws Exception;
+    boolean has( PartitionTxn transaction, K key, V value ) throws LdapException;
 
 
     /**
@@ -104,12 +109,13 @@ public interface Table<K, V>
      * call to return true.  The underlying database must sort keys based on a
      * key comparator because this method depends on key ordering.
      *
+     * @param transaction The transaction we are running in
      * @param key the key to compare keys to
      * @return true if a Tuple with a key greater than or equal to the key
      * argument exists, false otherwise
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      */
-    boolean hasGreaterOrEqual( K key ) throws Exception;
+    boolean hasGreaterOrEqual( PartitionTxn transaction, K key ) throws LdapException;
 
 
     /**
@@ -118,12 +124,13 @@ public interface Table<K, V>
      * call to return true.  The underlying database must sort keys based on a
      * key comparator because this method depends on key ordering.
      *
+     * @param transaction The transaction we are running in
      * @param key the key to compare keys to
      * @return true if a Tuple with a key less than or equal to the key
      * argument exists, false otherwise
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      */
-    boolean hasLessOrEqual( K key ) throws Exception;
+    boolean hasLessOrEqual( PartitionTxn transaction, K key ) throws LdapException;
 
 
     /**
@@ -138,15 +145,16 @@ public interface Table<K, V>
      * If the table does not support duplicates then an
      * UnsupportedOperationException is thrown.
      *
+     * @param transaction The transaction we are running in
      * @param key the key
      * @param val the value to compare values to
      * @return true if a Tuple with a key equal to the key argument and a
      * value greater than the value argument exists, false otherwise
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      * or if the underlying Db is not of the Btree type that allows sorted
      * duplicate values.
      */
-    boolean hasGreaterOrEqual( K key, V val ) throws Exception;
+    boolean hasGreaterOrEqual( PartitionTxn transaction, K key, V val ) throws LdapException;
 
 
     /**
@@ -161,15 +169,16 @@ public interface Table<K, V>
      * If the table does not support duplicates then an
      * UnsupportedOperationException is thrown.
      *
+     * @param transaction The transaction we are running in
      * @param key the key
      * @param val the value to compare values to
      * @return true if a Tuple with a key equal to the key argument and a
      * value less than the value argument exists, false otherwise
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      * or if the underlying Db is not of the Btree type that allows sorted
      * duplicate values.
      */
-    boolean hasLessOrEqual( K key, V val ) throws Exception;
+    boolean hasLessOrEqual( PartitionTxn transaction, K key, V val ) throws LdapException;
 
 
     // ------------------------------------------------------------------------
@@ -180,59 +189,64 @@ public interface Table<K, V>
      * Gets the value of a record by key if the key exists.  If this Table
      * allows duplicate keys then the first key will be returned.  If this
      * Table sorts keys then the key will be the smallest key in the Table as
-     * specificed by this Table's comparator or the default bytewise lexical
+     * specified by this Table's comparator or the default byte-wise lexical
      * comparator.
      *
+     * @param transaction The transaction we are running in
      * @param key the key of the record
      * @return the value of the record with the specified key if key exists or
      * null if no such key exists.
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      */
-    V get( K key ) throws Exception;
+    V get( PartitionTxn transaction, K key ) throws LdapException;
 
 
     /**
      * Puts a record into this Table.  Null is not allowed for keys or values
      * and should result in an IllegalArgumentException.
      *
+     * @param writeTransaction The transaction we are running in
      * @param key the key of the record
      * @param value the value of the record.
-     * @throws Exception if there is a failure to read or write to the
+     * @throws LdapException if there is a failure to read or write to the
      * underlying Db
      * @throws IllegalArgumentException if a null key or value is used
      */
-    void put( K key, V value ) throws Exception;
+    void put( PartitionWriteTxn writeTransaction, K key, V value ) throws LdapException;
 
 
     /**
      * Removes all records with a specified key from this Table.
      *
+     * @param writeTransaction The transaction we are running in
      * @param key the key of the records to remove
-     * @throws Exception if there is a failure to read or write to
+     * @throws LdapException if there is a failure to read or write to
      * the underlying Db
      */
-    void remove( K key ) throws Exception;
+    void remove( PartitionWriteTxn writeTransaction, K key ) throws LdapException;
 
 
     /**
      * Removes a single key value pair with a specified key and value from
      * this Table.
      *
+     * @param writeTransaction The transaction we are running in
      * @param key the key of the record to remove
      * @param value the value of the record to remove
-     * @throws Exception if there is a failure to read or write to
+     * @throws LdapException if there is a failure to read or write to
      * the underlying Db
      */
-    void remove( K key, V value ) throws Exception;
+    void remove( PartitionWriteTxn writeTransaction, K key, V value ) throws LdapException;
 
 
     /**
      * Creates a Cursor that traverses Tuples in a Table.
      *
+     * @param transaction The transaction we are running in
      * @return a Cursor over Tuples containing the key value pairs
-     * @throws Exception if there are failures accessing underlying stores
+     * @throws LdapException if there are failures accessing underlying stores
      */
-    Cursor<Tuple<K, V>> cursor() throws Exception;
+    Cursor<Tuple<K, V>> cursor( PartitionTxn transaction ) throws LdapException;
 
 
     /**
@@ -244,11 +258,12 @@ public interface Table<K, V>
      * to a specific key.  This Cursor is naturally limited to return only
      * the tuples for the same key.
      *
+     * @param transaction The transaction we are running in
      * @param key the duplicate key to return the Tuples of
      * @return a Cursor over Tuples containing the same key
-     * @throws Exception if there are failures accessing underlying stores
+     * @throws LdapException if there are failures accessing underlying stores
      */
-    Cursor<Tuple<K, V>> cursor( K key ) throws Exception;
+    Cursor<Tuple<K, V>> cursor( PartitionTxn transaction, K key ) throws LdapException;
 
 
     /**
@@ -261,11 +276,12 @@ public interface Table<K, V>
      * reused to return key value pairs.  This Cursor is naturally limited to
      * return only the values for the same key.
      *
+     * @param transaction The transaction we are running in
      * @param key the duplicate key to return the values of
      * @return a Cursor over values of a key
-     * @throws Exception if there are failures accessing underlying stores
+     * @throws LdapException if there are failures accessing underlying stores
      */
-    Cursor<V> valueCursor( K key ) throws Exception;
+    Cursor<V> valueCursor( PartitionTxn transaction, K key ) throws LdapException;
 
 
     // ------------------------------------------------------------------------
@@ -275,21 +291,23 @@ public interface Table<K, V>
     /**
      * Gets the count of the number of Tuples in this Table.
      *
+     * @param transaction The transaction we are running in
      * @return the number of records
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      */
-    long count() throws Exception;
+    long count( PartitionTxn transaction ) throws LdapException;
 
 
     /**
      * Gets the count of the number of records in this Table with a specific
      * key: returns the number of duplicates for a key.
      *
+     * @param transaction The transaction we are running in
      * @param key the Object key to count.
      * @return the number of duplicate records for a key.
-     * @throws Exception if there is a failure to read the underlying Db
+     * @throws LdapException if there is a failure to read the underlying Db
      */
-    long count( K key ) throws Exception;
+    long count( PartitionTxn transaction, K key ) throws LdapException;
 
 
     /**
@@ -297,11 +315,12 @@ public interface Table<K, V>
      * specific key argument provided need not exist for this call to return 
      * a non-zero value.
      *
+     * @param transaction The transaction we are running in
      * @param key the key to use in comparisons
      * @return the number of keys greater than or equal to the key
-     * @throws Exception if there is a failure to read the underlying db
+     * @throws LdapException if there is a failure to read the underlying db
      */
-    long greaterThanCount( K key ) throws Exception;
+    long greaterThanCount( PartitionTxn transaction, K key ) throws LdapException;
 
 
     /**
@@ -309,17 +328,19 @@ public interface Table<K, V>
      * specific key argument provided need not exist for this call to return 
      * a non-zero value.
      *
+     * @param transaction The transaction we are running in
      * @param key the key to use in comparisons
      * @return the number of keys less than or equal to the key
-     * @throws Exception if there is a failure to read the underlying db
+     * @throws LdapException if there is a failure to read the underlying db
      */
-    long lessThanCount( K key ) throws Exception;
+    long lessThanCount( PartitionTxn transaction, K key ) throws LdapException;
 
 
     /**
      * Closes the underlying Db of this Table.
      *
-     * @throws Exception on any failures
+     * @param transaction The transaction we are running in
+     * @throws LdapException on any failures
      */
-    void close() throws Exception;
+    void close( PartitionTxn transaction ) throws LdapException;
 }

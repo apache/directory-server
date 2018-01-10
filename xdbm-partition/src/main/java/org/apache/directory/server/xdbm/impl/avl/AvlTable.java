@@ -27,6 +27,8 @@ import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
@@ -69,7 +71,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    @Override
+    public void close( PartitionTxn transaction ) throws LdapException
     {
         ( ( AvlTreeMapImpl<K, V> ) avl ).removeAll();
     }
@@ -78,7 +81,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public long count( K key ) throws Exception
+    @Override
+    public long count( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -106,7 +110,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public V get( K key ) throws LdapException
+    @Override
+    public V get( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -134,7 +139,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public long greaterThanCount( K key ) throws Exception
+    @Override
+    public long greaterThanCount( PartitionTxn transaction, K key ) throws LdapException
     {
         return avl.getSize();
     }
@@ -143,7 +149,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean has( K key ) throws Exception
+    @Override
+    public boolean has( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -157,7 +164,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean has( K key, V value ) throws LdapException
+    @Override
+    public boolean has( PartitionTxn transaction, K key, V value ) throws LdapException
     {
         if ( key == null )
         {
@@ -171,7 +179,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean hasGreaterOrEqual( K key ) throws Exception
+    @Override
+    public boolean hasGreaterOrEqual( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -185,7 +194,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean hasGreaterOrEqual( K key, V val ) throws LdapException
+    @Override
+    public boolean hasGreaterOrEqual( PartitionTxn transaction, K key, V val ) throws LdapException
     {
         if ( key == null )
         {
@@ -212,7 +222,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean hasLessOrEqual( K key ) throws Exception
+    @Override
+    public boolean hasLessOrEqual( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -226,7 +237,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean hasLessOrEqual( K key, V val ) throws Exception
+    @Override
+    public boolean hasLessOrEqual( PartitionTxn transaction, K key, V val ) throws LdapException
     {
         if ( key == null )
         {
@@ -253,16 +265,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public boolean isDupsEnabled()
-    {
-        return allowsDuplicates;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public long lessThanCount( K key ) throws Exception
+    @Override
+    public long lessThanCount( PartitionTxn transaction, K key ) throws LdapException
     {
         return count;
     }
@@ -271,7 +275,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public void put( K key, V value ) throws Exception
+    @Override
+    public void put( PartitionWriteTxn transaction, K key, V value ) throws LdapException
     {
         if ( ( key == null ) || ( value == null ) )
         {
@@ -288,7 +293,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public void remove( K key ) throws Exception
+    @Override
+    public void remove( PartitionWriteTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -316,7 +322,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public void remove( K key, V value ) throws Exception
+    @Override
+    public void remove( PartitionWriteTxn transaction, K key, V value ) throws LdapException
     {
         if ( avl.remove( key, value ) != null )
         {
@@ -328,7 +335,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public Cursor<Tuple<K, V>> cursor() throws LdapException
+    @Override
+    public Cursor<Tuple<K, V>> cursor( PartitionTxn transaction ) throws LdapException
     {
         if ( !allowsDuplicates )
         {
@@ -343,7 +351,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public Cursor<Tuple<K, V>> cursor( K key ) throws Exception
+    @Override
+    public Cursor<Tuple<K, V>> cursor( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -370,7 +379,8 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
     /**
      * {@inheritDoc}
      */
-    public Cursor<V> valueCursor( K key ) throws Exception
+    @Override
+    public Cursor<V> valueCursor( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {

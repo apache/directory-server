@@ -69,7 +69,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param comparator the Comparator used to determine <b>key</b> ordering
      * @throws Exception of there are problems accessing the BTree
      */
-    public KeyTupleBTreeCursor( BTree btree, K key, Comparator<V> comparator ) throws Exception
+    public KeyTupleBTreeCursor( BTree btree, K key, Comparator<V> comparator ) throws IOException
     {
         if ( IS_DEBUG )
         {

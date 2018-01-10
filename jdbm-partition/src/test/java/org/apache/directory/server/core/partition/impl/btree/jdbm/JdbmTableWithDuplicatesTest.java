@@ -159,14 +159,6 @@ public class JdbmTableWithDuplicatesTest
 
 
     @Test
-    public void testSerializers() throws Exception
-    {
-        assertNotNull( table.getKeySerializer() );
-        assertNotNull( ( ( JdbmTable<?, ?> ) table ).getValueSerializer() );
-    }
-
-
-    @Test
     public void testCountOneArg() throws Exception
     {
         assertEquals( 0, table.count( "3" ) );
@@ -590,7 +582,6 @@ public class JdbmTableWithDuplicatesTest
 
         table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
             comparator, comparator, new DefaultSerializer(), null );
-        assertNull( table.getValueSerializer() );
 
         for ( int i = 0; i < SIZE + 1; i++ )
         {

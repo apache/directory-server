@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -31,21 +32,29 @@ import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.mavibot.btree.BTree;
 import org.apache.directory.mavibot.btree.BTreeFactory;
+import org.apache.directory.mavibot.btree.InsertResult;
 import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.Transaction;
 import org.apache.directory.mavibot.btree.TupleCursor;
 import org.apache.directory.mavibot.btree.ValueCursor;
+import org.apache.directory.mavibot.btree.WriteTransaction;
 import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException;
 import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.mavibot.btree.serializer.LongSerializer;
+import org.apache.directory.mavibot.btree.serializer.StringSerializer;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
+import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jdbm.helper.Serializer;
 
 
 /**
@@ -66,6 +75,15 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
     /** The used recordManager */
     protected RecordManager recordMan;
+
+    /** the limit at which we start using btree redirection for duplicates */
+    private int numDupLimit = MavibotIndex.DEFAULT_DUPLICATE_LIMIT;
+
+    /** a cache of duplicate BTrees */
+    private final Map<Long, BTree<K, V>> duplicateBtrees;
+
+    /** A value serializer */
+    private final ElementSerializer valueSerializer;
 
 
     /**
@@ -106,20 +124,27 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     {
         super( schemaManager, name, keySerializer.getComparator(), valueSerializer.getComparator() );
         this.recordMan = recordMan;
+        this.valueSerializer = valueSerializer;
+        duplicateBtrees = null;
 
-        bt = recordMan.getManagedTree( name );
+        try ( Transaction transaction = recordMan.beginReadTransaction() )
+        {
+            bt = transaction.getBTree( name );
+        }
 
         if ( bt == null )
         {
-            bt = BTreeFactory.createPersistedBTree( name, keySerializer, valueSerializer, allowDuplicates, cacheSize );
-
+            // Create a new BTree
+            WriteTransaction writeTransaction = recordMan.beginWriteTransaction();
+                
             try
             {
-                recordMan.manage( bt );
+                bt = recordMan.addBTree( writeTransaction, name, keySerializer, valueSerializer );
+                writeTransaction.commit();
             }
-            catch ( BTreeAlreadyManagedException e )
+            catch ( Exception e )
             {
-                // should never happen
+                writeTransaction.abort();
                 throw new RuntimeException( e );
             }
         }
@@ -132,7 +157,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
 
         this.allowsDuplicates = allowDuplicates;
-        arrayMarshaller = new ArrayMarshaller<V>( valueComparator );
+        arrayMarshaller = new ArrayMarshaller<>( valueComparator );
 
         // Initialize the count
         count = bt.getNbElems();
@@ -143,19 +168,15 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public boolean has( PartitionTxn partitionTxn, K key ) throws LdapException
+    public boolean has( PartitionTxn transaction, K key ) throws LdapException
     {
         try
         {
-            return bt.hasKey( key );
+            return bt.hasKey( ( ( MavibotTxn ) transaction ).getTransaction(), key );
         }
         catch ( IOException ioe )
         {
             throw new LdapException( ioe );
-        }
-        catch ( KeyNotFoundException knfe )
-        {
-            throw new LdapException( knfe );
         }
     }
 
@@ -168,7 +189,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     {
         try
         {
-            return bt.contains( key, value );
+            return bt.contains( ( ( MavibotTxn ) transaction ).getTransaction(), key, value );
         }
         catch ( IOException e )
         {
@@ -187,7 +208,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            cursor = bt.browseFrom( key );
+            cursor = bt.browseFrom( ( ( MavibotTxn ) transaction ).getTransaction(), key );
 
             return cursor.hasNext();
         }
@@ -215,7 +236,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            cursor = bt.browseFrom( key );
+            cursor = bt.browseFrom( ( ( MavibotTxn ) transaction ).getTransaction(), key );
 
             org.apache.directory.mavibot.btree.Tuple<K, V> tuple = null;
 
@@ -244,9 +265,9 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
             return false;
         }
-        catch ( Exception e )
+        catch ( IOException ioe )
         {
-            throw new LdapException( e );
+            throw new LdapOtherException( ioe.getMessage() );
         }
         finally
         {
@@ -278,20 +299,20 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            if ( !bt.hasKey( key ) )
+            if ( !bt.hasKey( ( ( MavibotTxn ) transaction ).getTransaction(), key ) )
             {
                 return false;
             }
 
-            valueCursor = bt.getValues( key );
+            valueCursor = bt.getValues( ( ( MavibotTxn ) transaction ).getTransaction(), key );
 
             int equal = bt.getValueSerializer().compare( val, valueCursor.next() );
 
             return ( equal >= 0 );
         }
-        catch ( KeyNotFoundException | IOException e )
+        catch ( Exception e )
         {
-            throw new LdapException( e.getMessage() );
+            throw new LdapException( e );
         }
         finally
         {
@@ -319,7 +340,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
-        if ( !bt.hasKey( key ) )
+        if ( !bt.hasKey( ( ( MavibotTxn ) transaction ).getTransaction(), key ) )
         {
             return false;
         }
@@ -343,7 +364,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            return bt.get( key );
+            return bt.get( ( ( MavibotTxn ) transaction ).getTransaction(), key );
         }
         catch ( KeyNotFoundException knfe )
         {
@@ -369,7 +390,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 throw new IllegalArgumentException( I18n.err( I18n.ERR_594 ) );
             }
 
-            V existingVal = bt.insert( key, value );
+            InsertResult<K, V> existingVal = bt.insert( ( ( MavibotWriteTxn ) transaction ).getWriteTransaction(), key, value );
 
             if ( existingVal == null )
             {
@@ -379,7 +400,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         catch ( IOException ioe )
         {
             LOG.error( I18n.err( I18n.ERR_131, key, name ), ioe );
-            throw new LdapOtherException( ioe.getMessage(), ioe );
+            throw new LdapOtherException( ioe.getMessage(), ioe);
         }
     }
 
@@ -398,12 +419,13 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
 
             // Get the associated valueHolder
-            if ( bt.isAllowDuplicates() )
+            if ( allowsDuplicates )
             {
-                ValueCursor<V> valueCursor = bt.getValues( key );
+                ValueCursor<V> valueCursor = bt.getValues( ( ( MavibotWriteTxn ) transaction ).getWriteTransaction(), key );
                 int size = valueCursor.size();
                 valueCursor.close();
-                org.apache.directory.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
+                org.apache.directory.mavibot.btree.Tuple<K, V> returned = 
+                    bt.delete( ( ( MavibotWriteTxn ) transaction ).getWriteTransaction(), key );
 
                 if ( null == returned )
                 {
@@ -414,7 +436,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             }
             else
             {
-                org.apache.directory.mavibot.btree.Tuple<K, V> returned = bt.delete( key );
+                org.apache.directory.mavibot.btree.Tuple<K, V> returned = 
+                    bt.delete( ( ( MavibotWriteTxn ) transaction ).getWriteTransaction(), key );
 
                 if ( null == returned )
                 {
@@ -424,11 +447,11 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 count--;
             }
         }
-        catch ( IOException | KeyNotFoundException e )
+        catch ( IOException ioe )
         {
-            LOG.error( I18n.err( I18n.ERR_133, key, name ), e );
+            LOG.error( I18n.err( I18n.ERR_133, key, name ), ioe );
 
-            throw new LdapOtherException( e.getMessage(), e );
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
     }
 
@@ -446,7 +469,8 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 return;
             }
 
-            org.apache.directory.mavibot.btree.Tuple<K, V> tuple = bt.delete( key, value );
+            org.apache.directory.mavibot.btree.Tuple<K, V> tuple = 
+                bt.delete( ( ( MavibotWriteTxn ) transaction ).getWriteTransaction(), key, value );
 
             // We decrement the counter only when the key was found
             if ( tuple != null )
@@ -454,9 +478,11 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                 count--;
             }
         }
-        catch ( Exception e )
+        catch ( IOException ioe )
         {
-            LOG.error( I18n.err( I18n.ERR_132, key, value, name ), e );
+            LOG.error( I18n.err( I18n.ERR_132, key, value, name ), ioe );
+
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
     }
 
@@ -516,20 +542,20 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     {
         if ( key == null )
         {
-            return new EmptyCursor<V>();
+            return new EmptyCursor<>();
         }
 
         try
         {
             if ( !allowsDuplicates )
             {
-                V val = bt.get( key );
+                V val = bt.get( ( ( MavibotTxn ) transaction ).getTransaction(), key );
 
                 return new SingletonCursor<>( val );
             }
             else
             {
-                ValueCursor<V> dupCursor = bt.getValues( key );
+                ValueCursor<V> dupCursor = bt.getValues( ( ( MavibotTxn ) transaction ).getTransaction(), key );
 
                 return new ValueTreeCursor<>( dupCursor );
             }
@@ -558,17 +584,25 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            if ( bt.isAllowDuplicates() )
+            if ( allowsDuplicates )
             {
-                ValueCursor<V> dupHolder = bt.getValues( key );
-                int size = dupHolder.size();
-                dupHolder.close();
-
-                return size;
+                try
+                {
+                    ValueCursor dupHolder = (ValueCursor) bt.get( ( ( MavibotTxn ) transaction ).getTransaction(), key );
+                    int size = dupHolder.size();
+                    dupHolder.close();
+    
+                    return size;
+                }
+                catch ( KeyNotFoundException knfe )
+                {
+                    // No key
+                    return 0;
+                }
             }
             else
             {
-                if ( bt.hasKey( key ) )
+                if ( bt.hasKey( ( ( MavibotTxn ) transaction ).getTransaction(), key ) )
                 {
                     return 1;
                 }
@@ -577,11 +611,6 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
                     return 0;
                 }
             }
-        }
-        catch ( KeyNotFoundException knfe )
-        {
-            // No key
-            return 0;
         }
         catch ( IOException ioe )
         {
@@ -626,6 +655,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

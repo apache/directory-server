@@ -679,6 +679,7 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         BindOperationContext bindContext = new BindOperationContext( null );
+        bindContext.setTransaction( getDirectoryService().getPartitionNexus().beginReadTransaction() );
         bindContext.setDn( bindDn );
         bindContext.setCredentials( credentials );
         bindContext.setSaslMechanism( saslMechanism );

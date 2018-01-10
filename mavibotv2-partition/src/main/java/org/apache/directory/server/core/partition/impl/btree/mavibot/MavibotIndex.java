@@ -6,32 +6,27 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
-package org.apache.directory.server.core.partition.impl.btree.jdbm;
+package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Comparator;
 
-import jdbm.RecordManager;
-import jdbm.helper.ByteArraySerializer;
-import jdbm.helper.MRU;
-import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
-import jdbm.recman.TransactionManager;
-
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
@@ -40,7 +35,11 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
-import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
+import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
+import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
+import org.apache.directory.mavibot.btree.serializer.StringSerializer;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
@@ -51,14 +50,14 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A Jdbm based index implementation. It creates an Index for a give AttributeType.
+ * A Mavibot based index implementation. It creates an Index for a give AttributeType.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmIndex<K> extends AbstractIndex<K, String>
+public class MavibotIndex<K> extends AbstractIndex<K, String>
 {
     /** A logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( JdbmIndex.class );
+    private static final Logger LOG = LoggerFactory.getLogger( MavibotIndex.class.getSimpleName() );
 
     /** default duplicate limit before duplicate keys switch to using a btree for values */
     public static final int DEFAULT_DUPLICATE_LIMIT = 512;
@@ -74,46 +73,21 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
      * the value of the btree is the entry id of the entry containing an attribute with
      * that value
      */
-    protected JdbmTable<K, String> forward;
+    protected MavibotTable<K, String> forward;
 
     /**
      * the reverse btree where the btree key is the entry id of the entry containing a
      * value for the indexed attribute, and the btree value is the value of the indexed
      * attribute
      */
-    protected JdbmTable<String, K> reverse;
-
-    /**
-     * the JDBM record manager for the file containing this index
-     */
-    protected RecordManager recMan;
-
-    /**
-     * duplicate limit before duplicate keys switch to using a btree for values
-     */
-    protected int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
+    protected MavibotTable<String, K> reverse;
 
     /** a custom working directory path when specified in configuration */
     protected File wkDirPath;
 
+    /** The recordManager */
+    protected RecordManager recordMan;
 
-    /*
-     * NOTE: Duplicate Key Limit
-     *
-     * Jdbm cannot store duplicate keys: meaning it cannot have more than one value
-     * for the same key in the btree.  Thus as a workaround we stuff values for the
-     * same key into a TreeSet.  This is only effective up to some threshold after
-     * which we run into problems with serialization on and off disk.  A threshold
-     * is used to determine when to switch from using a TreeSet to start using another
-     * btree in the same index file just for the values.  This value only btree just
-     * has keys populated without a value for it's btree entries. When the switch
-     * occurs the value for the key in the index btree contains a pointer to the
-     * btree containing it's values.
-     *
-     * This numDupLimit is the threshold at which we switch from using in memory
-     * containers for values of the same key to using a btree for those values
-     * instead with indirection.
-     */
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -121,7 +95,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * Creates a JdbmIndex instance for a give AttributeId
      */
-    public JdbmIndex( String attributeId, boolean withReverse )
+    public MavibotIndex( String attributeId, boolean withReverse )
     {
         super( attributeId, withReverse );
 
@@ -131,7 +105,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
 
     /**
      * Initialize the index for an Attribute, with a specific working directory (may be null).
-     * 
+     *
      * @param schemaManager The schemaManager to use to get back the Attribute
      * @param attributeType The attributeType this index is created for
      * @throws IOException If the initialization failed
@@ -139,6 +113,12 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
+
+        // check if the RecordManager reference is null, if yes, then throw an IllegalStateException
+        if ( recordMan == null )
+        {
+            throw new IllegalStateException( "No RecordManager reference was set in the index " + getAttributeId() );
+        }
 
         this.attributeType = attributeType;
 
@@ -149,27 +129,8 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
 
         if ( this.wkDirPath == null )
         {
-            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-
-            throw e;
+            throw new NullPointerException( "The index working directory has not be set" );
         }
-
-        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
-
-        BaseRecordManager base = new BaseRecordManager( path );
-        TransactionManager transactionManager = base.getTransactionManager();
-        transactionManager.setMaximumTransactionsInLog( 2000 );
-
-        // see DIRSERVER-2002
-        // prevent the OOM when more than 50k users are loaded at a stretch
-        // adding this system property to make it configurable till JDBM gets replaced by Mavibot
-        String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "100" );
-        
-        int recCacheSize = Integer.parseInt( cacheSizeVal );
-        
-        LOG.info( "Setting CacheRecondManager's cache size to {}", recCacheSize );
-
-        recMan = new CacheRecordManager( base, new MRU( recCacheSize ) );
 
         try
         {
@@ -182,27 +143,19 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
             throw e;
         }
 
-        // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
-        // write the AttributeType description
-        fw.write( attributeType.toString() );
-        fw.close();
-
         initialized = true;
     }
 
 
     /**
      * Initializes the forward and reverse tables used by this Index.
-     * 
+     *
      * @param schemaManager The server schemaManager
      * @throws IOException if we cannot initialize the forward and reverse
      * tables
      */
     private void initTables( SchemaManager schemaManager ) throws IOException
     {
-        SerializableComparator<K> comp;
-
         MatchingRule mr = attributeType.getEquality();
 
         if ( mr == null )
@@ -210,28 +163,38 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
             throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
-        comp = new SerializableComparator<K>( mr.getOid() );
+        SerializableComparator<K> comp = new SerializableComparator<>( mr.getOid() );
+        comp.setSchemaManager( schemaManager );
 
         /*
          * The forward key/value map stores attribute values to master table
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        UuidComparator.INSTANCE.setSchemaManager( schemaManager );
-        comp.setSchemaManager( schemaManager );
 
-        if ( mr.getSyntax().isHumanReadable() )
+        ElementSerializer<K> forwardKeySerializer = null;
+
+        if ( !attributeType.getSyntax().isHumanReadable() )
         {
-            forward = new JdbmTable<K, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
-                recMan,
-                comp, UuidComparator.INSTANCE, StringSerializer.INSTANCE, UuidSerializer.INSTANCE );
+            forwardKeySerializer = ( ElementSerializer<K> ) new ByteArraySerializer( ( Comparator<byte[]> ) comp );
         }
         else
         {
-            forward = new JdbmTable<K, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
-                recMan,
-                comp, UuidComparator.INSTANCE, new ByteArraySerializer(), UuidSerializer.INSTANCE );
+            forwardKeySerializer = ( ElementSerializer<K> ) new StringSerializer( ( Comparator<String> ) comp );
         }
+
+        boolean forwardDups = true;
+
+        String oid = attributeType.getOid();
+        // disable duplicates for entryCSN and entryUUID attribute indices
+        if ( oid.equals( SchemaConstants.ENTRY_CSN_AT_OID ) || oid.equals( SchemaConstants.ENTRY_UUID_AT_OID ) )
+        {
+            forwardDups = false;
+        }
+
+        String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
+        forward = new MavibotTable<>( recordMan, schemaManager, forwardTableName, forwardKeySerializer,
+            StringSerializer.INSTANCE, forwardDups, AbstractBTreePartition.DEFAULT_CACHE_SIZE );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -241,48 +204,36 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
          */
         if ( withReverse )
         {
-            if ( attributeType.isSingleValued() )
-            {
-                reverse = new JdbmTable<String, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
-                    UuidComparator.INSTANCE, UuidSerializer.INSTANCE, null );
-            }
-            else
-            {
-                reverse = new JdbmTable<String, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
-                    recMan,
-                    UuidComparator.INSTANCE, comp, UuidSerializer.INSTANCE, null );
-            }
+            String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
+            reverse = new MavibotTable<>( recordMan, schemaManager, reverseTableName, StringSerializer.INSTANCE,
+                forwardKeySerializer, !attributeType.isSingleValued() );
         }
+
+        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
+        
+        // finally write a text file in the format <OID>-<attribute-name>.txt
+        try ( FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) ) )
+        {
+            // write the AttributeType description
+            fw.write( attributeType.toString() );
+        } 
+    }
+
+
+    /**
+     * Sets the RecordManager
+     *
+     * @param rm the RecordManager instance
+     */
+    public void setRecordManager( RecordManager rm )
+    {
+        this.recordMan = rm;
     }
 
 
     // ------------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // ------------------------------------------------------------------------
-    /**
-     * Gets the threshold at which point duplicate keys use btree indirection to store
-     * their values.
-     *
-     * @return the threshold for storing a keys values in another btree
-     */
-    public int getNumDupLimit()
-    {
-        return numDupLimit;
-    }
-
-
-    /**
-     * Sets the threshold at which point duplicate keys use btree indirection to store
-     * their values.
-     *
-     * @param numDupLimit the threshold for storing a keys values in another btree
-     */
-    public void setNumDupLimit( int numDupLimit )
-    {
-        protect( "numDupLimit" );
-        this.numDupLimit = numDupLimit;
-    }
-
 
     /**
      * Sets the working directory path to something other than the default. Sometimes more
@@ -292,7 +243,6 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
      */
     public void setWkDirPath( URI wkDirPath )
     {
-        //.out.println( "IDX Defining a WorkingDir : " + wkDirPath );
         protect( "wkDirPath" );
         this.wkDirPath = new File( wkDirPath );
     }
@@ -384,7 +334,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
      */
     public synchronized void add( K attrVal, String id ) throws Exception
     {
-        // The pair to be added must exists
+        // The pair to be removed must exists
         forward.put( attrVal, id );
 
         if ( withReverse )
@@ -454,11 +404,11 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor(), false );
+            return new IndexCursorAdaptor<>( ( Cursor ) reverse.cursor(), false );
         }
         else
         {
-            return new EmptyIndexCursor<K>();
+            return new EmptyIndexCursor<>();
         }
     }
 
@@ -475,11 +425,11 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor( id ), false );
+            return new IndexCursorAdaptor<>( ( Cursor ) reverse.cursor( id ), false );
         }
         else
         {
-            return new EmptyIndexCursor<K>();
+            return new EmptyIndexCursor<>();
         }
     }
 
@@ -487,7 +437,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     @SuppressWarnings("unchecked")
     public Cursor<IndexEntry<K, String>> forwardCursor( K key ) throws Exception
     {
-        return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<>( ( Cursor ) forward.cursor( key ), true );
     }
 
 
@@ -499,7 +449,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
         }
         else
         {
-            return new EmptyCursor<K>();
+            return new EmptyCursor<>();
         }
     }
 
@@ -534,7 +484,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id ) throws Exception
+    public boolean reverse( String id ) throws LdapException
     {
         if ( withReverse )
         {
@@ -550,7 +500,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id, K attrVal ) throws Exception
+    public boolean reverse( String id, K attrVal ) throws LdapException
     {
         return forward.has( attrVal, id );
     }
@@ -564,18 +514,22 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
      */
     public synchronized void close() throws IOException
     {
-        if ( forward != null )
+        try
         {
-            forward.close();
-        }
+            if ( forward != null )
+            {
+                forward.close();
+            }
 
-        if ( reverse != null )
+            if ( reverse != null )
+            {
+                reverse.close();
+            }
+        }
+        catch ( Exception e )
         {
-            reverse.close();
+            throw new IOException( e );
         }
-
-        commit( recMan );
-        recMan.close();
     }
 
 
@@ -584,31 +538,14 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
      */
     public synchronized void sync() throws IOException
     {
-        // Commit
-        recMan.commit();
-
-        // And flush the journal
-        if ( ( commitNumber.get() % 4000 ) == 0 )
-        {
-            BaseRecordManager baseRecordManager = null;
-
-            if ( recMan instanceof CacheRecordManager )
-            {
-                baseRecordManager = ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() );
-            }
-            else
-            {
-                baseRecordManager = ( ( BaseRecordManager ) recMan );
-            }
-
-            baseRecordManager.getTransactionManager().synchronizeLog();
-        }
+        // Nothing to do
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isDupsEnabled()
     {
         if ( withReverse )
@@ -618,20 +555,6 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
         else
         {
             return false;
-        }
-    }
-
-
-    /**
-     * Commit the modification on disk
-     * 
-     * @param recordManager The recordManager used for the commit
-     */
-    private void commit( RecordManager recordManager ) throws IOException
-    {
-        if ( commitNumber.incrementAndGet() % 2000 == 0 )
-        {
-            sync();
         }
     }
 

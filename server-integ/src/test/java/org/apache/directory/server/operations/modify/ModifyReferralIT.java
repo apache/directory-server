@@ -32,6 +32,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.message.ModifyResponse;
@@ -117,19 +119,29 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
     public void testOnReferralWithManageDsaITControl() throws Exception
     {
         LdapConnection conn = getWiredConnection( getLdapServer() );
+        
+        Dn target = new Dn( "uid=akarasuluref,ou=users,ou=system" );
 
         ManageDsaIT manageDSAIT = new ManageDsaITImpl();
         manageDSAIT.setCritical( true );
 
         // modify success
         ModifyRequest modifyRequest = new ModifyRequestImpl();
-        modifyRequest.setName( new Dn( "uid=akarasuluref,ou=users,ou=system" ) );
+        modifyRequest.setName( target );
         modifyRequest.add( "description", "referral to akarasulu" );
         modifyRequest.addControl( manageDSAIT );
 
         conn.modify( modifyRequest );
 
         assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", "description", "referral to akarasulu" ) );
+        
+        Entry result = conn.lookup( target, new Control[] {manageDSAIT}, "*" );
+        
+        System.out.println( result );
+
+        result = conn.lookup( target, new Control[] {}, "*" );
+        
+        System.out.println( result );
 
         conn.close();
     }

@@ -49,7 +49,6 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.PagedResults;
 import org.apache.directory.api.ldap.model.message.controls.PagedResultsImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
@@ -269,9 +268,6 @@ public class PagedSearchApiIT extends AbstractLdapTestUnit
                     results.add( result );
                 }
 
-                // Now read the next ones
-                Map<String, Control> controls =  cursor.getSearchResultDone().getControls();
-
                 if ( cursor.getSearchResultDone().getLdapResult().getResultCode() == ResultCodeEnum.SIZE_LIMIT_EXCEEDED )
                 {
                     hasSizeLimitException = true;
@@ -279,6 +275,9 @@ public class PagedSearchApiIT extends AbstractLdapTestUnit
                     break;
                 }
                 
+                // Now read the next ones
+                Map<String, Control> controls =  cursor.getSearchResultDone().getControls();
+
                 PagedResults responseControl = ( PagedResults ) controls.get( PagedResults.OID );
                 assertEquals( 0, responseControl.getSize() );
 

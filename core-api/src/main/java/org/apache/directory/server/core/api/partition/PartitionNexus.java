@@ -50,6 +50,17 @@ public interface PartitionNexus extends Partition
 
     byte[] ADMIN_PASSWORD_BYTES = Strings.getBytesUtf8( ADMIN_PASSWORD_STRING );
 
+    
+    /**
+     * Start a read transaction
+     */
+    PartitionReadTxn beginReadTransaction();
+
+    
+    /**
+     * Start a write transaction
+     */
+    PartitionWriteTxn beginWriteTransaction();
 
     /**
      * Get's the RootDSE entry for the DSA.

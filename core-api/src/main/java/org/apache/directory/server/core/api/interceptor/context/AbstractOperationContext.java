@@ -31,6 +31,7 @@ import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -74,6 +75,9 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** A flag used to tell if we should consider referrals as standard entries */
     protected boolean throwReferral;
+    
+    /** The transaction this operation is ran into */
+    protected PartitionTxn transaction;
 
 
     /**
@@ -442,5 +446,23 @@ public abstract class AbstractOperationContext implements OperationContext
     public boolean isReferralIgnored()
     {
         return !throwReferral;
+    }
+
+
+    /**
+     * @return the transaction
+     */
+    public PartitionTxn getTransaction()
+    {
+        return transaction;
+    }
+
+
+    /**
+     * @param transaction the transaction to set
+     */
+    public void setTransaction( PartitionTxn transaction )
+    {
+        this.transaction = transaction;
     }
 }

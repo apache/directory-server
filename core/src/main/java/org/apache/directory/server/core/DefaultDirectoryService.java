@@ -994,6 +994,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         BindOperationContext bindContext = new BindOperationContext( null );
+        bindContext.setTransaction( partitionNexus.beginReadTransaction() );
         bindContext.setCredentials( credentials );
         bindContext.setDn( principalDn.apply( schemaManager ) );
         bindContext.setInterceptors( getInterceptors( OperationEnum.BIND ) );
@@ -1020,6 +1021,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         BindOperationContext bindContext = new BindOperationContext( null );
+        bindContext.setTransaction( partitionNexus.beginReadTransaction() );
         bindContext.setCredentials( credentials );
         bindContext.setDn( principalDn.apply( schemaManager ) );
         bindContext.setSaslMechanism( saslMechanism );

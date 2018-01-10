@@ -33,6 +33,7 @@ import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -41,6 +42,8 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.SynchronizedLRUMap;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
@@ -76,9 +79,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
     /** a cache of duplicate BTrees */
     private final Map<Long, BTree<K, V>> duplicateBtrees;
-
-    /** A Key serializer */
-    private final Serializer keySerializer;
 
     /** A value serializer */
     private final Serializer valueSerializer;
@@ -136,7 +136,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         this.numDupLimit = numDupLimit;
         this.recMan = manager;
 
-        this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
 
         this.allowsDuplicates = true;
@@ -200,7 +199,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         this.numDupLimit = Integer.MAX_VALUE;
         this.recMan = manager;
 
-        this.keySerializer = keySerializer;
         this.valueSerializer = valueSerializer;
 
         this.allowsDuplicates = false;
@@ -227,7 +225,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         }
         else
         {
-            bt = new BTree<K, V>( recMan, keyComparator, keySerializer, valueSerializer );
+            bt = new BTree<>( recMan, keyComparator, keySerializer, valueSerializer );
             recId = bt.getRecordId();
             recMan.setNamedObject( name, recId );
             recId = recMan.insert( 0 );
@@ -237,57 +235,13 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
 
     // ------------------------------------------------------------------------
-    // Simple Table Properties
-    // ------------------------------------------------------------------------
-
-    public Serializer getKeySerializer()
-    {
-        return keySerializer;
-    }
-
-
-    public Serializer getValueSerializer()
-    {
-        return valueSerializer;
-    }
-
-
-    /**
-     * @see org.apache.directory.server.xdbm.Table#isDupsEnabled()
-     */
-    public boolean isDupsEnabled()
-    {
-        return allowsDuplicates;
-    }
-
-
-    // ------------------------------------------------------------------------
     // Count Overloads
     // ------------------------------------------------------------------------
     /**
-     * @see Table#greaterThanCount(Object)
-     */
-    public long greaterThanCount( K key ) throws IOException
-    {
-        // take a best guess
-        return Math.min( count, 10L );
-    }
-
-
-    /**
-     * @see Table#lessThanCount(Object)
-     */
-    public long lessThanCount( K key ) throws IOException
-    {
-        // take a best guess
-        return Math.min( count, 10L );
-    }
-
-
-    /**
      * @see org.apache.directory.server.xdbm.Table#count(java.lang.Object)
      */
-    public long count( K key ) throws LdapException
+    @Override
+    public long count( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -328,8 +282,12 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     // get/has/put/remove Methods and Overloads
     // ------------------------------------------------------------------------
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
-    public V get( K key ) throws LdapException
+    @Override
+    public V get( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -375,9 +333,10 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
 
     /**
-     * @see Table#hasGreaterOrEqual(Object,Object)
+     * {@inheritDoc}
      */
-    public boolean hasGreaterOrEqual( K key, V val ) throws LdapException
+    @Override
+    public boolean hasGreaterOrEqual( PartitionTxn transaction, K key, V val ) throws LdapException
     {
         if ( key == null )
         {
@@ -413,9 +372,10 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
 
     /**
-     * @see Table#hasLessOrEqual(Object,Object)
+     * {@inheritDoc}
      */
-    public boolean hasLessOrEqual( K key, V val ) throws LdapException
+    @Override
+    public boolean hasLessOrEqual( PartitionTxn transaction, K key, V val ) throws LdapException
     {
         if ( key == null )
         {
@@ -451,86 +411,95 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Table#hasGreaterOrEqual(Object)
+     * {@inheritDoc}
      */
+    @Override
     @SuppressWarnings("unchecked")
-    public boolean hasGreaterOrEqual( K key ) throws IOException
+    public boolean hasGreaterOrEqual( PartitionTxn transaction, K key ) throws LdapException
     {
-        // See if we can find the border between keys greater than and less
-        // than in the set of keys.  This will be the spot we search from.
-        jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
-
-        // Test for equality first since it satisfies both greater/less than
-        if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
+        try
         {
-            return true;
-        }
-
-        // Greater searches are easy and quick thanks to findGreaterOrEqual
-        // A null return above means there were no equal or greater keys
-        if ( null == tuple )
-        {
-            return false;
-        }
-
-        // Not Null! - we found a tuple with equal or greater key value
-        return true;
-    }
-
-
-    /**
-     * @see Table#hasLessOrEqual(Object)
-     */
-    @SuppressWarnings("unchecked")
-    public boolean hasLessOrEqual( K key ) throws IOException
-    {
-        // Can only find greater than or equal to with JDBM so we find that
-        // and work backwards to see if we can find one less than the key
-        Tuple<K, V> tuple = bt.findGreaterOrEqual( key );
-
-        // Test for equality first since it satisfies equal to condition
-        if ( null != tuple && keyComparator.compare( tuple.getKey(), key ) == 0 )
-        {
-            return true;
-        }
-
-        if ( null == tuple )
-        {
-            /*
-             * Jdbm failed to find a key greater than or equal to the argument
-             * which means all the keys in the table are less than the
-             * supplied key argument.  We can hence return true if the table
-             * contains any Tuples.
-             */
-            return count > 0;
-        }
-        else
-        {
-            /*
-             * We have the next tuple whose key is the next greater than the
-             * key argument supplied.  We use this key to advance a browser to
-             * that tuple and scan down to lesser Tuples until we hit one
-             * that is less than the key argument supplied.  Usually this will
-             * be the previous tuple if it exists.
-             */
-            TupleBrowser browser = bt.browse( tuple.getKey() );
-
-            if ( browser.getPrevious( tuple ) )
+            // See if we can find the border between keys greater than and less
+            // than in the set of keys.  This will be the spot we search from.
+            jdbm.helper.Tuple tuple = bt.findGreaterOrEqual( key );
+    
+            // Test for equality first since it satisfies both greater/less than
+            if ( null != tuple && keyComparator.compare( ( K ) tuple.getKey(), key ) == 0 )
             {
                 return true;
             }
+    
+            // Greater searches are easy and quick thanks to findGreaterOrEqual
+            // A null return above means there were no equal or greater keys
+            return ( null != tuple );
         }
-
-        return false;
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage() );
+        }
     }
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Table#has(java.lang.Object,
-     * java.lang.Object)
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public boolean has( K key, V value ) throws LdapException
+    @Override
+    public boolean hasLessOrEqual( PartitionTxn transaction, K key ) throws LdapException
+    {
+        try
+        {
+            // Can only find greater than or equal to with JDBM so we find that
+            // and work backwards to see if we can find one less than the key
+            Tuple<K, V> tuple = bt.findGreaterOrEqual( key );
+    
+            // Test for equality first since it satisfies equal to condition
+            if ( null != tuple && keyComparator.compare( tuple.getKey(), key ) == 0 )
+            {
+                return true;
+            }
+    
+            if ( null == tuple )
+            {
+                /*
+                 * Jdbm failed to find a key greater than or equal to the argument
+                 * which means all the keys in the table are less than the
+                 * supplied key argument.  We can hence return true if the table
+                 * contains any Tuples.
+                 */
+                return count > 0;
+            }
+            else
+            {
+                /*
+                 * We have the next tuple whose key is the next greater than the
+                 * key argument supplied.  We use this key to advance a browser to
+                 * that tuple and scan down to lesser Tuples until we hit one
+                 * that is less than the key argument supplied.  Usually this will
+                 * be the previous tuple if it exists.
+                 */
+                TupleBrowser browser = bt.browse( tuple.getKey() );
+    
+                if ( browser.getPrevious( tuple ) )
+                {
+                    return true;
+                }
+            }
+    
+            return false;
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage() );
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    public boolean has( PartitionTxn transaction, K key, V value ) throws LdapException
     {
         if ( key == null )
         {
@@ -562,20 +531,28 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
 
     /**
-     * @see Table#has(java.lang.Object)
+     * {@inheritDoc}
      */
-    public boolean has( K key ) throws IOException
+    @Override
+    public boolean has( PartitionTxn transaction, K key ) throws LdapException
     {
-        return key != null && bt.find( key ) != null;
+        try
+        {
+            return key != null && bt.find( key ) != null;
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapException( ioe );
+        }
     }
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Table#put(java.lang.Object,
-     * java.lang.Object)
+     * {@inheritDoc}
      */
+    @Override
     @SuppressWarnings("unchecked")
-    public synchronized void put( K key, V value ) throws Exception
+    public synchronized void put( PartitionWriteTxn transaction, K key, V value ) throws LdapException
     {
         try
         {
@@ -664,20 +641,20 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
             commit( recMan );
         }
-        catch ( Exception e )
+        catch ( IOException | CursorException | LdapException e )
         {
             LOG.error( I18n.err( I18n.ERR_131, key, name ), e );
-            throw e;
+            throw new LdapOtherException( e.getMessage(), e );
         }
     }
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Table#remove(java.lang.Object,
-     * java.lang.Object)
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public synchronized void remove( K key, V value ) throws IOException
+    @Override
+    public synchronized void remove( PartitionWriteTxn transaction, K key, V value ) throws LdapException
     {
         try
         {
@@ -788,9 +765,10 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
 
     /**
-     * @see Table#remove(Object)
+     * {@inheritDoc}
      */
-    public synchronized void remove( K key )
+    @Override
+    public synchronized void remove( PartitionWriteTxn transaction, K key ) throws LdapException
     {
         try
         {
@@ -871,81 +849,107 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     }
 
 
-    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor() throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor( PartitionTxn transaction ) throws LdapException
     {
         if ( allowsDuplicates )
         {
-            return new DupsCursor<K, V>( this );
+            return new DupsCursor<>( this );
         }
 
-        return new NoDupsCursor<K, V>( this );
+        return new NoDupsCursor<>( this );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
-    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor( K key ) throws Exception
+    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
-            return new EmptyCursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>>();
+            return new EmptyCursor<>();
         }
 
-        V raw = bt.find( key );
-
-        if ( null == raw )
+        try
+        { 
+            V raw = bt.find( key );
+    
+            if ( null == raw )
+            {
+                return new EmptyCursor<>();
+            }
+    
+            if ( !allowsDuplicates )
+            {
+                return new SingletonCursor<>(
+                    new org.apache.directory.api.ldap.model.cursor.Tuple<K, V>( key, raw ) );
+            }
+    
+            byte[] serialized = ( byte[] ) raw;
+    
+            if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
+            {
+                BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+                return new KeyTupleBTreeCursor<>( tree, key, valueComparator );
+            }
+    
+            ArrayTree<V> set = marshaller.deserialize( serialized );
+    
+            return new KeyTupleArrayCursor<>( set, key );
+        }
+        catch ( IOException ioe )
         {
-            return new EmptyCursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>>();
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
-
-        if ( !allowsDuplicates )
-        {
-            return new SingletonCursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>>(
-                new org.apache.directory.api.ldap.model.cursor.Tuple<K, V>( key, raw ) );
-        }
-
-        byte[] serialized = ( byte[] ) raw;
-
-        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
-        {
-            BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
-            return new KeyTupleBTreeCursor<K, V>( tree, key, valueComparator );
-        }
-
-        ArrayTree<V> set = marshaller.deserialize( serialized );
-
-        return new KeyTupleArrayCursor<K, V>( set, key );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
-    public Cursor<V> valueCursor( K key ) throws Exception
+    @Override
+    public Cursor<V> valueCursor( PartitionTxn transaction, K key ) throws LdapException
     {
         if ( key == null )
         {
-            return new EmptyCursor<V>();
+            return new EmptyCursor<>();
         }
 
-        V raw = bt.find( key );
-
-        if ( null == raw )
+        try
         {
-            return new EmptyCursor<V>();
+            V raw = bt.find( key );
+    
+            if ( null == raw )
+            {
+                return new EmptyCursor<>();
+            }
+    
+            if ( !allowsDuplicates )
+            {
+                return new SingletonCursor<>( raw );
+            }
+    
+            byte[] serialized = ( byte[] ) raw;
+    
+            if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
+            {
+                BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+                return new KeyBTreeCursor<>( tree, valueComparator );
+            }
+    
+            return new ArrayTreeCursor<>( marshaller.deserialize( serialized ) );
         }
-
-        if ( !allowsDuplicates )
+        catch ( IOException ioe )
         {
-            return new SingletonCursor<V>( raw );
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
-
-        byte[] serialized = ( byte[] ) raw;
-
-        if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
-        {
-            BTree tree = getBTree( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
-            return new KeyBTreeCursor<V>( tree, valueComparator );
-        }
-
-        return new ArrayTreeCursor<V>( marshaller.deserialize( serialized ) );
     }
 
 
@@ -956,9 +960,17 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     /**
      * @see Table#close()
      */
-    public synchronized void close() throws IOException
+    @Override
+    public synchronized void close( PartitionTxn transaction ) throws LdapException
     {
-        sync();
+        try
+        {
+            sync();
+        }
+        catch  ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage() );
+        }
     }
 
 
@@ -1143,7 +1155,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     }
 
 
-    private BTree<V, K> convertToBTree( ArrayTree<V> arrayTree ) throws Exception
+    private BTree<V, K> convertToBTree( ArrayTree<V> arrayTree ) throws IOException, CursorException, LdapException
     {
         BTree<V, K> bTree;
 
