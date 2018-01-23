@@ -537,12 +537,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
         catch ( LdapAuthenticationException e )
         {
             // authentication failed, try the next authenticator
-            LOG.info( "Authenticator {} failed to authenticate: {}", authenticator, bindContext );
+            LOG.info( "Authenticator {} failed to authenticate: {}", authenticator, bindContext.getDn() );
         }
         catch ( Exception e )
         {
             // Log other exceptions than LdapAuthenticationException
-            LOG.info( "Unexpected failure for Authenticator {} : {}", authenticator, bindContext );
+            LOG.info( "Unexpected failure for Authenticator {} : {}", authenticator, bindContext.getDn() );
         }
 
         if ( ppe != null )
