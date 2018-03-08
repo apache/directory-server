@@ -282,7 +282,7 @@ public final class TlsKeyGenerator
         certGen.setNotAfter( expiryDate );
         certGen.setSubjectDN( subjectDn );
         certGen.setPublicKey( publicKey );
-        certGen.setSignatureAlgorithm( "SHA1With" + ALGORITHM );
+        certGen.setSignatureAlgorithm( "SHA256With" + ALGORITHM );
 
         try
         {
