@@ -21,15 +21,11 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
-import jdbm.helper.MRU;
-import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
-import jdbm.recman.TransactionManager;
+import jdbm.RecordManager;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -61,7 +57,7 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
+    public void init( RecordManager recMan, SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
 
@@ -79,14 +75,8 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn>
             throw e;
         }
 
-        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
-
         //System.out.println( "IDX Created index " + path )
-        BaseRecordManager base = new BaseRecordManager( path );
-        TransactionManager transactionManager = base.getTransactionManager();
-        transactionManager.setMaximumTransactionsInLog( 2000 );
-
-        recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
+        this.recMan = recMan;
 
         try
         {
@@ -95,16 +85,9 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn>
         catch ( IOException e )
         {
             // clean up
-            close();
+            close( null );
             throw e;
         }
-
-        // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
-
-        // write the AttributeType description
-        fw.write( attributeType.toString() );
-        fw.close();
 
         initialized = true;
     }

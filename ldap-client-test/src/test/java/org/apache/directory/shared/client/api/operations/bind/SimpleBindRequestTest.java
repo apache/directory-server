@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;

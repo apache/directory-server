@@ -332,6 +332,8 @@ public class ReferralInterceptor extends BaseInterceptor
         // on eferral tests...
         LookupOperationContext lookupContext =
             new LookupOperationContext( modifyContext.getSession(), dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( modifyContext.getPartition() );
+        lookupContext.setTransaction( modifyContext.getTransaction() );
 
         Entry newEntry = nexus.lookup( lookupContext );
 
@@ -434,6 +436,8 @@ public class ReferralInterceptor extends BaseInterceptor
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(),
                 renameContext.getNewDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( renameContext.getPartition() );
+            lookupContext.setTransaction( renameContext.getTransaction() );
 
             Entry newEntry = nexus.lookup( lookupContext );
 

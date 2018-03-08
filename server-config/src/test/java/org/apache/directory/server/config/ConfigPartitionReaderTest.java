@@ -130,6 +130,6 @@ public class ConfigPartitionReaderTest
             0 );
         assertNotNull( directoryServiceBean );
 
-        configPartition.destroy();
+        configPartition.destroy( configPartition.beginReadTransaction() );
     }
 }

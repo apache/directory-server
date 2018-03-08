@@ -30,12 +30,12 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.syncInfoValue.SyncInfoValue;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
@@ -90,6 +90,8 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.replication.ReplicationConsumerConfig;
 import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
@@ -1127,7 +1129,15 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
         lookupCtx.setSyncreplLookup( true );
 
-        Entry localEntry = session.getDirectoryService().getOperationManager().lookup( lookupCtx );
+        Entry localEntry;
+        
+        Partition partition = session.getDirectoryService().getPartitionNexus().getPartition( remoteEntry.getDn() );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupCtx.setTransaction( partitionTxn );
+            localEntry = session.getDirectoryService().getOperationManager().lookup( lookupCtx );
+        }
 
         if ( config.isMmrMode() )
         {

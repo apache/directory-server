@@ -116,7 +116,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
 
         this.wrapped = wrapped;
         this.operationContext = operationContext;
-        this.filters = new ArrayList<EntryFilter>();
+        this.filters = new ArrayList<>();
         this.schemaManager = schemaManager;
     }
 

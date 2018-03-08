@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -34,6 +35,7 @@ import org.apache.directory.api.ldap.model.exception.LdapAffectMultipleDsaExcept
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapPartialResultException;
 import org.apache.directory.api.ldap.model.exception.LdapReferralException;
 import org.apache.directory.api.ldap.model.exception.LdapServiceUnavailableException;
@@ -63,6 +65,8 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,6 +172,8 @@ public class DefaultOperationManager implements OperationManager
 
             LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(),
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( opContext.getPartition() );
+            lookupContext.setTransaction( opContext.getTransaction() );
             Entry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             if ( foundEntry != null )
@@ -362,7 +368,11 @@ public class DefaultOperationManager implements OperationManager
             dn = new Dn( directoryService.getSchemaManager(), dn );
             addContext.setDn( dn );
         }
-
+        
+        // Find the working partition
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        addContext.setPartition( partition );
+        
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
 
@@ -398,9 +408,45 @@ public class DefaultOperationManager implements OperationManager
 
         lockWrite();
 
+        // Start a Write transaction right away
+        PartitionTxn transaction = null; 
+        
         try
         {
+            transaction = partition.beginWriteTransaction();
+            addContext.setTransaction( transaction );
+
             head.add( addContext );
+            transaction.commit();
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                transaction.abort();
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -454,7 +500,19 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            head.bind( bindContext );
+            Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+            
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                bindContext.setPartition( partition );
+                bindContext.setTransaction( partitionTxn );
+                
+                head.bind( bindContext );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
         }
         finally
         {
@@ -560,7 +618,19 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            result = head.compare( compareContext );
+            Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+            
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                compareContext.setPartition( partition );
+                compareContext.setTransaction( partitionTxn );
+                
+                result = head.compare( compareContext );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
         }
         finally
         {
@@ -602,6 +672,8 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the deleteContext Dn
         Dn dn = deleteContext.getDn();
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        deleteContext.setPartition( partition );
 
         if ( !dn.isSchemaAware() )
         {
@@ -660,14 +732,54 @@ public class DefaultOperationManager implements OperationManager
         // populate the context with the old entry
         lockWrite();
 
+        // Start a Write transaction right away
+        PartitionTxn transaction = null; 
+        
         try
         {
+            transaction = partition.beginWriteTransaction();
+            deleteContext.setTransaction( transaction );
+
             eagerlyPopulateFields( deleteContext );
 
             // Call the Delete method
             Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
 
             head.delete( deleteContext );
+
+            transaction.commit();
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -706,8 +818,30 @@ public class DefaultOperationManager implements OperationManager
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( getRootDseContext.getNextInterceptor() );
+        Entry root;
 
-        Entry root = head.getRootDse( getRootDseContext );
+        try
+        {
+            lockRead();
+            
+            Partition partition = directoryService.getPartitionNexus().getPartition( Dn.ROOT_DSE );
+            
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                getRootDseContext.setPartition( partition );
+                getRootDseContext.setTransaction( partitionTxn );
+                
+                root = head.getRootDse( getRootDseContext );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        finally
+        {
+            unlockRead();
+        }
 
         if ( IS_DEBUG )
         {
@@ -716,7 +850,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "GetRootDSE operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "GetRootDSE operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return root;
@@ -759,7 +893,19 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            result = head.hasEntry( hasEntryContext );
+            Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                hasEntryContext.setPartition( partition );
+                hasEntryContext.setTransaction( partitionTxn );
+
+                result = head.hasEntry( hasEntryContext );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
         }
         finally
         {
@@ -773,7 +919,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "HasEntry operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "HasEntry operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return result;
@@ -811,16 +957,29 @@ public class DefaultOperationManager implements OperationManager
             dn = new Dn( directoryService.getSchemaManager(), dn );
             lookupContext.setDn( dn );
         }
-
-        lockRead();
-
-        try
+        
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        lookupContext.setPartition( partition );
+        
+        // Start a read transaction right away
+        try ( PartitionTxn transaction = partition.beginReadTransaction() )
         {
-            entry = head.lookup( lookupContext );
+            lookupContext.setTransaction( transaction );
+
+            lockRead();
+    
+            try
+            {
+                entry = head.lookup( lookupContext );
+            }
+            finally
+            {
+                unlockRead();
+            }
         }
-        finally
+        catch ( IOException ioe )
         {
-            unlockRead();
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
 
         if ( IS_DEBUG )
@@ -921,11 +1080,18 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             referralManager.unlock();
         }
-
+        
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        modifyContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+        
         lockWrite();
 
         try
         {
+            partitionTxn = partition.beginWriteTransaction();
+            modifyContext.setTransaction( partitionTxn );
+
             // populate the context with the old entry
             eagerlyPopulateFields( modifyContext );
 
@@ -933,6 +1099,36 @@ public class DefaultOperationManager implements OperationManager
             Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
 
             head.modify( modifyContext );
+            partitionTxn.commit();
+        }
+        catch ( LdapException le )
+        {
+            try 
+            {
+                if ( partitionTxn != null )
+                {
+                    partitionTxn.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try 
+            {
+                partitionTxn.abort();
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -1051,9 +1247,18 @@ public class DefaultOperationManager implements OperationManager
         }
 
         lockWrite();
+        
+        // Find the working partition
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        moveContext.setPartition( partition );
 
+        // Start a Write transaction right away
+        PartitionTxn transaction = null; 
+        
         try
         {
+            transaction = partition.beginWriteTransaction();
+            moveContext.setTransaction( transaction );
             Entry originalEntry = getOriginalEntry( moveContext );
 
             moveContext.setOriginalEntry( originalEntry );
@@ -1062,6 +1267,39 @@ public class DefaultOperationManager implements OperationManager
             Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
 
             head.move( moveContext );
+            transaction.commit();
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -1180,17 +1418,59 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().unlock();
         }
 
-        lockWrite();
+        // Find the working partition
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        moveAndRenameContext.setPartition( partition );
 
+        PartitionTxn transaction = null; 
+        
+        lockWrite();
+        
         try
         {
+            transaction = partition.beginWriteTransaction();
             moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
             moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
+            moveAndRenameContext.setTransaction( transaction );
 
             // Call the MoveAndRename method
             Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
 
             head.moveAndRename( moveAndRenameContext );
+
+            transaction.commit();
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -1303,22 +1583,90 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().unlock();
         }
 
-        // Call the rename method
-        // populate the context with the old entry
-
         lockWrite();
 
+        // Call the rename method
         try
         {
-            eagerlyPopulateFields( renameContext );
+            Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+            renameContext.setPartition( partition );
+
+            // populate the context with the old entry
+            PartitionTxn partitionTxn = null;
+            
+            try
+            {
+                partitionTxn = partition.beginReadTransaction();
+                
+                renameContext.setTransaction( partitionTxn );
+                
+                eagerlyPopulateFields( renameContext );
+            }
+            finally
+            {
+                try
+                {
+                    // Nothing to do
+                    if ( partitionTxn != null )
+                    {
+                        partitionTxn.close();
+                    }
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
+            }
+
+
             Entry originalEntry = getOriginalEntry( renameContext );
             renameContext.setOriginalEntry( originalEntry );
             renameContext.setModifiedEntry( originalEntry.clone() );
 
             // Call the Rename method
+            PartitionTxn transaction = null; 
             Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
+            
+            try
+            {
+                transaction = partition.beginWriteTransaction();
+                renameContext.setTransaction( transaction );
 
-            head.rename( renameContext );
+                head.rename( renameContext );
+                transaction.commit();
+            }
+            catch ( LdapException le )
+            {
+                try
+                {
+                    if ( transaction != null )
+                    {
+                        transaction.abort();
+                    }
+                    
+                    throw le;
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
+            }
+            catch ( IOException ioe )
+            {
+                try
+                {
+                    if ( transaction != null )
+                    {
+                        transaction.abort();
+                    }
+                    
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
+                catch ( IOException ioe2 )
+                {
+                    throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+                }
+            }
         }
         finally
         {
@@ -1420,16 +1768,26 @@ public class DefaultOperationManager implements OperationManager
         Interceptor head = directoryService.getInterceptor( searchContext.getNextInterceptor() );
 
         EntryFilteringCursor cursor = null;
-
-        lockRead();
-
-        try
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            cursor = head.search( searchContext );
+            searchContext.setPartition( partition );
+            searchContext.setTransaction( partitionTxn );
+            lockRead();
+    
+            try
+            {
+                cursor = head.search( searchContext );
+            }
+            finally
+            {
+                unlockRead();
+            }
         }
-        finally
+        catch ( IOException ioe )
         {
-            unlockRead();
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
 
         if ( IS_DEBUG )

@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
+import java.io.IOException;
 import java.util.UUID;
 
 import jdbm.RecordManager;
@@ -45,7 +46,7 @@ public class JdbmMasterTable extends JdbmTable<String, Entry> implements MasterT
      * @param schemaManager the schema manager
      * @throws Exception if there is an error opening the Db file.
      */
-    public JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager ) throws Exception
+    public JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager ) throws IOException
     {
         super( schemaManager, DBF, recMan, UuidComparator.INSTANCE, UuidSerializer.INSTANCE,
             new EntrySerializer( schemaManager ) );
@@ -68,10 +69,8 @@ public class JdbmMasterTable extends JdbmTable<String, Entry> implements MasterT
      * used for the fictitious parent of the suffix root entry.
      *
      * @return the current value incremented by one.
-     * @throws Exception if the admin table storing sequences cannot be
-     *                         read and written to.
      */
-    public String getNextId( Entry entry ) throws Exception
+    public String getNextId( Entry entry )
     {
         return UUID.randomUUID().toString();
     }

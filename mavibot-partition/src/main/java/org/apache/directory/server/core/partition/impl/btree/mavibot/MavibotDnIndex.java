@@ -20,10 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
@@ -54,7 +53,7 @@ public class MavibotDnIndex extends MavibotIndex<Dn>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
 
@@ -78,7 +77,7 @@ public class MavibotDnIndex extends MavibotIndex<Dn>
         catch ( IOException e )
         {
             // clean up
-            close();
+            close( null );
             throw e;
         }
 
@@ -111,13 +110,5 @@ public class MavibotDnIndex extends MavibotIndex<Dn>
         String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
         reverse = new MavibotTable<String, Dn>( recordMan, schemaManager, reverseTableName, StringSerializer.INSTANCE,
             dnSerializer, !attributeType.isSingleValued() );
-
-        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
-        // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
-        // write the AttributeType description
-        fw.write( attributeType.toString() );
-        fw.close();
     }
-
 }

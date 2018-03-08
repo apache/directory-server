@@ -56,6 +56,7 @@ import org.apache.directory.server.core.api.interceptor.context.LookupOperationC
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -180,10 +181,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
          * {@inheritDoc}
          */
         @Override
-        public boolean accept( SearchOperationContext operation, Entry entry ) throws LdapException
+        public boolean accept( SearchOperationContext searchOperationContext, Entry entry ) throws LdapException
         {
             // Add the nbChildren/nbSubordinates attributes if required
-            processSubordinates( operation.getReturningAttributes(), operation.isAllOperationalAttributes(), entry );
+            processSubordinates( searchOperationContext, searchOperationContext.getReturningAttributes(), 
+                searchOperationContext.isAllOperationalAttributes(), entry );
 
             return true;
         }
@@ -343,7 +345,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         denormalizeEntryOpAttrs( entry );
         
         // Add the nbChildren/nbSubordinates attributes if required
-        processSubordinates( lookupContext.getReturningAttributes(), lookupContext.isAllOperationalAttributes(), entry );
+        processSubordinates( lookupContext, lookupContext.getReturningAttributes(), lookupContext.isAllOperationalAttributes(), entry );
 
         return entry;
     }
@@ -657,8 +659,8 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     }
     
     
-    private void processSubordinates( Set<AttributeTypeOptions> returningAttributes, boolean allAttributes, Entry entry ) 
-        throws LdapException
+    private void processSubordinates( OperationContext operationContext, Set<AttributeTypeOptions> returningAttributes, 
+        boolean allAttributes, Entry entry ) throws LdapException
     {
         // Bypass the rootDSE : we won't get the nbChildren and nbSubordiantes for this special entry
         if ( Dn.isNullOrEmpty( entry.getDn() ) )
@@ -680,7 +682,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( nbChildrenRequested || nbSubordinatesRequested )
             {
                 Partition partition = directoryService.getPartitionNexus().getPartition( entry.getDn() );
-                Subordinates subordinates = partition.getSubordinates( entry );
+                Subordinates subordinates = partition.getSubordinates( operationContext.getTransaction(), entry );
                 
                 long nbChildren = subordinates.getNbChildren();
                 long nbSubordinates = subordinates.getNbSubordinates();

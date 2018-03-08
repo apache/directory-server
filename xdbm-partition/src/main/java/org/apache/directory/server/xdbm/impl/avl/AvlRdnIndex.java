@@ -21,6 +21,8 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -49,7 +51,7 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws Exception
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws LdapException
     {
         this.attributeType = attributeType;
 
@@ -69,7 +71,7 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
 
         if ( normalizer == null )
         {
-            throw new Exception( I18n.err( I18n.ERR_212, attributeType ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_212, attributeType ) );
         }
 
         ParentIdAndRdnComparator<String> comp = new ParentIdAndRdnComparator<String>( mr.getOid() );

@@ -52,8 +52,10 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -164,7 +166,7 @@ public class NotCursorTest extends AbstractCursorTest
     {
         if ( store != null )
         {
-            ( ( Partition ) store ).destroy();
+            ( ( Partition ) store ).destroy( null );
         }
 
         store = null;
@@ -184,8 +186,10 @@ public class NotCursorTest extends AbstractCursorTest
         String filter = "(!(cn=J*))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
+        
+        PartitionTxn txn = new MockPartitionReadTxn();
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         assertFalse( cursor.available() );
 
@@ -220,6 +224,7 @@ public class NotCursorTest extends AbstractCursorTest
     @Test
     public void testNotCursorWithManualFilter() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
@@ -227,7 +232,7 @@ public class NotCursorTest extends AbstractCursorTest
             schemaManager );
         notNode.addNode( exprNode );
 
-        NotCursor<String> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
+        NotCursor<String> cursor = new NotCursor( txn, store, eval ); //cursorBuilder.build( andNode );
         cursor.beforeFirst();
 
         Set<String> set = new HashSet<String>();

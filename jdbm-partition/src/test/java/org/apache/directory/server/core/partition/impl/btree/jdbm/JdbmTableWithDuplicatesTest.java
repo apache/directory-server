@@ -43,6 +43,8 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -75,6 +77,7 @@ public class JdbmTableWithDuplicatesTest
     File dbFile;
     RecordManager recman;
     private static SchemaManager schemaManager;
+    private PartitionTxn partitionTxn;
 
 
     @BeforeClass
@@ -125,6 +128,8 @@ public class JdbmTableWithDuplicatesTest
         table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
             comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
         LOG.debug( "Created new table and populated it with data" );
+        
+        partitionTxn = new MockPartitionReadTxn();
     }
 
 
@@ -133,7 +138,7 @@ public class JdbmTableWithDuplicatesTest
     {
         if ( table != null )
         {
-            table.close();
+            table.close( partitionTxn );
         }
 
         table = null;
@@ -161,8 +166,8 @@ public class JdbmTableWithDuplicatesTest
     @Test
     public void testCountOneArg() throws Exception
     {
-        assertEquals( 0, table.count( "3" ) );
-        assertEquals( 0, table.count( null ) );
+        assertEquals( 0, table.count( partitionTxn, "3" ) );
+        assertEquals( 0, table.count( partitionTxn, null ) );
     }
 
 
@@ -197,16 +202,16 @@ public class JdbmTableWithDuplicatesTest
     @Test
     public void testCloseReopen() throws Exception
     {
-        table.put( "1", "2" );
-        assertEquals( "2", table.get( "1" ) );
-        table.close();
+        table.put( partitionTxn, "1", "2" );
+        assertEquals( "2", table.get( partitionTxn, "1" ) );
+        table.close( partitionTxn );
         SerializableComparator<String> comparator = new SerializableComparator<String>(
             SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
         table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
             comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
-        assertEquals( "2", table.get( "1" ) );
+        assertEquals( "2", table.get( partitionTxn, "1" ) );
     }
 
 
@@ -223,24 +228,24 @@ public class JdbmTableWithDuplicatesTest
     public void testWhenEmpty() throws Exception
     {
         // Test the count methods
-        assertEquals( 0, table.count() );
-        assertEquals( 0, table.count( "1" ) );
+        assertEquals( 0, table.count( partitionTxn ) );
+        assertEquals( 0, table.count( partitionTxn, "1" ) );
 
         // Test get method
-        assertNull( table.get( "0" ) );
-        assertNull( table.get( null ) );
+        assertNull( table.get( partitionTxn, "0" ) );
+        assertNull( table.get( partitionTxn, null ) );
 
         // Test remove methods
-        table.remove( "1" );
-        assertFalse( table.has( "1" ) );
+        table.remove( partitionTxn, "1" );
+        assertFalse( table.has( partitionTxn, "1" ) );
 
         // Test has operations
-        assertFalse( table.has( "1" ) );
-        assertFalse( table.has( "1", "0" ) );
-        assertFalse( table.hasGreaterOrEqual( "1" ) );
-        assertFalse( table.hasLessOrEqual( "1" ) );
-        assertFalse( table.hasGreaterOrEqual( "1", "0" ) );
-        assertFalse( table.hasLessOrEqual( "1", "0" ) );
+        assertFalse( table.has( partitionTxn, "1" ) );
+        assertFalse( table.has( partitionTxn, "1", "0" ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn, "1" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn, "1" ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn, "1", "0" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn, "1", "0" ) );
     }
 
 
@@ -252,102 +257,102 @@ public class JdbmTableWithDuplicatesTest
         for ( int i = 0; i < SIZE; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn, istr, istr );
         }
 
-        assertEquals( SIZE, table.count() );
-        table.put( "0", "0" );
-        assertTrue( table.has( "0", "0" ) );
+        assertEquals( SIZE, table.count( partitionTxn ) );
+        table.put( partitionTxn, "0", "0" );
+        assertTrue( table.has( partitionTxn, "0", "0" ) );
 
         // add some duplicates
         for ( int i = 0; i < SIZE * 2; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( SIZE2_STR, istr );
+            table.put( partitionTxn, SIZE2_STR, istr );
         }
 
-        assertEquals( SIZE * 3, table.count() );
+        assertEquals( SIZE * 3, table.count( partitionTxn ) );
 
-        table.put( "0", "0" );
-        assertTrue( table.has( "0", "0" ) );
+        table.put( partitionTxn, "0", "0" );
+        assertTrue( table.has( partitionTxn, "0", "0" ) );
 
-        table.put( SIZE2_STR, "0" );
-        assertTrue( table.has( SIZE2_STR, "0" ) );
+        table.put( partitionTxn, SIZE2_STR, "0" );
+        assertTrue( table.has( partitionTxn, SIZE2_STR, "0" ) );
     }
 
 
     @Test
     public void testHas() throws Exception
     {
-        assertFalse( table.has( "1" ) );
+        assertFalse( table.has( partitionTxn, "1" ) );
 
         for ( int i = 0; i < SIZE * 2; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( "1", istr );
+            table.put( partitionTxn, "1", istr );
         }
 
-        assertEquals( SIZE2, table.count() );
+        assertEquals( SIZE2, table.count( partitionTxn ) );
 
-        assertTrue( table.has( "1" ) );
-        assertTrue( table.has( "1", "0" ) );
-        assertFalse( table.has( "1", SIZE2_STR ) );
+        assertTrue( table.has( partitionTxn, "1" ) );
+        assertTrue( table.has( partitionTxn, "1", "0" ) );
+        assertFalse( table.has( partitionTxn, "1", SIZE2_STR ) );
 
-        assertTrue( table.hasGreaterOrEqual( "1", "0" ) );
-        assertTrue( table.hasLessOrEqual( "1", "0" ) );
-        assertFalse( table.hasLessOrEqual( "1", "-1" ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, "1", "0" ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, "1", "0" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn, "1", "-1" ) );
 
-        assertTrue( table.hasGreaterOrEqual( "1", SIZE2_MINUS_ONE_STR ) );
-        assertTrue( table.hasLessOrEqual( "1", SIZE2_MINUS_ONE_STR ) );
-        assertTrue( table.hasGreaterOrEqual( "1", SIZE2_MINUS_ONE_STR ) );
-        assertTrue( table.hasLessOrEqual( "1", SIZE2_STR ) );
-        assertFalse( table.hasGreaterOrEqual( "1", SIZE2_STR ) );
-        assertFalse( table.has( "1", SIZE2_STR ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, "1", SIZE2_MINUS_ONE_STR ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, "1", SIZE2_MINUS_ONE_STR ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, "1", SIZE2_MINUS_ONE_STR ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, "1", SIZE2_STR ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn, "1", SIZE2_STR ) );
+        assertFalse( table.has( partitionTxn, "1", SIZE2_STR ) );
 
         // let's go over the this limit now and ask the same questions
-        table.put( "1", SIZE2_STR );
+        table.put( partitionTxn, "1", SIZE2_STR );
 
-        assertTrue( table.has( "1" ) );
-        assertTrue( table.has( "1", "0" ) );
-        assertTrue( table.has( "1", SIZE2_STR ) );
-        assertFalse( table.has( null, null ) );
+        assertTrue( table.has( partitionTxn, "1" ) );
+        assertTrue( table.has( partitionTxn, "1", "0" ) );
+        assertTrue( table.has( partitionTxn, "1", SIZE2_STR ) );
+        assertFalse( table.has( partitionTxn, null, null ) );
 
-        assertTrue( table.hasGreaterOrEqual( "1", "0" ) );
-        assertTrue( table.hasLessOrEqual( "1", "0" ) );
-        assertFalse( table.hasLessOrEqual( "1", "-1" ) );
-        assertFalse( table.hasGreaterOrEqual( null, null ) );
-        assertFalse( table.hasLessOrEqual( null, null ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, "1", "0" ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, "1", "0" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn, "1", "-1" ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn, null, null ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn, null, null ) );
 
-        assertTrue( table.hasGreaterOrEqual( "1", SIZE2_STR ) );
-        assertTrue( table.hasLessOrEqual( "1", SIZE2_STR ) );
-        assertTrue( table.hasGreaterOrEqual( "1", SIZE2_STR ) );
-        assertTrue( table.hasLessOrEqual( "1", SIZE2_STR ) );
-        assertFalse( table.hasGreaterOrEqual( "1", SIZE2_PLUS_ONE_STR ) );
-        assertFalse( table.has( "1", SIZE2_PLUS_ONE_STR ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, "1", SIZE2_STR ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, "1", SIZE2_STR ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, "1", SIZE2_STR ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, "1", SIZE2_STR ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn, "1", SIZE2_PLUS_ONE_STR ) );
+        assertFalse( table.has( partitionTxn, "1", SIZE2_PLUS_ONE_STR ) );
 
-        // now do not add duplicates and check has( key, boolean )
+        // now do not add duplicates and check has( partitionTxn, key, boolean )
         for ( int i = 0; i < SIZE; i++ )
         {
-            // note we are not adding duplicates not put( 1, i )
+            // note we are not adding duplicates not put( partitionTxn, 1, i )
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn, istr, istr );
         }
 
-        assertFalse( table.has( "-1" ) );
-        assertTrue( table.hasGreaterOrEqual( "-1" ) );
-        assertFalse( table.hasLessOrEqual( "-1" ) );
+        assertFalse( table.has( partitionTxn, "-1" ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, "-1" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn, "-1" ) );
 
-        assertTrue( table.has( "0" ) );
-        assertTrue( table.hasGreaterOrEqual( "0" ) );
-        assertTrue( table.hasLessOrEqual( "0" ) );
+        assertTrue( table.has( partitionTxn, "0" ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, "0" ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, "0" ) );
 
-        assertTrue( table.has( SIZE_MINUS_ONE_STR ) );
-        assertTrue( table.hasGreaterOrEqual( SIZE_MINUS_ONE_STR ) );
-        assertTrue( table.hasLessOrEqual( SIZE_MINUS_ONE_STR ) );
+        assertTrue( table.has( partitionTxn, SIZE_MINUS_ONE_STR ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn, SIZE_MINUS_ONE_STR ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, SIZE_MINUS_ONE_STR ) );
 
-        assertFalse( table.has( SIZE_STR ) );
-        assertFalse( table.hasGreaterOrEqual( SIZE_STR ) );
-        assertTrue( table.hasLessOrEqual( SIZE_STR ) );
+        assertFalse( table.has( partitionTxn, SIZE_STR ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn, SIZE_STR ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn, SIZE_STR ) );
 
         for ( int i = 0; i < SIZE; i++ )
         {
@@ -357,14 +362,14 @@ public class JdbmTableWithDuplicatesTest
             }
 
             String istr = Integer.toString( i );
-            table.remove( istr, istr );
+            table.remove( partitionTxn, istr, istr );
         }
 
         // delete all values of the duplicate key one by one
         for ( int i = 0; i < SIZE * 2 + 1; i++ )
         {
             String istr = Integer.toString( i );
-            table.remove( "1", istr );
+            table.remove( partitionTxn, "1", istr );
         }
 
         Cursor<Tuple<String, String>> cursor = table.cursor();
@@ -378,12 +383,12 @@ public class JdbmTableWithDuplicatesTest
 
         cursor.close();
 
-        assertFalse( table.hasLessOrEqual( "1" ) );
-        assertFalse( table.hasLessOrEqual( "1", "10" ) );
-        assertFalse( table.hasGreaterOrEqual( "1" ) );
-        assertFalse( table.hasGreaterOrEqual( "1", "0" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn, "1" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn, "1", "10" ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn, "1" ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn, "1", "0" ) );
 
-        table.put( "1", "0" );
+        table.put( partitionTxn, "1", "0" );
 
     }
 
@@ -391,38 +396,38 @@ public class JdbmTableWithDuplicatesTest
     @Test
     public void testRemove() throws Exception
     {
-        assertEquals( 0, table.count() );
+        assertEquals( 0, table.count( partitionTxn ) );
 
-        table.put( "1", "1" );
-        table.put( "1", "2" );
-        assertEquals( 2, table.count() );
-        table.remove( "1" );
-        assertFalse( table.has( "1" ) );
-        assertEquals( 0, table.count() );
+        table.put( partitionTxn, "1", "1" );
+        table.put( partitionTxn, "1", "2" );
+        assertEquals( 2, table.count( partitionTxn ) );
+        table.remove( partitionTxn, "1" );
+        assertFalse( table.has( partitionTxn, "1" ) );
+        assertEquals( 0, table.count( partitionTxn ) );
 
-        table.put( "10", "10" );
-        assertEquals( 1, table.count() );
-        table.remove( "10", "11" );
-        assertFalse( table.has( "10", "11" ) );
-        assertEquals( 1, table.count() );
-        table.remove( "10", "10" );
-        assertFalse( table.has( "10", "10" ) );
-        assertEquals( 0, table.count() );
+        table.put( partitionTxn, "10", "10" );
+        assertEquals( 1, table.count( partitionTxn ) );
+        table.remove( partitionTxn, "10", "11" );
+        assertFalse( table.has( partitionTxn, "10", "11" ) );
+        assertEquals( 1, table.count( partitionTxn ) );
+        table.remove( partitionTxn, "10", "10" );
+        assertFalse( table.has( partitionTxn, "10", "10" ) );
+        assertEquals( 0, table.count( partitionTxn ) );
 
         // add duplicates
         for ( int i = 0; i < SIZE * 2; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( "0", istr );
+            table.put( partitionTxn, "0", istr );
         }
 
-        assertEquals( SIZE * 2, table.count() );
-        table.remove( "0", "100" );
-        assertFalse( table.has( "0", "100" ) );
-        assertEquals( SIZE * 2, table.count() );
+        assertEquals( SIZE * 2, table.count( partitionTxn ) );
+        table.remove( partitionTxn, "0", "100" );
+        assertFalse( table.has( partitionTxn, "0", "100" ) );
+        assertEquals( SIZE * 2, table.count( partitionTxn ) );
 
-        table.remove( "0" );
-        assertNull( table.get( "0" ) );
+        table.remove( partitionTxn, "0" );
+        assertNull( table.get( partitionTxn, "0" ) );
     }
 
 
@@ -433,11 +438,11 @@ public class JdbmTableWithDuplicatesTest
         for ( int i = 0; i < SIZE; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn, istr, istr );
         }
 
-        assertEquals( 15, table.count() );
-        assertEquals( 1, table.count( "0" ) );
+        assertEquals( 15, table.count( partitionTxn ) );
+        assertEquals( 1, table.count( partitionTxn, "0" ) );
 
         /*
          * If counts are exact then we can test for exact values.  Again this 
@@ -445,8 +450,8 @@ public class JdbmTableWithDuplicatesTest
          * case guesses are allowed.
          */
 
-        assertEquals( 10, table.lessThanCount( "5" ) );
-        assertEquals( 10, table.greaterThanCount( "5" ) );
+        assertEquals( 10, table.lessThanCount( partitionTxn, "5" ) );
+        assertEquals( 10, table.greaterThanCount( partitionTxn, "5" ) );
     }
 
 
@@ -458,65 +463,65 @@ public class JdbmTableWithDuplicatesTest
         for ( int i = 0; i < SIZE; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( "1", istr );
+            table.put( partitionTxn, "1", istr );
         }
-        assertEquals( SIZE, table.count() );
-        assertEquals( SIZE, table.count( "1" ) );
+        assertEquals( SIZE, table.count( partitionTxn ) );
+        assertEquals( SIZE, table.count( partitionTxn, "1" ) );
         assertFalse( table.isKeyUsingBTree( "1" ) );
 
         // this switches to B+Trees from AvlTree
-        table.put( "1", SIZE_STR );
-        assertEquals( SIZE + 1, table.count() );
-        assertEquals( SIZE + 1, table.count( "1" ) );
+        table.put( partitionTxn, "1", SIZE_STR );
+        assertEquals( SIZE + 1, table.count( partitionTxn ) );
+        assertEquals( SIZE + 1, table.count( partitionTxn, "1" ) );
         assertTrue( table.isKeyUsingBTree( "1" ) );
 
         // go one more over still a B+Tree
-        table.put( "1", SIZE_PLUS_ONE_STR );
-        assertEquals( SIZE + 2, table.count() );
-        assertEquals( SIZE + 2, table.count( "1" ) );
-        assertEquals( "0", table.get( "1" ) );
+        table.put( partitionTxn, "1", SIZE_PLUS_ONE_STR );
+        assertEquals( SIZE + 2, table.count( partitionTxn ) );
+        assertEquals( SIZE + 2, table.count( partitionTxn, "1" ) );
+        assertEquals( "0", table.get( partitionTxn, "1" ) );
         assertTrue( table.isKeyUsingBTree( "1" ) );
 
         // now start removing and see what happens 
-        table.remove( "1", SIZE_PLUS_ONE_STR );
-        assertFalse( table.has( "1", SIZE_PLUS_ONE_STR ) );
-        assertTrue( table.has( "1", SIZE_STR ) );
-        assertEquals( SIZE + 1, table.count() );
-        assertEquals( SIZE + 1, table.count( "1" ) );
+        table.remove( partitionTxn, "1", SIZE_PLUS_ONE_STR );
+        assertFalse( table.has( partitionTxn, "1", SIZE_PLUS_ONE_STR ) );
+        assertTrue( table.has( partitionTxn, "1", SIZE_STR ) );
+        assertEquals( SIZE + 1, table.count( partitionTxn ) );
+        assertEquals( SIZE + 1, table.count( partitionTxn, "1" ) );
         assertTrue( table.isKeyUsingBTree( "1" ) );
 
         // this switches to AvlTree from B+Trees
-        table.remove( "1", SIZE_STR );
-        assertFalse( table.has( "1", SIZE_STR ) );
-        assertEquals( SIZE, table.count() );
-        assertEquals( SIZE, table.count( "1" ) );
-        assertEquals( "0", table.get( "1" ) );
+        table.remove( partitionTxn, "1", SIZE_STR );
+        assertFalse( table.has( partitionTxn, "1", SIZE_STR ) );
+        assertEquals( SIZE, table.count( partitionTxn ) );
+        assertEquals( SIZE, table.count( partitionTxn, "1" ) );
+        assertEquals( "0", table.get( partitionTxn, "1" ) );
         assertFalse( table.isKeyUsingBTree( "1" ) );
 
         for ( int i = SIZE - 1; i >= 0; i-- )
         {
             String istr = Integer.toString( i );
-            table.remove( "1", istr );
+            table.remove( partitionTxn, "1", istr );
             assertFalse( table.isKeyUsingBTree( "1" ) );
         }
 
-        assertEquals( 0, table.count() );
+        assertEquals( 0, table.count( partitionTxn ) );
 
         for ( int i = 0; i < SIZE - 1; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( "1", istr );
+            table.put( partitionTxn, "1", istr );
             assertFalse( table.isKeyUsingBTree( "1" ) );
         }
 
         // this switches back to using B+Trees from AvlTree
-        table.put( "1", SIZE_STR );
-        table.put( "1", SIZE_PLUS_ONE_STR );
+        table.put( partitionTxn, "1", SIZE_STR );
+        table.put( partitionTxn, "1", SIZE_PLUS_ONE_STR );
         assertTrue( table.isKeyUsingBTree( "1" ) );
 
-        assertEquals( SIZE + 1, table.count() );
-        table.remove( "1" );
-        assertEquals( 0, table.count() );
+        assertEquals( SIZE + 1, table.count( partitionTxn ) );
+        table.remove( partitionTxn, "1" );
+        assertEquals( 0, table.count( partitionTxn ) );
     }
 
 
@@ -528,11 +533,11 @@ public class JdbmTableWithDuplicatesTest
     public void testNullOrEmptyKeyValueAfterDuplicateLimit() throws Exception
     {
         testDuplicateLimit();
-        assertEquals( 0, table.count() );
+        assertEquals( 0, table.count( partitionTxn ) );
 
         try
         {
-            table.put( "1", null );
+            table.put( partitionTxn, "1", null );
             fail( "should never get here due to IllegalArgumentException" );
         }
         catch ( IllegalArgumentException e )
@@ -542,7 +547,7 @@ public class JdbmTableWithDuplicatesTest
 
         try
         {
-            table.put( null, "1" );
+            table.put( partitionTxn, null, "1" );
             fail( "should never get here due to IllegalArgumentException" );
         }
         catch ( IllegalArgumentException e )
@@ -550,22 +555,22 @@ public class JdbmTableWithDuplicatesTest
             assertNotNull( e );
         }
 
-        assertEquals( 0, table.count() );
-        assertEquals( null, table.get( "1" ) );
+        assertEquals( 0, table.count( partitionTxn ) );
+        assertEquals( null, table.get( partitionTxn, "1" ) );
 
         // Let's add the key with two valid values and remove all values
-        table.remove( "1" );
-        table.put( "1", "1" );
-        table.put( "1", "2" );
-        assertEquals( 2, table.count( "1" ) );
-        table.remove( "1", "1" );
-        assertEquals( 1, table.count( "1" ) );
-        assertEquals( "2", table.get( "1" ) );
+        table.remove( partitionTxn, "1" );
+        table.put( partitionTxn, "1", "1" );
+        table.put( partitionTxn, "1", "2" );
+        assertEquals( 2, table.count( partitionTxn, "1" ) );
+        table.remove( partitionTxn, "1", "1" );
+        assertEquals( 1, table.count( partitionTxn, "1" ) );
+        assertEquals( "2", table.get( partitionTxn, "1" ) );
 
-        table.remove( "1", "2" );
-        assertNull( table.get( "1" ) );
-        assertEquals( 0, table.count( "1" ) );
-        assertFalse( table.has( "1" ) );
+        table.remove( partitionTxn, "1", "2" );
+        assertNull( table.get( partitionTxn, "1" ) );
+        assertEquals( 0, table.count( partitionTxn, "1" ) );
+        assertFalse( table.has( partitionTxn, "1" ) );
     }
 
 
@@ -573,7 +578,7 @@ public class JdbmTableWithDuplicatesTest
     public void testMiscellaneous() throws Exception
     {
         assertNotNull( table.getMarshaller() );
-        table.close();
+        table.close( partitionTxn );
 
         // test value btree creation without serializer
         SerializableComparator<String> comparator = new SerializableComparator<String>(
@@ -586,11 +591,11 @@ public class JdbmTableWithDuplicatesTest
         for ( int i = 0; i < SIZE + 1; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( "0", istr );
+            table.put( partitionTxn, "0", istr );
         }
 
-        table.remove( "0" );
-        assertFalse( table.has( "0" ) );
+        table.remove( partitionTxn, "0" );
+        assertFalse( table.has( partitionTxn, "0" ) );
     }
 
 
@@ -601,11 +606,11 @@ public class JdbmTableWithDuplicatesTest
     @Test
     public void testNullOrEmptyKeyValue() throws Exception
     {
-        assertEquals( 0, table.count() );
+        assertEquals( 0, table.count( partitionTxn ) );
 
         try
         {
-            table.put( "1", null );
+            table.put( partitionTxn, "1", null );
             fail( "should never get here due to IllegalArgumentException" );
         }
         catch ( IllegalArgumentException e )
@@ -615,7 +620,7 @@ public class JdbmTableWithDuplicatesTest
 
         try
         {
-            table.put( null, "2" );
+            table.put( partitionTxn, null, "2" );
             fail( "should never get here due to IllegalArgumentException" );
         }
         catch ( IllegalArgumentException e )
@@ -623,21 +628,21 @@ public class JdbmTableWithDuplicatesTest
             assertNotNull( e );
         }
 
-        assertEquals( 0, table.count() );
-        assertEquals( null, table.get( "1" ) );
+        assertEquals( 0, table.count( partitionTxn ) );
+        assertEquals( null, table.get( partitionTxn, "1" ) );
 
         // Let's add the key with two valid values and remove all values
-        table.remove( "1" );
-        table.put( "1", "1" );
-        table.put( "1", "2" );
-        assertEquals( 2, table.count( "1" ) );
-        table.remove( "1", "1" );
-        assertEquals( 1, table.count( "1" ) );
-        assertEquals( "2", table.get( "1" ) );
+        table.remove( partitionTxn, "1" );
+        table.put( partitionTxn, "1", "1" );
+        table.put( partitionTxn, "1", "2" );
+        assertEquals( 2, table.count( partitionTxn, "1" ) );
+        table.remove( partitionTxn, "1", "1" );
+        assertEquals( 1, table.count( partitionTxn, "1" ) );
+        assertEquals( "2", table.get( partitionTxn, "1" ) );
 
-        table.remove( "1", "2" );
-        assertNull( table.get( "1" ) );
-        assertEquals( 0, table.count( "1" ) );
-        assertFalse( table.has( "1" ) );
+        table.remove( partitionTxn, "1", "2" );
+        assertNull( table.get( partitionTxn, "1" ) );
+        assertEquals( 0, table.count( partitionTxn, "1" ) );
+        assertFalse( table.has( partitionTxn, "1" ) );
     }
 }

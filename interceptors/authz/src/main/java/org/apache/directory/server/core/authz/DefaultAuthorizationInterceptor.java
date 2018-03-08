@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.authz;
 
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
@@ -44,7 +46,9 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,8 +139,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<>( 2 );
         CoreSession adminSession = directoryService.getAdminSession();
+        Partition partition = nexus.getPartition( adminGroupDn );
+        Entry adminGroup;
+        
+        LookupOperationContext lookupContext = new LookupOperationContext( adminSession, adminGroupDn );
+        lookupContext.setPartition( partition );
 
-        Entry adminGroup = nexus.lookup( new LookupOperationContext( adminSession, adminGroupDn ) );
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        { 
+            lookupContext.setTransaction( partitionTxn );
+            adminGroup = nexus.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         if ( adminGroup == null )
         {

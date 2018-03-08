@@ -139,6 +139,6 @@ public class ChangePasswordConfigReaderTest
             .getDirectoryServiceBeans().get( 0 );
         assertNotNull( changePasswordServerBean );
 
-        configPartition.destroy();
+        configPartition.destroy( configPartition.beginReadTransaction() );
     }
 }

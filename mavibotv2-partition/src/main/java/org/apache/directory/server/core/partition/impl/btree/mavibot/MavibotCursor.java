@@ -97,7 +97,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeKey( K key ) throws LdapException, CursorException
     {
-        checkNotClosed( "beforeKey()" );
+        checkNotClosed();
         closeBrowser( browser );
 
         try
@@ -121,7 +121,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterKey( K key ) throws LdapException, CursorException
     {
-        checkNotClosed( "afterKey()" );
+        checkNotClosed();
 
         closeBrowser( browser );
         try
@@ -203,7 +203,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
 
         try
         {
@@ -231,7 +231,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
 
         try
         {
@@ -280,7 +280,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
         if ( browser == null )
         {
             afterLast();
@@ -315,7 +315,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         if ( browser == null )
         {
@@ -351,7 +351,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public Tuple<K, V> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
         if ( valueAvailable )
         {
             return returnedTuple;

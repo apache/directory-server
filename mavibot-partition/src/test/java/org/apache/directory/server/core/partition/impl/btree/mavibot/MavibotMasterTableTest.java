@@ -34,6 +34,8 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -58,6 +60,8 @@ public class MavibotMasterTableTest
     private static SchemaManager schemaManager = null;
 
     private RecordManager recordMan;
+    
+    private PartitionTxn partitionTxn;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -102,6 +106,8 @@ public class MavibotMasterTableTest
 
         table = new MavibotMasterTable( recordMan, schemaManager, "master" );
         LOG.debug( "Created new table and populated it with data" );
+        
+        partitionTxn = new MockPartitionReadTxn();
     }
 
 
@@ -113,14 +119,14 @@ public class MavibotMasterTableTest
             return;
         }
 
-        table.close();
+        table.close( partitionTxn );
     }
 
 
     @Test
     public void testAll() throws Exception
     {
-        assertNull( table.get( Strings.getUUID( 0L ) ) );
-        assertEquals( 0, table.count() );
+        assertNull( table.get( partitionTxn, Strings.getUUID( 0L ) ) );
+        assertEquals( 0, table.count( partitionTxn ) );
     }
 }

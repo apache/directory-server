@@ -108,7 +108,6 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         // create a new Bind context, with a null session, as we don't have 
         // any context yet.
         BindOperationContext bindContext = new BindOperationContext( null );
-        bindContext.setTransaction( ldapServer.getDirectoryService().getPartitionNexus().beginReadTransaction() );
 
         // Stores the Dn of the user to check, and its password
         Dn bindDn = bindRequest.getDn();

@@ -32,13 +32,17 @@ import org.apache.mina.core.session.IoSession;
  * created by the LdapServer which makes it available to the handler.  It's job
  * is simple and this class was mainly created to be able to expose the session
  * manager safely to things like the LdapProtocolHandler.
+ * 
+ * Basically, Ldap sessions are stored in a Map, added or removed when a new connection
+ * is created or deleted. Most of the time, a new operation is processed and the associated 
+ * Ldap session is pulled from the map.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdapSessionManager
 {
     /** Concurrent hashMap backing for IoSession to LdapSession mapping */
-    private Map<IoSession, LdapSession> ldapSessions = new ConcurrentHashMap<IoSession, LdapSession>( 100 );
+    private Map<IoSession, LdapSession> ldapSessions = new ConcurrentHashMap<>( 100 );
 
 
     /**
@@ -57,10 +61,7 @@ public class LdapSessionManager
      */
     public void addLdapSession( LdapSession ldapSession )
     {
-        synchronized ( ldapSessions )
-        {
-            ldapSessions.put( ldapSession.getIoSession(), ldapSession );
-        }
+        ldapSessions.put( ldapSession.getIoSession(), ldapSession );
     }
 
 
@@ -74,10 +75,7 @@ public class LdapSessionManager
      */
     public LdapSession removeLdapSession( IoSession session )
     {
-        synchronized ( ldapSessions )
-        {
-            return ldapSessions.remove( session );
-        }
+        return ldapSessions.remove( session );
     }
 
 
@@ -89,9 +87,6 @@ public class LdapSessionManager
      */
     public LdapSession getLdapSession( IoSession session )
     {
-        synchronized ( ldapSessions )
-        {
-            return ldapSessions.get( session );
-        }
+        return ldapSessions.get( session );
     }
 }

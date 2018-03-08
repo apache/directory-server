@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.number;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -44,6 +46,7 @@ import org.apache.directory.server.core.api.interceptor.context.AddOperationCont
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +78,21 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
         Partition systemPartition = directoryService.getSystemPartition();
         
         LookupOperationContext lookupContext = new LookupOperationContext( directoryService.getAdminSession(), numberHolder, SchemaConstants.ALL_ATTRIBUTES_ARRAY ); 
-        Entry entry = systemPartition.lookup( lookupContext );
+        lookupContext.setPartition( systemPartition );
+
+        Entry entry;
         
+        try ( PartitionTxn partitionTxn = systemPartition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
+
+            entry = systemPartition.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
+
         if ( entry == null )
         {
             //FIXME make sure this entry addition gets replicated
@@ -91,9 +107,47 @@ public class NumberIncrementingInterceptor extends BaseInterceptor
             AddOperationContext addContext = new AddOperationContext( directoryService.getAdminSession() );
             addContext.setDn( numberHolder );
             addContext.setEntry( new ClonedServerEntry( entry ) );
+            addContext.setPartition( systemPartition );
+            PartitionTxn partitionTxn = null;
             
-            LOG.debug( "Adding container entry to hold numeric attribute values" );
-            systemPartition.add( addContext );
+            try
+            {
+                partitionTxn = systemPartition.beginWriteTransaction();
+                addContext.setTransaction( partitionTxn );
+                
+                LOG.debug( "Adding container entry to hold numeric attribute values" );
+                systemPartition.add( addContext );
+                partitionTxn.commit();
+            }
+            catch ( LdapException le )
+            {
+                if ( partitionTxn != null )
+                {
+                    try
+                    { 
+                        partitionTxn.abort();
+                    }
+                    catch ( IOException ioe )
+                    {
+                        throw new LdapOtherException( ioe.getMessage(), ioe );
+                    }
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                try
+                { 
+                    partitionTxn.abort();
+                }
+                catch ( IOException ioe2 )
+                {
+                    throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+                }
+
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
         }
         else
         {

@@ -29,10 +29,12 @@ import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.ApproximateEvaluator;
 import org.slf4j.Logger;
@@ -78,7 +80,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
      * @throws Exception If the creation failed
      */
     @SuppressWarnings("unchecked")
-    public ApproximateCursor( Store store, ApproximateEvaluator<V> approximateEvaluator ) throws Exception
+    public ApproximateCursor( PartitionTxn partitionTxn, Store store, ApproximateEvaluator<V> approximateEvaluator ) throws LdapException, IndexNotFoundException
     {
         if ( IS_DEBUG )
         {
@@ -86,6 +88,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
         }
 
         this.approximateEvaluator = approximateEvaluator;
+        this.partitionTxn = partitionTxn;
 
         AttributeType attributeType = approximateEvaluator.getExpression().getAttributeType();
         Value value = approximateEvaluator.getExpression().getValue();
@@ -93,12 +96,12 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
         if ( store.hasIndexOn( attributeType ) )
         {
             Index<V, String> index = ( Index<V, String> ) store.getIndex( attributeType );
-            userIdxCursor = index.forwardCursor( ( V ) value.getValue() );
+            userIdxCursor = index.forwardCursor( partitionTxn, ( V ) value.getValue() );
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = new AllEntriesCursor( store );
+            uuidIdxCursor = new AllEntriesCursor( partitionTxn, store );
             userIdxCursor = null;
         }
     }
@@ -116,6 +119,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean available()
     {
         if ( userIdxCursor != null )
@@ -130,9 +134,10 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void before( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -151,7 +156,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     @Override
     public void after( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -169,7 +174,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeFirst();
@@ -187,7 +192,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -226,6 +231,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         if ( userIdxCursor != null )
@@ -235,10 +241,10 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
 
         while ( uuidIdxCursor.previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             IndexEntry<?, String> candidate = uuidIdxCursor.get();
 
-            if ( approximateEvaluator.evaluate( candidate ) )
+            if ( approximateEvaluator.evaluate( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -260,10 +266,10 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
 
         while ( uuidIdxCursor.next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             IndexEntry<?, String> candidate = uuidIdxCursor.get();
 
-            if ( approximateEvaluator.evaluate( candidate ) )
+            if ( approximateEvaluator.evaluate( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -279,7 +285,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     @SuppressWarnings("unchecked")
     public IndexEntry<V, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -298,6 +304,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -321,6 +328,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -344,6 +352,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

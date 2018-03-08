@@ -100,7 +100,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void beforeValue( K key, V value ) throws Exception
     {
-        checkNotClosed( "beforeValue()" );
+        checkNotClosed();
         if ( key != null && !key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
@@ -113,7 +113,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void afterValue( K key, V value ) throws Exception
     {
-        checkNotClosed( "afterValue()" );
+        checkNotClosed();
         if ( key != null && !key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
@@ -134,7 +134,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
         wrapped.before( element.getValue() );
         clearValue();
     }
@@ -145,7 +145,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void after( Tuple<K, V> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
         wrapped.after( element.getValue() );
         clearValue();
     }
@@ -156,7 +156,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         wrapped.beforeFirst();
         clearValue();
     }
@@ -167,7 +167,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         wrapped.afterLast();
         clearValue();
     }
@@ -198,7 +198,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
         if ( wrapped.previous() )
         {
             returnedTuple.setKey( key );
@@ -219,7 +219,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         if ( wrapped.next() )
         {
@@ -241,7 +241,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public Tuple<K, V> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
         if ( valueAvailable )
         {
             return returnedTuple;

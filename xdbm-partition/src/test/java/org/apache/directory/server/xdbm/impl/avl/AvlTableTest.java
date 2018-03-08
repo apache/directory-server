@@ -34,6 +34,8 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,11 +53,13 @@ public class AvlTableTest
     private AvlTable<Integer, Integer> dups;
     private AvlTable<Integer, Integer> nodups;
     private final Comparator<Integer> comparator = new IntComparator();
+    PartitionTxn txn;
 
 
     @Before
     public void setUp()
     {
+        txn = new MockPartitionReadTxn();
         dups = new AvlTable<Integer, Integer>( "dups", comparator, comparator, true );
         nodups = new AvlTable<Integer, Integer>( "nodups", comparator, comparator, false );
     }
@@ -72,8 +76,8 @@ public class AvlTableTest
     @Test
     public void testCursorWithKey() throws Exception
     {
-        injectNoDupsData( nodups );
-        Cursor<Tuple<Integer, Integer>> cursor = nodups.cursor( 2 );
+        injectNoDupsData( txn, nodups );
+        Cursor<Tuple<Integer, Integer>> cursor = nodups.cursor( txn, 2 );
 
         cursor.beforeFirst();
         assertFalse( cursor.available() );
@@ -89,8 +93,8 @@ public class AvlTableTest
 
         // ---- on duplicates ----
 
-        injectDupsData( dups );
-        cursor = dups.cursor( 3 );
+        injectDupsData( txn, dups );
+        cursor = dups.cursor( txn, 3 );
         assertFalse( cursor.available() );
 
         assertTrue( cursor.next() );
@@ -121,7 +125,7 @@ public class AvlTableTest
     @Test
     public void testCursor() throws Exception
     {
-        injectNoDupsData( nodups );
+        injectNoDupsData( txn, nodups );
         Cursor<Tuple<Integer, Integer>> cursor = nodups.cursor();
 
         // position at first element (0,3)
@@ -164,7 +168,7 @@ public class AvlTableTest
 
         // work with duplicates now
 
-        injectDupsData( dups );
+        injectDupsData( txn, dups );
         cursor = dups.cursor();
 
         // position at first element (0,3)
@@ -270,7 +274,7 @@ public class AvlTableTest
     @Test
     public void testCursorAfterWithDups() throws Exception
     {
-        injectDupsData( dups );
+        injectDupsData( txn, dups );
         Cursor<Tuple<Integer, Integer>> cursor;
         Tuple<Integer, Integer> tuple = new Tuple<Integer, Integer>();
 
@@ -314,39 +318,39 @@ public class AvlTableTest
         // normal operation 
         // ---------------------------------------------------------
 
-        injectNoDupsData( nodups );
+        injectNoDupsData( txn, nodups );
 
-        assertEquals( 5, nodups.count() );
+        assertEquals( 5, nodups.count( txn ) );
 
-        assertEquals( 3, nodups.get( 0 ).intValue() );
-        assertEquals( 2, nodups.get( 1 ).intValue() );
-        assertEquals( 1, nodups.get( 2 ).intValue() );
-        assertEquals( 0, nodups.get( 3 ).intValue() );
-        assertEquals( 8934, nodups.get( 23 ).intValue() );
+        assertEquals( 3, nodups.get( txn, 0 ).intValue() );
+        assertEquals( 2, nodups.get( txn, 1 ).intValue() );
+        assertEquals( 1, nodups.get( txn, 2 ).intValue() );
+        assertEquals( 0, nodups.get( txn, 3 ).intValue() );
+        assertEquals( 8934, nodups.get( txn, 23 ).intValue() );
 
         // ---------------------------------------------------------
         // try adding duplicates when not supported
         // ---------------------------------------------------------
 
-        nodups.put( 23, 34 );
-        assertEquals( 34, nodups.get( 23 ).intValue() );
-        assertEquals( 5, nodups.count() );
+        nodups.put( txn, 23, 34 );
+        assertEquals( 34, nodups.get( txn, 23 ).intValue() );
+        assertEquals( 5, nodups.count( txn ) );
 
         // ---------------------------------------------------------
         // now with duplicates
         // ---------------------------------------------------------
 
-        assertEquals( 0, dups.count() );
+        assertEquals( 0, dups.count( txn ) );
 
-        injectDupsData( dups );
+        injectDupsData( txn, dups );
 
         // [3,0] was put twice so only 10 of 11 should have been put in
-        assertEquals( 10, dups.count() );
+        assertEquals( 10, dups.count( txn ) );
 
-        assertEquals( 3, dups.get( 0 ).intValue() );
-        assertEquals( 2, dups.get( 1 ).intValue() );
-        assertEquals( 1, dups.get( 2 ).intValue() );
-        assertEquals( 0, dups.get( 3 ).intValue() );
+        assertEquals( 3, dups.get( txn, 0 ).intValue() );
+        assertEquals( 2, dups.get( txn, 1 ).intValue() );
+        assertEquals( 1, dups.get( txn, 2 ).intValue() );
+        assertEquals( 0, dups.get( txn, 3 ).intValue() );
     }
 
     class IntComparator implements Comparator<Integer>

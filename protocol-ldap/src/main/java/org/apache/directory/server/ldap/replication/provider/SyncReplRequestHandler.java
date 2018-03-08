@@ -40,14 +40,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SynchronizationInfoEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.syncInfoValue.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.syncInfoValue.SynchronizationInfoEnum;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -97,6 +97,7 @@ import org.apache.directory.server.core.api.interceptor.context.DeleteOperationC
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapServer;
@@ -199,7 +200,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 if ( !syncReplData.mkdirs() )
                 {
-                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, syncReplData ) );
+                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, syncReplData ) );
                 }
             }
 
@@ -521,13 +522,23 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         ExprNode modifiedFilter = modifyFilter( session, request );
 
         Partition partition = dirService.getPartitionNexus().getPartition( request.getBase() );
-        String contextCsn = partition.getContextCsn();
+        String contextCsn;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            contextCsn = partition.getContextCsn( partitionTxn );
+        }
 
         boolean refreshNPersist = isRefreshNPersist( request );
 
         // first register a ReplicaEventLog before starting the initial content refresh
         // this is to log all the operations happen on DIT during initial content refresh
-        ReplicaEventLog replicaLog = createReplicaEventLog( hostName, originalFilter );
+        ReplicaEventLog replicaLog = null;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            replicaLog = createReplicaEventLog( partitionTxn, hostName, originalFilter );
+        }
 
         replicaLog.setRefreshNPersist( refreshNPersist );
         Value contexCsnValue = new Value( dirService.getAtProvider().getEntryCSN(), contextCsn );
@@ -1023,7 +1034,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         try
         {
             List<ReplicaEventLog> eventLogs = replicaUtil.getReplicaEventLogs();
-            Set<String> eventLogNames = new HashSet<String>();
+            Set<String> eventLogNames = new HashSet<>();
 
             if ( !eventLogs.isEmpty() )
             {
@@ -1140,13 +1151,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /**
      * Create a new ReplicaEventLog. Each replica will have a unique ID, created by the provider.
      */
-    private ReplicaEventLog createReplicaEventLog( String hostName, String filter ) throws Exception
+    private ReplicaEventLog createReplicaEventLog( PartitionTxn partitionTxn, String hostName, String filter ) throws Exception
     {
         int replicaId = replicaCount.incrementAndGet();
 
         PROVIDER_LOG.debug( "creating a new event log for the replica with id {}", replicaId );
 
-        ReplicaEventLog replicaLog = new ReplicaEventLog( dirService, replicaId );
+        ReplicaEventLog replicaLog = new ReplicaEventLog( partitionTxn, dirService, replicaId );
         replicaLog.setHostName( hostName );
         replicaLog.setSearchFilter( filter );
 

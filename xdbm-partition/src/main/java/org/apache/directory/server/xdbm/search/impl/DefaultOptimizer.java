@@ -20,12 +20,15 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
 import org.apache.directory.api.ldap.model.filter.AssertionNode;
@@ -44,8 +47,10 @@ import org.apache.directory.api.ldap.model.filter.SimpleNode;
 import org.apache.directory.api.ldap.model.filter.SubstringNode;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Optimizer;
 
@@ -55,7 +60,7 @@ import org.apache.directory.server.xdbm.search.Optimizer;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultOptimizer<E> implements Optimizer
+public class DefaultOptimizer implements Optimizer
 {
     static final String CANDIDATES_ANNOTATION_KEY = "candidates";
 
@@ -69,7 +74,7 @@ public class DefaultOptimizer<E> implements Optimizer
      *
      * @param db the database this optimizer works for.
      */
-    public DefaultOptimizer( Store db ) throws Exception
+    public DefaultOptimizer( Store db )
     {
         this.db = db;
     }
@@ -77,13 +82,13 @@ public class DefaultOptimizer<E> implements Optimizer
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private String getContextEntryId() throws Exception
+    private String getContextEntryId( PartitionTxn partitionTxn ) throws LdapException
     {
         if ( contextEntryId == null )
         {
             try
             {
-                this.contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
+                this.contextEntryId = db.getEntryId( partitionTxn, ( ( Partition ) db ).getSuffixDn() );
             }
             catch ( Exception e )
             {
@@ -109,7 +114,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @see org.apache.directory.server.xdbm.search.Optimizer#annotate(ExprNode)
      */
     @SuppressWarnings("unchecked")
-    public Long annotate( ExprNode node ) throws Exception
+    public Long annotate( PartitionTxn partitionTxn, ExprNode node ) throws LdapException
     {
         // Start off with the worst case unless scan count says otherwise.
         Long count = Long.MAX_VALUE;
@@ -129,7 +134,7 @@ public class DefaultOptimizer<E> implements Optimizer
 
         if ( node instanceof ScopeNode )
         {
-            count = getScopeScan( ( ScopeNode ) node );
+            count = getScopeScan( partitionTxn, ( ScopeNode ) node );
         }
         else if ( node instanceof AssertionNode )
         {
@@ -143,40 +148,47 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             LeafNode leaf = ( LeafNode ) node;
 
-            if ( node instanceof PresenceNode )
-            {
-                count = getPresenceScan( ( PresenceNode ) leaf );
+            try
+            {  
+                if ( node instanceof PresenceNode )
+                {
+                    count = getPresenceScan( partitionTxn, ( PresenceNode ) leaf );
+                }
+                else if ( node instanceof EqualityNode )
+                {
+                    count = getEqualityScan( partitionTxn, ( EqualityNode ) leaf );
+                }
+                else if ( node instanceof GreaterEqNode )
+                {
+                    count = getGreaterLessScan( partitionTxn, ( GreaterEqNode ) leaf, SimpleNode.EVAL_GREATER );
+                }
+                else if ( node instanceof LessEqNode )
+                {
+                    count = getGreaterLessScan( partitionTxn, ( SimpleNode ) leaf, SimpleNode.EVAL_LESSER );
+                }
+                else if ( node instanceof SubstringNode )
+                {
+                    /** Cannot really say so we presume the total index count */
+                    count = getSubstringScan( partitionTxn, ( SubstringNode ) leaf );
+                }
+                else if ( node instanceof ExtensibleNode )
+                {
+                    /** Cannot really say so we presume the total index count */
+                    count = getFullScan( partitionTxn, leaf );
+                }
+                else if ( node instanceof ApproximateNode )
+                {
+                    /** Feature not implemented so we just use equality matching */
+                    count = getEqualityScan( partitionTxn, ( ApproximateNode ) leaf );
+                }
+                else
+                {
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_711 ) );
+                }
             }
-            else if ( node instanceof EqualityNode )
+            catch ( IndexNotFoundException | IOException e )
             {
-                count = getEqualityScan( ( EqualityNode ) leaf );
-            }
-            else if ( node instanceof GreaterEqNode )
-            {
-                count = getGreaterLessScan( ( GreaterEqNode ) leaf, SimpleNode.EVAL_GREATER );
-            }
-            else if ( node instanceof LessEqNode )
-            {
-                count = getGreaterLessScan( ( SimpleNode ) leaf, SimpleNode.EVAL_LESSER );
-            }
-            else if ( node instanceof SubstringNode )
-            {
-                /** Cannot really say so we presume the total index count */
-                count = getSubstringScan( ( SubstringNode ) leaf );
-            }
-            else if ( node instanceof ExtensibleNode )
-            {
-                /** Cannot really say so we presume the total index count */
-                count = getFullScan( leaf );
-            }
-            else if ( node instanceof ApproximateNode )
-            {
-                /** Feature not implemented so we just use equality matching */
-                count = getEqualityScan( ( ApproximateNode ) leaf );
-            }
-            else
-            {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_711 ) );
+                throw new LdapOtherException( e.getMessage(), e );
             }
         }
         // --------------------------------------------------------------------
@@ -186,15 +198,15 @@ public class DefaultOptimizer<E> implements Optimizer
         {
             if ( node instanceof AndNode )
             {
-                count = getConjunctionScan( ( AndNode ) node );
+                count = getConjunctionScan( partitionTxn, ( AndNode ) node );
             }
             else if ( node instanceof OrNode )
             {
-                count = getDisjunctionScan( ( OrNode ) node );
+                count = getDisjunctionScan( partitionTxn, ( OrNode ) node );
             }
             else if ( node instanceof NotNode )
             {
-                annotate( ( ( NotNode ) node ).getFirstChild() );
+                annotate( partitionTxn, ( ( NotNode ) node ).getFirstChild() );
 
                 /*
                  * A negation filter is always worst case since we will have
@@ -233,7 +245,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the calculated scan count
      * @throws Exception if there is an error
      */
-    private long getConjunctionScan( BranchNode node ) throws Exception
+    private long getConjunctionScan( PartitionTxn partitionTxn, BranchNode node ) throws LdapException
     {
         long count = Long.MAX_VALUE;
         List<ExprNode> children = node.getChildren();
@@ -246,7 +258,7 @@ public class DefaultOptimizer<E> implements Optimizer
                 break;
             }
 
-            annotate( child );
+            annotate( partitionTxn, child );
             count = Math.min( ( ( Long ) child.get( "count" ) ), count );
 
             if ( count == 0 )
@@ -269,14 +281,14 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the scan count on the OR node
      * @throws Exception if there is an error
      */
-    private long getDisjunctionScan( BranchNode node ) throws Exception
+    private long getDisjunctionScan( PartitionTxn partitionTxn, BranchNode node ) throws LdapException
     {
         List<ExprNode> children = node.getChildren();
         long total = 0L;
 
         for ( ExprNode child : children )
         {
-            annotate( child );
+            annotate( partitionTxn, child );
             total += ( Long ) child.get( "count" );
 
             if ( total == Long.MAX_VALUE )
@@ -299,7 +311,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @throws Exception if there is an error accessing an index
      */
     @SuppressWarnings("unchecked")
-    private <V> long getEqualityScan( SimpleNode<V> node ) throws Exception
+    private <V> long getEqualityScan( PartitionTxn partitionTxn, SimpleNode<V> node ) throws LdapException, IndexNotFoundException, IOException
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
@@ -316,8 +328,8 @@ public class DefaultOptimizer<E> implements Optimizer
                 normalizedKey = node.getAttributeType().getEquality().getNormalizer().normalize( node.getValue().getValue() );
             }
             
-            Cursor<String> result = idx.forwardValueCursor( ( V ) normalizedKey );
-            Set<String> values = new HashSet<String>();
+            Cursor<String> result = idx.forwardValueCursor( partitionTxn, ( V ) normalizedKey );
+            Set<String> values = new HashSet<>();
             int nbFound = 0;
 
             for ( String value : result )
@@ -346,7 +358,7 @@ public class DefaultOptimizer<E> implements Optimizer
                 // Reset the candidates annotation
                 node.set( CANDIDATES_ANNOTATION_KEY, null );
 
-                return idx.count( ( V ) node.getValue().getNormalized() );
+                return idx.count( partitionTxn, ( V ) node.getValue().getNormalized() );
             }
         }
 
@@ -365,7 +377,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @throws Exception if there is an error accessing an index
      */
     @SuppressWarnings("unchecked")
-    private <V> long getGreaterLessScan( SimpleNode<V> node, boolean isGreaterThan ) throws Exception
+    private <V> long getGreaterLessScan( PartitionTxn partitionTxn, SimpleNode<V> node, boolean isGreaterThan ) throws LdapException, IndexNotFoundException
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
@@ -373,11 +385,11 @@ public class DefaultOptimizer<E> implements Optimizer
 
             if ( isGreaterThan )
             {
-                return idx.greaterThanCount( ( V ) node.getValue().getValue() );
+                return idx.greaterThanCount( partitionTxn, ( V ) node.getValue().getValue() );
             }
             else
             {
-                return idx.lessThanCount( ( V ) node.getValue().getValue() );
+                return idx.lessThanCount( partitionTxn, ( V ) node.getValue().getValue() );
             }
         }
 
@@ -396,7 +408,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return The number of candidates
      * @throws Exception If there is an error accessing an index
      */
-    private long getSubstringScan( SubstringNode node ) throws Exception
+    private long getSubstringScan( PartitionTxn partitionTxn, SubstringNode node ) throws LdapException, IndexNotFoundException
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
@@ -407,11 +419,11 @@ public class DefaultOptimizer<E> implements Optimizer
             if ( Strings.isEmpty( initial ) )
             {
                 // Not a (attr=ABC*) filter : full index scan
-                return idx.count();
+                return idx.count( partitionTxn );
             }
             else
             {
-                return idx.greaterThanCount( initial );
+                return idx.greaterThanCount( partitionTxn, initial );
             }
         }
         else
@@ -431,12 +443,12 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the worst case full scan count
      * @throws Exception if there is an error access database indices
      */
-    private long getFullScan( LeafNode node ) throws Exception
+    private long getFullScan( PartitionTxn partitionTxn, LeafNode node ) throws LdapException, IndexNotFoundException
     {
         if ( db.hasIndexOn( node.getAttributeType() ) )
         {
             Index<?, ?> idx = db.getIndex( node.getAttributeType() );
-            return idx.count();
+            return idx.count( partitionTxn );
         }
 
         return Long.MAX_VALUE;
@@ -451,26 +463,21 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the number of entries matched for the presence of an attribute
      * @throws Exception if errors result
      */
-    private long getPresenceScan( PresenceNode node ) throws Exception
+    private long getPresenceScan( PartitionTxn partitionTxn, PresenceNode node ) throws LdapException
     {
-        if ( db.hasUserIndexOn( node.getAttributeType() ) )
+        if ( db.hasUserIndexOn( node.getAttributeType() )
+             || node.getAttributeType().getOid().equals( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID ) )
         {
             Index<String, String> presenceIndex = db.getPresenceIndex();
 
-            return presenceIndex.count( node.getAttributeType().getOid() );
-        }
-        else if ( node.getAttributeType().getOid().equals( SchemaConstants.ADMINISTRATIVE_ROLE_AT_OID ) )
-        {
-            Index<String, String> presenceIndex = db.getPresenceIndex();
-
-            return presenceIndex.count( node.getAttributeType().getOid() );
+            return presenceIndex.count( partitionTxn, node.getAttributeType().getOid() );
         }
         else if ( db.hasSystemIndexOn( node.getAttributeType() )
             || ( node.getAttributeType().getOid() == SchemaConstants.ENTRY_UUID_AT_OID ) )
         {
             // the system indices (objectClass, entryUUID and entryCSN) are maintained for
             // each entry, so we could just return the database count
-            return db.count();
+            return db.count( partitionTxn );
         }
 
         return Long.MAX_VALUE;
@@ -484,7 +491,7 @@ public class DefaultOptimizer<E> implements Optimizer
      * @return the scan count for scope
      * @throws Exception if any errors result
      */
-    private long getScopeScan( ScopeNode node ) throws Exception
+    private long getScopeScan( PartitionTxn partitionTxn, ScopeNode node ) throws LdapException
     {
         String id = node.getBaseId();
 
@@ -494,16 +501,16 @@ public class DefaultOptimizer<E> implements Optimizer
                 return 1L;
 
             case ONELEVEL:
-                return db.getChildCount( id );
+                return db.getChildCount( partitionTxn, id );
 
             case SUBTREE:
-                if ( id == getContextEntryId() )
+                if ( id == getContextEntryId( partitionTxn ) )
                 {
-                    return db.count();
+                    return db.count( partitionTxn );
                 }
                 else
                 {
-                    return db.getRdnIndex().reverseLookup( id ).getNbDescendants() + 1;
+                    return db.getRdnIndex().reverseLookup( partitionTxn, id ).getNbDescendants() + 1L;
                 }
 
             default:

@@ -87,7 +87,7 @@ public class BinInstallerCommand extends LinuxInstallerCommand<BinTarget>
         // Creating the target directory
         if ( !getTargetDirectory().mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, getTargetDirectory() ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, getTargetDirectory() ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -104,7 +104,7 @@ public class BinInstallerCommand extends LinuxInstallerCommand<BinTarget>
 
             if ( !instanceDirectory.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, instanceDirectory ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, instanceDirectory ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
@@ -130,7 +130,7 @@ public class BinInstallerCommand extends LinuxInstallerCommand<BinTarget>
 
             if ( !binShDirectory.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, binShDirectory ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, binShDirectory ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }

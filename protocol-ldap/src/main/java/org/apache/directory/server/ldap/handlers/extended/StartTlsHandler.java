@@ -31,8 +31,8 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.directory.api.ldap.codec.api.ExtendedResponseDecorator;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.api.ldap.codec.decorators.ExtendedResponseDecorator;
 import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsRequest;
 import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsResponseImpl;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;

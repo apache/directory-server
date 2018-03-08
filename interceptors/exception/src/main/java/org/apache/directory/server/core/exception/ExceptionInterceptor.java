@@ -159,6 +159,8 @@ public class ExceptionInterceptor extends BaseInterceptor
                 CoreSession session = addContext.getSession();
                 LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn,
                     SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                lookupContext.setPartition( addContext.getPartition() );
+                lookupContext.setTransaction( addContext.getTransaction() );
 
                 attrs = directoryService.getPartitionNexus().lookup( lookupContext );
             }
@@ -330,7 +332,11 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check to see if target entry exists
         Dn newDn = renameContext.getNewDn();
 
-        if ( nexus.hasEntry( new HasEntryOperationContext( renameContext.getSession(), newDn ) ) )
+        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( renameContext.getSession(), newDn );
+        hasEntryContext.setPartition( renameContext.getPartition() );
+        hasEntryContext.setTransaction( renameContext.getTransaction() );
+        
+        if ( nexus.hasEntry( hasEntryContext ) )
         {
             // Ok, the target entry already exists.
             // If the target entry has the same name than the modified entry, it's a rename on itself,

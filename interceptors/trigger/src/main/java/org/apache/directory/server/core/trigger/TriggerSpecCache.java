@@ -53,6 +53,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -128,9 +129,12 @@ public class TriggerSpecCache
 
             CoreSession adminSession = directoryService.getAdminSession();
 
+            Partition partition = nexus.getPartition( baseDn ); 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, baseDn,
                 filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+            searchOperationContext.setPartition( partition );
+            searchOperationContext.setTransaction( partition.beginReadTransaction() );
 
             EntryFilteringCursor results = nexus.search( searchOperationContext );
 

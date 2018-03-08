@@ -70,7 +70,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public void after( E element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after" );
+        checkNotClosed();
 
         if ( element == null )
         {
@@ -99,7 +99,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast" );
+        checkNotClosed();
         node = null;
         position = Position.AFTER_LAST;
     }
@@ -116,7 +116,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public void before( E element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before" );
+        checkNotClosed();
 
         if ( element == null )
         {
@@ -145,7 +145,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst" );
+        checkNotClosed();
         node = null;
         position = Position.BEFORE_FIRST;
     }
@@ -156,7 +156,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean first() throws LdapException, CursorException
     {
-        checkNotClosed( "first" );
+        checkNotClosed();
 
         node = tree.getFirst();
 
@@ -178,7 +178,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public E get() throws CursorException
     {
-        checkNotClosed( "get" );
+        checkNotClosed();
 
         if ( position == Position.ON_NODE )
         {
@@ -194,7 +194,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean last() throws LdapException, CursorException
     {
-        checkNotClosed( "last" );
+        checkNotClosed();
 
         node = tree.getLast();
 
@@ -216,7 +216,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next" );
+        checkNotClosed();
 
         switch ( position )
         {
@@ -255,7 +255,7 @@ public class AvlTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous" );
+        checkNotClosed();
 
         switch ( position )
         {

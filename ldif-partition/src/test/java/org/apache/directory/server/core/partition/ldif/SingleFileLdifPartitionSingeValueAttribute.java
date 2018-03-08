@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.FilterParser;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
@@ -85,6 +87,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -118,7 +121,7 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
     /** the file in use during the current test method's execution */
     private File ldifFileInUse;
-
+    
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
@@ -262,8 +265,19 @@ public class SingleFileLdifPartitionSingeValueAttribute
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         opCtx.setDn( entry.getDn() );
+        opCtx.setPartition( partition );
+        Entry fetched;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            opCtx.setTransaction( partitionTxn );
 
-        Entry fetched = partition.lookup( opCtx );
+            fetched = partition.lookup( opCtx );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         assertNotNull( fetched );
 
@@ -293,8 +307,20 @@ public class SingleFileLdifPartitionSingeValueAttribute
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession );
         opCtx.setDn( new Dn( schemaManager, dn ) );
+        opCtx.setPartition( partition );
 
-        Entry fetched = partition.lookup( opCtx );
+        Entry fetched;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            opCtx.setTransaction( partitionTxn );
+
+            fetched = partition.lookup( opCtx );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         assertNotNull( fetched );
     }
@@ -304,8 +330,19 @@ public class SingleFileLdifPartitionSingeValueAttribute
     {
         LookupOperationContext opCtx = new LookupOperationContext( mockSession );
         opCtx.setDn( entry.getDn() );
+        opCtx.setPartition( partition );
+        Entry fetched;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            opCtx.setTransaction( partitionTxn );
 
-        Entry fetched = partition.lookup( opCtx );
+            fetched = partition.lookup( opCtx );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         assertNull( fetched );
     }
@@ -321,13 +358,15 @@ public class SingleFileLdifPartitionSingeValueAttribute
         SingleFileLdifPartition partition = createPartition( null, true );
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
-        String id = partition.getEntryId( contextEntry.getDn() );
+        String id = partition.getEntryId( partition.beginReadTransaction(), contextEntry.getDn() );
         assertNotNull( id );
 
-        Entry fetched = partition.fetch( id );
+        Entry fetched = partition.fetch( partition.beginReadTransaction(), id );
 
         //remove the entryDn cause it is not present in the above hand made contextEntry
         fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
@@ -357,6 +396,8 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -403,6 +444,8 @@ public class SingleFileLdifPartitionSingeValueAttribute
         SingleFileLdifPartition partition = createPartition( null, true );
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -556,6 +599,8 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -609,10 +654,15 @@ public class SingleFileLdifPartitionSingeValueAttribute
         SingleFileLdifPartition partition = createPartition( null, true );
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
         DeleteOperationContext delOpCtx = new DeleteOperationContext( mockSession );
+        delOpCtx.setPartition( partition );
+        delOpCtx.setTransaction( partition.beginWriteTransaction() );
+        
         delOpCtx.setDn( contextEntry.getDn() );
 
         partition.delete( delOpCtx );
@@ -624,6 +674,8 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -657,6 +709,8 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         DeleteOperationContext delCtx = new DeleteOperationContext( mockSession );
         delCtx.setDn( entryMvrdn.getDn() );
+        delCtx.setPartition( partition );
+        delCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.delete( delCtx );
 
@@ -682,6 +736,8 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -717,31 +773,37 @@ public class SingleFileLdifPartitionSingeValueAttribute
         searchCtx.setFilter( filter );
         searchCtx.setScope( SearchScope.SUBTREE );
 
-        EntryFilteringCursor cursor = partition.search( searchCtx );
-
-        assertNotNull( cursor );
-
-        Set<Dn> expectedDns = new HashSet<>();
-        expectedDns.add( entry1.getDn() );
-        expectedDns.add( entry2.getDn() );
-        expectedDns.add( entry3.getDn() );
-
-        cursor.beforeFirst();
-        int nbRes = 0;
-
-        while ( cursor.next() )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            Entry entry = cursor.get();
-            assertNotNull( entry );
-            nbRes++;
+            searchCtx.setPartition( partition );
+            searchCtx.setTransaction( partitionTxn );
 
-            expectedDns.remove( entry.getDn() );
+            EntryFilteringCursor cursor = partition.search( searchCtx );
+    
+            assertNotNull( cursor );
+    
+            Set<Dn> expectedDns = new HashSet<>();
+            expectedDns.add( entry1.getDn() );
+            expectedDns.add( entry2.getDn() );
+            expectedDns.add( entry3.getDn() );
+    
+            cursor.beforeFirst();
+            int nbRes = 0;
+    
+            while ( cursor.next() )
+            {
+                Entry entry = cursor.get();
+                assertNotNull( entry );
+                nbRes++;
+    
+                expectedDns.remove( entry.getDn() );
+            }
+    
+            assertEquals( 3, nbRes );
+            assertEquals( 0, expectedDns.size() );
+    
+            cursor.close();
         }
-
-        assertEquals( 3, nbRes );
-        assertEquals( 0, expectedDns.size() );
-
-        cursor.close();
     }
 
 
@@ -750,13 +812,18 @@ public class SingleFileLdifPartitionSingeValueAttribute
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Entry childEntry1 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry1 = partition.fetch( partition.beginReadTransaction(), 
+            partition.getEntryId( partition.beginReadTransaction(), new Dn( schemaManager,
             "dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry2 = partition.fetch( partition.beginReadTransaction(), 
+            partition.getEntryId( partition.beginReadTransaction(), new Dn( schemaManager,
             "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
+        moveOpCtx.setPartition( partition );
+        moveOpCtx.setTransaction( partition.beginWriteTransaction() );
+
         partition.move( moveOpCtx );
 
         partition = reloadPartition();
@@ -775,13 +842,18 @@ public class SingleFileLdifPartitionSingeValueAttribute
     {
         SingleFileLdifPartition partition = injectEntries();
 
-        Entry childEntry1 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry1 = partition.fetch( partition.beginReadTransaction(), 
+            partition.getEntryId( partition.beginReadTransaction(), new Dn( schemaManager,
             "dc=grandChild11,dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry2 = partition.fetch( partition.beginReadTransaction(), 
+            partition.getEntryId( partition.beginReadTransaction(), new Dn( schemaManager,
             "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( mockSession, childEntry1.getDn(),
             childEntry2.getDn() );
+        moveOpCtx.setPartition( partition );
+        moveOpCtx.setTransaction( partition.beginWriteTransaction() );
+
         partition.move( moveOpCtx );
 
         partition = reloadPartition();
@@ -805,13 +877,29 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, true );
+        renameOpCtx.setPartition( partition );
+        renameOpCtx.setTransaction( partition.beginWriteTransaction() );
+        
         partition.rename( renameOpCtx );
 
         partition = reloadPartition();
 
         childDn1 = new Dn( schemaManager, "dc=renamedChild1,ou=test,ou=system" );
+        
+        LookupOperationContext lookupContext = new LookupOperationContext( mockSession, childDn1 );
+        lookupContext.setPartition( partition );
+        Entry entry;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
 
-        Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+            entry = partition.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         assertNotNull( entry );
         assertFalse( entry.get( "dc" ).contains( "child1" ) );
@@ -827,13 +915,29 @@ public class SingleFileLdifPartitionSingeValueAttribute
 
         Rdn newRdn = new Rdn( SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( mockSession, childDn1, newRdn, false );
+        renameOpCtx.setPartition( partition );
+        renameOpCtx.setTransaction( partition.beginWriteTransaction() );
+        
         partition.rename( renameOpCtx );
 
         partition = reloadPartition();
 
         childDn1 = new Dn( schemaManager, "dc=renamedChild1,ou=test,ou=system" );
 
-        Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        LookupOperationContext lookupContext = new LookupOperationContext( mockSession, childDn1 );
+        lookupContext.setPartition( partition );
+        Entry entry;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
+
+            entry = partition.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         assertNotNull( entry );
         assertFalse( entry.get( "dc" ).contains( "child1" ) );
@@ -855,7 +959,21 @@ public class SingleFileLdifPartitionSingeValueAttribute
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, true );
         
-        Entry originalEntry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        LookupOperationContext lookupContext = new LookupOperationContext( mockSession, childDn1 );
+        lookupContext.setPartition( partition );
+        Entry originalEntry;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
+
+            originalEntry = partition.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
+
         Entry modifiedEntry = originalEntry.clone();
         modifiedEntry.setDn( childDn2.add( newRdn ) );
         modifiedEntry.remove( "dc", "child1" );
@@ -875,14 +993,28 @@ public class SingleFileLdifPartitionSingeValueAttribute
         modDnAvas.put( SchemaConstants.DOMAIN_COMPONENT_AT_OID, modAvas );
         
         moveAndRenameOpCtx.setModifiedAvas( modDnAvas );
-        
+        moveAndRenameOpCtx.setPartition( partition );
+        moveAndRenameOpCtx.setTransaction( partition.beginWriteTransaction() );
+
         partition.moveAndRename( moveAndRenameOpCtx );
 
         partition = reloadPartition();
 
         childDn1 = new Dn( schemaManager, "dc=movedChild1,dc=child2,ou=test,ou=system" );
+        lookupContext = new LookupOperationContext( mockSession, childDn1 );
+        lookupContext.setPartition( partition );
+        Entry entry;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
 
-        Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+            entry = partition.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         assertNotNull( entry );
         Attribute dc = entry.get( "dc" );
@@ -905,7 +1037,21 @@ public class SingleFileLdifPartitionSingeValueAttribute
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( mockSession, childDn1,
             childDn2, newRdn, true );
         
-        Entry originalEntry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+        LookupOperationContext lookupContext = new LookupOperationContext( mockSession, childDn1 );
+        lookupContext.setPartition( partition );
+        Entry originalEntry;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
+
+            originalEntry = partition.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
+        
         Entry modifiedEntry = originalEntry.clone();
         modifiedEntry.setDn( childDn2.add( newRdn ) );
         modifiedEntry.remove( "dc", "child1" );
@@ -925,14 +1071,28 @@ public class SingleFileLdifPartitionSingeValueAttribute
         modDnAvas.put( SchemaConstants.DOMAIN_COMPONENT_AT_OID, modAvas );
         
         moveAndRenameOpCtx.setModifiedAvas( modDnAvas );
+        moveAndRenameOpCtx.setPartition( partition );
+        moveAndRenameOpCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.moveAndRename( moveAndRenameOpCtx );
         
         partition = reloadPartition();
 
         childDn1 = new Dn( schemaManager, "dc=movedChild1,dc=child2,ou=test,ou=system" );
+        lookupContext = new LookupOperationContext( mockSession, childDn1 );
+        lookupContext.setPartition( partition );
+        Entry entry;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
 
-        Entry entry = partition.lookup( new LookupOperationContext( mockSession, childDn1 ) );
+            entry = partition.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         assertNotNull( entry );
         Attribute dc = entry.get( "dc" );
@@ -947,18 +1107,20 @@ public class SingleFileLdifPartitionSingeValueAttribute
         SingleFileLdifPartition partition = createPartition( null, true );
 
         // disable writing
-        partition.setEnableRewriting( false );
+        partition.setEnableRewriting( partition.beginReadTransaction(), false );
 
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
         // search works fine
-        String id = partition.getEntryId( contextEntry.getDn() );
+        String id = partition.getEntryId( partition.beginReadTransaction(), contextEntry.getDn() );
         assertNotNull( id );
 
-        Entry fetched = partition.fetch( id );
+        Entry fetched = partition.fetch( partition.beginReadTransaction(), id );
 
         //remove the entryDn cause it is not present in the above hand made contextEntry
         fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
@@ -977,7 +1139,7 @@ public class SingleFileLdifPartitionSingeValueAttribute
         partition.add( addCtx );
 
         // eable writing, this will let the partition write data back to disk
-        partition.setEnableRewriting( false );
+        partition.setEnableRewriting( partition.beginReadTransaction(), false );
         assertTrue( getEntryLdifLen( contextEntry ) == file.length() );
 
         file.close();
@@ -1019,8 +1181,21 @@ public class SingleFileLdifPartitionSingeValueAttribute
         // test the work of modify thread
         LookupOperationContext lookupCtx = new LookupOperationContext( mockSession );
         lookupCtx.setDn( new Dn( "dc=threadDoModify,ou=test,ou=system" ) );
+        lookupCtx.setPartition( partition );
 
-        Entry entry = partition.lookup( lookupCtx );
+        Entry entry;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupCtx.setTransaction( partitionTxn );
+
+            entry = partition.lookup( lookupCtx );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
+
         assertNotNull( entry );
         assertEquals( "description no 999", entry.get( "description" ).getString() );
         assertExists( partition, contextEntry.getDn().getName() );
@@ -1246,6 +1421,8 @@ public class SingleFileLdifPartitionSingeValueAttribute
         SingleFileLdifPartition partition = createPartition( null, true );
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 

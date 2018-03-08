@@ -24,6 +24,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ScopeNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
@@ -58,7 +59,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public OneLevelScopeEvaluator( Store db, ScopeNode node ) throws Exception
+    public OneLevelScopeEvaluator( Store db, ScopeNode node )
     {
         this.node = node;
 
@@ -82,7 +83,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      *
      * {@inheritDoc}
      */
-    public boolean evaluate( Entry candidate ) throws Exception
+    public boolean evaluate( Entry candidate ) throws LdapException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -97,16 +98,16 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      * @throws Exception if db lookups fail
      * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
-        ParentIdAndRdn parent = db.getRdnIndex().reverseLookup( indexEntry.getId() );
+        ParentIdAndRdn parent = db.getRdnIndex().reverseLookup( partitionTxn, indexEntry.getId() );
         boolean isChild = parent.getParentId().equals( baseId );
         Entry entry = indexEntry.getEntry();
 
         // Fetch the entry
         if ( null == entry )
         {
-            entry = db.fetch( indexEntry.getId() );
+            entry = db.fetch( partitionTxn, indexEntry.getId() );
 
             if ( null == entry )
             {
@@ -132,7 +133,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
          * candidate id is an alias, if so we reject it since aliases should
          * not be returned.
          */
-        if ( null != db.getAliasIndex().reverseLookup( indexEntry.getId() ) )
+        if ( null != db.getAliasIndex().reverseLookup( partitionTxn, indexEntry.getId() ) )
         {
             return false;
         }
@@ -156,7 +157,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
          * the lookup returns true accepting the candidate.  Otherwise the
          * candidate is rejected with a false return because it is not in scope.
          */
-        return db.getOneAliasIndex().forward( baseId, indexEntry.getId() );
+        return db.getOneAliasIndex().forward( partitionTxn, baseId, indexEntry.getId() );
     }
 
 

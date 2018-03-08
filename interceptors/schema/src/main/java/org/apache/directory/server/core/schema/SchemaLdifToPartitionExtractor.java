@@ -38,6 +38,7 @@ import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -48,6 +49,7 @@ import org.apache.directory.api.ldap.schema.extractor.impl.ResourceMap;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,15 +93,26 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
 
         Dn dn = new Dn( schemaManager, SchemaConstants.OU_SCHEMA );
         HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( null, dn );
-        if ( partition.hasEntry( hasEntryContext ) )
+        hasEntryContext.setPartition( partition );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            LOG.info( "Schema entry 'ou=schema' exists: extracted state set to true." );
-            extracted = true;
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( partition.hasEntry( hasEntryContext ) )
+            {
+                LOG.info( "Schema entry 'ou=schema' exists: extracted state set to true." );
+                extracted = true;
+            }
+            else
+            {
+                LOG.info( "Schema entry 'ou=schema' does NOT exist: extracted state set to false." );
+                extracted = false;
+            }
         }
-        else
+        catch ( IOException ioe )
         {
-            LOG.info( "Schema entry 'ou=schema' does NOT exist: extracted state set to false." );
-            extracted = false;
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
     }
 
@@ -248,7 +261,47 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
             {
                 Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
                 AddOperationContext addContext = new AddOperationContext( null, entry );
-                partition.add( addContext );
+                addContext.setPartition( partition );
+                
+                PartitionTxn partitionTxn = null;
+
+                try
+                { 
+                    partitionTxn = partition.beginWriteTransaction();
+                    addContext.setTransaction( partitionTxn );
+                    
+                    partition.add( addContext );
+                    partitionTxn.commit();
+                }
+                catch ( LdapException le )
+                {
+                    if ( partitionTxn != null )
+                    {
+                        try
+                        { 
+                            partitionTxn.abort();
+                        }
+                        catch ( IOException ioe )
+                        {
+                            throw new LdapOtherException( ioe.getMessage(), ioe );
+                        }
+                    }
+                    
+                    throw le;
+                }
+                catch ( IOException ioe )
+                {
+                    try
+                    { 
+                        partitionTxn.abort();
+                    }
+                    catch ( IOException ioe2 )
+                    {
+                        throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+                    }
+
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
             }
         }
         catch ( LdapException ne )

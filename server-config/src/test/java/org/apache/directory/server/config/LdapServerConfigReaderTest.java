@@ -129,6 +129,6 @@ public class LdapServerConfigReaderTest
         LdapServerBean ldapServerBean = ( LdapServerBean ) configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( ldapServerBean );
 
-        configPartition.destroy();
+        configPartition.destroy( configPartition.beginReadTransaction() );
     }
 }

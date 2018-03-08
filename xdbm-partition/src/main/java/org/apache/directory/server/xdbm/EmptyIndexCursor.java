@@ -25,6 +25,7 @@ import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +45,14 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
 
-    public EmptyIndexCursor()
+    public EmptyIndexCursor( PartitionTxn partitionTxn )
     {
         if ( IS_DEBUG )
         {
             LOG_CURSOR.debug( "Creating EmptyIndexCursor {}", this );
         }
+        
+        this.partitionTxn = partitionTxn;
     }
 
 
@@ -58,7 +61,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public void before( IndexEntry<K, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
     }
 
 
@@ -76,7 +79,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public void after( IndexEntry<K, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
     }
 
 
@@ -85,7 +88,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
     }
 
 
@@ -94,7 +97,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
     }
 
 
@@ -103,7 +106,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public boolean first() throws LdapException, CursorException
     {
-        checkNotClosed( "first()" );
+        checkNotClosed();
         return false;
     }
 
@@ -113,7 +116,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public boolean last() throws LdapException, CursorException
     {
-        checkNotClosed( "last()" );
+        checkNotClosed();
         return false;
     }
 
@@ -121,9 +124,10 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
         return false;
     }
 
@@ -131,9 +135,10 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
         return false;
     }
 
@@ -143,7 +148,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public IndexEntry<K, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
         throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
     }
 
@@ -153,7 +158,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public void afterValue( String id, K indexValue ) throws Exception
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
     }
 
 
@@ -162,7 +167,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
      */
     public void beforeValue( String id, K indexValue ) throws Exception
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
     }
 
 

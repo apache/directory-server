@@ -480,7 +480,10 @@ public class MockCoreSession implements CoreSession
     public Entry lookup( Dn dn, String... attrIds ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.lookup( new LookupOperationContext( this, dn, attrIds ) );
+        
+        LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrIds );
+
+        return operationManager.lookup( lookupContext );
     }
 
 

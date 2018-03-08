@@ -41,8 +41,10 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.mavibot.btree.RecordManager;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -69,6 +71,8 @@ public class MavibotIndexTest
     private static final String UUID_1234 = Strings.getUUID( 1234L );
     private static final String UUID_333 = Strings.getUUID( 333L );
     private static final String UUID_555 = Strings.getUUID( 555L );
+    
+    private PartitionTxn partitionTxn;
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -107,6 +111,8 @@ public class MavibotIndexTest
         dbFileDir = tempFolder.newFolder( MavibotIndexTest.class.getSimpleName() );
 
         recordMan = new RecordManager( dbFileDir.getAbsolutePath() );
+        
+        partitionTxn = new MockPartitionReadTxn();
     }
 
 
@@ -128,8 +134,7 @@ public class MavibotIndexTest
     {
         if ( idx != null )
         {
-            idx.sync();
-            idx.close();
+            idx.close( partitionTxn );
         }
 
         idx = null;
@@ -272,16 +277,16 @@ public class MavibotIndexTest
     public void testCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( partitionTxn ) );
 
-        idx.add( "foo", UUID_1234 );
-        assertEquals( 1, idx.count() );
+        idx.add( partitionTxn, "foo", UUID_1234 );
+        assertEquals( 1, idx.count( partitionTxn ) );
 
-        idx.add( "foo", UUID_333 );
-        assertEquals( 2, idx.count() );
+        idx.add( partitionTxn, "foo", UUID_333 );
+        assertEquals( 2, idx.count( partitionTxn ) );
 
-        idx.add( "bar", UUID_555 );
-        assertEquals( 3, idx.count() );
+        idx.add( partitionTxn, "bar", UUID_555 );
+        assertEquals( 3, idx.count( partitionTxn ) );
     }
 
 
@@ -289,16 +294,16 @@ public class MavibotIndexTest
     public void testCountOneArg() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count( "foo" ) );
+        assertEquals( 0, idx.count( partitionTxn, "foo" ) );
 
-        idx.add( "bar", UUID_1234 );
-        assertEquals( 0, idx.count( "foo" ) );
+        idx.add( partitionTxn, "bar", UUID_1234 );
+        assertEquals( 0, idx.count( partitionTxn, "foo" ) );
 
-        idx.add( "foo", UUID_1234 );
-        assertEquals( 1, idx.count( "foo" ) );
+        idx.add( partitionTxn, "foo", UUID_1234 );
+        assertEquals( 1, idx.count( partitionTxn, "foo" ) );
 
-        idx.add( "foo", UUID_333 );
-        assertEquals( 2, idx.count( "foo" ) );
+        idx.add( partitionTxn, "foo", UUID_333 );
+        assertEquals( 2, idx.count( partitionTxn, "foo" ) );
     }
 
 
@@ -306,15 +311,15 @@ public class MavibotIndexTest
     public void testGreaterThanCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.greaterThanCount( "a" ) );
+        assertEquals( 0, idx.greaterThanCount( partitionTxn, "a" ) );
 
         for ( char ch = 'a'; ch <= 'z'; ch++ )
         {
-            idx.add( String.valueOf( ch ), Strings.getUUID( ch ) );
+            idx.add( partitionTxn, String.valueOf( ch ), Strings.getUUID( ch ) );
         }
 
         // We should not go above the magic limit of 10
-        assertEquals( 10, idx.greaterThanCount( "a" ) );
+        assertEquals( 10, idx.greaterThanCount(partitionTxn,  "a" ) );
     }
 
 
@@ -322,15 +327,15 @@ public class MavibotIndexTest
     public void testLessThanCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.lessThanCount( "z" ) );
+        assertEquals( 0, idx.lessThanCount( partitionTxn, "z" ) );
 
         for ( char ch = 'a'; ch <= 'z'; ch++ )
         {
-            idx.add( String.valueOf( ch ), Strings.getUUID( ch ) );
+            idx.add( partitionTxn, String.valueOf( ch ), Strings.getUUID( ch ) );
         }
 
         // We should not go above the magic limit of 10
-        assertEquals( 10, idx.lessThanCount( "z" ) );
+        assertEquals( 10, idx.lessThanCount( partitionTxn, "z" ) );
     }
 
 
@@ -342,23 +347,23 @@ public class MavibotIndexTest
     public void testLookups() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
+        assertNull( idx.forwardLookup( partitionTxn, "foo" ) );
+        assertNull( idx.forwardLookup( partitionTxn, "bar" ) );
 
-        idx.add( "foo", UUID_0 );
-        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
-        assertTrue( idx.forward( "foo", UUID_0 ) );
+        idx.add( partitionTxn, "foo", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "foo" ) );
+        assertTrue( idx.forward( partitionTxn, "foo", UUID_0 ) );
 
-        idx.add( "foo", UUID_1 );
-        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
-        assertTrue( idx.forward( "foo", UUID_0 ) );
-        assertTrue( idx.forward( "foo", UUID_1 ) );
+        idx.add( partitionTxn, "foo", UUID_1 );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "foo" ) );
+        assertTrue( idx.forward( partitionTxn, "foo", UUID_0 ) );
+        assertTrue( idx.forward( partitionTxn, "foo", UUID_1 ) );
 
-        idx.add( "bar", UUID_0 );
-        assertEquals( UUID_0, idx.forwardLookup( "bar" ) );
-        assertTrue( idx.forward( "bar", UUID_0 ) );
-        assertTrue( idx.forward( "foo", UUID_0 ) );
-        assertTrue( idx.forward( "foo", UUID_1 ) );
+        idx.add( partitionTxn, "bar", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "bar" ) );
+        assertTrue( idx.forward( partitionTxn, "bar", UUID_0 ) );
+        assertTrue( idx.forward( partitionTxn, "foo", UUID_0 ) );
+        assertTrue( idx.forward( partitionTxn, "foo", UUID_1 ) );
     }
 
 
@@ -366,33 +371,33 @@ public class MavibotIndexTest
     public void testAddDropById() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
+        assertNull( idx.forwardLookup( partitionTxn, "foo" ) );
+        assertNull( idx.forwardLookup( partitionTxn, "bar" ) );
 
         // test add/drop without adding any duplicates
-        idx.add( "foo", UUID_0 );
-        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
+        idx.add( partitionTxn, "foo", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "foo" ) );
 
-        idx.drop( "foo", UUID_0 );
-        assertNull( idx.forwardLookup( "foo" ) );
+        idx.drop( partitionTxn, "foo", UUID_0 );
+        assertNull( idx.forwardLookup( partitionTxn, "foo" ) );
 
         // test add/drop with duplicates in bulk
-        idx.add( "foo", UUID_0 );
-        idx.add( "foo", UUID_1 );
-        idx.add( "bar", UUID_0 );
-        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
-        assertEquals( UUID_0, idx.forwardLookup( "bar" ) );
+        idx.add( partitionTxn, "foo", UUID_0 );
+        idx.add( partitionTxn, "foo", UUID_1 );
+        idx.add( partitionTxn, "bar", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "foo" ) );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "bar" ) );
 
-        idx.drop( "foo", UUID_0 );
-        idx.drop( "bar", UUID_0 );
-        assertFalse( idx.forward( "bar", UUID_0 ) );
-        assertFalse( idx.forward( "foo", UUID_0 ) );
+        idx.drop( partitionTxn, "foo", UUID_0 );
+        idx.drop( partitionTxn, "bar", UUID_0 );
+        assertFalse( idx.forward( partitionTxn, "bar", UUID_0 ) );
+        assertFalse( idx.forward( partitionTxn, "foo", UUID_0 ) );
 
-        idx.drop( "bar", UUID_1 );
-        idx.drop( "foo", UUID_1 );
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
-        assertEquals( 0, idx.count() );
+        idx.drop( partitionTxn, "bar", UUID_1 );
+        idx.drop( partitionTxn, "foo", UUID_1 );
+        assertNull( idx.forwardLookup( partitionTxn, "foo" ) );
+        assertNull( idx.forwardLookup( partitionTxn, "bar" ) );
+        assertEquals( 0, idx.count( partitionTxn ) );
     }
 
 
@@ -400,35 +405,35 @@ public class MavibotIndexTest
     public void testAddDropOneByOne() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
+        assertNull( idx.forwardLookup( partitionTxn, "foo" ) );
+        assertNull( idx.forwardLookup( partitionTxn, "bar" ) );
 
         // test add/drop without adding any duplicates
-        idx.add( "foo", UUID_0 );
-        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
+        idx.add( partitionTxn, "foo", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "foo" ) );
 
-        idx.drop( "foo", UUID_0 );
-        assertNull( idx.forwardLookup( "foo" ) );
+        idx.drop( partitionTxn, "foo", UUID_0 );
+        assertNull( idx.forwardLookup( partitionTxn, "foo" ) );
 
         // test add/drop with duplicates but one at a time
-        idx.add( "foo", UUID_0 );
-        idx.add( "foo", UUID_1 );
-        idx.add( "bar", UUID_0 );
-        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
-        assertEquals( UUID_0, idx.forwardLookup( "bar" ) );
+        idx.add( partitionTxn, "foo", UUID_0 );
+        idx.add( partitionTxn, "foo", UUID_1 );
+        idx.add( partitionTxn, "bar", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "foo" ) );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "bar" ) );
 
-        idx.drop( "bar", UUID_0 );
-        assertEquals( UUID_0, idx.forwardLookup( "foo" ) );
-        assertFalse( idx.forward( "bar", UUID_0 ) );
+        idx.drop( partitionTxn, "bar", UUID_0 );
+        assertEquals( UUID_0, idx.forwardLookup( partitionTxn, "foo" ) );
+        assertFalse( idx.forward( partitionTxn, "bar", UUID_0 ) );
 
-        idx.drop( "foo", UUID_0 );
-        assertEquals( UUID_1, idx.forwardLookup( "foo" ) );
-        assertFalse( idx.forward( "foo", UUID_0 ) );
+        idx.drop( partitionTxn, "foo", UUID_0 );
+        assertEquals( UUID_1, idx.forwardLookup( partitionTxn, "foo" ) );
+        assertFalse( idx.forward( partitionTxn, "foo", UUID_0 ) );
 
-        idx.drop( "foo", UUID_1 );
-        assertNull( idx.forwardLookup( "foo" ) );
-        assertNull( idx.forwardLookup( "bar" ) );
-        assertEquals( 0, idx.count() );
+        idx.drop( partitionTxn, "foo", UUID_1 );
+        assertNull( idx.forwardLookup( partitionTxn, "foo" ) );
+        assertNull( idx.forwardLookup( partitionTxn, "bar" ) );
+        assertEquals( 0, idx.count( partitionTxn ) );
     }
 
 
@@ -440,22 +445,22 @@ public class MavibotIndexTest
     public void testCursors() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( partitionTxn ) );
 
-        idx.add( "foo", UUID_1234 );
-        assertEquals( 1, idx.count() );
+        idx.add( partitionTxn, "foo", UUID_1234 );
+        assertEquals( 1, idx.count( partitionTxn ) );
 
-        idx.add( "foo", UUID_333 );
-        assertEquals( 2, idx.count() );
+        idx.add( partitionTxn, "foo", UUID_333 );
+        assertEquals( 2, idx.count( partitionTxn ) );
 
-        idx.add( "bar", UUID_555 );
-        assertEquals( 3, idx.count() );
+        idx.add( partitionTxn, "bar", UUID_555 );
+        assertEquals( 3, idx.count( partitionTxn ) );
 
         // use forward index's cursor
-        Cursor<IndexEntry<String, String>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<String, String>> cursor = idx.forwardCursor( partitionTxn );
         cursor.beforeFirst();
 
-        assertEquals( 3, idx.count() );
+        assertEquals( 3, idx.count( partitionTxn ) );
 
         cursor.next();
         IndexEntry<String, String> e1 = cursor.get();
@@ -509,6 +514,6 @@ public class MavibotIndexTest
         MavibotIndex.setRecordManager( recordMan );
         MavibotIndex
             .init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
-        MavibotIndex.close();
+        MavibotIndex.close( partitionTxn );
     }
 }

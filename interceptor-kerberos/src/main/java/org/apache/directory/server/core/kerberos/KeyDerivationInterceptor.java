@@ -310,6 +310,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             SchemaConstants.OBJECT_CLASS_AT,
             KerberosAttribute.KRB5_PRINCIPAL_NAME_AT,
             KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT );
+        lookupContext.setPartition( modContext.getPartition() );
+        lookupContext.setTransaction( modContext.getTransaction() );
 
         Entry userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 

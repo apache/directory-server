@@ -20,10 +20,10 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import javax.naming.NamingException;
-
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.search.Optimizer;
 
 
@@ -40,7 +40,7 @@ public class NoOpOptimizer implements Optimizer
     private static final Long MAX = Long.MAX_VALUE;
 
 
-    public Long annotate( ExprNode node ) throws NamingException
+    public Long annotate( PartitionTxn partitionTxn, ExprNode node ) throws LdapException
     {
         if ( node.isLeaf() )
         {
@@ -65,7 +65,7 @@ public class NoOpOptimizer implements Optimizer
             }
             else
             {
-                annotate( child );
+                annotate( partitionTxn, child );
             }
         }
 

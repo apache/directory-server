@@ -31,7 +31,7 @@ import java.util.Set;
 
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -255,6 +255,7 @@ public class DefaultCoreSession implements CoreSession
         addContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+        
         try
         {
             operationManager.add( addContext );
@@ -264,6 +265,7 @@ public class DefaultCoreSession implements CoreSession
             addRequest.getResultResponse().addAllControls( addContext.getResponseControls() );
             throw e;
         }
+        
         addRequest.getResultResponse().addAllControls( addContext.getResponseControls() );
     }
 
@@ -652,6 +654,7 @@ public class DefaultCoreSession implements CoreSession
         modifyContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+        
         operationManager.modify( modifyContext );
     }
 
@@ -1217,9 +1220,25 @@ public class DefaultCoreSession implements CoreSession
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             done.addAllControls( searchContext.getResponseControls() );
             throw new LdapException( e );
+        }
+        finally
+        {
+            // Don't close the transaction !!!
+            LOG.debug( "Search done, the transaction is still opened" );
+            /*
+            try
+            {
+                ( ( EntryFilteringCursor ) cursor ).getOperationContext().getTransaction().close();
+            }
+            catch ( IOException ioe )
+            {
+                done.addAllControls( searchContext.getResponseControls() );
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            */
         }
 
         if ( sortRespCtrl != null )

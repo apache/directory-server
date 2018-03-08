@@ -20,11 +20,13 @@
 package org.apache.directory.server.xdbm;
 
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -38,11 +40,10 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
  * @param <K> The Indexed value type, used to retrieve an element
  * @param <ID> The unique identifier type in the master table
  */
-public interface Index<K, ID>
+public interface Index<K, E>
 {
     /** The default cache size (ie, the number of elements we stored in the cache) */
     int DEFAULT_INDEX_CACHE_SIZE = 100;
-
 
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
@@ -118,7 +119,7 @@ public interface Index<K, ID>
      * @return the number of key/value pairs in this index
      * @throws Exception on failure to access index db files
      */
-    long count() throws Exception;
+    long count( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
@@ -129,30 +130,30 @@ public interface Index<K, ID>
      * @return the number of key/value pairs in this index with the value value
      * @throws Exception on failure to access index db files
      */
-    long count( K attrVal ) throws Exception;
+    long count( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
-    long greaterThanCount( K attrVal ) throws Exception;
+    long greaterThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
-    long lessThanCount( K attrVal ) throws Exception;
+    long lessThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
-    ID forwardLookup( K attrVal ) throws Exception;
+    E forwardLookup( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
-    K reverseLookup( ID id ) throws LdapException;
+    K reverseLookup( PartitionTxn partitionTxn, E element ) throws LdapException;
 
 
     /**
-     * Add an entry into the index, associated with the element ID. The added
+     * Add an entry into the index, associated with the element E. The added
      * value is the key to retrieve the element having the given ID.
      * 
      * @param attrVal The added value
      * @param id The element ID pointed by the added value
      * @throws Exception If the addition can't be done
      */
-    void add( K attrVal, ID id ) throws Exception;
+    void add( PartitionTxn partitionTxn, K attrVal, E entryId ) throws LdapException;
 
 
     /**
@@ -179,10 +180,10 @@ public interface Index<K, ID>
      * iterate through all those values to remove entryId from the associated
      * list of entryIds.
      * 
-     * @param entryId The master table entry ID to remove
+     * @param entryId The master table entryId to remove
      * @throws Exception
      */
-    void drop( ID entryId ) throws Exception;
+    void drop( PartitionTxn partitionTxn, E entryId ) throws LdapException;
 
 
     /**
@@ -192,43 +193,40 @@ public interface Index<K, ID>
      * @param id The associated ID
      * @throws Exception If the removal can't be done
      */
-    void drop( K attrVal, ID id ) throws Exception;
+    void drop( PartitionTxn partitionTxn, K attrVal, E entryId ) throws LdapException;
 
 
-    Cursor<IndexEntry<K, ID>> reverseCursor() throws Exception;
+    Cursor<IndexEntry<K, E>> reverseCursor( PartitionTxn partitionTxn ) throws LdapException;
 
 
-    Cursor<IndexEntry<K, ID>> forwardCursor() throws LdapException;
+    Cursor<IndexEntry<K, E>> forwardCursor( PartitionTxn partitionTxn ) throws LdapException;
 
 
-    Cursor<IndexEntry<K, ID>> reverseCursor( ID id ) throws Exception;
+    Cursor<IndexEntry<K, E>> reverseCursor( PartitionTxn partitionTxn, E entryId ) throws LdapException;
 
 
-    Cursor<IndexEntry<K, ID>> forwardCursor( K key ) throws Exception;
+    Cursor<IndexEntry<K, E>> forwardCursor( PartitionTxn partitionTxn, K key ) throws LdapException;
 
 
-    Cursor<K> reverseValueCursor( ID id ) throws Exception;
+    Cursor<K> reverseValueCursor( PartitionTxn partitionTxn, E entryId ) throws LdapException;
 
 
-    Cursor<ID> forwardValueCursor( K key ) throws Exception;
+    Cursor<E> forwardValueCursor( PartitionTxn partitionTxn, K key ) throws LdapException;
 
 
-    boolean forward( K attrVal ) throws Exception;
+    boolean forward( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
-    boolean forward( K attrVal, ID id ) throws LdapException;
+    boolean forward( PartitionTxn partitionTxn, K attrVal, E entryId ) throws LdapException;
 
 
-    boolean reverse( ID id ) throws Exception;
+    boolean reverse( PartitionTxn partitionTxn, E entryId ) throws LdapException;
 
 
-    boolean reverse( ID id, K attrVal ) throws Exception;
+    boolean reverse( PartitionTxn partitionTxn, E entryId, K attrVal ) throws LdapException;
 
 
-    void close() throws Exception;
-
-
-    void sync() throws Exception;
+    void close( PartitionTxn partitionTxn ) throws LdapException, IOException;
 
 
     /**

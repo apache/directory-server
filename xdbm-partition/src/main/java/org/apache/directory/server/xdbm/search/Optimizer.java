@@ -20,7 +20,9 @@
 package org.apache.directory.server.xdbm.search;
 
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -41,5 +43,5 @@ public interface Optimizer
      * @param node the root of the expression node tree
      * @throws Exception if there are failures while optimizing
      */
-    Long annotate( ExprNode node ) throws Exception;
+    Long annotate( PartitionTxn partitionTxn, ExprNode node ) throws LdapException;
 }

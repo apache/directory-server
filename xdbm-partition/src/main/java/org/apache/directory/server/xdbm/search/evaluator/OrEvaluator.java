@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
@@ -68,7 +69,7 @@ public class OrEvaluator implements Evaluator<OrNode>
     private List<Evaluator<? extends ExprNode>> optimize(
         List<Evaluator<? extends ExprNode>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
+        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
@@ -78,11 +79,11 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {
-            if ( evaluator.evaluate( indexEntry ) )
+            if ( evaluator.evaluate( partitionTxn, indexEntry ) )
             {
                 return true;
             }
@@ -92,7 +93,7 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
-    public boolean evaluate( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {
@@ -137,7 +138,7 @@ public class OrEvaluator implements Evaluator<OrNode>
 
         sb.append( tabs ).append( "OrEvaluator : " ).append( node ).append( "\n" );
 
-        if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
+        if ( ( evaluators != null ) && !evaluators.isEmpty() )
         {
             sb.append( dumpEvaluators( tabs ) );
         }

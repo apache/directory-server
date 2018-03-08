@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -38,6 +40,7 @@ import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -47,31 +50,41 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import jdbm.recman.BaseRecordManager;
+import jdbm.recman.TransactionManager;
+
 
 public class IndexIT
 {
-    private static File dbFileDir;
     private static SchemaManager schemaManager;
     private Normalizer normalizer;
 
     private JdbmIndex<String> jdbmIndex;
     private AvlIndex<String> avlIndex;
 
+    
+    /** The recordManager used */
+    private BaseRecordManager recMan;
+    
+    /** The temporary directory the files will be created in */
+    private static Path tempDir;
+    
+    /** The temporary index file */  
+    private File tmpIndexFile;
+    
+    /** A temporary file */
+    private Path tempFile;
+
+    /** The partition transaction */
+    private PartitionTxn partitionTxn;
 
     @BeforeClass
     public static void init() throws Exception
     {
-        String workingDirectory = System.getProperty( "workingDirectory" );
+        tempDir = Files.createTempDirectory( IndexIT.class.getSimpleName() );
 
-        if ( workingDirectory == null )
-        {
-            String path = IndexIT.class.getResource( "" ).getPath();
-            int targetPos = path.indexOf( "target" );
-            workingDirectory = path.substring( 0, targetPos + 6 );
-        }
-
-        File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        File schemaRepository = new File( tempDir.toFile(), "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( tempDir.toFile() );
         extractor.extractOrCopy( true );
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         schemaManager = new DefaultSchemaManager( loader );
@@ -88,18 +101,20 @@ public class IndexIT
     @Before
     public void setup() throws Exception
     {
+        tempFile = Files.createTempFile( tempDir, "data", null );
 
-        File tmpIndexFile = File.createTempFile( IndexIT.class.getSimpleName(), "db" );
-        tmpIndexFile.deleteOnExit();
-        dbFileDir = new File( tmpIndexFile.getParentFile(), IndexIT.class.getSimpleName() );
-        dbFileDir.mkdirs();
+        tmpIndexFile = tempFile.toFile();
+        partitionTxn = new MockPartitionReadTxn();
+
+        recMan = new BaseRecordManager( tmpIndexFile.getPath() );
+        TransactionManager transactionManager = recMan.getTransactionManager();
+        transactionManager.setMaximumTransactionsInLog( 2000 );
 
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
         normalizer = attributeType.getEquality().getNormalizer();
 
         jdbmIndex = new JdbmIndex<String>( attributeType.getName(), false );
-        jdbmIndex.setWkDirPath( dbFileDir.toURI() );
-        jdbmIndex.init( schemaManager, attributeType );
+        jdbmIndex.init( recMan, schemaManager, attributeType );
 
         avlIndex = new AvlIndex<String>();
         avlIndex.init( schemaManager, attributeType );
@@ -128,18 +143,18 @@ public class IndexIT
         for ( int i = 0; i < 26; i++ )
         {
             String val = alphabet.substring( i, i + 1 );
-            idx.add( normalizer.normalize( val ), Strings.getUUID( i + 1 ) );
+            idx.add( partitionTxn, normalizer.normalize( val ), Strings.getUUID( i + 1 ) );
         }
 
-        assertEquals( 26, idx.count() );
+        assertEquals( 26, idx.count( partitionTxn ) );
 
-        Cursor<IndexEntry<String, String>> cursor1 = idx.forwardCursor();
+        Cursor<IndexEntry<String, String>> cursor1 = idx.forwardCursor( partitionTxn );
         cursor1.beforeFirst();
 
         assertHasNext( cursor1, Strings.getUUID( 1L ) );
         assertHasNext( cursor1, Strings.getUUID( 2L ) );
 
-        idx.drop( normalizer.normalize( "c" ), Strings.getUUID( 3L ) );
+        idx.drop( partitionTxn, normalizer.normalize( "c" ), Strings.getUUID( 3L ) );
 
         for ( long i = 4L; i < 27L; i++ )
         {

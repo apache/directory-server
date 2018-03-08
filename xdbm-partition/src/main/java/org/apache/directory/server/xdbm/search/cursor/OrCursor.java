@@ -32,6 +32,7 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -64,7 +65,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
 
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
-    public OrCursor( List<Cursor<IndexEntry<V, String>>> cursors,
+    public OrCursor( PartitionTxn partitionTxn, List<Cursor<IndexEntry<V, String>>> cursors,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
         if ( IS_DEBUG )
@@ -79,7 +80,8 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         this.cursors = cursors;
         this.evaluators = evaluators;
-        this.blacklists = new ArrayList<Set<String>>();
+        this.blacklists = new ArrayList<>();
+        this.partitionTxn = partitionTxn;
 
         for ( int i = 0; i < cursors.size(); i++ )
         {
@@ -104,7 +106,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         cursorIndex = 0;
         cursors.get( cursorIndex ).beforeFirst();
         setAvailable( false );
@@ -117,7 +119,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         cursorIndex = cursors.size() - 1;
         cursors.get( cursorIndex ).afterLast();
         setAvailable( false );
@@ -160,7 +162,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
      * @param indexEntry the index entry to blacklist
      * @throws Exception if there are problems accessing underlying db
      */
-    private void blackListIfDuplicate( IndexEntry<?, String> indexEntry ) throws LdapException
+    private void blackListIfDuplicate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         for ( int ii = 0; ii < evaluators.size(); ii++ )
         {
@@ -169,7 +171,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
                 continue;
             }
 
-            if ( evaluators.get( ii ).evaluate( indexEntry ) )
+            if ( evaluators.get( ii ).evaluate( partitionTxn, indexEntry ) )
             {
                 blacklists.get( ii ).add( indexEntry.getId() );
             }
@@ -184,12 +186,12 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     {
         while ( cursors.get( cursorIndex ).previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             IndexEntry<V, String> candidate = cursors.get( cursorIndex ).get();
 
             if ( !isBlackListed( candidate.getId() ) )
             {
-                blackListIfDuplicate( candidate );
+                blackListIfDuplicate( partitionTxn, candidate );
 
                 prefetched = candidate;
                 return setAvailable( true );
@@ -198,18 +200,18 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         while ( cursorIndex > 0 )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             cursorIndex--;
             cursors.get( cursorIndex ).afterLast();
 
             while ( cursors.get( cursorIndex ).previous() )
             {
-                checkNotClosed( "previous()" );
+                checkNotClosed();
                 IndexEntry<V, String> candidate = cursors.get( cursorIndex ).get();
 
                 if ( !isBlackListed( candidate.getId() ) )
                 {
-                    blackListIfDuplicate( candidate );
+                    blackListIfDuplicate( partitionTxn, candidate );
 
                     prefetched = candidate;
                     return setAvailable( true );
@@ -230,12 +232,12 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     {
         while ( cursors.get( cursorIndex ).next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             IndexEntry<V, String> candidate = cursors.get( cursorIndex ).get();
 
             if ( !isBlackListed( candidate.getId() ) )
             {
-                blackListIfDuplicate( candidate );
+                blackListIfDuplicate( partitionTxn, candidate );
 
                 prefetched = candidate;
 
@@ -245,18 +247,18 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         while ( cursorIndex < cursors.size() - 1 )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             cursorIndex++;
             cursors.get( cursorIndex ).beforeFirst();
 
             while ( cursors.get( cursorIndex ).next() )
             {
-                checkNotClosed( "previous()" );
+                checkNotClosed();
                 IndexEntry<V, String> candidate = cursors.get( cursorIndex ).get();
 
                 if ( !isBlackListed( candidate.getId() ) )
                 {
-                    blackListIfDuplicate( candidate );
+                    blackListIfDuplicate( partitionTxn, candidate );
 
                     prefetched = candidate;
 
@@ -276,7 +278,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
      */
     public IndexEntry<V, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( available() )
         {
@@ -290,6 +292,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -309,6 +312,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -361,6 +365,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -378,12 +383,12 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         sb.append( "#" ).append( cursorIndex ).append( " : \n" );
 
-        if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
+        if ( ( evaluators != null ) && !evaluators.isEmpty() )
         {
             sb.append( dumpEvaluators( tabs ) );
         }
 
-        if ( ( cursors != null ) && ( cursors.size() > 0 ) )
+        if ( ( cursors != null ) && !cursors.isEmpty() )
         {
             sb.append( dumpCursors( tabs ) ).append( '\n' );
         }

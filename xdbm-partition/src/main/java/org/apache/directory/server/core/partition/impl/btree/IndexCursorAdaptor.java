@@ -31,6 +31,7 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.CursorIterator;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.slf4j.Logger;
@@ -65,11 +66,12 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
      * one over a reverse index
      */
     @SuppressWarnings("unchecked")
-    public IndexCursorAdaptor( Cursor<Tuple> wrappedCursor, boolean forwardIndex )
+    public IndexCursorAdaptor( PartitionTxn partitionTxn, Cursor<Tuple> wrappedCursor, boolean forwardIndex )
     {
         this.wrappedCursor = wrappedCursor;
 
-        forwardEntry = new IndexEntry<K, String>();
+        forwardEntry = new IndexEntry<>();
+        this.partitionTxn = partitionTxn;
 
         if ( IS_DEBUG )
         {

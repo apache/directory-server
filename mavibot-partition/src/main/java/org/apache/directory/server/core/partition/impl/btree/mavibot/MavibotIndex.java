@@ -21,16 +21,17 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -39,6 +40,7 @@ import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
@@ -106,7 +108,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
      * @param attributeType The attributeType this index is created for
      * @throws IOException If the initialization failed
      */
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
 
@@ -136,7 +138,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
         catch ( IOException e )
         {
             // clean up
-            close();
+            close( null );
             throw e;
         }
 
@@ -160,7 +162,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
             throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
-        SerializableComparator<K> comp = new SerializableComparator<K>( mr.getOid() );
+        SerializableComparator<K> comp = new SerializableComparator<>( mr.getOid() );
         comp.setSchemaManager( schemaManager );
 
         /*
@@ -190,7 +192,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
         }
 
         String forwardTableName = attributeType.getOid() + FORWARD_BTREE;
-        forward = new MavibotTable<K, String>( recordMan, schemaManager, forwardTableName, forwardKeySerializer,
+        forward = new MavibotTable<>( recordMan, schemaManager, forwardTableName, forwardKeySerializer,
             StringSerializer.INSTANCE, forwardDups, AbstractBTreePartition.DEFAULT_CACHE_SIZE );
 
         /*
@@ -202,16 +204,9 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
         if ( withReverse )
         {
             String reverseTableName = attributeType.getOid() + REVERSE_BTREE;
-            reverse = new MavibotTable<String, K>( recordMan, schemaManager, reverseTableName, StringSerializer.INSTANCE,
+            reverse = new MavibotTable<>( recordMan, schemaManager, reverseTableName, StringSerializer.INSTANCE,
                 forwardKeySerializer, !attributeType.isSingleValued() );
         }
-
-        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
-        // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
-        // write the AttributeType description
-        fw.write( attributeType.toString() );
-        fw.close();
     }
 
 
@@ -262,33 +257,38 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public long count() throws IOException
+    public long count( PartitionTxn partitionTxn ) throws LdapException
     {
-        return forward.count();
+        return forward.count( partitionTxn );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public long count( K attrVal ) throws Exception
+    public long count( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.count( attrVal );
-    }
-
-
-    public long greaterThanCount( K attrVal ) throws Exception
-    {
-        return forward.greaterThanCount( attrVal );
+        return forward.count( partitionTxn, attrVal );
     }
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#lessThanCount(java.lang.Object)
+     * {@inheritDoc}
      */
-    public long lessThanCount( K attrVal ) throws Exception
+    @Override
+    public long greaterThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.lessThanCount( attrVal );
+        return forward.greaterThanCount( partitionTxn, attrVal );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long lessThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException
+    {
+        return forward.lessThanCount( partitionTxn, attrVal );
     }
 
 
@@ -299,20 +299,20 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
-    public String forwardLookup( K attrVal ) throws Exception
+    public String forwardLookup( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.get( attrVal );
+        return forward.get( partitionTxn, attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public K reverseLookup( String id ) throws LdapException
+    public K reverseLookup( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.get( id );
+            return reverse.get( partitionTxn, id );
         }
         else
         {
@@ -328,14 +328,14 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public synchronized void add( K attrVal, String id ) throws Exception
+    public synchronized void add( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
         // The pair to be removed must exists
-        forward.put( attrVal, id );
+        forward.put( partitionTxn, attrVal, id );
 
         if ( withReverse )
         {
-            reverse.put( id, attrVal );
+            reverse.put( partitionTxn, id, attrVal );
         }
     }
 
@@ -343,16 +343,17 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public synchronized void drop( K attrVal, String id ) throws Exception
+    @Override
+    public synchronized void drop( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
         // The pair to be removed must exists
-        if ( forward.has( attrVal, id ) )
+        if ( forward.has( partitionTxn, attrVal, id ) )
         {
-            forward.remove( attrVal, id );
+            forward.remove( partitionTxn, attrVal, id );
 
             if ( withReverse )
             {
-                reverse.remove( id, attrVal );
+                reverse.remove( partitionTxn, id, attrVal );
             }
         }
     }
@@ -361,7 +362,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public void drop( String entryId ) throws Exception
+    public void drop( PartitionTxn partitionTxn, String entryId ) throws LdapException
     {
         if ( withReverse )
         {
@@ -369,25 +370,32 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
             {
                 // Build a cursor to iterate on all the keys referencing
                 // this entryId
-                Cursor<Tuple<String, K>> values = reverse.cursor( entryId );
+                Cursor<Tuple<String, K>> values = reverse.cursor( partitionTxn, entryId );
 
-                while ( values.next() )
+                try
                 {
-                    // Remove the Key -> entryId from the index
-                    forward.remove( values.get().getValue(), entryId );
+                    while ( values.next() )
+                    {
+                        // Remove the Key -> entryId from the index
+                        forward.remove( partitionTxn, values.get().getValue(), entryId );
+                    }
+    
+                    values.close();
                 }
-
-                values.close();
+                catch ( CursorException | IOException e )
+                {
+                    throw new LdapOtherException( e.getMessage(), e );
+                }
             }
             else
             {
-                K key = reverse.get( entryId );
+                K key = reverse.get( partitionTxn, entryId );
 
-                forward.remove( key );
+                forward.remove( partitionTxn, key );
             }
 
             // Remove the id -> key from the reverse index
-            reverse.remove( entryId );
+            reverse.remove( partitionTxn, entryId );
         }
     }
 
@@ -395,64 +403,73 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     // ------------------------------------------------------------------------
     // Index Cursor Operations
     // ------------------------------------------------------------------------
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> reverseCursor() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cursor<IndexEntry<K, String>> reverseCursor( PartitionTxn partitionTxn ) throws LdapException
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor(), false );
+            return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) reverse.cursor(), false );
         }
         else
         {
-            return new EmptyIndexCursor<K>();
+            return new EmptyIndexCursor<>( partitionTxn );
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor() throws LdapException
+    public Cursor<IndexEntry<K, String>> forwardCursor( PartitionTxn partitionTxn ) throws LdapException
     {
-        return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor(), true );
+        return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) forward.cursor(), true );
     }
 
 
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> reverseCursor( String id ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cursor<IndexEntry<K, String>> reverseCursor( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor( id ), false );
+            return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) reverse.cursor( partitionTxn, id ), false );
         }
         else
         {
-            return new EmptyIndexCursor<K>();
+            return new EmptyIndexCursor<>( partitionTxn );
         }
     }
 
 
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor( K key ) throws Exception
+    public Cursor<IndexEntry<K, String>> forwardCursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
-        return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) forward.cursor( partitionTxn, key ), true );
     }
 
 
-    public Cursor<K> reverseValueCursor( String id ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cursor<K> reverseValueCursor( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.valueCursor( id );
+            return reverse.valueCursor( partitionTxn, id );
         }
         else
         {
-            return new EmptyCursor<K>();
+            return new EmptyCursor<>();
         }
     }
 
 
-    public Cursor<String> forwardValueCursor( K key ) throws Exception
+    public Cursor<String> forwardValueCursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
-        return forward.valueCursor( key );
+        return forward.valueCursor( partitionTxn, key );
     }
 
 
@@ -462,29 +479,30 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal ) throws Exception
+    public boolean forward( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.has( attrVal );
+        return forward.has( partitionTxn, attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal, String id ) throws LdapException
+    public boolean forward( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
-        return forward.has( attrVal, id );
+        return forward.has( partitionTxn, attrVal, id );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id ) throws Exception
+    @Override
+    public boolean reverse( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.has( id );
+            return reverse.has( partitionTxn, id );
         }
         else
         {
@@ -496,9 +514,10 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id, K attrVal ) throws Exception
+    @Override
+    public boolean reverse( PartitionTxn partitionTxn, String id, K attrVal ) throws LdapException
     {
-        return forward.has( attrVal, id );
+        return forward.has( partitionTxn, attrVal, id );
     }
 
 
@@ -506,20 +525,21 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     // Maintenance Methods
     // ------------------------------------------------------------------------
     /**
-     * @see org.apache.directory.server.xdbm.Index#close()
+     * {@inheritDoc}
      */
-    public synchronized void close() throws IOException
+    @Override
+    public synchronized void close( PartitionTxn partitionTxn ) throws IOException
     {
         try
         {
             if ( forward != null )
             {
-                forward.close();
+                forward.close( partitionTxn );
             }
 
             if ( reverse != null )
             {
-                reverse.close();
+                reverse.close( partitionTxn );
             }
         }
         catch ( Exception e )
@@ -545,6 +565,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isDupsEnabled()
     {
         if ( withReverse )

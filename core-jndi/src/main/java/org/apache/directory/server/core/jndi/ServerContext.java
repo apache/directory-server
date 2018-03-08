@@ -59,13 +59,12 @@ import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.syncInfoValue.SyncInfoValue;
 import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -436,11 +435,6 @@ public abstract class ServerContext implements EventContext
 
                 break;
 
-            case SYNC_INFO_VALUE_CONTROL:
-                control = new SyncInfoValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
             case SYNC_REQUEST_VALUE_CONTROL:
                 control = new SyncRequestValueDecorator( getDirectoryService().getLdapCodecService() );
 
@@ -540,8 +534,7 @@ public abstract class ServerContext implements EventContext
             boolean result = operationManager.compare( compareContext );
 
             // setup the op context and populate with request controls
-            searchContext = new SearchOperationContext( session, dn, filter,
-                searchControls );
+            searchContext = new SearchOperationContext( session, dn, filter, searchControls );
             searchContext.setAliasDerefMode( aliasDerefMode );
             searchContext.addRequestControls( convertControls( true, requestControls ) );
 
@@ -630,12 +623,14 @@ public abstract class ServerContext implements EventContext
         LookupOperationContext lookupContext = new LookupOperationContext( session, target );
         lookupContext.addRequestControls( convertControls( true, requestControls ) );
         OperationManager operationManager = service.getOperationManager();
+        
         Entry serverEntry = operationManager.lookup( lookupContext );
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
             lookupContext.getResponseControls() );
+        
         return serverEntry;
     }
 
@@ -679,7 +674,6 @@ public abstract class ServerContext implements EventContext
     {
         // setup the op context and populate with request controls
         BindOperationContext bindContext = new BindOperationContext( null );
-        bindContext.setTransaction( getDirectoryService().getPartitionNexus().beginReadTransaction() );
         bindContext.setDn( bindDn );
         bindContext.setCredentials( credentials );
         bindContext.setSaslMechanism( saslMechanism );

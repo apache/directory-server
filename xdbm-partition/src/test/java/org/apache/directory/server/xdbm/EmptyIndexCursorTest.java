@@ -43,7 +43,7 @@ public class EmptyIndexCursorTest
     @Before
     public void setUp()
     {
-        indexCursor = new EmptyIndexCursor<String>();
+        indexCursor = new EmptyIndexCursor<String>( new MockPartitionReadTxn() );
     }
 
 
@@ -60,7 +60,7 @@ public class EmptyIndexCursorTest
     @Test
     public void testConstructor() throws Exception
     {
-        EmptyIndexCursor<String> cursor = new EmptyIndexCursor<String>();
+        EmptyIndexCursor<String> cursor = new EmptyIndexCursor<String>( new MockPartitionReadTxn() );
 
         cursor.close();
     }

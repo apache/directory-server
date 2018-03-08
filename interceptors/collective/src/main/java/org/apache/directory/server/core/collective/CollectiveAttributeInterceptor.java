@@ -407,6 +407,9 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             LookupOperationContext lookupContext = new LookupOperationContext( session, subentryDn,
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( opContext.getPartition() );
+            lookupContext.setTransaction( opContext.getTransaction() );
+
             Entry subentry = directoryService.getPartitionNexus().lookup( lookupContext );
 
             //LOG.debug( "Fetched the subentry : {}", subentry.getDn().getName() );

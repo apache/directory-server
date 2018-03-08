@@ -61,6 +61,7 @@ import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -166,7 +167,7 @@ public class GreaterEqNotIndexedTest
     {
         if ( store != null )
         {
-            ( ( Partition ) store ).destroy();
+            ( ( Partition ) store ).destroy( null );
         }
 
         store = null;
@@ -182,10 +183,11 @@ public class GreaterEqNotIndexedTest
     @Test
     public void testCursorNotIndexed() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_NO_INDEX_OID );
         GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "3" ) );
         GreaterEqEvaluator<String> evaluator = new GreaterEqEvaluator<String>( node, store, schemaManager );
-        GreaterEqCursor<String> cursor = new GreaterEqCursor<String>( store, evaluator );
+        GreaterEqCursor<String> cursor = new GreaterEqCursor<>( txn, store, evaluator );
         assertNotNull( cursor );
         assertFalse( cursor.available() );
         assertFalse( cursor.isClosed() );
@@ -227,7 +229,7 @@ public class GreaterEqNotIndexedTest
         // ---------- test first() ----------
 
         set.clear();
-        cursor = new GreaterEqCursor<String>( store, evaluator );
+        cursor = new GreaterEqCursor<String>( txn, store, evaluator );
         cursor.first();
 
         assertTrue( cursor.available() );
@@ -254,7 +256,7 @@ public class GreaterEqNotIndexedTest
         // ---------- test afterLast() ----------
 
         set.clear();
-        cursor = new GreaterEqCursor<String>( store, evaluator );
+        cursor = new GreaterEqCursor<String>( txn, store, evaluator );
         cursor.afterLast();
         assertFalse( cursor.available() );
 
@@ -277,7 +279,7 @@ public class GreaterEqNotIndexedTest
         // ---------- test last() ----------
 
         set.clear();
-        cursor = new GreaterEqCursor<String>( store, evaluator );
+        cursor = new GreaterEqCursor<String>( txn, store, evaluator );
         cursor.last();
 
         assertTrue( cursor.available() );
@@ -301,7 +303,7 @@ public class GreaterEqNotIndexedTest
 
         // ---------- test before() ----------
 
-        cursor = new GreaterEqCursor<String>( store, evaluator );
+        cursor = new GreaterEqCursor<String>( txn, store, evaluator );
         IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
 
@@ -318,7 +320,7 @@ public class GreaterEqNotIndexedTest
 
         // ---------- test after() ----------
 
-        cursor = new GreaterEqCursor<String>( store, evaluator );
+        cursor = new GreaterEqCursor<String>( txn, store, evaluator );
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setKey( "2" );
         try
@@ -341,6 +343,7 @@ public class GreaterEqNotIndexedTest
     @Test
     public void testEvaluatorWithDescendantValue() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_OID );
         GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "2" ) );
         GreaterEqEvaluator<String> evaluator = new GreaterEqEvaluator<String>( node, store, schemaManager );
@@ -360,16 +363,20 @@ public class GreaterEqNotIndexedTest
         attrs.add( "entryUUID", Strings.getUUID( 12L ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, attrs );
+        addContext.setPartition( ( Partition ) store  );
+        addContext.setTransaction( ( ( Partition) store ).beginWriteTransaction() );
+
         ( ( Partition ) store ).add( addContext );
 
         indexEntry.setId( Strings.getUUID( 12L ) );
-        assertTrue( evaluator.evaluate( indexEntry ) );
+        assertTrue( evaluator.evaluate( txn, indexEntry ) );
     }
 
 
     @Test
     public void testEvaluatorWithoutDescendants() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_DESCENDANT_OID );
         GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "2" ) );
 
@@ -381,13 +388,14 @@ public class GreaterEqNotIndexedTest
         assertNotNull( evaluator.getComparator() );
 
         indexEntry.setId( Partition.DEFAULT_ID );
-        assertFalse( evaluator.evaluate( indexEntry ) );
+        assertFalse( evaluator.evaluate( txn, indexEntry ) );
     }
 
 
     @Test
     public void testEvaluatorNotIndexed() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         AttributeType at = schemaManager.lookupAttributeTypeRegistry( StoreUtils.TEST_INT_NO_INDEX_OID );
         GreaterEqNode<String> node = new GreaterEqNode<String>( at, new Value( at, "3" ) );
 
@@ -399,35 +407,35 @@ public class GreaterEqNotIndexedTest
         assertNotNull( evaluator.getComparator() );
 
         indexEntry.setId( Strings.getUUID( 1L ) );
-        assertFalse( evaluator.evaluate( indexEntry ) );
+        assertFalse( evaluator.evaluate( txn, indexEntry ) );
 
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 4L ) );
-        assertFalse( evaluator.evaluate( indexEntry ) );
+        assertFalse( evaluator.evaluate( txn, indexEntry ) );
 
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 5L ) );
-        assertTrue( evaluator.evaluate( indexEntry ) );
+        assertTrue( evaluator.evaluate( txn, indexEntry ) );
 
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 6L ) );
-        assertTrue( evaluator.evaluate( indexEntry ) );
+        assertTrue( evaluator.evaluate( txn, indexEntry ) );
 
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 7L ) );
-        assertTrue( evaluator.evaluate( indexEntry ) );
+        assertTrue( evaluator.evaluate( txn, indexEntry ) );
 
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 8L ) );
-        assertTrue( evaluator.evaluate( indexEntry ) );
+        assertTrue( evaluator.evaluate( txn, indexEntry ) );
 
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 9L ) );
-        assertFalse( evaluator.evaluate( indexEntry ) );
+        assertFalse( evaluator.evaluate( txn, indexEntry ) );
 
         indexEntry = new IndexEntry<String, String>();
         indexEntry.setId( Strings.getUUID( 10L ) );
-        assertFalse( evaluator.evaluate( indexEntry ) );
+        assertFalse( evaluator.evaluate( txn, indexEntry ) );
     }
 
 

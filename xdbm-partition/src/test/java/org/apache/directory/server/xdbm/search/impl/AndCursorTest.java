@@ -47,6 +47,7 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -110,11 +111,6 @@ public class AndCursorTest extends AbstractCursorTest
     }
 
 
-    public AndCursorTest() throws Exception
-    {
-    }
-
-
     @Before
     public void createStore() throws Exception
     {
@@ -157,7 +153,7 @@ public class AndCursorTest extends AbstractCursorTest
     {
         if ( store != null )
         {
-            ( ( Partition ) store ).destroy();
+            ( ( Partition ) store ).destroy( null );
         }
 
         store = null;
@@ -176,13 +172,14 @@ public class AndCursorTest extends AbstractCursorTest
         String filter = "(&(cn=J*)(sn=*))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
 
         Set<String> expectedUuid = new HashSet<String>();
         expectedUuid.add( Strings.getUUID( 5 ) );
         expectedUuid.add( Strings.getUUID( 6 ) );
         expectedUuid.add( Strings.getUUID( 8 ) );
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         cursor.beforeFirst();
 
@@ -219,6 +216,7 @@ public class AndCursorTest extends AbstractCursorTest
     public void testAndCursorWithManualFilter() throws Exception
     {
         ExprNode exprNode = FilterParser.parse( schemaManager, "(&(cn=J*)(sn=*))" );
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
 
         Set<String> expectedUuid = new HashSet<String>();
         expectedUuid.add( Strings.getUUID( 5 ) );
@@ -227,7 +225,7 @@ public class AndCursorTest extends AbstractCursorTest
 
         Set<String> foundUuid = new HashSet<String>();
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         cursor.beforeFirst();
 

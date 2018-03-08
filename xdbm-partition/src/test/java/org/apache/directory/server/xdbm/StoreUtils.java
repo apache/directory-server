@@ -293,6 +293,7 @@ public class StoreUtils
         entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUID( index ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setTransaction( new MockPartitionWriteTxn() );
         ( ( Partition ) store ).add( addContext );
     }
 }

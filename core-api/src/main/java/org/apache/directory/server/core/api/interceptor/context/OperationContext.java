@@ -28,6 +28,8 @@ import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -279,4 +281,31 @@ public interface OperationContext
      * @return <code>true</code> if the referrals are ignored
      */
     boolean isReferralIgnored();
+    
+    
+    /**
+     * @return the transaction
+     */
+    PartitionTxn getTransaction();
+    
+    
+    /**
+     * @param transaction the transaction to set
+     */
+    void setTransaction( PartitionTxn transaction );
+    
+    
+    /**
+     * @return The Partition this operation will be applied on
+     * @return
+     */
+    Partition getPartition();
+    
+    
+    /**
+     * @return The Partition this operation will be applied on
+     * @return
+     */
+    void setPartition( Partition partition );
+
 }

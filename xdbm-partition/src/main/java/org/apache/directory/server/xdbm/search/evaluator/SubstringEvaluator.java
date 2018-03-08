@@ -33,7 +33,7 @@ import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.NoOpNormalizer;
-import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -64,9 +64,6 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
     /** The associated normalizer */
     private final Normalizer normalizer;
 
-    /** The index to use if any */
-    private final Index<String, String> idx;
-
 
     /**
      * Creates a new SubstringEvaluator for substring expressions.
@@ -76,9 +73,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
      * @param schemaManager the schema manager
      * @throws Exception if there are failures accessing resources and the db
      */
-    @SuppressWarnings("unchecked")
-    public SubstringEvaluator( SubstringNode node, Store db, SchemaManager schemaManager )
-        throws Exception
+    public SubstringEvaluator( SubstringNode node, Store db, SchemaManager schemaManager ) throws LdapException
     {
         this.db = db;
         this.node = node;
@@ -111,15 +106,6 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
         {
             regex = null;
         }
-
-        if ( db.hasIndexOn( attributeType ) )
-        {
-            idx = ( Index<String, String> ) db.getIndex( attributeType );
-        }
-        else
-        {
-            idx = null;
-        }
     }
 
 
@@ -128,7 +114,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
      */
     @SuppressWarnings("unchecked")
     @Override
-    public boolean evaluate( IndexEntry<?, String> indexEntryQM ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntryQM ) throws LdapException
     {
         IndexEntry<String, String> indexEntry = ( IndexEntry<String, String> ) indexEntryQM;
 
@@ -137,7 +123,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = db.fetch( indexEntry.getId() );
+            entry = db.fetch( partitionTxn, indexEntry.getId() );
 
             if ( null == entry )
             {
@@ -257,7 +243,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
      * {@inheritDoc}
      */
     @Override
-    public boolean evaluate( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         // get the attribute
         Attribute attr = entry.get( attributeType );

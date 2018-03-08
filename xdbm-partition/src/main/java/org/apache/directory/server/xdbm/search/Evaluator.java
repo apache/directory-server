@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 
 
@@ -64,7 +65,7 @@ public interface Evaluator<N extends ExprNode>
      * @return true if filter selects the candidate false otherwise
      * @throws Exception if there are faults during evaluation
      */
-    boolean evaluate( IndexEntry<?, String> entry ) throws LdapException;
+    boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> entry ) throws LdapException;
 
 
     /**
@@ -75,7 +76,7 @@ public interface Evaluator<N extends ExprNode>
      * @return true if filter selects the candidate false otherwise
      * @throws Exception if there are faults during evaluation
      */
-    boolean evaluate( Entry entry ) throws Exception;
+    boolean evaluate( Entry entry ) throws LdapException;
 
 
     /**

@@ -21,26 +21,24 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 
 import jdbm.RecordManager;
 import jdbm.helper.ByteArraySerializer;
-import jdbm.helper.MRU;
-import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
-import jdbm.recman.TransactionManager;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
@@ -136,7 +134,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
      * @param attributeType The attributeType this index is created for
      * @throws IOException If the initialization failed
      */
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
+    public void init( RecordManager recMan, SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
 
@@ -147,19 +145,6 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
             setAttributeId( attributeType.getName() );
         }
 
-        if ( this.wkDirPath == null )
-        {
-            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-
-            throw e;
-        }
-
-        String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
-
-        BaseRecordManager base = new BaseRecordManager( path );
-        TransactionManager transactionManager = base.getTransactionManager();
-        transactionManager.setMaximumTransactionsInLog( 2000 );
-
         // see DIRSERVER-2002
         // prevent the OOM when more than 50k users are loaded at a stretch
         // adding this system property to make it configurable till JDBM gets replaced by Mavibot
@@ -168,8 +153,8 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
         int recCacheSize = Integer.parseInt( cacheSizeVal );
         
         LOG.info( "Setting CacheRecondManager's cache size to {}", recCacheSize );
-
-        recMan = new CacheRecordManager( base, new MRU( recCacheSize ) );
+        
+        this.recMan = recMan;
 
         try
         {
@@ -178,15 +163,9 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
         catch ( IOException e )
         {
             // clean up
-            close();
+            close( null );
             throw e;
         }
-
-        // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
-        // write the AttributeType description
-        fw.write( attributeType.toString() );
-        fw.close();
 
         initialized = true;
     }
@@ -210,7 +189,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
             throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
-        comp = new SerializableComparator<K>( mr.getOid() );
+        comp = new SerializableComparator<>( mr.getOid() );
 
         /*
          * The forward key/value map stores attribute values to master table
@@ -222,13 +201,13 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
 
         if ( mr.getSyntax().isHumanReadable() )
         {
-            forward = new JdbmTable<K, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
+            forward = new JdbmTable<>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
                 recMan,
                 comp, UuidComparator.INSTANCE, StringSerializer.INSTANCE, UuidSerializer.INSTANCE );
         }
         else
         {
-            forward = new JdbmTable<K, String>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
+            forward = new JdbmTable<>( schemaManager, attributeType.getOid() + FORWARD_BTREE, numDupLimit,
                 recMan,
                 comp, UuidComparator.INSTANCE, new ByteArraySerializer(), UuidSerializer.INSTANCE );
         }
@@ -243,12 +222,12 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
         {
             if ( attributeType.isSingleValued() )
             {
-                reverse = new JdbmTable<String, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
+                reverse = new JdbmTable<>( schemaManager, attributeType.getOid() + REVERSE_BTREE, recMan,
                     UuidComparator.INSTANCE, UuidSerializer.INSTANCE, null );
             }
             else
             {
-                reverse = new JdbmTable<String, K>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
+                reverse = new JdbmTable<>( schemaManager, attributeType.getOid() + REVERSE_BTREE, numDupLimit,
                     recMan,
                     UuidComparator.INSTANCE, comp, UuidSerializer.INSTANCE, null );
             }
@@ -292,7 +271,6 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
      */
     public void setWkDirPath( URI wkDirPath )
     {
-        //.out.println( "IDX Defining a WorkingDir : " + wkDirPath );
         protect( "wkDirPath" );
         this.wkDirPath = new File( wkDirPath );
     }
@@ -316,33 +294,38 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public long count() throws IOException
+    public long count( PartitionTxn partitionTxn ) throws LdapException
     {
-        return forward.count();
+        return forward.count( partitionTxn );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public long count( K attrVal ) throws Exception
+    public long count( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.count( attrVal );
+        return forward.count( partitionTxn, attrVal );
     }
 
 
-    public long greaterThanCount( K attrVal ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long greaterThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.greaterThanCount( attrVal );
+        return forward.greaterThanCount( partitionTxn, attrVal );
     }
 
 
     /**
      * @see org.apache.directory.server.xdbm.Index#lessThanCount(java.lang.Object)
      */
-    public long lessThanCount( K attrVal ) throws Exception
+    @Override
+    public long lessThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.lessThanCount( attrVal );
+        return forward.lessThanCount( partitionTxn, attrVal );
     }
 
 
@@ -353,20 +336,20 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
-    public String forwardLookup( K attrVal ) throws Exception
+    public String forwardLookup( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.get( attrVal );
+        return forward.get( partitionTxn, attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public K reverseLookup( String id ) throws LdapException
+    public K reverseLookup( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.get( id );
+            return reverse.get( partitionTxn, id );
         }
         else
         {
@@ -382,14 +365,14 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public synchronized void add( K attrVal, String id ) throws Exception
+    public synchronized void add( PartitionTxn partitionTxn,  K attrVal, String id ) throws LdapException
     {
         // The pair to be added must exists
-        forward.put( attrVal, id );
+        forward.put( partitionTxn, attrVal, id );
 
         if ( withReverse )
         {
-            reverse.put( id, attrVal );
+            reverse.put( partitionTxn, id, attrVal );
         }
     }
 
@@ -397,16 +380,16 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public synchronized void drop( K attrVal, String id ) throws Exception
+    public synchronized void drop( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
         // The pair to be removed must exists
-        if ( forward.has( attrVal, id ) )
+        if ( forward.has( partitionTxn, attrVal, id ) )
         {
-            forward.remove( attrVal, id );
+            forward.remove( partitionTxn, attrVal, id );
 
             if ( withReverse )
             {
-                reverse.remove( id, attrVal );
+                reverse.remove( partitionTxn, id, attrVal );
             }
         }
     }
@@ -415,7 +398,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public void drop( String entryId ) throws Exception
+    public void drop( PartitionTxn partitionTxn, String entryId ) throws LdapException
     {
         if ( withReverse )
         {
@@ -423,25 +406,32 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
             {
                 // Build a cursor to iterate on all the keys referencing
                 // this entryId
-                Cursor<Tuple<String, K>> values = reverse.cursor( entryId );
+                Cursor<Tuple<String, K>> values = reverse.cursor( partitionTxn, entryId );
 
-                while ( values.next() )
+                try
                 {
-                    // Remove the Key -> entryId from the index
-                    forward.remove( values.get().getValue(), entryId );
+                    while ( values.next() )
+                    {
+                        // Remove the Key -> entryId from the index
+                        forward.remove( partitionTxn, values.get().getValue(), entryId );
+                    }
+    
+                    values.close();
                 }
-
-                values.close();
+                catch ( CursorException | IOException e )
+                {
+                    throw new LdapOtherException( e.getMessage(), e );
+                }
             }
             else
             {
-                K key = reverse.get( entryId );
+                K key = reverse.get( partitionTxn, entryId );
 
-                forward.remove( key );
+                forward.remove( partitionTxn, key );
             }
 
             // Remove the id -> key from the reverse index
-            reverse.remove( entryId );
+            reverse.remove( partitionTxn, entryId );
         }
     }
 
@@ -449,64 +439,73 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     // ------------------------------------------------------------------------
     // Index Cursor Operations
     // ------------------------------------------------------------------------
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> reverseCursor() throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cursor<IndexEntry<K, String>> reverseCursor( PartitionTxn partitionTxn )
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor(), false );
+            return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) reverse.cursor(), false );
         }
         else
         {
-            return new EmptyIndexCursor<K>();
+            return new EmptyIndexCursor<>( partitionTxn );
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor() throws LdapException
+    public Cursor<IndexEntry<K, String>> forwardCursor( PartitionTxn partitionTxn ) throws LdapException
     {
-        return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor(), true );
+        return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) forward.cursor(), true );
     }
 
 
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> reverseCursor( String id ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cursor<IndexEntry<K, String>> reverseCursor( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor<K>( ( Cursor ) reverse.cursor( id ), false );
+            return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) reverse.cursor( partitionTxn, id ), false );
         }
         else
         {
-            return new EmptyIndexCursor<K>();
+            return new EmptyIndexCursor<>( partitionTxn );
         }
     }
 
 
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor( K key ) throws Exception
+    public Cursor<IndexEntry<K, String>> forwardCursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
-        return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) forward.cursor( partitionTxn, key ), true );
     }
 
 
-    public Cursor<K> reverseValueCursor( String id ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cursor<K> reverseValueCursor( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.valueCursor( id );
+            return reverse.valueCursor( partitionTxn, id );
         }
         else
         {
-            return new EmptyCursor<K>();
+            return new EmptyCursor<>();
         }
     }
 
 
-    public Cursor<String> forwardValueCursor( K key ) throws Exception
+    public Cursor<String> forwardValueCursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
-        return forward.valueCursor( key );
+        return forward.valueCursor( partitionTxn, key );
     }
 
 
@@ -516,29 +515,29 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal ) throws Exception
+    public boolean forward( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.has( attrVal );
+        return forward.has( partitionTxn, attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal, String id ) throws LdapException
+    public boolean forward( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
-        return forward.has( attrVal, id );
+        return forward.has( partitionTxn, attrVal, id );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id ) throws Exception
+    public boolean reverse( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.has( id );
+            return reverse.has( partitionTxn, id );
         }
         else
         {
@@ -550,9 +549,9 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id, K attrVal ) throws Exception
+    public boolean reverse( PartitionTxn partitionTxn, String id, K attrVal ) throws LdapException
     {
-        return forward.has( attrVal, id );
+        return forward.has( partitionTxn, attrVal, id );
     }
 
 
@@ -560,55 +559,27 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     // Maintenance Methods
     // ------------------------------------------------------------------------
     /**
-     * @see org.apache.directory.server.xdbm.Index#close()
+     * {@inheritDoc}
      */
-    public synchronized void close() throws IOException
+    @Override
+    public synchronized void close( PartitionTxn partitionTxn ) throws LdapException, IOException
     {
         if ( forward != null )
         {
-            forward.close();
+            forward.close( partitionTxn );
         }
 
         if ( reverse != null )
         {
-            reverse.close();
-        }
-
-        commit( recMan );
-        recMan.close();
-    }
-
-
-    /**
-     * @see Index#sync()
-     */
-    public synchronized void sync() throws IOException
-    {
-        // Commit
-        recMan.commit();
-
-        // And flush the journal
-        if ( ( commitNumber.get() % 4000 ) == 0 )
-        {
-            BaseRecordManager baseRecordManager = null;
-
-            if ( recMan instanceof CacheRecordManager )
-            {
-                baseRecordManager = ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() );
-            }
-            else
-            {
-                baseRecordManager = ( ( BaseRecordManager ) recMan );
-            }
-
-            baseRecordManager.getTransactionManager().synchronizeLog();
+            reverse.close( partitionTxn );
         }
     }
 
-
+    
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isDupsEnabled()
     {
         if ( withReverse )
@@ -618,20 +589,6 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
         else
         {
             return false;
-        }
-    }
-
-
-    /**
-     * Commit the modification on disk
-     * 
-     * @param recordManager The recordManager used for the commit
-     */
-    private void commit( RecordManager recordManager ) throws IOException
-    {
-        if ( commitNumber.incrementAndGet() % 2000 == 0 )
-        {
-            sync();
         }
     }
 

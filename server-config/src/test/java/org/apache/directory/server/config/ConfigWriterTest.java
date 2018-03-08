@@ -172,6 +172,6 @@ public class ConfigWriterTest
         }
 
         // Destroying the config partition
-        configPartition.destroy();
+        configPartition.destroy( configPartition.beginReadTransaction() );
     }
 }

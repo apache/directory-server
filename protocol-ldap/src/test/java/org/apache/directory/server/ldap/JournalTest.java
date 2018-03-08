@@ -44,6 +44,7 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.StringSerializer;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
@@ -79,6 +80,9 @@ public class JournalTest
 
     /** The CsnFactory */
     private static CsnFactory csnFactory;
+    
+    /** The partition transaction */
+    private PartitionTxn partitionTxn;
 
 
     /**
@@ -139,7 +143,8 @@ public class JournalTest
 
         journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, "test", recman, comparator,
             StringSerializer.INSTANCE, new ReplicaEventMessageSerializer( schemaManager ) );
-
+        
+        partitionTxn = new MockPartitionTxn();
     }
 
 
@@ -151,7 +156,7 @@ public class JournalTest
     {
         if ( journal != null )
         {
-            journal.close();
+            journal.close( partitionTxn );
         }
 
         journal = null;
@@ -202,20 +207,19 @@ public class JournalTest
                 );
 
             ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
-            journal.put( entryCsn.toString(), replicaEventMessage );
-            journal.sync();
+            journal.put( partitionTxn, entryCsn.toString(), replicaEventMessage );
 
             entryCsn = csnFactory.newInstance();
         }
 
         // Now check that the ReplicaEventMessages has been written
-        ReplicaEventMessage firstMessage = journal.get( firstCsn.toString() );
+        ReplicaEventMessage firstMessage = journal.get( partitionTxn, firstCsn.toString() );
 
         assertEquals( ChangeType.ADD, firstMessage.getChangeType() );
         assertEquals( "test0", firstMessage.getEntry().get( "ou" ).getString() );
 
         // Read entry from the 100th element
-        Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor( csn100.toString() );
+        Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor( partitionTxn, csn100.toString() );
         int pos = 100;
 
         while ( cursor.next() )
@@ -252,8 +256,7 @@ public class JournalTest
                 );
 
             ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
-            journal.put( entryCsn.toString(), replicaEventMessage );
-            journal.sync();
+            journal.put( partitionTxn, entryCsn.toString(), replicaEventMessage );
 
             entryCsn = csnFactory.newInstance();
         }
@@ -270,15 +273,14 @@ public class JournalTest
             assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
             assertEquals( "test" + deleted, replicaEventMessage.getEntry().get( "ou" ).getString() );
 
-            journal.remove( replicaEventMessage.getEntry().get( "entryCsn" ).getString() );
-            journal.sync();
+            journal.remove( partitionTxn, replicaEventMessage.getEntry().get( "entryCsn" ).getString() );
             deleted++;
         }
 
         deleteCursor.close();
 
         // Now check that the first mod is the 501th
-        assertEquals( 500, journal.count() );
+        assertEquals( 500, journal.count( partitionTxn ) );
 
         Cursor<Tuple<String, ReplicaEventMessage>> cursor = journal.cursor();
 
@@ -322,8 +324,7 @@ public class JournalTest
                 );
 
             ReplicaEventMessage replicaEventMessage = new ReplicaEventMessage( ChangeType.ADD, entry );
-            journal.put( entryCsn.toString(), replicaEventMessage );
-            journal.sync();
+            journal.put( partitionTxn, entryCsn.toString(), replicaEventMessage );
             recman.commit();
 
             entryCsn = csnFactory.newInstance();
@@ -369,8 +370,7 @@ public class JournalTest
             assertEquals( ChangeType.ADD, replicaEventMessage.getChangeType() );
             assertEquals( "test" + deleted, replicaEventMessage.getEntry().get( "ou" ).getString() );
 
-            journal.remove( replicaEventMessage.getEntry().get( "entryCsn" ).getString() );
-            journal.sync();
+            journal.remove( partitionTxn, replicaEventMessage.getEntry().get( "entryCsn" ).getString() );
             recman.commit();
 
             deleted++;

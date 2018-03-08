@@ -51,6 +51,8 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +92,7 @@ public class ReplConsumerManager
     private AttributeType adsReplLastSentCsn;
 
     /** A map containing the last sent CSN for every connected consumer */
-    private Map<Integer, Modification> modMap = new ConcurrentHashMap<Integer, Modification>();
+    private Map<Integer, Modification> modMap = new ConcurrentHashMap<>();
 
 
     /**
@@ -260,7 +262,10 @@ public class ReplConsumerManager
      */
     public List<ReplicaEventLog> getReplicaEventLogs() throws Exception
     {
-        List<ReplicaEventLog> replicas = new ArrayList<ReplicaEventLog>();
+        List<ReplicaEventLog> replicas = new ArrayList<>();
+        
+        Partition partition = directoryService.getPartitionNexus().getPartition( replConsumerDn );
+        
 
         // Search for all the consumers
         ExprNode filter = new EqualityNode<String>( directoryService.getAtProvider().getObjectClass(), 
@@ -277,8 +282,12 @@ public class ReplConsumerManager
         while ( cursor.next() )
         {
             Entry entry = cursor.get();
-            ReplicaEventLog replica = convertEntryToReplica( entry );
-            replicas.add( replica );
+            
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                ReplicaEventLog replica = convertEntryToReplica( partitionTxn, entry );
+                replicas.add( replica );
+            }
         }
 
         cursor.close();
@@ -291,10 +300,10 @@ public class ReplConsumerManager
     /**
      * Convert the stored entry to a valid ReplicaEventLog structure
      */
-    private ReplicaEventLog convertEntryToReplica( Entry entry ) throws Exception
+    private ReplicaEventLog convertEntryToReplica( PartitionTxn partitionTxn, Entry entry ) throws Exception
     {
         String id = entry.get( SchemaConstants.ADS_DS_REPLICA_ID ).getString();
-        ReplicaEventLog replica = new ReplicaEventLog( directoryService, Integer.parseInt( id ) );
+        ReplicaEventLog replica = new ReplicaEventLog( partitionTxn, directoryService, Integer.parseInt( id ) );
 
         NotificationCriteria searchCriteria = new NotificationCriteria( schemaManager );
 

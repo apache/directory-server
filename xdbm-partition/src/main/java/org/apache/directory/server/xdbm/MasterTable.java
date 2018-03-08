@@ -43,7 +43,6 @@ public interface MasterTable extends Table<String, Entry>
      *
      * @param entry the entry in case the id is derived from the entry.
      * @return the current value of this MasterTable's sequence incremented by one
-     * @throws Exception on failure to update the id sequence
      */
-    String getNextId( Entry entry ) throws Exception;
+    String getNextId( Entry entry );
 }

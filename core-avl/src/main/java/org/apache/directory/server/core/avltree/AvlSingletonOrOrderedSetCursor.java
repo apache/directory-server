@@ -95,7 +95,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast" );
+        checkNotClosed();
         node = null;
         position = Position.AFTER_LAST;
     }
@@ -118,7 +118,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst" );
+        checkNotClosed();
         node = null;
         position = Position.BEFORE_FIRST;
     }
@@ -129,7 +129,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public boolean first() throws LdapException, CursorException
     {
-        checkNotClosed( "first" );
+        checkNotClosed();
 
         node = tree.getFirst();
 
@@ -151,7 +151,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public Tuple<K, SingletonOrOrderedSet<V>> get() throws CursorException
     {
-        checkNotClosed( "get" );
+        checkNotClosed();
 
         if ( position == Position.ON_NODE )
         {
@@ -169,7 +169,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public boolean last() throws LdapException, CursorException
     {
-        checkNotClosed( "last" );
+        checkNotClosed();
 
         node = tree.getLast();
 
@@ -191,7 +191,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next" );
+        checkNotClosed();
 
         switch ( position )
         {
@@ -232,7 +232,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous" );
+        checkNotClosed();
 
         switch ( position )
         {
@@ -271,7 +271,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
      */
     public void afterKey( K key ) throws LdapException, CursorException
     {
-        checkNotClosed( "afterKey" );
+        checkNotClosed();
 
         if ( key == null )
         {
@@ -303,7 +303,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
 
     public void beforeKey( K key ) throws LdapException, CursorException
     {
-        checkNotClosed( "beforeKey" );
+        checkNotClosed();
 
         if ( key == null )
         {

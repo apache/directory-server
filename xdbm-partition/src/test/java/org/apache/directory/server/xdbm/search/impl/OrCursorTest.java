@@ -52,8 +52,10 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -166,7 +168,7 @@ public class OrCursorTest extends AbstractCursorTest
     {
         if ( store != null )
         {
-            ( ( Partition ) store ).destroy();
+            ( ( Partition ) store ).destroy( null );
         }
 
         store = null;
@@ -185,6 +187,7 @@ public class OrCursorTest extends AbstractCursorTest
         String filter = "(|(cn=J*)(sn=W*))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
+        PartitionTxn txn = new MockPartitionReadTxn();
 
         Set<String> expectedUuid = new HashSet<String>();
         expectedUuid.add( Strings.getUUID( 5 ) );
@@ -196,7 +199,7 @@ public class OrCursorTest extends AbstractCursorTest
 
         Set<String> foundUuid = new HashSet<String>();
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         cursor.afterLast();
 
@@ -307,6 +310,7 @@ public class OrCursorTest extends AbstractCursorTest
     @SuppressWarnings("unchecked")
     public void testOrCursor() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>();
         List<Cursor<IndexEntry<?, String>>> cursors = new ArrayList<Cursor<IndexEntry<?, String>>>();
         Evaluator<? extends ExprNode> eval;
@@ -316,7 +320,7 @@ public class OrCursorTest extends AbstractCursorTest
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        Cursor subStrCursor1 = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        Cursor subStrCursor1 = new SubstringCursor( txn, store, ( SubstringEvaluator ) eval );
         cursors.add( subStrCursor1 );
         evaluators.add( eval );
         orNode.addNode( exprNode );
@@ -331,7 +335,7 @@ public class OrCursorTest extends AbstractCursorTest
         exprNode = new SubstringNode( schemaManager.getAttributeType( "sn" ), "W", null );
         eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
         evaluators.add( eval );
-        Cursor subStrCursor2 = new SubstringCursor( store, ( SubstringEvaluator ) eval );
+        Cursor subStrCursor2 = new SubstringCursor( txn, store, ( SubstringEvaluator ) eval );
         cursors.add( subStrCursor2 );
 
         orNode.addNode( exprNode );
@@ -346,7 +350,7 @@ public class OrCursorTest extends AbstractCursorTest
 
         Set<String> foundUuid = new HashSet<String>();
 
-        cursor = new OrCursor( cursors, evaluators );
+        cursor = new OrCursor( txn, cursors, evaluators );
 
         cursor.beforeFirst();
         assertFalse( cursor.available() );

@@ -50,7 +50,7 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
         boolean hasEntry = getService().getOperationManager().hasEntry( hasEntryContext );
 
         assertTrue( hasEntry );
-        int nbIterations = 150000;
+        int nbIterations = 1500000;
 
         long t0 = System.currentTimeMillis();
         long t00 = 0L;
@@ -60,7 +60,7 @@ public class hasEntryPerfIT extends AbstractLdapTestUnit
         {
             hasEntryContext.setCurrentInterceptor( 0 );
             
-            if ( i % 1000 == 0 )
+            if ( i % 100000 == 0 )
             {
                 long tt1 = System.currentTimeMillis();
 

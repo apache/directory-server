@@ -19,9 +19,9 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -42,6 +42,8 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -64,6 +66,7 @@ public class KeyTupleBTreeCursorTest
     private static final String KEY = "1";
     private static final String TEST_OUTPUT_PATH = "test.output.path";
     private static SchemaManager schemaManager;
+    private PartitionTxn partitionTxn;
 
 
     @BeforeClass
@@ -122,6 +125,7 @@ public class KeyTupleBTreeCursorTest
             comparator, comparator, new DefaultSerializer(), new DefaultSerializer() );
 
         cursor = new KeyTupleBTreeCursor<String, String>( table.getBTree(), KEY, comparator );
+        partitionTxn = new MockPartitionReadTxn();
     }
 
 
@@ -159,13 +163,13 @@ public class KeyTupleBTreeCursorTest
     @Test
     public void testNonEmptyCursor() throws Exception
     {
-        table.put( KEY, "3" );
-        table.put( KEY, "5" );
-        table.put( KEY, "7" );
-        table.put( KEY, "12" );
-        table.put( KEY, "0" );
-        table.put( KEY, "30" );
-        table.put( KEY, "25" );
+        table.put( partitionTxn, KEY, "3" );
+        table.put( partitionTxn, KEY, "5" );
+        table.put( partitionTxn, KEY, "7" );
+        table.put( partitionTxn, KEY, "12" );
+        table.put( partitionTxn, KEY, "0" );
+        table.put( partitionTxn, KEY, "30" );
+        table.put( partitionTxn, KEY, "25" );
 
         KeyTupleBTreeCursor<String, String> cursor = new KeyTupleBTreeCursor<String, String>( getDupsContainer(), KEY,
             comparator );

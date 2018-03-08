@@ -38,7 +38,6 @@ import org.apache.directory.mavibot.btree.exception.BTreeAlreadyManagedException
 import org.apache.directory.mavibot.btree.exception.KeyNotFoundException;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
-import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
@@ -307,7 +306,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public boolean hasLessOrEqual( PartitionTxn transaction, K key, V val ) throws LdapException
+    public boolean hasLessOrEqual( PartitionTxn partitionTxn, K key, V val ) throws LdapException
     {
         if ( key == null )
         {
@@ -319,14 +318,25 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
         }
 
-        if ( !bt.hasKey( key ) )
+        try
         {
-            return false;
+            if ( !bt.hasKey( key ) )
+            {
+                return false;
+            }
+    
+            ValueCursor<V> dupHolder = bt.getValues( key );
+    
+            return dupHolder.hasNext();
         }
-
-        ValueCursor<V> dupHolder = bt.getValues( key );
-
-        return dupHolder.hasNext();
+        catch ( KeyNotFoundException knfe )
+        {
+            throw new LdapOtherException( knfe.getMessage(), knfe );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
     }
 
 
@@ -360,7 +370,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public void put( PartitionWriteTxn transaction, K key, V value ) throws LdapException
+    public void put( PartitionTxn partitionTxn, K key, V value ) throws LdapException
     {
         try
         {
@@ -388,7 +398,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public void remove( PartitionWriteTxn transaction, K key ) throws LdapException
+    public void remove( PartitionTxn partitionTxn, K key ) throws LdapException
     {
         try
         {
@@ -437,7 +447,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public void remove( PartitionWriteTxn transaction, K key, V value ) throws LdapException
+    public void remove( PartitionTxn partitionTxn, K key, V value ) throws LdapException
     {
         try
         {
@@ -465,7 +475,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public Cursor<Tuple<K, V>> cursor( PartitionTxn transaction ) throws LdapException
+    public Cursor<Tuple<K, V>> cursor()
     {
         return new MavibotCursor<>( this );
     }
@@ -475,7 +485,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public Cursor<Tuple<K, V>> cursor( PartitionTxn transaction, K key ) throws LdapException
+    public Cursor<Tuple<K, V>> cursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -541,6 +551,23 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         catch ( Exception e )
         {
             throw new LdapException( e );
+        }
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void close( PartitionTxn transaction ) throws LdapException
+    {
+        try
+        {
+            sync();
+        }
+        catch  ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage() );
         }
     }
 

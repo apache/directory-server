@@ -127,6 +127,9 @@ public class ACDFEngine
         CoreSession session = aciContext.getOperationContext().getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, aciContext.getUserDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( aciContext.getOperationContext().getPartition() );
+        lookupContext.setTransaction( aciContext.getOperationContext().getTransaction() );
+        
         Entry userEntry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
         // Determine the scope of the requested operation.

@@ -24,7 +24,6 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Hashtable;
 
@@ -40,7 +39,6 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.util.Strings;

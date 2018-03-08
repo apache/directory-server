@@ -26,6 +26,7 @@ import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -69,11 +70,11 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
      * @param evaluator an IndexEntry (candidate) evaluator
      * @throws Exception on db access failures
      */
-    public ChildrenCursor( Store db, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
-        throws Exception
+    public ChildrenCursor( PartitionTxn partitionTxn, Store db, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
     {
         this.parentId = parentId;
         this.cursor = cursor;
+        this.partitionTxn = partitionTxn;
 
         if ( IS_DEBUG )
         {
@@ -96,7 +97,7 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         setAvailable( false );
     }
 
@@ -133,9 +134,10 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         boolean hasPrevious = cursor.previous();
 
@@ -157,9 +159,10 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         boolean hasNext = cursor.next();
 
@@ -186,7 +189,7 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
      */
     public IndexEntry<String, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         return prefetched;
     }
@@ -229,6 +232,7 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

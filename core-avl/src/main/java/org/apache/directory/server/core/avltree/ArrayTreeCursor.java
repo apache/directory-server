@@ -75,7 +75,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public void after( E element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after" );
+        checkNotClosed();
 
         if ( element == null )
         {
@@ -105,7 +105,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast" );
+        checkNotClosed();
 
         current = -1;
         position = Position.AFTER_LAST;
@@ -126,7 +126,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public void before( E element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before" );
+        checkNotClosed();
 
         if ( element == null )
         {
@@ -156,7 +156,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst" );
+        checkNotClosed();
 
         current = -1;
         position = Position.BEFORE_FIRST;
@@ -168,7 +168,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean first() throws LdapException, CursorException
     {
-        checkNotClosed( "first" );
+        checkNotClosed();
 
         if ( array.isEmpty() )
         {
@@ -190,7 +190,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public E get() throws CursorException
     {
-        checkNotClosed( "get" );
+        checkNotClosed();
 
         if ( position == Position.ON_NODE )
         {
@@ -206,7 +206,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean last() throws LdapException, CursorException
     {
-        checkNotClosed( "last" );
+        checkNotClosed();
 
         if ( array.isEmpty() )
         {
@@ -228,7 +228,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next" );
+        checkNotClosed();
 
         // If the array is empty, return false
         if ( array.size() == 0 )
@@ -273,7 +273,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous" );
+        checkNotClosed();
 
         if ( array.size() == 0 )
         {

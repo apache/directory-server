@@ -28,10 +28,12 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.PrepareString;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
 import org.slf4j.Logger;
@@ -55,12 +57,12 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     private final boolean hasIndex;
     private final Cursor<IndexEntry<String, String>> wrapped;
     private final SubstringEvaluator evaluator;
-    private final IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
+    private final IndexEntry<String, String> indexEntry = new IndexEntry<>();
 
 
     @SuppressWarnings("unchecked")
-    public SubstringCursor( Store store, final SubstringEvaluator substringEvaluator )
-        throws Exception
+    public SubstringCursor( PartitionTxn partitionTxn, Store store, final SubstringEvaluator substringEvaluator )
+        throws LdapException, IndexNotFoundException
     {
         if ( IS_DEBUG )
         {
@@ -68,12 +70,13 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         }
 
         evaluator = substringEvaluator;
+        this.partitionTxn = partitionTxn;
         hasIndex = store.hasIndexOn( evaluator.getExpression().getAttributeType() );
 
         if ( hasIndex )
         {
             wrapped = ( ( Index<String, String> ) store.getIndex( evaluator.getExpression().getAttributeType() ) )
-                .forwardCursor();
+                .forwardCursor( partitionTxn );
         }
         else
         {
@@ -88,7 +91,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
              * knows to use it, when it itself detects the lack of an index on
              * the node's attribute.
              */
-            wrapped = new AllEntriesCursor( store );
+            wrapped = new AllEntriesCursor( partitionTxn, store );
         }
     }
 
@@ -107,14 +110,15 @@ public class SubstringCursor extends AbstractIndexCursor<String>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
+        
         if ( evaluator.getExpression().getInitial() != null && hasIndex )
         {
-            IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
+            IndexEntry<String, String> beforeFirstIndexEntry = new IndexEntry<>();
             String normalizedKey = evaluator.getExpression().getAttributeType().getEquality().getNormalizer().normalize( 
                 evaluator.getExpression().getInitial(), PrepareString.AssertionType.SUBSTRING_INITIAL );
-            indexEntry.setKey( normalizedKey );
-            wrapped.before( indexEntry );
+            beforeFirstIndexEntry.setKey( normalizedKey );
+            wrapped.before( beforeFirstIndexEntry );
         }
         else
         {
@@ -139,7 +143,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
 
         // to keep the cursor always *after* the last matched tuple
         // This fixes an issue if the last matched tuple is also the last record present in the
@@ -159,7 +163,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     }
 
 
-    private boolean evaluateCandidate( IndexEntry<String, String> indexEntry ) throws LdapException
+    private boolean evaluateCandidate( PartitionTxn partitionTxn, IndexEntry<String, String> indexEntry ) throws LdapException
     {
         if ( hasIndex )
         {
@@ -168,7 +172,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
         }
         else
         {
-            return evaluator.evaluate( indexEntry );
+            return evaluator.evaluate( partitionTxn, indexEntry );
         }
     }
 
@@ -191,10 +195,10 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     {
         while ( wrapped.previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             IndexEntry<String, String> entry = wrapped.get();
 
-            if ( evaluateCandidate( entry ) )
+            if ( evaluateCandidate( partitionTxn, entry ) )
             {
                 setAvailable( true );
                 this.indexEntry.setId( entry.getId() );
@@ -216,10 +220,10 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     {
         while ( wrapped.next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             IndexEntry<String, String> entry = wrapped.get();
 
-            if ( evaluateCandidate( entry ) )
+            if ( evaluateCandidate( partitionTxn, entry ) )
             {
                 setAvailable( true );
                 this.indexEntry.setId( entry.getId() );
@@ -240,7 +244,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
      */
     public IndexEntry<String, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( available() )
         {
@@ -254,6 +258,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -270,6 +275,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -286,6 +292,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

@@ -305,7 +305,6 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             // The user is not authenticated : we have to use the provided userIdentity
             // and the oldPassword to check if the user is present
             BindOperationContext bindContext = new BindOperationContext( adminSession );
-            bindContext.setTransaction( requestor.getCoreSession().getDirectoryService().getPartitionNexus().beginReadTransaction() );
             bindContext.setDn( userDn );
             bindContext.setCredentials( oldPassword );
 

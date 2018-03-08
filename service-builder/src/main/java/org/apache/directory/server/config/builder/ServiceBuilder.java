@@ -43,7 +43,6 @@ import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.config.ConfigurationException;
@@ -236,7 +235,6 @@ public final class ServiceBuilder
             }
             catch ( Exception e )
             {
-                e.printStackTrace();
                 String message = "Cannot initialize the " + interceptorBean.getInterceptorClassName() + ", error : "
                     + e;
                 LOG.error( message );
@@ -1236,13 +1234,6 @@ public final class ServiceBuilder
             return null;
         }
 
-        String indexFileName = jdbmIndexBean.getIndexFileName();
-
-        if ( indexFileName == null )
-        {
-            indexFileName = jdbmIndexBean.getIndexAttributeId();
-        }
-
         JdbmIndex<?> index = null;
 
         boolean hasReverse = jdbmIndexBean.getIndexHasReverse();
@@ -1259,7 +1250,7 @@ public final class ServiceBuilder
         }
         else
         {
-            index = new JdbmIndex<String>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
+            index = new JdbmIndex<>( jdbmIndexBean.getIndexAttributeId(), hasReverse );
         }
 
         index.setCacheSize( jdbmIndexBean.getIndexCacheSize() );
@@ -1267,16 +1258,6 @@ public final class ServiceBuilder
 
         // Find the OID for this index
         SchemaManager schemaManager = directoryService.getSchemaManager();
-
-        try
-        {
-            AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( indexFileName );
-            indexFileName = indexAT.getOid();
-        }
-        catch ( LdapException le )
-        {
-            // Not found ? We will use the index file name
-        }
 
         if ( jdbmIndexBean.getIndexWorkingDir() != null )
         {

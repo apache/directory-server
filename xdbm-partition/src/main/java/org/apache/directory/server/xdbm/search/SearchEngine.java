@@ -21,9 +21,11 @@ package org.apache.directory.server.xdbm.search;
 
 
 import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -78,8 +80,8 @@ public interface SearchEngine
      * @return A set of UUID representing the full result, up to he sizeLimit
      * @throws Exception if the search fails
      */
-    PartitionSearchResult computeResult( SchemaManager schemaManager, SearchOperationContext searchContext )
-        throws Exception;
+    PartitionSearchResult computeResult( PartitionTxn partitionTxn, SchemaManager schemaManager, SearchOperationContext searchContext )
+        throws LdapException;
 
 
     /**
@@ -89,5 +91,5 @@ public interface SearchEngine
      * @return true if the filter passes the entry, false otherwise
      * @throws Exception if something goes wrong while accessing the db
      */
-    Evaluator<? extends ExprNode> evaluator( ExprNode filter ) throws Exception;
+    Evaluator<? extends ExprNode> evaluator( PartitionTxn partitionTxn, ExprNode filter ) throws LdapException;
 }

@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
@@ -78,7 +79,9 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -762,25 +765,34 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
             controls );
-
+        Partition partition = nexus.getPartition( Dn.ROOT_DSE );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-        EntryFilteringCursor results = nexus.search( searchOperationContext );
-
-        try
+        searchOperationContext.setPartition( partition );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            while ( results.next() )
+            searchOperationContext.setTransaction( partitionTxn );
+            EntryFilteringCursor results = nexus.search( searchOperationContext );
+    
+            try
             {
-                Entry entry = results.get();
-
-                entries.add( entry );
+                while ( results.next() )
+                {
+                    Entry entry = results.get();
+    
+                    entries.add( entry );
+                }
+    
+                results.close();
             }
-
-            results.close();
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage(), e );
+            }
         }
         catch ( Exception e )
         {
-            throw new LdapOperationException( e.getMessage(), e );
+            throw new LdapOtherException( e.getMessage(), e );
         }
 
         return entries;

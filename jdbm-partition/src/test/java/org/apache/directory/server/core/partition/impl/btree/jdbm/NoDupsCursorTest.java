@@ -41,6 +41,8 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.Table;
 import org.junit.After;
 import org.junit.Before;
@@ -65,6 +67,7 @@ public class NoDupsCursorTest
     File dbFile;
     RecordManager recman;
     private static SchemaManager schemaManager;
+    private PartitionTxn partitionTxn;
 
 
     @BeforeClass
@@ -114,13 +117,15 @@ public class NoDupsCursorTest
         table = new JdbmTable<String, String>( schemaManager, "test", recman,
             comparator, null, null );
         LOG.debug( "Created new table and populated it with data" );
+        
+        partitionTxn = new MockPartitionReadTxn();
     }
 
 
     @After
     public void destroyTable() throws Exception
     {
-        table.close();
+        table.close( partitionTxn );
         table = null;
         recman.close();
         recman = null;
@@ -168,7 +173,7 @@ public class NoDupsCursorTest
     @Test
     public void testOnTableWithSingleEntry() throws Exception
     {
-        table.put( "1", "1" );
+        table.put( partitionTxn, "1", "1" );
         Cursor<Tuple<String, String>> cursor = table.cursor();
         assertTrue( cursor.first() );
 
@@ -190,7 +195,7 @@ public class NoDupsCursorTest
         for ( int i = 1; i < 10; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn, istr, istr );
         }
 
         Cursor<Tuple<String, String>> cursor = table.cursor();
@@ -246,7 +251,7 @@ public class NoDupsCursorTest
         for ( int i = 1; i < 10; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn, istr, istr );
         }
 
         Cursor<Tuple<String, String>> cursor = table.cursor();

@@ -84,7 +84,7 @@ public final class LdifConfigExtractor
             LOG.debug( "creating non existing output directory {}", outputDirectory.getAbsolutePath() );
             if ( !outputDirectory.mkdir() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, outputDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, outputDirectory ) );
             }
         }
 
@@ -95,7 +95,7 @@ public final class LdifConfigExtractor
             LOG.debug( "creating non existing config directory {}", configDirectory.getAbsolutePath() );
             if ( !configDirectory.mkdir() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, configDirectory ) );
             }
         }
         else if ( !overwrite )
@@ -138,7 +138,7 @@ public final class LdifConfigExtractor
         {
             if ( !destination.getParentFile().mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, destination.getParentFile() ) );
             }
         }
 
@@ -188,7 +188,7 @@ public final class LdifConfigExtractor
             {
                 if ( !destination.getParentFile().mkdirs() )
                 {
-                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                         destination.getParentFile() ) );
                 }
             }
@@ -286,7 +286,7 @@ public final class LdifConfigExtractor
             if ( !configDir.mkdir() )
             {
                 throw new RuntimeException(
-                    new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDir ) ) );
+                    new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, configDir ) ) );
             }
         }
         else

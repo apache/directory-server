@@ -20,12 +20,16 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
@@ -47,9 +51,11 @@ import org.apache.directory.api.ldap.model.schema.PrepareString;
 import org.apache.directory.api.ldap.model.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.apache.directory.server.xdbm.SingletonIndexCursor;
 import org.apache.directory.server.xdbm.Store;
@@ -87,7 +93,7 @@ public class CursorBuilder
     }
 
 
-    public <T> long build( ExprNode node, PartitionSearchResult searchResult ) throws Exception
+    public <T> long build( PartitionTxn partitionTxn, ExprNode node, PartitionSearchResult searchResult ) throws LdapException
     {
         Object count = node.get( "count" );
 
@@ -96,58 +102,65 @@ public class CursorBuilder
             return 0;
         }
 
-        switch ( node.getAssertionType() )
+        try
         {
-        /* ---------- LEAF NODE HANDLING ---------- */
-
-            case APPROXIMATE:
-                return computeApproximate( ( ApproximateNode<T> ) node, searchResult );
-
-            case EQUALITY:
-                return computeEquality( ( EqualityNode<T> ) node, searchResult );
-
-            case GREATEREQ:
-                return computeGreaterEq( ( GreaterEqNode<T> ) node, searchResult );
-
-            case LESSEQ:
-                return computeLessEq( ( LessEqNode<T> ) node, searchResult );
-
-            case PRESENCE:
-                return computePresence( ( PresenceNode ) node, searchResult );
-
-            case SCOPE:
-                if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
-                {
-                    return computeOneLevelScope( ( ScopeNode ) node, searchResult );
-                }
-                else
-                {
-                    return computeSubLevelScope( ( ScopeNode ) node, searchResult );
-                }
-
-            case SUBSTRING:
-                return computeSubstring( ( SubstringNode ) node, searchResult );
-
-                /* ---------- LOGICAL OPERATORS ---------- */
-
-            case AND:
-                return computeAnd( ( AndNode ) node, searchResult );
-
-            case NOT:
-                // Always return infinite, except if the resulting eva 
-                return computeNot( ( NotNode ) node, searchResult );
-
-            case OR:
-                return computeOr( ( OrNode ) node, searchResult );
-
-                /* ----------  NOT IMPLEMENTED  ---------- */
-
-            case ASSERTION:
-            case EXTENSIBLE:
-                throw new NotImplementedException();
-
-            default:
-                throw new IllegalStateException( I18n.err( I18n.ERR_260, node.getAssertionType() ) );
+            switch ( node.getAssertionType() )
+            {
+            /* ---------- LEAF NODE HANDLING ---------- */
+    
+                case APPROXIMATE:
+                    return computeApproximate( partitionTxn, ( ApproximateNode<T> ) node, searchResult );
+    
+                case EQUALITY:
+                    return computeEquality( partitionTxn, ( EqualityNode<T> ) node, searchResult );
+    
+                case GREATEREQ:
+                    return computeGreaterEq( partitionTxn, ( GreaterEqNode<T> ) node, searchResult );
+    
+                case LESSEQ:
+                    return computeLessEq( partitionTxn, ( LessEqNode<T> ) node, searchResult );
+    
+                case PRESENCE:
+                    return computePresence( partitionTxn, ( PresenceNode ) node, searchResult );
+    
+                case SCOPE:
+                    if ( ( ( ScopeNode ) node ).getScope() == SearchScope.ONELEVEL )
+                    {
+                        return computeOneLevelScope( partitionTxn, ( ScopeNode ) node, searchResult );
+                    }
+                    else
+                    {
+                        return computeSubLevelScope( partitionTxn, ( ScopeNode ) node, searchResult );
+                    }
+    
+                case SUBSTRING:
+                    return computeSubstring( partitionTxn, ( SubstringNode ) node, searchResult );
+    
+                    /* ---------- LOGICAL OPERATORS ---------- */
+    
+                case AND:
+                    return computeAnd( partitionTxn, ( AndNode ) node, searchResult );
+    
+                case NOT:
+                    // Always return infinite, except if the resulting eva 
+                    return computeNot( ( NotNode ) node, searchResult );
+    
+                case OR:
+                    return computeOr( partitionTxn, ( OrNode ) node, searchResult );
+    
+                    /* ----------  NOT IMPLEMENTED  ---------- */
+    
+                case ASSERTION:
+                case EXTENSIBLE:
+                    throw new NotImplementedException();
+    
+                default:
+                    throw new IllegalStateException( I18n.err( I18n.ERR_260, node.getAssertionType() ) );
+            }
+        }
+        catch ( IndexNotFoundException | CursorException | IOException e )
+        {
+            throw new LdapOtherException( e.getMessage(), e );
         }
     }
 
@@ -157,12 +170,12 @@ public class CursorBuilder
      * we have an index for the AT.
      */
 
-    private <T> long computeApproximate( ApproximateNode<T> node, PartitionSearchResult searchResult )
-        throws Exception
+    private <T> long computeApproximate( PartitionTxn partitionTxn, ApproximateNode<T> node, PartitionSearchResult searchResult )
+        throws LdapException, IndexNotFoundException, CursorException, IOException
     {
-        ApproximateCursor<T> cursor = new ApproximateCursor<>( db,
+        ApproximateCursor<T> cursor = new ApproximateCursor<T>( partitionTxn, db,
             ( ApproximateEvaluator<T> ) evaluatorBuilder
-                .build( node ) );
+                .build( partitionTxn, node ) );
 
         int nbResults = 0;
         Set<String> uuidSet = searchResult.getCandidateSet();
@@ -191,8 +204,8 @@ public class CursorBuilder
      * Computes the set of candidates for an Equality filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private <T> long computeEquality( EqualityNode<T> node, PartitionSearchResult searchResult )
-        throws Exception
+    private <T> long computeEquality( PartitionTxn partitionTxn, EqualityNode<T> node, PartitionSearchResult searchResult )
+        throws LdapException, IndexNotFoundException, CursorException, IOException
     {
         Set<String> thisCandidates = ( Set<String> ) node.get( DefaultOptimizer.CANDIDATES_ANNOTATION_KEY );
 
@@ -217,7 +230,7 @@ public class CursorBuilder
         {
             // Get the cursor using the index
             Index<T, String> userIndex = ( Index<T, String> ) db.getIndex( attributeType );
-            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( ( T ) value.getNormalized() );
+            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( partitionTxn, ( T ) value.getNormalized() );
             Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
@@ -251,8 +264,8 @@ public class CursorBuilder
      * Computes the set of candidates for an GreateEq filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private <T> long computeGreaterEq( GreaterEqNode<T> node, PartitionSearchResult searchResult )
-        throws Exception
+    private <T> long computeGreaterEq( PartitionTxn partitionTxn, GreaterEqNode<T> node, PartitionSearchResult searchResult )
+        throws LdapException, IndexNotFoundException, CursorException, IOException
     {
         AttributeType attributeType = node.getAttributeType();
         Value value = node.getValue();
@@ -263,7 +276,7 @@ public class CursorBuilder
         {
             // Get the cursor using the index
             Index<T, String> userIndex = ( Index<T, String> ) db.getIndex( attributeType );
-            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor();
+            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( partitionTxn );
 
             // Position the index on the element we should start from
             IndexEntry<T, String> indexEntry = new IndexEntry<>();
@@ -303,8 +316,8 @@ public class CursorBuilder
      * Computes the set of candidates for an LessEq filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private <T> long computeLessEq( LessEqNode<T> node, PartitionSearchResult searchResult )
-        throws Exception
+    private <T> long computeLessEq( PartitionTxn partitionTxn, LessEqNode<T> node, PartitionSearchResult searchResult )
+        throws LdapException, IndexNotFoundException, CursorException, IOException
     {
         AttributeType attributeType = node.getAttributeType();
         Value value = node.getValue();
@@ -315,7 +328,7 @@ public class CursorBuilder
         {
             // Get the cursor using the index
             Index<T, String> userIndex = ( Index<T, String> ) db.getIndex( attributeType );
-            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor();
+            Cursor<IndexEntry<T, String>> userIdxCursor = userIndex.forwardCursor( partitionTxn );
 
             // Position the index on the element we should start from
             IndexEntry<T, String> indexEntry = new IndexEntry<>();
@@ -355,8 +368,8 @@ public class CursorBuilder
      * Computes the set of candidates for a Presence filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private <T> long computePresence( PresenceNode node, PartitionSearchResult searchResult )
-        throws Exception
+    private long computePresence( PartitionTxn partitionTxn, PresenceNode node, PartitionSearchResult searchResult )
+        throws LdapException, CursorException, IOException
     {
         AttributeType attributeType = node.getAttributeType();
         int nbResults = 0;
@@ -366,7 +379,7 @@ public class CursorBuilder
         {
             // Get the cursor using the index
             Cursor<IndexEntry<String, String>> presenceCursor = db.getPresenceIndex().forwardCursor(
-                attributeType.getOid() );
+                partitionTxn, attributeType.getOid() );
 
             // Position the index on the element we should start from
             IndexEntry<String, String> indexEntry = new IndexEntry<>();
@@ -403,20 +416,20 @@ public class CursorBuilder
      * Computes the set of candidates for a OneLevelScope filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private long computeOneLevelScope( ScopeNode node, PartitionSearchResult searchResult )
-        throws Exception
+    private long computeOneLevelScope( PartitionTxn partitionTxn, ScopeNode node, PartitionSearchResult searchResult )
+        throws LdapException, IndexNotFoundException, CursorException, IOException
     {
         int nbResults = 0;
 
         // We use the RdnIndex to get all the entries from a starting point
         // and below up to the number of children
-        Cursor<IndexEntry<ParentIdAndRdn, String>> rdnCursor = db.getRdnIndex().forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, String>> rdnCursor = db.getRdnIndex().forwardCursor( partitionTxn );
 
         IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<>();
         startingPos.setKey( new ParentIdAndRdn( node.getBaseId(), ( Rdn[] ) null ) );
         rdnCursor.before( startingPos );
 
-        Cursor<IndexEntry<String, String>> scopeCursor = new ChildrenCursor( db, node.getBaseId(), rdnCursor );
+        Cursor<IndexEntry<String, String>> scopeCursor = new ChildrenCursor( partitionTxn, db, node.getBaseId(), rdnCursor );
         Set<String> candidateSet = searchResult.getCandidateSet();
 
         // Fetch all the UUIDs if we have an index
@@ -431,7 +444,7 @@ public class CursorBuilder
             // we will dereference the alias
             if ( searchResult.isDerefAlways() || searchResult.isDerefInSearching() )
             {
-                Dn aliasedDn = db.getAliasIndex().reverseLookup( uuid );
+                Dn aliasedDn = db.getAliasIndex().reverseLookup( partitionTxn, uuid );
 
                 if ( aliasedDn != null )
                 {
@@ -440,7 +453,7 @@ public class CursorBuilder
                         aliasedDn = new Dn( evaluatorBuilder.getSchemaManager(), aliasedDn );
                     }
 
-                    String aliasedId = db.getEntryId( aliasedDn );
+                    String aliasedId = db.getEntryId( partitionTxn, aliasedDn );
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
@@ -486,11 +499,11 @@ public class CursorBuilder
      * Computes the set of candidates for a SubLevelScope filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private long computeSubLevelScope( ScopeNode node, PartitionSearchResult searchResult )
-        throws Exception
+    private long computeSubLevelScope( PartitionTxn partitionTxn, ScopeNode node, PartitionSearchResult searchResult )
+        throws LdapException, IOException, CursorException
     {
         // If we are searching from the partition DN, better get out.
-        String contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
+        String contextEntryId = db.getEntryId( partitionTxn, ( ( Partition ) db ).getSuffixDn() );
 
         if ( node.getBaseId() == contextEntryId )
         {
@@ -502,17 +515,17 @@ public class CursorBuilder
         // We use the RdnIndex to get all the entries from a starting point
         // and below up to the number of descendant
         String baseId = node.getBaseId();
-        ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( baseId );
+        ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( partitionTxn, baseId );
         IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<>();
 
         startingPos.setKey( parentIdAndRdn );
         startingPos.setId( baseId );
 
-        Cursor<IndexEntry<ParentIdAndRdn, String>> rdnCursor = new SingletonIndexCursor<>(
+        Cursor<IndexEntry<ParentIdAndRdn, String>> rdnCursor = new SingletonIndexCursor<>( partitionTxn, 
             startingPos );
         String parentId = parentIdAndRdn.getParentId();
 
-        Cursor<IndexEntry<String, String>> scopeCursor = new DescendantCursor( db, baseId, parentId, rdnCursor );
+        Cursor<IndexEntry<String, String>> scopeCursor = new DescendantCursor( partitionTxn, db, baseId, parentId, rdnCursor );
         Set<String> candidateSet = searchResult.getCandidateSet();
 
         // Fetch all the UUIDs if we have an index
@@ -527,7 +540,7 @@ public class CursorBuilder
             // we will dereference the alias
             if ( searchResult.isDerefAlways() || searchResult.isDerefInSearching() )
             {
-                Dn aliasedDn = db.getAliasIndex().reverseLookup( uuid );
+                Dn aliasedDn = db.getAliasIndex().reverseLookup( partitionTxn, uuid );
 
                 if ( aliasedDn != null )
                 {
@@ -536,7 +549,7 @@ public class CursorBuilder
                         aliasedDn = new Dn( evaluatorBuilder.getSchemaManager(), aliasedDn );
                     }
 
-                    String aliasedId = db.getEntryId( aliasedDn );
+                    String aliasedId = db.getEntryId( partitionTxn, aliasedDn );
 
                     // This is an alias. Add it to the set of candidates to process, if it's not already
                     // present in the candidate set 
@@ -552,7 +565,7 @@ public class CursorBuilder
                             aliasedId,
                             node.getScope() );
 
-                        nbResults += computeSubLevelScope( newScopeNode, searchResult );
+                        nbResults += computeSubLevelScope( partitionTxn, newScopeNode, searchResult );
                     }
                 }
                 else
@@ -589,8 +602,8 @@ public class CursorBuilder
      * Computes the set of candidates for an Substring filter. We will feed the set only if
      * we have an index for the AT.
      */
-    private long computeSubstring( SubstringNode node, PartitionSearchResult searchResult )
-        throws Exception
+    private long computeSubstring( PartitionTxn partitionTxn, SubstringNode node, PartitionSearchResult searchResult )
+        throws LdapException, IndexNotFoundException, CursorException, IOException
     {
         AttributeType attributeType = node.getAttributeType();
         
@@ -605,7 +618,7 @@ public class CursorBuilder
         if ( db.hasIndexOn( attributeType ) )
         {
             Index<String, String> userIndex = ( Index<String, String> ) db.getIndex( attributeType );
-            Cursor<IndexEntry<String, String>> cursor = userIndex.forwardCursor();
+            Cursor<IndexEntry<String, String>> cursor = userIndex.forwardCursor( partitionTxn );
 
             // Position the index on the element we should start from
             IndexEntry<String, String> indexEntry = new IndexEntry<>();
@@ -715,7 +728,8 @@ public class CursorBuilder
      * @return Cursor over candidates satisfying disjunction expression
      * @throws Exception on db access failures
      */
-    private <T> long computeOr( OrNode node, PartitionSearchResult searchResult ) throws Exception
+    private long computeOr( PartitionTxn partitionTxn, OrNode node, PartitionSearchResult searchResult ) 
+        throws LdapException, IndexNotFoundException, CursorException, IOException
     {
         List<ExprNode> children = node.getChildren();
 
@@ -742,7 +756,7 @@ public class CursorBuilder
                 }
             }
 
-            long nbResults = build( child, searchResult );
+            long nbResults = build( partitionTxn, child, searchResult );
 
             if ( nbResults == Long.MAX_VALUE )
             {
@@ -766,7 +780,8 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private long computeAnd( AndNode node, PartitionSearchResult searchResult ) throws Exception
+    private long computeAnd( PartitionTxn partitionTxn, AndNode node, PartitionSearchResult searchResult ) 
+        throws LdapException, IndexNotFoundException, CursorException, IOException
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -807,7 +822,7 @@ public class CursorBuilder
         // Once found we return the number of candidates for this child
         ExprNode minChild = children.get( minIndex );
 
-        return build( minChild, searchResult );
+        return build( partitionTxn, minChild, searchResult );
     }
 
 
@@ -818,7 +833,7 @@ public class CursorBuilder
      * @return Cursor over the conjunction expression
      * @throws Exception on db access failures
      */
-    private long computeNot( NotNode node, PartitionSearchResult searchResult ) throws Exception
+    private long computeNot( NotNode node, PartitionSearchResult searchResult )
     {
         final List<ExprNode> children = node.getChildren();
 

@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.evaluator;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ScopeNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
@@ -56,7 +57,7 @@ public class BaseLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public BaseLevelScopeEvaluator( Store db, ScopeNode node ) throws Exception
+    public BaseLevelScopeEvaluator( Store db, ScopeNode node )
     {
         this.node = node;
 
@@ -75,7 +76,7 @@ public class BaseLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      *
      * {@inheritDoc}
      */
-    public boolean evaluate( Entry candidate ) throws Exception
+    public boolean evaluate( Entry candidate ) throws LdapException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
@@ -90,14 +91,14 @@ public class BaseLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      * @throws Exception if db lookups fail
      * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
 
         // Fetch the entry
         if ( null == entry )
         {
-            entry = db.fetch( indexEntry.getId() );
+            entry = db.fetch( partitionTxn, indexEntry.getId() );
 
             if ( null == entry )
             {

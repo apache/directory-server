@@ -62,7 +62,6 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * Creates a Cursor over the tuples of a JDBM table.
      *
      * @param table the JDBM Table to build a Cursor over
-     * @throws IOException of there are problems accessing the BTree
      */
     NoDupsCursor( JdbmTable<K, V> table )
     {
@@ -93,7 +92,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void beforeKey( K key ) throws LdapException, CursorException
     {
-        checkNotClosed( "beforeKey()" );
+        checkNotClosed();
         try
         {
             browser = table.getBTree().browse( key );
@@ -122,7 +121,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
              */
             while ( browser.getNext( jdbmTuple ) )
             {
-                checkNotClosed( "afterKey()" );
+                checkNotClosed();
                 K next = ( K ) jdbmTuple.getKey();
 
                 int nextCompared = table.getKeyComparator().compare( next, key );
@@ -182,7 +181,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         try
         {
             browser = table.getBTree().browse();
@@ -200,7 +199,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         try
         {
             browser = table.getBTree().browse( null );
@@ -239,7 +238,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @SuppressWarnings("unchecked")
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         if ( browser == null )
         {
@@ -280,7 +279,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @SuppressWarnings("unchecked")
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         if ( browser == null )
         {
@@ -320,7 +319,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public Tuple<K, V> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
         if ( valueAvailable )
         {
             return returnedTuple;

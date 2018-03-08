@@ -31,6 +31,7 @@ import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
@@ -78,6 +79,9 @@ public abstract class AbstractOperationContext implements OperationContext
     
     /** The transaction this operation is ran into */
     protected PartitionTxn transaction;
+    
+    /** The partition this operation will be applied on */
+    protected Partition partition;
 
 
     /**
@@ -481,6 +485,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return the transaction
      */
+    @Override
     public PartitionTxn getTransaction()
     {
         return transaction;
@@ -490,8 +495,29 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @param transaction the transaction to set
      */
+    @Override
     public void setTransaction( PartitionTxn transaction )
     {
         this.transaction = transaction;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Partition getPartition()
+    {
+        return partition;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPartition( Partition partition )
+    {
+        this.partition = partition;
     }
 }

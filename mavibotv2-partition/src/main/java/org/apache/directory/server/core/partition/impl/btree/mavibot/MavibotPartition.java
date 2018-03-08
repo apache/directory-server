@@ -143,7 +143,7 @@ public class MavibotPartition extends AbstractBTreePartition
 
             if ( !partitionDir.exists() && !partitionDir.mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionDir ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, partitionDir ) );
             }
 
             if ( cacheSize < 0 )

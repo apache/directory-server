@@ -36,6 +36,8 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 public class MockOperation implements OperationContext
@@ -43,6 +45,7 @@ public class MockOperation implements OperationContext
     final int count;
     final CoreSession session;
     final SchemaManager schemaManager;
+    private Partition partition;
 
 
     public MockOperation( SchemaManager schemaManager, int count ) throws Exception
@@ -238,5 +241,34 @@ public class MockOperation implements OperationContext
     @Override
     public void setCurrentInterceptor( int currentInterceptor )
     {
+    }
+
+
+    @Override
+    public PartitionTxn getTransaction()
+    {
+        return null;
+    }
+
+
+    @Override
+    public void setTransaction( PartitionTxn transaction )
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+
+    @Override
+    public Partition getPartition()
+    {
+        return partition;
+    }
+
+
+    @Override
+    public void setPartition( Partition partition )
+    {
+        this.partition = partition;
     }
 }

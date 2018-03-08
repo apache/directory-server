@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.filter.ScopeNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
@@ -75,7 +76,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * @param db the database used to evaluate scope node
      * @throws Exception on db access failure
      */
-    public SubtreeScopeEvaluator( Store db, ScopeNode node ) throws Exception
+    public SubtreeScopeEvaluator( PartitionTxn partitionTxn, Store db, ScopeNode node ) throws LdapException
     {
         this.db = db;
         this.node = node;
@@ -86,35 +87,10 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
         }
 
         baseId = node.getBaseId();
-        baseIsContextEntry = db.getSuffixId() == baseId;
+        
+        baseIsContextEntry = db.getSuffixId( partitionTxn ) == baseId;
+
         dereferencing = node.getDerefAliases().isDerefInSearching() || node.getDerefAliases().isDerefAlways();
-    }
-
-    private String contextEntryId;
-
-
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
-    private String getContextEntryId() throws Exception
-    {
-        if ( contextEntryId == null )
-        {
-            try
-            {
-                this.contextEntryId = db.getEntryId( ( ( Partition ) db ).getSuffixDn() );
-            }
-            catch ( Exception e )
-            {
-                // might not have been created
-            }
-        }
-
-        if ( contextEntryId == null )
-        {
-            return Partition.DEFAULT_ID;
-        }
-
-        return contextEntryId;
     }
 
 
@@ -123,13 +99,13 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * the parentIdAndRdn up to the baseId. If we terminate on the context entry without 
      * having found the baseId, then the candidate is not a descendant.
      */
-    private boolean isDescendant( String candidateId ) throws LdapException
+    private boolean isDescendant( PartitionTxn partitionTxn, String candidateId ) throws LdapException
     {
         String tmp = candidateId;
 
         while ( true )
         {
-            ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( tmp );
+            ParentIdAndRdn parentIdAndRdn = db.getRdnIndex().reverseLookup( partitionTxn, tmp );
 
             if ( parentIdAndRdn == null )
             {
@@ -161,7 +137,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         String id = indexEntry.getId();
         Entry entry = indexEntry.getEntry();
@@ -169,7 +145,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
         // Fetch the entry
         if ( null == entry )
         {
-            entry = db.fetch( indexEntry.getId() );
+            entry = db.fetch( partitionTxn, indexEntry.getId() );
 
             if ( null == entry )
             {
@@ -187,7 +163,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          * to all it's subordinates since that would be the entire set of 
          * entries in the db.
          */
-        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || isDescendant( id );
+        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || isDescendant( partitionTxn, id );
 
         /*
          * The candidate id could be any entry in the db.  If search
@@ -208,17 +184,14 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
         {
             Element element = db.getAliasCache().get( id );
             
-            if ( element != null )
+            if ( ( element != null ) && ( element.getValue() != null ) )
             {
-                if ( element.getValue() != null )
-                {
-                    Dn dn = ( Dn ) element.getValue();
+                Dn dn = ( Dn ) element.getValue();
 
-                    return false;
-                }
+                return false;
             }
-        }
-        else if ( null != db.getAliasIndex().reverseLookup( id ) )
+}
+        else if ( null != db.getAliasIndex().reverseLookup( partitionTxn, id ) )
         {
             return false;
         }
@@ -245,7 +218,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          * the lookup returns true accepting the candidate.  Otherwise the
          * candidate is rejected with a false return because it is not in scope.
          */
-        return db.getSubAliasIndex().forward( baseId, id );
+        return db.getSubAliasIndex().forward( partitionTxn, baseId, id );
     }
 
 
@@ -259,7 +232,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
      * @throws Exception if the index lookups fail.
      * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
      */
-    public boolean evaluate( Entry candidate ) throws Exception
+    public boolean evaluate( Entry candidate ) throws LdapException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }

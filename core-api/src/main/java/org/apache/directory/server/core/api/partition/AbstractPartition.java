@@ -100,7 +100,7 @@ public abstract class AbstractPartition implements Partition
             {
                 try
                 {
-                    destroy();
+                    destroy( null );
                 }
                 catch ( Exception e )
                 {
@@ -115,7 +115,7 @@ public abstract class AbstractPartition implements Partition
      * {@inheritDoc}
      */
     @Override
-    public void repair() throws Exception
+    public void repair() throws LdapException
     {
         // Do nothing. It will be handled by the implementation classes
     }
@@ -124,7 +124,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * Override this method to put your initialization code.
      */
-    protected abstract void doDestroy() throws Exception;
+    protected abstract void doDestroy( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
@@ -132,7 +132,7 @@ public abstract class AbstractPartition implements Partition
      * 
      * @throws Exception If teh init failed
      */
-    protected abstract void doInit() throws InvalidNameException, Exception;
+    protected abstract void doInit() throws InvalidNameException, LdapException;
 
 
     /**
@@ -140,7 +140,7 @@ public abstract class AbstractPartition implements Partition
      * 
      * @throws Exception If the repair failed
      */
-    protected abstract void doRepair() throws InvalidNameException, Exception;
+    protected abstract void doRepair() throws LdapException;
 
 
     /**
@@ -149,11 +149,11 @@ public abstract class AbstractPartition implements Partition
      * will return <tt>false</tt>.
      */
     @Override
-    public final void destroy() throws Exception
+    public final void destroy( PartitionTxn partitionTxn ) throws LdapException
     {
         try
         {
-            doDestroy();
+            doDestroy( partitionTxn );
         }
         finally
         {
@@ -246,7 +246,7 @@ public abstract class AbstractPartition implements Partition
      * {@inheritDoc}
      */
     @Override
-    public void dumpIndex( OutputStream stream, String name ) throws IOException
+    public void dumpIndex( PartitionTxn partitionTxn, OutputStream stream, String name ) throws IOException
     {
         stream.write( Strings.getBytesUtf8( "Nothing to dump for index " + name ) );
     }
@@ -297,7 +297,7 @@ public abstract class AbstractPartition implements Partition
      * {@inheritDoc}
      */
     @Override
-    public String getContextCsn()
+    public String getContextCsn( PartitionTxn partitionTxn )
     {
         return contextCsn;
     }
@@ -316,5 +316,15 @@ public abstract class AbstractPartition implements Partition
             contextCsn = csn;
             ctxCsnChanged = true;
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sync() throws LdapException
+    {
+        // Do nothing by default
     }
 }

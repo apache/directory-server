@@ -120,7 +120,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeValue( K key, V value ) throws Exception
     {
-        checkNotClosed( "beforeValue()" );
+        checkNotClosed();
         if ( key != null && !key.equals( this.key ) )
         {
             throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
@@ -155,7 +155,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
              */
             while ( browser.getNext( valueTuple ) )
             {
-                checkNotClosed( "afterValue" );
+                checkNotClosed();
 
                 V next = ( V ) valueTuple.getKey();
 
@@ -199,7 +199,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
         try
         {
             browser = btree.browse( element.getValue() );
@@ -226,7 +226,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         try
         {
             browser = btree.browse();
@@ -244,7 +244,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         try
         {
             browser = btree.browse( null );
@@ -284,7 +284,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @SuppressWarnings("unchecked")
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         try
         {
@@ -322,7 +322,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     @SuppressWarnings("unchecked")
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         try
         {
@@ -360,7 +360,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public Tuple<K, V> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( valueAvailable )
         {

@@ -28,7 +28,6 @@ import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
-import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.avltree.AvlSingletonOrOrderedSetCursor;
 import org.apache.directory.server.core.avltree.AvlTree;
 import org.apache.directory.server.core.avltree.AvlTreeCursor;
@@ -276,7 +275,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public void put( PartitionWriteTxn transaction, K key, V value ) throws LdapException
+    public void put( PartitionTxn partitionTxn, K key, V value ) throws LdapException
     {
         if ( ( key == null ) || ( value == null ) )
         {
@@ -294,7 +293,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public void remove( PartitionWriteTxn transaction, K key ) throws LdapException
+    public void remove( PartitionTxn partitionTxn, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -323,7 +322,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public void remove( PartitionWriteTxn transaction, K key, V value ) throws LdapException
+    public void remove( PartitionTxn partitionTxn, K key, V value ) throws LdapException
     {
         if ( avl.remove( key, value ) != null )
         {
@@ -336,7 +335,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public Cursor<Tuple<K, V>> cursor( PartitionTxn transaction ) throws LdapException
+    public Cursor<Tuple<K, V>> cursor()
     {
         if ( !allowsDuplicates )
         {
@@ -352,7 +351,7 @@ public class AvlTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public Cursor<Tuple<K, V>> cursor( PartitionTxn transaction, K key ) throws LdapException
+    public Cursor<Tuple<K, V>> cursor( PartitionTxn partitionTxn,  K key ) throws LdapException
     {
         if ( key == null )
         {

@@ -61,9 +61,7 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     protected Index<T, String> idx;
 
 
-    @SuppressWarnings("unchecked")
     public LeafEvaluator( SimpleNode<T> node, Store db, SchemaManager schemaManager )
-        throws Exception
     {
         this.db = db;
         this.node = node;

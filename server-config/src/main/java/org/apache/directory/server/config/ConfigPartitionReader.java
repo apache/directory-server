@@ -53,6 +53,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -515,7 +516,7 @@ public class ConfigPartitionReader
         
         try
         {
-            filter = new EqualityNode<String>( ocAt, new Value( ocAt, name ) );
+            filter = new EqualityNode<>( ocAt, new Value( ocAt, name ) );
         }
         catch ( LdapInvalidAttributeValueException liave )
         {
@@ -525,53 +526,59 @@ public class ConfigPartitionReader
         Cursor<IndexEntry<String, String>> cursor = null;
 
         // Create a container for all the read beans
-        List<AdsBaseBean> beansList = new ArrayList<AdsBaseBean>();
+        List<AdsBaseBean> beansList = new ArrayList<>();
 
         try
         {
             // Do the search
-            SearchOperationContext searchContext = new SearchOperationContext( null );
-            searchContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-            searchContext.setDn( baseDn );
-            searchContext.setFilter( filter );
-            searchContext.setScope( scope );
-            PartitionSearchResult searchResult = se.computeResult( schemaManager, searchContext );
-
-            cursor = searchResult.getResultSet();
-
-            // First, check if we have some entries to process.
-            if ( !cursor.next() )
+            
+            try ( PartitionTxn partitionTxn = configPartition.beginReadTransaction() )
             {
-                if ( mandatory )
+                SearchOperationContext searchContext = new SearchOperationContext( null );
+                searchContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+                searchContext.setDn( baseDn );
+                searchContext.setFilter( filter );
+                searchContext.setScope( scope );
+                searchContext.setPartition( configPartition );
+                searchContext.setTransaction( partitionTxn );
+                PartitionSearchResult searchResult = se.computeResult( partitionTxn, schemaManager, searchContext );
+    
+                cursor = searchResult.getResultSet();
+    
+                // First, check if we have some entries to process.
+                if ( !cursor.next() )
                 {
-                    cursor.close();
-
-                    // the requested element is mandatory so let's throw an exception
-                    String message = "No instance was configured under the DN '"
-                        + baseDn + "' for the objectClass '" + name + "'.";
-                    LOG.error( message );
-                    throw new ConfigurationException( message );
+                    if ( mandatory )
+                    {
+                        cursor.close();
+    
+                        // the requested element is mandatory so let's throw an exception
+                        String message = "No instance was configured under the DN '"
+                            + baseDn + "' for the objectClass '" + name + "'.";
+                        LOG.error( message );
+                        throw new ConfigurationException( message );
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
-                else
+    
+                // Loop on all the found elements
+                do
                 {
-                    return null;
+                    IndexEntry<String, String> forwardEntry = cursor.get();
+    
+                    // Now, get the entry
+                    Entry entry = configPartition.fetch( partitionTxn, forwardEntry.getId() );
+                    LOG.debug( "Entry read : {}", entry );
+    
+                    AdsBaseBean bean = readConfig( entry );
+                    // Adding the bean to the list
+                    beansList.add( bean );
                 }
+                while ( cursor.next() );
             }
-
-            // Loop on all the found elements
-            do
-            {
-                IndexEntry<String, String> forwardEntry = cursor.get();
-
-                // Now, get the entry
-                Entry entry = configPartition.fetch( forwardEntry.getId() );
-                LOG.debug( "Entry read : {}", entry );
-
-                AdsBaseBean bean = readConfig( entry );
-                // Adding the bean to the list
-                beansList.add( bean );
-            }
-            while ( cursor.next() );
         }
         catch ( ConfigurationException ce )
         {

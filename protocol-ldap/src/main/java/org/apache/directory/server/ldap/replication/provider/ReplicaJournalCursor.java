@@ -32,6 +32,7 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.controls.ChangeType;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.slf4j.Logger;
@@ -67,6 +68,10 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
 
     /** used while cleaning up the log */
     private boolean skipQualifying;
+    
+    /** The partition transaction */
+    private PartitionTxn partitionTxn;
+    
 
 
     /**
@@ -75,7 +80,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
      * @param consumerCsn the consumer's CSN taken from cookie
      * @throws Exception 
      */
-    public ReplicaJournalCursor( JdbmTable<String, ReplicaEventMessage> journal, String consumerCsn ) throws Exception
+    public ReplicaJournalCursor( PartitionTxn partitionTxn, JdbmTable<String, ReplicaEventMessage> journal, String consumerCsn ) throws Exception
     {
         if ( IS_DEBUG )
         {
@@ -85,6 +90,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
         this.journal = journal;
         this.tupleCursor = journal.cursor();
         this.consumerCsn = consumerCsn;
+        this.partitionTxn = partitionTxn;
     }
 
 
@@ -218,7 +224,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
             }
             else
             {
-                journal.remove( csn );
+                journal.remove( partitionTxn, csn );
             }
         }
 
@@ -289,7 +295,7 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
         {
             if ( qualifiedEvtMsg != null )
             {
-                journal.remove( qualifiedEvtMsg.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+                journal.remove( partitionTxn, qualifiedEvtMsg.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString() );
             }
         }
         catch ( Exception e )

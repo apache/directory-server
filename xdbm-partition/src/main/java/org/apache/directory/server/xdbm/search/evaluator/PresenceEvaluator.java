@@ -29,7 +29,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.server.xdbm.Index;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -55,26 +55,13 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     /** The SchemaManager instance */
     private final SchemaManager schemaManager;
 
-    /** The index to use if any */
-    private final Index<String, String> idx;
-
 
     public PresenceEvaluator( PresenceNode node, Store db, SchemaManager schemaManager )
-        throws Exception
     {
         this.db = db;
         this.node = node;
         this.schemaManager = schemaManager;
         this.attributeType = node.getAttributeType();
-
-        if ( db.hasUserIndexOn( attributeType ) )
-        {
-            idx = db.getPresenceIndex();
-        }
-        else
-        {
-            idx = null;
-        }
     }
 
 
@@ -92,14 +79,14 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
 
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = db.fetch( indexEntry.getId() );
+            entry = db.fetch( partitionTxn, indexEntry.getId() );
 
             if ( null == entry )
             {

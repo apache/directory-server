@@ -26,7 +26,6 @@ import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
-import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 
 
 /**
@@ -212,7 +211,7 @@ public interface Table<K, V>
      * underlying Db
      * @throws IllegalArgumentException if a null key or value is used
      */
-    void put( PartitionWriteTxn writeTransaction, K key, V value ) throws LdapException;
+    void put( PartitionTxn writeTransaction, K key, V value ) throws LdapException;
 
 
     /**
@@ -223,7 +222,7 @@ public interface Table<K, V>
      * @throws LdapException if there is a failure to read or write to
      * the underlying Db
      */
-    void remove( PartitionWriteTxn writeTransaction, K key ) throws LdapException;
+    void remove( PartitionTxn writeTransaction, K key ) throws LdapException;
 
 
     /**
@@ -236,17 +235,15 @@ public interface Table<K, V>
      * @throws LdapException if there is a failure to read or write to
      * the underlying Db
      */
-    void remove( PartitionWriteTxn writeTransaction, K key, V value ) throws LdapException;
+    void remove( PartitionTxn writeTransaction, K key, V value ) throws LdapException;
 
 
     /**
      * Creates a Cursor that traverses Tuples in a Table.
      *
-     * @param transaction The transaction we are running in
      * @return a Cursor over Tuples containing the key value pairs
-     * @throws LdapException if there are failures accessing underlying stores
      */
-    Cursor<Tuple<K, V>> cursor( PartitionTxn transaction ) throws LdapException;
+    Cursor<Tuple<K, V>> cursor();
 
 
     /**
@@ -263,7 +260,7 @@ public interface Table<K, V>
      * @return a Cursor over Tuples containing the same key
      * @throws LdapException if there are failures accessing underlying stores
      */
-    Cursor<Tuple<K, V>> cursor( PartitionTxn transaction, K key ) throws LdapException;
+    Cursor<Tuple<K, V>> cursor( PartitionTxn partitionTxn, K key ) throws LdapException;
 
 
     /**

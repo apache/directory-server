@@ -47,6 +47,7 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -157,7 +158,7 @@ public class PresenceTest
     {
         if ( store != null )
         {
-            ( ( Partition ) store ).destroy();
+            ( ( Partition ) store ).destroy( null );
         }
 
         store = null;
@@ -173,9 +174,10 @@ public class PresenceTest
     @Test
     public void testIndexedServerEntry() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "cn" ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceCursor cursor = new PresenceCursor( txn, store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
 
@@ -244,7 +246,7 @@ public class PresenceTest
 
         node = new PresenceNode( schemaManager.getAttributeType( "ou" ) );
         evaluator = new PresenceEvaluator( node, store, schemaManager );
-        cursor = new PresenceCursor( store, evaluator );
+        cursor = new PresenceCursor( txn, store, evaluator );
 
         cursor.beforeFirst();
         assertTrue( cursor.next() );
@@ -294,9 +296,10 @@ public class PresenceTest
 
     public void testSystemIndexedServerEntry( String oid ) throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( oid ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceCursor cursor = new PresenceCursor( txn, store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
 
@@ -320,9 +323,10 @@ public class PresenceTest
     @Test
     public void testNonIndexedServerEntry() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-        PresenceCursor cursor = new PresenceCursor( store, evaluator );
+        PresenceCursor cursor = new PresenceCursor( txn, store, evaluator );
 
         assertEquals( node, evaluator.getExpression() );
 
@@ -388,7 +392,7 @@ public class PresenceTest
 
         node = new PresenceNode( schemaManager.getAttributeType( "o" ) );
         evaluator = new PresenceEvaluator( node, store, schemaManager );
-        cursor = new PresenceCursor( store, evaluator );
+        cursor = new PresenceCursor( txn, store, evaluator );
 
         cursor.beforeFirst();
         assertTrue( cursor.next() );
@@ -406,16 +410,17 @@ public class PresenceTest
     @Test
     public void testEvaluatorIndexed() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "cn" ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         IndexEntry<String, String> entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.CN_AT_OID );
         entry.setId( Strings.getUUID( 3L ) );
-        assertFalse( evaluator.evaluate( entry ) );
+        assertFalse( evaluator.evaluate( txn, entry ) );
         entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.CN_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
-        assertTrue( evaluator.evaluate( entry ) );
+        assertTrue( evaluator.evaluate( txn, entry ) );
     }
 
 
@@ -430,71 +435,74 @@ public class PresenceTest
 
     private void testEvaluatorSystemIndexed( String oid ) throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( oid ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
 
         IndexEntry<String, String> entry = new IndexEntry<String, String>();
         // no need to set a value or id, because the evaluator must always evaluate to true
         // as each entry contains an objectClass, entryUUID, and entryCSN attribute
-        assertFalse( evaluator.evaluate( entry ) );
+        assertFalse( evaluator.evaluate( txn, entry ) );
 
         entry = new IndexEntry<String, String>();
         entry.setKey( oid );
         entry.setId( Strings.getUUID( 5 ) );
-        assertTrue( evaluator.evaluate( entry ) );
+        assertTrue( evaluator.evaluate( txn, entry ) );
     }
 
 
     @Test
     public void testEvaluatorNotIndexed() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "name" ) );
         PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
         IndexEntry<String, String> entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.NAME_AT_OID );
         entry.setId( Strings.getUUID( 3 ) );
-        assertTrue( evaluator.evaluate( entry ) );
+        assertTrue( evaluator.evaluate( txn, entry ) );
         entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.NAME_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
-        assertTrue( evaluator.evaluate( entry ) );
+        assertTrue( evaluator.evaluate( txn, entry ) );
 
         node = new PresenceNode( schemaManager.getAttributeType( "searchGuide" ) );
         evaluator = new PresenceEvaluator( node, store, schemaManager );
         entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( Strings.getUUID( 3 ) );
-        assertFalse( evaluator.evaluate( entry ) );
+        assertFalse( evaluator.evaluate( txn, entry ) );
         entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.SEARCHGUIDE_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
-        entry.setEntry( store.fetch( Strings.getUUID( 5 ) ) );
-        assertFalse( evaluator.evaluate( entry ) );
+        entry.setEntry( store.fetch( txn, Strings.getUUID( 5 ) ) );
+        assertFalse( evaluator.evaluate( txn, entry ) );
 
         node = new PresenceNode( schemaManager.getAttributeType( "st" ) );
         evaluator = new PresenceEvaluator( node, store, schemaManager );
         entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.ST_AT_OID );
         entry.setId( Strings.getUUID( 3 ) );
-        assertFalse( evaluator.evaluate( entry ) );
+        assertFalse( evaluator.evaluate( txn, entry ) );
         entry = new IndexEntry<String, String>();
         entry.setKey( SchemaConstants.ST_AT_OID );
         entry.setId( Strings.getUUID( 5 ) );
-        entry.setEntry( store.fetch( Strings.getUUID( 5 ) ) );
-        assertFalse( evaluator.evaluate( entry ) );
+        entry.setEntry( store.fetch( txn, Strings.getUUID( 5 ) ) );
+        assertFalse( evaluator.evaluate( txn, entry ) );
     }
 
 
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceCursor cursor = null;
 
         try
         {
             PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
             PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-            cursor = new PresenceCursor( store, evaluator );
+            cursor = new PresenceCursor( txn, store, evaluator );
             cursor.get();
         }
         finally
@@ -507,13 +515,14 @@ public class PresenceTest
     @Test(expected = InvalidCursorPositionException.class)
     public void testInvalidCursorPositionException2() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceCursor cursor = null;
 
         try
         {
             PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "cn" ) );
             PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-            cursor = new PresenceCursor( store, evaluator );
+            cursor = new PresenceCursor( txn, store, evaluator );
             cursor.get();
         }
         finally
@@ -526,13 +535,14 @@ public class PresenceTest
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceCursor cursor = null;
 
         try
         {
             PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
             PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-            cursor = new PresenceCursor( store, evaluator );
+            cursor = new PresenceCursor( txn, store, evaluator );
 
             // test before()
             IndexEntry<String, String> entry = new IndexEntry<String, String>();
@@ -549,13 +559,14 @@ public class PresenceTest
     @Test(expected = UnsupportedOperationException.class)
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         PresenceCursor cursor = null;
 
         try
         {
             PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
             PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-            cursor = new PresenceCursor( store, evaluator );
+            cursor = new PresenceCursor( txn, store, evaluator );
 
             // test before()
             IndexEntry<String, String> entry = new IndexEntry<String, String>();

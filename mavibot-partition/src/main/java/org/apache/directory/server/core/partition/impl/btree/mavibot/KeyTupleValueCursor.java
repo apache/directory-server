@@ -174,7 +174,7 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         try
         {
@@ -203,7 +203,7 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         try
         {
@@ -234,7 +234,7 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public Tuple<K, V> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( valueAvailable )
         {

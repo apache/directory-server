@@ -74,6 +74,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -161,6 +162,9 @@ public class LdifPartitionTest
         entry.put( "cn", "test" );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setPartition( partition );
+        addContext.setTransaction( partition.beginWriteTransaction() );
+        
         partition.add( addContext );
 
         LOG.debug( "Created new LDIF partition" );
@@ -202,6 +206,8 @@ public class LdifPartitionTest
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -250,6 +256,8 @@ public class LdifPartitionTest
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -307,6 +315,8 @@ public class LdifPartitionTest
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -336,6 +346,8 @@ public class LdifPartitionTest
         Dn dn = new Dn( schemaManager, "dc=test1,dc=test,ou=test,ou=system" );
 
         delCtx.setDn( dn );
+        delCtx.setPartition( partition );
+        delCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.delete( delCtx );
 
@@ -396,6 +408,8 @@ public class LdifPartitionTest
         entry1.put( "ObjectClass", "top", "domain" );
         entry1.put( "dc", "test" );
         addCtx.setEntry( entry1 );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -423,32 +437,38 @@ public class LdifPartitionTest
         filter.accept( visitor );
         searchCtx.setFilter( filter );
         searchCtx.setScope( SearchScope.SUBTREE );
-
-        EntryFilteringCursor cursor = partition.search( searchCtx );
-
-        assertNotNull( cursor );
-
-        Set<Dn> expectedDns = new HashSet<>();
-        expectedDns.add( entry1.getDn() );
-        expectedDns.add( entry2.getDn() );
-        expectedDns.add( entry3.getDn() );
-
-        cursor.beforeFirst();
-        int nbRes = 0;
-
-        while ( cursor.next() )
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            Entry entry = cursor.get();
-            assertNotNull( entry );
-            nbRes++;
+            searchCtx.setPartition( partition );
+            searchCtx.setTransaction( partitionTxn );
 
-            expectedDns.remove( entry.getDn() );
-        }
+            EntryFilteringCursor cursor = partition.search( searchCtx );
 
-        assertEquals( 3, nbRes );
-        assertEquals( 0, expectedDns.size() );
-
-        cursor.close();
+            assertNotNull( cursor );
+    
+            Set<Dn> expectedDns = new HashSet<>();
+            expectedDns.add( entry1.getDn() );
+            expectedDns.add( entry2.getDn() );
+            expectedDns.add( entry3.getDn() );
+    
+            cursor.beforeFirst();
+            int nbRes = 0;
+    
+            while ( cursor.next() )
+            {
+                Entry entry = cursor.get();
+                assertNotNull( entry );
+                nbRes++;
+    
+                expectedDns.remove( entry.getDn() );
+            }
+    
+            assertEquals( 3, nbRes );
+            assertEquals( 0, expectedDns.size() );
+    
+            cursor.close();
+        } 
     }
 
 
@@ -457,12 +477,17 @@ public class LdifPartitionTest
     {
         CoreSession session = injectEntries();
 
-        Entry childEntry1 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry1 = partition.fetch( partition.beginReadTransaction(), 
+            partition.getEntryId( partition.beginReadTransaction(), new Dn( schemaManager,
             "dc=child1,ou=test,ou=system" ) ) );
-        Entry childEntry2 = partition.fetch( partition.getEntryId( new Dn( schemaManager,
+        Entry childEntry2 = partition.fetch( partition.beginReadTransaction(), 
+            partition.getEntryId( partition.beginReadTransaction(), new Dn( schemaManager,
             "dc=child2,ou=test,ou=system" ) ) );
 
         MoveOperationContext moveOpCtx = new MoveOperationContext( session, childEntry1.getDn(), childEntry2.getDn() );
+        moveOpCtx.setPartition( partition );
+        moveOpCtx.setTransaction( partition.beginWriteTransaction() );
+
         partition.move( moveOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
@@ -491,6 +516,9 @@ public class LdifPartitionTest
 
         Rdn newRdn = new Rdn( schemaManager, SchemaConstants.DC_AT + "=" + "renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, true );
+        renameOpCtx.setPartition( partition );
+        renameOpCtx.setTransaction( partition.beginWriteTransaction() );
+
         partition.rename( renameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
@@ -518,6 +546,9 @@ public class LdifPartitionTest
 
         Rdn newRdn = new Rdn( schemaManager, "dc=renamedChild1" );
         RenameOperationContext renameOpCtx = new RenameOperationContext( session, childDn1, newRdn, false );
+        renameOpCtx.setPartition( partition );
+        renameOpCtx.setTransaction( partition.beginWriteTransaction() );
+
         partition.rename( renameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
@@ -554,7 +585,18 @@ public class LdifPartitionTest
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
             childDn2, newRdn, true );
         
-        Entry originalEntry = partition.lookup( new LookupOperationContext( session, childDn1 ) );
+        Entry originalEntry;
+        
+        LookupOperationContext lookupContext = new LookupOperationContext( session, childDn1 );
+        lookupContext.setPartition( partition );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
+        
+            originalEntry = partition.lookup( lookupContext );
+        }
+        
         Entry modifiedEntry = originalEntry.clone();
         modifiedEntry.remove( "dc", "child1" );
         modifiedEntry.add( "dc", "movedChild1" );
@@ -571,7 +613,9 @@ public class LdifPartitionTest
         modDnAvas.put( SchemaConstants.DOMAIN_COMPONENT_AT_OID, modAvas );
         
         moveAndRenameOpCtx.setModifiedAvas( modDnAvas );
-        
+        moveAndRenameOpCtx.setPartition( partition );
+        moveAndRenameOpCtx.setTransaction( partition.beginWriteTransaction() );
+
         partition.moveAndRename( moveAndRenameOpCtx );
 
         assertFalse( new File( wkdir, "ou=test,ou=system/dc=child1" ).exists() );
@@ -604,7 +648,18 @@ public class LdifPartitionTest
         MoveAndRenameOperationContext moveAndRenameOpCtx = new MoveAndRenameOperationContext( session, childDn1,
             childDn2, newRdn, true );
         
-        Entry originalEntry = partition.lookup( new LookupOperationContext( session, childDn1 ) );
+        Entry originalEntry;
+        
+        LookupOperationContext lookupContext = new LookupOperationContext( session, childDn1 );
+        lookupContext.setPartition( partition );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
+        
+            originalEntry = partition.lookup( lookupContext );
+        }
+
         Entry modifiedEntry = originalEntry.clone();
         modifiedEntry.remove( "dc", "child1" );
         modifiedEntry.add( "dc", "movedChild1" );
@@ -621,6 +676,8 @@ public class LdifPartitionTest
         modDnAvas.put( SchemaConstants.DOMAIN_COMPONENT_AT_OID, modAvas );
         
         moveAndRenameOpCtx.setModifiedAvas( modDnAvas );
+        moveAndRenameOpCtx.setPartition( partition );
+        moveAndRenameOpCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.moveAndRename( moveAndRenameOpCtx );
 
@@ -667,6 +724,8 @@ public class LdifPartitionTest
         Entry entry1 = createEntry( rdnWithForbiddenChars + ",ou=test,ou=system" );
         entry1.put( "objectClass", "top", "domain" );
         addCtx.setEntry( entry1 );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -706,6 +765,8 @@ public class LdifPartitionTest
         entry1.put( "cn", "test" );
         entry1.put( "sn", "test" );
         addCtx.setEntry( entry1 );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 
@@ -730,6 +791,8 @@ public class LdifPartitionTest
         childEntry1.put( "ObjectClass", "top", "domain" );
         childEntry1.put( "dc", "child1" );
         addCtx.setEntry( childEntry1 );
+        addCtx.setPartition( partition );
+        addCtx.setTransaction( partition.beginWriteTransaction() );
 
         partition.add( addCtx );
 

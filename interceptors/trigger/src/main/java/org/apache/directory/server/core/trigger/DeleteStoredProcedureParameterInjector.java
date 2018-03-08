@@ -76,7 +76,9 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         CoreSession session = opContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, deletedEntryName,
             SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-
+        lookupContext.setPartition( opContext.getPartition() );
+        lookupContext.setTransaction( opContext.getTransaction() );
+        
         return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
     }
 }

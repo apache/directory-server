@@ -112,7 +112,6 @@ public class ConfigWriter
         }
         catch ( Exception e )
         {
-            e.printStackTrace(); // TODO REMOVE THIS
             throw new ConfigurationException( "Unable to convert the configuration bean to LDIF entries", e );
         }
     }

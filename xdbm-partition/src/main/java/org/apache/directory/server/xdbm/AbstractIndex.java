@@ -32,7 +32,7 @@ import org.apache.directory.server.i18n.I18n;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndex<K, ID> implements Index<K, ID>
+public abstract class AbstractIndex<K, E> implements Index<K, E>
 {
     /** The attribute identifier for this index */
     protected String attributeId;

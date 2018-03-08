@@ -51,6 +51,7 @@ import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -165,7 +166,7 @@ public class NestedFilterTest extends AbstractCursorTest
     {
         if ( store != null )
         {
-            ( ( Partition ) store ).destroy();
+            ( ( Partition ) store ).destroy( null );
         }
 
         store = null;
@@ -182,6 +183,7 @@ public class NestedFilterTest extends AbstractCursorTest
     @Test
     public void testNestedAndnOr() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         // This filter will get back 3 entries :
         // ou=Apache,ou=Board of Directors,o=Good Times Co.
         // cn=JOhnny WAlkeR,ou=Sales,o=Good Times Co.
@@ -190,9 +192,9 @@ public class NestedFilterTest extends AbstractCursorTest
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
         exprNode.accept( visitor );
-        optimizer.annotate( exprNode );
+        optimizer.annotate( txn, exprNode );
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         Set<String> expectedUuid = new HashSet<String>();
         expectedUuid.add( Strings.getUUID( 5 ) );
@@ -222,12 +224,13 @@ public class NestedFilterTest extends AbstractCursorTest
     @Test
     public void testNestedAndnNot() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         String filter = "(&(&(cn=Jo*)(sn=w*))(!(ou=apache)))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
-        optimizer.annotate( exprNode );
+        optimizer.annotate( txn, exprNode );
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         assertTrue( cursor.next() );
         assertTrue( cursor.available() );
@@ -243,14 +246,15 @@ public class NestedFilterTest extends AbstractCursorTest
     @Test
     public void testNestedNotnOrnAnd() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         String filter = "(&(|(postalCode=5)(postalCode=6))(!(ou=sales)))";
 
         UuidSyntaxChecker uuidSynChecker = UuidSyntaxChecker.INSTANCE;
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
-        optimizer.annotate( exprNode );
+        optimizer.annotate( txn, exprNode );
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         Set<String> set = new HashSet<String>();
 
@@ -277,12 +281,13 @@ public class NestedFilterTest extends AbstractCursorTest
     @Test
     public void testNestedOrnNot() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         String filter = "(!(|(|(cn=Jo*)(sn=w*))(!(ou=apache))))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
-        optimizer.annotate( exprNode );
+        optimizer.annotate( txn, exprNode );
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
         cursor.close();
     }
 }

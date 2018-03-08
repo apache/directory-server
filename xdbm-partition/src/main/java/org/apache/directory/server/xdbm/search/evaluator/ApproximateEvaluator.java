@@ -26,13 +26,16 @@ import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 
 
@@ -52,13 +55,20 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
      * @throws Exception If the creation failed
      */
     public ApproximateEvaluator( ApproximateNode<T> node, Store db, SchemaManager schemaManager )
-        throws Exception
+        throws LdapException
     {
         super( node, db, schemaManager );
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, String> ) db.getIndex( attributeType );
+            try
+            {
+                idx = ( Index<T, String> ) db.getIndex( attributeType );
+            }
+            catch ( IndexNotFoundException infe )
+            {
+                throw new LdapOtherException( infe.getMessage(), infe );
+            }
             normalizer = null;
             ldapComparator = null;
         }
@@ -136,14 +146,14 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
      * {@inheritDoc}
      */
     @Override
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = db.fetch( indexEntry.getId() );
+            entry = db.fetch( partitionTxn, indexEntry.getId() );
 
             if ( null == entry )
             {
@@ -160,7 +170,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
 
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( Attribute attribute ) throws LdapException
+    private boolean evaluate( Attribute attribute )
     {
         /*
          * Cycle through the attribute values testing normalized version

@@ -58,6 +58,17 @@ public interface Partition
     /** Default id used for context entry if context entry doesn't exists */
     String DEFAULT_ID = new UUID( 0L, 1L ).toString();
 
+    /**
+     * Start a read transaction
+     */
+    PartitionReadTxn beginReadTransaction();
+
+    
+    /**
+     * Start a write transaction
+     */
+    PartitionWriteTxn beginWriteTransaction();
+    
 
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
@@ -139,7 +150,7 @@ public interface Partition
      * Instructs this Partition to synchronize with it's persistent store, and
      * destroy all held resources, in preparation for a shutdown event.
      */
-    void destroy() throws Exception;
+    void destroy( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
@@ -153,7 +164,7 @@ public interface Partition
      * Flushes any changes made to this partition now.
      * @throws Exception if buffers cannot be flushed to disk
      */
-    void sync() throws Exception;
+    void sync() throws LdapException;
 
 
     /**
@@ -287,7 +298,7 @@ public interface Partition
      * @param name The index to dump to stdout
      * @throws IOException if we can't write the data
      */
-    void dumpIndex( OutputStream stream, String name ) throws IOException;
+    void dumpIndex( PartitionTxn partitionTxn, OutputStream stream, String name ) throws IOException;
 
 
     /**
@@ -301,14 +312,14 @@ public interface Partition
     /**
      * @return the current highest committed CSN value
      */
-    String getContextCsn();
+    String getContextCsn( PartitionTxn partitionTxn );
 
     
     /**
      * saves the context CSN value in the context entry of the partition
      * @throws Exception
      */
-    void saveContextCsn() throws Exception;
+    void saveContextCsn( PartitionTxn partitionTxn ) throws LdapException;
     
     
     /**
@@ -318,5 +329,5 @@ public interface Partition
      * @return The Subordinate instance that contains the values.
      * @throws LdapException If we had an issue while processing the request
      */
-    Subordinates getSubordinates( Entry entry ) throws LdapException;
+    Subordinates getSubordinates( PartitionTxn partitionTxn, Entry entry ) throws LdapException;
 }

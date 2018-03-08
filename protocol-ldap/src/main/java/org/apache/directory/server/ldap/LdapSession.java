@@ -20,11 +20,14 @@
 package org.apache.directory.server.ldap;
 
 
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -59,7 +62,7 @@ public class LdapSession
     private static final AbandonableRequest[] EMPTY_ABANDONABLES = new AbandonableRequest[0];
 
     /** A lock to protect the abandonableRequests against concurrent access */
-    private final String outstandingLock;
+    private final Lock outstandingLock;
 
     /**
      * The associated IoSession. Usually, a LdapSession is established
@@ -103,12 +106,12 @@ public class LdapSession
     public LdapSession( IoSession ioSession )
     {
         this.ioSession = ioSession;
-        outstandingLock = "OutstandingRequestLock: " + ioSession.toString();
-        outstandingRequests = new ConcurrentHashMap<Integer, AbandonableRequest>();
-        searchRequests = new ConcurrentHashMap<Integer, SearchRequestContainer>();
+        outstandingLock = new ReentrantLock();
+        outstandingRequests = new ConcurrentHashMap<>();
+        searchRequests = new ConcurrentHashMap<>();
         bindStatus = BindStatus.ANONYMOUS;
-        saslProperties = new HashMap<String, Object>();
-        pagedSearchContexts = new ConcurrentHashMap<Integer, PagedSearchContext>();
+        saslProperties = new HashMap<>();
+        pagedSearchContexts = new ConcurrentHashMap<>();
     }
 
 
@@ -122,7 +125,7 @@ public class LdapSession
      */
     public boolean isAuthenticated()
     {
-        return ( coreSession != null ) && bindStatus == BindStatus.AUTHENTICATED;
+        return ( coreSession != null ) && ( bindStatus == BindStatus.AUTHENTICATED );
     }
 
 
@@ -159,7 +162,7 @@ public class LdapSession
      */
     public boolean isSimpleAuthPending()
     {
-        return ( bindStatus == BindStatus.SIMPLE_AUTH_PENDING );
+        return bindStatus == BindStatus.SIMPLE_AUTH_PENDING;
     }
 
 
@@ -170,7 +173,7 @@ public class LdapSession
      */
     public boolean isSaslAuthPending()
     {
-        return ( bindStatus == BindStatus.SASL_AUTH_PENDING );
+        return bindStatus == BindStatus.SASL_AUTH_PENDING;
     }
 
 
@@ -213,14 +216,19 @@ public class LdapSession
      */
     public void abandonAllOutstandingRequests()
     {
-        synchronized ( outstandingLock )
+        try
         {
+            outstandingLock.lock();
             AbandonableRequest[] abandonables = outstandingRequests.values().toArray( EMPTY_ABANDONABLES );
 
             for ( AbandonableRequest abandonable : abandonables )
             {
                 abandonOutstandingRequest( abandonable.getMessageId() );
             }
+        }
+        finally 
+        {
+            outstandingLock.unlock();   
         }
     }
 
@@ -234,9 +242,14 @@ public class LdapSession
     {
         AbandonableRequest request = null;
 
-        synchronized ( outstandingLock )
+        try
         {
+            outstandingLock.lock();
             request = outstandingRequests.remove( messageId );
+        }
+        finally 
+        {
+            outstandingLock.unlock();   
         }
 
         // Remove the PagedSearch cursors now
@@ -252,12 +265,14 @@ public class LdapSession
         if ( request == null )
         {
             LOG.warn( "AbandonableRequest with messageId {} not found in outstandingRequests.", messageId );
+            
             return null;
         }
 
         if ( request.isAbandoned() )
         {
             LOG.info( "AbandonableRequest with messageId {} has already been abandoned", messageId );
+            
             return request;
         }
 
@@ -279,10 +294,16 @@ public class LdapSession
      */
     public void registerOutstandingRequest( AbandonableRequest request )
     {
-        synchronized ( outstandingLock )
+        try
         {
+            outstandingLock.lock();
             outstandingRequests.put( request.getMessageId(), request );
         }
+        finally 
+        {
+            outstandingLock.unlock();   
+        }
+
     }
 
 
@@ -293,9 +314,14 @@ public class LdapSession
      */
     public void unregisterOutstandingRequest( AbandonableRequest request )
     {
-        synchronized ( outstandingLock )
+        try
         {
+            outstandingLock.lock();
             outstandingRequests.remove( request.getMessageId() );
+        }
+        finally 
+        {
+            outstandingLock.unlock();   
         }
     }
 
@@ -305,9 +331,15 @@ public class LdapSession
      */
     public Map<Integer, AbandonableRequest> getOutstandingRequests()
     {
-        synchronized ( outstandingLock )
+        try
         {
+            outstandingLock.lock();
+
             return Collections.unmodifiableMap( outstandingRequests );
+        }
+        finally 
+        {
+            outstandingLock.unlock();   
         }
     }
 
@@ -319,10 +351,15 @@ public class LdapSession
      */
     public void registerSearchRequest( SearchRequest searchRequest, Cursor<Entry> cursor )
     {
-        synchronized ( outstandingLock )
+        try
         {
+            outstandingLock.lock();
             SearchRequestContainer searchRequestContainer = new SearchRequestContainer( searchRequest, cursor );
             searchRequests.put( searchRequest.getMessageId(), searchRequestContainer );
+        }
+        finally 
+        {
+            outstandingLock.unlock();   
         }
     }
 
@@ -476,7 +513,7 @@ public class LdapSession
      *
      * @param context The context to add
      */
-    public void addPagedSearchContext( PagedSearchContext context ) throws Exception
+    public void addPagedSearchContext( PagedSearchContext context )
     {
         PagedSearchContext oldContext = pagedSearchContexts.put( context.getCookieValue(), context );
 
@@ -517,13 +554,11 @@ public class LdapSession
      *
      * @throws Exception If we've got an exception.
      */
-    public void closeAllPagedSearches() throws Exception
+    public void closeAllPagedSearches() throws IOException
     {
-        for ( int contextId : pagedSearchContexts.keySet() )
+        for ( Map.Entry<Integer, PagedSearchContext> entry : pagedSearchContexts.entrySet() )
         {
-            PagedSearchContext context = pagedSearchContexts.get( contextId );
-
-            Cursor<Entry> cursor = context.getCursor();
+            Cursor<Entry> cursor = entry.getValue().getCursor();
 
             if ( cursor != null )
             {
@@ -539,9 +574,7 @@ public class LdapSession
      */
     public PagedSearchContext getPagedSearchContext( int contextId )
     {
-        PagedSearchContext ctx = pagedSearchContexts.get( contextId );
-
-        return ctx;
+        return pagedSearchContexts.get( contextId );
     }
 
 

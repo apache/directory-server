@@ -47,7 +47,7 @@ public class AbstractIndexCursorTest
     @Before
     public void setUp()
     {
-        indexCursor = new EmptyIndexCursor<String>();
+        indexCursor = new EmptyIndexCursor<String>( new MockPartitionReadTxn() );
     }
 
 
@@ -78,7 +78,7 @@ public class AbstractIndexCursorTest
     @Test
     public void testCheckNotClosedIfNotClosed() throws Exception
     {
-        indexCursor.checkNotClosed( "test" );
+        indexCursor.checkNotClosed();
     }
 
 
@@ -86,7 +86,7 @@ public class AbstractIndexCursorTest
     public void testCheckNotClosedIfClosed() throws Exception
     {
         indexCursor.close();
-        indexCursor.checkNotClosed( "test" );
+        indexCursor.checkNotClosed();
     }
 
 
@@ -94,7 +94,7 @@ public class AbstractIndexCursorTest
     public void testCheckNotClosedIfClosedWithCustomException() throws Exception
     {
         indexCursor.close( new IllegalArgumentException() );
-        indexCursor.checkNotClosed( "test" );
+        indexCursor.checkNotClosed();
     }
 
 

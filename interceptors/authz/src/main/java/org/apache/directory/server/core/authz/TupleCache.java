@@ -55,6 +55,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -126,10 +127,13 @@ public class TupleCache
                 { SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES } );
 
             Dn baseDn = dnFactory.create( suffix );
-
+            Partition partition = nexus.getPartition( baseDn );
+            
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchOperationContext.setPartition( partition );
+            searchOperationContext.setTransaction( partition.beginReadTransaction() );
 
             EntryFilteringCursor results = nexus.search( searchOperationContext );
 

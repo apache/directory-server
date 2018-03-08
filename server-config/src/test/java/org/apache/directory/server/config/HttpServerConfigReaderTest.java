@@ -129,6 +129,6 @@ public class HttpServerConfigReaderTest
         HttpServerBean httpServerBean = ( HttpServerBean ) configBean.getDirectoryServiceBeans().get( 0 );
         assertNotNull( httpServerBean );
 
-        configPartition.destroy();
+        configPartition.destroy( configPartition.beginReadTransaction() );
     }
 }

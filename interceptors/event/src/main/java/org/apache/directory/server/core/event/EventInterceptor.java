@@ -320,6 +320,8 @@ public class EventInterceptor extends BaseInterceptor
         CoreSession session = modifyContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, modifyContext.getDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( modifyContext.getPartition() );
+        lookupContext.setTransaction( modifyContext.getTransaction() );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         modifyContext.setAlteredEntry( alteredEntry );
@@ -408,6 +410,8 @@ public class EventInterceptor extends BaseInterceptor
         CoreSession session = renameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( renameContext.getPartition() );
+        lookupContext.setTransaction( renameContext.getTransaction() );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         renameContext.setModifiedEntry( alteredEntry );

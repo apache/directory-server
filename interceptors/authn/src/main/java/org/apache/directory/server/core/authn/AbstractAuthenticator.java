@@ -29,6 +29,7 @@ import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchema
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_LAST_SUCCESS_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 
@@ -39,6 +40,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.api.util.DateUtils;
@@ -47,6 +49,8 @@ import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,6 +207,53 @@ public abstract class AbstractAuthenticator implements Authenticator
     {
         this.baseDn = baseDn;
     }
+    
+    
+    private void internalModify( ModifyOperationContext modContext ) throws LdapException
+    {
+        Partition partition = directoryService.getPartitionNexus().getPartition( modContext.getDn() );
+        modContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            modContext.setTransaction( partitionTxn );
+
+            directoryService.getPartitionNexus().modify( modContext );
+
+            partitionTxn.commit();
+        }
+        catch ( LdapException le )
+        {
+            try 
+            {
+                if ( partitionTxn != null )
+                {
+                    partitionTxn.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try 
+            {
+                partitionTxn.abort();
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
+        }
+    }
 
 
     /**
@@ -258,10 +309,9 @@ public abstract class AbstractAuthenticator implements Authenticator
                         ModifyOperationContext modContext = new ModifyOperationContext(
                             directoryService.getAdminSession() );
                         modContext.setDn( userEntry.getDn() );
-
                         modContext.setModItems( Collections.singletonList( pwdAccountLockMod ) );
 
-                        directoryService.getPartitionNexus().modify( modContext );
+                        internalModify( modContext );
                     }
                 }
             }

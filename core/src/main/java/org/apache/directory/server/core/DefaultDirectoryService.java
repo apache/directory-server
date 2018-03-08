@@ -56,6 +56,7 @@ import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.ldif.ChangeType;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
@@ -101,6 +102,7 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.journal.Journal;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
@@ -252,10 +254,10 @@ public class DefaultDirectoryService implements DirectoryService
     private Partition systemPartition;
 
     /** The set of all declared partitions */
-    private Set<Partition> partitions = new HashSet<Partition>();
+    private Set<Partition> partitions = new HashSet<>();
 
     /** A list of LDIF entries to inject at startup */
-    private List<? extends LdifEntry> testEntries = new ArrayList<LdifEntry>(); // List<Attributes>
+    private List<? extends LdifEntry> testEntries = new ArrayList<>(); // List<Attributes>
 
     /** The event service */
     private EventService eventService;
@@ -340,7 +342,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public Set<? extends Partition> getPartitions()
     {
-        Set<Partition> cloned = new HashSet<Partition>();
+        Set<Partition> cloned = new HashSet<>();
         cloned.addAll( partitions );
         return cloned;
     }
@@ -353,9 +355,9 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public void setPartitions( Set<? extends Partition> partitions )
     {
-        Set<Partition> cloned = new HashSet<Partition>();
+        Set<Partition> cloned = new HashSet<>();
         cloned.addAll( partitions );
-        Set<String> names = new HashSet<String>();
+        Set<String> names = new HashSet<>();
 
         for ( Partition partition : cloned )
         {
@@ -429,7 +431,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public List<Interceptor> getInterceptors()
     {
-        List<Interceptor> cloned = new ArrayList<Interceptor>();
+        List<Interceptor> cloned = new ArrayList<>();
 
         readLock.lock();
 
@@ -453,7 +455,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public List<String> getInterceptors( OperationEnum operation )
     {
-        List<String> cloned = new ArrayList<String>();
+        List<String> cloned = new ArrayList<>();
 
         readLock.lock();
 
@@ -480,11 +482,11 @@ public class DefaultDirectoryService implements DirectoryService
 
         try
         {
-            operationInterceptors = new ConcurrentHashMap<OperationEnum, List<String>>();
+            operationInterceptors = new ConcurrentHashMap<>();
 
             for ( OperationEnum operation : OperationEnum.getOperations() )
             {
-                List<String> operationList = new ArrayList<String>();
+                List<String> operationList = new ArrayList<>();
 
                 for ( Interceptor interceptor : interceptors )
                 {
@@ -701,7 +703,7 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public List<LdifEntry> getTestEntries()
     {
-        List<LdifEntry> cloned = new ArrayList<LdifEntry>();
+        List<LdifEntry> cloned = new ArrayList<>();
         cloned.addAll( testEntries );
 
         return cloned;
@@ -717,7 +719,7 @@ public class DefaultDirectoryService implements DirectoryService
     public void setTestEntries( List<? extends LdifEntry> testEntries )
     {
         //noinspection MismatchedQueryAndUpdateOfCollection
-        List<LdifEntry> cloned = new ArrayList<LdifEntry>();
+        List<LdifEntry> cloned = new ArrayList<>();
         cloned.addAll( testEntries );
         this.testEntries = testEntries;
     }
@@ -744,7 +746,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             if ( !instanceLayout.getInstanceDirectory().mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                     instanceLayout.getInstanceDirectory() ) );
             }
         }
@@ -753,7 +755,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             if ( !instanceLayout.getLogDirectory().mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                     instanceLayout.getLogDirectory() ) );
             }
         }
@@ -762,7 +764,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             if ( !instanceLayout.getRunDirectory().mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                     instanceLayout.getRunDirectory() ) );
             }
         }
@@ -771,7 +773,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             if ( !instanceLayout.getPartitionsDirectory().mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                     instanceLayout.getPartitionsDirectory() ) );
             }
         }
@@ -780,7 +782,7 @@ public class DefaultDirectoryService implements DirectoryService
         {
             if ( !instanceLayout.getConfDirectory().mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                     instanceLayout.getConfDirectory() ) );
             }
         }
@@ -933,7 +935,7 @@ public class DefaultDirectoryService implements DirectoryService
     private void setDefaultInterceptorConfigurations()
     {
         // Set default interceptor chains
-        List<Interceptor> list = new ArrayList<Interceptor>();
+        List<Interceptor> list = new ArrayList<>();
 
         list.add( new NormalizationInterceptor() );
         list.add( new AuthenticationInterceptor() );
@@ -993,7 +995,6 @@ public class DefaultDirectoryService implements DirectoryService
         }
 
         BindOperationContext bindContext = new BindOperationContext( null );
-        bindContext.setTransaction( partitionNexus.beginReadTransaction() );
         bindContext.setCredentials( credentials );
         
         if ( principalDn.isSchemaAware() )
@@ -1305,9 +1306,9 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         LOG.debug( "--- Syncing the nexus " );
         LOG.debug( "--- Flushing everything before quitting" );
-        getOperationManager().lockWrite();
+        operationManager.lockWrite();
         partitionNexus.sync();
-        getOperationManager().unlockWrite();
+        operationManager.unlockWrite();
 
         // --------------------------------------------------------------------
         // Shutdown the changelog
@@ -1331,7 +1332,7 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
 
         LOG.debug( "--- Destroying the nexus" );
-        partitionNexus.destroy();
+        partitionNexus.destroy( null );
         
         // --------------------------------------------------------------------
         // Shutdown the interceptors
@@ -1455,6 +1456,52 @@ public class DefaultDirectoryService implements DirectoryService
     {
         return new DefaultEntry( schemaManager, dn );
     }
+    
+    
+    /**
+     * Add a new entry into the server
+     */
+    private void addEntry( Entry serverEntry ) throws LdapException
+    {
+        Partition partition = partitionNexus.getPartition( serverEntry.getDn() );
+        AddOperationContext addContext = new AddOperationContext( adminSession, serverEntry );
+        PartitionTxn partitionTxn = null;
+
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+            addContext.setPartition( partition );
+            partitionNexus.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                partitionTxn.abort();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            
+            throw le;
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                partitionTxn.abort();
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
+            
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
+    }
 
 
     /**
@@ -1476,31 +1523,41 @@ public class DefaultDirectoryService implements DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, adminDn ) ) )
+        Partition partition = partitionNexus.getPartition( adminDn );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, adminDn );
-
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                SchemaConstants.TOP_OC,
-                SchemaConstants.PERSON_OC,
-                SchemaConstants.ORGANIZATIONAL_PERSON_OC,
-                SchemaConstants.INET_ORG_PERSON_OC );
-
-            serverEntry.put( SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID );
-            serverEntry.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD_BYTES );
-            serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
-            serverEntry.put( SchemaConstants.CN_AT, "system administrator" );
-            serverEntry.put( SchemaConstants.SN_AT, "administrator" );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            TlsKeyGenerator.addKeyPair( serverEntry );
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, adminDn );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, adminDn );
+    
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
+                    SchemaConstants.TOP_OC,
+                    SchemaConstants.PERSON_OC,
+                    SchemaConstants.ORGANIZATIONAL_PERSON_OC,
+                    SchemaConstants.INET_ORG_PERSON_OC );
+    
+                serverEntry.put( SchemaConstants.UID_AT, PartitionNexus.ADMIN_UID );
+                serverEntry.put( SchemaConstants.USER_PASSWORD_AT, PartitionNexus.ADMIN_PASSWORD_BYTES );
+                serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
+                serverEntry.put( SchemaConstants.CN_AT, "system administrator" );
+                serverEntry.put( SchemaConstants.SN_AT, "administrator" );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+                TlsKeyGenerator.addKeyPair( serverEntry );
+                
+                addEntry( serverEntry );
+            }
         }
 
         // -------------------------------------------------------------------
@@ -1508,24 +1565,32 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         Dn userDn = getDnFactory().create( ServerDNConstants.USERS_SYSTEM_DN );
+        partition = partitionNexus.getPartition( userDn );
 
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, userDn ) ) )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, userDn );
-
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-
-            serverEntry.put( SchemaConstants.OU_AT, "users" );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, userDn );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, userDn );
+    
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
+                    SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+    
+                serverEntry.put( SchemaConstants.OU_AT, "users" );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+                
+                addEntry( serverEntry );
+            }
         }
 
         // -------------------------------------------------------------------
@@ -1533,50 +1598,66 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         Dn groupDn = getDnFactory().create( ServerDNConstants.GROUPS_SYSTEM_DN );
+        partition = partitionNexus.getPartition( groupDn );
 
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, groupDn ) ) )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, groupDn );
-
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-
-            serverEntry.put( SchemaConstants.OU_AT, "groups" );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, groupDn );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, groupDn );
+    
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
+                    SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+    
+                serverEntry.put( SchemaConstants.OU_AT, "groups" );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+                addEntry( serverEntry );
+            }
         }
-
+        
         // -------------------------------------------------------------------
         // create administrator group
         // -------------------------------------------------------------------
 
         Dn name = getDnFactory().create( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
+        partition = partitionNexus.getPartition( name );
 
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, name ) ) )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, name );
-
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                SchemaConstants.TOP_OC,
-                SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
-
-            serverEntry.put( SchemaConstants.CN_AT, "Administrators" );
-            serverEntry.put( SchemaConstants.UNIQUE_MEMBER_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, name );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, name );
+    
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
+                    SchemaConstants.TOP_OC,
+                    SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
+    
+                serverEntry.put( SchemaConstants.CN_AT, "Administrators" );
+                serverEntry.put( SchemaConstants.UNIQUE_MEMBER_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+                addEntry( serverEntry );
+            }
         }
 
         // -------------------------------------------------------------------
@@ -1584,22 +1665,30 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         Dn configurationDn = getDnFactory().create( "ou=configuration,ou=system" );
+        partition = partitionNexus.getPartition( configurationDn );
 
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, configurationDn ) ) )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, configurationDn );
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-
-            serverEntry.put( SchemaConstants.OU_AT, "configuration" );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, configurationDn );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, configurationDn );
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+    
+                serverEntry.put( SchemaConstants.OU_AT, "configuration" );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+                addEntry( serverEntry );
+            }
         }
 
         // -------------------------------------------------------------------
@@ -1607,21 +1696,29 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         Dn partitionsDn = getDnFactory().create( "ou=partitions,ou=configuration,ou=system" );
+        partition = partitionNexus.getPartition( partitionsDn );
 
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, partitionsDn ) ) )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, partitionsDn );
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            serverEntry.put( SchemaConstants.OU_AT, "partitions" );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, partitionsDn );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, partitionsDn );
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+                serverEntry.put( SchemaConstants.OU_AT, "partitions" );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+                addEntry( serverEntry );
+            }
         }
 
         // -------------------------------------------------------------------
@@ -1629,22 +1726,30 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         Dn servicesDn = getDnFactory().create( "ou=services,ou=configuration,ou=system" );
+        partition = partitionNexus.getPartition( servicesDn );
 
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, servicesDn ) ) )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, servicesDn );
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-
-            serverEntry.put( SchemaConstants.OU_AT, "services" );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, servicesDn );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, servicesDn );
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+    
+                serverEntry.put( SchemaConstants.OU_AT, "services" );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+                addEntry( serverEntry );
+            }
         }
 
         // -------------------------------------------------------------------
@@ -1652,22 +1757,30 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         Dn interceptorsDn = getDnFactory().create( "ou=interceptors,ou=configuration,ou=system" );
+        partition = partitionNexus.getPartition( interceptorsDn );
 
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, interceptorsDn ) ) )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, interceptorsDn );
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-
-            serverEntry.put( SchemaConstants.OU_AT, "interceptors" );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, interceptorsDn );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, interceptorsDn );
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+    
+                serverEntry.put( SchemaConstants.OU_AT, "interceptors" );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+                addEntry( serverEntry );
+            }
         }
 
         // -------------------------------------------------------------------
@@ -1675,24 +1788,32 @@ public class DefaultDirectoryService implements DirectoryService
         // -------------------------------------------------------------------
 
         Dn sysPrefRootDn = getDnFactory().create( ServerDNConstants.SYSPREFROOT_SYSTEM_DN );
+        partition = partitionNexus.getPartition( sysPrefRootDn );
 
-        if ( !partitionNexus.hasEntry( new HasEntryOperationContext( adminSession, sysPrefRootDn ) ) )
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            firstStart = true;
-
-            Entry serverEntry = new DefaultEntry( schemaManager, sysPrefRootDn );
-            serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
-                SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC,
-                SchemaConstants.EXTENSIBLE_OBJECT_OC );
-
-            serverEntry.put( "prefNodeName", "sysPrefRoot" );
-            serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-            serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-            partitionNexus.add( new AddOperationContext( adminSession, serverEntry ) );
+            HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, sysPrefRootDn );
+            hasEntryContext.setPartition( partition );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !partitionNexus.hasEntry( hasEntryContext ) )
+            {
+                firstStart = true;
+    
+                Entry serverEntry = new DefaultEntry( schemaManager, sysPrefRootDn );
+                serverEntry.put( SchemaConstants.OBJECT_CLASS_AT,
+                    SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC,
+                    SchemaConstants.EXTENSIBLE_OBJECT_OC );
+    
+                serverEntry.put( "prefNodeName", "sysPrefRoot" );
+                serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+                addEntry( serverEntry );
+            }
         }
 
         return firstStart;
@@ -1710,8 +1831,22 @@ public class DefaultDirectoryService implements DirectoryService
         boolean needToChangeAdminPassword;
 
         Dn adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        Partition partition = partitionNexus.getPartition( adminDn );
+        LookupOperationContext lookupContext = new LookupOperationContext( adminSession, adminDn );
+        lookupContext.setPartition( partition );
+        
+        Entry adminEntry;
 
-        Entry adminEntry = partitionNexus.lookup( new LookupOperationContext( adminSession, adminDn ) );
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
+            adminEntry = partitionNexus.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
+        
         Value userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
         needToChangeAdminPassword = Arrays.equals( PartitionNexus.ADMIN_PASSWORD_BYTES, userPassword.getBytes() );
 
@@ -1765,24 +1900,70 @@ public class DefaultDirectoryService implements DirectoryService
         Dn systemSuffixDn = getDnFactory().create( ServerDNConstants.SYSTEM_DN );
         CoreSession adminSession = getAdminSession();
 
-        if ( !system.hasEntry( new HasEntryOperationContext( adminSession, systemSuffixDn ) ) )
+        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, systemSuffixDn );
+        Partition partition = getPartitionNexus().getPartition( systemSuffixDn );
+        hasEntryContext.setPartition( partition );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
-
-            // Add the ObjectClasses
-            systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
-                SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
-
-            // Add some operational attributes
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
-            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
-            systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-            systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
-                .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
-
-            AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
-            system.add( addOperationContext );
+            hasEntryContext.setTransaction( partitionTxn );
+            
+            if ( !system.hasEntry( hasEntryContext ) )
+            {
+                Entry systemEntry = new DefaultEntry( schemaManager, systemSuffixDn );
+    
+                // Add the ObjectClasses
+                systemEntry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC,
+                    SchemaConstants.ORGANIZATIONAL_UNIT_OC, SchemaConstants.EXTENSIBLE_OBJECT_OC );
+    
+                // Add some operational attributes
+                systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
+                systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                systemEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
+                systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+                systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
+                    .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
+    
+                AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
+                addOperationContext.setPartition( partition );
+                
+                PartitionTxn writeTxn = null;
+                
+                try
+                {
+                    writeTxn = partition.beginWriteTransaction();
+                    addOperationContext.setTransaction( writeTxn );
+                    system.add( addOperationContext );
+                    
+                    writeTxn.commit();
+                }
+                catch ( LdapException le )
+                {
+                    try
+                    {
+                        writeTxn.abort();
+                    }
+                    catch ( IOException ioe )
+                    {
+                        throw new LdapOtherException( ioe.getMessage(), ioe );
+                    }
+                    
+                    throw le;
+                }
+                catch ( IOException ioe )
+                {
+                    try
+                    {
+                        writeTxn.abort();
+                    }
+                    catch ( IOException ioe2 )
+                    {
+                        throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+                    }
+                    
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
+            }
         }
     }
 
@@ -1816,10 +1997,10 @@ public class DefaultDirectoryService implements DirectoryService
         cacheService.initialize( instanceLayout, instanceId );
 
         // Initialize the AP caches
-        accessControlAPCache = new DnNode<AccessControlAdministrativePoint>();
-        collectiveAttributeAPCache = new DnNode<CollectiveAttributeAdministrativePoint>();
-        subschemaAPCache = new DnNode<SubschemaAdministrativePoint>();
-        triggerExecutionAPCache = new DnNode<TriggerExecutionAdministrativePoint>();
+        accessControlAPCache = new DnNode<>();
+        collectiveAttributeAPCache = new DnNode<>();
+        subschemaAPCache = new DnNode<>();
+        triggerExecutionAPCache = new DnNode<>();
 
         if ( dnFactory == null )
         {

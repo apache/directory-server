@@ -142,6 +142,8 @@ public class TriggerInterceptor extends BaseInterceptor
             CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = 
                 new LookupOperationContext( session, parentDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( opContext.getPartition() );
+            lookupContext.setTransaction( opContext.getTransaction() );
 
             entry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
@@ -289,7 +291,6 @@ public class TriggerInterceptor extends BaseInterceptor
         /**
          *  NOTE: We do not handle entryTriggerSpecs for ADD operation.
          */
-
         Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation(
             triggerSpecs, LdapOperation.ADD );
 
@@ -416,6 +417,8 @@ public class TriggerInterceptor extends BaseInterceptor
         CoreSession session = moveContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
             SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( moveContext.getPartition() );
+        lookupContext.setTransaction( moveContext.getTransaction() );
 
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
@@ -495,6 +498,8 @@ public class TriggerInterceptor extends BaseInterceptor
         CoreSession session = moveAndRenameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn,
             SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( moveAndRenameContext.getPartition() );
+        lookupContext.setTransaction( moveAndRenameContext.getTransaction() );
 
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 

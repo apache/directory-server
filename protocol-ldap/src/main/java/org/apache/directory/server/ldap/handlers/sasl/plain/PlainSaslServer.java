@@ -280,7 +280,6 @@ public final class PlainSaslServer extends AbstractSaslServer
             try
             {
                 BindOperationContext bindContext = new BindOperationContext( ldapSession.getCoreSession() );
-                bindContext.setTransaction( ldapSession.getCoreSession().getDirectoryService().getPartitionNexus().beginReadTransaction() );
                 bindContext.setDn( entry.getDn() );
                 bindContext.setCredentials( Strings.getBytesUtf8( password ) );
                 bindContext.setIoSession( ldapSession.getIoSession() );

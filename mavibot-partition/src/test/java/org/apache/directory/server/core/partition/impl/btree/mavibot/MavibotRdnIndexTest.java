@@ -40,8 +40,10 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.junit.After;
 import org.junit.Before;
@@ -63,6 +65,8 @@ public class MavibotRdnIndexTest
     private static SchemaManager schemaManager;
 
     private RecordManager recordMan;
+    
+    private PartitionTxn partitionTxn;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -99,23 +103,24 @@ public class MavibotRdnIndexTest
     public void setup() throws IOException
     {
         recordMan = new RecordManager( tmpDir.getRoot().getAbsolutePath() );
+        
+        partitionTxn = new MockPartitionReadTxn();
     }
 
 
     @After
     public void teardown() throws Exception
     {
-        destroyIndex();
+        destroyIndex( partitionTxn );
         recordMan.close();
     }
 
 
-    void destroyIndex() throws Exception
+    void destroyIndex( PartitionTxn partitionTxn ) throws Exception
     {
         if ( idx != null )
         {
-            idx.sync();
-            idx.close();
+            idx.close( partitionTxn );
         }
 
         idx = null;
@@ -167,7 +172,7 @@ public class MavibotRdnIndexTest
         {
         }
 
-        destroyIndex();
+        destroyIndex( partitionTxn );
         initIndex();
 
         assertEquals( Index.DEFAULT_INDEX_CACHE_SIZE, idx.getCacheSize() );
@@ -195,27 +200,27 @@ public class MavibotRdnIndexTest
     public void testCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( partitionTxn ) );
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count() );
+        idx.add( partitionTxn,  key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( partitionTxn ) );
 
         // setting a different parentId should make this key a different key
         key = new ParentIdAndRdn( Strings.getUUID( 1L ), new Rdn( "cn=key" ) );
 
-        idx.add( key, Strings.getUUID( 1L ) );
-        assertEquals( 2, idx.count() );
+        idx.add( partitionTxn,  key, Strings.getUUID( 1L ) );
+        assertEquals( 2, idx.count( partitionTxn ) );
 
         //count shouldn't get affected cause of inserting the same key
         // the value will be replaced instead
-        idx.add( key, Strings.getUUID( 2L ) );
-        assertEquals( 2, idx.count() );
+        idx.add( partitionTxn,  key, Strings.getUUID( 2L ) );
+        assertEquals( 2, idx.count( partitionTxn ) );
 
         key = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( "cn=key" ) );
-        idx.add( key, Strings.getUUID( 3L ) );
-        assertEquals( 3, idx.count() );
+        idx.add( partitionTxn,  key, Strings.getUUID( 3L ) );
+        assertEquals( 3, idx.count( partitionTxn ) );
     }
 
 
@@ -226,10 +231,10 @@ public class MavibotRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertEquals( 0, idx.count( key ) );
+        assertEquals( 0, idx.count( partitionTxn, key ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count( key ) );
+        idx.add( partitionTxn,  key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( partitionTxn, key ) );
     }
 
 
@@ -244,17 +249,17 @@ public class MavibotRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( schemaManager, "cn=key" ) );
 
-        assertNull( idx.forwardLookup( key ) );
+        assertNull( idx.forwardLookup( partitionTxn, key ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( Strings.getUUID( 0L ) ) );
+        idx.add( partitionTxn,  key, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, key ) );
+        assertEquals( key, idx.reverseLookup( partitionTxn, Strings.getUUID( 0L ) ) );
 
         // check with the different case in UP name, this ensures that the custom
         // key comparator is used
         key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( schemaManager, "cn=KEY" ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( Strings.getUUID( 0L ) ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, key ) );
+        assertEquals( key, idx.reverseLookup( partitionTxn, Strings.getUUID( 0L ) ) );
     }
 
 
@@ -265,15 +270,15 @@ public class MavibotRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertNull( idx.forwardLookup( key ) );
+        assertNull( idx.forwardLookup( partitionTxn, key ) );
 
         // test add/drop without adding any duplicates
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( key ) );
+        idx.add( partitionTxn,  key, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, key ) );
 
-        idx.drop( key, Strings.getUUID( 0L ) );
-        assertNull( idx.forwardLookup( key ) );
-        assertNull( idx.reverseLookup( Strings.getUUID( 0L ) ) );
+        idx.drop( partitionTxn, key, Strings.getUUID( 0L ) );
+        assertNull( idx.forwardLookup( partitionTxn, key ) );
+        assertNull( idx.reverseLookup( partitionTxn, Strings.getUUID( 0L ) ) );
     }
 
 
@@ -288,22 +293,22 @@ public class MavibotRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( partitionTxn ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count() );
+        idx.add( partitionTxn,  key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( partitionTxn ) );
 
         for ( long i = 1; i < 5; i++ )
         {
             key = new ParentIdAndRdn( Strings.getUUID( i ), new Rdn( "cn=key" + i ) );
 
-            idx.add( key, Strings.getUUID( i ) );
+            idx.add( partitionTxn, key, Strings.getUUID( i ) );
         }
 
-        assertEquals( 5, idx.count() );
+        assertEquals( 5, idx.count( partitionTxn ) );
 
         // use forward index's cursor
-        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = idx.forwardCursor( partitionTxn );
         cursor.beforeFirst();
 
         cursor.next();

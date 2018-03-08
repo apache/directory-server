@@ -22,12 +22,11 @@ package org.apache.directory.server.core.partition.ldif;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Iterator;
 import java.util.UUID;
-
-import javax.naming.InvalidNameException;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -37,6 +36,7 @@ import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
@@ -50,6 +50,7 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
@@ -89,7 +90,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
     @Override
-    protected void doInit() throws InvalidNameException, Exception
+    protected void doInit() throws LdapException
     {
         if ( !initialized )
         {
@@ -105,8 +106,15 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                 throw new IllegalArgumentException( "Partition path must be a LDIF file" );
             }
 
-            ldifFile = new RandomAccessFile( partitionFile, "rws" );
-
+            try
+            {
+                ldifFile = new RandomAccessFile( partitionFile, "rws" );
+            }
+            catch ( FileNotFoundException fnfe )
+            {
+                throw new LdapOtherException( fnfe.getMessage(), fnfe );
+            }
+            
             LOG.debug( "id is : {}", getId() );
 
             // Initialize the suffixDirectory : it's a composition
@@ -134,49 +142,55 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * load the entries from the LDIF file if present
      * @throws Exception
      */
-    private void loadEntries() throws Exception
+    private void loadEntries() throws LdapException
     {
-        RandomAccessLdifReader parser = new RandomAccessLdifReader( schemaManager );
-
-        Iterator<LdifEntry> itr = parser.iterator();
-
-        if ( !itr.hasNext() )
+        try ( RandomAccessLdifReader parser = new RandomAccessLdifReader( schemaManager ) )
         {
-            parser.close();
+            Iterator<LdifEntry> itr = parser.iterator();
+    
+            if ( !itr.hasNext() )
+            {
+                return;
+            }
+    
+            LdifEntry ldifEntry = itr.next();
+    
+            contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
+    
+            if ( suffixDn.equals( contextEntry.getDn() ) )
+            {
+                addMandatoryOpAt( contextEntry );
+    
+                AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+                addContext.setPartition( this );
+                addContext.setTransaction( this.beginWriteTransaction() );
 
-            return;
+                super.add( addContext );
+            }
+            else
+            {
+                throw new LdapException( "The given LDIF file doesn't contain the context entry" );
+            }
+    
+            while ( itr.hasNext() )
+            {
+                ldifEntry = itr.next();
+    
+                Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
+    
+                addMandatoryOpAt( entry );
+    
+                AddOperationContext addContext = new AddOperationContext( null, entry );
+                addContext.setPartition( this );
+                addContext.setTransaction( this.beginWriteTransaction() );
+
+                super.add( addContext );
+            }
         }
-
-        LdifEntry ldifEntry = itr.next();
-
-        contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
-
-        if ( suffixDn.equals( contextEntry.getDn() ) )
+        catch ( IOException ioe )
         {
-            addMandatoryOpAt( contextEntry );
-
-            AddOperationContext addContext = new AddOperationContext( null, contextEntry );
-            super.add( addContext );
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
-        else
-        {
-            parser.close();
-            throw new LdapException( "The given LDIF file doesn't contain the context entry" );
-        }
-
-        while ( itr.hasNext() )
-        {
-            ldifEntry = itr.next();
-
-            Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
-
-            addMandatoryOpAt( entry );
-
-            AddOperationContext addContext = new AddOperationContext( null, entry );
-            super.add( addContext );
-        }
-
-        parser.close();
     }
 
 
@@ -204,7 +218,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             }
 
             dirty = true;
-            rewritePartitionData();
+            rewritePartitionData( addContext.getTransaction() );
         }
     }
 
@@ -215,11 +229,13 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
+        PartitionTxn partitionTxn = modifyContext.getTransaction();
+        
         synchronized ( lock )
         {
             try
             {
-                Entry modifiedEntry = super.modify( modifyContext.getDn(),
+                Entry modifiedEntry = super.modify( partitionTxn, modifyContext.getDn(),
                     modifyContext.getModItems().toArray( new Modification[]
                         {} ) );
 
@@ -234,7 +250,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             }
 
             dirty = true;
-            rewritePartitionData();
+            rewritePartitionData( partitionTxn );
         }
     }
 
@@ -249,7 +265,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             super.rename( renameContext );
             dirty = true;
-            rewritePartitionData();
+            rewritePartitionData( renameContext.getTransaction() );
         }
     }
 
@@ -264,7 +280,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             super.move( moveContext );
             dirty = true;
-            rewritePartitionData();
+            rewritePartitionData( moveContext.getTransaction() );
         }
     }
 
@@ -279,19 +295,19 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             super.moveAndRename( opContext );
             dirty = true;
-            rewritePartitionData();
+            rewritePartitionData( opContext.getTransaction() );
         }
     }
 
 
     @Override
-    public Entry delete( String id ) throws LdapException
+    public Entry delete( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         synchronized ( lock )
         {
-            Entry deletedEntry = super.delete( id );
+            Entry deletedEntry = super.delete( partitionTxn, id );
             dirty = true;
-            rewritePartitionData();
+            rewritePartitionData( partitionTxn );
 
             return deletedEntry;
         }
@@ -304,7 +320,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * 
      * @throws LdapException
      */
-    private void rewritePartitionData() throws LdapException
+    private void rewritePartitionData( PartitionTxn partitionTxn ) throws LdapException
     {
         synchronized ( lock )
         {
@@ -317,7 +333,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             {
                 ldifFile.setLength( 0 ); // wipe the file clean
 
-                String suffixId = getEntryId( suffixDn );
+                String suffixId = getEntryId( partitionTxn, suffixDn );
 
                 if ( suffixId == null )
                 {
@@ -325,11 +341,11 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
                     return;
                 }
 
-                ParentIdAndRdn suffixEntry = rdnIdx.reverseLookup( suffixId );
+                ParentIdAndRdn suffixEntry = rdnIdx.reverseLookup( partitionTxn, suffixId );
 
                 if ( suffixEntry != null )
                 {
-                    Entry entry = master.get( suffixId );
+                    Entry entry = master.get( partitionTxn, suffixId );
 
                     // Don't write the EntryDN attribute
                     entry.removeAttributes( entryDnAT );
@@ -338,7 +354,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
                     appendLdif( entry );
 
-                    appendRecursive( suffixId, suffixEntry.getNbChildren() );
+                    appendRecursive( partitionTxn, suffixId, suffixEntry.getNbChildren() );
                 }
 
                 dirty = false;
@@ -355,10 +371,10 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     }
 
 
-    private void appendRecursive( String id, int nbSibbling ) throws Exception
+    private void appendRecursive( PartitionTxn partitionTxn, String id, int nbSibbling ) throws Exception
     {
         // Start with the root
-        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = rdnIdx.forwardCursor( partitionTxn );
 
         IndexEntry<ParentIdAndRdn, String> startingPos = new IndexEntry<>();
         startingPos.setKey( new ParentIdAndRdn( id, ( Rdn[] ) null ) );
@@ -369,7 +385,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
         {
             IndexEntry<ParentIdAndRdn, String> element = cursor.get();
             String childId = element.getId();
-            Entry entry = fetch( childId );
+            Entry entry = fetch( partitionTxn, childId );
 
             // Remove the EntryDn
             entry.removeAttributes( SchemaConstants.ENTRY_DN_AT );
@@ -383,7 +399,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
             if ( nbChildren > 0 )
             {
-                appendRecursive( childId, nbChildren );
+                appendRecursive( partitionTxn, childId, nbChildren );
             }
         }
 
@@ -484,10 +500,18 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * {@inheritDoc}
      */
     @Override
-    protected void doDestroy() throws Exception
+    protected void doDestroy( PartitionTxn partitionTxn ) throws LdapException
     {
-        super.doDestroy();
-        ldifFile.close();
+        super.doDestroy( partitionTxn );
+        
+        try
+        {
+            ldifFile.close();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
     }
 
 
@@ -498,11 +522,11 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * @param enableRewriting flag to enable/disable re-writing
      * @throws LdapException
      */
-    public void setEnableRewriting( boolean enableRewriting ) throws LdapException
+    public void setEnableRewriting( PartitionTxn partitionTxn, boolean enableRewriting ) throws LdapException
     {
         this.enableRewriting = enableRewriting;
 
         // save data if found dirty 
-        rewritePartitionData();
+        rewritePartitionData( partitionTxn );
     }
 }

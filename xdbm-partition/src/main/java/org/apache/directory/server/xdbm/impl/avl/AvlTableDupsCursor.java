@@ -128,7 +128,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeValue( K key, V value ) throws LdapException, CursorException
     {
-        checkNotClosed( "beforeValue()" );
+        checkNotClosed();
         wrappedCursor.beforeKey( key );
 
         if ( dupsCursor != null )
@@ -199,7 +199,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterValue( K key, V value ) throws LdapException, CursorException
     {
-        checkNotClosed( "afterValue()" );
+        checkNotClosed();
 
         if ( dupsCursor != null )
         {
@@ -295,7 +295,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         clearValue();
         wrappedCursor.afterLast();
         wrappedTuple.setKey( null );
@@ -331,7 +331,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         clearValue();
         wrappedCursor.beforeFirst();
         wrappedTuple.setKey( null );
@@ -358,7 +358,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean first() throws LdapException, CursorException
     {
-        checkNotClosed( "first()" );
+        checkNotClosed();
         clearValue();
 
         if ( dupsCursor != null )
@@ -411,7 +411,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public Tuple<K, V> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( !valueAvailable )
         {
@@ -427,7 +427,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean last() throws LdapException, CursorException
     {
-        checkNotClosed( "last()" );
+        checkNotClosed();
         clearValue();
 
         if ( dupsCursor != null )
@@ -478,7 +478,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         /*
          * If the cursor over the values of the current key is null or is
@@ -553,7 +553,7 @@ public class AvlTableDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
         /*
          * If the cursor over the values of the current key is null or is
          * extinguished then we need to advance to the previous key.

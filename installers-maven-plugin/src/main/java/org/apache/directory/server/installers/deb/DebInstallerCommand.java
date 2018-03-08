@@ -102,7 +102,7 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
 
         if ( !getTargetDirectory().mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, getTargetDirectory() ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, getTargetDirectory() ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -119,7 +119,7 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
 
             if ( !debEtcInitdDirectory.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, debEtcInitdDirectory ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, debEtcInitdDirectory ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
@@ -139,7 +139,7 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
 
         if ( !debDebianDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, debDebianDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, debDebianDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }

@@ -1122,6 +1122,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         SearchRequest searchRequest = new SearchRequestImpl();
 
         searchRequest.setBase( baseDn );
+        
         searchRequest.setFilter( filter );
         searchRequest.setScope( scope );
         searchRequest.addAttributes( attributes );
@@ -1294,7 +1295,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         int newId = messageId.incrementAndGet();
 
-        BindOperationContext bindContext = new BindOperationContext( directoryService, null );
+        BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
 
         Dn bindDn =  bindRequest.getDn();

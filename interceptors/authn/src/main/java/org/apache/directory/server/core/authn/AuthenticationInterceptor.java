@@ -36,6 +36,7 @@ import static org.apache.directory.api.ldap.model.entry.ModificationOperation.AD
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REMOVE_ATTRIBUTE;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REPLACE_ATTRIBUTE;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,6 +65,7 @@ import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -97,6 +99,8 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.i18n.I18n;
@@ -465,6 +469,53 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         return selectedAuthenticator;
     }
+    
+    
+    private void internalModify( OperationContext opContext, ModifyOperationContext bindModCtx ) throws LdapException
+    {
+        Partition partition = opContext.getPartition();
+        bindModCtx.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            bindModCtx.setTransaction( partitionTxn );
+
+            directoryService.getPartitionNexus().modify( bindModCtx );
+
+            partitionTxn.commit();
+        }
+        catch ( LdapException le )
+        {
+            try 
+            {
+                if ( partitionTxn != null )
+                {
+                    partitionTxn.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try 
+            {
+                partitionTxn.abort();
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
+        }
+    }
 
 
     /**
@@ -565,6 +616,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             LookupOperationContext lookupContext = new LookupOperationContext( adminSession, bindDn,
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( bindContext.getPartition() );
+            lookupContext.setTransaction( bindContext.getTransaction() );
+            
             userEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
 
@@ -657,14 +711,13 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     Modification csnMod = new DefaultModification( REPLACE_ATTRIBUTE, directoryService.getAtProvider()
                         .getEntryCSN(), csnVal );
                     mods.add( csnMod );
-
                     ModifyOperationContext bindModCtx = new ModifyOperationContext( adminSession );
                     bindModCtx.setDn( bindDn );
                     bindModCtx.setEntry( userEntry );
                     bindModCtx.setModItems( mods );
                     bindModCtx.setPushToEvtInterceptor( true );
 
-                    directoryService.getPartitionNexus().modify( bindModCtx );
+                    internalModify( bindContext, bindModCtx );
                 }
             }
 
@@ -745,8 +798,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 bindModCtx.setEntry( userEntry );
                 bindModCtx.setModItems( mods );
                 bindModCtx.setPushToEvtInterceptor( true );
-
-                directoryService.getPartitionNexus().modify( bindModCtx );
+                
+                internalModify( bindContext, bindModCtx );
             }
 
             if ( isPPolicyReqCtrlPresent )
@@ -1022,6 +1075,9 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                 LookupOperationContext lookupContext = new LookupOperationContext( adminSession, modifyContext.getDn(),
                     SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                lookupContext.setPartition( modifyContext.getPartition() );
+                lookupContext.setTransaction( modifyContext.getTransaction() );
+                
                 entry = directoryService.getPartitionNexus().lookup( lookupContext );
 
                 if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )
@@ -1076,7 +1132,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             internalModifyCtx.setEntry( entry );
             internalModifyCtx.setModItems( mods );
 
-            directoryService.getPartitionNexus().modify( internalModifyCtx );
+            internalModify( modifyContext, internalModifyCtx );
 
             if ( removePwdReset || pwdModDetails.isDelete() )
             {

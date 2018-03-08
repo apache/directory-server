@@ -41,6 +41,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -197,7 +198,7 @@ public interface Store
     /**
      * Retrieve the SuffixID
      */
-    String getSuffixId() throws Exception;
+    String getSuffixId( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
@@ -237,7 +238,7 @@ public interface Store
      * User's <strong>or</strong> System's index list
      * @throws Exception If something went wrong
      */
-    boolean hasIndexOn( AttributeType attributeType ) throws Exception;
+    boolean hasIndexOn( AttributeType attributeType ) throws LdapException;
 
 
     /**
@@ -247,7 +248,7 @@ public interface Store
      * User's index list
      * @throws Exception If something went wrong
      */
-    boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
+    boolean hasUserIndexOn( AttributeType attributeType ) throws LdapException;
 
 
     /**
@@ -294,7 +295,7 @@ public interface Store
      * @param dn the normalized entry Dn
      * @return the entry's id, or <code>null</code> if the Dn doesn't exists
      */
-    String getEntryId( Dn dn ) throws Exception;
+    String getEntryId( PartitionTxn partitionTxn, Dn dn ) throws LdapException;
 
 
     /**
@@ -303,7 +304,7 @@ public interface Store
      * @param id the entry's id
      * @return the entry's Dn
      */
-    Dn getEntryDn( String id ) throws Exception;
+    Dn getEntryDn( PartitionTxn partitionTxn, String id ) throws LdapException;
 
 
     /**
@@ -314,7 +315,7 @@ public interface Store
      * @return the id of the parent entry or zero if the suffix entry UUID is used
      * @throws Exception on failures to access the underlying store
      */
-    String getParentId( String childId ) throws Exception;
+    String getParentId( PartitionTxn partitionTxn, String childId ) throws LdapException;
 
 
     /**
@@ -323,7 +324,7 @@ public interface Store
      * @return the total count of entries within this store
      * @throws Exception on failures to access the underlying store
      */
-    long count() throws Exception;
+    long count( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
@@ -333,7 +334,7 @@ public interface Store
      * @return the deleted entry if found
      * @throws Exception If the deletion failed for any reason
      */
-    Entry delete( String id ) throws LdapException;
+    Entry delete( PartitionTxn partitionTxn, String id ) throws LdapException;
 
 
     /**
@@ -343,7 +344,7 @@ public interface Store
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry fetch( String id ) throws LdapException;
+    Entry fetch( PartitionTxn partitionTxn, String id ) throws LdapException;
 
 
     /**
@@ -354,7 +355,7 @@ public interface Store
      * @return The found Entry, or null if not found
      * @throws Exception If the lookup failed for any reason (except a not found entry)
      */
-    Entry fetch( String id, Dn dn ) throws LdapException;
+    Entry fetch( PartitionTxn partitionTxn, String id, Dn dn ) throws LdapException;
 
 
     /**
@@ -364,7 +365,7 @@ public interface Store
      * @return the child count
      * @throws Exception on failures to access the underlying store
      */
-    long getChildCount( String id ) throws Exception;
+    long getChildCount( PartitionTxn partitionTxn, String id ) throws LdapException;
 
 
     /**
@@ -375,7 +376,7 @@ public interface Store
      * @return The modified entry
      * @throws Exception If the modification failed
      */
-    Entry modify( Dn dn, Modification... mods ) throws Exception;
+    Entry modify( PartitionTxn partitionTxn, Dn dn, Modification... mods ) throws LdapException;
 
 
     /**
@@ -395,7 +396,7 @@ public interface Store
      * @param entry the modified entry
      * @throws Exception if there are any errors propagating the name changes
      */
-    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
+    void rename( PartitionTxn partitionTxn, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws LdapException;
 
 
     /**
@@ -409,9 +410,8 @@ public interface Store
      * @param entry the entry to move
      * @throws Exception If the modification failed
      */
-    void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Map<String, List<ModDnAva>> modAvas, 
-        Entry modifiedEntry ) throws Exception;
-    //void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
+    void moveAndRename( PartitionTxn partitionTxn, Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Map<String, List<ModDnAva>> modAvas, 
+        Entry modifiedEntry ) throws LdapException;
 
 
     /**
@@ -444,7 +444,7 @@ public interface Store
      * @param entry The entry to move
      * @throws Exception If the move failed
      */
-    void move( Dn oldDn, Dn newSuperior, Dn newDn, Entry entry ) throws Exception;
+    void move( PartitionTxn partitionTxn, Dn oldDn, Dn newSuperior, Dn newDn, Entry entry ) throws LdapException;
 
 
     /**
