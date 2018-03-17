@@ -23,6 +23,8 @@ package org.apache.directory.server.operations.modify;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import javax.naming.ReferralException;
@@ -32,7 +34,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
@@ -135,13 +136,9 @@ public class ModifyReferralIT extends AbstractLdapTestUnit
 
         assertTrue( conn.compare( "uid=akarasuluref,ou=users,ou=system", "description", "referral to akarasulu" ) );
         
-        Entry result = conn.lookup( target, new Control[] {manageDSAIT}, "*" );
+        assertNotNull( conn.lookup( target, new Control[] {manageDSAIT}, "*" ) );
         
-        System.out.println( result );
-
-        result = conn.lookup( target, new Control[] {}, "*" );
-        
-        System.out.println( result );
+        assertNull( conn.lookup( target, new Control[] {}, "*" ) );
 
         conn.close();
     }

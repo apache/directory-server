@@ -170,15 +170,11 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
             "*", "+" );
         int count = 0;
     
-        if ( cursor.available() )
+        while ( cursor.next() )
         {
-            for ( Entry entry : cursor )
-            //while ( cursor.next() )
-            {
-                assertNotNull( entry );
-                count++;
-            }
-        } 
+            assertNotNull( cursor.get() );
+            count++;
+        }
     
         SearchResultDone done = cursor.getSearchResultDone();
     

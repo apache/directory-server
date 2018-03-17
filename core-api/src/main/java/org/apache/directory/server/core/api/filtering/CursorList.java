@@ -114,19 +114,19 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
 
         if ( ( start < 0 ) || ( start > listSize ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02005_START_INDEX_OUT_OF_RANGE, start ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_13105_START_INDEX_OUT_OF_RANGE, start ) );
         }
 
         if ( ( end < 0 ) || ( end > listSize ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02006_END_INDEX_OUT_OF_RANGE, end ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_13106_END_INDEX_OUT_OF_RANGE, end ) );
         }
 
         // check list is not empty list since the empty list is the only situation
         // where we allow for start to equal the end: in other cases it makes no sense
         if ( ( listSize > 0 ) && ( start >= end ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02007_START_INDEX_ABOVE_END_INDEX, start, end ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_13107_START_INDEX_ABOVE_END_INDEX, start, end ) );
         }
 
         this.start = start;
@@ -168,7 +168,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      */
     public void before( Entry element ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_13108_LIST_MAY_BE_SORTED ) );
     }
 
 
@@ -177,7 +177,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      */
     public void after( Entry element ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_13108_LIST_MAY_BE_SORTED ) );
     }
 
 
@@ -333,7 +333,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     {
         if ( ( index < start ) || ( index >= end ) )
         {
-            throw new CursorException( I18n.err( I18n.ERR_02009_CURSOR_NOT_POSITIONED ) );
+            throw new CursorException( I18n.err( I18n.ERR_13109_CURSOR_NOT_POSITIONED ) );
         }
 
         if ( currentCursor.available() )

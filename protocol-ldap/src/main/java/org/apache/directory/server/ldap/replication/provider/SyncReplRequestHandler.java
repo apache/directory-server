@@ -45,9 +45,9 @@ import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStat
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValueDecorator;
-import org.apache.directory.api.ldap.extras.intermediate.syncrepl.syncInfoValue.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.intermediate.syncrepl.syncInfoValue.SynchronizationInfoEnum;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SynchronizationInfoEnum;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;

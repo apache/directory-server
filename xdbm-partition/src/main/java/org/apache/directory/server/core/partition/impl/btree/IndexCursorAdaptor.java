@@ -228,7 +228,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
      */
     public boolean isAfterLast()
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_13102_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isAfterLast()" ) ) );
     }
 
@@ -238,7 +238,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
      */
     public boolean isBeforeFirst()
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_13102_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isBeforeFirst()" ) ) );
     }
 
@@ -248,7 +248,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
      */
     public boolean isFirst()
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_13102_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isFirst()" ) ) );
     }
 
@@ -258,7 +258,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
      */
     public boolean isLast()
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02014_UNSUPPORTED_OPERATION, getClass().getName()
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_13102_UNSUPPORTED_OPERATION, getClass().getName()
             .concat( "." ).concat( "isLast()" ) ) );
     }
 

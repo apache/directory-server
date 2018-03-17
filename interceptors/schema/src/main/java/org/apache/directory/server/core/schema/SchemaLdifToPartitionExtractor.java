@@ -182,7 +182,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
 
         if ( !source.getParentFile().exists() )
         {
-            throw new FileNotFoundException( I18n.err( I18n.ERR_08002, source.getAbsolutePath() ) );
+            throw new FileNotFoundException( I18n.err( I18n.ERR_11003, source.getAbsolutePath() ) );
         }
 
         InputStream in = Files.newInputStream( source.toPath() );
@@ -245,7 +245,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
                     else
                     {
                         // throw an exception : we should not have more than one entry per schema ldif file
-                        String msg = I18n.err( I18n.ERR_08003, source );
+                        String msg = I18n.err( I18n.ERR_11003, source );
                         LOG.error( msg );
                         throw new InvalidObjectException( msg );
                     }
@@ -306,7 +306,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
         }
         catch ( LdapException ne )
         {
-            String msg = I18n.err( I18n.ERR_08004, source, ne.getLocalizedMessage() );
+            String msg = I18n.err( I18n.ERR_11004, source, ne.getLocalizedMessage() );
             LOG.error( msg );
             throw new InvalidObjectException( msg );
         }
