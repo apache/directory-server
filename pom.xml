@@ -1265,9 +1265,9 @@
   </dependencies>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk</url>
+    <connection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</connection>
+    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</developerConnection>
+    <url>https://gitbox.apache.org/repos/asf?p=directory-server.git;a=tag;h=refs/tags/${project.scm.tag}</url>
   </scm>
 
   <repositories>
