@@ -101,7 +101,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
         if ( sslFilter == null )
         {
-            sslFilter = new SslFilter( sslContext );
+            sslFilter = new SslFilter( sslContext, false );
 
             // Set the cipher suite
             if ( ( cipherSuite != null ) && !cipherSuite.isEmpty() )
@@ -116,9 +116,8 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             }
             else
             {
-                // Default to a lost without SSLV3
-                sslFilter.setEnabledProtocols( new String[]
-                    { "TLSv1", "TLSv1.1", "TLSv1.2" } );
+                // default to TLS only
+                sslFilter.setEnabledProtocols( new String[]{ "TLSv1", "TLSv1.1", "TLSv1.2" } );
             }
 
             // Set the remaining SSL flags
