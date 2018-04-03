@@ -2654,11 +2654,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             rwLock.readLock().lock();
 
-            Element el = entryDnCache.get( id );
-            
-            if ( el != null )
+            if ( entryDnCache != null )
             {
-                return ( Dn ) el.getObjectValue();
+                Element el = entryDnCache.get( id );
+                
+                if ( el != null )
+                {
+                    return ( Dn ) el.getObjectValue();
+                }
             }
             
             do
