@@ -231,6 +231,7 @@
                 org.apache.directory.api.ldap.extras.extended.storedProcedure;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.extended.whoAmI;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.intermediate.syncrepl;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.intermediate.syncrepl_impl;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},
