@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.codec.Charsets;
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -359,16 +359,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             if ( !value.isHumanReadable() )
             {
-                try
-                {
-                    return new Value( attributeType, new String( value.getBytes(), "UTF-8" ) );
-                }
-                catch ( UnsupportedEncodingException uee )
-                {
-                    String message = I18n.err( I18n.ERR_47 );
-                    LOG.error( message );
-                    throw new LdapException( message );
-                }
+                return new Value( attributeType, new String( value.getBytes(), Charsets.UTF_8 ) );
             }
         }
         else
@@ -1787,17 +1778,10 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 // we have a byte[] value. It should be a String UTF-8 encoded
                 // Let's transform it
-                try
-                {
-                    String valStr = new String( value.getBytes(), "UTF-8" );
-                    attribute.remove( value );
-                    attribute.add( valStr );
-                    isModified = true;
-                }
-                catch ( UnsupportedEncodingException uee )
-                {
-                    throw new LdapException( I18n.err( I18n.ERR_281 ) );
-                }
+                String valStr = new String( value.getBytes(), Charsets.UTF_8 );
+                attribute.remove( value );
+                attribute.add( valStr );
+                isModified = true;
             }
         }
 

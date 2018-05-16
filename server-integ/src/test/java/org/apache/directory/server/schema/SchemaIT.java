@@ -304,8 +304,7 @@ public class SchemaIT extends AbstractLdapTestUnit
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER
-                    .parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parse( desc );
                 break;
             }
         }
@@ -378,8 +377,7 @@ public class SchemaIT extends AbstractLdapTestUnit
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                objectClass = OBJECT_CLASS_DESCRIPTION_SCHEMA_PARSER
-                    .parseObjectClassDescription( desc );
+                objectClass = OBJECT_CLASS_DESCRIPTION_SCHEMA_PARSER.parse( desc );
                 break;
             }
         }

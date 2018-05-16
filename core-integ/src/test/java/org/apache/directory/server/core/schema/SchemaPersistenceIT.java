@@ -289,8 +289,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER
-                    .parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parse( desc );
                 break;
             }
         }

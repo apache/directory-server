@@ -130,7 +130,7 @@ public class DescriptionParsers
             try
             {
                 syntaxCheckerDescriptions[pos++] = syntaxCheckerParser
-                    .parseSyntaxCheckerDescription( value.getValue() );
+                    .parse( value.getValue() );
             }
             catch ( ParseException e )
             {
@@ -161,7 +161,7 @@ public class DescriptionParsers
         {
             try
             {
-                normalizerDescriptions[pos++] = normalizerParser.parseNormalizerDescription( value.getValue() );
+                normalizerDescriptions[pos++] = normalizerParser.parse( value.getValue() );
             }
             catch ( ParseException e )
             {
@@ -192,7 +192,7 @@ public class DescriptionParsers
         {
             try
             {
-                comparatorDescriptions[pos++] = comparatorParser.parseComparatorDescription( value.getValue() );
+                comparatorDescriptions[pos++] = comparatorParser.parse( value.getValue() );
             }
             catch ( ParseException e )
             {
@@ -233,7 +233,7 @@ public class DescriptionParsers
 
             try
             {
-                attributeType = attributeTypeParser.parseAttributeTypeDescription( value.getValue() );
+                attributeType = attributeTypeParser.parse( value.getValue() );
             }
             catch ( ParseException e )
             {
@@ -316,7 +316,7 @@ public class DescriptionParsers
 
             try
             {
-                objectClass = objectClassParser.parseObjectClassDescription( value.getValue() );
+                objectClass = objectClassParser.parse( value.getValue() );
             }
             catch ( ParseException e )
             {
@@ -404,7 +404,7 @@ public class DescriptionParsers
 
             try
             {
-                matchingRuleUse = matchingRuleUseParser.parseMatchingRuleUseDescription( value.getValue() );
+                matchingRuleUse = matchingRuleUseParser.parse( value.getValue() );
                 matchingRuleUse.setSpecification( value.getValue() );
             }
             catch ( ParseException e )
@@ -448,7 +448,7 @@ public class DescriptionParsers
 
             try
             {
-                ldapSyntax = syntaxParser.parseLdapSyntaxDescription( value.getValue() );
+                ldapSyntax = syntaxParser.parse( value.getValue() );
                 ldapSyntax.setSpecification( value.getValue() );
             }
             catch ( ParseException e )
@@ -500,7 +500,7 @@ public class DescriptionParsers
 
             try
             {
-                matchingRule = matchingRuleParser.parseMatchingRuleDescription( value.getValue() );
+                matchingRule = matchingRuleParser.parse( value.getValue() );
                 matchingRule.setSpecification( value.getValue() );
             }
             catch ( ParseException e )
@@ -550,7 +550,7 @@ public class DescriptionParsers
 
             try
             {
-                ditStructureRule = ditStructureRuleParser.parseDITStructureRuleDescription( value.getValue() );
+                ditStructureRule = ditStructureRuleParser.parse( value.getValue() );
                 ditStructureRule.setSpecification( value.getValue() );
             }
             catch ( ParseException e )
@@ -594,7 +594,7 @@ public class DescriptionParsers
 
             try
             {
-                ditContentRule = ditContentRuleParser.parseDITContentRuleDescription( value.getValue() );
+                ditContentRule = ditContentRuleParser.parse( value.getValue() );
                 ditContentRule.setSpecification( value.getValue() );
             }
             catch ( ParseException e )
@@ -638,7 +638,7 @@ public class DescriptionParsers
 
             try
             {
-                nameForm = nameFormParser.parseNameFormDescription( value.getValue() );
+                nameForm = nameFormParser.parse( value.getValue() );
                 nameForm.setSpecification( value.getValue() );
             }
             catch ( ParseException e )
