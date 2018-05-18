@@ -61,7 +61,7 @@
     <commons.daemon.version>1.0.15</commons.daemon.version>
     <commons.lang.version>2.6</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
-    <commons.pool.version>1.6</commons.pool.version>
+    <commons.pool.version>2.5.0</commons.pool.version>
     <dnsjava.version>2.1.8</dnsjava.version>
     <ehcache.version>2.10.4</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
@@ -1055,8 +1055,8 @@
       </dependency>
 
       <dependency>
-        <groupId>commons-pool</groupId>
-        <artifactId>commons-pool</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-pool2</artifactId>
         <version>${commons.pool.version}</version>
       </dependency>
 
