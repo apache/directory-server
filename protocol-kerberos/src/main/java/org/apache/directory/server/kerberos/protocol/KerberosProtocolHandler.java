@@ -340,5 +340,6 @@ public class KerberosProtocolHandler implements IoHandler
     
     public void inputClosed( IoSession session )
     {
+        session.closeNow();
     }
 }

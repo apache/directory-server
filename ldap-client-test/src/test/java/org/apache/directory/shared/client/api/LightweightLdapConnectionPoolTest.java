@@ -26,8 +26,8 @@ import static org.junit.Assert.assertNotNull;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.pool.PoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
@@ -215,13 +215,13 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
         config.setTimeout( 30000 );
-        PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
+        PooledObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         pool = new LdapConnectionPool( factory );
         pool.setTestOnBorrow( true );
-        pool.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_GROW );
+        pool.setBlockWhenExhausted( !GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
         pool.setMaxIdle( 0 );
 
-        System.out.println( "Max Active connections =: " + pool.getMaxActive() );
+        System.out.println( "Max Active connections =: " + pool.getMaxTotal() );
     }
 
 
@@ -248,13 +248,13 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
         config.setTimeout( 30000 );
-        PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
+        PooledObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         LdapConnectionPool poolNoIdle = new LdapConnectionPool( factory );
         poolNoIdle.setTestOnBorrow( true );
-        poolNoIdle.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_GROW );
+        poolNoIdle.setBlockWhenExhausted( !GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
         poolNoIdle.setMaxIdle( 0 );
 
-        System.out.println( "Max Active connections =: " + pool.getMaxActive() );
+        System.out.println( "Max Active connections =: " + pool.getMaxTotal() );
 
         for ( int j = 0; j < 1; j++ )
         {
@@ -299,12 +299,12 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
         config.setTimeout( 30000 );
-        PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
+        PooledObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         LdapConnectionPool poolWithIdle = new LdapConnectionPool( factory );
         poolWithIdle.setTestOnBorrow( true );
-        poolWithIdle.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_GROW );
+        poolWithIdle.setBlockWhenExhausted( GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
 
-        System.out.println( "Max Active connections =: " + pool.getMaxActive() );
+        System.out.println( "Max Active connections =: " + pool.getMaxTotal() );
 
         for ( int j = 0; j < 1; j++ )
         {
@@ -522,11 +522,11 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setLdapPort( getLdapServer().getPort() );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
-        PoolableObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
+        PooledObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         LdapConnectionPool pool = new LdapConnectionPool( factory );
-        pool.setMaxActive( 1 );
+        pool.setMaxTotal( 1 );
         pool.setTestOnBorrow( true );
-        pool.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_FAIL );
+        pool.setBlockWhenExhausted( GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
 
         for ( int i = 0; i < 100; i++ )
         {

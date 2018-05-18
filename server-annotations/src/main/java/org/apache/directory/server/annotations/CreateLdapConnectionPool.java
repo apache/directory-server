@@ -27,7 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.commons.pool.PoolableObjectFactory;
+import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.directory.ldap.client.api.DefaultLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.DefaultLdapConnectionValidator;
 import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
@@ -64,7 +64,7 @@ public @interface CreateLdapConnectionPool
     
     
     /** LdapConnection pool factory implementation class */
-    Class<? extends PoolableObjectFactory<LdapConnection>> factoryClass() default 
+    Class<? extends PooledObjectFactory<LdapConnection>> factoryClass() default 
             DefaultPoolableLdapConnectionFactory.class;
     
     
