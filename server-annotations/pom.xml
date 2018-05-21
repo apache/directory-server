@@ -137,7 +137,7 @@
                 org.apache.directory.server.factory;version=${project.version}
             </Export-Package>
             <Import-Package>
-                org.apache.commons.pool;version=${commons.pool.version},
+                org.apache.commons.pool2;version=${commons.pool.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},
