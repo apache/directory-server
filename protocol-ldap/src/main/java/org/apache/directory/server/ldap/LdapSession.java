@@ -598,7 +598,7 @@ public class LdapSession
 
         if ( principal != null )
         {
-            sb.append( principal.getName() );
+            sb.append( principal );
             sb.append( "," );
         }
 
