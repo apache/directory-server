@@ -112,7 +112,7 @@ import org.slf4j.LoggerFactory;
 
         if ( lines.size() == 0 )
         {
-            LOG.warn( "The ldif file is empty" );
+            LOG.warn( I18n.msg( I18n.MSG_13414_LDIF_FILE_EMPTY ) );
             return;
         }
 
@@ -151,7 +151,7 @@ import org.slf4j.LoggerFactory;
     {
         try
         {
-            LOG.debug( "next(): -- called" );
+            LOG.debug( I18n.msg( I18n.MSG_13411_NEXT_CALLED ) );
 
             nextTuple = firstFetchedTuple;
             
@@ -180,7 +180,7 @@ import org.slf4j.LoggerFactory;
         catch ( LdapLdifException ne )
         {
             ne.printStackTrace();
-            LOG.error( I18n.err( I18n.ERR_12071 ) );
+            LOG.error( I18n.err( I18n.ERR_13430_PREMATURE_LDIF_ITERATOR_TERMINATION ) );
             error = ne;
             return null;
         }
@@ -194,7 +194,8 @@ import org.slf4j.LoggerFactory;
     {
         if ( ( lines == null ) || ( lines.size() == 0 ) )
         {
-            LOG.debug( "The entry is empty : end of ldif file" );
+            LOG.debug( I18n.msg( I18n.MSG_13408_END_OF_LDIF ) );
+            
             return null;
         }
 
@@ -275,8 +276,8 @@ import org.slf4j.LoggerFactory;
                         }
                         else if ( sb.length() == 0 )
                         {
-                            LOG.error( I18n.err( I18n.ERR_12062_EMPTY_CONTINUATION_LINE ) );
-                            throw new LdapLdifException( I18n.err( I18n.ERR_12061_LDIF_PARSING_ERROR ) );
+                            LOG.error( I18n.err( I18n.ERR_13424_EMPTY_CONTINUATION_LINE ) );
+                            throw new LdapLdifException( I18n.err( I18n.ERR_13462_LDIF_PARSING_ERROR ) );
                         }
                         else
                         {
@@ -306,7 +307,7 @@ import org.slf4j.LoggerFactory;
         }
         catch ( IOException ioe )
         {
-            throw new LdapLdifException( I18n.err( I18n.ERR_12063_ERROR_WHILE_READING_LDIF_LINE ), ioe );
+            throw new LdapLdifException( I18n.err( I18n.ERR_13463_ERROR_WHILE_READING_LDIF_LINE ), ioe );
         }
 
         // Stores the current line if necessary.

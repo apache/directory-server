@@ -42,7 +42,7 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangePasswordProtocolHandler implements IoHandler
+public class ChangePasswordProtocolHandler extends IoHandlerAdapter
 {
     private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordProtocolHandler.class );
 
@@ -108,7 +108,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.debug( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close( true );
+        session.closeNow();
     }
 
 
