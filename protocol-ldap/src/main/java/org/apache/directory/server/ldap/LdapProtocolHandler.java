@@ -20,14 +20,12 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.api.ldap.codec.api.MessageDecorator;
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.api.ldap.model.message.Control;
-import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.Message;
 import org.apache.directory.api.ldap.model.message.Request;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
@@ -36,7 +34,8 @@ import org.apache.directory.api.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.api.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.ssl.SslFilter;
+import org.apache.mina.filter.FilterEvent;
+import org.apache.mina.filter.ssl.SslEvent;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +135,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         {
             try
             {
-                ldapSession.getIoSession().close( true );
+                ldapSession.getIoSession().closeNow();
             }
             catch ( Throwable t )
             {
@@ -162,6 +161,30 @@ class LdapProtocolHandler extends DemuxingIoHandler
         super.messageSent( session, message );
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void event( IoSession session, FilterEvent event ) throws Exception 
+    {
+        Object message;
+        
+        if ( event instanceof SslEvent )
+        {
+            if ( ( ( SslEvent ) event ) == SslEvent.SECURED ) 
+            {
+                LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
+                LOG.debug( "Session {} secured", ldapSession ); 
+            }
+            else
+            {
+                LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
+                LOG.debug( "Session {} not secured", ldapSession ); 
+            }
+        }
+    }
+
 
     /**
      * {@inheritDoc}
@@ -178,22 +201,6 @@ class LdapProtocolHandler extends DemuxingIoHandler
         // handler should react to only SESSION_UNSECURED message
         // and degrade authentication level to 'anonymous' as specified
         // in the RFC, and this is no threat.
-
-        if ( message == SslFilter.SESSION_SECURED )
-        {
-            ExtendedRequest req =
-                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
-                    "SECURED".getBytes( "ISO-8859-1" ) );
-            message = req;
-        }
-        else if ( message == SslFilter.SESSION_UNSECURED )
-        {
-            ExtendedRequest req =
-                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
-                    "SECURED".getBytes( "ISO-8859-1" ) );
-            message = req;
-        }
-
         if ( ( ( Request ) message ).getControls().size() > 0
             && message instanceof ResultResponseRequest )
         {
@@ -238,6 +245,6 @@ class LdapProtocolHandler extends DemuxingIoHandler
         session.write( NoticeOfDisconnect.PROTOCOLERROR );
         LdapSession ldapSession = this.ldapServer.getLdapSessionManager().removeLdapSession( session );
         cleanUpSession( ldapSession );
-        session.close( true );
+        session.closeNow();
     }
 }

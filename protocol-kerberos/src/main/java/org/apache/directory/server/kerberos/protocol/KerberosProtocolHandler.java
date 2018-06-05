@@ -40,7 +40,7 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosProtocolHandler implements IoHandler
+public class KerberosProtocolHandler extends IoHandlerAdapter
 {
     /** The loggers for this class */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosProtocolHandler.class );
@@ -156,7 +156,7 @@ public class KerberosProtocolHandler implements IoHandler
     {
         LOG.error( "{} EXCEPTION", session.getRemoteAddress(), cause );
         LOG_KRB.error( "{} EXCEPTION", session.getRemoteAddress(), cause );
-        session.close( true );
+        session.closeNow();
     }
 
 

@@ -34,7 +34,7 @@ import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.service.DnsContext;
 import org.apache.directory.server.dns.service.DomainNameService;
 import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DnsProtocolHandler implements IoHandler
+public class DnsProtocolHandler extends IoHandlerAdapter
 {
     private static final Logger LOG = LoggerFactory.getLogger( DnsProtocolHandler.class );
 

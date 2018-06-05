@@ -27,7 +27,7 @@ import java.net.InetSocketAddress;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
 import org.apache.directory.server.dhcp.messages.MessageType;
 import org.apache.directory.server.dhcp.service.DhcpService;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @see org.apache.directory.server.dhcp.service.DhcpService
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DhcpProtocolHandler implements IoHandler
+public class DhcpProtocolHandler extends IoHandlerAdapter
 {
     private static final Logger LOG = LoggerFactory.getLogger( DhcpProtocolHandler.class );
 
