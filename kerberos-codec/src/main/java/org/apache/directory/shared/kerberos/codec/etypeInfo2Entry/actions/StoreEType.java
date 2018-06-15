@@ -68,10 +68,10 @@ public class StoreEType extends GrammarAction<ETypeInfo2EntryContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // The etype is an integer
@@ -97,8 +97,7 @@ public class StoreEType extends GrammarAction<ETypeInfo2EntryContainer>
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
+            LOG.error( I18n.err( I18n.ERR_01310_INTEGER_DECODING_ERROR, Strings.dumpBytes( value.getData() ) ) );
 
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( ide.getMessage() );

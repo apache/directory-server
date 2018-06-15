@@ -28,7 +28,6 @@ import org.apache.directory.api.asn1.ber.tlv.IntegerDecoder;
 import org.apache.directory.api.asn1.ber.tlv.IntegerDecoderException;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.api.i18n.I18n;
-import org.apache.directory.api.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,10 +76,10 @@ public abstract class AbstractReadPvno<E extends Asn1Container> extends GrammarA
         // The Length should not be null and should be 1
         if ( tlv.getLength() != 1 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         BerValue value = tlv.getValue();
@@ -91,7 +90,7 @@ public abstract class AbstractReadPvno<E extends Asn1Container> extends GrammarA
 
             if ( pvno != 5 )
             {
-                LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), "The PVNO should be 5" ) );
+                LOG.error( I18n.err( I18n.ERR_01306_VALUE_NOT_IN_RANGE, 5, 5 ) );
 
                 // This will generate a PROTOCOL_ERROR
                 throw new DecoderException( "The PVNO should be 5" );
@@ -106,8 +105,7 @@ public abstract class AbstractReadPvno<E extends Asn1Container> extends GrammarA
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
-                .getLocalizedMessage() ) );
+            LOG.error( I18n.err( I18n.ERR_01306_VALUE_NOT_IN_RANGE, 5, 5 ) );
 
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( ide.getMessage() );
