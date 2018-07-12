@@ -76,7 +76,7 @@ public enum ReferralHandlingMode
      * @return the referral handling mode enumeration constant
      * @throws IllegalArgumentException if the value is not a recognized value
      */
-    public static final ReferralHandlingMode getModeFromJndi( String jndiValue )
+    public static ReferralHandlingMode getModeFromJndi( String jndiValue )
     {
         jndiValue = Strings.toLowerCaseAscii( Strings.trim( jndiValue ) );
 
