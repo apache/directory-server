@@ -137,7 +137,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         else
         {
             // At least, we associates the Normalizer with the schema
-            schemaManager.getRegistries().associateWithSchema( errors, normalizer );
+            schemaManager.getRegistries().associateWithSchema( normalizer );
 
             if ( !errors.isEmpty() )
             {
