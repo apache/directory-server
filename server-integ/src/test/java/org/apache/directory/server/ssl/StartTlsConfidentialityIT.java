@@ -226,7 +226,18 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         ctx.addToEnvironment( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         ctx.addToEnvironment( Context.SECURITY_CREDENTIALS, "secret" );
         ctx.addToEnvironment( Context.SECURITY_AUTHENTICATION, "simple" );
-        ctx.reconnect( null );
+
+        /*
+         * Since Java 9 behavior of LdapContext.reconnect() changed. It no longer uses the existing
+         * physical connection but always creates a new one, hence previous StartTLS is not established.
+         * 
+         * However calling reconnect explicitly is not mandatory, addToEnvironment causes bind
+         * with the next operation.
+         * 
+         * Issue: https://bugs.openjdk.java.net/browse/JDK-8059009
+         * Commit: http://hg.openjdk.java.net/jdk9/jdk9/jdk/rev/021b47694183
+         */
+        //ctx.reconnect( null );
 
         // -------------------------------------------------------------------
         // do a search and confirm
