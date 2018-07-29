@@ -130,6 +130,16 @@ public enum EncryptionType
     AES256_CTS_HMAC_SHA1_96(18, "aes256-cts-hmac-sha1-96"),
 
     /**
+     * The aes128-cts-hmac-sha256-128 encryption type (RFC8009).
+     */
+    AES128_CTS_HMAC_SHA256_128(19, "aes128-cts-hmac-sha256-128"),
+
+    /**
+     * The aes256-cts-hmac-sha384-192 encryption type (RFC8009).
+     */
+    AES256_CTS_HMAC_SHA384_192(20, "aes256-cts-hmac-sha384-192"),
+
+    /**
      * The rc4-hmac encryption type.
      */
     RC4_HMAC(23, "rc4-hmac"),
