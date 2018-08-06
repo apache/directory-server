@@ -116,7 +116,7 @@ public class BogusSSLContextFactory
     private static SSLContext createBougusServerSSLContext() throws GeneralSecurityException, IOException
     {
         // Create keystore
-        KeyStore ks = KeyStore.getInstance( "JKS" );
+        KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
         InputStream in = null;
         try
         {

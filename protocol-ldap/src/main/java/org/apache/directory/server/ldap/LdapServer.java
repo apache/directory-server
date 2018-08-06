@@ -25,10 +25,12 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -361,12 +363,14 @@ public class LdapServer extends DirectoryBackedService
      */
     public void loadKeyStore() throws Exception
     {
+        char[] keyStorePassword = Strings.isEmpty( certificatePassword ) ? null : certificatePassword.toCharArray();
+
         if ( Strings.isEmpty( keystoreFile ) )
         {
             Provider provider = Security.getProvider( "SUN" );
             LOG.debug( "provider = {}", provider );
             CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( getDirectoryService() );
-            keyStore = new KeyStore( coreKeyStoreSpi, provider, "JKS" )
+            keyStore = new KeyStore( coreKeyStoreSpi, provider, KeyStore.getDefaultType() )
             {
             };
 
@@ -385,8 +389,37 @@ public class LdapServer extends DirectoryBackedService
             
             try ( InputStream is = Files.newInputStream( Paths.get( keystoreFile ) ) )
             {
-                keyStore.load( is, null );
+                keyStore.load( is, keyStorePassword );
             }
+        }
+
+        /*
+         * Verify key store:
+         * * Must only contain one entry which must be a key entry
+         * * Must contain a certificate chain
+         * * The private key must be recoverable by the key store password
+         */
+        Enumeration<String> aliases = keyStore.aliases();
+        if ( !aliases.hasMoreElements() )
+        {
+            throw new KeyStoreException( "Key store is empty" );
+        }
+        String alias = aliases.nextElement();
+        if ( aliases.hasMoreElements() )
+        {
+            throw new KeyStoreException( "Key store contains more than one entry" );
+        }
+        if ( !keyStore.isKeyEntry( alias ) )
+        {
+            throw new KeyStoreException( "Key store must contain a key entry" );
+        }
+        if ( keyStore.getCertificateChain( alias ) == null )
+        {
+            throw new KeyStoreException( "Key store must contain a certificate chain" );
+        }
+        if ( keyStore.getKey( alias, keyStorePassword ) == null )
+        {
+            throw new KeyStoreException( "Private key must be recoverable by the key store password" );
         }
 
         // Set up key manager factory to use our key store
@@ -399,14 +432,7 @@ public class LdapServer extends DirectoryBackedService
 
         keyManagerFactory = KeyManagerFactory.getInstance( algorithm );
 
-        if ( Strings.isEmpty( certificatePassword ) )
-        {
-            keyManagerFactory.init( keyStore, null );
-        }
-        else
-        {
-            keyManagerFactory.init( keyStore, certificatePassword.toCharArray() );
-        }
+        keyManagerFactory.init( keyStore, keyStorePassword );
     }
 
 
@@ -1646,7 +1672,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * @return The certificate passord
+     * @return The certificate password
      */
     public String getCertificatePassword()
     {
@@ -1655,8 +1681,8 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * Set the certificate passord.
-     * @param certificatePassword the certificate passord
+     * Set the certificate password.
+     * @param certificatePassword the certificate password
      */
     public void setCertificatePassword( String certificatePassword )
     {

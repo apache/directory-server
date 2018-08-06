@@ -214,7 +214,7 @@ public class HttpServer
                 }
 
                 SslContextFactory sslContextFactory = new SslContextFactory();
-                sslContextFactory.setKeyStoreType( "JKS" );
+                sslContextFactory.setKeyStoreType( KeyStore.getDefaultType() );
                 sslContextFactory.setKeyStorePath( ksFile.getAbsolutePath() );
                 sslContextFactory.setKeyStorePassword( password );
                 sslContextFactory.setKeyManagerPassword( password );

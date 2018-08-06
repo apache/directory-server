@@ -131,6 +131,11 @@ public class StartTlsIT extends AbstractLdapTestUnit
         }
 
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
+
+        System.setProperty( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
+        System.setProperty( "javax.net.ssl.trustStorePassword", "changeit" );
+        System.setProperty( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
+        System.setProperty( "javax.net.ssl.keyStorePassword", "changeit" );
     }
 
 
@@ -147,6 +152,11 @@ public class StartTlsIT extends AbstractLdapTestUnit
 
         LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
         getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
+
+        System.clearProperty( "javax.net.ssl.trustStore" );
+        System.clearProperty( "javax.net.ssl.trustStorePassword" );
+        System.clearProperty( "javax.net.ssl.keyStore" );
+        System.clearProperty( "javax.net.ssl.keyStorePassword" );
     }
 
 
@@ -212,9 +222,6 @@ public class StartTlsIT extends AbstractLdapTestUnit
                 System.out.println( "Performing " + ii + "-th iteration to connect via StartTLS." );
             }
 
-            System.setProperty( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
-            System.setProperty( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
-            System.setProperty( "javax.net.ssl.keyStorePassword", "changeit" );
             LOG.debug( "testStartTls() test starting ... " );
 
             // Set up environment for creating initial context

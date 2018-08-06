@@ -100,7 +100,6 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
 
     boolean oldConfidentialityRequiredValue;
 
-
     /**
      * Sets up the key store and installs the self signed certificate for the 
      * server (created on first startup) which is to be used by the StartTLS 
@@ -137,6 +136,12 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         }
 
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
+
+        System.setProperty( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
+        System.setProperty( "javax.net.ssl.trustStorePassword", "changeit" );
+        System.setProperty( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
+        System.setProperty( "javax.net.ssl.keyStorePassword", "changeit" );
+
     }
 
 
@@ -153,14 +158,16 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
 
         LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
         getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
+
+        System.clearProperty( "javax.net.ssl.trustStore" );
+        System.clearProperty( "javax.net.ssl.trustStorePassword" );
+        System.clearProperty( "javax.net.ssl.keyStore" );
+        System.clearProperty( "javax.net.ssl.keyStorePassword" );
     }
 
 
     private LdapContext getSecuredContext() throws Exception
     {
-        System.setProperty( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
-        System.setProperty( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
-        System.setProperty( "javax.net.ssl.keyStorePassword", "changeit" );
         LOG.debug( "testStartTls() test starting ... " );
 
         // Set up environment for creating initial context
