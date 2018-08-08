@@ -328,6 +328,7 @@ public class GroupCache
      *
      * @param name the normalized Dn of the group entry
      * @param entry the attributes of entry being deleted
+     * @throws LdapException If we wasn't able to delete the entry from the cache
      */
     public void groupDeleted( Dn name, Entry entry ) throws LdapException
     {
@@ -393,6 +394,7 @@ public class GroupCache
      * @param name the normalized name of the group entry modified
      * @param mods the modification operations being performed
      * @param entry the group entry being modified
+     * @param schemaManager The SchemaManager instance
      * @throws LdapException if there are problems accessing attribute  values
      */
     public void groupModified( Dn name, List<Modification> mods, Entry entry, SchemaManager schemaManager )
@@ -511,7 +513,7 @@ public class GroupCache
      * Gets the set of groups a user is a member of.  The groups are returned
      * as normalized Name objects within the set.
      *
-     * @param member the member (user) to get the groups for
+     * @param memberDn the member (user) to get the groups for
      * @return a Set of Name objects representing the groups
      * @throws LdapException if there are problems accessing attribute  values
      */

@@ -92,16 +92,16 @@ public interface Journal
      * Initialize the Journal.
      * 
      * @param service The associated DirectoryService
-     * @throws Exception If something went wrong 
+     * @throws LdapException If something went wrong 
      */
-    void init( DirectoryService service ) throws Exception;
+    void init( DirectoryService service ) throws LdapException;
 
 
     /**
      * Destroy the journal service
-     * @throws Exception If something went wrong
+     * @throws LdapException If something went wrong
      */
-    void destroy() throws Exception;
+    void destroy() throws LdapException;
 
 
     /**

@@ -69,7 +69,7 @@ public interface ChangeLog
      * Gets the current revision for the server.
      *
      * @return the current revision
-     * @throws Exception if there is a problem accessing this information
+     * @throws LdapException if there is a problem accessing this information
      */
     long getCurrentRevision() throws LdapException;
 
@@ -82,7 +82,7 @@ public interface ChangeLog
      * @param forward LDIF of the change going to the next state
      * @param reverse LDIF (anti-operation): the change required to revert this change
      * @return the new revision reached after having applied the forward LDIF
-     * @throws Exception if there are problems logging the change
+     * @throws LdapException if there are problems logging the change
      */
     ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws LdapException;
 
@@ -95,7 +95,7 @@ public interface ChangeLog
      * @param forward LDIF of the change going to the next state
      * @param reverses LDIF (anti-operation): the changes required to revert this change
      * @return the new revision reached after having applied the forward LDIF
-     * @throws Exception if there are problems logging the change
+     * @throws LdapException if there are problems logging the change
      */
     ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws LdapException;
 
@@ -199,7 +199,7 @@ public interface ChangeLog
 
     /**
      * @return The latest tag
-     * @throws Exception if there is a problem taking the latest tag
+     * @throws LdapException if there is a problem taking the latest tag
      */
     Tag getLatest() throws LdapException;
 
@@ -208,23 +208,23 @@ public interface ChangeLog
      * Initialize the ChangeLog system.
      * 
      * @param service The associated DirectoryService
-     * @throws Exception
+     * @throws LdapException If the initialization failed
      */
-    void init( DirectoryService service ) throws Exception;
+    void init( DirectoryService service ) throws LdapException;
 
 
     /**
      * Flush the changes to disk
-     * @throws Exception If the flush failed
+     * @throws LdapException If the flush failed
      */
-    void sync() throws Exception;
+    void sync() throws LdapException;
 
 
     /**
      * Destroy the changeLog
-     * @throws Exception 
+     * @throws LdapException 
      */
-    void destroy() throws Exception;
+    void destroy() throws LdapException;
 
 
     /**

@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -228,7 +229,7 @@ public class DirectoryServiceAnnotationTest
 
 
         @Override
-        public LdapPrincipal authenticate( BindOperationContext ctx ) throws Exception
+        public LdapPrincipal authenticate( BindOperationContext ctx ) throws LdapException
         {
             dummyAuthenticatorCalled = true;
             return new LdapPrincipal(

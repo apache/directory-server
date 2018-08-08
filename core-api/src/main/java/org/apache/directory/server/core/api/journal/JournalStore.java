@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.api.journal;
 
 
+import java.io.IOException;
+
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -37,25 +39,25 @@ public interface JournalStore
      * Initialize the store.
      * 
      * @param service The associated DirectoryService
-     * @throws Exception If the initialization failed
+     * @throws IOException If the initialization failed
      */
-    void init( DirectoryService service ) throws Exception;
+    void init( DirectoryService service ) throws IOException;
 
 
     /**
      * Write the changes on disk
      * 
-     * @throws Exception If the write failed
+     * @throws IOException If the write failed
      */
-    void sync() throws Exception;
+    void sync() throws IOException;
 
 
     /**
      * Destroy the logs. 
      * 
-     * @throws Exception If we can't destroy the logs
+     * @throws IOException If we can't destroy the logs
      */
-    void destroy() throws Exception;
+    void destroy() throws IOException;
 
 
     /**

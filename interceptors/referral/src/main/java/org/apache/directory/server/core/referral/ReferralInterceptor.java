@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.referral;
 
 
+import javax.naming.Context;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -50,8 +52,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An service which is responsible referral handling behavoirs.  It manages
- * referral handling behavoir when the {@link Context#REFERRAL} is implicitly
+ * An service which is responsible referral handling behaviors.  It manages
+ * referral handling behavior when the {@link Context#REFERRAL} is implicitly
  * or explicitly set to "ignore", when set to "throw" and when set to "follow".
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

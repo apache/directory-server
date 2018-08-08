@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A name normalization service.  This service makes sure all relative and distinguished
  * names are normalized before calls are made against the respective interface methods
- * on {@link DefaultPartitionNexus}.
+ * on DefaultPartitionNexus.
  *
  * The Filters are also normalized.
  *

@@ -128,19 +128,27 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
 
     @Override
-    public void init( DirectoryService service ) throws Exception
+    public void init( DirectoryService service ) throws LdapException
     {
         workingDirectory = service.getInstanceLayout().getLogDirectory();
         this.directoryService = service;
-        loadRevision();
-        loadTags();
-        loadChangeLog();
+        
+        try
+        {
+            loadRevision();
+            loadTags();
+            loadChangeLog();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapException( ioe.getMessage(), ioe );
+        }
     }
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void loadRevision() throws Exception
+    private void loadRevision() throws IOException
     {
         File revFile = new File( workingDirectory, REV_FILE );
 
@@ -176,7 +184,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
-    private void saveRevision() throws Exception
+    private void saveRevision() throws IOException
     {
         File revFile = new File( workingDirectory, REV_FILE );
 
@@ -199,7 +207,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void saveTags() throws Exception
+    private void saveTags() throws IOException
     {
         File tagFile = new File( workingDirectory, TAG_FILE );
 
@@ -256,7 +264,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void loadTags() throws Exception
+    private void loadTags() throws IOException
     {
         File revFile = new File( workingDirectory, REV_FILE );
 
@@ -325,7 +333,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void loadChangeLog() throws Exception
+    private void loadChangeLog() throws IOException, LdapException
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
 
@@ -376,7 +384,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void saveChangeLog() throws Exception
+    private void saveChangeLog() throws IOException
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
 
@@ -431,11 +439,18 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
 
     @Override
-    public void sync() throws Exception
+    public void sync() throws LdapException
     {
-        saveRevision();
-        saveTags();
-        saveChangeLog();
+        try
+        {
+            saveRevision();
+            saveTags();
+            saveChangeLog();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapException( ioe.getMessage(), ioe );
+        }
     }
 
 
@@ -443,11 +458,18 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
      * Save logs, tags and revision on disk, and clean everything in memory
      */
     @Override
-    public void destroy() throws Exception
+    public void destroy() throws LdapException
     {
-        saveRevision();
-        saveTags();
-        saveChangeLog();
+        try
+        {
+            saveRevision();
+            saveTags();
+            saveChangeLog();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapException( ioe.getMessage(), ioe );
+        }
     }
 
 

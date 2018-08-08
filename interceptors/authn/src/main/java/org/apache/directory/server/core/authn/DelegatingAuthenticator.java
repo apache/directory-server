@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.authn;
 
 
+import java.io.IOException;
 import java.net.SocketAddress;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
@@ -78,6 +79,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
     /**
      * Creates a new instance.
      * @see AbstractAuthenticator
+     * @param baseDn The base Dn
      */
     public DelegatingAuthenticator( Dn baseDn )
     {
@@ -89,6 +91,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
      * Creates a new instance, for a specific authentication level.
      * @see AbstractAuthenticator
      * @param type The relevant AuthenticationLevel
+     * @param baseDn The base Dn
      */
     protected DelegatingAuthenticator( AuthenticationLevel type, Dn baseDn )
     {
@@ -218,7 +221,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
      */
     @Override
     public LdapPrincipal authenticate( BindOperationContext bindContext )
-        throws Exception
+        throws LdapException
     {
         LdapPrincipal principal = null;
 
@@ -319,7 +322,14 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         }
         finally
         {
-            ldapConnection.close();
+            try
+            {
+                ldapConnection.close();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
     }
 

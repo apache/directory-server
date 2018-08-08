@@ -106,6 +106,8 @@ public abstract class AbstractLayout
 
     /**
      * Creates the required directories (if they don't already exist).
+     * 
+     * @throws IOException If the directory cannot be created 
      */
     public void mkdirs() throws IOException
     {

@@ -137,9 +137,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      *
      * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
      * @param rootDse the root entry for the DSA
-     * @throws javax.naming.Exception on failure to initialize
+     * @throws LdapException on failure to initialize
      */
-    public DefaultPartitionNexus( Entry rootDse ) throws Exception
+    public DefaultPartitionNexus( Entry rootDse ) throws LdapException
     {
         id = NEXUS_ID;
         suffixDn = null;

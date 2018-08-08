@@ -1129,7 +1129,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
     // Interceptor initialization
     //-------------------------------------------------------------------------------------------
     /**
-     * Registers and initializes all {@link Authenticator}s to this service.
+     * Registers and initializes all AdministrativePoints to this service.
      */
     @Override
     public void init( DirectoryService directoryService ) throws LdapException
@@ -1174,8 +1174,9 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      * <ul>
      * <li>If it's an AA, then the added role should be the only one</li>
      * <li>It's not possible to add IA and SA at the same time</li>
-     * @param addContext The {@link AddOperationContext} instance
+     * </ul>
      * 
+     * @param addContext The {@link AddOperationContext} instance
      * @throws LdapException If we had some error while processing the Add operation
      */
     @Override
@@ -1232,7 +1233,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
 
     /**
-     * We have to check that we can remove the associated AdministrativePoint : <br/>
+     * We have to check that we can remove the associated AdministrativePoint : <br>
      * <ul>
      * <li> if we remove an AAP, no descendant IAP should remain orphan</li>
      * <li> If we remove a SAP, no descendant IAP should remain orphan</li>

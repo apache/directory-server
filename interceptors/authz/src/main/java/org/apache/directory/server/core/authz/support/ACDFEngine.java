@@ -40,7 +40,7 @@ import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
 
 /**
  * An implementation of Access Control Decision Function (18.8, X.501).
- * <br/>
+ * <br>
  * This engine simply filters the collection of tuples using the following
  * {@link ACITupleFilter}s sequentially:
  * <ol>
@@ -54,7 +54,7 @@ import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
  * <li>{@link MostSpecificUserClassFilter}</li>
  * <li>{@link MostSpecificProtectedItemFilter}</li>
  * </ol>
- * <br/>
+ * <br>
  * Operation is determined to be permitted if and only if there is at least one
  * tuple left and all of them grants the access. (18.8.4. X.501)
  *
@@ -69,8 +69,6 @@ public class ACDFEngine
      * Creates a new instance.
      *
      * @param schemaManager The server schemaManager
-     *
-     * @throws LdapException if failed to initialize internal components
      */
     public ACDFEngine( SchemaManager schemaManager )
     {
@@ -115,7 +113,8 @@ public class ACDFEngine
      * if the user doesn't have any permission to perform the specified grants.
      *
      * @param aciContext the container for ACI items
-     * @throws org.apache.directory.api.ldap.model.exception.LdapException if failed to evaluate ACI items
+     * @return <tt>true</tt> if the user has permission to access the resource
+     * @throws LdapException if failed to evaluate ACI items
      */
     public boolean hasPermission( AciContext aciContext ) throws LdapException
     {

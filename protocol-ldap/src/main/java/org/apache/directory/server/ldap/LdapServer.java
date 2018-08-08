@@ -1766,7 +1766,7 @@ public class LdapServer extends DirectoryBackedService
      * Gives the list of enabled cipher suites
      * <br>
      * This method has been deprecated, please set this list in the TcpTransport class
-     * </br>
+     * <br>
      * 
      * @return The list of ciphers that can be used
      */
@@ -1781,7 +1781,7 @@ public class LdapServer extends DirectoryBackedService
      * Sets the list of cipher suites to be used in LDAPS and StartTLS
      * <br>
      * This method has been deprecated, please set this list in the TcpTransport class
-     * </br>
+     * <br>
      * 
      * @param enabledCipherSuites if null the default cipher suites will be used
      */

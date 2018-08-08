@@ -58,6 +58,7 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
      * incoming non-hashed password using the given algorithm.
      * If the password is found already hashed then it will skip hashing it.
      * 
+     * @param name The instance's name
      * @param algorithm the name of the algorithm to be used
      */
     protected PasswordHashingInterceptor( String name, LdapSecurityConstants algorithm )

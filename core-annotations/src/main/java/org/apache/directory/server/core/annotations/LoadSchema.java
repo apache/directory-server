@@ -27,13 +27,13 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation for the schema loading. One can list the schema to be loaded, 
- * and if they must be enabled or disabled.<br/>
+ * and if they must be enabled or disabled.<br>
  * We can only load new schemas, not unload existing ones.However, we 
  * can disable a schema that has been previously loaded : loading a 
  * schema that is already loaded will just apply the enabled flag on 
- * this schema<br/>
- * Note that a schema may be loaded and disabled.<br/>
- * Some schema are automatically loaded, and there is no way they can be disabled :<br/>
+ * this schema<br>
+ * Note that a schema may be loaded and disabled.<br>
+ * Some schema are automatically loaded, and there is no way they can be disabled :<br>
  * <ul>
  *   <li> core</li>
  *   <li>system</li>

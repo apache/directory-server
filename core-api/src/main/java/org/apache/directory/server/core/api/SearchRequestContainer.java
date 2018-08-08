@@ -26,7 +26,7 @@ import org.apache.directory.api.ldap.model.message.SearchRequest;
 /**
  * A container storing a SearchRequest being processed, and the associated 
  * size and time limit.
- * <br/>
+ * <br>
  * We use an instance of this class for each new searchRequest, and we discard
  * it when the SearchRequest is completed or abandonned.
  * 
@@ -57,8 +57,7 @@ public class SearchRequestContainer
      * Create an instance of the container with the SearchRequest and its limit.
      * 
      * @param searchRequest The SearchRequest instance
-     * @param sizeLimit The size limit
-     * @param timeLimit The time limit
+     * @param cursor The cursor to process
      */
     public SearchRequestContainer( SearchRequest searchRequest, Cursor<Entry> cursor )
     {
@@ -112,7 +111,7 @@ public class SearchRequestContainer
     
 
     /**
-     * @param count the count to set
+     * Increment the count
      */
     public void increment()
     {

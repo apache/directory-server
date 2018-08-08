@@ -280,7 +280,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * the tuple and group membership caches, the ACIItem parser and the ACDF engine.
      *
      * @param directoryService the directory service core
-     * @throws Exception if there are problems during initialization
+     * @throws LdapException if there are problems during initialization
      */
     @Override
     public void init( DirectoryService directoryService ) throws LdapException

@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.authn;
 
 
+import javax.naming.Context;
+
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -27,6 +29,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 
 
 /**
@@ -49,6 +52,8 @@ public interface Authenticator
     /**
      * Returns the type of this authenticator (e.g. <tt>'simple'</tt>,
      * <tt>'none'</tt>,...).
+     * 
+     * @return The authentication level
      */
     AuthenticationLevel getAuthenticatorType();
 
@@ -56,6 +61,9 @@ public interface Authenticator
     /**
      * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being placed into service.
+     * 
+     * @param directoryService The DirectoryService instance
+     * @throws LdapException If the initialization failed
      */
     void init( DirectoryService directoryService ) throws LdapException;
 
@@ -82,16 +90,17 @@ public interface Authenticator
      * Performs authentication and returns the principal if succeeded.
      * 
      * @param bindContext The Bind context
-     * @exception If the authentication failed
+     * @return The authenticated LdaapPrincipal
+     * @exception LdapException If the authentication failed
      */
-    LdapPrincipal authenticate( BindOperationContext bindContext ) throws Exception;
+    LdapPrincipal authenticate( BindOperationContext bindContext ) throws LdapException;
 
 
     /**
      *  performs checks on the given entry based on the specified password policy configuration
      *
      * @param userEntry the user entry to be checked for authentication
-     * @throws PasswordPolicyException
+     * @throws LdapException If the password policy is incorrect
      */
     void checkPwdPolicy( Entry userEntry ) throws LdapException;
 

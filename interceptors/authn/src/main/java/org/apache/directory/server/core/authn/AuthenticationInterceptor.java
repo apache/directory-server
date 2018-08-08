@@ -85,6 +85,7 @@ import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyExceptio
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordValidator;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -1804,7 +1805,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
      * 
      * @param userEntry the user's entry
      * @return the associated password policy
-     * @throws LdapException
+     * @throws LdapException If we weren't able to ftech the password policy
      */
     public PasswordPolicyConfiguration getPwdPolicy( Entry userEntry ) throws LdapException
     {

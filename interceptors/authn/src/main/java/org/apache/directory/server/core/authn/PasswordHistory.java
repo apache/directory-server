@@ -77,6 +77,8 @@ public class PasswordHistory implements Comparable<PasswordHistory>
     /**
      * Create a new instance of PasswordHistory
      * 
+     * @param time The time we changed the password
+     * @param password The password to store
      */
     public PasswordHistory( String time, byte[] password )
     {

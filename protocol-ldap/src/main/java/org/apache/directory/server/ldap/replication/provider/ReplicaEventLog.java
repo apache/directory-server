@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * <li>refreshNPersist : a flag indicating that the consumer is processing in Refresh and persist mode</li>
  * <li></li>
  * </ul>
- * A separate log is maintained for each syncrepl consumer.<br/>
+ * A separate log is maintained for each syncrepl consumer.<br>
  * We also associate a Queue with each structure, which will store the messages to send to the consumer.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

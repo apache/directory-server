@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.api;
 
 
+import javax.naming.Context;
+
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
 

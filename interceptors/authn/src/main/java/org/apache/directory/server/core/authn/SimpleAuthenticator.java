@@ -22,6 +22,8 @@ package org.apache.directory.server.core.authn;
 
 import java.net.SocketAddress;
 
+import javax.naming.Context;
+
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -94,6 +96,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /**
      * Creates a new instance.
      * @see AbstractAuthenticator
+     * 
+     * @param baseDn The base Dn
      */
     public SimpleAuthenticator( Dn baseDn )
     {
@@ -116,7 +120,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance, with an initial cache size
+     * 
      * @param cacheSize the size of the credential cache
+     * @param baseDn The base Dn
      */
     public SimpleAuthenticator( int cacheSize, Dn baseDn )
     {

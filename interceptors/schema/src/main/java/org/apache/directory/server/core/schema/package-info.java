@@ -19,12 +19,9 @@
  */
 
 /**
- * <pre>
- * <p>
  * Contains interfaces for schema object registry services and simple POJO
  * implementations of these services.  Other helper interfaces and classes are
  * included for handling monitoring of these services.
- * </p>
  * <p>
  * These services and their POJO implementations are purposefully kept really
  * simple here for a reason.  When one looks at these interfaces they stop and
@@ -36,7 +33,6 @@
  * instances of these components are required by the system.  So these simple
  * watered down interfaces and their POJO's have been pruned from previously
  * complex environment specific versions of them.
- * </p>
  * <p>
  * Some key points to apply to services and their POJO impls in this package:
  * <ul>
@@ -46,8 +42,6 @@
  * <li>don't worry who or what does the populating</li>
  * <li>don't worry about where the information comes from</li>
  * </ul>
- * </p>
- * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

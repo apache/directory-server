@@ -880,7 +880,10 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public void addPartition( Partition partition ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void addPartition( Partition partition ) throws LdapException
     {
         partition.setSchemaManager( schemaManager );
 
@@ -903,7 +906,10 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public void removePartition( Partition partition ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    public void removePartition( Partition partition ) throws LdapException
     {
         // Do the backend cleanup first
         try
@@ -1018,7 +1024,7 @@ public class DefaultDirectoryService implements DirectoryService
      * Get back a session for a given user bound with SASL Bind
      */
     public CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
-        throws Exception
+        throws LdapException
     {
         synchronized ( this )
         {
@@ -1233,7 +1239,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * @throws Exception if the LDAP server cannot be started
      */
-    public synchronized void startup() throws Exception
+    public synchronized void startup() throws LdapException
     {
         if ( started )
         {
@@ -1280,7 +1286,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public synchronized void sync() throws Exception
+    public synchronized void sync() throws LdapException
     {
         if ( !started )
         {
@@ -1292,7 +1298,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    public synchronized void shutdown() throws Exception
+    public synchronized void shutdown() throws LdapException
     {
         LOG.debug( "+++ DirectoryService Shutdown required" );
 
@@ -1510,9 +1516,9 @@ public class DefaultDirectoryService implements DirectoryService
      * had to be created, then we are not starting for the first time.
      *
      * @return true if the bootstrap entries had to be created, false otherwise
-     * @throws Exception if entries cannot be created
+     * @throws LdapException if entries cannot be created
      */
-    private boolean createBootstrapEntries() throws Exception
+    private boolean createBootstrapEntries() throws LdapException, IOException
     {
         boolean firstStart = false;
 
@@ -1822,10 +1828,10 @@ public class DefaultDirectoryService implements DirectoryService
 
     /**
      * Displays security warning messages if any possible secutiry issue is found.
-     * @throws Exception if there are failures parsing and accessing internal structures
+     * @throws LdapException if there are failures parsing and accessing internal structures
      */
     // made protected as per the request in DIRSERVER-1920
-    protected void showSecurityWarnings() throws Exception
+    protected void showSecurityWarnings() throws LdapException
     {
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword;
@@ -1863,9 +1869,9 @@ public class DefaultDirectoryService implements DirectoryService
      *
      * @todo this may no longer be needed when JNDI is not used for bootstrapping
      *
-     * @throws Exception if the creation of test entries fails.
+     * @throws LdapException if the creation of test entries fails.
      */
-    private void createTestEntries() throws Exception
+    private void createTestEntries() throws LdapException
     {
         for ( LdifEntry testEntry : testEntries )
         {
@@ -1892,7 +1898,7 @@ public class DefaultDirectoryService implements DirectoryService
     }
 
 
-    private void initializeSystemPartition() throws Exception
+    private void initializeSystemPartition() throws LdapException, IOException
     {
         Partition system = getSystemPartition();
 
@@ -1971,9 +1977,9 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Kicks off the initialization of the entire system.
      *
-     * @throws Exception if there are problems along the way
+     * @throws LdapException if there are problems along the way
      */
-    private void initialize() throws Exception
+    private void initialize() throws LdapException
     {
         if ( LOG.isDebugEnabled() )
         {
@@ -2027,13 +2033,27 @@ public class DefaultDirectoryService implements DirectoryService
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize();
 
-        initializeSystemPartition();
+        try
+        {
+            initializeSystemPartition();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapException( ioe.getMessage(), ioe );
+        }
 
         // --------------------------------------------------------------------
         // Create all the bootstrap entries before initializing chain
         // --------------------------------------------------------------------
 
-        firstStart = createBootstrapEntries();
+        try
+        {
+            firstStart = createBootstrapEntries();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapException( ioe.getMessage(), ioe );
+        }
 
         // initialize schema providers
         atProvider = new AttributeTypeProvider( schemaManager );

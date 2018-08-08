@@ -536,12 +536,12 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      * <li>The user does not has a session yet</li>
      * <li>The user already has a session</li>
      * <li>The user has started a SASL negotiation</li>
-     * </lu><br/>
+     * </lu><br>
      * 
      * In the first case, we initiate a SaslBind session, which will be used all
-     * along the negotiation.<br/>
+     * along the negotiation.<br>
      * In the second case, we first have to unbind the user, and initiate a new
-     * SaslBind session.<br/>
+     * SaslBind session.<br>
      * In the third case, we have sub cases :
      * <ul>
      * <li>The mechanism is not provided : that means the user want to reset the
@@ -549,7 +549,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      * <li>The mechanism is provided : the user is initializing a new negotiation
      * with another mechanism. The current SaslBind session is reinitialized</li>
      * <li></li>
-     * </ul><br/>
+     * </ul><br>
      *
      * @param ldapSession The associated Session
      * @param bindRequest The BindRequest received

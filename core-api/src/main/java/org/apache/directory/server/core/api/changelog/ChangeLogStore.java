@@ -41,9 +41,9 @@ public interface ChangeLogStore
      * Initialize the store.
      * 
      * @param service The associated DirectoryService
-     * @throws Exception If the initialization failed
+     * @throws LdapException If the initialization failed
      */
-    void init( DirectoryService service ) throws Exception;
+    void init( DirectoryService service ) throws LdapException;
 
 
     /**
@@ -51,15 +51,15 @@ public interface ChangeLogStore
      * 
      * @throws Exception If the write failed
      */
-    void sync() throws Exception;
+    void sync() throws LdapException;
 
 
     /**
      * Destroy the logs. 
      * 
-     * @throws Exception If we can't destroy the logs
+     * @throws LdapException If we can't destroy the logs
      */
-    void destroy() throws Exception;
+    void destroy() throws LdapException;
 
 
     /**

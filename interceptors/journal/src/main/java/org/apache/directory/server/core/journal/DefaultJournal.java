@@ -19,6 +19,8 @@
 package org.apache.directory.server.core.journal;
 
 
+import java.io.IOException;
+
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -58,7 +60,7 @@ public class DefaultJournal implements Journal
      * {@inheritDoc}
      */
     @Override
-    public void destroy() throws Exception
+    public void destroy() throws LdapException
     {
         LOG.debug( "Stopping the journal" );
 
@@ -66,7 +68,14 @@ public class DefaultJournal implements Journal
         // to stop the server
         if ( store != null )
         {
-            store.destroy();
+            try
+            {
+                store.destroy();
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapException( ioe.getMessage(), ioe );
+            }
         }
     }
 
@@ -85,7 +94,7 @@ public class DefaultJournal implements Journal
      * {@inheritDoc}
      */
     @Override
-    public void init( DirectoryService directoryService ) throws Exception
+    public void init( DirectoryService directoryService ) throws LdapException
     {
         LOG.debug( "Starting the journal" );
 
@@ -94,7 +103,14 @@ public class DefaultJournal implements Journal
             store = new DefaultJournalStore();
         }
 
-        store.init( directoryService );
+        try
+        {
+            store.init( directoryService );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapException( ioe.getMessage(), ioe );
+        }
 
         LOG.debug( "The Journal service has been initialized" );
     }

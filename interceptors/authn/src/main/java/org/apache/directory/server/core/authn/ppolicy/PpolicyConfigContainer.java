@@ -73,7 +73,7 @@ public class PpolicyConfigContainer
      * Get the password policy configuration defined at a given Dn
      *  
      * @param configDn the Dn where password policy was configured
-     * @return
+     * @return The found PasswordPolicyConfiguration instance
      */
     public PasswordPolicyConfiguration getPolicyConfig( Dn configDn )
     {

@@ -96,8 +96,8 @@ import org.slf4j.LoggerFactory;
 /**
  * An {@link org.apache.directory.server.core.api.interceptor.Interceptor} that manages and enforces schemas.
  *
- * @todo Better interceptor description required.
-
+ * TODO Better interceptor description required.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SchemaInterceptor extends BaseInterceptor
@@ -152,7 +152,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * Initialize the Schema Service
      *
      * @param directoryService the directory service core
-     * @throws Exception if there are problems during initialization
+     * @throws LdapException if there are problems during initialization
      */
     @Override
     public void init( DirectoryService directoryService ) throws LdapException

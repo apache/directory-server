@@ -1290,7 +1290,6 @@ public class SubentryInterceptor extends BaseInterceptor
      * <u>Case 3 :</u><br>
      *
      *
-     * @param next The next interceptor in the chain
      * @param moveContext The context containing all the needed informations to proceed
      * @throws LdapException If the move failed
      */

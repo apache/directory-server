@@ -49,10 +49,10 @@ import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 
 
 /**
- * Provides JNDI service to {@link AbstractContextFactory}.
+ * All the features a DirectroyService instance must implement. This gives a control
+ * of the Directory based server. 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @param <PasswordPolicyConfiguration>
  */
 public interface DirectoryService extends ServerEntryFactory
 {
@@ -68,11 +68,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @param revision the revision number to revert to
      * @return the new revision reached by applying all changes needed to revert to the
      * original state
-     * @throws Exception if there are problems reverting back to the earlier state
-     * @throws IllegalArgumentException if the revision provided is greater than the current
-     * revision or less than 0
-     * @throws UnsupportedOperationException if this feature is not supported by the
-     * change log
+     * @throws LdapException if there are problems reverting back to the earlier state
      */
     long revert( long revision ) throws LdapException;
 
@@ -87,9 +83,7 @@ public interface DirectoryService extends ServerEntryFactory
      * @return the new revision reached by applying all changes needed to revert
      * to the new state or the same version before this call if no revert actually
      * took place
-     * @throws Exception if there are problems reverting back to the earlier state
-     * @throws UnsupportedOperationException if this feature is not supported by the
-     * change log
+     * @throws LdapException if there are problems reverting back to the earlier state
      */
     long revert() throws LdapException;
 
@@ -97,10 +91,10 @@ public interface DirectoryService extends ServerEntryFactory
     PartitionNexus getPartitionNexus();
 
 
-    void addPartition( Partition partition ) throws Exception;
+    void addPartition( Partition partition ) throws LdapException;
 
 
-    void removePartition( Partition partition ) throws Exception;
+    void removePartition( Partition partition ) throws LdapException;
 
 
     /**
@@ -146,6 +140,7 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
+     * @param eventService The {@link EventService} instance
      */
     void setEventService( EventService eventService );
 
@@ -153,24 +148,24 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Starts up this service.
      * 
-     * @throws Exception if failed to start up
+     * @throws LdapException if failed to start up
      */
-    void startup() throws Exception;
+    void startup() throws LdapException;
 
 
     /**
      * Shuts down this service.
      * 
-     * @throws Exception if failed to shut down
+     * @throws LdapException if failed to shut down
      */
-    void shutdown() throws Exception;
+    void shutdown() throws LdapException;
 
 
     /**
      * Calls {@link Partition#sync()} for all registered {@link Partition}s.
-     * @throws Exception if synchronization failed
+     * @throws LdapException if synchronization failed
      */
-    void sync() throws Exception;
+    void sync() throws LdapException;
 
 
     /**
@@ -204,8 +199,9 @@ public interface DirectoryService extends ServerEntryFactory
      * propagating a bind operation into the core.
      *
      * @return a logical session as the anonymous user
+     * @throws LdapException If we weren't able to get the session
      */
-    CoreSession getSession() throws Exception;
+    CoreSession getSession() throws LdapException;
 
 
     /**
@@ -213,9 +209,11 @@ public interface DirectoryService extends ServerEntryFactory
      * as a specific user.  This bypasses authentication without propagating
      * a bind operation into the core.
      *
+     * @param principal The Principal
      * @return a logical session as a specific user
+     * @throws LdapException If we weren't able to get the session
      */
-    CoreSession getSession( LdapPrincipal principal ) throws Exception;
+    CoreSession getSession( LdapPrincipal principal ) throws LdapException;
 
 
     /**
@@ -224,7 +222,10 @@ public interface DirectoryService extends ServerEntryFactory
      * bypasses authentication without propagating a bind operation into the
      * core.
      *
+     * @param principalDn The principal Dn
+     * @param credentials The principal credentials
      * @return a logical session as a specific user
+     * @throws LdapException If we weren't able to get the session
      */
     CoreSession getSession( Dn principalDn, byte[] credentials ) throws LdapException;
 
@@ -235,17 +236,28 @@ public interface DirectoryService extends ServerEntryFactory
      * bypasses authentication without propagating a bind operation into the
      * core.
      *
+     * @param principalDn The principal Dn
+     * @param credentials The principal credentials
+     * @param saslMechanism The SASL mechanisms
+     * @param saslAuthId The SASL authorization ID
      * @return a logical session as a specific user
+     * @throws LdapException If we weren't able to get the session
      */
     CoreSession getSession( Dn principalDn, byte[] credentials, String saslMechanism, String saslAuthId )
-        throws Exception;
+        throws LdapException;
 
 
     /**
+     * Set the instance Identifier
+     * 
+     * @param instanceId The instance identifier
      */
     void setInstanceId( String instanceId );
 
 
+    /**
+     * @return The instance identifier
+     */
     String getInstanceId();
 
 
@@ -330,6 +342,7 @@ public interface DirectoryService extends ServerEntryFactory
     /**
      * Returns interceptors in the server.
      *
+     * @param operation The operation that the interceptors must implement
      * @return the interceptors in the server.
      */
     List<String> getInterceptors( OperationEnum operation );
@@ -345,20 +358,25 @@ public interface DirectoryService extends ServerEntryFactory
 
     /**
      * Add an interceptor in the first position in the interceptor list.
+     * 
      * @param interceptor The added interceptor
+     * @throws LdapException If the interceptor can't be added
      */
     void addFirst( Interceptor interceptor ) throws LdapException;
 
 
     /**
      * Add an interceptor in the last position in the interceptor list.
+     * 
      * @param interceptor The added interceptor
+     * @throws LdapException If the interceptor can't be added
      */
     void addLast( Interceptor interceptor ) throws LdapException;
 
 
     /**
      * Add an interceptor after a given interceptor in the interceptor list.
+     * 
      * @param interceptorName The interceptor name to find
      * @param interceptor The added interceptor
      */
@@ -390,8 +408,7 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * Sets test directory entries({@link Attributes}) to be loaded while
-     * bootstrapping.
+     * Sets test directory entries to be loaded while bootstrapping.
      *
      * @param testEntries the test entries to load while bootstrapping
      */
@@ -485,12 +502,15 @@ public interface DirectoryService extends ServerEntryFactory
      * 
      * @param ldif the String representing the attributes, in LDIF format
      * @param dn the Dn for this new entry
+     * @return The new Entry instance
      */
     Entry newEntry( String ldif, String dn );
 
 
     /**
      * Gets the operation manager.
+     * 
+     * @return the OperationManager instance
      */
     OperationManager getOperationManager();
 
@@ -604,6 +624,8 @@ public interface DirectoryService extends ServerEntryFactory
 
     /**
      * Sets the Dn factory.
+     * 
+     * @param dnFactory The Dn factory to use
      */
     void setDnFactory( DnFactory dnFactory );
 

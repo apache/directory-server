@@ -85,6 +85,7 @@ public class SchemaLdifToPartitionExtractor implements SchemaLdifExtractor
      *
      * @param schemaManager the bootstrap schema manager
      * @param partition the destination partition
+     * @throws LdapException If the instance can't be created
      */
     public SchemaLdifToPartitionExtractor( SchemaManager schemaManager, Partition partition ) throws LdapException
     {

@@ -20,9 +20,7 @@
 
 /**
  * <pre>
- * <p>
  * ACDF (Access Control Decision Function) and its support classes.
- * </p>
  * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

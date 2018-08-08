@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Serialize and deserialize a Dn.
- * </br></br>
+ * <br><br>
  * <b>This class must *not* be used outside of the server.</b>
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

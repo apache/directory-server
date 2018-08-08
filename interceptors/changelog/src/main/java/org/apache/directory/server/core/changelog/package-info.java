@@ -19,7 +19,6 @@
  */
 
 /**
- * <pre>
  * <h1>Ideas</h1>
  * <p>
  * Use AdminModel to control what goes into the changelog ?  Or use admin model to identify 
@@ -47,7 +46,6 @@
  * an incredible capability when storing the configurations of systems in LDAP.  Being able to rollback
  * to a previous configuration or just inquire about a previous state is a powerful feature to have.
  * </p>
- * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

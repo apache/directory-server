@@ -51,6 +51,8 @@ public class StrongAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance of SaslAuthenticator.
+     * 
+     * @param baseDn The base Dn
      */
     public StrongAuthenticator( Dn baseDn )
     {

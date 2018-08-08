@@ -32,7 +32,7 @@ import org.apache.directory.server.core.api.partition.PartitionTxn;
 /**
  * An index used to retrieve elements into the master table. Each stored element that is
  * indexed has a unique identifier (ID). We may have more than one element associated with
- * a value (K). We may cache the retrieved element (O). <br/>
+ * a value (K). We may cache the retrieved element (O). <br>
  * Cursors over indices can also be gotten to traverse the
  * values of the index.
  *
@@ -158,11 +158,11 @@ public interface Index<K, E>
 
     /**
      * Remove all the reference to an entry from the index.
-     * <br/>
+     * <br>
      * As an entry might be referenced more than once in the forward index,
      * depending on which index we are dealing with, we need to iterate
      * over all the values contained into the reverse index for this entryId.
-     * <br/>
+     * <br>
      * For instance, considering the ObjectClass index for an entry having
      * three ObjectClasses (top, person, inetOrgPerson), then the reverse
      * index will contain :

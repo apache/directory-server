@@ -205,7 +205,7 @@ public class TriggerInterceptor extends BaseInterceptor
     /**
      * Return a selection of trigger specifications for a certain type of trigger action time.
      * 
-     * @note This method serves as an extion point for new Action Time types.
+     * This method serves as an extension point for new Action Time types.
      * 
      * @param triggerSpecs the trigger specifications
      * @param ldapOperation the ldap operation being performed
