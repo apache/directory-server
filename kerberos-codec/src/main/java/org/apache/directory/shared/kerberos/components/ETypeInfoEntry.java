@@ -121,7 +121,7 @@ public class ETypeInfoEntry implements Asn1Object
 
 
     /**
-     * @param encryptionType the encryptionType to set
+     * @param etype the encryptionType to set
      */
     public void setEType( EncryptionType etype )
     {
@@ -136,13 +136,13 @@ public class ETypeInfoEntry implements Asn1Object
      * 
      * 0x30 L1 ETYPE-INFO-ENTRY sequence
      *  |
-     *  +--> 0xA0 L2 etype tag
+     *  +--&gt; 0xA0 L2 etype tag
      *  |     |
-     *  |     +--> 0x02 L2-1etype (int)
+     *  |     +--&gt; 0x02 L2-1etype (int)
      *  |
-     *  +--> 0xA1 L3 salt tag
+     *  +--&gt; 0xA1 L3 salt tag
      *        |
-     *        +--> 0x04 L3-1 salt (OCTET STRING)
+     *        +--&gt; 0x04 L3-1 salt (OCTET STRING)
      *        
      *  where L1 = L2 + lenght(0xA0) + length(L2) +
      *             L3 + lenght(0xA1) + length(L3) 

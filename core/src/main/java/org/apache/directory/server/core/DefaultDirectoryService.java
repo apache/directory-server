@@ -307,8 +307,10 @@ public class DefaultDirectoryService implements DirectoryService
 
     /**
      * Creates a new instance of the directory service.
+     * 
+     * @throws LdapException If the instance cannot be created
      */
-    public DefaultDirectoryService() throws Exception
+    public DefaultDirectoryService() throws LdapException
     {
         changeLog = new DefaultChangeLog();
         journal = new DefaultJournal();
@@ -711,8 +713,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * Sets test directory entries({@link Attributes}) to be loaded while
-     * bootstrapping.
+     * Sets test directory entries to be loaded while bootstrapping.
      *
      * @param testEntries the test entries to load while bootstrapping
      */
@@ -1237,7 +1238,7 @@ public class DefaultDirectoryService implements DirectoryService
 
 
     /**
-     * @throws Exception if the LDAP server cannot be started
+     * @throws LdapException if the LDAP server cannot be started
      */
     public synchronized void startup() throws LdapException
     {
@@ -2249,22 +2250,12 @@ public class DefaultDirectoryService implements DirectoryService
      */
     public Interceptor getInterceptor( String interceptorName )
     {
-        //readLock.lock();
-
-        //try
-        //{
-            return interceptorNames.get( interceptorName );
-        //}
-        //finally
-        //{
-            //readLock.unlock();
-        //}
+        return interceptorNames.get( interceptorName );
     }
 
 
     /**
      * {@inheritDoc}
-     * @throws LdapException
      */
     public void addFirst( Interceptor interceptor ) throws LdapException
     {
@@ -2274,7 +2265,6 @@ public class DefaultDirectoryService implements DirectoryService
 
     /**
      * {@inheritDoc}
-     * @throws LdapException
      */
     public void addLast( Interceptor interceptor ) throws LdapException
     {

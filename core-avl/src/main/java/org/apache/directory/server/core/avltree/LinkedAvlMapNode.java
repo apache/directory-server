@@ -55,12 +55,13 @@ public class LinkedAvlMapNode<K, V>
     /**
      * Creates a new instance of LinkedAvlNode, containing a given value.
      *
-     * @param theKey the stored value on the topmost node
+     * @param theKey the stored key on the topmost node
+     * @param theValue The stored value on the topmost node
      */
     public LinkedAvlMapNode( K theKey, V theValue )
     {
         key = theKey;
-        value = new SingletonOrOrderedSet<V>( theValue );
+        value = new SingletonOrOrderedSet<>( theValue );
         left = null;
         right = null;
     }

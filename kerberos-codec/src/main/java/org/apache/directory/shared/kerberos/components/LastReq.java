@@ -162,15 +162,15 @@ public class LastReq implements Asn1Object
      * 
      * 0x30 L1 LastReq
      *  |
-     *  +--> 0x30 L2 
+     *  +--&gt; 0x30 L2 
      *        |
-     *        +--> 0xA0 L3 lr-type tag
+     *        +--&gt; 0xA0 L3 lr-type tag
      *        |     |
-     *        |     +--> 0x02 L3-1 lrType (int)
+     *        |     +--&gt; 0x02 L3-1 lrType (int)
      *        |
-     *        +--> 0xA1 0x11 lr-value tag
+     *        +--&gt; 0xA1 0x11 lr-value tag
      *              |
-     *              +--> 0x18 0x0F ttt (KerberosString)
+     *              +--&gt; 0x18 0x0F ttt (KerberosString)
      *  </pre>
      */
     public int computeLength()

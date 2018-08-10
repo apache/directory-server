@@ -50,7 +50,7 @@ public interface DhcpStore
      * and may be refined using the supplied options.
      * </ul>
      * <p>
-     * If the requestedLeaseTime is >= 0, the validity duration of the returned
+     * If the requestedLeaseTime is &gt;= 0, the validity duration of the returned
      * lease must be updated, so that the lease is valid for at least the
      * specified time. The duration may, however, be constrained by a configured
      * maximum lease time.

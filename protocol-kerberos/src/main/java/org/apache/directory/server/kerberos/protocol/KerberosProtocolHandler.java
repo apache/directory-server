@@ -71,8 +71,8 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * Creates a new instance of KerberosProtocolHandler.
      *
-     * @param kdcServer
-     * @param store
+     * @param kdcServer The KdcServer instance
+     * @param store The Principal store
      */
     public KerberosProtocolHandler( KdcServer kdcServer, PrincipalStore store )
     {
@@ -308,7 +308,8 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * Creates an explicit error message
      * The error we've get 
-     * @param error
+     * 
+     * @param error The Kerberos error to log
      */
     protected void logErrorMessage( KrbError error )
     {

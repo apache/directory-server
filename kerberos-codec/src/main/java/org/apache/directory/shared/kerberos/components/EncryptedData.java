@@ -199,17 +199,17 @@ public class EncryptedData implements Asn1Object
      * 
      * 0x30 L1 EncryptedData sequence
      *  |
-     *  +--> 0xA1 L2 etype tag
+     *  +--&gt; 0xA1 L2 etype tag
      *  |     |
-     *  |     +--> 0x02 L2-1 etype (int)
+     *  |     +--&gt; 0x02 L2-1 etype (int)
      *  |
-     *  +--> [0xA2 L3 kvno tag
+     *  +--&gt; [0xA2 L3 kvno tag
      *  |     |
-     *  |     +--> 0x30 L3-1 kvno (int)] (optional)
+     *  |     +--&gt; 0x30 L3-1 kvno (int)] (optional)
      *  |
-     *  +--> 0xA2 L4 cipher tag
+     *  +--&gt; 0xA2 L4 cipher tag
      *        |
-     *        +--> 0x04 L4-1 cipher (OCTET STRING)
+     *        +--&gt; 0x04 L4-1 cipher (OCTET STRING)
      * </pre>
      */
     public int computeLength()

@@ -73,10 +73,11 @@ public class ParentIdAndRdnSerializer implements Serializer
 
 
     /**
-     * <p>
-     * 
      * This is the place where we serialize ParentIdAndRdn
-     * <p>
+     * 
+     * @param object The element to serialize
+     * @return the byte] containing the serialized element
+     * @throws IOException If the serialization failed
      */
     public byte[] serialize( Object object ) throws IOException
     {

@@ -54,7 +54,7 @@ public class MinaChangePasswordDecoder extends CumulativeProtocolDecoder
      * decoder will throw a {@link IllegalArgumentException}.  The default
      * value is <tt>16384</tt> (16KB).
      * 
-     * @param maxObjectSize 
+     * @param maxObjectSize The maximum size for a PDU
      */
     public void setMaxObjectSize( int maxObjectSize )
     {

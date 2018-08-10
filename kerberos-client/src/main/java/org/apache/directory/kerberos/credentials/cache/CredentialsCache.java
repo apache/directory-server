@@ -87,7 +87,7 @@ public class CredentialsCache
     }
     
     /**
-     * Returns the primary principal
+     * @return the primary principal
      */
     public PrincipalName getPrimaryPrincipalName() 
     {
@@ -96,6 +96,8 @@ public class CredentialsCache
     
     /**
      * Set the primary principal
+     * 
+     * @param principal The PrincipalName to set
      */
     public void setPrimaryPrincipalName( PrincipalName principal ) 
     {
@@ -113,7 +115,7 @@ public class CredentialsCache
     }
     
     /**
-     * Returns the credentials entries
+     * @return the credentials entries
      */
     public List<Credentials> getCredsList() 
     {
@@ -123,36 +125,36 @@ public class CredentialsCache
     
     public static void main(String[] args) throws IOException
     {
-    	String dumpFile = File.createTempFile( "credCache-", ".cc" ).getAbsolutePath();
-    	System.out.println( "This tool tests CredentialsCache reading and writing, " + 
-				"and will load the built-in sample credentials cache by default, and dump to " + dumpFile );
-    	
-    	System.out.println( "To specify your own credentials cache file, run this as: CredentialsCache [cred-cache-file] " );
-    	
-    	System.out.println( "When dumped successfully, run 'klist -e -c' from MIT to check the dumped file" );
-    	
-    	CredentialsCache cc;
-    	String cacheFile = args.length > 0 ? args[0] : null;
-    	if (cacheFile == null)
-    	{    		
-    		byte[] sampleCache = SampleCredentialsCacheResource.getCacheContent();
-    		ByteArrayInputStream bais = new ByteArrayInputStream(sampleCache);
-    		cc = CredentialsCache.load(bais);
-    	} 
-    	else
-    	{
-    		cc = CredentialsCache.load( new File( cacheFile ) );
-    	}
-    	
-    	if ( cc != null )
-    	{
-    		System.out.println( "Reading credentials cache is successful" );
-    		
-    		File tmpCacheFile = new File(dumpFile);
-    		tmpCacheFile.delete();
-    		CredentialsCache.store(tmpCacheFile, cc);
-
-    		System.out.println( "Writing credentials cache successfully to: " + dumpFile );
-    	}
+        String dumpFile = File.createTempFile( "credCache-", ".cc" ).getAbsolutePath();
+        System.out.println( "This tool tests CredentialsCache reading and writing, " + 
+                "and will load the built-in sample credentials cache by default, and dump to " + dumpFile );
+        
+        System.out.println( "To specify your own credentials cache file, run this as: CredentialsCache [cred-cache-file] " );
+        
+        System.out.println( "When dumped successfully, run 'klist -e -c' from MIT to check the dumped file" );
+        
+        CredentialsCache cc;
+        String cacheFile = args.length > 0 ? args[0] : null;
+        if (cacheFile == null)
+        {
+            byte[] sampleCache = SampleCredentialsCacheResource.getCacheContent();
+            ByteArrayInputStream bais = new ByteArrayInputStream(sampleCache);
+            cc = CredentialsCache.load(bais);
+        }
+        else
+        {
+            cc = CredentialsCache.load( new File( cacheFile ) );
+        }
+        
+        if ( cc != null )
+        {
+            System.out.println( "Reading credentials cache is successful" );
+        
+        File tmpCacheFile = new File(dumpFile);
+        tmpCacheFile.delete();
+        CredentialsCache.store(tmpCacheFile, cc);
+        
+        System.out.println( "Writing credentials cache successfully to: " + dumpFile );
+        }
     }
 }

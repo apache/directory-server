@@ -114,6 +114,9 @@ public class JdbmPartition extends AbstractBTreePartition
 
     /**
      * Creates a store based on JDBM B+Trees.
+     * 
+     * @param schemaManager The SchemaManager instance
+     * @param dnFactory The DN factory instance
      */
     public JdbmPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
@@ -671,7 +674,7 @@ public class JdbmPartition extends AbstractBTreePartition
      * This method is called when the synch thread is waking up, to write
      * the modified data.
      * 
-     * @throws Exception on failures to sync database files to disk
+     * @throws LdapException on failures to sync database files to disk
      */
     @Override
     public synchronized void sync() throws LdapException

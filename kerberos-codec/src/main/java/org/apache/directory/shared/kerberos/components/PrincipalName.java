@@ -353,21 +353,21 @@ public class PrincipalName implements Asn1Object
      * 
      * 0x30 L1 PrincipalName sequence
      *  |
-     *  +--> 0xA1 L2 name-type tag
+     *  +--&gt; 0xA1 L2 name-type tag
      *  |     |
-     *  |     +--> 0x02 L2-1 addressType (int)
+     *  |     +--&gt; 0x02 L2-1 addressType (int)
      *  |
-     *  +--> 0xA2 L3 name-string tag
+     *  +--&gt; 0xA2 L3 name-string tag
      *        |
-     *        +--> 0x30 L3-1 name-string (SEQUENCE OF KerberosString)
+     *        +--&gt; 0x30 L3-1 name-string (SEQUENCE OF KerberosString)
      *              |
-     *              +--> 0x1B L4[1] value (KerberosString)
+     *              +--&gt; 0x1B L4[1] value (KerberosString)
      *              |
-     *              +--> 0x1B L4[2] value (KerberosString)
+     *              +--&gt; 0x1B L4[2] value (KerberosString)
      *              |
      *              ...
      *              |
-     *              +--> 0x1B L4[n] value (KerberosString)
+     *              +--&gt; 0x1B L4[n] value (KerberosString)
      * </pre>
      */
     public int computeLength()

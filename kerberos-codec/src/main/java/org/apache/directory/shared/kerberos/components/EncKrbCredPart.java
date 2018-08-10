@@ -95,35 +95,35 @@ public class EncKrbCredPart implements Asn1Object
      * <pre>
      *  0x7D L1
      *   |
-     *   +--> 0x30 L1-2 EncKrbCredPart seq tag
+     *   +--&gt; 0x30 L1-2 EncKrbCredPart seq tag
      *         |
-     *         +--> 0xA0 L2 seq of KrbCredInfo tag
+     *         +--&gt; 0xA0 L2 seq of KrbCredInfo tag
      *         |     |
-     *         |     +--> 0x30 L2-2 seq tag
+     *         |     +--&gt; 0x30 L2-2 seq tag
      *         |     |
-     *         |     +--> 0x30 LL1 KrbCredInfo
+     *         |     +--&gt; 0x30 LL1 KrbCredInfo
      *         |     .      ....
-     *         |     +--> 0x30 LLn KrbCredInfo
+     *         |     +--&gt; 0x30 LLn KrbCredInfo
      *         |
-     *         +--> 0xA1 L3 nonce tag
+     *         +--&gt; 0xA1 L3 nonce tag
      *         |     |
-     *         |     +--> 0x02 L3-2 nonce (UInt32)
+     *         |     +--&gt; 0x02 L3-2 nonce (UInt32)
      *         |
-     *         +--> 0xA2 11 timestamp tag
+     *         +--&gt; 0xA2 11 timestamp tag
      *         |     |
-     *         |     +--> 0x18 0x0F timestamp (KerberosTime)
+     *         |     +--&gt; 0x18 0x0F timestamp (KerberosTime)
      *         |
-     *         +--> 0xA3 L4 usec tag
+     *         +--&gt; 0xA3 L4 usec tag
      *         |     |
-     *         |     +--> 0x02 L4-2 usec (Microseconds)
+     *         |     +--&gt; 0x02 L4-2 usec (Microseconds)
      *         |
-     *         +--> 0xA4 L5 s-address tag
+     *         +--&gt; 0xA4 L5 s-address tag
      *         |     |
-     *         |     +--> 0x30 L5-2 s-address (HostAddress)
+     *         |     +--&gt; 0x30 L5-2 s-address (HostAddress)
      *         |
-     *         +--> 0xA5 L6 r-address tag
+     *         +--&gt; 0xA5 L6 r-address tag
      *               |
-     *               +--> 0x30 L6-2 s-address (HostAddress) 
+     *               +--&gt; 0x30 L6-2 s-address (HostAddress) 
      *   
      * </pre> 
      */

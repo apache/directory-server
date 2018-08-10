@@ -682,6 +682,8 @@ public class ApacheDsService
 
     /**
      * Print the banner for a server
+     * 
+     * @param bannerConstant The banner to print
      */
     public static void printBanner( String bannerConstant )
     {
@@ -701,7 +703,7 @@ public class ApacheDsService
      * 
      * @param partition instance of the partition Note: should only be those which are loaded before starting the DirectoryService
      * @param dirService the DirectoryService instance
-     * @throws Exception
+     * @throws Exception  If the update failed
      */
     public void updateMandatoryOpAttributes( Partition partition, DirectoryService dirService ) throws Exception
     {

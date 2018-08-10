@@ -50,7 +50,7 @@ public final class LdapApiIntegrationUtils
     private static final String DEFAULT_PASSWORD = "secret";
 
     /** The pools. */
-    private static final Map<Integer, LdapConnectionPool> POOLS = new HashMap<Integer, LdapConnectionPool>();
+    private static final Map<Integer, LdapConnectionPool> POOLS = new HashMap<>();
 
 
     private LdapApiIntegrationUtils()
@@ -65,13 +65,12 @@ public final class LdapApiIntegrationUtils
      * @param ldapServer the LDAP server instance, used to obtain the port used
      * @return the created connection
      * @throws LdapException the LDAP exception
-     * @throws IOException Signals that an I/O exception has occurred.
      */
-    public static LdapNetworkConnection createAdminConnection( LdapServer ldapServer ) throws LdapException,
-        IOException
+    public static LdapNetworkConnection createAdminConnection( LdapServer ldapServer ) throws LdapException
     {
         LdapNetworkConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         conn.bind( DEFAULT_ADMIN, DEFAULT_PASSWORD );
+        
         return conn;
     }
 
@@ -99,9 +98,9 @@ public final class LdapApiIntegrationUtils
      *
      * @param ldapServer the LDAP server instance, used to obtain the port used
      * @return the pooled admin connection
-     * @throws Exception the exception
+     * @throws LdapException the exception
      */
-    public static LdapConnection getPooledAdminConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getPooledAdminConnection( LdapServer ldapServer ) throws LdapException
     {
         LdapConnection ldapConnection = getAdminPool( ldapServer ).getConnection();
 
@@ -118,10 +117,10 @@ public final class LdapApiIntegrationUtils
      *
      * @param conn the connection to release
      * @param ldapServer the LDAP server instance, used to obtain the port used
-     * @throws Exception the exception
+     * @throws LdapException the exception
      */
     public static void releasePooledAdminConnection( LdapConnection conn, LdapServer ldapServer )
-        throws Exception
+        throws LdapException
     {
         getAdminPool( ldapServer ).releaseConnection( conn );
     }
@@ -157,11 +156,12 @@ public final class LdapApiIntegrationUtils
     /**
      * Gets an anonymous LdapNetworkConnection
      * 
-     * @param dirService The Directory Service to be connected to
+     * @param host The server to connect to
+     * @param port The port to connect with
      * @return A LdapNetworkConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
-    public static LdapConnection getAnonymousNetworkConnection( String host, int port ) throws Exception
+    public static LdapConnection getAnonymousNetworkConnection( String host, int port ) throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( host, port );
         connection.bind();
@@ -175,9 +175,9 @@ public final class LdapApiIntegrationUtils
      * 
      * @param ldapServer The LDAP server we want to connect to
      * @return A LdapNetworkConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
-    public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         connection.setTimeOut( 0L );

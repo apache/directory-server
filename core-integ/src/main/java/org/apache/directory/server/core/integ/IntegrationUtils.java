@@ -166,7 +166,7 @@ public class IntegrationUtils
 
 
     public static CoreSession getCoreSession( String principalDn, DirectoryService service, String dn )
-        throws Exception
+        throws LdapException
     {
         if ( principalDn == null )
         {
@@ -176,12 +176,8 @@ public class IntegrationUtils
         Dn userDn = new Dn( service.getSchemaManager(), principalDn );
         LdapPrincipal principal = new LdapPrincipal( service.getSchemaManager(), userDn, AuthenticationLevel.SIMPLE );
 
-        if ( dn == null )
-        {
-            dn = "";
-        }
-
         CoreSession session = service.getSession( principal );
+        
         return session;
     }
 
@@ -204,7 +200,7 @@ public class IntegrationUtils
     }
 
 
-    public static void apply( DirectoryService service, LdifEntry entry ) throws Exception
+    public static void apply( DirectoryService service, LdifEntry entry ) throws LdapException
     {
         Dn dn = entry.getDn();
         CoreSession session = service.getAdminSession();
@@ -302,7 +298,7 @@ public class IntegrationUtils
     // Enable/Disable Schema Tests
     // -----------------------------------------------------------------------
 
-    public static void enableSchema( DirectoryService service, String schemaName ) throws Exception
+    public static void enableSchema( DirectoryService service, String schemaName ) throws LdapException
     {
         LdapConnection connection = getAdminConnection( service );
 
@@ -313,7 +309,7 @@ public class IntegrationUtils
     }
 
 
-    public static void disableSchema( DirectoryService service, String schemaName ) throws Exception
+    public static void disableSchema( DirectoryService service, String schemaName ) throws LdapException
     {
         LdapConnection connection = getAdminConnection( service );
 
@@ -327,6 +323,10 @@ public class IntegrationUtils
 
     /**
      * A helper method which tells if a schema is disabled.
+     * 
+     * @param service The Directory Service 
+     * @param schemaName The name of the Schema to check
+     * @return <tt>true</tt> if the schema is enabled
      */
     public static boolean isDisabled( DirectoryService service, String schemaName )
     {
@@ -338,6 +338,10 @@ public class IntegrationUtils
 
     /**
      * A helper method which tells if a schema is loaded.
+     * 
+     * @param service The Directory Service 
+     * @param schemaName The schema to check
+     * @return <tt>true</tt> if the schema is loaded
      */
     public static boolean isLoaded( DirectoryService service, String schemaName )
     {
@@ -350,6 +354,10 @@ public class IntegrationUtils
     /**
      * A helper method which tells if a schema is enabled. A shema must be
      * loaded and enabled.
+     * 
+     * @param service The Directory Service 
+     * @param schemaName The name of the Schema to check
+     * @return <tt>true</tt> if the schema is enabled
      */
     public static boolean isEnabled( DirectoryService service, String schemaName )
     {
@@ -364,9 +372,9 @@ public class IntegrationUtils
      * 
      * @param dirService The Directory Service to be connected to
      * @return A LdapCoreSessionConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
-    public static LdapConnection getAdminConnection( DirectoryService dirService ) throws Exception
+    public static LdapConnection getAdminConnection( DirectoryService dirService ) throws LdapException
     {
         return getConnectionAs( dirService, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
@@ -380,10 +388,10 @@ public class IntegrationUtils
      * @param dn The User's DN as a String
      * @param password The User's password as a String
      * @return A LdapCoreSessionConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
     public static LdapConnection getConnectionAs( DirectoryService dirService, String dn, String password )
-        throws Exception
+        throws LdapException
     {
         return getConnectionAs( dirService, new Dn( dn ), password );
     }
@@ -397,10 +405,10 @@ public class IntegrationUtils
      * @param dn The User's DN
      * @param password The User's password as a String
      * @return A LdapCoreSessionConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
     public static LdapConnection getConnectionAs( DirectoryService dirService, Dn dn, String password )
-        throws Exception
+        throws LdapException
     {
         LdapCoreSessionConnection connection = new LdapCoreSessionConnection();
 
@@ -416,14 +424,15 @@ public class IntegrationUtils
      * Gets a LdapNetworkConnection bound using a user's DN and a password. We will bind using those
      * credentials.
      * 
-     * @param dirService The Directory Service to be connected to
+     * @param host The server to connect to
+     * @param port The port to connect on
      * @param dn The User's DN as a String
      * @param password The User's password as a String
      * @return A LdapNetworkConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
     public static LdapConnection getNetworkConnectionAs( String host, int port, String dn, String password )
-        throws Exception
+        throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( host, port );
 
@@ -436,11 +445,11 @@ public class IntegrationUtils
     /**
      * Gets an anonymous LdapNetworkConnection
      * 
-     * @param dirService The Directory Service to be connected to
+     * @param ldapServer The LdapServer to be connected to
      * @return A LdapNetworkConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
-    public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws LdapException
     {
         LdapConnection connection = getAnonymousNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
@@ -451,11 +460,12 @@ public class IntegrationUtils
     /**
      * Gets an anonymous LdapNetworkConnection
      * 
-     * @param dirService The Directory Service to be connected to
+     * @param host The server to connect to
+     * @param port The port to connect on
      * @return A LdapNetworkConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
-    public static LdapConnection getAnonymousNetworkConnection( String host, int port ) throws Exception
+    public static LdapConnection getAnonymousNetworkConnection( String host, int port ) throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( host, port );
         connection.bind();
@@ -469,11 +479,11 @@ public class IntegrationUtils
     /**
      * Gets a LdapNetworkConnection bound to the Admin user (uid=admin,ou=system).
      * 
-     * @param dirService The Directory Service to be connected to
+     * @param ldapServer The LdapServer to be connected to
      * @return A LdapNetworkConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
-    public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getAdminNetworkConnection( LdapServer ldapServer ) throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
@@ -491,13 +501,13 @@ public class IntegrationUtils
      * credentials. We specify a LdapServer instance too.
      * 
      * @param ldapServer The LdapServer to be connected to
-     * @param dn The User's DN as a String
+     * @param userDn The User's DN as a String
      * @param password The User's password as a String
      * @return A LdapNetworkConnection instance
-     * @exception If the connection could not be established.
+     * @exception LdapException If the connection could not be established.
      */
     public static LdapConnection getNetworkConnectionAs( LdapServer ldapServer, String userDn, String password )
-        throws Exception
+        throws LdapException
     {
         return getNetworkConnectionAs( Network.LOOPBACK_HOSTNAME, ldapServer.getPort(), userDn, password );
     }

@@ -183,7 +183,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
     /**
      *  Deserialize a ParentIdAndRdn.
      *  
-     *  @param bytes the byte array containing the serialized ParentIdAndRdn
+     *  @param bufferHandler The buffer containing the serialized ParentIdAndRdn
      *  @return An instance of a ParentIdAndRdn object 
      *  @throws IOException if we can't deserialize the ParentIdAndRdn
      */

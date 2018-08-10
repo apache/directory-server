@@ -133,15 +133,47 @@ public interface Index<K, E>
     long count( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
+    /**
+     * Find the number of element in a tree above a given key
+     * 
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key
+     * @return The number of element above the key
+     * @throws LdapException If the operation failed
+     */
     long greaterThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
+    /**
+     * Find the number of element in a tree below a given key
+     * 
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key
+     * @return The number of element below the key
+     * @throws LdapException If the operation failed
+     */
     long lessThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
+    /**
+     * Search for a value using the Forward table
+     * 
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key to retrieve
+     * @return The found value
+     * @throws LdapException If the operation failed
+     */
     E forwardLookup( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
+    /**
+     * Search for a value using the Reverse table
+     * 
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key to retrieve
+     * @return The found value
+     * @throws LdapException If the operation failed
+     */
     K reverseLookup( PartitionTxn partitionTxn, E element ) throws LdapException;
 
 

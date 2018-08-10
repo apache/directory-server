@@ -203,7 +203,6 @@ public final class HardwareAddress
      * 
      * @param s
      * @return HardwareAddress
-     * @throws ParseException
      */
     public static HardwareAddress valueOf( String s )
     {

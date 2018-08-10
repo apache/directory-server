@@ -81,7 +81,7 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
      *
      * @param cpReader the configuration reader
      * @param directoryService the DirectoryService instance
-     * @throws LdapException
+     * @throws LdapException If the instance cannot be created
      */
     public ConfigChangeListener( ConfigPartitionReader cpReader, DirectoryService directoryService )
         throws LdapException

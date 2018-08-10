@@ -79,9 +79,9 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
 
 
     /**
-     * Returns the {@link PrivateMessage}.
+     * Returns the {@link KrbPriv}.
      *
-     * @return The {@link PrivateMessage}.
+     * @return The {@link KrbPriv}.
      */
     public KrbPriv getPrivateMessage()
     {
@@ -122,7 +122,7 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
      *
      * @param buf
      * @return The {@link ChangePasswordRequest}.
-     * @throws IOException
+     * @throws ChangePasswordException If the decoding failed
      */
     public static ChangePasswordRequest decode( ByteBuffer buf ) throws ChangePasswordException
     {

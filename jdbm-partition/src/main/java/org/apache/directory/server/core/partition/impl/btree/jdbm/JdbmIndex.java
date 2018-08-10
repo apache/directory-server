@@ -118,6 +118,9 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     // ----------------------------------------------------------------------
     /**
      * Creates a JdbmIndex instance for a give AttributeId
+     * 
+     * @param attributeId The Attribute ID
+     * @param withReverse If we have to create a reverse index
      */
     public JdbmIndex( String attributeId, boolean withReverse )
     {
@@ -130,11 +133,14 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     /**
      * Initialize the index for an Attribute, with a specific working directory (may be null).
      * 
+     * @param recMan The RecordManager
      * @param schemaManager The schemaManager to use to get back the Attribute
      * @param attributeType The attributeType this index is created for
+     * @throws LdapException If the initialization failed
      * @throws IOException If the initialization failed
      */
-    public void init( RecordManager recMan, SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
+    public void init( RecordManager recMan, SchemaManager schemaManager, AttributeType attributeType ) 
+            throws LdapException, IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
 
@@ -320,7 +326,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
 
 
     /**
-     * @see org.apache.directory.server.xdbm.Index#lessThanCount(java.lang.Object)
+     * {@inheritDoc}
      */
     @Override
     public long lessThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException
@@ -334,7 +340,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
     // ------------------------------------------------------------------------
 
     /**
-     * @see Index#forwardLookup(java.lang.Object)
+     * {@inheritDoc}
      */
     public String forwardLookup( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {

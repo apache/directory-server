@@ -35,11 +35,12 @@ public interface PrincipalStore
 
     /**
      * Change a principal's password.
+     * 
      * @param byPrincipal the principal which is changing the password for the forPrincipal
      * @param forPrincipal the principal whose password is being set or changed
      * @param newPassword the new password
      * @param isInitialTicket tells if the ticket is a freshly obtained ticket
-     * @throws Exception
+     * @throws ChangePasswordException If the password change failed
      */
     void changePassword( KerberosPrincipal byPrincipal, KerberosPrincipal forPrincipal, String newPassword,
         boolean isInitialTicket ) throws ChangePasswordException;

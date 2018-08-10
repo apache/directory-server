@@ -44,7 +44,7 @@ public class JdbmMasterTable extends JdbmTable<String, Entry> implements MasterT
      *
      * @param recMan the JDBM record manager
      * @param schemaManager the schema manager
-     * @throws Exception if there is an error opening the Db file.
+     * @throws IOException if there is an error opening the Db file.
      */
     public JdbmMasterTable( RecordManager recMan, SchemaManager schemaManager ) throws IOException
     {

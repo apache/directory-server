@@ -63,6 +63,7 @@ public class ArrayTree<K>
      * Creates a new instance of AVLTree.
      *
      * @param comparator the comparator to be used for comparing keys
+     * @param array The array of keys
      */
     public ArrayTree( Comparator<K> comparator, K[] array )
     {
@@ -312,7 +313,7 @@ public class ArrayTree<K>
      * element.
      *
      * @param key the key to find
-     * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
+     * @return the LinkedAvlNode whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
     public K findGreater( K key )

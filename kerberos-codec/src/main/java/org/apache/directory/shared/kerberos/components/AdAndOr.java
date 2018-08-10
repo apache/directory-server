@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * <pre>
  * AD-AND-OR               ::= SEQUENCE {
  *         condition-count [0] Int32,
- *         elements        [1] <AuthorizationData>
+ *         elements        [1] &lt;AuthorizationData&gt;
  * }
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -116,13 +116,13 @@ public class AdAndOr implements Asn1Object
      * <pre>
      * 0x30 L1 AD-AND-OR sequence
      *  |
-     *  +--> 0xA1 L2 condition count tag
+     *  +--&gt; 0xA1 L2 condition count tag
      *  |     |
-     *  |     +--> 0x02 L2-1 condition count (int)
+     *  |     +--&gt; 0x02 L2-1 condition count (int)
      *  |
-     *  +--> 0xA2 L3 elements tag
+     *  +--&gt; 0xA2 L3 elements tag
      *        |
-     *        +--> 0x30 L3-1 elements (AuthorizationData)
+     *        +--&gt; 0x30 L3-1 elements (AuthorizationData)
      * </pre>
      */
     @Override

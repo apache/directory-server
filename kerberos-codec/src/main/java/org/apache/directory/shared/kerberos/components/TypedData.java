@@ -167,13 +167,13 @@ public class TypedData implements Asn1Object
      *  |
      *  +-- 0x30 L2 The TD sequence
      *       |
-     *       +--> 0xA0 L3 tdType tag
+     *       +--&gt; 0xA0 L3 tdType tag
      *       |     |
-     *       |     +--> 0x02 L3-2 tdType (int)
+     *       |     +--&gt; 0x02 L3-2 tdType (int)
      *       |
-     *       +--> [0xA1 L4 tdData tag
+     *       +--&gt; [0xA1 L4 tdData tag
      *             |
-     *             +--> 0x04 L4-2 tdData (OCTET STRING)]
+     *             +--&gt; 0x04 L4-2 tdData (OCTET STRING)]
      * </pre>
      */
     @Override

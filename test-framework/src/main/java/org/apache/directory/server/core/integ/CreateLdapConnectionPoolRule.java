@@ -34,6 +34,7 @@ import org.apache.directory.ldap.client.api.LdapConnectionValidator;
 import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.ldap.LdapServer;
+import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;

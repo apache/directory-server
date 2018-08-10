@@ -220,29 +220,29 @@ public class KrbSafeBody implements Asn1Object
      * <pre>
      * 0x30 L1 KRB-SAFE-BODY SEQ
      *  |
-     *  +--> 0xA0 L2 user-data tag
+     *  +--&gt; 0xA0 L2 user-data tag
      *  |     |
-     *  |     +--> 0x04 L2-1 user-data (Octet String)
+     *  |     +--&gt; 0x04 L2-1 user-data (Octet String)
      *  |
-     *  +--> 0xA1 0x11 timestamp tag
+     *  +--&gt; 0xA1 0x11 timestamp tag
      *  |     |
-     *  |     +--> 0x18 0x0F timestamp (KerberosTime)
+     *  |     +--&gt; 0x18 0x0F timestamp (KerberosTime)
      *  |
-     *  +--> 0xA2 L3 usec tag
+     *  +--&gt; 0xA2 L3 usec tag
      *  |     |
-     *  |     +--> 0x02 L3-1 usec (Microseconds)
+     *  |     +--&gt; 0x02 L3-1 usec (Microseconds)
      *  |
-     *  +--> 0xA3 L4 seq-number tag
+     *  +--&gt; 0xA3 L4 seq-number tag
      *  |     |
-     *  |     +--> 0x02 L4-1 seqnumber (UInt32)
+     *  |     +--&gt; 0x02 L4-1 seqnumber (UInt32)
      *  |
-     *  +--> 0xA4 L5 s-address tag
+     *  +--&gt; 0xA4 L5 s-address tag
      *  |     |
-     *  |     +--> 0x30 L5-1 s-address (HostAddress)
+     *  |     +--&gt; 0x30 L5-1 s-address (HostAddress)
      *  |
-     *  +--> 0xA5 L6 r-address tag
+     *  +--&gt; 0xA5 L6 r-address tag
      *        |
-     *        +--> 0x30 L6-1 r-address (HostAddress)
+     *        +--&gt; 0x30 L6-1 r-address (HostAddress)
      * </pre>       
      */
     @Override

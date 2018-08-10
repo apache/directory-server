@@ -213,13 +213,13 @@ public class HostAddress implements Asn1Object
      * 
      * 0x30 L1 hostAddress sequence
      *  |
-     *  +--> 0xA0 L2 addrType tag
+     *  +--&gt; 0xA0 L2 addrType tag
      *  |     |
-     *  |     +--> 0x02 L2-1 addrType (int)
+     *  |     +--&gt; 0x02 L2-1 addrType (int)
      *  |
-     *  +--> 0xA1 L3 address tag
+     *  +--&gt; 0xA1 L3 address tag
      *        |
-     *        +--> 0x04 L3-1 address (OCTET STRING)
+     *        +--&gt; 0x04 L3-1 address (OCTET STRING)
      *        
      *  where L1 = L2 + length(0xA0) + length(L2) +
      *             L3 + length(0xA1) + length(L3) 

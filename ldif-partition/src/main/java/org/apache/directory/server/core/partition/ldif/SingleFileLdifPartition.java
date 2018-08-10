@@ -82,6 +82,9 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
     /**
      * Creates a new instance of SingleFileLdifPartition.
+     * 
+     * @param schemaManager The SchemaManager instance
+     * @param dnFactory The DN factory
      */
     public SingleFileLdifPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
@@ -517,10 +520,11 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
     /**
      * enable/disable the re-writing of partition data.
-     * This method internally calls the @see {@link #rewritePartitionData()} to save any dirty data if present
+     * This method internally calls the rewritePartitionData() method to save any dirty data if present
      * 
+     * @param partitionTxn The transaction to use
      * @param enableRewriting flag to enable/disable re-writing
-     * @throws LdapException
+     * @throws LdapException If we weren't able to save the dirty data
      */
     public void setEnableRewriting( PartitionTxn partitionTxn, boolean enableRewriting ) throws LdapException
     {

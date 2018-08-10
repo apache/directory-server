@@ -67,8 +67,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A LDIF based partition. Data are stored on disk as LDIF, following this organization :
- * <li> each entry is associated with a file, post-fixed with LDIF
- * <li> each entry having at least one child will have a directory created using its name.
+ * <ul>
+ *   <li> each entry is associated with a file, post-fixed with LDIF
+ *   <li> each entry having at least one child will have a directory created using its name.
+ * </ul>
  * The root is the partition's suffix.
  * <br>
  * So for instance, we may have on disk :
@@ -76,10 +78,10 @@ import org.slf4j.LoggerFactory;
  * /ou=example,ou=system.ldif
  * /ou=example,ou=system/
  *   |
- *   +--> cn=test.ldif
+ *   +--&gt; cn=test.ldif
  *        cn=test/
  *           |
- *           +--> cn=another test.ldif
+ *           +--&gt; cn=another test.ldif
  *                ...
  * </pre>
  * <br><br>
@@ -128,6 +130,9 @@ public class LdifPartition extends AbstractLdifPartition
 
     /**
      * Creates a new instance of LdifPartition.
+     * 
+     * @param schemaManager The SchemaManager instance
+     * @param dnFactory The DN factory
      */
     public LdifPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {

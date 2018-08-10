@@ -52,6 +52,7 @@ import org.codehaus.plexus.util.FileUtils;
  * @description Creates platform specific installation layout images.
  * @phase package
  * @requiresDependencyResolution runtime
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class GenerateMojo extends AbstractMojo

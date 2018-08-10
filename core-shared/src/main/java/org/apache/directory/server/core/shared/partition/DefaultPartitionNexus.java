@@ -1112,7 +1112,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     /**
      * Return the number of children and subordinates for a given entry
      *
-     * @param dn The entry's DN
+     * @param partitionTxn The Partition transaction
+     * @param entry The entry for which we want to find the subordinates
      * @return The Subordinate instance that contains the values.
      * @throws LdapException If we had an issue while processing the request
      */

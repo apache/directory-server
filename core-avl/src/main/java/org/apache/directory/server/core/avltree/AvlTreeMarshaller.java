@@ -187,9 +187,9 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         int size = din.readInt();
 
         LinkedAvlNode[] nodes = new LinkedAvlNode[size];
-        LinkedAvlNode<E> root = readTree( din, null, nodes );
+        LinkedAvlNode<E> root = readTree( din, nodes );
 
-        AvlTreeImpl<E> tree = new AvlTreeImpl<E>( comparator );
+        AvlTreeImpl<E> tree = new AvlTreeImpl<>( comparator );
 
         tree.setRoot( root );
 
@@ -219,11 +219,11 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
      * [node] [child-marker] [node].
      *
      * @param in the input stream to deserialize from
-     * @param node the node to deserialize
+     * @param nodes the deserialized nodes
      * @return the deserialized AvlTree node
      * @throws IOException on failures to deserialize or read from the stream
      */
-    public LinkedAvlNode<E> readTree( DataInputStream in, LinkedAvlNode<E> node, LinkedAvlNode[] nodes )
+    public LinkedAvlNode<E> readTree( DataInputStream in, LinkedAvlNode[] nodes )
         throws IOException
     {
         int dLen = in.readInt();
@@ -234,7 +234,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         in.readFully( data );
 
         E key = keyMarshaller.deserialize( data );
-        node = new LinkedAvlNode( key );
+        LinkedAvlNode<E> node = new LinkedAvlNode<>( key );
 
         int index = in.readInt();
         nodes[index] = node;
@@ -243,14 +243,14 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 
         if ( childMarker == 2 )
         {
-            node.setLeft( readTree( in, node.getLeft(), nodes ) );
+            node.setLeft( readTree( in, nodes ) );
         }
 
         childMarker = in.readInt();
 
         if ( childMarker == 4 )
         {
-            node.setRight( readTree( in, node.getRight(), nodes ) );
+            node.setRight( readTree( in, nodes ) );
         }
 
         return node;

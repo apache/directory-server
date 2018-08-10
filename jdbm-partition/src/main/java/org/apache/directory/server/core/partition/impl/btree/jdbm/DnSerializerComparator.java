@@ -42,7 +42,7 @@ public class DnSerializerComparator extends SerializableComparator<Dn>
     /**
      * Creates a new instance of DnSerializer.
      * 
-     * @param schemaManager The reference to the global schemaManager
+     * @param oid The comparator OID
      */
     public DnSerializerComparator( String oid )
     {

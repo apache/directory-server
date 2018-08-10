@@ -74,8 +74,6 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * Creates a Cursor over the tuples of a JDBM table.
      *
      * @param table the JDBM Table to build a Cursor over
-     * @throws java.io.IOException of there are problems accessing the BTree or if this table
-     * does not allow duplicate values
      */
     public DupsContainerCursor( JdbmTable<K, V> table )
     {
@@ -208,7 +206,8 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * Positions this Cursor before the key of the supplied tuple.
      *
      * @param element the tuple who's key is used to position this Cursor
-     * @throws IOException if there are failures to position the Cursor
+     * @throws LdapException if there are failures to position the Cursor
+     * @throws CursorException if there are failures to position the Cursor
      */
     public void before( Tuple<K, DupsContainer<V>> element ) throws LdapException, CursorException
     {

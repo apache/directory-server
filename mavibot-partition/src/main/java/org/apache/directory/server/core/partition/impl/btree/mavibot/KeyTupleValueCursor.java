@@ -58,7 +58,7 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * Creates a Cursor over the tuples of an ArrayTree.
      *
-     * @param arrayTree the ArrayTree to build a Tuple returning Cursor over
+     * @param cursor The wrapped cursor 
      * @param key the constant key for which values are returned
      */
     public KeyTupleValueCursor( ValueCursor<V> cursor, K key )
@@ -118,7 +118,8 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * considered at all.
      *
      * @param element the valueTuple who's value is used to position this Cursor
-     * @throws Exception if there are failures to position the Cursor
+     * @throws LdapException if there are failures to position the Cursor
+     * @throws CursorException if there are failures to position the Cursor
      */
     public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {

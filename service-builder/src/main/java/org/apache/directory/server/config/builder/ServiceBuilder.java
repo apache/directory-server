@@ -161,9 +161,9 @@ public final class ServiceBuilder
     /**
      * Creates the Interceptor instances from the configuration
      *
-     * @param dirServiceDN the Dn under which interceptors are configured
+     * @param interceptorBeans The Interceptors configuration used to create Interceptors
      * @return a list of instantiated Interceptor objects
-     * @throws Exception If the instanciation failed
+     * @throws LdapException If the instanciation failed
      */
     public static List<Interceptor> createInterceptors( List<InterceptorBean> interceptorBeans ) throws LdapException
     {
@@ -247,10 +247,10 @@ public final class ServiceBuilder
 
 
     /**
-     * creates the PassworddPolicyConfiguration object after reading the config entry containing pwdpolicy OC
+     * creates the PassworddPolicyConfiguration object after reading the config entry containing pwdPolicy OC
      *
-     * @param PasswordPolicyBean The Bean containing the PasswordPolicy configuration
-     * @return the {@link PasswordPolicyConfiguration} object, null if the pwdpolicy entry is not present or disabled
+     * @param passwordPolicyBean The Bean containing the PasswordPolicy configuration
+     * @return the {@link PasswordPolicyConfiguration} object, null if the pwdPolicy entry is not present or disabled
      */
     public static PasswordPolicyConfiguration createPwdPolicyConfig( PasswordPolicyBean passwordPolicyBean )
     {
@@ -315,7 +315,7 @@ public final class ServiceBuilder
     /**
      * Read the configuration for the ChangeLog system
      * 
-     * @param changelogBean The Bean containing the ChangeLog configuration
+     * @param changeLogBean The Bean containing the ChangeLog configuration
      * @return The instantiated ChangeLog element
      */
     public static ChangeLog createChangeLog( ChangeLogBean changeLogBean )
@@ -337,7 +337,7 @@ public final class ServiceBuilder
     /**
      * Instantiate the Journal object from the stored configuration
      * 
-     * @param changelogBean The Bean containing the ChangeLog configuration
+     * @param journalBean The Bean containing the Journal configuration
      * @return An instance of Journal
      */
     public static Journal createJournal( JournalBean journalBean )
@@ -441,7 +441,7 @@ public final class ServiceBuilder
     /**
      * Loads and instantiates a MechanismHandler from the configuration entry
      *
-     * @param saslMechHandlerEntry the entry of OC type {@link ConfigSchemaConstants#ADS_LDAP_SERVER_SASL_MECH_HANDLER_OC}
+     * @param saslMechHandlerBean The SaslMechHandler configuration used to create MechanismHandler instance
      * @return an instance of the MechanismHandler type
      * @throws ConfigurationException if the SASL mechanism handler cannot be created
      */
@@ -502,6 +502,7 @@ public final class ServiceBuilder
      * 
      * @param authenticatorBean The created instance of authenticator
      * @return An instance of authenticator if the given authenticatorBean is not disabled
+     * @throws ConfigurationException If the Authenticator cannot be created
      */
     public static Authenticator createAuthenticator( AuthenticatorBean authenticatorBean )
         throws ConfigurationException
@@ -614,14 +615,15 @@ public final class ServiceBuilder
 
 
     /**
-     * Creates the array of transports read from the DIT
+     * Creates the array of authenticators
      * 
-     * @param transportBeans The array of Transport configuration
-     * @return An arry of Transport instance
+     * @param list The array of AuthenticatorBean configuration
+     * @return An array of Authenticator instance
+     * @throws ConfigurationException If one of theAuthenticator cannot be created 
      */
     public static Authenticator[] createAuthenticators( List<AuthenticatorBean> list ) throws ConfigurationException
     {
-        Set<Authenticator> authenticators = new HashSet<Authenticator>( list.size() );
+        Set<Authenticator> authenticators = new HashSet<>( list.size() );
 
         for ( AuthenticatorBean authenticatorBean : list )
         {
@@ -691,8 +693,9 @@ public final class ServiceBuilder
      * Instantiates a NtpServer based on the configuration present in the partition
      *
      * @param ntpServerBean The NtpServerBean containing the NtpServer configuration
+     * @param directoryService The DirectoryService instance
      * @return Instance of NtpServer
-     * @throws org.apache.directory.api.ldap.model.exception.LdapException
+     * @throws LdapException If the NtpServer instance cannot be created
      */
     public static NtpServer createNtpServer( NtpServerBean ntpServerBean, DirectoryService directoryService )
         throws LdapException
@@ -716,7 +719,7 @@ public final class ServiceBuilder
     }
 
 
-    /**
+    /*
      * Instantiates a DhcpServer based on the configuration present in the partition
      *
      * @param dhcpServerBean The DhcpServerBean containing the DhcpServer configuration
@@ -747,9 +750,10 @@ public final class ServiceBuilder
     /**
      * Instantiates a KdcServer based on the configuration present in the partition
      *
-     * @param kdcServerBean The KdcServerBean containing the KdcServer configuration
+     * @param directoryServiceBean The DirectoryServiceBean containing the KdcServer configuration
+     * @param directoryService The DirectoryService instance
      * @return Instance of KdcServer
-     * @throws org.apache.directory.api.ldap.model.exception.LdapException
+     * @throws LdapException If the KdcServce cannot be created
      */
     public static KdcServer createKdcServer( DirectoryServiceBean directoryServiceBean,
         DirectoryService directoryService ) throws LdapException
@@ -844,8 +848,9 @@ public final class ServiceBuilder
      * Instantiates the HttpWebApps based on the configuration present in the partition
      *
      * @param httpWebAppBeans The list of HttpWebAppBeans containing the HttpWebAppBeans configuration
+     * @param directoryService The DirectoryService instance
      * @return Instances of HttpWebAppBean
-     * @throws LdapException
+     * @throws LdapException If the HttpWebApps instance cannot be created
      */
     public static Set<WebApp> createHttpWebApps( List<HttpWebAppBean> httpWebAppBeans, DirectoryService directoryService )
         throws LdapException
@@ -883,8 +888,9 @@ public final class ServiceBuilder
      * Instantiates a HttpServer based on the configuration present in the partition
      *
      * @param httpServerBean The HttpServerBean containing the HttpServer configuration
+     * @param directoryService The DirectoryService instance
      * @return Instance of LdapServer
-     * @throws LdapException
+     * @throws LdapException If the HttpServer cannot be created
      */
     public static HttpServer createHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService )
         throws LdapException
@@ -1003,8 +1009,9 @@ public final class ServiceBuilder
      * Instantiates a LdapServer based on the configuration present in the partition
      *
      * @param ldapServerBean The LdapServerBean containing the LdapServer configuration
+     * @param directoryService The DirectoryService instance
      * @return Instance of LdapServer
-     * @throws LdapException
+     * @throws LdapException If the LdapServer cannot be created
      */
     public static LdapServer createLdapServer( LdapServerBean ldapServerBean, DirectoryService directoryService )
         throws LdapException
@@ -1134,7 +1141,7 @@ public final class ServiceBuilder
      * 
      * @param replConsumerBeans the list of consumers configured
      * @return a list of ReplicationConsumer instances
-     * @throws ConfigurationException
+     * @throws ConfigurationException If the replication consumer instance cannot be created
      */
     public static List<ReplicationConsumer> createReplConsumers( List<ReplConsumerBean> replConsumerBeans )
         throws ConfigurationException
@@ -1222,9 +1229,10 @@ public final class ServiceBuilder
     /**
      * Create a new instance of a JdbmIndex from an instance of JdbmIndexBean
      * 
-     * @param JdbmIndexBean The JdbmIndexBean to convert
+     * @param partition The JdbmPartition instance
+     * @param jdbmIndexBean The JdbmIndexBean to convert
+     * @param directoryService The DirectoryService instance
      * @return An JdbmIndex instance
-     * @throws Exception If the instance cannot be created
      */
     public static JdbmIndex<?> createJdbmIndex( JdbmPartition partition,
         JdbmIndexBean jdbmIndexBean, DirectoryService directoryService )
@@ -1297,10 +1305,10 @@ public final class ServiceBuilder
     /**
      * Create a new instance of a JdbmPartition
      * 
+     * @param directoryService The DirectoryService instance
      * @param jdbmPartitionBean the JdbmPartition bean
      * @return The instantiated JdbmPartition
-     * @throws LdapInvalidDnException
-     * @throws Exception If the instance cannot be created
+     * @throws ConfigurationException If the instance cannot be created
      */
     public static JdbmPartition createJdbmPartition( DirectoryService directoryService,
         JdbmPartitionBean jdbmPartitionBean ) throws ConfigurationException
@@ -1344,6 +1352,7 @@ public final class ServiceBuilder
     /**
      * Create the a Partition instantiated from the configuration
      * 
+     * @param directoryService The DirectoryService instance
      * @param partitionBean the Partition bean
      * @return The instantiated Partition
      * @throws ConfigurationException If we cannot process the Partition
@@ -1374,6 +1383,7 @@ public final class ServiceBuilder
     /**
      * Create the set of Partitions instantiated from the configuration
      * 
+     * @param directoryService The DirectoryService instance
      * @param partitionBeans the list of Partition beans
      * @return A Map of all the instantiated partitions
      * @throws ConfigurationException If we cannot process some Partition
@@ -1406,9 +1416,10 @@ public final class ServiceBuilder
      * Instantiates a DirectoryService based on the configuration present in the partition
      *
      * @param directoryServiceBean The bean containing the configuration
-     * @param baseDirectory The working path for this DirectoryService
+     * @param instanceLayout The InstanceLayout instance
+     * @param schemaManager The SchemaManager instance
      * @return An instance of DirectoryService
-     * @throws Exception
+     * @throws Exception If the DirectoryService cannot be created
      */
     public static DirectoryService createDirectoryService( DirectoryServiceBean directoryServiceBean,
         InstanceLayout instanceLayout, SchemaManager schemaManager ) throws Exception
@@ -1556,35 +1567,36 @@ public final class ServiceBuilder
     /**
      * Create a new instance of a MavibotIndex from an instance of MavibotIndexBean
      * 
-     * @param MavibotIndexBean The MavibotIndexBean to convert
+     * @param partition The Mavibot partition instance
+     * @param mavibotIndexBean The MavibotIndexBean to convert
+     * @param directoryService The DirectoryService instance
      * @return An MavibotIndex instance
-     * @throws Exception If the instance cannot be created
      */
     public static MavibotIndex<?> createMavibotIndex( MavibotPartition partition,
-        MavibotIndexBean mavobotIndexBean, DirectoryService directoryService )
+        MavibotIndexBean mavibotIndexBean, DirectoryService directoryService )
     {
-        if ( ( mavobotIndexBean == null ) || mavobotIndexBean.isDisabled() )
+        if ( ( mavibotIndexBean == null ) || mavibotIndexBean.isDisabled() )
         {
             return null;
         }
 
         MavibotIndex<?> index = null;
 
-        boolean hasReverse = mavobotIndexBean.getIndexHasReverse();
+        boolean hasReverse = mavibotIndexBean.getIndexHasReverse();
 
-        if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT )
-            || mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
+        if ( mavibotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT )
+            || mavibotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_RDN_AT_OID ) )
         {
             index = new MavibotRdnIndex();
         }
-        else if ( mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT )
-            || mavobotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
+        else if ( mavibotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT )
+            || mavibotIndexBean.getIndexAttributeId().equalsIgnoreCase( ApacheSchemaConstants.APACHE_ALIAS_AT_OID ) )
         {
             index = new MavibotDnIndex( ApacheSchemaConstants.APACHE_ALIAS_AT_OID );
         }
         else
         {
-            index = new MavibotIndex<String>( mavobotIndexBean.getIndexAttributeId(), hasReverse );
+            index = new MavibotIndex<String>( mavibotIndexBean.getIndexAttributeId(), hasReverse );
         }
 
         index.setWkDirPath( partition.getPartitionPath() );

@@ -33,7 +33,7 @@ import org.apache.directory.shared.kerberos.components.KdcReq;
  * AS-REQ message. It's just a KDC-REQ message with a message type set to 10.
  *  It will store the object described by the ASN.1 grammar :
  * <pre>
- * AS-REQ          ::= [APPLICATION 10] <KDC-REQ>
+ * AS-REQ          ::= [APPLICATION 10] &lt;KDC-REQ&gt;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -59,7 +59,7 @@ public class AsReq extends KdcReq
      * 
      * 0x6A L1 AS-REQ message
      *  |
-     *  +-->  0x30 L2 KDC-REQ sequence
+     *  +--&gt;  0x30 L2 KDC-REQ sequence
      * </pre>
      */
     public int computeLength()

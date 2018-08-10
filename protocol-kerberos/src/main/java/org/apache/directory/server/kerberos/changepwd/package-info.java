@@ -19,8 +19,7 @@
  */
 
 /**
- * Provides the entry point to an instance of the
- * {@link org.apache.directory.server.changepw.ChangePasswordServer},
+ * Provides the entry point to an instance of the {@link org.apache.directory.server.kerberos.changepwd.ChangePasswordServer},
  * as well as support for configuration.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

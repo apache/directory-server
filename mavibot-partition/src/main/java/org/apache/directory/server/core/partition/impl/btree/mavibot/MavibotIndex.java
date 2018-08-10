@@ -92,6 +92,9 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     // ----------------------------------------------------------------------
     /**
      * Creates a JdbmIndex instance for a give AttributeId
+     * 
+     * @param attributeId The Attribute ID
+     * @param withReverse If we want a reverse index to be created
      */
     public MavibotIndex( String attributeId, boolean withReverse )
     {
@@ -107,6 +110,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
      * @param schemaManager The schemaManager to use to get back the Attribute
      * @param attributeType The attributeType this index is created for
      * @throws IOException If the initialization failed
+     * @throws LdapException If the initialization failed
      */
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
     {
@@ -297,7 +301,12 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     // ------------------------------------------------------------------------
 
     /**
-     * @see Index#forwardLookup(java.lang.Object)
+     * Do a lookup using the forward table
+     * 
+     * @param partitionTxn The Transaction to use
+     * @param attrVal The Key we are looking for
+     * @return The found value
+     * @throws LdapException If the lookup failed
      */
     public String forwardLookup( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
@@ -550,11 +559,14 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
 
 
     /**
-     * @see Index#sync()
+     * Force the flush of this index
+     * 
+     * @throws IOException If the flush failed
      */
     public synchronized void sync() throws IOException
     {
         forward.getBTree().flush();
+        
         if ( reverse != null )
         {
             reverse.getBTree().flush();

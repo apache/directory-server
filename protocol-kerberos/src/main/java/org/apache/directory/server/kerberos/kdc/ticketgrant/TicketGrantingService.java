@@ -1009,11 +1009,11 @@ public final class TicketGrantingService
      * Get a PrincipalStoreEntry given a principal.  The ErrorType is used to indicate
      * whether any resulting error pertains to a server or client.
      *
-     * @param principal
-     * @param store
-     * @param errorType
+     * @param principal The KerberosPrincipal instance
+     * @param store The Principal store
+     * @param errorType The type of error
      * @return The PrincipalStoreEntry
-     * @throws Exception
+     * @throws KerberosException If teh entry can't be retrieve
      */
     public static PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, ErrorType errorType )
         throws KerberosException

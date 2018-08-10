@@ -22,11 +22,14 @@ package org.apache.directory.server.integ;
 import java.util.Hashtable;
 
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.api.util.Network;
@@ -57,9 +60,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
      *
      * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
-     * @throws Exception if there are problems creating the context
+     * @throws NamingException if there are problems creating the context
      */
-    public static LdapContext getWiredContext( LdapServer ldapServer ) throws Exception
+    public static LdapContext getWiredContext( LdapServer ldapServer ) throws NamingException
     {
         return getWiredContext( ldapServer, null );
     }
@@ -71,11 +74,13 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * user as the principalDN.  The context is to the rootDSE.
      *
      * @param ldapServer the LDAP server to get the connection to
+     * @param principalDn The user to use for authentication
+     * @param password The user's password
      * @return an LdapContext as the administrative user to the RootDSE
-     * @throws Exception if there are problems creating the context
+     * @throws NamingException if there are problems creating the context
      */
     public static LdapContext getWiredContext( LdapServer ldapServer, String principalDn, String password )
-        throws Exception
+        throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -95,10 +100,11 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * user as the principalDN.  The context is to the rootDSE.
      *
      * @param ldapServer the LDAP server to get the connection to
+     * @param controls The controls to use
      * @return an LdapContext as the administrative user to the RootDSE
-     * @throws Exception if there are problems creating the context
+     * @throws NamingException if there are problems creating the context
      */
-    public static LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws Exception
+    public static LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -107,8 +113,18 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        return new InitialLdapContext( env, JndiUtils.toJndiControls(
-            ldapServer.getDirectoryService().getLdapCodecService(), controls ) );
+        javax.naming.ldap.Control[] jndiControls;
+        
+        try
+        {
+            jndiControls = JndiUtils.toJndiControls( ldapServer.getDirectoryService().getLdapCodecService(), controls );
+        }
+        catch ( org.apache.directory.api.asn1.EncoderException ee )
+        {
+            throw new NamingException( ee.getMessage() );
+        }
+        
+        return new InitialLdapContext( env, jndiControls );
     }
 
 
@@ -119,9 +135,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
      *
      * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
-     * @throws Exception if there are problems creating the context
+     * @throws NamingException if there are problems creating the context
      */
-    public static LdapContext getWiredContextThrowOnRefferal( LdapServer ldapServer ) throws Exception
+    public static LdapContext getWiredContextThrowOnRefferal( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -131,6 +147,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.REFERRAL, "throw" );
+        
         return new InitialLdapContext( env, null );
     }
 
@@ -142,9 +159,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
      *
      * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
-     * @throws Exception if there are problems creating the context
+     * @throws NamingException if there are problems creating the context
      */
-    public static LdapContext getWiredContextRefferalIgnore( LdapServer ldapServer ) throws Exception
+    public static LdapContext getWiredContextRefferalIgnore( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -154,6 +171,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.REFERRAL, "ignore" );
+        
         return new InitialLdapContext( env, null );
     }
 
@@ -165,9 +183,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
      *
      * @param ldapServer the LDAP server to get the connection to
      * @return an LdapContext as the administrative user to the RootDSE
-     * @throws Exception if there are problems creating the context
+     * @throws NamingException if there are problems creating the context
      */
-    public static LdapContext getWiredContextFollowOnRefferal( LdapServer ldapServer ) throws Exception
+    public static LdapContext getWiredContextFollowOnRefferal( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -177,11 +195,12 @@ public class ServerIntegrationUtils extends IntegrationUtils
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.REFERRAL, "follow" );
+        
         return new InitialLdapContext( env, null );
     }
 
 
-    public static LdapConnection getWiredConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getWiredConnection( LdapServer ldapServer ) throws LdapException
     {
         String testServer = System.getProperty( "ldap.test.server", null );
 
@@ -211,7 +230,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     }
 
 
-    public static LDAPConnection getNsdkWiredConnection( LdapServer ldapServer ) throws Exception
+    public static LDAPConnection getNsdkWiredConnection( LdapServer ldapServer ) throws LDAPException
     {
         String testServer = System.getProperty( "ldap.test.server", null );
 
@@ -248,10 +267,10 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * @param principalDn The user's DN
      * @param password The user's password
      * @return A LdapConnection instance if we got one
-     * @throws Exception If the connection cannot be created
+     * @throws LdapException If the connection cannot be created
      */
     public static LdapConnection getWiredConnection( LdapServer ldapServer, String principalDn, String password )
-        throws Exception
+        throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         connection.bind( principalDn, password );
@@ -265,9 +284,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * 
      * @param ldapServer The server we want to connect to
      * @return A LdapConnection instance if we got one
-     * @throws Exception If the connection cannot be created
+     * @throws LdapException If the connection cannot be created
      */
-    public static LdapConnection getLdapConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getLdapConnection( LdapServer ldapServer ) throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
@@ -282,10 +301,10 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * @param principalDn The user's DN
      * @param password The user's password
      * @return A LdapConnection instance if we got one
-     * @throws Exception If the connection cannot be created
+     * @throws LDAPException If the connection cannot be created
      */
     public static LDAPConnection getNsdkWiredConnection( LdapServer ldapServer, String principalDn, String password )
-        throws Exception
+        throws LDAPException
     {
         LDAPConnection connection = new LDAPConnection();
         connection.connect( 3, Network.LOOPBACK_HOSTNAME, ldapServer.getPort(), principalDn, password );
@@ -299,9 +318,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * 
      * @param ldapServer The server we want to connect to
      * @return A LdapConnection instance if we got one
-     * @throws Exception If the connection cannot be created
+     * @throws LdapException If the connection cannot be created
      */
-    public static LdapConnection getAdminConnection( LdapServer ldapServer ) throws Exception
+    public static LdapConnection getAdminConnection( LdapServer ldapServer ) throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );

@@ -22,7 +22,7 @@
  * Provides the entry point to an instance of the {@link org.apache.directory.server.kerberos.kdc.KdcServer}
  * (KDC), as well as classes common to the KDC's two services:  the
  * Authentication Service (AS) and the Ticket-Granting Service (TGS).
- * <p/>
+ * <p>
  * Classes common to all of the services provide configuration
  * support, the execution context, monitors for logging, and
  * "links" for selecting checksum and encryption types.

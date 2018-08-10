@@ -312,6 +312,13 @@ public final class TlsKeyGenerator
      * 
      * TODO the code is duplicate atm, will eliminate this redundancy after finding
      * a better thought (an instant one is to call this method from the aboveaddKeyPair(entry) and remove the impl there)
+     * 
+     * @param entry The Entry to update
+     * @param issuerDN The issuer
+     * @param subjectDN The subject
+     * @param keyAlgo The algorithm
+     * @param keySize The key size
+     * @throws LdapException If the addition failed 
      */
     public static void addKeyPair( Entry entry, String issuerDN, String subjectDN, String keyAlgo, int keySize )
         throws LdapException

@@ -512,7 +512,7 @@ public final class ErrorType implements Comparable<ErrorType>
     /**
      * Gets the value by its value value.
      *
-     * @param value the value value of the value
+     * @param ordinal the value value of the value
      * @return the type corresponding to the value value
      */
     public static ErrorType getTypeByValue( int ordinal )

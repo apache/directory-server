@@ -660,7 +660,7 @@ public class KerberosDecoder
      * 
      * @param data The byte array containing the data structure to decode
      * @return An instance of EncTgsRepPart
-     * @throws KerberosException If the decoding fails
+     * @throws ChangePasswordException If the decoding fails
      */
     public static EncTgsRepPart decodeEncTgsRepPart( byte[] data ) throws ChangePasswordException
     {

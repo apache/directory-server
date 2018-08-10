@@ -41,8 +41,8 @@ import org.slf4j.LoggerFactory;
  * 
  * The ASN.1 grammar is :
  * <pre>
- * ETYPE-INFO              ::= SEQUENCE OF <ETYPE-INFO-ENTRY>
- *</pre>
+ * ETYPE-INFO              ::= SEQUENCE OF &lt;ETYPE-INFO-ENTRY&gt;
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ETypeInfo implements Asn1Object
@@ -100,7 +100,7 @@ public class ETypeInfo implements Asn1Object
     /**
      * Returns true if this {@link ETypeInfoEntry} contains a specified {@link ETypeInfoEntry}.
      *
-     * @param address The etypeInfoEntry we are looking for in the existing list
+     * @param etypeInfoEntry The etypeInfoEntry we are looking for in the existing list
      * @return true if this {@link ETypeInfoEntry} contains a specified {@link ETypeInfoEntry}.
      */
     public boolean contains( ETypeInfoEntry etypeInfoEntry )
@@ -185,13 +185,13 @@ public class ETypeInfo implements Asn1Object
      * 
      * 0x30 L1 ETypeInfo sequence of ETypeInfoEntry
      *  |
-     *  +--> 0x30 L2[1] ETypeInfoEntry[1]
+     *  +--&gt; 0x30 L2[1] ETypeInfoEntry[1]
      *  |
-     *  +--> 0x30 L2[2] ETypeInfoEntry[2]
+     *  +--&gt; 0x30 L2[2] ETypeInfoEntry[2]
      *  |
      *  ...
      *  |
-     *  +--> 0x30 L2[n] ETypeInfoEntry[n]
+     *  +--&gt; 0x30 L2[n] ETypeInfoEntry[n]
      *        
      *  where L1 = sum( L2[1], l2[2], ..., L2[n] )
      * </pre>

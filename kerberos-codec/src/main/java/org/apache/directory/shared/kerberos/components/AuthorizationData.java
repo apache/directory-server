@@ -86,13 +86,13 @@ public class AuthorizationData implements Asn1Object
      *  |
      *  +-- 0x30 L2 The AD sequence
      *       |
-     *       +--> 0xA0 L3 adType tag
+     *       +--&gt; 0xA0 L3 adType tag
      *       |     |
-     *       |     +--> 0x02 L3-1 adType (int)
+     *       |     +--&gt; 0x02 L3-1 adType (int)
      *       |
-     *       +--> 0xA1 L4 adData tag
+     *       +--&gt; 0xA1 L4 adData tag
      *             |
-     *             +--> 0x04 L<4-1 adData (OCTET STRING)
+     *             +--&gt; 0x04 L4-1 adData (OCTET STRING)
      * </pre>
      */
     @Override

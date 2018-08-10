@@ -65,8 +65,8 @@ public class ChangePasswordProtocolHandler extends IoHandlerAdapter
     /**
      * Creates a new instance of ChangePasswordProtocolHandler.
      *
-     * @param config
-     * @param store
+     * @param config The ChangePassword server configuration
+     * @param store The Principal store
      */
     public ChangePasswordProtocolHandler( ChangePasswordServer config, PrincipalStore store )
     {

@@ -36,7 +36,7 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
  * AS-REQ message. It's just a KDC-REP message with a message type set to 11.
  *  It will store the object described by the ASN.1 grammar :
  * <pre>
- * AS-REP          ::= [APPLICATION 11] <KDC-REP>
+ * AS-REP          ::= [APPLICATION 11] &lt;KDC-RE&gt;P
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -129,7 +129,7 @@ public class AsRep extends KdcRep
      * 
      * 0x6B L1 AS-REP message
      *  |
-     *  +-->  0x30 L2 KDC-REP sequence
+     *  +--&gt;  0x30 L2 KDC-REP sequence
      * </pre>
      */
     public int computeLength()

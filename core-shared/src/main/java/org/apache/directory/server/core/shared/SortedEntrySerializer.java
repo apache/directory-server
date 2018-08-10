@@ -161,6 +161,9 @@ public class SortedEntrySerializer implements Serializer
      *     </ul>
      *   </li>
      * </ul>
+     * 
+     * @param entry The entry to serialize
+     * @return The byte[] containing the serialized entry
      */
     public byte[] serialize( Entry entry )
     {

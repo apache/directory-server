@@ -62,7 +62,6 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      *
      * @param btree the JDBM BTree to build a Cursor over
      * @param comparator the Comparator used to determine key ordering
-     * @throws Exception of there are problems accessing the BTree
      */
     public KeyBTreeCursor( BTree btree, Comparator<E> comparator )
     {

@@ -67,7 +67,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param btree the JDBM BTree to build a Cursor over
      * @param key the constant key for which values are returned
      * @param comparator the Comparator used to determine <b>key</b> ordering
-     * @throws Exception of there are problems accessing the BTree
+     * @throws IOException of there are problems accessing the BTree
      */
     public KeyTupleBTreeCursor( BTree btree, K key, Comparator<V> comparator ) throws IOException
     {
@@ -195,7 +195,8 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * all.
      *
      * @param element the valueTuple who's value is used to position this Cursor
-     * @throws Exception if there are failures to position the Cursor
+     * @throws LdapException if there are failures to position the Cursor
+     * @throws CursorException if there are failures to position the Cursor
      */
     public void before( Tuple<K, V> element ) throws LdapException, CursorException
     {

@@ -156,6 +156,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS name is 'Linux'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is Linux 
      */
     public boolean isOsNameLinux()
     {
@@ -165,6 +167,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS name is 'Mac OS X'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is MAC OS X 
      */
     public boolean isOsNameMacOSX()
     {
@@ -174,6 +178,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS name is 'Solaris'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is Solaris 
      */
     public boolean isOsNameSolaris()
     {
@@ -183,6 +189,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS name is 'Windows'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is Windows 
      */
     public boolean isOsNameWindows()
     {
@@ -192,6 +200,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS architecture is 'amd64'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is AMD64 
      */
     public boolean isOsArchAmd64()
     {
@@ -201,6 +211,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS architecture is 'i386'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is I386 
      */
     public boolean isOsArchI386()
     {
@@ -210,6 +222,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS architecture is 'Sparc'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is Sparc 
      */
     public boolean isOsArchSparc()
     {
@@ -219,6 +233,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS architecture is 'x86'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is X86 
      */
     public boolean isOsArchx86()
     {
@@ -228,6 +244,8 @@ public abstract class Target
 
     /**
      * Indicates if the OS architecture is 'x86_64'.
+     * 
+     * @return <tt>true</tt> if the OS architecture is X86_64 
      */
     public boolean isOsArchX86_64()
     {

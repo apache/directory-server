@@ -75,7 +75,6 @@ public class DesStringToKey
      *
      * @param passPhrase The passphrase.
      * @return The DES key.
-     * @throws Exception
      */
     protected byte[] generateKey( String passPhrase )
     {

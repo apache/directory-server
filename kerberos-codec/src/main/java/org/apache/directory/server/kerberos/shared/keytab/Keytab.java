@@ -53,7 +53,7 @@ import org.apache.directory.server.i18n.I18n;
  *     timestamp : int
  *     vno8 : byte
  *     key : keyBlock
- *     vno : int // only present if >= 4 bytes left in entry
+ *     vno : int // only present if &gt;= 4 bytes left in entry
  * };
  *
  * keyblock 
@@ -67,7 +67,7 @@ import org.apache.directory.server.i18n.I18n;
  *     length : short
  *     data[length] : bytes
  * }
- *
+ * </pre>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

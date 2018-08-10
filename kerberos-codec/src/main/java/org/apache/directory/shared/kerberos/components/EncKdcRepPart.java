@@ -160,7 +160,7 @@ public class EncKdcRepPart implements Asn1Object
     /**
      * Sets the client {@link HostAddresses}.
      *
-     * @param addresses
+     * @param caddr The client addresses
      */
     public void setClientAddresses( HostAddresses caddr )
     {
@@ -336,7 +336,7 @@ public class EncKdcRepPart implements Asn1Object
     /**
      * Sets the server {@link PrincipalName}.
      *
-     * @param principal The server PrincipalName
+     * @param sname The server PrincipalName
      */
     public void setSName( PrincipalName sname )
     {
@@ -395,53 +395,53 @@ public class EncKdcRepPart implements Asn1Object
      * 
      * 0x30 L1 EncKdcRepPart sequence
      *  |
-     *  +--> 0xA0 L2 key tag
+     *  +--&gt; 0xA0 L2 key tag
      *  |     |
-     *  |     +--> 0x30 L2-1 key ( EncryptionKey)
+     *  |     +--&gt; 0x30 L2-1 key ( EncryptionKey)
      *  |
-     *  +--> 0xA1 L3 last-req tag
+     *  +--&gt; 0xA1 L3 last-req tag
      *  |     |
-     *  |     +--> 0x30 L3-1 last-req ( LastReq )
+     *  |     +--&gt; 0x30 L3-1 last-req ( LastReq )
      *  |     
-     *  +--> 0xA2 L4 nonce tag
+     *  +--&gt; 0xA2 L4 nonce tag
      *  |     |
-     *  |     +--> 0x02 L4-1 nonce (Int)
+     *  |     +--&gt; 0x02 L4-1 nonce (Int)
      *  |     
-     * [+--> 0xA3 0x11 key-expiration tag]
+     * [+--&gt; 0xA3 0x11 key-expiration tag]
      *  |     |
-     *  |     +--> 0x18 0x0F key-expiration ( KerberosTime )
+     *  |     +--&gt; 0x18 0x0F key-expiration ( KerberosTime )
      *  |     
-     *  +--> 0xA4 0x07 flags tag 
+     *  +--&gt; 0xA4 0x07 flags tag 
      *  |     |
-     *  |     +--> 0x03 0x05 flags ( TicketFlags )
+     *  |     +--&gt; 0x03 0x05 flags ( TicketFlags )
      *  |     
-     *  +--> 0xA5 0x11 authtime tag
+     *  +--&gt; 0xA5 0x11 authtime tag
      *  |     |
-     *  |     +--> 0x18 0x0F authtime ( KerberosTime )
+     *  |     +--&gt; 0x18 0x0F authtime ( KerberosTime )
      *  |     
-     * [+--> 0xA6 0x11 starttime tag]
+     * [+--&gt; 0xA6 0x11 starttime tag]
      *  |     |
-     *  |     +--> 0x18 0x0F starttime ( KerberosTime )
+     *  |     +--&gt; 0x18 0x0F starttime ( KerberosTime )
      *  |     
-     *  +--> 0xA7 0x11 endtime tag
+     *  +--&gt; 0xA7 0x11 endtime tag
      *  |     |
-     *  |     +--> 0x18 0x0F endtime ( KerberosTime )
+     *  |     +--&gt; 0x18 0x0F endtime ( KerberosTime )
      *  |     
-     * [+--> 0xA8 0x11 renew-till tag]
+     * [+--&gt; 0xA8 0x11 renew-till tag]
      *  |     |
-     *  |     +--> 0x18 0x0F renew-till ( KerberosTime )
+     *  |     +--&gt; 0x18 0x0F renew-till ( KerberosTime )
      *  |     
-     *  +--> 0xA9 L5 srealm tag
+     *  +--&gt; 0xA9 L5 srealm tag
      *  |     |
-     *  |     +--> 0x1B L5-1 srealm ( KerberosString )
+     *  |     +--&gt; 0x1B L5-1 srealm ( KerberosString )
      *  |     
-     *  +--> 0xAA L6 sname tag
+     *  +--&gt; 0xAA L6 sname tag
      *  |     |
-     *  |     +--> 0x30 L6-1 sname ( PrincipalName )
+     *  |     +--&gt; 0x30 L6-1 sname ( PrincipalName )
      *  |     
-     * [+--> 0xAB L7 caddr tag]
+     * [+--&gt; 0xAB L7 caddr tag]
      *        |
-     *        +--> 0x30 L7-1 caddr ( HostAddresses )
+     *        +--&gt; 0x30 L7-1 caddr ( HostAddresses )
      *  </pre>
      */
     public int computeLength()

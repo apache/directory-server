@@ -87,6 +87,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /**
      * Creates a new instance of FrameworkRunner.
+     * 
+     * @param clazz The class to run
+     * @throws InitializationError If the initialization failed
      */
     public FrameworkRunner( Class<?> clazz ) throws InitializationError
     {

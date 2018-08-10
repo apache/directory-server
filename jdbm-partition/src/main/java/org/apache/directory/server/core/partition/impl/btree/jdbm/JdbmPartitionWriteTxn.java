@@ -17,9 +17,10 @@ public class JdbmPartitionWriteTxn extends PartitionWriteTxn
     private boolean syncOnWrite = false;
     
     /**
+     * Create an instance of JdbmPartitionWriteTxn
      * 
-     * @param recordManager
-     * @param syncOnWrite
+     * @param recordManager The RecordManager instance
+     * @param syncOnWrite If we want to data to be flushed on each write
      */
     public JdbmPartitionWriteTxn( RecordManager recordManager, boolean syncOnWrite )
     {

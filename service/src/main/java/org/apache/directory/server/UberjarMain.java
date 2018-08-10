@@ -54,8 +54,8 @@ public class UberjarMain
      * Takes a single argument, the path to the installation home, which
      * contains the configuration to load with server startup settings.
      *
-     * @param args
-     *            the arguments
+     * @param args the arguments
+     * @throws Exception If the startup failed
      */
     public static void main( String[] args ) throws Exception
     {

@@ -72,10 +72,11 @@ public class DnSerializer implements Serializer
 
 
     /**
-     * <p>
-     * 
      * This is the place where we serialize Dn
-     * <p>
+     * 
+     * @param object The element to serialize
+     * @return a byte[] containing the serialized element
+     * @throws IOException If teh serialization failed
      */
     public byte[] serialize( Object object ) throws IOException
     {

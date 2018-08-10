@@ -106,7 +106,8 @@ public class HttpServer
     /**
      * starts the jetty http server
      * 
-     * @throws Exception
+     * @param dirService The DirectoryService instance
+     * @throws Exception If Jetty can't be started
      */
     public void start( DirectoryService dirService ) throws Exception
     {
@@ -290,8 +291,8 @@ public class HttpServer
 
     /**
      * stops the jetty http server
-     * 
-     * @throws Exception
+     *  
+     * @throws Exception If Jetty can't be stopped
      */
     public void stop() throws Exception
     {

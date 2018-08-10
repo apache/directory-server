@@ -276,12 +276,12 @@ public class PrincipalStoreEntryModifier
      *
      * @param krb5key
      * @return The map of encryption types to encryption keys.
-     * @throws LdapException
-     * @throws IOException
+     * @throws KerberosException If the key cannot be converted to a map
      */
-    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws KerberosException, LdapException
+    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) 
+            throws KerberosException
     {
-        Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
+        Map<EncryptionType, EncryptionKey> map = new HashMap<>();
 
         for ( Value val : krb5key )
         {

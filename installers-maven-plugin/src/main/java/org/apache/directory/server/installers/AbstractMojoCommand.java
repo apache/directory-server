@@ -130,8 +130,8 @@ public abstract class AbstractMojoCommand<T extends Target>
     /**
      * Executes the command.
      *
-     * @throws MojoExecutionException
-     * @throws MojoFailureException
+     * @throws MojoExecutionException If the execution failed
+     * @throws MojoFailureException If the execution failed
      */
     public abstract void execute() throws MojoExecutionException, MojoFailureException;
 
@@ -186,8 +186,8 @@ public abstract class AbstractMojoCommand<T extends Target>
     /**
      * Creates both installation and instance layouts.
      * 
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoFailureException If the InstanceLayout cannot be created
+     * @throws IOException If the InstanceLayout cannot be created
      */
     public void createLayouts() throws MojoFailureException, IOException
     {
@@ -202,8 +202,8 @@ public abstract class AbstractMojoCommand<T extends Target>
      *      <code>true</code> if wrapper dependencies are included,
      *      <code>false</code> if wrapper dependencies are excluded
      *      
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoFailureException If the InstanceLayout cannot be created
+     * @throws IOException If the InstanceLayout cannot be created
      */
     public void createLayouts( boolean includeWrapperDependencies ) throws MojoFailureException, IOException
     {
@@ -218,11 +218,10 @@ public abstract class AbstractMojoCommand<T extends Target>
     /**
      * Creates the installation layout.
      *      
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoFailureException If the InstanceLayout cannot be created
+     * @throws IOException If the InstanceLayout cannot be created
      */
-    protected void createInstallationLayout() throws MojoFailureException,
-        IOException
+    protected void createInstallationLayout() throws MojoFailureException, IOException
     {
         createInstallationLayout( true );
     }
@@ -235,8 +234,8 @@ public abstract class AbstractMojoCommand<T extends Target>
      *      <code>true</code> if wrapper dependencies are included,
      *      <code>false</code> if wrapper dependencies are excluded
      *      
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoFailureException If the creation failed
+     * @throws IOException If the layout cannot be created
      */
     protected void createInstallationLayout( boolean includeWrapperDependencies ) throws MojoFailureException,
         IOException
@@ -305,7 +304,7 @@ public abstract class AbstractMojoCommand<T extends Target>
     /**
      * Creates the instance layout.
      *
-     * @throws IOException
+     * @throws IOException If the InatsnaceLayout cannot be created
      */
     protected void createInstanceLayout() throws IOException
     {

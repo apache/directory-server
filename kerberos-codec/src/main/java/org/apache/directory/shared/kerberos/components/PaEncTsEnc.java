@@ -138,13 +138,13 @@ public class PaEncTsEnc implements Asn1Object
      * 
      * 0x30 L1 PA-ENC-TS-ENC sequence
      *  |
-     *  +--> 0xA0 0x11 patimestamp tag
+     *  +--&gt; 0xA0 0x11 patimestamp tag
      *  |     |
-     *  |     +--> 0x18 0x0F patimestamp value (KerberosTime)
+     *  |     +--&gt; 0x18 0x0F patimestamp value (KerberosTime)
      *  |
-     *  +--> 0xA1 L2 pausec tag
+     *  +--&gt; 0xA1 L2 pausec tag
      *        |
-     *        +--> 0x02 L2-1 pausec (INTEGER)
+     *        +--&gt; 0x02 L2-1 pausec (INTEGER)
      *        
      *  </pre>
      */

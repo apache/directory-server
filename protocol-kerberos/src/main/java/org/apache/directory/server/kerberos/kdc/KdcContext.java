@@ -214,7 +214,7 @@ public abstract class KdcContext
     /**
      * sets the replay cache
      *
-     * @param replayCache
+     * @param replayCache The Replay cache instance
      */
     public void setReplayCache( ReplayCache replayCache )
     {

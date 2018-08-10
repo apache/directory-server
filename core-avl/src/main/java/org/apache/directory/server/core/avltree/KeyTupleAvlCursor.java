@@ -130,9 +130,10 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * considered at all.
      *
      * @param element the valueTuple who's value is used to position this Cursor
-     * @throws Exception if there are failures to position the Cursor
+     * @throws CursorException if there are failures to position the Cursor
+     * @throws LdapException if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element ) throws LdapException, CursorException
+    public void before( Tuple<K, V> element ) throws CursorException, LdapException
     {
         checkNotClosed();
         wrapped.before( element.getValue() );

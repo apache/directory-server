@@ -71,7 +71,7 @@ public class CipherTextHandler
      * Performs an encode and an encrypt.
      *
      * @param key The key to use for encrypting.
-     * @param encodable The Kerberos object to encode.
+     * @param message The Kerberos object to encode.
      * @param usage The key usage.
      * @return The Kerberos EncryptedData.
      * @throws KerberosException

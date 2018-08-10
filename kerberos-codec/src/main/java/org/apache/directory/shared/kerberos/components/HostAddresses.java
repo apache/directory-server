@@ -139,7 +139,7 @@ public class HostAddresses implements Asn1Object
     /**
      * Returns true if two {@link HostAddresses} are equal.
      *
-     * @param that Th {@link HostAddresses} we want to compare with the current one
+     * @param obj The {@link HostAddresses} we want to compare with the current one
      * @return true if two {@link HostAddresses} are equal.
      */
     @Override
@@ -188,13 +188,13 @@ public class HostAddresses implements Asn1Object
      * 
      * 0x30 L1 hostAddresses sequence of HostAddresses
      *  |
-     *  +--> 0x30 L2[1] Hostaddress[1]
+     *  +--&gt; 0x30 L2[1] Hostaddress[1]
      *  |
-     *  +--> 0x30 L2[2] Hostaddress[2]
+     *  +--&gt; 0x30 L2[2] Hostaddress[2]
      *  |
      *  ...
      *  |
-     *  +--> 0x30 L2[n] Hostaddress[n]
+     *  +--&gt; 0x30 L2[n] Hostaddress[n]
      *        
      *  where L1 = sum( L2[1], l2[2], ..., L2[n] )
      * </pre>

@@ -206,7 +206,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     // Count Overloads
     // ------------------------------------------------------------------------
     /**
-     * @see org.apache.directory.server.xdbm.Table#count(java.lang.Object)
+     * {@inheritDoc}
      */
     @Override
     public long count( PartitionTxn transaction, K key ) throws LdapException

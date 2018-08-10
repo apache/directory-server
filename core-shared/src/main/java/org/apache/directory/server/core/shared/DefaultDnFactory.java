@@ -58,7 +58,8 @@ public class DefaultDnFactory implements DnFactory
     /**
      * Instantiates a new default Dn factory.
      *
-     * @param directoryService the directory service
+     * @param schemaManager The SchemaManager instance
+     * @param dnCache The cache used to store DNs
      */
     public DefaultDnFactory( SchemaManager schemaManager, Cache dnCache )
     {

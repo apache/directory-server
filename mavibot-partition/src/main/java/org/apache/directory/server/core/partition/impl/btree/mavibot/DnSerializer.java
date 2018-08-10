@@ -72,8 +72,6 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
 
     /**
      * Creates a new instance of DnSerializer.
-     * 
-     * @param schemaManager The reference to the global schemaManager
      */
     public DnSerializer()
     {
@@ -82,10 +80,10 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
 
 
     /**
-     * <p>
-     * 
      * This is the place where we serialize Dn
-     * <p>
+     * 
+     * @param dn The Dn to serialize
+     * @return The byte[] containing the serialized Dn
      */
     public byte[] serialize( Dn dn )
     {
@@ -117,7 +115,7 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
     /**
      *  Deserialize a Dn.
      *  
-     *  @param bytes the byte array containing the serialized Dn
+     *  @param buffer the buffer containing the serialized Dn
      *  @return An instance of a Dn object 
      *  @throws IOException if we can't deserialize the Dn
      */

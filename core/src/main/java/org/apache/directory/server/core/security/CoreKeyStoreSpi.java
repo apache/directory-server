@@ -65,6 +65,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
 
     /**
      * Creates a new instance of LocalKeyStore.
+     * @param directoryService The DirectorySevice instance
      */
     public CoreKeyStoreSpi( DirectoryService directoryService )
     {

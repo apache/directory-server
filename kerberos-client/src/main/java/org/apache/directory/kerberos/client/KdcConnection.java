@@ -130,10 +130,10 @@ public class KdcConnection
      * 
      * @param principal the client's principal 
      * @param password password of the client
-     * @return
-     * @throws Exception
+     * @return A Ticket Granting Ticket instance
+     * @throws KerberosException If a Ticket Granting Ticket cannot be fetch
      */
-    public TgTicket getTgt( String principal, String password ) throws Exception
+    public TgTicket getTgt( String principal, String password ) throws KerberosException
     {
         TgtRequest clientTgtReq = new TgtRequest();
         
@@ -147,13 +147,14 @@ public class KdcConnection
     /**
      * Authenticates to the Kerberos server and gets a service ticket for the given server principal
      * 
-     * @param principal the client's principal 
+     * @param clientPrincipal the client's principal 
      * @param password password of the client
      * @param serverPrincipal the application server's principal
-     * @return
-     * @throws Exception
+     * @return A ServiceTicket instance
+     * @throws KerberosException If the ServiceTicket cannot be fetch
      */
-    public ServiceTicket getServiceTicket( String clientPrincipal, String password, String serverPrincipal ) throws KerberosException
+    public ServiceTicket getServiceTicket( String clientPrincipal, String password, String serverPrincipal ) 
+            throws KerberosException
     {
         TgtRequest clientTgtReq = new TgtRequest();
         clientTgtReq.setClientPrincipal( clientPrincipal );

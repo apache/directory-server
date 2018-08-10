@@ -134,13 +134,13 @@ public class TransitedEncoding implements Asn1Object
      * 
      * 0x30 L1 TransitedEncoding
      *  |
-     *  +--> 0xA0 L2 trType tag
+     *  +--&gt; 0xA0 L2 trType tag
      *  |     |
-     *  |     +--> 0x02 L2-1 trType (int)
+     *  |     +--&gt; 0x02 L2-1 trType (int)
      *  |
-     *  +--> 0xA1 L3 contents tag
+     *  +--&gt; 0xA1 L3 contents tag
      *        |
-     *        +--> 0x04 L3-1 contents (OCTET STRING)
+     *        +--&gt; 0x04 L3-1 contents (OCTET STRING)
      *        
      *  where L1 = L2 + lenght(0xA0) + length(L2) +
      *             L3 + lenght(0xA1) + length(L3) 

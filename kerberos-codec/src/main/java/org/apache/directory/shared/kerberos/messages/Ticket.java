@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
  * Ticket          ::= [APPLICATION 1] SEQUENCE {
  *         tkt-vno         [0] INTEGER (5),
  *         realm           [1] Realm,
- *         sname           [2] <PrincipalName>,
- *         enc-part        [3] <EncryptedData> -- EncTicketPart
+ *         sname           [2] &lt;PrincipalName&gt;,
+ *         enc-part        [3] &lt;EncryptedData&gt; -- EncTicketPart
  * }
  * </pre>
  * 
@@ -91,7 +91,7 @@ public class Ticket extends KerberosMessage
     /**
      * Creates a new instance of Ticket.
      *
-     * @param serverPrincipal The server principal
+     * @param sName The server principal
      * @param encPart The encoded part
      */
     public Ticket( PrincipalName sName, EncryptedData encPart ) throws InvalidTicketException
@@ -115,7 +115,7 @@ public class Ticket extends KerberosMessage
      * Creates a new instance of Ticket.
      *
      * @param tktvno The Kerberos version number
-     * @param serverPrincipal The server principal
+     * @param sName The server principal
      * @param encPart The encoded part
      */
     public Ticket( int tktvno, PrincipalName sName, EncryptedData encPart ) throws InvalidTicketException
@@ -234,19 +234,19 @@ public class Ticket extends KerberosMessage
      * 
      * 0x61 L1 Ticket [APPLICATION 1]
      *  |
-     *  +--> 0x30 L2 Ticket SEQUENCE
+     *  +--&gt; 0x30 L2 Ticket SEQUENCE
      *        |
-     *        +--> 0xA0 L3 tkt-vno tag
+     *        +--&gt; 0xA0 L3 tkt-vno tag
      *        |     |
-     *        |     +--> 0x02 L3-1 tkt-vno (int, 5)
+     *        |     +--&gt; 0x02 L3-1 tkt-vno (int, 5)
      *        |
-     *        +--> 0xA1 L4 realm tag
+     *        +--&gt; 0xA1 L4 realm tag
      *        |     |
-     *        |     +--> 0x1B L4-1 realm (KerberosString)
+     *        |     +--&gt; 0x1B L4-1 realm (KerberosString)
      *        |
-     *        +--> 0xA2 L5 sname (PrincipalName)
+     *        +--&gt; 0xA2 L5 sname (PrincipalName)
      *        |
-     *        +--> 0xA3 L6 enc-part (EncryptedData)
+     *        +--&gt; 0xA3 L6 enc-part (EncryptedData)
      * </pre>
      */
     public int computeLength()

@@ -32,6 +32,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
@@ -89,8 +90,9 @@ public class ApacheDS
      * Creates a new instance of the ApacheDS server
      * 
      * @param ldapServer The ldap server protocol handler
+     * @throws LdapException If we can't create teh ApacheDS instance
      */
-    public ApacheDS( LdapServer ldapServer ) throws Exception
+    public ApacheDS( LdapServer ldapServer ) throws LdapException
     {
         LOG.info( "Starting the Apache Directory Server" );
 
@@ -107,12 +109,13 @@ public class ApacheDS
 
     /**
      * Start the server :
+     * <ul>
      *  <li>initialize the DirectoryService</li>
      *  <li>start the LDAP server</li>
      *  <li>start the LDAPS server</li>
+     * </ul>
      * 
-     * @throws NamingException If the server cannot be started
-     * @throws IOException If an IO error occurred while reading some file
+     * @throws Exception If the server cannot be started
      */
     public void startup() throws Exception
     {
@@ -257,7 +260,7 @@ public class ApacheDS
      * 
      * The files are stored in ou=loadedLdifFiles,ou=configuration,ou=system
      */
-    private void ensureLdifFileBase() throws Exception
+    private void ensureLdifFileBase() throws LdapException
     {
         Dn dn = new Dn( ServerDNConstants.LDIF_FILES_DN );
         Entry entry = null;
@@ -376,8 +379,10 @@ public class ApacheDS
 
     /**
      * Load the existing LDIF files in alphabetic order
+     * 
+     * @throws LdapException If we can't load the ldifs
      */
-    public void loadLdifs() throws Exception
+    public void loadLdifs() throws LdapException
     {
         // LOG and bail if property not set
         if ( ldifDirectory == null )
@@ -414,7 +419,7 @@ public class ApacheDS
                 // If the file can't be read, log the error, and stop
                 // loading LDIFs.
                 LOG.error( I18n.err( I18n.ERR_180, ldifDirectory.getAbsolutePath(), ne.getLocalizedMessage() ) );
-                throw ne;
+                throw new LdapException( ne.getMessage(), ne );
             }
         }
         else
@@ -459,7 +464,7 @@ public class ApacheDS
                     // If the file can't be read, log the error, and stop
                     // loading LDIFs.
                     LOG.error( I18n.err( I18n.ERR_180, ldifFile.getAbsolutePath(), ne.getLocalizedMessage() ) );
-                    throw ne;
+                    throw new LdapException( ne.getMessage(), ne );
                 }
             }
         }

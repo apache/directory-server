@@ -192,7 +192,7 @@ public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
     /**
      *  Deserialize a Entry.
      *  
-     *  @param bytes the byte array containing the serialized entry
+     *  @param buffer The buffer containing the serialized entry
      *  @return An instance of a Entry object 
      *  @throws IOException if we can't deserialize the Entry
      */

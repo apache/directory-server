@@ -128,40 +128,40 @@ public interface AvlTreeMap<K, V>
 
 
     /**
-     * Finds a LinkedAvlMapNode<K,V> whose key is higher than the given key.
+     * Finds a LinkedAvlMapNode whose key is higher than the given key.
      *
      * @param key the key
-     * @return the LinkedAvlMapNode<K,V> whose key is greater than the given key ,<br>
+     * @return the LinkedAvlMapNode whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
     LinkedAvlMapNode<K, V> findGreater( K key );
 
 
     /**
-     * Finds a LinkedAvlMapNode<K,V> whose key is higher than the given key.
+     * Finds a LinkedAvlMapNode whose key is higher than the given key.
      *
      * @param key the key
-     * @return the LinkedAvlMapNode<K,V> whose key is greater than the given key ,<br>
+     * @return the LinkedAvlMapNode whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
     LinkedAvlMapNode<K, V> findGreaterOrEqual( K key );
 
 
     /**
-     * Finds a LinkedAvlMapNode<K,V> whose key is lower than the given key.
+     * Finds a LinkedAvlMapNode whose key is lower than the given key.
      *
      * @param key the key
-     * @return the LinkedAvlMapNode<K,V> whose key is lower than the given key ,<br>
+     * @return the LinkedAvlMapNode whose key is lower than the given key ,<br>
      *         null if there is no node with a lower key than the given key.
      */
     LinkedAvlMapNode<K, V> findLess( K key );
 
 
     /**
-     * Finds a LinkedAvlMapNode<K,V> whose key is lower than the given key.
+     * Finds a LinkedAvlMapNode whose key is lower than the given key.
      *
      * @param key the key
-     * @return the LinkedAvlMapNode<K,V> whose key is lower than the given key ,<br>
+     * @return the LinkedAvlMapNode whose key is lower than the given key ,<br>
      *         null if there is no node with a lower key than the given key.
      */
     LinkedAvlMapNode<K, V> findLessOrEqual( K key );
