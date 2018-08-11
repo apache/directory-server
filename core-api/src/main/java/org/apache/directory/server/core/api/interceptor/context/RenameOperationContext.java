@@ -52,6 +52,8 @@ public class RenameOperationContext extends AbstractChangeOperationContext
 
     /**
      * Creates a new instance of RenameOperationContext.
+     * 
+     * @param session The session to use
      */
     public RenameOperationContext( CoreSession session )
     {
@@ -67,9 +69,10 @@ public class RenameOperationContext extends AbstractChangeOperationContext
     /**
      * Creates a new instance of RenameOperationContext.
      *
+     * @param session The session to use
      * @param oldDn the dn of the entry before the rename
      * @param newRdn the new Rdn to use for the target
-     * @param delOldDn true if we delete the old Rdn value
+     * @param deleteOldRdn true if we delete the old Rdn value
      */
     public RenameOperationContext( CoreSession session, Dn oldDn, Rdn newRdn, boolean deleteOldRdn )
     {
@@ -83,7 +86,12 @@ public class RenameOperationContext extends AbstractChangeOperationContext
         }
     }
 
-
+    /**
+     * Creates a new instance of RenameOperationContext
+     *  
+     * @param session The session to use
+     * @param modifyDnRequest The ModDn operation to apply
+     */
     public RenameOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
     {
         super( session, modifyDnRequest.getName() );

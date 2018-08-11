@@ -52,13 +52,17 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
 
     /**
      * Creates a new instance of AbstractAdministrativePoint.
+     * 
+     * @param dn The AP Dn
+     * @param uuid The AP UUID
+     * @param role The role
      */
     protected AbstractAdministrativePoint( Dn dn, String uuid, AdministrativeRole role )
     {
         this.dn = dn;
         this.uuid = uuid;
         this.role = role;
-        this.children = new ConcurrentHashMap<String, AdministrativePoint>();
+        this.children = new ConcurrentHashMap<>();
     }
 
 

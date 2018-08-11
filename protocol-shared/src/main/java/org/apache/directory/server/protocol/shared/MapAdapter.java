@@ -47,7 +47,7 @@ public class MapAdapter implements Map<Object, Object>
     /**
      * Creates a new instance of MapAdapter.
      *
-     * @param dictionary
+     * @param dictionary The dictionary to store
      */
     public MapAdapter( Dictionary<Object, Object> dictionary )
     {

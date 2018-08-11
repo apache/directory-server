@@ -61,6 +61,7 @@ public final class LdapPrincipal implements Principal, Cloneable
      * this package friendly so only code in the package can create a
      * trusted principal.
      *
+     * @param schemaManager The SchemaManager
      * @param dn the normalized distinguished name of the principal
      * @param authenticationLevel the authentication level for this principal
      */
@@ -84,6 +85,7 @@ public final class LdapPrincipal implements Principal, Cloneable
      * this package friendly so only code in the package can create a
      * trusted principal.
      *
+     * @param schemaManager The SchemaManager
      * @param dn the normalized distinguished name of the principal
      * @param authenticationLevel the authentication level for this principal
      * @param userPassword The user password
@@ -114,6 +116,8 @@ public final class LdapPrincipal implements Principal, Cloneable
     /**
      * Creates a principal for the no name anonymous user whose Dn is the empty
      * String.
+     * 
+     * @param schemaManager The SchemaManager
      */
     public LdapPrincipal( SchemaManager schemaManager )
     {

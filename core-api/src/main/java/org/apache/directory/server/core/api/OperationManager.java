@@ -69,66 +69,103 @@ public interface OperationManager
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param compareContext The Compare operation context
+     * @return <tt>true</tt> if the comparison is successful
+     * @throws LdapException If the compare failed
      */
     boolean compare( CompareOperationContext compareContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param deleteContext The Delete operation context
+     * @throws LdapException If the delete failed
      */
     void delete( DeleteOperationContext deleteContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param modifyContext The Modify operation context
+     * @throws LdapException If the modify failed
      */
     void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param searchContext The Search operation context
+     * @return The cursor on the found entries
+     * @throws LdapException If the search failed
      */
     EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param lookupContext The Lookup operation context
+     * @return The found entry
+     * @throws LdapException If the lookup failed
      */
     Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param hasEntryContext The HasEntry operation context
+     * @return <tt>true</tt> if the entry exists
+     * @throws LdapException If the hasEntry failed
      */
     boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param renameContext The Rename operation context
+     * @throws LdapException If the rename failed
      */
     void rename( RenameOperationContext renameContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param moveContext The Move operation context
+     * @throws LdapException If the move failed
      */
     void move( MoveOperationContext moveContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param moveAndRenameContext The MoveAndRename operation context
+     * @throws LdapException If the moveAndRename failed
      */
     void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param bindContext The Bind operation context
+     * @throws LdapException If the bind failed
      */
     void bind( BindOperationContext bindContext ) throws LdapException;
 
 
     /**
      * TODO document after determining if this method should be here.
+     * 
+     * @param unbindContext The Unbind operation context
+     * @throws LdapException If the unbind failed
      */
     void unbind( UnbindOperationContext unbindContext ) throws LdapException;
 

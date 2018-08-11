@@ -101,12 +101,12 @@ import org.slf4j.LoggerFactory;
  *       Registries on initialization for the server.  That's one of it's core
  *       responsibilities.
  *   </li>
+ * </ol>
  * 
  * So by containing another Partition, we abstract the storage mechanism away
  * from the management responsibilities while decoupling the server from a
  * specific partition implementation and removing complexity in the Schema
  * interceptor service which before managed synchronization.
- * </ol>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -574,7 +574,8 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Return the number of children and subordinates for a given entry
      *
-     * @param dn The entry's DN
+     * @param partitionTxn The transaction
+     * @param entry The entry we want the subordinates for
      * @return The Subordinate instance that contains the values.
      * @throws LdapException If we had an issue while processing the request
      */

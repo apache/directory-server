@@ -69,9 +69,9 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
 
     /**
+     * Creates a new instance of FilteringOperationContext.
      * 
-     * Creates a new instance of LookupOperationContext.
-     *
+     * @param session The session to use
      */
     public FilteringOperationContext( CoreSession session )
     {
@@ -81,9 +81,10 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
-     * Creates a new instance of LookupOperationContext.
+     * Creates a new instance of FilteringOperationContext.
      *
+     * @param session The session to use
+     * @param dn The Dn
      */
     public FilteringOperationContext( CoreSession session, Dn dn )
     {
@@ -93,9 +94,10 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param returningAttributes The attributes to return
      */
     public FilteringOperationContext( CoreSession session, String... returningAttributes )
     {
@@ -106,60 +108,17 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param dn The Dn
+     * @param returningAttributes The attributes to return
      */
     public FilteringOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
         super( session, dn );
 
         setReturningAttributes( returningAttributes );
-    }
-
-
-    /**
-     * Add an attribute ID to the current list, creating the list if necessary
-     *
-     * @param attrId the Id to add
-     *
-    public void addAttrsId( String attrId )
-    {
-        if ( noAttributes == null )
-        {
-            if ( attrId.equals( SchemaConstants.NO_ATTRIBUTE ) )
-            {
-                noAttributes = true;
-
-                if ( attrsId != null )
-                {
-                    attrsId.clear();
-                }
-
-                return;
-            }
-
-            if ( attrId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-            {
-                allUserAttributes = true;
-
-                return;
-            }
-
-            if ( attrId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-            {
-                allOperationalAttributes = true;
-
-                return;
-            }
-
-            if ( attrsId == null )
-            {
-                attrsId = new ArrayList<String>();
-            }
-
-            attrsId.add( attrId );
-        }
     }
 
 
@@ -184,6 +143,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     /**
      * Tells if an attribute is present in the list of attribute to return
      * 
+     * @param schemaManager The SchemaManager instance
      * @param attribute The attribute we are looking for
      * @return true if the attribute is present
      */
@@ -210,6 +170,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     /**
      * Tells if an attribute is present in the list of attribute to return
      * 
+     * @param schemaManager The SchemaManager instance
      * @param attributeType The attributeType we are looking for
      * @return true if the attribute is present
      */
@@ -374,9 +335,9 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     /**
      * @param allOperationalAttributes the allOperationalAttributes to set
      */
-    public void setAllOperationalAttributes( boolean allOperationalAttribute )
+    public void setAllOperationalAttributes( boolean allOperationalAttributes )
     {
-        this.allOperationalAttributes = allOperationalAttribute;
+        this.allOperationalAttributes = allOperationalAttributes;
     }
 
 

@@ -86,8 +86,8 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
      * single filter initially: more can be added later after creation.
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
-     * @param searchControls the controls of search that created this Cursor
-     * @param invocation the search operation invocation creating this Cursor
+     * @param schemaManager The SchemaManager instance
+     * @param operationContext The OperationContext instance
      * @param filter a single filter to be used
      */
     public EntryFilteringCursorImpl( Cursor<Entry> wrapped,
@@ -102,9 +102,8 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
      * no filter initially: more can be added later after creation.
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
-     * @param searchControls the controls of search that created this Cursor
-     * @param invocation the search operation invocation creating this Cursor
-     * @param filter a single filter to be used
+     * @param operationContext The OperationContext instance
+     * @param schemaManager The SchemaManager instance
      */
     public EntryFilteringCursorImpl( Cursor<Entry> wrapped, SearchOperationContext operationContext,
         SchemaManager schemaManager )
@@ -127,7 +126,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
      * @param operationContext the operation context that created this Cursor
-     * @param invocation the search operation invocation creating this Cursor
+     * @param schemaManager The SchemaManager instance
      * @param filters a list of filters to be used
      */
     public EntryFilteringCursorImpl( Cursor<Entry> wrapped,

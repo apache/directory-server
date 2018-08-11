@@ -42,7 +42,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  *                 this RR among others at the same owner.  Lower values
  *                 are preferred.
  * 
- * EXCHANGE        A <domain-name> which specifies a host willing to act as
+ * EXCHANGE        A &lt;domain-name&gt; which specifies a host willing to act as
  *                 a mail exchange for the owner name.
  * 
  * MX records cause type A additional section processing for the host

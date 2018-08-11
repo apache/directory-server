@@ -342,6 +342,10 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Check that a SyntaxChecker exists in the SyntaxCheckerRegistry, and if so,
      * return it.
+     * 
+     * @param entry The entry to check
+     * @return The found SyntaxChecker
+     * @throws LdapException If the SyntaxChecker does not exist
      */
     protected SyntaxChecker checkSyntaxCheckerOidExists( Entry entry ) throws LdapException
     {

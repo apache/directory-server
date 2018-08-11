@@ -30,7 +30,7 @@ package org.apache.directory.server.dns.io.encoder;
  *     |       PROTOCOL        |                       |
  *     +--+--+--+--+--+--+--+--+                       |
  *     |                                               |
- *     /                   <BIT MAP>                   /
+ *     /                   &lt;BIT MAP&gt;                   /
  *     /                                               /
  *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
  * 
@@ -40,7 +40,7 @@ package org.apache.directory.server.dns.io.encoder;
  * 
  * PROTOCOL        An 8 bit IP protocol number
  * 
- * <BIT MAP>       A variable length bit map.  The bit map must be a
+ * &lt;BIT MAP&gt;       A variable length bit map.  The bit map must be a
  *                 multiple of 8 bits long.
  * 
  * The WKS record is used to describe the well known services supported by

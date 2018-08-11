@@ -66,6 +66,8 @@ public class BindOperationContext extends AbstractOperationContext
 
     /**
      * Creates a new instance of BindOperationContext.
+     * 
+     * @param session The session to use
      */
     public BindOperationContext( CoreSession session )
     {
@@ -80,11 +82,14 @@ public class BindOperationContext extends AbstractOperationContext
 
     /**
      * @return The authentication level. One of :
+     * <ul>
      * <li>ANONYMOUS</li>
      * <li>SIMPLE</li>
      * <li>STRONG (sasl)</li>
      * <li>UNAUTHENT</li>
      * <li>INVALID</li>
+     * </ul>
+     * @throws LdapAuthenticationException If we can't get the AuthenticationLevel
      */
     public AuthenticationLevel getAuthenticationLevel() throws LdapAuthenticationException
     {
@@ -198,6 +203,8 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * Tells if the current operation is considered a side effect of the
      * current context
+     * 
+     * @return <tt>true</tt> if there is no collateral operation
      */
     public boolean isCollateralOperation()
     {

@@ -73,6 +73,7 @@ public final class ServerEntryUtils
      * during this conversion, as the Attributes object does not store
      * this element.
      *
+     * @param entryAttribute The Server entry to convert
      * @return An instance of a AttributesImpl() object
      */
     public static javax.naming.directory.Attribute toBasicAttribute( Attribute entryAttribute )
@@ -102,6 +103,7 @@ public final class ServerEntryUtils
      * during this conversion, as the Attributes object does not store
      * this element.
      *
+     * @param entry The entry to convert
      * @return An instance of a AttributesImpl() object
      */
     public static Attributes toBasicAttributes( Entry entry )
@@ -136,10 +138,10 @@ public final class ServerEntryUtils
      * Convert a BasicAttribute or a AttributeImpl to a ServerAtribute
      *
      * @param attribute the BasicAttributes or AttributesImpl instance to convert
-     * @param attributeType
+     * @param attributeType The AttributeType to use
      * @return An instance of a ServerEntry object
      * 
-     * @throws InvalidAttributeIdentifierException If we had an incorrect attribute
+     * @throws LdapException If we had an incorrect attribute
      */
     public static Attribute toServerAttribute( javax.naming.directory.Attribute attribute, AttributeType attributeType )
         throws LdapException
@@ -213,8 +215,8 @@ public final class ServerEntryUtils
      * Convert a BasicAttributes or a AttributesImpl to a ServerEntry
      *
      * @param attributes the BasicAttributes or AttributesImpl instance to convert
-     * @param registries The registries, needed ro build a ServerEntry
      * @param dn The Dn which is needed by the ServerEntry
+     * @param schemaManager The SchemaManager instance
      * @return An instance of a ServerEntry object
      * 
      * @throws LdapInvalidAttributeTypeException If we get an invalid attribute
@@ -266,6 +268,7 @@ public final class ServerEntryUtils
      * 
      * @param mod the modification
      * @param entry the source entry that is modified
+     * @param schemaManager The SchemaManager instance
      * @return the resultant entry after the modification has taken place
      * @throws LdapException if there are problems accessing attributes
      */
@@ -416,19 +419,19 @@ public final class ServerEntryUtils
 
     /**
      * 
-     * Convert a list of ModificationItemImpl to a list of 
+     * Convert a list of ModificationItemImpl to a list of LDAP API Modifications
      *
-     * @param modificationImpls
-     * @param atRegistry
-     * @return
-     * @throws LdapException
+     * @param modificationItems The modificationItems to convert
+     * @param schemaManager The SchemaManager instance
+     * @return A list of converted Modification
+     * @throws LdapException If the conversion failed
      */
     public static List<Modification> convertToServerModification( List<ModificationItem> modificationItems,
         SchemaManager schemaManager ) throws LdapException
     {
         if ( modificationItems != null )
         {
-            List<Modification> modifications = new ArrayList<Modification>( modificationItems.size() );
+            List<Modification> modifications = new ArrayList<>( modificationItems.size() );
 
             for ( ModificationItem modificationItem : modificationItems )
             {
@@ -465,6 +468,14 @@ public final class ServerEntryUtils
     }
 
 
+    /**
+     * Convert a JNDI set of Modifications to LDAP API Modifications
+     * 
+     * @param modifications The modifications to convert
+     * @param schemaManager The SchemaManager instance
+     * @return The list of converted Modifications
+     * @throws LdapException If the conversion failed
+     */
     public static List<Modification> toServerModification( Modification[] modifications,
         SchemaManager schemaManager ) throws LdapException
     {
@@ -509,6 +520,14 @@ public final class ServerEntryUtils
     }
 
 
+    /**
+     * Convert a JNDI set of ModificationItems to LDAP API Modifications
+     * 
+     * @param modifications The modificationItems to convert
+     * @param schemaManager The SchemaManager instance
+     * @return The list of converted ModificationItems
+     * @throws LdapException If the conversion failed
+     */
     public static List<Modification> toServerModification( ModificationItem[] modifications,
         SchemaManager schemaManager ) throws LdapException
     {
@@ -744,8 +763,9 @@ public final class ServerEntryUtils
     /**
      * Filters an entry accordingly to the requested Attribute list.
      * 
-     * @param entry The entry to filter
+     * @param schemaManager The SchemaManager instance
      * @param operationContext The SearchingOperationContext
+     * @param entry The entry to filter
      * @throws LdapException If the filtering fails
      */
     public static void filterContents( SchemaManager schemaManager, FilteringOperationContext operationContext,

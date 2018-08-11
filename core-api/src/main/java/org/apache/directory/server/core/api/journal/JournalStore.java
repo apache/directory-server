@@ -93,7 +93,6 @@ public interface JournalStore
      *
      * @param revision The change revision which is nacked
      * @return <code>true</code> if the nack has been written
-     * @throws Exception if there are problems logging the nack
      */
     boolean nack( long revision );
 

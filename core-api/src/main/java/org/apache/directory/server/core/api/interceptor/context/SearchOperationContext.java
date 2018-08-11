@@ -24,7 +24,6 @@ import static org.apache.directory.api.ldap.model.message.SearchScope.ONELEVEL;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
@@ -69,6 +68,8 @@ public class SearchOperationContext extends FilteringOperationContext
     
     /**
      * Creates a new instance of SearchOperationContext.
+     * 
+     * @param session The session to use
      */
     public SearchOperationContext( CoreSession session )
     {
@@ -83,9 +84,11 @@ public class SearchOperationContext extends FilteringOperationContext
 
     /**
      * Creates a new instance of SearchOperationContext.
-     * @throws Exception
+     * 
+     * @param session The session to use
+     * @param searchRequest The SearchRequest to process
      */
-    public SearchOperationContext( CoreSession session, SearchRequest searchRequest ) throws LdapException
+    public SearchOperationContext( CoreSession session, SearchRequest searchRequest )
     {
         super( session, searchRequest.getBase(), searchRequest.getAttributes().toArray( StringConstants.EMPTY_STRINGS ) );
 
@@ -111,12 +114,12 @@ public class SearchOperationContext extends FilteringOperationContext
     /**
      * Creates a new instance of SearchOperationContext.
      * 
+     * @param session The session to use
      * @param dn the dn of the search base
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
     public SearchOperationContext( CoreSession session, Dn dn, ExprNode filter, SearchControls searchControls )
-        throws LdapException
     {
         super( session, dn, searchControls.getReturningAttributes() );
         this.filter = filter;
@@ -139,7 +142,6 @@ public class SearchOperationContext extends FilteringOperationContext
      * @param dn the search base
      * @param scope the search scope
      * @param filter the filter AST to use for the search
-     * @param aliasDerefMode the alias dereferencing mode
      * @param returningAttributes the attributes to return
      */
     public SearchOperationContext( CoreSession session, Dn dn, SearchScope scope,
@@ -161,6 +163,8 @@ public class SearchOperationContext extends FilteringOperationContext
      * present then the filter is modified to force the return of all referral
      * entries regardless of whether or not the filter matches the referral
      * entry.
+     * 
+     * @return <tt>true</tt> if the ManageDSAIt control is present
      */
     public boolean hasManageDsaItControl()
     {
@@ -207,9 +211,9 @@ public class SearchOperationContext extends FilteringOperationContext
 
 
     /**
-     * sets the flag to indicate if this is a synrepl specific search or not
+     * Sets the flag to indicate if this is a syncrepl specific search or not
      * 
-     * @param syncreplSearch
+     * @param syncreplSearch The flag indicating it's a syncrepl search
      */
     public void setSyncreplSearch( boolean syncreplSearch )
     {

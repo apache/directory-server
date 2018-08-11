@@ -27,7 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * @todo : Missing Javadoc
+ * TODO: Javadoc missing
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class StandardThreadPool implements Executor
 {
@@ -53,6 +55,7 @@ public class StandardThreadPool implements Executor
     public void stop()
     {
         delegate.shutdown();
+        
         for ( ;; )
         {
             try
@@ -67,6 +70,5 @@ public class StandardThreadPool implements Executor
                 //ignore
             }
         }
-
     }
 }

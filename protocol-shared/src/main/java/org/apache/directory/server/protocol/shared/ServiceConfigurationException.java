@@ -21,6 +21,8 @@ package org.apache.directory.server.protocol.shared;
 
 
 /**
+ * An exception for the Service configuration
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ServiceConfigurationException extends RuntimeException
@@ -40,8 +42,8 @@ public class ServiceConfigurationException extends RuntimeException
     /**
      * Creates a new instance of ServiceConfigurationException.
      *
-     * @param message
-     * @param cause
+     * @param message The exception's message
+     * @param cause The exception's cause
      */
     public ServiceConfigurationException( String message, Throwable cause )
     {
@@ -52,7 +54,7 @@ public class ServiceConfigurationException extends RuntimeException
     /**
      * Creates a new instance of ServiceConfigurationException.
      *
-     * @param message
+     * @param message The exception's message
      */
     public ServiceConfigurationException( String message )
     {
@@ -63,7 +65,7 @@ public class ServiceConfigurationException extends RuntimeException
     /**
      * Creates a new instance of ServiceConfigurationException.
      *
-     * @param cause
+     * @param cause The exception's cause
      */
     public ServiceConfigurationException( Throwable cause )
     {

@@ -44,7 +44,6 @@ import org.apache.directory.api.ldap.model.schema.SchemaObjectWrapper;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
 import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +148,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      *
      * @param dn The Dn we want to get the schema name from
      * @return The schema name
-     * @throws NamingException If we got an error
+     * @throws LdapException If we got an error
      */
     protected String getSchemaName( Dn dn ) throws LdapException
     {
@@ -180,6 +179,10 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * Check that a SchemaObject exists in the global OidRegsitry, and if so,
      * return it.
+     * 
+     * @param entry The Entry we want to verify the existence of
+     * @return The found SchemaObject
+     * @throws LdapException  If the check failed
      */
     protected SchemaObject checkOidExists( Entry entry ) throws LdapException
     {
@@ -199,6 +202,11 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
     /**
      * Checks that the parent Dn is a valid Dn
+     * 
+     * @param newParent The parent DN to check
+     * @param schemaManager The SchemaManager instance
+     * @param objectType The ObjectType to check
+     * @throws LdapException  If the deletion failed
      */
     protected void checkParent( Dn newParent, SchemaManager schemaManager, String objectType ) throws LdapException
     {
@@ -249,6 +257,10 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * Add a new SchemaObject to the schema content, assuming that
      * it has an associated schema and that this schema is loaded
+     * 
+     * @param schemaObject The SchemaObject to add
+     * @param schemaName The Schema we want the SchemaObject to be added in
+     * @throws LdapException  If the addition failed
      */
     protected void addToSchema( SchemaObject schemaObject, String schemaName ) throws LdapException
     {
@@ -290,6 +302,10 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     /**
      * Delete a SchemaObject from the schema registry, assuming that
      * it has an associated schema and that this schema is loaded
+     * 
+     * @param schemaObject The SchemaObject to delete
+     * @param schemaName The Schema we want the SchemaObject to be deleted from
+     * @throws LdapException  If the deletion failed
      */
     protected void deleteFromSchema( SchemaObject schemaObject, String schemaName ) throws LdapException
     {
@@ -321,15 +337,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascade )
-        throws LdapException;
-
-
-    protected Set<String> getOids( Set<Entry> results ) throws Exception
+    protected Set<String> getOids( Set<Entry> results )
     {
         Set<String> oids = new HashSet<>( results.size() );
 
@@ -360,7 +368,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * Unregister a SchemaObject's OID from the associated oidRegistry
      *
      * @param obj The SchemaObject to unregister
-     * @throws Exception If the unregistering failed
+     * @throws LdapException If the unregistering failed
      */
     protected void unregisterOids( SchemaObject obj ) throws LdapException
     {
@@ -372,7 +380,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * Register a SchemaObject's OID in the associated oidRegistry
      *
      * @param obj The SchemaObject to register
-     * @throws Exception If the registering failed
+     * @throws LdapException If the registering failed
      */
     protected void registerOids( SchemaObject obj ) throws LdapException
     {

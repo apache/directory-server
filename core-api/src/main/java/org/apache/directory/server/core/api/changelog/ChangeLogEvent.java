@@ -56,6 +56,9 @@ public class ChangeLogEvent
      *
      * @param revision the revision number for the change
      * @param zuluTime the timestamp for when the change occurred in generalizedTime format
+     * @param committer The Committer
+     * @param forwardLdif The Forward LDIF entry
+     * @param reverseLdif The Reverse LDIF entry
      */
     public ChangeLogEvent( long revision, String zuluTime, LdapPrincipal committer, LdifEntry forwardLdif,
         LdifEntry reverseLdif )

@@ -58,6 +58,8 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 
     /**
      * Creates a new instance of ModifyOperationContext.
+     * 
+     * @param session The session to use
      */
     public ModifyOperationContext( CoreSession session )
     {
@@ -73,6 +75,7 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     /**
      * Creates a new instance of ModifyOperationContext.
      *
+     * @param session The session to use
      * @param dn the dn of the entry to be modified
      * @param modItems the modifications to be performed on the entry
      */
@@ -89,6 +92,13 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
     }
 
 
+    /**
+     * Creates a new instance of ModifyOperationContext.
+     * 
+     * @param session The session to use
+     * @param modifyRequest The ModifyRequest to process
+     * @throws LdapException If the modify failed
+     */
     public ModifyOperationContext( CoreSession session, ModifyRequest modifyRequest ) throws LdapException
     {
         super( session, modifyRequest.getName() );

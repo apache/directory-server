@@ -59,6 +59,7 @@ public class SubtreeEvaluator
      * @param subtree the subtree specification
      * @param apDn the distinguished name of the administrative point containing the subentry
      * @param entryDn the distinguished name of the candidate entry
+     * @param entry The entry to evaluate
      * @return true if the entry is selected by the specification, false if it is not
      * @throws LdapException if errors are encountered while evaluating selection
      */

@@ -29,15 +29,13 @@ package org.apache.directory.server.core.api.sp;
 public interface StoredProcEngineConfig
 {
     /**
-     * Returns the type of the associated {@link StoredProcEngine}.
-     * 
+     * @return the type of the associated {@link StoredProcEngine}.
      */
     Class<? extends StoredProcEngine> getStoredProcEngineType();
 
 
     /**
-     * Returns the unique language identifier of the {@link StoredProcEngine}.
-     * 
+     * @return the unique language identifier of the {@link StoredProcEngine}.
      */
     String getStoredProcLangId();
 }

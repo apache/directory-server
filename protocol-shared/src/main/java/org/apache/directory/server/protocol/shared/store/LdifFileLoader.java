@@ -90,9 +90,9 @@ public class LdifFileLoader
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param coreSession
-     * @param ldif
-     * @param filters
+     * @param coreSession The CoreSession instance
+     * @param ldif The ldif file to load
+     * @param filters The search filter to use
      */
     public LdifFileLoader( CoreSession coreSession, File ldif, List<? extends LdifLoadFilter> filters )
     {
@@ -103,10 +103,10 @@ public class LdifFileLoader
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param coreSession
-     * @param ldif
-     * @param filters
-     * @param loader
+     * @param coreSession The CoreSession instance
+     * @param ldif The ldif file to load
+     * @param filters The search filter to use
+     * @param loader The LdifLoader to use
      */
     public LdifFileLoader( CoreSession coreSession, File ldif, List<? extends LdifLoadFilter> filters,
         ClassLoader loader )
@@ -129,7 +129,7 @@ public class LdifFileLoader
     /**
      * Applies filters making sure failures in one filter do not effect another.
      *
-     * @param dn    the Dn of the entry
+     * @param dn the Dn of the entry
      * @param entry the attributes of the entry
      * @return true if all filters passed the entry, false otherwise
      */

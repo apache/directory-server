@@ -37,7 +37,7 @@ public interface EventService
      *
      * @param listener the DirectoryListener to deliver notifications to
      * @param criteria the parameterized criteria for delivering change events
-     * @throws Exception 
+     * @throws Exception If the addition failed
      */
     void addListener( DirectoryListener listener, NotificationCriteria criteria ) throws Exception;
 
@@ -53,6 +53,8 @@ public interface EventService
 
     /**
      * Lists the listeners registered with this EventService.
+     * 
+     * @return The list of registration entries
      */
     List<RegistrationEntry> getRegistrationEntries();
 }

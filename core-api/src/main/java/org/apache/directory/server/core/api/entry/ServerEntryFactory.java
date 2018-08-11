@@ -42,6 +42,10 @@ public interface ServerEntryFactory
     /**
      * Creates a new ServerEntry which has not yet been added to the 
      * directory.
+     * 
+     * @param dn The entry Dn
+     * @return The created entry
+     * @throws LdapException If the new entry cannot be created
      */
     Entry newEntry( Dn dn ) throws LdapException;
 }

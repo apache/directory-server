@@ -359,6 +359,10 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
     /**
      * Check that a Comparator exists in the ComparatorRegistry, and if so,
      * return it.
+     * 
+     * @param entry the Entry we want to know it exists
+     * @return The found comparator
+     * @throws LdapException If teh comparator is not found
      */
     protected LdapComparator<?> checkComparatorOidExists( Entry entry ) throws LdapException
     {

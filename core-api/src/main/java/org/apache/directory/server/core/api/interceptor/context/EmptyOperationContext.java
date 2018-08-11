@@ -35,6 +35,8 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of EmptyOperationContext.
+     * 
+     * @param session The session to use
      */
     public EmptyOperationContext( CoreSession session )
     {

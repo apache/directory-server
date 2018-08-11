@@ -35,7 +35,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * 
  * where:
  * 
- * TXT-DATA        One or more <character-string>s.
+ * TXT-DATA        One or more &lt;character-string&gt;s.
  * 
  * TXT RRs are used to hold descriptive text.  The semantics of the text
  * depends on the domain where it is found.

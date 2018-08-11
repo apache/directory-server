@@ -33,6 +33,8 @@ public interface PartitionTxn extends Closeable
      * Commit a write transaction. It will apply the changes on 
      * the database.Last, not least, a new version will be created.
      * If called by a Read transaction, it will simply close it.
+     * 
+     * @throws IOException If the commit failed
      */
     void commit() throws IOException;
     
@@ -41,6 +43,8 @@ public interface PartitionTxn extends Closeable
      * Abort a transaction. If it's a {@link PartitionReadTxn}, it will unlink this transaction
      * from the version it used. If it's a {@link PartitionWriteTxn}; it will drop all the pending
      * changes. The latest version will remain the same.
+     * 
+     * @throws IOException If the abort failed
      */
     void abort() throws IOException;
 

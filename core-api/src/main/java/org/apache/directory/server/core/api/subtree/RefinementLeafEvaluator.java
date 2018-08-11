@@ -68,7 +68,7 @@ public class RefinementLeafEvaluator
      * @param objectClasses the objectClass attribute's values
      * @return true if the leaf node selects the entry based on objectClass values, false
      * if it rejects the entry
-     * @throws LdapException
+     * @throws LdapException If the evaluation failed
      */
     public boolean evaluate( SimpleNode node, Attribute objectClasses ) throws LdapException
     {

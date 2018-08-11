@@ -59,6 +59,7 @@ public interface ProtocolService
      * If this protocol service supports UDP transport then this gets the
      * non-null MINA DatagramAcceptor it uses.
      *
+     * @param transport The Transport we are interested in
      * @return the MINA DatagramAcceptor used for UDP transports
      */
     DatagramAcceptor getDatagramAcceptor( Transport transport );
@@ -68,6 +69,7 @@ public interface ProtocolService
      * If this protocol service support TCP transport then this gets the
      * MINA SocketAcceptor it uses.
      *
+     * @param transport The Transport we are interested in
      * @return the MINA SocketAcceptor used for TCP transport
      */
     SocketAcceptor getSocketAcceptor( Transport transport );

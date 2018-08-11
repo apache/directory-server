@@ -222,7 +222,8 @@ public interface ChangeLog
 
     /**
      * Destroy the changeLog
-     * @throws LdapException 
+     * 
+     * @throws LdapException If the destroy failed 
      */
     void destroy() throws LdapException;
 

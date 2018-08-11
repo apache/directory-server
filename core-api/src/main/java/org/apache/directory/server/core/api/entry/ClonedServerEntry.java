@@ -460,7 +460,7 @@ public class ClonedServerEntry implements Entry
 
 
     /**
-     * @see Object#equals(Object);
+     * {@inheritDoc}
      */
     @Override
     public boolean equals( Object obj )

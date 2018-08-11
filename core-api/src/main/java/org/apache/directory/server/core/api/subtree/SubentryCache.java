@@ -57,17 +57,19 @@ public class SubentryCache implements Iterable<Dn>
      */
     public SubentryCache()
     {
-        cache = new ConcurrentHashMap<Dn, Subentry>();
+        cache = new ConcurrentHashMap<>();
         cacheSize = new AtomicInteger( 0 );
     }
 
 
     /**
      * Creates a new instance of SubentryCache with a specific maximum size.
+     * 
+     * @param maxSize The max number of elements in teh cache
      */
     public SubentryCache( int maxSize )
     {
-        cache = new ConcurrentHashMap<Dn, Subentry>();
+        cache = new ConcurrentHashMap<>();
         cacheSize = new AtomicInteger( 0 );
         cacheMaxSize = maxSize;
     }
@@ -109,8 +111,7 @@ public class SubentryCache implements Iterable<Dn>
      * Stores a new Subentry into the cache, associated with a Dn
      *
      * @param dn The Subentry Dn
-     * @param ss The SubtreeSpecification
-     * @param adminRoles The administrative roles for this Subentry
+     * @param subentry The SubtreeSpecification
      * @return The old Subentry, if any
      */
     public Subentry addSubentry( Dn dn, Subentry subentry )

@@ -263,7 +263,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * Creates a new instance with a given name.
      * 
-     * @param name the Interceptor name
+     * @param interceptor the Interceptor type
      */
     protected BaseInterceptor( InterceptorEnum interceptor )
     {
@@ -273,7 +273,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * This method does nothing by default.
-     * @throws Exception
+     * 
+     * @param directoryService The DirectoryService instance
+     * @throws LdapException If the initialization failed
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {

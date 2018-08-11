@@ -49,6 +49,8 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
 
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
+     * 
+     * @param session The session to use
      */
     public MoveAndRenameOperationContext( CoreSession session )
     {
@@ -64,8 +66,9 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     /**
      * Creates a new instance of MoveAndRenameOperationContext.
      *
+     * @param session The session to use
      * @param oldDn the original source entry Dn to be moved and renamed
-     * @param parent the new entry superior of the target after the move
+     * @param newSuperiorDn the new entry superior of the target after the move
      * @param newRdn the new rdn to use for the target once renamed
      * @param delOldRdn true if the old rdn value is deleted, false otherwise
      */

@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 
@@ -253,8 +254,8 @@ public interface OperationContext
      * Process the delete for inner operations. This is only valid for SubschemaSubentry
      * operations, and will most certainly be removed later.
      * 
-     * @param dn
-     * @throws LdapException
+     * @param dn The Dn for the entry to delete
+     * @throws LdapException If the deletion failed
      */
     void delete( Dn dn ) throws LdapException;
 
@@ -297,14 +298,14 @@ public interface OperationContext
     
     /**
      * @return The Partition this operation will be applied on
-     * @return
      */
     Partition getPartition();
     
     
     /**
-     * @return The Partition this operation will be applied on
-     * @return
+     * Set the Partition it's working on
+     * 
+     * @param partition The Partition this operation will be applied on
      */
     void setPartition( Partition partition );
 
