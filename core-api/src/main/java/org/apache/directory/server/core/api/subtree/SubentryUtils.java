@@ -64,7 +64,7 @@ public class SubentryUtils
      * @param dn the normalized distinguished name of the entry
      * @param entryAttrs the entry attributes are generated for
      * @return the set of subentry op attrs for an entry
-     * @throws Exception if there are problems accessing entry information
+     * @throws LdapException if there are problems accessing entry information
      */
     public Entry getSubentryAttributes( Dn dn, Entry entryAttrs ) throws LdapException
     {

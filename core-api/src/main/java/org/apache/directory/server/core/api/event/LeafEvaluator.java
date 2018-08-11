@@ -79,7 +79,7 @@ public class LeafEvaluator implements Evaluator
     /**
      * Creates a leaf expression node evaluator.
      *
-     * @param schemaManager The server schemaManager
+     * @param substringEvaluator The evaluator to use
      */
     public LeafEvaluator( SubstringEvaluator substringEvaluator )
     {

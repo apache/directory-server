@@ -57,7 +57,7 @@ public final class ChangeLogEventSerializer
     /**
      * Serializes a ChangeLogEvent instance.
      * 
-     * @param principal The ChangeLogEvent instance to serialize
+     * @param event The ChangeLogEvent instance to serialize
      * @param out The stream into which we will write the serialized instance
      * @throws IOException If the stream can't be written
      */

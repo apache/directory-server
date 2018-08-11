@@ -36,7 +36,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * 
  * where:
  * 
- * NSDNAME         A <domain-name> which specifies a host which should be
+ * NSDNAME         A &lt;domain-name&gt; which specifies a host which should be
  *                 authoritative for the specified class and domain.
  * 
  * NS records cause both the usual additional section processing to locate

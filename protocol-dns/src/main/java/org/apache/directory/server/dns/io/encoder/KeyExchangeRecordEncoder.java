@@ -39,7 +39,7 @@ package org.apache.directory.server.dns.io.encoder;
  *                    preference given to this RR among other KX records
  *                    at the same owner.  Lower values are preferred.
  * 
- *    EXCHANGER       A <domain-name> which specifies a host willing to
+ *    EXCHANGER       A &lt;domain-name&gt; which specifies a host willing to
  *                    act as a mail exchange for the owner name.
  * 
  *    KX records MUST cause type A additional section processing for the

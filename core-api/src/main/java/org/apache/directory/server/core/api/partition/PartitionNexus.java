@@ -72,7 +72,7 @@ public interface PartitionNexus extends Partition
      * Add a partition to the server.
      * 
      * @param Partition The Partition to add
-     * @throws Exception If the addition can't be done
+     * @throws LdapException If the addition can't be done
      */
     void addContextPartition( Partition partition ) throws LdapException;
 
@@ -81,7 +81,7 @@ public interface PartitionNexus extends Partition
      * Remove a partition from the server.
      * 
      * @param partitionDn the partition Dn
-     * @throws Exception If the removal can't be done
+     * @throws LdapException If the removal can't be done
      */
     void removeContextPartition( String partitionDn ) throws LdapException;
 
@@ -94,7 +94,7 @@ public interface PartitionNexus extends Partition
      * 
      * @param dn the normalized distinguished name to get a partition for
      * @return the partition containing the entry represented by the dn
-     * @throws Exception if there is no partition for the dn
+     * @throws LdapException if there is no partition for the dn
      */
     Partition getPartition( Dn dn ) throws LdapException;
 
@@ -107,6 +107,7 @@ public interface PartitionNexus extends Partition
      * @param The Dn we want to find the suffix from
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
+     * @throws LdapException If we can't get the suffix Dn
      */
     Dn getSuffixDn( Dn dn ) throws LdapException;
 
@@ -116,7 +117,7 @@ public interface PartitionNexus extends Partition
      * {@link DefaultPartitionNexus}.
      *
      * @return Iteration over ContextPartition suffix names as Names.
-     * @throws Exception if there are any problems
+     * @throws LdapException if there are any problems
      */
     Set<String> listSuffixes() throws LdapException;
 
@@ -126,6 +127,7 @@ public interface PartitionNexus extends Partition
      * 
      * @param extensionOids a set of OID strings to add to the supportedExtension
      * attribute in the RootDSE
+     * @throws LdapException If we cannot register the extensions
      */
     void registerSupportedExtensions( Set<String> extensionOids ) throws LdapException;
 
@@ -133,8 +135,9 @@ public interface PartitionNexus extends Partition
     /**
      * Adds a set of supportedSaslMechanisms (OID Strings) to the RootDSE.
      * 
-     * @param extensionOids a set of OID strings to add to the supportedSaslMechanisms
+     * @param supportedSaslMechanisms a set of OID strings to add to the supportedSaslMechanisms
      * attribute in the RootDSE
+     * @throws LdapException If we cannot fetch the supported SASL mechanism
      */
     void registerSupportedSaslMechanisms( Set<String> supportedSaslMechanisms ) throws LdapException;
 

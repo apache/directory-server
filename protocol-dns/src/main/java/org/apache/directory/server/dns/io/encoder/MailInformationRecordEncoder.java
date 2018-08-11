@@ -32,7 +32,7 @@ package org.apache.directory.server.dns.io.encoder;
  * 
  * where:
  * 
- * RMAILBX         A <domain-name> which specifies a mailbox which is
+ * RMAILBX         A &lt;domain-name&gt; which specifies a mailbox which is
  *                 responsible for the mailing list or mailbox.  If this
  *                 domain name names the root, the owner of the MINFO RR is
  *                 responsible for itself.  Note that many existing mailing
@@ -40,7 +40,7 @@ package org.apache.directory.server.dns.io.encoder;
  *                 mailing list X, e.g., Msgroup-request for Msgroup.  This
  *                 field provides a more general mechanism.
  * 
- * EMAILBX         A <domain-name> which specifies a mailbox which is to
+ * EMAILBX         A &lt;domain-name&gt; which specifies a mailbox which is to
  *                 receive error messages related to the mailing list or
  *                 mailbox specified by the owner of the MINFO RR (similar
  *                 to the ERRORS-TO: field which has been proposed).  If

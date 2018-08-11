@@ -416,8 +416,8 @@ public class FilterNormalizingVisitor implements FilterVisitor
      * - SubStringNode ( attr = *X*Y* )
      * - ApproximateNode ( attr ~= value )
      * - EqualityNode ( attr = value )
-     * - GreaterEqNode ( attr >= value )
-     * - LessEqNode ( attr <= value )
+     * - GreaterEqNode ( attr &gt;= value )
+     * - LessEqNode ( attr &lt;= value )
      * 
      * The PresencNode is managed differently from other nodes, as it just check
      * for the attribute, not the value.

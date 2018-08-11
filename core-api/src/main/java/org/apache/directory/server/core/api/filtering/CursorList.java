@@ -27,6 +27,7 @@ import org.apache.directory.api.i18n.I18n;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -93,6 +94,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      * @param start the lower bound index
      * @param list the list this ListCursor operates on
      * @param end the upper bound index
+     * @param searchContext The SearchContext instance
      */
     public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchOperationContext searchContext )
     {
@@ -142,6 +144,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      * acquired from the size of the list.
      *
      * @param list the backing for this ListCursor
+     * @param searchContext The SearchContext instance
      */
     public CursorList( List<EntryFilteringCursor> list, SearchOperationContext searchContext )
     {

@@ -28,15 +28,15 @@ package org.apache.directory.server.dns.io.encoder;
  * 
  *    DNAME has the following format:
  * 
- *       <owner> <ttl> <class> DNAME <target>
+ *       &lt;owner&gt; &lt;ttl&gt; &lt;class&gt; DNAME &lt;target&gt;
  * 
  *    The format is not class-sensitive.  All fields are required.  The
- *    RDATA field <target> is a <domain-name> [DNSIS].
+ *    RDATA field &lt;target&gt; is a &lt;domain-name&gt; [DNSIS].
  * 
  *    The DNAME RR causes type NS additional section processing.
  * 
  *    The effect of the DNAME record is the substitution of the record's
- *    <target> for its <owner> as a suffix of a domain name.  A "no-
+ *    &lt;target&gt; for its &lt;owner&gt; as a suffix of a domain name.  A "no-
  *    descendants" limitation governs the use of DNAMEs in a zone file:
  * 
  *       If a DNAME RR is present at a node N, there may be other data at N

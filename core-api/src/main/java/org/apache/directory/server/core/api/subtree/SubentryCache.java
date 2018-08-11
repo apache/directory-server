@@ -109,7 +109,7 @@ public class SubentryCache implements Iterable<Dn>
      * Stores a new Subentry into the cache, associated with a Dn
      *
      * @param dn The Subentry Dn
-     * @param ss The SubtreeSpecification
+     * @param subentry The SubtreeSpecification
      * @param adminRoles The administrative roles for this Subentry
      * @return The old Subentry, if any
      */

@@ -53,10 +53,10 @@ import org.apache.mina.core.buffer.IoBuffer;
  * 
  * where:
  * 
- * MNAME           The <domain-name> of the name server that was the
+ * MNAME           The &lt;domain-name&gt; of the name server that was the
  *                 original or primary source of data for this zone.
  * 
- * RNAME           A <domain-name> which specifies the mailbox of the
+ * RNAME           A &lt;domain-name&gt; which specifies the mailbox of the
  *                 person responsible for this zone.
  * 
  * SERIAL          The unsigned 32 bit version number of the original copy

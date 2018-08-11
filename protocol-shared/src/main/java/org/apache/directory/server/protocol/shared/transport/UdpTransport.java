@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * @todo : Missing Javadoc
+ * The Transport instance for UDP based protocols.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

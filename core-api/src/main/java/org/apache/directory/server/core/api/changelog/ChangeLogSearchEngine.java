@@ -133,7 +133,7 @@ public interface ChangeLogSearchEngine
      * @return an enumeration of all the ChangeLogEvents within some revision range inclusive
      * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the start and end revisions are out of range
-     * (less than 0 and greater than the current revision), or if startRevision > endRevision
+     * (less than 0 and greater than the current revision), or if startRevision &gt; endRevision
      */
     Cursor<ChangeLogEvent> find( long startRevision, long endRevision, RevisionOrder order )
         throws Exception;
@@ -227,8 +227,8 @@ public interface ChangeLogSearchEngine
      * 
      * <ul>
      *   <li>equality (=) </li>
-     *   <li>greaterThanEq (>=) </li>
-     *   <li>lessThanEq (<=) </li>
+     *   <li>greaterThanEq (&gt;=) </li>
+     *   <li>lessThanEq (&lt;=) </li>
      *   <li>scope (specialized) </li>
      * </ul>
      * 

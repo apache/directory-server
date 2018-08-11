@@ -83,7 +83,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
      * {@inheritDoc}
      */
     @Override
-    public Tag tag( long revision ) throws Exception
+    public Tag tag( long revision )
     {
         if ( tags.containsKey( revision ) )
         {
@@ -92,6 +92,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
         latest = new Tag( revision, null );
         tags.put( revision, latest );
+        
         return latest;
     }
 
@@ -100,7 +101,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
      * {@inheritDoc}
      */
     @Override
-    public Tag tag() throws Exception
+    public Tag tag()
     {
         if ( ( latest != null ) && ( latest.getRevision() == currentRevision ) )
         {
@@ -113,8 +114,11 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Tag tag( String description ) throws Exception
+    public Tag tag( String description )
     {
         if ( ( latest != null ) && ( latest.getRevision() == currentRevision ) )
         {
@@ -127,6 +131,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void init( DirectoryService service ) throws LdapException
     {
@@ -438,6 +445,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void sync() throws LdapException
     {
@@ -473,6 +483,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getCurrentRevision()
     {
@@ -484,12 +497,13 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
      * {@inheritDoc}
      */
     @Override
-    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse )
     {
         currentRevision++;
         ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(),
             principal, forward, reverse );
         events.add( event );
+        
         return event;
     }
 
@@ -498,18 +512,22 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
      * {@inheritDoc}
      */
     @Override
-    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception
+    public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses )
     {
         currentRevision++;
         ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(),
             principal, forward, reverses );
         events.add( event );
+        
         return event;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ChangeLogEvent lookup( long revision ) throws Exception
+    public ChangeLogEvent lookup( long revision )
     {
         if ( revision < 0 )
         {
@@ -525,56 +543,71 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Cursor<ChangeLogEvent> find() throws Exception
+    public Cursor<ChangeLogEvent> find()
     {
         return new ListCursor<>( events );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Cursor<ChangeLogEvent> findBefore( long revision ) throws Exception
+    public Cursor<ChangeLogEvent> findBefore( long revision )
     {
         return new ListCursor<>( events, ( int ) revision );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Cursor<ChangeLogEvent> findAfter( long revision ) throws LdapException
+    public Cursor<ChangeLogEvent> findAfter( long revision )
     {
         return new ListCursor<>( ( int ) revision, events );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Cursor<ChangeLogEvent> find( long startRevision, long endRevision ) throws Exception
+    public Cursor<ChangeLogEvent> find( long startRevision, long endRevision )
     {
         return new ListCursor<>( ( int ) startRevision, events, ( int ) ( endRevision + 1 ) );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Tag getLatest() throws LdapException
+    public Tag getLatest()
     {
         return latest;
     }
 
 
     /**
-     * @see TaggableChangeLogStore#removeTag(long)
+     * {@inheritDoc}
      */
     @Override
-    public Tag removeTag( long revision ) throws Exception
+    public Tag removeTag( long revision )
     {
         return tags.remove( revision );
     }
 
 
     /**
-     * @see TaggableChangeLogStore#tag(long, String)
+     * {@inheritDoc}
      */
     @Override
-    public Tag tag( long revision, String descrition ) throws Exception
+    public Tag tag( long revision, String descrition )
     {
         if ( tags.containsKey( revision ) )
         {

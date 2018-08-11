@@ -38,10 +38,10 @@ public interface Evaluator
     /**
      * Evaluates a candidate to determine if a filter expression selects it.
      * 
-     * @param node the filter expression to evaluate on the candidate
+     * @param refinement the filter expression to evaluate on the candidate
      * @param dn the normalized distinguished name of the entry being tested
      * @param entry the entry to evaluate
-     * @return true if the filter selects the candidate false otherwise
+     * @return <tt>true</tt> if the filter selects the candidate false otherwise
      * @throws LdapException if there is a database fault during evaluation
      */
     boolean evaluate( ExprNode refinement, Dn dn, Entry entry ) throws LdapException;

@@ -50,7 +50,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  *     others at the same owner. Lower values are preferred. 
  *     
  *   EXCHANGE
- *     A <domain-name> which specifies a host willing to act as a mail exchange
+ *     A &lt;domain-name&gt; which specifies a host willing to act as a mail exchange
  *     for the owner name.
  * </pre>
  * 
@@ -60,7 +60,7 @@ public class MailExchangeRecordDecoder implements RecordDecoder
 {
     public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException
     {
-        Map<String, Object> attributes = new HashMap<String, Object>();
+        Map<String, Object> attributes = new HashMap<>();
         attributes.put( Strings.toLowerCaseAscii( DnsAttribute.MX_PREFERENCE ), byteBuffer.getShort() );
         attributes.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), DnsMessageDecoder.getDomainName( byteBuffer ) );
         

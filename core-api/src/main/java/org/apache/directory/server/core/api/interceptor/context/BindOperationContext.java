@@ -80,11 +80,13 @@ public class BindOperationContext extends AbstractOperationContext
 
     /**
      * @return The authentication level. One of :
+     * <ul>
      * <li>ANONYMOUS</li>
      * <li>SIMPLE</li>
      * <li>STRONG (sasl)</li>
      * <li>UNAUTHENT</li>
      * <li>INVALID</li>
+     * </ul>
      */
     public AuthenticationLevel getAuthenticationLevel() throws LdapAuthenticationException
     {

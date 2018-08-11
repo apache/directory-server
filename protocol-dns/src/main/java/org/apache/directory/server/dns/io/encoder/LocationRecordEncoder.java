@@ -55,7 +55,7 @@ package org.apache.directory.server.dns.io.encoder;
  *              integers, each ranging from zero to nine, with the most
  *              significant four bits representing the base and the second
  *              number representing the power of ten by which to multiply
- *              the base.  This allows sizes from 0e0 (<1cm) to 9e9
+ *              the base.  This allows sizes from 0e0 (&lt;1cm) to 9e9
  *              (90,000km) to be expressed.  This representation was chosen
  *              such that the hexadecimal representation can be read by
  *              eye; 0x15 = 1e5.  Four-bit values greater than 9 are

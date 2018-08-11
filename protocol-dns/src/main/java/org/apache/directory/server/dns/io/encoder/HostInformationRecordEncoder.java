@@ -32,9 +32,9 @@ package org.apache.directory.server.dns.io.encoder;
  * 
  * where:
  * 
- * CPU             A <character-string> which specifies the CPU type.
+ * CPU             A &lt;character-string&gt; which specifies the CPU type.
  * 
- * OS              A <character-string> which specifies the operating
+ * OS              A &lt;character-string&gt; which specifies the operating
  *                 system type.
  * 
  * Standard values for CPU and OS can be found in [RFC-1010].

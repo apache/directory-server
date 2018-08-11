@@ -28,7 +28,7 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 /**
  * An entry filter is used to modify search results while they are being 
  * returned from Cursors over ServerEntry objects.  These filters are used in
- * conjunction with a {@link FilteringCursor}.  Multiple filters can be 
+ * conjunction with a FilteringCursor.  Multiple filters can be 
  * applied one after the other and hence they are stack-able and applied in
  * order.
  *
@@ -43,10 +43,10 @@ public interface EntryFilter
      * should be cloned when alterations are made to avoid altering cached
      * entries.
      *
+     * @param operation The SeachOperationContext instance
      * @param result the result to accept or reject possibly modifying it
-     * @param controls search controls associated with the invocation
      * @return true if the entry is to be returned, false if it is rejected
-     * @throws Exception if there are failures during evaluation
+     * @throws LdapException if there are failures during evaluation
      */
     boolean accept( SearchOperationContext operation, Entry result ) throws LdapException;
     

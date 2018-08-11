@@ -44,7 +44,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  *   where:
  *
  *   NSDNAME
- *     A <domain-name> which specifies a host which should be authoritative for
+ *     A &lt;domain-name&gt; which specifies a host which should be authoritative for
  *     the specified class and domain. 
  * </pre>
  * 
@@ -54,7 +54,7 @@ public class NameServerRecordDecoder implements RecordDecoder
 {
     public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException
     {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put( Strings.toLowerCaseAscii( DnsAttribute.DOMAIN_NAME ), DnsMessageDecoder.getDomainName( byteBuffer ) );
         
         return map;
