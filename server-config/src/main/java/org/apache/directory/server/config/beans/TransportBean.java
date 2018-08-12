@@ -157,7 +157,7 @@ public class TransportBean extends AdsBaseBean
     /**
      * Sets the number of thread to use to process incoming requests
      * 
-     * @param The number of threads
+     * @param transportNbThreads The number of threads
      */
     public void setTransportNbThreads( int transportNbThreads )
     {
@@ -177,7 +177,7 @@ public class TransportBean extends AdsBaseBean
     /**
      * Sets the size of the incoming requests waiting queue
      * 
-     * @param The size of waiting request queue
+     * @param transportBacklog The size of waiting request queue
      */
     public void setTransportBackLog( int transportBacklog )
     {

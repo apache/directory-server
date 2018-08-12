@@ -293,7 +293,7 @@ public class DirectoryServiceBean extends AdsBaseBean
 
 
     /**
-     * @param cChangeLog the ChangeLog to set
+     * @param changeLog the ChangeLog to set
      */
     public void setChangeLog( ChangeLogBean changeLog )
     {

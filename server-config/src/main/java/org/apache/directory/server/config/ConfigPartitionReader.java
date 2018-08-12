@@ -502,7 +502,13 @@ public class ConfigPartitionReader
 
     /**
      * Read some configuration element from the DIT using its name
-     * @throws LdapInvalidAttributeValueException 
+     * 
+     * @param baseDn The base Dn in the DIT where the configuration is stored
+     * @param name The element to read
+     * @param scope The search scope
+     * @param mandatory If the element is mandatory or not
+     * @return The list of beans read
+     * @throws ConfigurationException If the configuration cannot be read 
      */
     public List<AdsBaseBean> read( Dn baseDn, String name, SearchScope scope, boolean mandatory )
         throws ConfigurationException
@@ -615,9 +621,9 @@ public class ConfigPartitionReader
     /**
      * Creates a configuration bean from the given entry.
      * 
-     * @param entry any configuration entry of thetype "ads-base"
-     * @return
-     * @throws Exception
+     * @param entry any configuration entry of the type "ads-base"
+     * @return The ApacheDS base configuration
+     * @throws Exception If the configuration cannot be read
      */
     public AdsBaseBean readConfig( Entry entry ) throws Exception
     {
@@ -750,7 +756,7 @@ public class ConfigPartitionReader
     /**
      * Read the configuration from the DIT, returning a bean containing all of it.
      * 
-     * @param base The base Dn in the DIT where the configuration is stored
+     * @param baseDn The base Dn in the DIT where the configuration is stored
      * @return The Config bean, containing the whole configuration
      * @throws ConfigurationException If we had some issue reading the configuration
      */
@@ -764,7 +770,7 @@ public class ConfigPartitionReader
     /**
      * Read the configuration from the DIT, returning a bean containing all of it.
      * 
-     * @param base The base Dn in the DIT where the configuration is stored
+     * @param baseDn The base Dn in the DIT where the configuration is stored
      * @return The Config bean, containing the whole configuration
      * @throws ConfigurationException If we had some issue reading the configuration
      */
@@ -781,7 +787,7 @@ public class ConfigPartitionReader
      * @param baseDn The base Dn in the DIT where the configuration is stored
      * @param objectClass The element to read from the DIT
      * @return The bean containing the configuration for the required element
-     * @throws ConfigurationException
+     * @throws ConfigurationException If the configuration cannot be read
      */
     public ConfigBean readConfig( String baseDn, String objectClass ) throws LdapException
     {
@@ -795,7 +801,7 @@ public class ConfigPartitionReader
      * @param baseDn The base Dn in the DIT where the configuration is stored
      * @param objectClass The element to read from the DIT
      * @return The bean containing the configuration for the required element
-     * @throws ConfigurationException
+     * @throws ConfigurationException If the configuration cannot be read
      */
     public ConfigBean readConfig( Dn baseDn, String objectClass ) throws ConfigurationException
     {

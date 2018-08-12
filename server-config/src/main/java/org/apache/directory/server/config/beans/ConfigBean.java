@@ -88,7 +88,7 @@ public class ConfigBean
 
 
     /**
-     * @param The DirectoryService ID we want to get
+     * @param directoryServiceId The DirectoryService ID we want to get
      * @return the found directoryServiceBean
      */
     public DirectoryServiceBean getDirectoryServiceBean( String directoryServiceId )

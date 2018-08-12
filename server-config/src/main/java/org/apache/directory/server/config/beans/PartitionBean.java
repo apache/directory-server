@@ -127,7 +127,7 @@ public abstract class PartitionBean extends AdsBaseBean
 
 
     /**
-     * @param partitions the indexes to set
+     * @param indexes the indexes to set
      */
     public void setIndexes( List<IndexBean> indexes )
     {

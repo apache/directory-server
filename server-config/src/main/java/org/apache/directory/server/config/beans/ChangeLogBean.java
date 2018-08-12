@@ -80,7 +80,7 @@ public class ChangeLogBean extends AdsBaseBean
 
 
     /**
-     * @param exposed Set the exposed flag
+     * @param changeLogExposed Set the exposed flag
      */
     public void setChangeLogExposed( boolean changeLogExposed )
     {

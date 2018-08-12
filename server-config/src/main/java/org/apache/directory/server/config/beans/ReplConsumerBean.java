@@ -147,7 +147,7 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @param searchBaseDN the searchBaseDn to set
+     * @param searchBaseDn the searchBaseDn to set
      */
     public void setSearchBaseDn( String searchBaseDn )
     {

@@ -80,7 +80,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
 
 
     /**
-     * @param SaslMechClassName the SaslMechClassName to set
+     * @param saslMechClassName the SaslMechClassName to set
      */
     public void setSaslMechClassName( String saslMechClassName )
     {
@@ -98,7 +98,7 @@ public class SaslMechHandlerBean extends AdsBaseBean
 
 
     /**
-     * @param NtlmMechProvider the NtlmMechProvider to set
+     * @param ntlmMechProvider the NtlmMechProvider to set
      */
     public void setNtlmMechProvider( String ntlmMechProvider )
     {

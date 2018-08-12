@@ -85,7 +85,7 @@ public class ConfigPartitionInitializer
      * to new multi-file LDIF partition. 
      *
      * @return the initialized configuration partition
-     * @throws Exception
+     * @throws Exception If we can't initialize the configuration partition
      */
     public LdifPartition initConfigPartition() throws Exception
     {

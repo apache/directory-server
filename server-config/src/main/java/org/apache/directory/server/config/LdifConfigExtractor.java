@@ -74,6 +74,7 @@ public final class LdifConfigExtractor
     /**
      * Extracts the LDIF files from a Jar file or copies exploded LDIF resources.
      *
+     * @param outputDirectory The directory where to extract the configuration
      * @param overwrite over write extracted structure if true, false otherwise
      * @throws IOException if schema already extracted and on IO errors
      */
@@ -268,6 +269,7 @@ public final class LdifConfigExtractor
      * extracts or overwrites the configuration LDIF file and returns the absolute path of this file
      *
      * @param configDir the directory where the config file should be extracted to
+     * @param file The file containing the configuration
      * @param overwrite flag to indicate to overwrite the config file if already present in the given config directory
      * @return complete path of the config file on disk
      */
