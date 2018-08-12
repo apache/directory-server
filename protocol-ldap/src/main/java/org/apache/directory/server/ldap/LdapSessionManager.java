@@ -47,6 +47,8 @@ public class LdapSessionManager
 
     /**
      * Gets the active sessions managed by the LdapServer.
+     * 
+     * @return The active sessions
      */
     public LdapSession[] getSessions()
     {

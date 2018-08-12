@@ -46,7 +46,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * @todo : missing Javadoc
+ * A Handler for the GracefulShutdown extended operation
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class GracefulShutdownHandler implements

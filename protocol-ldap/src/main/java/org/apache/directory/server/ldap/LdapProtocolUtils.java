@@ -65,7 +65,7 @@ public final class LdapProtocolUtils
      * @param opContext the context to populate with request controls
      * @param request the request to extract controls from
      */
-    public static void setRequestControls( OperationContext opContext, Request request ) throws Exception
+    public static void setRequestControls( OperationContext opContext, Request request )
     {
         if ( request.getControls() != null )
         {
@@ -82,7 +82,7 @@ public final class LdapProtocolUtils
      * @param opContext the context to extract controls from
      * @param response the response to populate with response controls
      */
-    public static void setResponseControls( OperationContext opContext, Response response ) throws Exception
+    public static void setResponseControls( OperationContext opContext, Response response )
     {
         response.addAllControls( opContext.getResponseControls() );
     }
@@ -100,6 +100,9 @@ public final class LdapProtocolUtils
     /**
      * Check the cookie syntax. A cookie must have the following syntax :
      * { rid={replicaId},csn={CSN} }
+     * 
+     * @param cookieString The cookie
+     * @return <tt>true</tt> if the cookie is valid
      */
     public static boolean isValidCookie( String cookieString )
     {
@@ -144,7 +147,7 @@ public final class LdapProtocolUtils
      * returns the CSN present in cookie
      * 
      * @param cookieString the cookie
-     * @return
+     * @return The CSN
      */
     public static String getCsn( String cookieString )
     {
@@ -157,7 +160,7 @@ public final class LdapProtocolUtils
      * returns the replica id present in cookie
      * 
      * @param cookieString  the cookie
-     * @return
+     * @return The replica Id
      */
     public static int getReplicaId( String cookieString )
     {

@@ -93,8 +93,9 @@ public final class PlainSaslServer extends AbstractSaslServer
      * 
      * Creates a new instance of PlainSaslServer.
      *
+     * @param ldapSession The associated LdapSession instance
+     * @param adminSession The Administrator session 
      * @param bindRequest The associated BindRequest object
-     * @param ldapSession The associated LdapSession instance 
      */
     public PlainSaslServer( LdapSession ldapSession, CoreSession adminSession, BindRequest bindRequest )
     {

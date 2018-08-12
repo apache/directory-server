@@ -172,7 +172,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
     /**
      * A convenient method that concatenates the host and port of the producer
-     * @return The <host>:<port> the consumer is connected to
+     * @return The &lt;host&gt;:&lt;port&gt; the consumer is connected to
      */
     public String getProducer()
     {
@@ -505,7 +505,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /**
      * set the option to turn on/off use of TLS
      * 
-     * @param useTls
+     * @param useTls If we have to use TLS
      */
     public void setUseTls( boolean useTls )
     {
@@ -525,7 +525,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /**
      * set the strict certificate verification
      * 
-     * @param strictCertVerification
+     * @param strictCertVerification If we require a certificate validation
      */
     public void setStrictCertVerification( boolean strictCertVerification )
     {
@@ -572,7 +572,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /**
      * enable/disable MMR option
      *
-     * @param mmrMode
+     * @param mmrMode The type of replication
      */
     public void setMmrMode( boolean mmrMode )
     {

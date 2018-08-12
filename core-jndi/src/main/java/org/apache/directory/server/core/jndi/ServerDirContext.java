@@ -105,8 +105,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * Creates a new ServerDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
      *
+     * @param service The DirectoryService instance
      * @param principal the principal which is propagated
      * @param dn the distinguished name of this context
+     * @throws Exception If we weren't able to create the ServerDirContext instance
      */
     public ServerDirContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws Exception
     {
@@ -283,6 +285,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     /**
      * @see javax.naming.directory.DirContext#modifyAttributes(
      * javax.naming.Name, javax.naming.directory.ModificationItem[])
+     * 
+     * @param name The entry to modify
+     * @param mods The modifications to apply
+     * @throws NamingException If the modify operation failed
      */
     public void modifyAttributes( Name name, List<ModificationItem> mods ) throws NamingException
     {

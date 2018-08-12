@@ -87,7 +87,8 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     /**
      * Creates a new instance of AbstractSaslCallbackHandler.
      *
-     * @param directoryService
+     * @param directoryService The DirectoryService instance
+     * @param bindRequest The Bind request
      */
     protected AbstractSaslCallbackHandler( DirectoryService directoryService, BindRequest bindRequest )
     {
@@ -100,6 +101,8 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * Implementors use this method to access the username resulting from a callback.
      * Callback default name will be username, eg 'hnelson', for CRAM-MD5 and DIGEST-MD5.
      * The {@link NameCallback} is not used by GSSAPI.
+     * 
+     * @return The user name
      */
     protected String getUsername()
     {
@@ -111,6 +114,8 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * Implementors use this method to access the realm resulting from a callback.
      * Callback default text will be realm name, eg 'example.com', for DIGEST-MD5.
      * The {@link RealmCallback} is not used by GSSAPI nor by CRAM-MD5.
+     * 
+     * @return The realm
      */
     protected String getRealm()
     {
@@ -141,6 +146,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * Implementors must setAuthorized() to <code>true</code> if authentication was successful.
      * 
      * @param callback An {@link AuthorizeCallback}.
+     * @throws Exception If the authorization failed
      */
     protected abstract void authorize( AuthorizeCallback callback ) throws Exception;
 

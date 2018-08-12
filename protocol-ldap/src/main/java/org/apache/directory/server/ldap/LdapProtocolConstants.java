@@ -25,7 +25,7 @@ import org.apache.directory.api.ldap.model.message.Control;
 
 /**
  * Constants for LDAP protocol service.
- * Final reference -> class shouldn't be extended
+ * Final reference -&gt; class shouldn't be extended
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

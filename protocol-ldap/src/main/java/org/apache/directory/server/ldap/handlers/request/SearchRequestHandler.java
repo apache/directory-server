@@ -1466,11 +1466,15 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      * an ancestor that is a referral.  The original entry was not found and
      * the walk of the ancestry returned a referral.
      *
+     * @param session The LdapSession in use
+     * @param req The SearchRequest
      * @param referralAncestor the farthest referral ancestor of the missing
      * entry
+     * @return The found referral
+     * @throws LdapException If we weren't able to retrieve the referral
      */
     public Referral getReferralOnAncestorForSearch( LdapSession session, SearchRequest req,
-        Entry referralAncestor ) throws Exception
+        Entry referralAncestor ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -1546,11 +1550,16 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      * an ancestor that is a referral.  The original entry was not found and
      * the walk of the ancestry returned a referral.
      *
+     * @param session The LdapSession in use
+     * @param reqTargetDn the request target Dn
+     * @param req The SearchRequest
      * @param referralAncestor the farthest referral ancestor of the missing
      * entry
+     * @return The found referral
+     * @throws LdapException If we weren't able to retrieve the ancestor
      */
     public Referral getReferralOnAncestor( LdapSession session, Dn reqTargetDn, SearchRequest req,
-        Entry referralAncestor ) throws Exception
+        Entry referralAncestor ) throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -1715,12 +1724,13 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      * Techniques can be employed later to improve this performance hit by
      * having an intelligent referral cache.
      *
+     * @param session The LdapSession in use
+     * @param target the base Dn
      * @return the farthest referral ancestor or null
-     * @throws Exception if there are problems during this search
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
     @SuppressWarnings("PMD.EmptyCatchBlock")
-    public static final Entry getFarthestReferralAncestor( LdapSession session, Dn target ) throws Exception
+    public static final Entry getFarthestReferralAncestor( LdapSession session, Dn target )
     {
         Entry entry;
         Entry farthestReferralAncestor = null;

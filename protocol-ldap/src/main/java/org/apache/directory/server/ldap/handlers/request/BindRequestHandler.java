@@ -536,7 +536,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      * <li>The user does not has a session yet</li>
      * <li>The user already has a session</li>
      * <li>The user has started a SASL negotiation</li>
-     * </lu><br>
+     * </ul>
      * 
      * In the first case, we initiate a SaslBind session, which will be used all
      * along the negotiation.<br>
@@ -548,7 +548,6 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      * current negotiation. We move back to an Anonymous state</li>
      * <li>The mechanism is provided : the user is initializing a new negotiation
      * with another mechanism. The current SaslBind session is reinitialized</li>
-     * <li></li>
      * </ul><br>
      *
      * @param ldapSession The associated Session

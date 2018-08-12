@@ -93,6 +93,8 @@ public interface ReplicationConsumer
     
     /**
      * Starts the synchronization operation
+     * 
+     * @return The replication status
      */
     ReplicationStatusEnum startSync();
 }

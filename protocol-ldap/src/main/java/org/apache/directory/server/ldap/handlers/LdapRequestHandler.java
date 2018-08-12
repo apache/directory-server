@@ -237,6 +237,10 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
     /**
      * Handles processing with referrals without ManageDsaIT decorator.
+     * 
+     * @param session The associated session
+     * @param req The response
+     * @param e The associated exception 
      */
     public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {

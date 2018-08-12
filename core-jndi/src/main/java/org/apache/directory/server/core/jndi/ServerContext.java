@@ -296,6 +296,8 @@ public abstract class ServerContext implements EventContext
     /**
      * Set the referral handling flag into the operation context using
      * the JNDI value stored into the environment.
+     * 
+     * @param opCtx The operation context
      */
     protected void injectReferralControl( OperationContext opCtx )
     {
@@ -327,8 +329,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after add operations.
-     * @param entry
-     * @param target
+     * 
+     * @param target The entry's Dn to add
+     * @param entry The entry to add
+     * @throws Exception If the add failed
      */
     protected void doAddOperation( Dn target, Entry entry ) throws Exception
     {
@@ -353,7 +357,9 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after delete operations.
-     * @param target
+     * 
+     * @param target The entry's Dn we want to delete
+     * @throws Exception If we can't delete the entry
      */
     protected void doDeleteOperation( Dn target ) throws Exception
     {
@@ -493,11 +499,13 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
-     * @param dn
-     * @param aliasDerefMode
-     * @param filter
-     * @param searchControls
-     * @return NamingEnumeration
+     * 
+     * @param dn The base search Dn
+     * @param aliasDerefMode The AliasDeref mode
+     * @param filter The search filter
+     * @param searchControls The controls
+     * @return A cursor on the found entries
+     * @throws Exception If the search failed 
      */
     protected EntryFilteringCursor doSearchOperation( Dn dn, AliasDerefMode aliasDerefMode,
         ExprNode filter, SearchControls searchControls ) throws Exception
@@ -579,6 +587,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
+     * 
+     * @param target The search Dn
+     * @return A cursor on the found entries
+     * @throws Exception If we can't process the search
      */
     protected EntryFilteringCursor doListOperation( Dn target ) throws Exception
     {
@@ -600,6 +612,13 @@ public abstract class ServerContext implements EventContext
     }
 
 
+    /**
+     * Fetch the rootDSE entry
+     * 
+     * @param target Should be empty
+     * @return The RootDSE entry
+     * @throws Exception If we can't fetch the RootDSE entry
+     */
     protected Entry doGetRootDseOperation( Dn target ) throws Exception
     {
         GetRootDseOperationContext getRootDseContext = new GetRootDseOperationContext( session, target );
@@ -615,6 +634,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
+     * 
+     * @param target The Dn we are looking for
+     * @return The found entry
+     * @throws Exception If the lookup failed
      */
     protected Entry doLookupOperation( Dn target ) throws Exception
     {
@@ -637,6 +660,11 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
+     * 
+     * @param target The Dn we are looking for
+     * @param attrIds The attributes to return
+     * @return The found entry
+     * @throws Exception If the lookup failed
      */
     protected Entry doLookupOperation( Dn target, String[] attrIds ) throws Exception
     {
@@ -668,6 +696,13 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after bind operations.
+     * 
+     * @param bindDn The user's Dn
+     * @param credentials The credentials
+     * @param saslMechanism The SASL mechanism to use
+     * @param saslAuthId The SASL authorization ID
+     * @return A BindOperationContext instance
+     * @throws Exception If the Bind failed
      */
     protected BindOperationContext doBindOperation( Dn bindDn, byte[] credentials, String saslMechanism,
         String saslAuthId ) throws Exception
@@ -695,13 +730,19 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
+     * 
+     * @param oldDn The old Dn
+     * @param parent The new parent
+     * @param newRdn The new Rdn
+     * @param delOldRdn If we shoud delete the old Rdn
+     * @throws Exception If the move and rename failed
      */
-    protected void doMoveAndRenameOperation( Dn oldDn, Dn parent, Rdn newRdn, boolean delOldDn )
+    protected void doMoveAndRenameOperation( Dn oldDn, Dn parent, Rdn newRdn, boolean delOldRdn )
         throws Exception
     {
         // setup the op context and populate with request controls
         MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent,
-            newRdn, delOldDn );
+            newRdn, delOldRdn );
         moveAndRenameContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
@@ -720,6 +761,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after modify operations.
+     * 
+     * @param dn The modified entry's dn
+     * @param modifications The list of modifications to apply
+     * @throws Exception If the modify failed
      */
     protected void doModifyOperation( Dn dn, List<Modification> modifications ) throws Exception
     {
@@ -743,6 +788,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
+     * 
+     * @param oldDn The old Dn
+     * @param target The target
+     * @throws Exception If the move failed
      */
     protected void doMove( Dn oldDn, Dn target ) throws Exception
     {
@@ -766,6 +815,11 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after rename operations.
+     * 
+     * @param oldDn The old Dn
+     * @param newRdn The new Rdn
+     * @param delOldRdn If we should delete the old Rdn
+     * @throws Exception If the rename failed
      */
     protected void doRename( Dn oldDn, Rdn newRdn, boolean delOldRdn ) throws Exception
     {

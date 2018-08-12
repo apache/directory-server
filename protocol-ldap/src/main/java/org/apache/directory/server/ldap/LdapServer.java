@@ -44,6 +44,7 @@ import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.exception.LdapConfigurationException;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AbandonRequest;
 import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.AddResponse;
@@ -359,7 +360,9 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * loads the digital certificate either from a keystore file or from the admin entry in DIT
+     * Loads the digital certificate either from a keystore file or from the admin entry in DIT
+     * 
+     * @throws Exception If the KeyStore can't be loaded
      */
     public void loadKeyStore() throws Exception
     {
@@ -441,6 +444,7 @@ public class LdapServer extends DirectoryBackedService
      * with a new SslFilter after reloading the keystore.
      * 
      * Note: should be called to reload the keystore after changing the digital certificate.
+     * @throws Exception If teh SSLContext can't be reloaded
      */
     public void reloadSslContext() throws Exception
     {
@@ -730,7 +734,9 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * starts the replication consumers
+     * Starts the replication consumers
+     * 
+     * @throws LdapException If the consumer can't be started
      */
     public void startReplicationConsumers() throws Exception
     {
@@ -945,7 +951,8 @@ public class LdapServer extends DirectoryBackedService
     /**
      * Returns <tt>true</tt> if LDAPS is enabled.
      *
-     * @return True if LDAPS is enabled.
+     * @param transport The LDAP transport
+     * @return <tt>true</tt> if LDAPS is enabled.
      */
     public boolean isEnableLdaps( Transport transport )
     {
@@ -1111,6 +1118,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
+     * @return the supported SASL mechanisms
      */
     public Map<String, MechanismHandler> getSaslMechanismHandlers()
     {
@@ -1754,7 +1762,7 @@ public class LdapServer extends DirectoryBackedService
     /**
      * The number of seconds pinger thread should sleep before pinging the providers
      *  
-     * @param pingerSleepTime
+     * @param pingerSleepTime The delay between 2 pings
      */
     public void setReplPingerSleepTime( int pingerSleepTime )
     {

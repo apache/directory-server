@@ -127,8 +127,10 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     /**
      * Creates a new instance of EventLog for a replica
      * 
+     * @param partitionTxn The Transaction to use
      * @param directoryService The DirectoryService instance
      * @param replicaId The replica ID
+     * @throws IOException if we weren't able to log the event
      */
     public ReplicaEventLog( PartitionTxn partitionTxn, DirectoryService directoryService, int replicaId ) throws IOException
     {

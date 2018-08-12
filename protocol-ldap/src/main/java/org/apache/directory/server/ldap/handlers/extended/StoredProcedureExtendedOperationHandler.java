@@ -44,7 +44,8 @@ import org.apache.directory.server.ldap.LdapSession;
 
 
 /**
- * @todo : Missing Javadoc
+ * A Handler for the StoredProcedure extended operation
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class StoredProcedureExtendedOperationHandler implements

@@ -36,7 +36,7 @@ import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 public interface ExtendedOperationHandler<R extends ExtendedRequest, P extends ExtendedResponse>
 {
     /**
-     * Returns the EXTENSION_OID of the extended request this handler can handle.
+     * @return the EXTENSION_OID of the extended request this handler can handle.
      */
     String getOid();
 

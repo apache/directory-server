@@ -188,7 +188,7 @@ public class ReplConsumerManager
      * Delete an existing consumer entry from ou=consumers,ou=system
      * 
      * @param replica The added consumer replica
-     * @throws Exception If the addition failed
+     * @throws LdapException If the addition failed
      */
     public void deleteConsumerEntry( ReplicaEventLog replica ) throws LdapException
     {

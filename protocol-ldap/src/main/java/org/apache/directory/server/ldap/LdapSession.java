@@ -237,6 +237,7 @@ public class LdapSession
      * Abandons a specific request by messageId.
      *
      * @param messageId The request ID to abandon
+     * @return The found request
      */
     public AbandonableRequest abandonOutstandingRequest( int messageId )
     {
@@ -348,6 +349,7 @@ public class LdapSession
      * Registers a new searchRequest
      *
      * @param searchRequest a new searchRequest
+     * @param cursor The cursor to register
      */
     public void registerSearchRequest( SearchRequest searchRequest, Cursor<Entry> cursor )
     {
@@ -379,6 +381,7 @@ public class LdapSession
      * Find the searchRequestContainer associated with a MessageID
      *
      * @param messageId the SearchRequestContainer MessageID we are looking for
+     * @return The found SearchRequestContainer 
      */
     public SearchRequestContainer getSearchRequest( int messageId )
     {
@@ -552,7 +555,7 @@ public class LdapSession
     /**
      * Close all the pending cursors for all the pending PagedSearches
      *
-     * @throws Exception If we've got an exception.
+     * @throws IOException If we've got an exception.
      */
     public void closeAllPagedSearches() throws IOException
     {

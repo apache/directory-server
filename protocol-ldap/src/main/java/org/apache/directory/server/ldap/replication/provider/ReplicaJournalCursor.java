@@ -76,11 +76,14 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
 
     /**
      * Creates a cursor on top of the given journal
+     * 
+     * @param partitionTxn The Transaction to use
      * @param journal the log journal
      * @param consumerCsn the consumer's CSN taken from cookie
-     * @throws Exception 
+     * @throws Exception If the cursor creation failed
      */
-    public ReplicaJournalCursor( PartitionTxn partitionTxn, JdbmTable<String, ReplicaEventMessage> journal, String consumerCsn ) throws Exception
+    public ReplicaJournalCursor( PartitionTxn partitionTxn, JdbmTable<String, ReplicaEventMessage> journal, 
+            String consumerCsn ) throws Exception
     {
         if ( IS_DEBUG )
         {
