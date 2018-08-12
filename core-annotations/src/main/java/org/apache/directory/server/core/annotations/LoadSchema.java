@@ -41,9 +41,9 @@ import java.lang.annotation.Target;
  * 
  * Here is an exemple :
  * <pre>
- * @Schemas( {
- *     @LoadSchema( name = "nis", enabled="TRUE" ),
- *     @LoadSchema( name = "posix", enabled="FALSE" ),
+ * &#64;Schemas( {
+ *     &#64;LoadSchema( name = "nis", enabled="TRUE" ),
+ *     &#64;LoadSchema( name = "posix", enabled="FALSE" ),
  * })
  * )
  * </pre>
@@ -55,10 +55,10 @@ import java.lang.annotation.Target;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface LoadSchema
 {
-    /** The schema name */
+    /** @return The schema name */
     String name();
 
 
-    /** The flag indicating if the schema should be enabled or disabled */
+    /** @return The flag indicating if the schema should be enabled or disabled */
     boolean enabled() default true;
 }

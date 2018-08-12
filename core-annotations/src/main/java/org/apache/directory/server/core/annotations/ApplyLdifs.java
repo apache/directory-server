@@ -41,5 +41,6 @@ import java.lang.annotation.Target;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface ApplyLdifs
 {
+    /** @return The LDIF files */
     String[] value();
 }

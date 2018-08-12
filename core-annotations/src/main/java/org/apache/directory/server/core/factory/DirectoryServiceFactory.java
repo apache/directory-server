@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.factory;
 
 
+import org.apache.commons.collections.Factory;
 import org.apache.directory.server.core.api.DirectoryService;
 
 
@@ -37,6 +38,7 @@ public interface DirectoryServiceFactory
      * Inits the directory service factory.
      * 
      * @param name the name
+     * @throws Exception If the DirectoryService initialization failed
      */
     void init( String name ) throws Exception;
 
@@ -45,6 +47,7 @@ public interface DirectoryServiceFactory
      * Gets the directory service.
      * 
      * @return the directory service
+     * @throws Exception If the DirectoryService cannot be returned
      */
     DirectoryService getDirectoryService() throws Exception;
 
@@ -52,7 +55,8 @@ public interface DirectoryServiceFactory
     /**
      * Gets the partition factory.
      * 
-     * @return the partition factory
+     * @return the partition {@link Factory}
+     * @throws Exception If the partition cannot be created
      */
     PartitionFactory getPartitionFactory() throws Exception;
 }

@@ -32,7 +32,7 @@ import org.apache.directory.server.core.authn.Authenticator;
  * An authenticator creation
  * a name and a suffix, plus some other characteristics. Here is an example :
  * <pre>
- * @CreateAuthenticator(
+ * &#64;CreateAuthenticator(
  *     type = "org.apache.directory.server.core.authn.StrongAuthenticator"
  *     )
  * )
@@ -45,34 +45,34 @@ import org.apache.directory.server.core.authn.Authenticator;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateAuthenticator
 {
-    /** The authenticator implementation class */
+    /** @return The authenticator implementation class */
     Class<? extends Authenticator> type() default AnonymousAuthenticator.class;
 
 
-    /** Delegate host, use for testing DelegatingAuthenticator */
+    /** @return Delegate host, use for testing DelegatingAuthenticator */
     String delegateHost() default "";
 
 
-    /** Delegate port, use for testing DelegatingAuthenticator */
+    /** @return Delegate port, use for testing DelegatingAuthenticator */
     int delegatePort() default -1;
 
 
-    /** The base DN from which we will do authentication */
+    /** @return The base DN from which we will do authentication */
     String baseDn() default "";
 
 
-    /** Tells if we use SSL to connect */
+    /** @return Tells if we use SSL to connect */
     boolean delegateSsl() default false;
 
 
-    /** Tells if we use startTls to connect */
+    /** @return Tells if we use startTls to connect */
     boolean delegateTls() default false;
 
 
-    /** The SSL TrustManager FQCN */
+    /** @return The SSL TrustManager FQCN */
     String delegateSslTrustManagerFQCN() default "org.apache.directory.ldap.client.api.NoVerificationTrustManager";
 
 
-    /** The startTls TrustManager FQCN */
+    /** @return The startTls TrustManager FQCN */
     String delegateTlsTrustManagerFQCN() default "org.apache.directory.ldap.client.api.NoVerificationTrustManager";
 }

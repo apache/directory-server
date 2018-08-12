@@ -79,6 +79,10 @@ public final class DSAnnotationProcessor
 
     /**
      * Create the DirectoryService
+     * 
+     * @param dsBuilder The DirectoryService builder
+     * @return an instance of DirectoryService
+     * @throws Exception If the DirectoryService cannot be created
      */
     public static DirectoryService createDS( CreateDS dsBuilder )
         throws Exception
@@ -316,7 +320,8 @@ public final class DSAnnotationProcessor
      * 
      * @param description The annotations containing the info from which we will create
      *  the DS
-     * @return A valid DS
+     * @return A valid DirectoryService
+     * @throws Exception If the DirectoryService instance can't be returned
      */
     public static DirectoryService getDirectoryService( Description description )
         throws Exception
@@ -342,6 +347,7 @@ public final class DSAnnotationProcessor
      * none, then we try at the class level.
      * 
      * @return A valid DS
+     * @throws Exception If the DirectoryService instance can't be returned
      */
     public static DirectoryService getDirectoryService() throws Exception
     {
@@ -363,11 +369,9 @@ public final class DSAnnotationProcessor
     /**
      * injects an LDIF entry in the given DirectoryService
      * 
-     * @param entry
-     *            the LdifEntry to be injected
-     * @param service
-     *            the DirectoryService
-     * @throws Exception
+     * @param entry the LdifEntry to be injected
+     * @param service the DirectoryService
+     * @throws Exception If the entry cannot be injected
      */
     private static void injectEntry( LdifEntry entry, DirectoryService service )
         throws LdapException
@@ -394,11 +398,10 @@ public final class DSAnnotationProcessor
     /**
      * injects the LDIF entries present in a LDIF file
      * 
-     * @param service
-     *            the DirectoryService
-     * @param ldifFiles
-     *            the array of LDIF file names (only )
-     * @throws Exception
+     * @param clazz The class which classLoaded will be use to retrieve the resources
+     * @param service the DirectoryService
+     * @param ldifFiles array of LDIF file names (only )
+     * @throws Exception If we weren't able to inject LdifFiles
      */
     public static void injectLdifFiles( Class<?> clazz,
         DirectoryService service, String[] ldifFiles ) throws Exception
@@ -433,12 +436,9 @@ public final class DSAnnotationProcessor
     /**
      * Inject an ldif String into the server. Dn must be relative to the root.
      * 
-     * @param service
-     *            the directory service to use
-     * @param ldif
-     *            the ldif containing entries to add to the server.
-     * @throws Exception
-     *             if there is a problem adding the entries from the LDIF
+     * @param service the directory service to use
+     * @param ldif the ldif containing entries to add to the server.
+     * @throws Exception if there is a problem adding the entries from the LDIF
      */
     public static void injectEntries( DirectoryService service, String ldif )
         throws Exception
@@ -458,6 +458,9 @@ public final class DSAnnotationProcessor
 
     /**
      * Load the schemas, and enable/disable them.
+     * 
+     * @param desc The description
+     * @param service The DirectoryService instance
      */
     public static void loadSchemas( Description desc, DirectoryService service )
     {
@@ -482,6 +485,10 @@ public final class DSAnnotationProcessor
 
     /**
      * Apply the LDIF entries to the given service
+     * 
+     * @param desc The description
+     * @param service The DirectoryService instance
+     * @throws Exception If we can't apply the ldifs
      */
     public static void applyLdifs( Description desc, DirectoryService service )
         throws Exception
