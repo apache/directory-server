@@ -28,10 +28,10 @@ package org.apache.directory.server.annotations;
  */
 public @interface SaslMechanism
 {
-    /** name of the SASL mechanism */
+    /** @return name of the SASL mechanism */
     String name();
 
 
-    /** class implementing the named SASL mechanism */
+    /** @return class implementing the named SASL mechanism */
     Class<?> implClass();
 }

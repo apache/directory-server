@@ -48,31 +48,31 @@ import org.apache.directory.server.constants.ServerDNConstants;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateKdcServer
 {
-    /** The instance name */
+    /** @return The instance name */
     String name() default "DefaultKrbServer";
 
 
-    /** The transports to use, default to LDAP */
+    /** @return The transports to use, default to LDAP */
     CreateTransport[] transports() default
         {};
 
 
-    /** The default kdc realm */
+    /** @return The default kdc realm */
     String primaryRealm() default "EXAMPLE.COM";
 
 
-    /** The default kdc service principal */
+    /** @return The default kdc service principal */
     String kdcPrincipal() default "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
 
-    /** The maximum ticket lifetime. */
+    /** @return The maximum ticket lifetime. */
     long maxTicketLifetime() default 60000 * 1440;
 
 
-    /** The maximum renewable lifetime. */
+    /** @return The maximum renewable lifetime. */
     long maxRenewableLifetime() default 60000 * 10080;
     
-    /** the change password server.
+    /** @return the change password server.
      * NOTE: this annotation is declared as an array cause there is no
      * way to define the default value as null for a value in annotation
      * 
@@ -81,6 +81,6 @@ public @interface CreateKdcServer
      * array elements will be ignored*/
     CreateChngPwdServer[] chngPwdServer() default {};
     
-    /** the DN of the search base for finding users and services */
+    /** @return the DN of the search base for finding users and services */
     String searchBaseDn() default ServerDNConstants.USER_EXAMPLE_COM_DN;
 }

@@ -41,31 +41,31 @@ import java.lang.annotation.Target;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateTransport
 {
-    /** The name for this protocol*/
+    /** @return The name for this protocol*/
     String protocol();
 
 
-    /** The transport type (TCP or UDP) Default to TCP */
+    /** @return The transport type (TCP or UDP) Default to TCP */
     TransportType type() default TransportType.TCP;
 
 
-    /** The port to use, default to a bad value so that we know 
+    /** @return The port to use, default to a bad value so that we know 
      * we have to pick one random available port */
     int port() default -1;
 
 
-    /** The InetAddress for this transport. */
+    /** @return The InetAddress for this transport. */
     String address() default "";
 
 
-    /** The backlog. Default to 50 */
+    /** @return The backlog. Default to 50 */
     int backlog() default 50;
 
 
-    /** A flag to tell if the transport is SSL based. Default to false */
+    /** @return A flag to tell if the transport is SSL based. Default to false */
     boolean ssl() default false;
 
 
-    /** The number of threads to use. Default to 3*/
+    /** @return The number of threads to use. Default to 3*/
     int nbThreads() default 3;
 }

@@ -117,6 +117,10 @@ public final class ServerAnnotationProcessor
      * Just gives an instance of {@link LdapServer} without starting it.
      * For getting a running LdapServer instance see {@link #createLdapServer(CreateLdapServer, DirectoryService)}
      * @see #createLdapServer(CreateLdapServer, DirectoryService)
+     * 
+     * @param createLdapServer The LdapServer to create
+     * @param directoryService the directory service
+     * @return The created LdapServer
      */
     public static LdapServer instantiateLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
     {
@@ -213,7 +217,9 @@ public final class ServerAnnotationProcessor
      * Returns an LdapServer instance and starts it before returning the instance, infering
      * the configuration from the Stack trace
      *  
+     * @param directoryService the directory service
      * @return a running LdapServer instance
+     * @throws ClassNotFoundException If the CreateLdapServer class cannot be loaded
      */
     public static LdapServer getLdapServer( DirectoryService directoryService ) throws ClassNotFoundException
     {
@@ -266,6 +272,7 @@ public final class ServerAnnotationProcessor
      * the configuration from the Stack trace
      *  
      * @return a running LdapServer instance
+     * @throws ClassNotFoundException If the CreateConsumer class cannot be loaded
      */
     public static ReplicationConsumer createConsumer() throws ClassNotFoundException
     {
@@ -318,12 +325,9 @@ public final class ServerAnnotationProcessor
      *
      * @param description A description for the created LdapServer
      * @param directoryService The associated DirectoryService
-     * @param startPort The port used by the server
      * @return An LdapServer instance 
-     * @throws Exception If the server cannot be started
      */
     public static LdapServer createLdapServer( Description description, DirectoryService directoryService )
-        throws Exception
     {
         CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
 
