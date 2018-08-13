@@ -61,12 +61,12 @@ public class ChecksumHandler
     /**
      * Calculate a checksum based on raw bytes and an (optional) key for keyed checksums.
      *
-     * @param checksumType
-     * @param bytes
-     * @param key
-     * @param usage
-     * @return The {@link Checksum}.
-     * @throws KerberosException
+     * @param checksumType The type of checksum to use
+     * @param bytes The data
+     * @param key The key
+     * @param usage The key usage 
+     * @return The computed {@link Checksum}.
+     * @throws KerberosException If the checksum can't be cmputed
      */
     public Checksum calculateChecksum( ChecksumType checksumType, byte[] bytes, byte[] key, KeyUsage usage )
         throws KerberosException
@@ -84,11 +84,11 @@ public class ChecksumHandler
     /**
      * Verify a checksum by providing the raw bytes and an (optional) key for keyed checksums.
      *
-     * @param checksum
-     * @param bytes
-     * @param key
-     * @param usage
-     * @throws KerberosException
+     * @param checksum The checksum to verify
+     * @param bytes The data
+     * @param key The key
+     * @param usage The key usage 
+     * @throws KerberosException If the verification failed
      */
     public void verifyChecksum( Checksum checksum, byte[] bytes, byte[] key, KeyUsage usage ) throws KerberosException
     {

@@ -74,7 +74,7 @@ public class CipherTextHandler
      * @param message The Kerberos object to encode.
      * @param usage The key usage.
      * @return The Kerberos EncryptedData.
-     * @throws KerberosException
+     * @throws KerberosException if the seal failed
      */
     public EncryptedData seal( EncryptionKey key, Asn1Object message, KeyUsage usage ) throws KerberosException
     {

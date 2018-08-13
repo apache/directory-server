@@ -208,6 +208,9 @@ public abstract class EncryptionEngine
      * followed by one octet indicated below.
      * 
      *  Kc = DK(base-key, usage | 0x99);
+     *  
+     *  @param usage The key usage
+     *  @return the computed usage Kc
      */
     protected byte[] getUsageKc( KeyUsage usage )
     {
@@ -221,6 +224,9 @@ public abstract class EncryptionEngine
      * followed by one octet indicated below.
      * 
      *  Ke = DK(base-key, usage | 0xAA);
+     *  
+     *  @param usage The key usage
+     *  @return the computed usage Ke
      */
     protected byte[] getUsageKe( KeyUsage usage )
     {
@@ -234,6 +240,9 @@ public abstract class EncryptionEngine
      * followed by one octet indicated below.
      * 
      *  Ki = DK(base-key, usage | 0x55);
+     *  
+     *  @param usage The key usage
+     *  @return the computed usage Ki
      */
     protected byte[] getUsageKi( KeyUsage usage )
     {

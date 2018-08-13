@@ -40,9 +40,9 @@ public interface ChecksumEngine
     /**
      * Calculate a checksum given raw bytes and an (optional) key.
      *
-     * @param data
-     * @param key
-     * @param usage 
+     * @param data The data
+     * @param key The key
+     * @param usage The Key usage number
      * @return The checksum value.
      */
     byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage );

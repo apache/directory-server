@@ -54,9 +54,9 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
     /**
      * Creates a new instance of ChangePasswordRequest.
      *
-     * @param versionNumber
-     * @param authHeader
-     * @param privateMessage
+     * @param versionNumber The version number
+     * @param authHeader The authentication header
+     * @param privateMessage The private part
      */
     public ChangePasswordRequest( short versionNumber, ApReq authHeader, KrbPriv privateMessage )
     {

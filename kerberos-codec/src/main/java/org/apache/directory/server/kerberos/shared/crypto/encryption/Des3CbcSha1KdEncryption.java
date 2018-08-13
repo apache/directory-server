@@ -158,6 +158,12 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
      * Derived Key = DK(Base Key, Well-Known Constant)
      * DK(Key, Constant) = random-to-key(DR(Key, Constant))
      * DR(Key, Constant) = k-truncate(E(Key, Constant, initial-cipher-state))
+     * 
+     * @param baseKey The base key to derive
+     * @param usage The key usage
+     * @param n The number of resulting bytes
+     * @param k The number of bytes
+     * @return The derived key
      */
     protected byte[] deriveKey( byte[] baseKey, byte[] usage, int n, int k )
     {
