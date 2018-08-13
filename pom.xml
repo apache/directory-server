@@ -43,7 +43,7 @@
   <properties>
     <projectName>Apache Directory Server</projectName>
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
-    <additionalparam>-Xdoclint:none</additionalparam>
+    <!--additionalparam>-Xdoclint:none</additionalparam-->
 
     <!-- Set versions for depending projects -->
     <org.apache.directory.api.version>2.0.0.AM1</org.apache.directory.api.version>
@@ -162,6 +162,7 @@
             <tagNameFormat>@{project.version}</tagNameFormat>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -173,10 +174,12 @@
             <encoding>ISO-8859-1</encoding>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
         </plugin>
+
         <plugin>
           <groupId>org.apache.rat</groupId>
           <artifactId>apache-rat-plugin</artifactId>
@@ -221,6 +224,7 @@
             </excludes>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
@@ -238,6 +242,7 @@
             </execution>
           </executions>
         </plugin>
+
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
@@ -278,6 +283,7 @@
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
@@ -294,6 +300,21 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <minmemory>512m</minmemory>
+          <maxmemory>1g</maxmemory>
+          <linksource>true</linksource>
+          <additionalOptions>
+            <additionalOptions>-Xmaxwarns 1000</additionalOptions>
+            <additionalOptions>-Xmaxerrs 1000</additionalOptions>
+          </additionalOptions>
+        </configuration>
+      </plugin>
+
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -394,7 +415,11 @@
                 <minmemory>512m</minmemory>
                 <maxmemory>1g</maxmemory>
                 <linksource>true</linksource>
-                <additionalparam>-Xdoclint:none</additionalparam>
+                <additionalOptions>
+                  <additionalOptions>-Xmaxwarns 1000</additionalOptions>
+                  <additionalOptions>-Xmaxerrs 1000</additionalOptions>
+                </additionalOptions>
+                <!--additionalparam>-Xdoclint:none</additionalparam-->
                 <tags>
                   <tag>
                     <name>org.apache.xbean.XBean</name>
