@@ -75,12 +75,16 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
 
     /**
      * Creates a new instance of ApproximateCursor
+     * 
+     * @param partitionTxn The transaction to use
      * @param store The Store we want to build a cursor on
      * @param approximateEvaluator The evaluator
-     * @throws Exception If the creation failed
+     * @throws LdapException If the creation failed
+     * @throws IndexNotFoundException If the index was not found
      */
     @SuppressWarnings("unchecked")
-    public ApproximateCursor( PartitionTxn partitionTxn, Store store, ApproximateEvaluator<V> approximateEvaluator ) throws LdapException, IndexNotFoundException
+    public ApproximateCursor( PartitionTxn partitionTxn, Store store, ApproximateEvaluator<V> approximateEvaluator ) 
+            throws LdapException, IndexNotFoundException
     {
         if ( IS_DEBUG )
         {

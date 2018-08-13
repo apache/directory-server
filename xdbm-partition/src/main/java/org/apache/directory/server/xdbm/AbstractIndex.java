@@ -55,8 +55,6 @@ public abstract class AbstractIndex<K, E> implements Index<K, E>
 
     /**
      * Creates a new instance of AbstractIndex.
-     * 
-     * @param attributeId the attribute ID
      */
     protected AbstractIndex()
     {
@@ -67,7 +65,7 @@ public abstract class AbstractIndex<K, E> implements Index<K, E>
     /**
      * Creates a new instance of AbstractIndex.
      * 
-     * @param attributeId the attribute ID
+     * @param withReverse If we should create a reverse index
      */
     protected AbstractIndex( boolean withReverse )
     {
@@ -79,6 +77,7 @@ public abstract class AbstractIndex<K, E> implements Index<K, E>
      * Creates a new instance of AbstractIndex.
      * 
      * @param attributeId the attribute ID
+     * @param withReverse If we should create a reverse index
      */
     protected AbstractIndex( String attributeId, boolean withReverse )
     {

@@ -111,8 +111,9 @@ public class DefaultOptimizer implements Optimizer
      * index on the attribute does not exist an IndexNotFoundException will be
      * thrown.
      *
-     * @see org.apache.directory.server.xdbm.search.Optimizer#annotate(ExprNode)
+     * {@inheritDoc}
      */
+    @Override
     @SuppressWarnings("unchecked")
     public Long annotate( PartitionTxn partitionTxn, ExprNode node ) throws LdapException
     {

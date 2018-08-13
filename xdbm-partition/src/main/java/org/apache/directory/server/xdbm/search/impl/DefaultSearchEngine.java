@@ -303,7 +303,7 @@ public class DefaultSearchEngine implements SearchEngine
 
 
     /**
-     * @see SearchEngine#evaluator(ExprNode)
+     * {@inheritDoc}
      */
     @Override
     public Evaluator<? extends ExprNode> evaluator( PartitionTxn partitionTxn, ExprNode filter ) throws LdapException

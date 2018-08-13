@@ -87,11 +87,14 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
      *
+     * @param partitionTxn The transaction to use
      * @param db the entry store
-     * @param evaluator an IndexEntry (candidate) evaluator
-     * @throws Exception on db access failures
+     * @param baseId The base ID
+     * @param parentId The parent ID
+     * @param cursor The wrapped cursor
      */
-    public DescendantCursor( PartitionTxn partitionTxn, Store db, String baseId, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
+    public DescendantCursor( PartitionTxn partitionTxn, Store db, String baseId, String parentId,
+            Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
     {
         this( partitionTxn, db, baseId, parentId, cursor, TOP_LEVEL );
     }
@@ -100,11 +103,15 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
      *
+     * @param partitionTxn The transaction to use
      * @param db the entry store
-     * @param evaluator an IndexEntry (candidate) evaluator
-     * @throws Exception on db access failures
+     * @param baseId The base ID
+     * @param parentId The parent ID
+     * @param cursor The wrapped cursor
+     * @param topLevel If we are at the top level
      */
-    public DescendantCursor( PartitionTxn partitionTxn, Store db, String baseId, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor, boolean topLevel )
+    public DescendantCursor( PartitionTxn partitionTxn, Store db, String baseId, String parentId, 
+            Cursor<IndexEntry<ParentIdAndRdn, String>> cursor, boolean topLevel )
     {
         this.db = db;
         currentParentId = parentId;

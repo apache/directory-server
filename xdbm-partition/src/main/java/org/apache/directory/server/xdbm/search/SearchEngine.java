@@ -37,27 +37,31 @@ import org.apache.directory.server.core.api.partition.PartitionTxn;
 public interface SearchEngine
 {
     /**
-     * @todo put this in the right place
+     * TODO put this in the right place
      * The alias dereferencing mode key for JNDI providers
      */
     String ALIASMODE_KEY = JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES;
+    
     /**
-     * @todo put this in the right place
+     * TODO put this in the right place
      * The alias dereferencing mode value for JNDI providers
      */
     String ALWAYS = "always";
+    
     /**
-     * @todo put this in the right place
+     * TODO put this in the right place
      * The alias dereferencing mode value for JNDI providers
      */
     String NEVER = "never";
+    
     /**
-     * @todo put this in the right place
+     * TODO put this in the right place
      * The alias dereferencing mode value for JNDI providers
      */
     String FINDING = "finding";
+    
     /**
-     * @todo put this in the right place
+     * TODO put this in the right place
      * The alias dereferencing mode value for JNDI providers
      */
     String SEARCHING = "searching";
@@ -75,21 +79,23 @@ public interface SearchEngine
      * Conducts a search on a database. It returns a set of UUID we found for the 
      * given filter.
      * 
-     * @param The SchemaManager instance
+     * @param partitionTxn The transaction to use
+     * @param schemaManager The SchemaManager instance
      * @param searchContext the search context
      * @return A set of UUID representing the full result, up to he sizeLimit
-     * @throws Exception if the search fails
+     * @throws LdapException if the search fails
      */
-    PartitionSearchResult computeResult( PartitionTxn partitionTxn, SchemaManager schemaManager, SearchOperationContext searchContext )
-        throws LdapException;
+    PartitionSearchResult computeResult( PartitionTxn partitionTxn, SchemaManager schemaManager, 
+            SearchOperationContext searchContext ) throws LdapException;
 
 
     /**
      * Builds an Evaluator for a filter expression.
      * 
+     * @param partitionTxn The transaction to use
      * @param filter the filter root AST node
      * @return true if the filter passes the entry, false otherwise
-     * @throws Exception if something goes wrong while accessing the db
+     * @throws LdapException if something goes wrong while accessing the db
      */
     Evaluator<? extends ExprNode> evaluator( PartitionTxn partitionTxn, ExprNode filter ) throws LdapException;
 }

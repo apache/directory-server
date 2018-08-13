@@ -61,6 +61,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
      * Creates an IndexCursorAdaptor which wraps and adapts a Cursor from a table to
      * one which returns an IndexEntry.
      *
+     * @param partitionTxn The transaction to use
      * @param wrappedCursor the Cursor being adapted
      * @param forwardIndex true for a cursor over a forward index, false for
      * one over a reverse index

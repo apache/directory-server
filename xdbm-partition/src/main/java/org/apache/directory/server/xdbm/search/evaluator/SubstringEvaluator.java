@@ -71,7 +71,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
      * @param node the substring expression node
      * @param db the database this evaluator uses
      * @param schemaManager the schema manager
-     * @throws Exception if there are failures accessing resources and the db
+     * @throws LdapException if there are failures accessing resources and the db
      */
     public SubstringEvaluator( SubstringNode node, Store db, SchemaManager schemaManager ) throws LdapException
     {

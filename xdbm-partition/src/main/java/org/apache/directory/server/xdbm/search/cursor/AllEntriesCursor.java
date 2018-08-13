@@ -66,8 +66,10 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
 
     /**
      * Creates a new instance of AllEntriesCursor
-     * @param store
-     * @throws Exception
+     * 
+     * @param partitionTxn The transaction to use
+     * @param store The Store instance
+     * @throws LdapException If we weren't able to create an instance of AllEntriesCursor
      */
     public AllEntriesCursor( PartitionTxn partitionTxn, Store store ) throws LdapException
     {

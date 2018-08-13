@@ -255,7 +255,7 @@ public interface Table<K, V>
      * to a specific key.  This Cursor is naturally limited to return only
      * the tuples for the same key.
      *
-     * @param transaction The transaction we are running in
+     * @param partitionTxn The transaction we are running in
      * @param key the duplicate key to return the Tuples of
      * @return a Cursor over Tuples containing the same key
      * @throws LdapException if there are failures accessing underlying stores

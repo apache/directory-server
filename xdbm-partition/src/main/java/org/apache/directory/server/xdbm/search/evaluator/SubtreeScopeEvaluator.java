@@ -72,9 +72,10 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
     /**
      * Creates a subtree scope node evaluator for search expressions.
      *
-     * @param node the scope node
+     * @param partitionTxn The transaction to use
      * @param db the database used to evaluate scope node
-     * @throws Exception on db access failure
+     * @param node the scope node
+     * @throws LdapException on db access failure
      */
     public SubtreeScopeEvaluator( PartitionTxn partitionTxn, Store db, ScopeNode node ) throws LdapException
     {
@@ -128,15 +129,9 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
 
 
     /**
-     * Asserts whether or not a candidate has sub level scope while taking
-     * alias dereferencing into account.
-     *
-     * @param candidate the entry tested to see if it is in subtree scope
-     * @return true if the candidate is within one level scope whether or not
-     * alias dereferencing is enabled.
-     * @throws Exception if the index lookups fail.
-     * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
+     * {@inheritDoc}
      */
+    @Override
     public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         String id = indexEntry.getId();
@@ -190,7 +185,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
 
                 return false;
             }
-}
+        }
         else if ( null != db.getAliasIndex().reverseLookup( partitionTxn, id ) )
         {
             return false;
@@ -223,33 +218,37 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
 
 
     /**
-     * Asserts whether or not a candidate has sub level scope while taking
-     * alias dereferencing into account.
-     *
-     * @param candidate the entry tested to see if it is in subtree scope
-     * @return true if the candidate is within one level scope whether or not
-     * alias dereferencing is enabled.
-     * @throws Exception if the index lookups fail.
-     * @see Evaluator#evaluate(org.apache.directory.server.xdbm.IndexEntry)
+     * {@inheritDoc}
      */
+    @Override
     public boolean evaluate( Entry candidate ) throws LdapException
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ScopeNode getExpression()
     {
         return node;
     }
 
 
+    /**
+     * @return The base ID
+     */
     public String getBaseId()
     {
         return baseId;
     }
 
 
+    /**
+     * @return <tt>true</tt> if dereferencing
+     */
     public boolean isDereferencing()
     {
         return dereferencing;

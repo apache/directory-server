@@ -61,9 +61,10 @@ public interface Evaluator<N extends ExprNode>
      * then need not access the store to retreive the entry if they need to
      * access it's attributes.
      * 
+     * @param partitionTxn The transaction to use
      * @param entry the index record of the entry to evaluate
      * @return true if filter selects the candidate false otherwise
-     * @throws Exception if there are faults during evaluation
+     * @throws LdapException if there are faults during evaluation
      */
     boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> entry ) throws LdapException;
 
@@ -74,7 +75,7 @@ public interface Evaluator<N extends ExprNode>
      *
      * @param entry the candidate entry
      * @return true if filter selects the candidate false otherwise
-     * @throws Exception if there are faults during evaluation
+     * @throws LdapException if there are faults during evaluation
      */
     boolean evaluate( Entry entry ) throws LdapException;
 

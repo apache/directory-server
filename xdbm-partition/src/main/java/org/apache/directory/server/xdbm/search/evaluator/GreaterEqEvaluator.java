@@ -47,6 +47,14 @@ import org.apache.directory.server.xdbm.Store;
  */
 public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 {
+    /**
+     * Creates a new GreaterEqEvaluator
+     * 
+     * @param node The GreaterEqNode
+     * @param db The Store
+     * @param schemaManager The SchemaManager
+     * @throws LdapException If the creation failed
+     */
     @SuppressWarnings("unchecked")
     public GreaterEqEvaluator( GreaterEqNode<T> node, Store db, SchemaManager schemaManager )
         throws LdapException

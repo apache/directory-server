@@ -53,9 +53,8 @@ public class BaseLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
     /**
      * Creates a one level scope node Evaluator for search expressions.
      *
-     * @param node the scope node
      * @param db the database used to evaluate scope node
-     * @throws Exception on db access failure
+     * @param node the scope node
      */
     public BaseLevelScopeEvaluator( Store db, ScopeNode node )
     {
@@ -83,14 +82,9 @@ public class BaseLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
 
 
     /**
-     * Asserts whether or not a candidate has one level scope while taking
-     * alias dereferencing into account.
-     *
-     * @param candidate the candidate to assert
-     * @return true if the candidate is within one level scope
-     * @throws Exception if db lookups fail
-     * @see org.apache.directory.server.xdbm.search.Evaluator#evaluate(IndexEntry)
+     * {@inheritDoc}
      */
+    @Override
     public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();

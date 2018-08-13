@@ -66,11 +66,13 @@ public class ChildrenCursor extends AbstractIndexCursor<String>
     /**
      * Creates a Cursor over entries satisfying one level scope criteria.
      *
+     * @param partitionTxn The transaction to use
      * @param db the entry store
-     * @param evaluator an IndexEntry (candidate) evaluator
-     * @throws Exception on db access failures
+     * @param parentId The parent ID
+     * @param cursor The wrapped cursor
      */
-    public ChildrenCursor( PartitionTxn partitionTxn, Store db, String parentId, Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
+    public ChildrenCursor( PartitionTxn partitionTxn, Store db, String parentId, 
+            Cursor<IndexEntry<ParentIdAndRdn, String>> cursor )
     {
         this.parentId = parentId;
         this.cursor = cursor;

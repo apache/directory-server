@@ -78,9 +78,12 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
 
     /**
      * Creates a new instance of an GreaterEqCursor
+     * 
+     * @param partitionTxn The transaction to use
      * @param store The store
-     * @param equalityEvaluator The GreaterEqEvaluator
-     * @throws Exception If the creation failed
+     * @param greaterEqEvaluator The GreaterEqEvaluator
+     * @throws LdapException If the creation failed
+     * @throws IndexNotFoundException If the index was not found
      */
     @SuppressWarnings("unchecked")
     public GreaterEqCursor( PartitionTxn partitionTxn, Store store, GreaterEqEvaluator<V> greaterEqEvaluator ) 

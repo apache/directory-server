@@ -76,6 +76,15 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     private IndexEntry<String, String> uuidCandidate;
 
 
+    /**
+     * Creates a new instance of an LessEqCursor
+     * 
+     * @param partitionTxn The transaction to use
+     * @param store The store
+     * @param lessEqEvaluator The LessEqEvaluator
+     * @throws LdapException If the creation failed
+     * @throws IndexNotFoundException If the index was not found
+     */
     @SuppressWarnings("unchecked")
     public LessEqCursor( PartitionTxn partitionTxn, Store store, LessEqEvaluator<V> lessEqEvaluator ) 
         throws LdapException, IndexNotFoundException

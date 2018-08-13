@@ -74,7 +74,6 @@ public class EvaluatorBuilder
      *
      * @param db the database this evaluator operates upon
      * @param schemaManager the schema manager
-     * @throws Exception failure to access db or lookup schema in registries
      */
     public EvaluatorBuilder( Store db, SchemaManager schemaManager )
     {

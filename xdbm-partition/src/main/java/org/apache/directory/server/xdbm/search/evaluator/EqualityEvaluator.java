@@ -47,6 +47,14 @@ import org.apache.directory.server.xdbm.Store;
  */
 public class EqualityEvaluator<T> extends LeafEvaluator<T>
 {
+    /**
+     * Creates a new EqualityEvaluator
+     * 
+     * @param node The EqualityNode
+     * @param db The Store
+     * @param schemaManager The SchemaManager
+     * @throws LdapException If the creation failed
+     */
     @SuppressWarnings("unchecked")
     public EqualityEvaluator( EqualityNode<T> node, Store db, SchemaManager schemaManager )
         throws LdapException

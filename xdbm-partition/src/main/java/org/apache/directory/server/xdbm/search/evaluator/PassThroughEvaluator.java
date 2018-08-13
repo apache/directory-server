@@ -42,7 +42,8 @@ public class PassThroughEvaluator implements Evaluator<UndefinedNode>
 
     /**
      * Create a new instance of the PassThroughEvaluator
-     * @throws Exception
+     * 
+     * @param db The Store instance
      */
     public PassThroughEvaluator( Store db )
     {

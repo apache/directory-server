@@ -40,8 +40,10 @@ public interface Optimizer
     /**
      * Annotates the expression node tree for optimized traversal metrics.
      *
+     * @param partitionTxn The transaction to use
      * @param node the root of the expression node tree
-     * @throws Exception if there are failures while optimizing
+     * @return The computed value for this node
+     * @throws LdapException if there are failures while optimizing
      */
     Long annotate( PartitionTxn partitionTxn, ExprNode node ) throws LdapException;
 }

@@ -64,6 +64,13 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     private IndexEntry<V, String> prefetched;
 
 
+    /**
+     * Creates a new instance of an OrCursor
+     * 
+     * @param partitionTxn The transaction to use
+     * @param cursors The encapsulated Cursors
+     * @param evaluators The list of evaluators associated with the elements
+     */
     // TODO - do same evaluator fail fast optimization that we do in AndCursor
     public OrCursor( PartitionTxn partitionTxn, List<Cursor<IndexEntry<V, String>>> cursors,
         List<Evaluator<? extends ExprNode>> evaluators )

@@ -48,6 +48,14 @@ import org.apache.directory.server.xdbm.Store;
  */
 public class LessEqEvaluator<T> extends LeafEvaluator<T>
 {
+    /**
+     * Creates a new LessEqEvaluator
+     * 
+     * @param node The LessEqNode
+     * @param db The Store
+     * @param schemaManager The SchemaManager
+     * @throws LdapException If the creation failed
+     */
     @SuppressWarnings("unchecked")
     public LessEqEvaluator( LessEqNode<T> node, Store db, SchemaManager schemaManager )
         throws LdapException

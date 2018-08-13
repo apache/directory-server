@@ -61,6 +61,13 @@ public abstract class LeafEvaluator<T> implements Evaluator<SimpleNode<T>>
     protected Index<T, String> idx;
 
 
+    /**
+     * Creates a new LeafEvaluator
+     * 
+     * @param node The LeafNode
+     * @param db The Store
+     * @param schemaManager The SchemaManager
+     */
     public LeafEvaluator( SimpleNode<T> node, Store db, SchemaManager schemaManager )
     {
         this.db = db;

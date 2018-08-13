@@ -56,6 +56,13 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     private final SchemaManager schemaManager;
 
 
+    /**
+     * Creates a new PresenceEvaluator
+     * 
+     * @param node The PresenceNode
+     * @param db The Store
+     * @param schemaManager The SchemaManager
+     */
     public PresenceEvaluator( PresenceNode node, Store db, SchemaManager schemaManager )
     {
         this.db = db;
@@ -65,18 +72,29 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public PresenceNode getExpression()
     {
         return node;
     }
 
 
+    /**
+     * @return the attributeType
+     */
     public AttributeType getAttributeType()
     {
         return attributeType;
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
     public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
@@ -101,6 +119,10 @@ public class PresenceEvaluator implements Evaluator<PresenceNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     // TODO - determine if comaparator and index entry should have the Value
     // wrapper or the raw normalized value
     public boolean evaluate( Entry entry ) throws LdapException

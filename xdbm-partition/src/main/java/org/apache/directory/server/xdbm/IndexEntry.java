@@ -29,7 +29,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
  * indexed Entry if one has already been loaded.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @param <V> The key stored in the Tuple, associated key for the object
+ * @param <K> The key stored in the Tuple, associated key for the object
  * @param <ID> The ID of the object
  */
 public class IndexEntry<K, ID>

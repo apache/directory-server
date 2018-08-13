@@ -29,8 +29,6 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * A helper class used to compare scan counts.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- *
- * @param <ID> The type of element
  */
 public class ScanCountComparator implements Comparator<Evaluator<?>>
 {

@@ -52,7 +52,7 @@ public interface TupleComparator<K, V> extends Serializable
 
     /**
      * Compares key Object to determine their sorting order returning a
-     * value = to, < or > than 0.
+     * value = to, &lt; or &gt; than 0.
      *
      * @param key1 the first key to compare
      * @param key2 the other key to compare to the first
@@ -65,7 +65,7 @@ public interface TupleComparator<K, V> extends Serializable
 
     /**
      * Comparse value Objects to determine their sorting order returning a
-     * value = to, < or > than 0.
+     * value = to, &lt; or &gt; than 0.
      *
      * @param value1 the first value to compare
      * @param value2 the other value to compare to the first

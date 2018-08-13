@@ -49,10 +49,11 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
 {
     /**
      * Creates a new ApproximateEvaluator
+     * 
      * @param node The ApproximateNode
      * @param db The Store
      * @param schemaManager The SchemaManager
-     * @throws Exception If the creation failed
+     * @throws LdapException If the creation failed
      */
     public ApproximateEvaluator( ApproximateNode<T> node, Store db, SchemaManager schemaManager )
         throws LdapException

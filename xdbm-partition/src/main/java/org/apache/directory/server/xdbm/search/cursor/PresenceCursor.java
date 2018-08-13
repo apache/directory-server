@@ -60,7 +60,16 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     private IndexEntry<String, String> prefetched;
 
 
-    public PresenceCursor( PartitionTxn partitionTxn, Store store, PresenceEvaluator presenceEvaluator ) throws LdapException
+    /**
+     * Creates a new instance of an PresenceCursor
+     * 
+     * @param partitionTxn The transaction to use
+     * @param store The store
+     * @param presenceEvaluator The Presence evaluator
+     * @throws LdapException If the cursor can't be created
+     */
+    public PresenceCursor( PartitionTxn partitionTxn, Store store, PresenceEvaluator presenceEvaluator ) 
+            throws LdapException
     {
         if ( IS_DEBUG )
         {

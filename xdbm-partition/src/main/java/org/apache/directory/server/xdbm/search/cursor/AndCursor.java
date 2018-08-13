@@ -68,8 +68,9 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
      * Creates an instance of a AndCursor. It wraps an index cursor and the list
      * of evaluators associated with all the elements connected by the And.
      * 
+     * @param partitionTxn The transaction to use
      * @param wrapped The encapsulated IndexCursor
-     * @param evaluators The list of evaluators associated wth the elements
+     * @param evaluators The list of evaluators associated with the elements
      */
     public AndCursor( PartitionTxn partitionTxn, Cursor<IndexEntry<V, String>> wrapped,
         List<Evaluator<? extends ExprNode>> evaluators )

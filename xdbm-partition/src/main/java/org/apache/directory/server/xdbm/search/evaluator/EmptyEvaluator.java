@@ -37,7 +37,6 @@ public class EmptyEvaluator implements Evaluator<UndefinedNode>
 {
     /**
      * Create a new instance of the PassThroughEvaluator
-     * @throws Exception
      */
     public EmptyEvaluator()
     {

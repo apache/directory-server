@@ -48,6 +48,12 @@ public class OrEvaluator implements Evaluator<OrNode>
     private final OrNode node;
 
 
+    /**
+     * Creates a new OrEvaluator
+     * 
+     * @param node The OrNode
+     * @param evaluators The inner evaluators
+     */
     public OrEvaluator( OrNode node, List<Evaluator<? extends ExprNode>> evaluators )
     {
         this.node = node;
@@ -79,6 +85,10 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
@@ -93,6 +103,10 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean evaluate( Entry entry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
@@ -107,6 +121,10 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public OrNode getExpression()
     {
         return node;

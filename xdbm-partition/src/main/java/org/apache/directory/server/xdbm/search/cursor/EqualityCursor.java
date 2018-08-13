@@ -73,9 +73,12 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
     /**
      * Creates a new instance of an EqualityCursor
+     * 
+     * @param partitionTxn The transaction to use
      * @param store The store
      * @param equalityEvaluator The EqualityEvaluator
-     * @throws Exception If the creation failed
+     * @throws LdapException If the creation failed
+     * @throws IndexNotFoundException If the index was not found
      */
     @SuppressWarnings("unchecked")
     public EqualityCursor( PartitionTxn partitionTxn, Store store, EqualityEvaluator<V> equalityEvaluator ) 

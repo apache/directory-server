@@ -330,7 +330,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * Sets the path in which this Partition stores data. This may be an URL to
      * a file or directory, or an JDBC URL.
      *
-     * @param partitionDir the path in which this Partition stores data.
+     * @param partitionPath the path in which this Partition stores data.
      */
     @Override
     public void setPartitionPath( URI partitionPath )
@@ -363,6 +363,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     /**
      * Sets up the system indices.
+     * 
+     * @throws LdapException If the setup failed
      */
     @SuppressWarnings("unchecked")
     protected void setupSystemIndices() throws LdapException
@@ -451,6 +453,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     /**
      * Sets up the user indices.
+     * 
+     * @throws LdapException If the setup failed
      */
     protected void setupUserIndices() throws LdapException
     {
@@ -501,7 +505,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      *
      * @param index the index
      * @return the converted and initialized index
-     * @throws Exception
+     * @throws LdapException If teh conversion failed
      */
     protected abstract Index<?, String> convertAndInit( Index<?, String> index ) throws LdapException;
 
@@ -666,6 +670,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     }
 
 
+    /**
+     * Dump the RDN index content
+     *  
+     * @param partitionTxn The transaction to use
+     * @param id The root ID
+     * @param tabs The space prefix
+     * @throws LdapException If we had an issue while dumping the Rdn index
+     * @throws CursorException If the cursor failed to browse the Rdn Index
+     * @throws IOException If we weren't able to read teh Rdn Index file
+     */
     public void dumpRdnIdx( PartitionTxn partitionTxn, String id, String tabs ) throws LdapException, CursorException, IOException
     {
         // Start with the root
@@ -1035,9 +1049,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     /**
      * Delete the entry associated with a given Id
+     * 
+     * @param partitionTxn The transaction to use
      * @param id The id of the entry to delete
      * @return the deleted entry if found
-     * @throws Exception If the deletion failed
+     * @throws LdapException If the deletion failed
      */
     @Override
     public Entry delete( PartitionTxn partitionTxn, String id ) throws LdapException
@@ -1270,9 +1286,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Get back an entry knowing its UUID
      *
+     * @param partitionTxn The transaction to use
      * @param id The Entry UUID we want to get back
      * @return The found Entry, or null if not found
-     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     * @throws LdapException If the lookup failed for any reason (except a not found entry)
      */
     @Override
     public Entry fetch( PartitionTxn partitionTxn, String id ) throws LdapException
@@ -1299,9 +1316,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Get back an entry knowing its UUID
      *
+     * @param partitionTxn The transaction to use
      * @param id The Entry UUID we want to get back
      * @return The found Entry, or null if not found
-     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     * @throws LdapException If the lookup failed for any reason (except a not found entry)
      */
     @Override
     public Entry fetch( PartitionTxn partitionTxn, String id, Dn dn ) throws LdapException
@@ -1460,6 +1478,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * The entry is not persisted: it is only changed in anticipation for a put
      * into the master table.
      *
+     * @param partitionTxn The transaction to use
      * @param id the primary key of the entry
      * @param entry the entry to alter
      * @param mods the attribute and values to add
@@ -1569,6 +1588,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * is not persisted: it is only changed in anticipation for a put into the
      * master table.
      *
+     * @param partitionTxn The transaction to use
      * @param id the primary key of the entry
      * @param entry the entry to alter
      * @param mods the replacement attribute and values
@@ -1712,6 +1732,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * values within the entry where as an attribute w/ values will remove those
      * attribute values it contains.
      *
+     * @param partitionTxn The transaction to use
      * @param id the primary key of the entry
      * @param entry the entry to alter
      * @param mods the attribute and its values to delete
@@ -2055,66 +2076,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
 
     /**
-     * Implementation. We have many things to check first to see if the modification is possible :
-     * <ul>
-     *  <li>The new superior must exist</li>
-     *  <li>The new Dn must not exist</li>
-     * </ul>
-     * (here, we assume the old entry exists)
-     * 
-     * The next step is to process the RDN, accordingly to the deleteOldRdn flag.
-     * {@inheritDoc}
-     *
-    @Override
-    public final synchronized void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry modifiedEntry,
-        boolean deleteOldRdn ) throws Exception
-    {
-        String oldId = getEntryId( oldDn );
-
-        // Check that the new superior exist
-        String newSuperiorId = getEntryId( newSuperiorDn );
-
-        if ( newSuperiorId == null )
-        {
-            // This is not allowed : the new superior must exist
-            throw new LdapNoSuchObjectException(
-                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn ) );
-        }
-
-        Dn newDn = newSuperiorDn.add( newRdn );
-            
-        // Now check that the new entry does not exist
-        String newId = getEntryId( newDn );
-
-        if ( newId != null )
-        {
-            // This is not allowed : we should not be able to move an entry
-            // to an existing position
-            throw new LdapEntryAlreadyExistsException(
-                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
-        }
-
-        // First, rename
-        // Get the old UUID
-        if ( modifiedEntry == null )
-        {
-            modifiedEntry = master.get( oldId );
-        }
-
-        rename( oldId, newRdn, deleteOldRdn, modifiedEntry );
-        //Rdn oldRdn = oldDn.getRdn();
-        moveAndRename( oldDn, oldId, newSuperiorDn, newRdn, modifiedEntry );
-
-        entryDnCache.removeAll();
-        
-        if ( isSyncOnWrite.get() )
-        {
-            sync();
-        }
-    }
-    
-    
-    /**
      * Moves an entry under a new parent.  The operation causes a shift in the
      * parent child relationships between the old parent, new parent and the
      * child moved.  All other descendant entries under the child never change
@@ -2124,14 +2085,15 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * propagating down through the moved child and its descendants.
      *
      * @param oldDn the normalized dn of the child to be moved
-     * @param childId the id of the child being moved
+     * @param newSuperiorDn the id of the child being moved
      * @param newRdn the normalized dn of the new parent for the child
+     * @param modAvas The modified Avas
      * @param modifiedEntry the modified entry
-     * @throws Exception if something goes wrong
+     * @throws LdapException if something goes wrong
      */
     @Override
-    public void moveAndRename( PartitionTxn partitionTxn, Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Map<String, List<ModDnAva>> modAvas, 
-        Entry modifiedEntry ) throws LdapException
+    public void moveAndRename( PartitionTxn partitionTxn, Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Map<String, 
+            List<ModDnAva>> modAvas, Entry modifiedEntry ) throws LdapException
     {
         // Get the child and the new parent to be entries and Ids
         Attribute entryIdAt = modifiedEntry.get( SchemaConstants.ENTRY_UUID_AT );
@@ -2244,6 +2206,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     
     /**
      * Update the index accordingly to the changed Attribute in the old and new RDN
+     * 
+     * @param partitionTxn The transaction to use
+     * @param modAvs The modified AVAs
+     * @param entryId The Entry ID
+     * @throws {@link LdapException} If the AVA cannt be processed properly
+     * @throws IndexNotFoundException If teh index is not found
      */
     private void processModifiedAvas( PartitionTxn partitionTxn, Map<String, List<ModDnAva>> modAvas, String entryId ) 
         throws LdapException, IndexNotFoundException
@@ -2617,6 +2585,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * updates the CSN index
      *
+     * @param partitionTxn The transaction to use
      * @param entry the entry having entryCSN attribute
      * @param id UUID of the entry
      * @throws Exception
@@ -2635,9 +2604,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * builds the Dn of the entry identified by the given id
      *
+     * @param partitionTxn The transaction to use
      * @param id the entry's id
      * @return the normalized Dn of the entry
-     * @throws Exception
+     * @throws LdapException If we can't build the entry Dn
      */
     protected Dn buildEntryDn( PartitionTxn partitionTxn, String id ) throws LdapException
     {
@@ -2843,6 +2813,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     /**
      * Retrieve the SuffixID
+     * 
+     * @param partitionTxn The transaction to use
+     * @return The Suffix ID
+     * @throws LdapException If we weren't able to retrieve the Suffix ID
      */
     public String getSuffixId( PartitionTxn partitionTxn ) throws LdapException
     {
@@ -3153,14 +3127,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * Adds userIndices for an aliasEntry to be added to the database while checking
      * for constrained alias constructs like alias cycles and chaining.
      *
+     * @param partitionTxn The transaction to use
      * @param aliasDn normalized distinguished name for the alias entry
      * @param aliasTarget the user provided aliased entry dn as a string
      * @param aliasId the id of alias entry to add
      * @throws LdapException if index addition fails, and if the alias is
      * not allowed due to chaining or cycle formation.
-     * @throws Exception if the wrappedCursor btrees cannot be altered
+     * @throws LdapException if the wrappedCursor btrees cannot be altered
      */
-    protected void addAliasIndices( PartitionTxn partitionTxn, String aliasId, Dn aliasDn, Dn aliasTarget ) throws LdapException
+    protected void addAliasIndices( PartitionTxn partitionTxn, String aliasId, Dn aliasDn, Dn aliasTarget ) 
+            throws LdapException
     {
         String targetId; // Id of the aliasedObjectName
         Dn ancestorDn; // Name of an alias entry relative
@@ -3265,10 +3241,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * Removes the index entries for an alias before the entry is deleted from
      * the master table.
      *
-     * @todo Optimize this by walking the hierarchy index instead of the name
+     * TODO Optimize this by walking the hierarchy index instead of the name
+     * 
+     * @param partitionTxn The transaction to use
      * @param aliasId the id of the alias entry in the master table
-     * @throws LdapException if we cannot parse ldap names
-     * @throws Exception if we cannot delete index values in the database
+     * @throws LdapException if we cannot delete index values in the database
      */
     protected void dropAliasIndices( PartitionTxn partitionTxn, String aliasId ) throws LdapException
     {
@@ -3330,8 +3307,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * one and subtree alias index tuples for old ancestors above the moved base
      * that will no longer be ancestors after the move.
      *
+     * @param partitionTxn The transaction to use
      * @param movedBase the base at which the move occurred - the moved node
-     * @throws Exception if system userIndices fail
+     * @throws LdapException if system userIndices fail
      */
     protected void dropMovedAliasIndices( PartitionTxn partitionTxn, Dn movedBase ) throws LdapException
     {
@@ -3452,9 +3430,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * Create a new Index for a given OID
      * 
      * @param indexOid The Attribute OID
-     * @param path The working directory where this indew will be stored
+     * @param path The working directory where this index will be stored
+     * @param withReverse If the Reverse index must be created or not
      * @return The created index
-     * @throws Exception If the index can't be created
+     * @throws LdapException If the index can't be created
      */
     protected abstract Index createSystemIndex( String indexOid, URI path, boolean withReverse ) throws LdapException;
 
@@ -3613,8 +3592,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     
     /**
      * {@inheritDoc}
-     * @param partitionTxn
-     * @return
      */
     @Override
     public String getContextCsn( PartitionTxn partitionTxn )
@@ -3631,7 +3608,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     /**
      * Loads the current context CSN present in the context entry of the partition
      *
-     * @throws LdapException
+     * @param partitionTxn The transaction to use
      */
     protected void loadContextCsn( PartitionTxn partitionTxn )
     {
@@ -3723,11 +3700,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     
     
     /**
-     * Return the number of children and subordinates for a given entry
-     *
-     * @param dn The entry's DN
-     * @return The Subordinate instance that contains the values.
-     * @throws LdapException If we had an issue while processing the request
+     * {@inheritDoc}
      */
     @Override
     public Subordinates getSubordinates( PartitionTxn partitionTxn, Entry entry ) throws LdapException
