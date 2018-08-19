@@ -158,7 +158,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          * to all it's subordinates since that would be the entire set of 
          * entries in the db.
          */
-        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || isDescendant( partitionTxn, id );
+        boolean isDescendant = baseIsContextEntry || baseId.equals( id ) || entry.getDn().isDescendantOf( node.getBaseDn() );
 
         /*
          * The candidate id could be any entry in the db.  If search
