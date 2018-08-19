@@ -1205,6 +1205,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 {
                     ctxCsnSemaphore.acquire();
                     saveContextCsn( partitionTxn );
+                    ctxCsnChanged = false;
                 }
                 catch ( Exception e )
                 {
