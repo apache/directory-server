@@ -197,6 +197,13 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             return false;
         }
 
+        // Shortcut
+        if ( returningAttributes.contains( new AttributeTypeOptions( attributeType ) ) )
+        {
+            return true;
+        }
+        
+        // Ok, do it the slow way...
         for ( AttributeTypeOptions attributeTypeOptions : returningAttributes )
         {
             if ( attributeTypeOptions.getAttributeType().equals( attributeType )
