@@ -265,7 +265,7 @@ public class EncKrbCredPart implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "EncKrbCredPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "EncKrbCredPart initial value : {}", toString() );
+            log.debug( "EncKrbCredPart initial value : {}", this );
         }
 
         return buffer;
@@ -394,7 +394,7 @@ public class EncKrbCredPart implements Asn1Object
 
         if ( ticketInfo == null )
         {
-            ticketInfo = new ArrayList<KrbCredInfo>();
+            ticketInfo = new ArrayList<>();
         }
 
         ticketInfo.add( info );

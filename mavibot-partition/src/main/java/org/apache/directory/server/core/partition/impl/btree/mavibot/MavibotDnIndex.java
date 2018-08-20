@@ -53,6 +53,10 @@ public class MavibotDnIndex extends MavibotIndex<Dn>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
@@ -66,8 +70,7 @@ public class MavibotDnIndex extends MavibotIndex<Dn>
 
         if ( this.wkDirPath == null )
         {
-            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-            throw e;
+            throw new NullPointerException( "The index working directory has not be set" );
         }
 
         try

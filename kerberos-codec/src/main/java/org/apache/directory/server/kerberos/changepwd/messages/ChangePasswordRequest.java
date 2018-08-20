@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.changepwd.messages;
 
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.api.asn1.EncoderException;

@@ -554,12 +554,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         }
         
         // do not replicate the changes made to transport config entries
-        if ( name.startsWith( "ads-transportid" ) && name.endsWith( ServerDNConstants.CONFIG_DN ) )
-        {
-            return true;
-        }
-        
-        return false;
+        return name.startsWith( "ads-transportid" ) && name.endsWith( ServerDNConstants.CONFIG_DN );
     }
     
     

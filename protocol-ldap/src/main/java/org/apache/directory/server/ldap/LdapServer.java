@@ -188,10 +188,10 @@ public class LdapServer extends DirectoryBackedService
 
     /** The extended operation handlers. */
     private final Collection<ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse>> extendedOperationHandlers =
-        new ArrayList<ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse>>();
+        new ArrayList<>();
 
     /** The supported authentication mechanisms. */
-    private Map<String, MechanismHandler> saslMechanismHandlers = new HashMap<String, MechanismHandler>();
+    private Map<String, MechanismHandler> saslMechanismHandlers = new HashMap<>();
 
     /** The name of this host, validated during SASL negotiation. */
     private String saslHost = "ldap.example.com";
@@ -250,7 +250,7 @@ public class LdapServer extends DirectoryBackedService
     /** The used Keystore */
     private KeyStore keyStore = null;
 
-    private List<IoFilterChainBuilder> chainBuilders = new ArrayList<IoFilterChainBuilder>();
+    private List<IoFilterChainBuilder> chainBuilders = new ArrayList<>();
 
     /** The handler responsible for the replication */
     private ReplicationRequestHandler replicationReqHandler;
@@ -263,9 +263,12 @@ public class LdapServer extends DirectoryBackedService
     /** the time interval between subsequent pings to each replication provider */
     private int pingerSleepTime;
 
-    /** the list of cipher suites to be used in LDAPS and StartTLS */
+    /** 
+     * the list of cipher suites to be used in LDAPS and StartTLS
+     * @deprecated See the {@link TcpTransport} class that contains this list 
+     **/
     @Deprecated
-    private List<String> enabledCipherSuites = new ArrayList<String>();
+    private List<String> enabledCipherSuites = new ArrayList<>();
 
 
     /**
@@ -277,17 +280,17 @@ public class LdapServer extends DirectoryBackedService
         super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
 
-        saslQop = new HashSet<String>();
+        saslQop = new HashSet<>();
         saslQop.add( SaslQoP.AUTH.getValue() );
         saslQop.add( SaslQoP.AUTH_INT.getValue() );
         saslQop.add( SaslQoP.AUTH_CONF.getValue() );
         saslQopString = SaslQoP.AUTH.getValue() + ',' + SaslQoP.AUTH_INT.getValue() + ','
             + SaslQoP.AUTH_CONF.getValue();
 
-        saslRealms = new ArrayList<String>();
+        saslRealms = new ArrayList<>();
         saslRealms.add( "example.com" );
 
-        this.supportedControls = new HashSet<String>();
+        this.supportedControls = new HashSet<>();
     }
 
 
@@ -519,7 +522,7 @@ public class LdapServer extends DirectoryBackedService
 
         for ( ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> h : extendedOperationHandlers )
         {
-            LOG.info( "Added Extended Request Handler: " + h.getOid() );
+            LOG.info( "Added Extended Request Handler: {}", h.getOid() );
             h.setLdapServer( this );
             nexus.registerSupportedExtensions( h.getExtensionOids() );
         }
@@ -619,7 +622,7 @@ public class LdapServer extends DirectoryBackedService
 
                 // we should unbind the service before we begin sending the notice
                 // of disconnect so new connections are not formed while we process
-                List<WriteFuture> writeFutures = new ArrayList<WriteFuture>();
+                List<WriteFuture> writeFutures = new ArrayList<>();
 
                 // If the socket has already been unbound as with a successful
                 // GracefulShutdownRequest then this will complain that the service
@@ -629,11 +632,11 @@ public class LdapServer extends DirectoryBackedService
 
                 try
                 {
-                    sessions = new ArrayList<IoSession>( getSocketAcceptor( transport ).getManagedSessions().values() );
+                    sessions = new ArrayList<>( getSocketAcceptor( transport ).getManagedSessions().values() );
                 }
                 catch ( IllegalArgumentException e )
                 {
-                    LOG.warn( "Seems like the LDAP service (" + getPort() + ") has already been unbound." );
+                    LOG.warn( "Seems like the LDAP service ({}) has already been unbound.", getPort() );
                     return;
                 }
 
@@ -641,7 +644,7 @@ public class LdapServer extends DirectoryBackedService
 
                 if ( LOG.isInfoEnabled() )
                 {
-                    LOG.info( "Unbind of an LDAP service (" + getPort() + ") is complete." );
+                    LOG.info( "Unbind of an LDAP service ({}) is complete.", getPort() );
                     LOG.info( "Sending notice of disconnect to existing clients sessions." );
                 }
 
@@ -719,7 +722,7 @@ public class LdapServer extends DirectoryBackedService
 
             if ( LOG.isInfoEnabled() )
             {
-                LOG.info( "Successful bind of an LDAP Service (" + transport.getPort() + ") is completed." );
+                LOG.info( "Successful bind of an LDAP Service ({}) is completed.", transport.getPort() );
             }
         }
         catch ( IOException e )
@@ -740,7 +743,7 @@ public class LdapServer extends DirectoryBackedService
      */
     public void startReplicationConsumers() throws Exception
     {
-        if ( ( replConsumers != null ) && ( replConsumers.size() > 0 ) )
+        if ( ( replConsumers != null ) && !replConsumers.isEmpty() )
         {
             final PingerThread pingerThread = new PingerThread( pingerSleepTime );
             pingerThread.start();
@@ -1011,7 +1014,7 @@ public class LdapServer extends DirectoryBackedService
      */
     public Collection<ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse>> getExtendedOperationHandlers()
     {
-        return new ArrayList<ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse>>(
+        return new ArrayList<>(
             extendedOperationHandlers );
     }
 
@@ -1156,6 +1159,7 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
+    @Override
     public void setDirectoryService( DirectoryService directoryService )
     {
         super.setDirectoryService( directoryService );
@@ -1646,6 +1650,7 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
+    @Override
     public boolean isStarted()
     {
         return started;
@@ -1654,6 +1659,7 @@ public class LdapServer extends DirectoryBackedService
 
     /**
      */
+    @Override
     public void setStarted( boolean started )
     {
         this.started = started;
@@ -1777,6 +1783,7 @@ public class LdapServer extends DirectoryBackedService
      * <br>
      * 
      * @return The list of ciphers that can be used
+     * @deprecated Set this list in the {@link TcpTransport} class
      */
     @Deprecated
     public List<String> getEnabledCipherSuites()
@@ -1792,6 +1799,7 @@ public class LdapServer extends DirectoryBackedService
      * <br>
      * 
      * @param enabledCipherSuites if null the default cipher suites will be used
+     * @deprecated Get this list from the {@link TcpTransport} class
      */
     @Deprecated
     public void setEnabledCipherSuites( List<String> enabledCipherSuites )

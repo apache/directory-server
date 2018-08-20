@@ -80,7 +80,7 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private static void checkRefAttributeValue( Value value ) throws LdapException, LdapURLEncodingException
+    private static void checkRefAttributeValue( Value value ) throws LdapException
     {
         String refVal = value.getValue();
 
@@ -158,7 +158,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
         if ( oc == null )
         {
-            LOG.warn( "could not find objectClass attribute in entry: " + entry );
+            LOG.warn( "could not find objectClass attribute in entry: {}", entry );
             return false;
         }
 

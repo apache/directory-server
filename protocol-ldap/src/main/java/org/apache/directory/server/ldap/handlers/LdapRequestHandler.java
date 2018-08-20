@@ -220,7 +220,6 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             }
 
             handle( ldapSession, message );
-            return;
         }
     }
 

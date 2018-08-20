@@ -68,9 +68,8 @@ public class TicketFactory
     {
         KerberosKey serverKerberosKey = new KerberosKey( serverPrincipal, serverPassword.toCharArray(), "DES" );
         byte[] serverKeyBytes = serverKerberosKey.getEncoded();
-        EncryptionKey serverKey = new EncryptionKey( EncryptionType.DES_CBC_MD5, serverKeyBytes );
 
-        return serverKey;
+        return new EncryptionKey( EncryptionType.DES_CBC_MD5, serverKeyBytes );
     }
 
 

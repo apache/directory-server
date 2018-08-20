@@ -81,6 +81,7 @@ public class SaslFilter extends IoFilterAdapter
     }
 
 
+    @Override
     public void messageReceived( NextFilter nextFilter, IoSession session, Object message ) throws SaslException
     {
         LOG.debug( "Message received:  {}", message );
@@ -114,6 +115,7 @@ public class SaslFilter extends IoFilterAdapter
     }
 
 
+    @Override
     public void filterWrite( NextFilter nextFilter, IoSession session, WriteRequest writeRequest ) throws SaslException
     {
         LOG.debug( "Filtering write request:  {}", writeRequest );

@@ -77,14 +77,7 @@ public class StoreTransited extends GrammarAction<EncTicketPartContainer>
         // Now, let's decode the TransitedEncoding
         Asn1Decoder transitedEncodingDecoder = new Asn1Decoder();
 
-        try
-        {
-            transitedEncodingDecoder.decode( encTicketPartContainer.getStream(), transitedContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        transitedEncodingDecoder.decode( encTicketPartContainer.getStream(), transitedContainer );
 
         TransitedEncoding te = transitedContainer.getTransitedEncoding();
 

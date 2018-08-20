@@ -72,15 +72,8 @@ public class StoreTicketInfo extends GrammarAction<EncKrbCredPartContainer>
 
         encKrbCredPartContainer.rewind();
 
-        try
-        {
-            // decode KrbCredInfo
-            decoder.decode( encKrbCredPartContainer.getStream(), ticketInfoContainer );
-        }
-        catch ( DecoderException e )
-        {
-            throw e;
-        }
+        // decode KrbCredInfo
+        decoder.decode( encKrbCredPartContainer.getStream(), ticketInfoContainer );
 
         KrbCredInfo ticketInfo = ticketInfoContainer.getKrbCredInfo();
         // add KrbCredInfo to the list of ticket-info

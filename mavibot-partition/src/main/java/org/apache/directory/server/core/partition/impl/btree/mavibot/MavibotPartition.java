@@ -195,14 +195,14 @@ public class MavibotPartition extends AbstractBTreePartition
             List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
 
             // then add all index objects to a list
-            List<String> allIndices = new ArrayList<String>();
+            List<String> allIndices = new ArrayList<>();
 
             for ( Index<?, String> index : systemIndices.values() )
             {
                 allIndices.add( index.getAttribute().getOid() );
             }
 
-            List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
+            List<Index<?, String>> indexToBuild = new ArrayList<>();
 
             // this loop is used for two purposes
             // one for collecting all user indices
@@ -300,6 +300,7 @@ public class MavibotPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
+    @Override
     protected synchronized void doDestroy( PartitionTxn partitionTxn ) throws LdapException
     {
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
@@ -451,6 +452,10 @@ public class MavibotPartition extends AbstractBTreePartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Entry lookupCache( String id )
     {
         if ( entryCache == null )
@@ -462,7 +467,7 @@ public class MavibotPartition extends AbstractBTreePartition
 
         if ( el != null )
         {
-            return ( Entry ) el.getValue();
+            return ( Entry ) el.getObjectValue();
         }
 
         return null;
@@ -535,7 +540,7 @@ public class MavibotPartition extends AbstractBTreePartition
      */
     public Set<Index<?, String>> getAllIndices()
     {
-        Set<Index<?, String>> all = new HashSet<Index<?, String>>( systemIndices.values() );
+        Set<Index<?, String>> all = new HashSet<>( systemIndices.values() );
         all.addAll( userIndices.values() );
         
         return all;

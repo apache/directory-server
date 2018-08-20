@@ -76,6 +76,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
      * 
      * @param session the newly created session
      */
+    @Override
     public void sessionCreated( IoSession session ) throws Exception
     {
         // First, create a new LdapSession and store it i the manager
@@ -87,7 +88,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         // Last, store the message container
         LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
-            new LdapMessageContainer<MessageDecorator<Message>>(
+            new LdapMessageContainer<>(
                 ldapServer.getDirectoryService().getLdapCodecService(),
                 new SchemaBinaryAttributeDetector(
                     ldapServer.getDirectoryService().getSchemaManager() ) );
@@ -102,6 +103,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
      * 
      * @param session the closing session
      */
+    @Override
     public void sessionClosed( IoSession session )
     {
         // Get the associated LdapSession
@@ -148,6 +150,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageSent( IoSession session, Object message ) throws Exception
     {
         // Do nothing : we have to ignore this message, otherwise we get an exception,
@@ -189,6 +192,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageReceived( IoSession session, Object message ) throws Exception
     {
         // Translate SSLFilter messages into LDAP extended request
@@ -227,6 +231,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         if ( cause.getCause() instanceof ResponseCarryingMessageException )

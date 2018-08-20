@@ -648,7 +648,7 @@ public class KrbError extends KerberosMessage
         if ( IS_DEBUG )
         {
             log.debug( "KrbError encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbError initial value : {}", toString() );
+            log.debug( "KrbError initial value : {}", this );
         }
 
         return buffer;

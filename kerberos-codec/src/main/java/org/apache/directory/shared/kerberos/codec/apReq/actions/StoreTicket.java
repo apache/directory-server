@@ -78,14 +78,7 @@ public class StoreTicket extends GrammarAction<ApReqContainer>
         TicketContainer ticketContainer = new TicketContainer( apReqContainer.getStream() );
 
         // Decode the Ticket PDU
-        try
-        {
-            ticketDecoder.decode( apReqContainer.getStream(), ticketContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        ticketDecoder.decode( apReqContainer.getStream(), ticketContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

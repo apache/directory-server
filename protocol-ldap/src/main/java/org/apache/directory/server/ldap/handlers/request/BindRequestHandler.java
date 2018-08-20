@@ -289,7 +289,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
     /**
      * Check if the mechanism exists.
      */
-    private boolean checkMechanism( String saslMechanism ) throws Exception
+    private boolean checkMechanism( String saslMechanism )
     {
         // Guard clause:  Reject unsupported SASL mechanisms.
         if ( !ldapServer.getSupportedMechanisms().contains( saslMechanism ) )
@@ -380,7 +380,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             else
             {
                 // The SASL bind must continue, we are sending the computed challenge
-                LOG.info( "Continuation token had length " + tokenBytes.length );
+                LOG.info( "Continuation token had length {}", tokenBytes.length );
 
                 // Build the response
                 result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
@@ -605,7 +605,6 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             generateSaslChallengeOrComplete( ldapSession, ss, bindRequest );
 
             // And get back
-            return;
         }
         else if ( ldapSession.isAuthPending() )
         {
@@ -617,8 +616,6 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             {
                 sendInvalidCredentials( ldapSession, bindRequest, se );
             }
-
-            return;
         }
     }
 

@@ -325,13 +325,13 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     {
         LinkedAvlNode<K> parentNode = null;
 
-        int size = treePath.size();
+        int treePathSize = treePath.size();
 
         for ( LinkedAvlNode<K> node : treePath )
         {
             int balFactor = getBalance( node );
 
-            if ( node != root && treePath.indexOf( node ) < ( size - 1 ) )
+            if ( node != root && treePath.indexOf( node ) < ( treePathSize - 1 ) )
             {
                 parentNode = treePath.get( treePath.indexOf( node ) + 1 );
             }

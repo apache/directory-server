@@ -310,7 +310,7 @@ public class EncryptedData implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "EncryptedData encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "EncryptedData initial value : {}", toString() );
+            log.debug( "EncryptedData initial value : {}", this );
         }
 
         return buffer;
@@ -343,7 +343,7 @@ public class EncryptedData implements Asn1Object
             return true;
         }
 
-        if ( obj == null )
+        if ( !( obj instanceof EncryptedData ) )
         {
             return false;
         }
@@ -360,12 +360,7 @@ public class EncryptedData implements Asn1Object
             return false;
         }
 
-        if ( kvno != other.kvno )
-        {
-            return false;
-        }
-
-        return true;
+        return kvno == other.kvno;
     }
 
 

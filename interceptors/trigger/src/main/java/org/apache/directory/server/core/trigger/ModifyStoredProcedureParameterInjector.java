@@ -71,7 +71,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
-            List<Modification> newMods = new ArrayList<Modification>();
+            List<Modification> newMods = new ArrayList<>();
 
             for ( Modification mod : modifications )
             {

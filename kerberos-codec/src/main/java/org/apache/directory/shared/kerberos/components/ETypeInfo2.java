@@ -65,7 +65,7 @@ public class ETypeInfo2 implements Asn1Object
      */
     public ETypeInfo2()
     {
-        this.etypeInfo2Entries = new ArrayList<ETypeInfo2Entry>();
+        this.etypeInfo2Entries = new ArrayList<>();
     }
 
 
@@ -78,7 +78,7 @@ public class ETypeInfo2 implements Asn1Object
     {
         if ( etypeInfo2Entries == null )
         {
-            this.etypeInfo2Entries = new ArrayList<ETypeInfo2Entry>();
+            this.etypeInfo2Entries = new ArrayList<>();
         }
         else
         {
@@ -201,7 +201,7 @@ public class ETypeInfo2 implements Asn1Object
         // Compute the ETypeInfo2 length.
         etypeInfo2Length = 0;
 
-        if ( ( etypeInfo2Entries != null ) && ( etypeInfo2Entries.size() != 0 ) )
+        if ( ( etypeInfo2Entries != null ) && !etypeInfo2Entries.isEmpty() )
         {
             for ( ETypeInfo2Entry info2Entry : etypeInfo2Entries )
             {
@@ -243,7 +243,7 @@ public class ETypeInfo2 implements Asn1Object
             buffer.put( TLV.getBytes( etypeInfo2Length ) );
 
             // The ETypeInfo2Entry list, if it's not empty
-            if ( ( etypeInfo2Entries != null ) && ( etypeInfo2Entries.size() != 0 ) )
+            if ( ( etypeInfo2Entries != null ) && !etypeInfo2Entries.isEmpty() )
             {
                 for ( ETypeInfo2Entry info2Entry : etypeInfo2Entries )
                 {
@@ -261,7 +261,7 @@ public class ETypeInfo2 implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "ETYPE-INFO encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "ETYPE-INFO initial value : {}", toString() );
+            LOG.debug( "ETYPE-INFO initial value : {}", this );
         }
 
         return buffer;

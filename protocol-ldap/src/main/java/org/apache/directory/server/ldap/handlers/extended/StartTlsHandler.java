@@ -83,7 +83,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
     static
     {
-        Set<String> set = new HashSet<String>( 3 );
+        Set<String> set = new HashSet<>( 3 );
         set.add( EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }

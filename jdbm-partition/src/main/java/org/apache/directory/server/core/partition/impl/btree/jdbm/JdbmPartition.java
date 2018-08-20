@@ -534,8 +534,6 @@ public class JdbmPartition extends AbstractBTreePartition
                 buildUserIndex( beginReadTransaction(), indexToBuild );
             }
 
-            //deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
-
             if ( cacheService != null )
             {
                 entryCache = cacheService.getCache( getId() );

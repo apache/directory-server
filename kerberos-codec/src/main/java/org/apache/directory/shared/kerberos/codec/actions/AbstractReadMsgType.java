@@ -110,19 +110,15 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
             {
                 KerberosMessageType messageType = KerberosMessageType.getTypeByValue( msgTypeValue );
 
-                if ( container instanceof KdcReqContainer )
+                if ( ( container instanceof KdcReqContainer )
+                        &&  ( ( ( KdcReqContainer ) container ).getKdcReq().getMessageType() == messageType ) )
                 {
-                    if ( ( ( KdcReqContainer ) container ).getKdcReq().getMessageType() == messageType )
-                    {
-                        return;
-                    }
+                    return;
                 }
-                else if ( container instanceof KdcRepContainer )
+                else if ( ( container instanceof KdcRepContainer )
+                        && ( ( ( KdcRepContainer ) container ).getKdcRep().getMessageType() == messageType ) )
                 {
-                    if ( ( ( KdcRepContainer ) container ).getKdcRep().getMessageType() == messageType )
-                    {
-                        return;
-                    }
+                    return;
                 }
 
                 String message = I18n.err( I18n.ERR_05102_INVALID_MESSAGE_ID, Strings.dumpBytes( value.getData() ) );

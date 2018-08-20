@@ -114,14 +114,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
                     // First, the Dn
                     Rdn[] rdns;
 
-                    try
-                    {
-                        rdns = parentIdAndRdn.getRdns();
-                    }
-                    catch ( NullPointerException npe )
-                    {
-                        throw npe;
-                    }
+                    rdns = parentIdAndRdn.getRdns();
 
                     // Write the Rdn of the Dn
                     // The number of RDN (we may have more than one)
@@ -153,7 +146,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
                     if ( IS_DEBUG )
                     {
                         LOG.debug( ">------------------------------------------------" );
-                        LOG.debug( "Serialize " + parentIdAndRdn );
+                        LOG.debug( "Serialize {}", parentIdAndRdn );
                     }
 
 
@@ -196,9 +189,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
     @Override
     public ParentIdAndRdn deserialize( ByteBuffer buffer ) throws IOException
     {
-        ParentIdAndRdn parentIdAndRdn = fromBytes( buffer.array(), buffer.position() );
-
-        return parentIdAndRdn;
+        return fromBytes( buffer.array(), buffer.position() );
     }
 
 

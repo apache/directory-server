@@ -276,6 +276,7 @@ public enum HostAddrType
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         switch ( value )

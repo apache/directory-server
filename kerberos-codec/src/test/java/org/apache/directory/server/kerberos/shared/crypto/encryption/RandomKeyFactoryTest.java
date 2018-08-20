@@ -161,15 +161,15 @@ public class RandomKeyFactoryTest
         EncryptionType keyType = kerberosKey.getKeyType();
         int keyLength = kerberosKey.getKeyValue().length;
 
-        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
-        assertEquals( keyLength, 8 );
+        assertEquals( EncryptionType.DES_CBC_MD5, keyType );
+        assertEquals( 8, keyLength );
 
         kerberosKey = map.get( EncryptionType.DES3_CBC_SHA1_KD );
         keyType = kerberosKey.getKeyType();
         keyLength = kerberosKey.getKeyValue().length;
 
-        assertEquals( keyType, EncryptionType.DES3_CBC_SHA1_KD );
-        assertEquals( keyLength, 24 );
+        assertEquals( EncryptionType.DES3_CBC_SHA1_KD, keyType );
+        assertEquals( 24, keyLength );
 
         kerberosKey = map.get( EncryptionType.RC4_HMAC );
         keyType = kerberosKey.getKeyType();
@@ -177,23 +177,23 @@ public class RandomKeyFactoryTest
 
         if ( VendorHelper.isArcFourHmacSupported() )
         {
-            assertEquals( keyType, EncryptionType.RC4_HMAC );
-            assertEquals( keyLength, 16 );
+            assertEquals( EncryptionType.RC4_HMAC, keyType );
+            assertEquals( 16, keyLength );
         }
 
         kerberosKey = map.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
         keyType = kerberosKey.getKeyType();
         keyLength = kerberosKey.getKeyValue().length;
 
-        assertEquals( keyType, EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        assertEquals( keyLength, 16 );
+        assertEquals( EncryptionType.AES128_CTS_HMAC_SHA1_96, keyType );
+        assertEquals( 16, keyLength );
 
         kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
         keyType = kerberosKey.getKeyType();
         keyLength = kerberosKey.getKeyValue().length;
 
-        assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-        assertEquals( keyLength, 32 );
+        assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, keyType );
+        assertEquals( 32, keyLength );
     }
 
 
@@ -217,7 +217,7 @@ public class RandomKeyFactoryTest
         EncryptionType keyType = kerberosKey.getKeyType();
         int keyLength = kerberosKey.getKeyValue().length;
 
-        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
-        assertEquals( keyLength, 8 );
+        assertEquals( EncryptionType.DES_CBC_MD5, keyType);
+        assertEquals( 8, keyLength );
     }
 }

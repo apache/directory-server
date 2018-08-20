@@ -323,7 +323,7 @@ public class ApReq extends KerberosMessage
         if ( IS_DEBUG )
         {
             LOG.debug( "AP-REQ encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "AP-REQ initial value : {}", toString() );
+            LOG.debug( "AP-REQ initial value : {}", this );
         }
 
         return buffer;

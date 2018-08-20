@@ -58,7 +58,7 @@ public class GracefulShutdownHandler implements
 
     static
     {
-        Set<String> set = new HashSet<String>( 3 );
+        Set<String> set = new HashSet<>( 3 );
         set.add( GracefulShutdownRequest.EXTENSION_OID );
         set.add( GracefulShutdownResponse.EXTENSION_OID );
         set.add( GracefulDisconnectResponse.EXTENSION_OID );
@@ -94,7 +94,7 @@ public class GracefulShutdownHandler implements
         // -------------------------------------------------------------------
 
         IoAcceptor acceptor = ( IoAcceptor ) requestor.getIoSession().getService();
-        List<IoSession> sessions = new ArrayList<IoSession>(
+        List<IoSession> sessions = new ArrayList<>(
             acceptor.getManagedSessions().values() );
 
         // build the graceful disconnect message with replicationContexts
@@ -146,18 +146,20 @@ public class GracefulShutdownHandler implements
         GracefulShutdownResponse msg = new GracefulShutdownResponseImpl( messageId, ResultCodeEnum.SUCCESS );
         WriteFuture future = requestor.write( msg );
         future.awaitUninterruptibly();
+        
         if ( future.isWritten() )
         {
             if ( LOG.isInfoEnabled() )
             {
-                LOG.info( "Sent GracefulShutdownResponse to client: " + requestor.getRemoteAddress() );
+                LOG.info( "Sent GracefulShutdownResponse to client:{} ", requestor.getRemoteAddress() );
             }
         }
         else
         {
             LOG.error( I18n.err( I18n.ERR_159, requestor.getRemoteAddress() ) );
         }
-        requestor.close( true );
+        
+        requestor.closeNow();
     }
 
 
@@ -172,7 +174,7 @@ public class GracefulShutdownHandler implements
     public static void sendGracefulDisconnect( List<IoSession> sessions, GracefulDisconnectResponse msg,
         IoSession requestor )
     {
-        List<WriteFuture> writeFutures = new ArrayList<WriteFuture>();
+        List<WriteFuture> writeFutures = new ArrayList<>();
 
         // asynchronously send GracefulDisconnection messages to all connected
         // clients giving time for the message to arrive before we block 
@@ -225,7 +227,7 @@ public class GracefulShutdownHandler implements
      */
     public static void sendNoticeOfDisconnect( List<IoSession> sessions, IoSession requestor )
     {
-        List<WriteFuture> writeFutures = new ArrayList<WriteFuture>();
+        List<WriteFuture> writeFutures = new ArrayList<>();
 
         // Send Notification of Disconnection messages to all connected clients.
         if ( sessions != null )

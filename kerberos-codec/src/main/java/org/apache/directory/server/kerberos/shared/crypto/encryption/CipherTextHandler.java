@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.directory.api.asn1.Asn1Object;
@@ -55,7 +55,7 @@ public class CipherTextHandler
     // Initialize the list of encyption mechanisms
     static
     {
-        Map<EncryptionType, Class<? extends EncryptionEngine>> map = new HashMap<EncryptionType, Class<? extends EncryptionEngine>>();
+        EnumMap<EncryptionType, Class<? extends EncryptionEngine>> map = new EnumMap<>( EncryptionType.class );
 
         map.put( EncryptionType.DES_CBC_MD5, DesCbcMd5Encryption.class );
         map.put( EncryptionType.DES3_CBC_SHA1_KD, Des3CbcSha1KdEncryption.class );

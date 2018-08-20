@@ -83,14 +83,7 @@ public abstract class AbstractReadHostAddress<E extends Asn1Container> extends G
         hostAddressContainer.setStream( container.getStream() );
 
         // Decode the HostAddress PDU
-        try
-        {
-            hostAddressDecoder.decode( container.getStream(), hostAddressContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        hostAddressDecoder.decode( container.getStream(), hostAddressContainer );
 
         // Store the HostAddress in the container
         HostAddress hostAddress = hostAddressContainer.getHostAddress();

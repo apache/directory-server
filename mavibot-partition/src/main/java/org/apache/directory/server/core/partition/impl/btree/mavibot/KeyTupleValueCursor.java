@@ -51,7 +51,7 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private final ValueCursor<V> wrapped;
     private final K key;
 
-    private Tuple<K, V> returnedTuple = new Tuple<K, V>();
+    private Tuple<K, V> returnedTuple = new Tuple<>();
     private boolean valueAvailable;
 
 
@@ -249,6 +249,7 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -268,6 +269,7 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
@@ -287,6 +289,7 @@ public class KeyTupleValueCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

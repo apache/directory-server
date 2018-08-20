@@ -131,7 +131,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
 
         this.allowsDuplicates = allowDuplicates;
-        arrayMarshaller = new ArrayMarshaller<V>( valueComparator );
+        arrayMarshaller = new ArrayMarshaller<>( valueComparator );
 
         // Initialize the count
         count = bt.getNbElems();
@@ -526,7 +526,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     {
         if ( key == null )
         {
-            return new EmptyCursor<V>();
+            return new EmptyCursor<>();
         }
 
         try
@@ -624,7 +624,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     {
         if ( serialized == null )
         {
-            return new ArrayTree<V>( valueComparator );
+            return new ArrayTree<>( valueComparator );
         }
 
         return arrayMarshaller.deserialize( serialized );
@@ -653,6 +653,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

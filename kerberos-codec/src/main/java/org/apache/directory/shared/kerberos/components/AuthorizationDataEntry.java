@@ -156,7 +156,7 @@ public class AuthorizationDataEntry
             return true;
         }
 
-        if ( obj == null )
+        if ( !( obj instanceof AuthorizationDataEntry ) )
         {
             return false;
         }
@@ -168,12 +168,7 @@ public class AuthorizationDataEntry
             return false;
         }
 
-        if ( adType != other.adType )
-        {
-            return false;
-        }
-
-        return true;
+        return adType == other.adType;
     }
 
 

@@ -60,7 +60,7 @@ public class StoredProcedureExtendedOperationHandler implements
         super();
         //StoredProcEngineConfig javaxScriptSPEngineConfig = new JavaxStoredProcEngineConfig();
         StoredProcEngineConfig javaSPEngineConfig = new JavaStoredProcEngineConfig();
-        List<StoredProcEngineConfig> spEngineConfigs = new ArrayList<StoredProcEngineConfig>();
+        List<StoredProcEngineConfig> spEngineConfigs = new ArrayList<>();
         //spEngineConfigs.add( javaxScriptSPEngineConfig );
         spEngineConfigs.add( javaSPEngineConfig );
         String spContainer = "ou=Stored Procedures,ou=system";
@@ -74,7 +74,7 @@ public class StoredProcedureExtendedOperationHandler implements
         Entry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
 
-        List<Object> valueList = new ArrayList<Object>( req.size() );
+        List<Object> valueList = new ArrayList<>( req.size() );
 
         for ( int ii = 0; ii < req.size(); ii++ )
         {
@@ -112,7 +112,7 @@ public class StoredProcedureExtendedOperationHandler implements
 
     static
     {
-        Set<String> s = new HashSet<String>();
+        Set<String> s = new HashSet<>();
         s.add( StoredProcedureRequest.EXTENSION_OID );
         s.add( StoredProcedureResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( s );

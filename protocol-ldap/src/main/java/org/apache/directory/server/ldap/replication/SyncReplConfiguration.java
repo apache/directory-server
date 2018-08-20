@@ -84,7 +84,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     private boolean refreshNPersist = true;
 
     /** time interval for successive sync requests, default is 60 seconds */
-    private long refreshInterval = 60 * 1000;
+    private long refreshInterval = 60L * 1000L;
 
     /** the base Dn whose content will be searched for replicating */
     private String baseDn;
@@ -139,7 +139,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
      */
     public SyncReplConfiguration()
     {
-        attributes = new HashSet<String>();
+        attributes = new HashSet<>();
         // the default list of attributes
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
         

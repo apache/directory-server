@@ -69,7 +69,7 @@ public class HostAddresses implements Asn1Object
      */
     public HostAddresses()
     {
-        this.addresses = new ArrayList<HostAddress>();
+        this.addresses = new ArrayList<>();
     }
 
 
@@ -82,7 +82,7 @@ public class HostAddresses implements Asn1Object
     {
         if ( addresses == null )
         {
-            this.addresses = new ArrayList<HostAddress>();
+            this.addresses = new ArrayList<>();
         }
         else
         {
@@ -129,7 +129,7 @@ public class HostAddresses implements Asn1Object
         if ( addresses != null )
         {
             hash = hash * 17 + addresses.size();
-            hash = 17 + addresses.hashCode();
+            hash = hash * 17 + addresses.hashCode();
         }
 
         return hash;
@@ -145,7 +145,12 @@ public class HostAddresses implements Asn1Object
     @Override
     public boolean equals( Object obj )
     {
-        if ( obj == null )
+        if ( this == obj )
+        {
+            return true;
+        }
+
+        if ( !( obj instanceof HostAddresses ) )
         {
             return false;
         }
@@ -204,7 +209,7 @@ public class HostAddresses implements Asn1Object
         // Compute the addresses length.
         addressesLength = 0;
 
-        if ( ( addresses != null ) && ( addresses.size() != 0 ) )
+        if ( ( addresses != null ) && !addresses.isEmpty() )
         {
             for ( HostAddress hostAddress : addresses )
             {
@@ -246,7 +251,7 @@ public class HostAddresses implements Asn1Object
             buffer.put( TLV.getBytes( addressesLength ) );
 
             // The hostAddress list, if it's not empty
-            if ( ( addresses != null ) && ( addresses.size() != 0 ) )
+            if ( ( addresses != null ) && !addresses.isEmpty() )
             {
                 for ( HostAddress hostAddress : addresses )
                 {
@@ -264,7 +269,7 @@ public class HostAddresses implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "HostAddresses encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "HostAddresses initial value : {}", toString() );
+            LOG.debug( "HostAddresses initial value : {}", this );
         }
 
         return buffer;

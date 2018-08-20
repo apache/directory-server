@@ -209,7 +209,7 @@ public class EncryptionKey implements Asn1Object
             return true;
         }
 
-        if ( ( o == null ) || !( o instanceof EncryptionKey ) )
+        if ( !( o instanceof EncryptionKey ) )
         {
             return false;
         }
@@ -260,10 +260,7 @@ public class EncryptionKey implements Asn1Object
         encryptionKeyLength += 1 + TLV.getNbBytes( keyValueLength ) + keyValueLength;
 
         // Compute the whole sequence length
-        int encryptionKeySeqLength = 1 + BerValue.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
-
-        return encryptionKeySeqLength;
-
+        return 1 + BerValue.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
     }
 
 
@@ -315,7 +312,7 @@ public class EncryptionKey implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "EncryptionKey encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "EncryptionKey initial value : {}", toString() );
+            log.debug( "EncryptionKey initial value : {}", this );
         }
 
         return buffer;

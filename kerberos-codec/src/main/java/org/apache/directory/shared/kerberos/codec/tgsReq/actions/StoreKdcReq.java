@@ -82,14 +82,7 @@ public class StoreKdcReq extends GrammarAction<TgsReqContainer>
         kdcReqContainer.setKdcReq( tgsReq );
 
         // Decode the KDC_REQ PDU
-        try
-        {
-            kdcReqDecoder.decode( tgsReqContainer.getStream(), kdcReqContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        kdcReqDecoder.decode( tgsReqContainer.getStream(), kdcReqContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

@@ -336,6 +336,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -350,6 +351,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )

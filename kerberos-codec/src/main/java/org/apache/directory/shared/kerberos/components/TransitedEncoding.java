@@ -168,9 +168,7 @@ public class TransitedEncoding implements Asn1Object
         transitedEncodingLength += 1 + TLV.getNbBytes( contentsLength ) + contentsLength;
 
         // Compute the whole sequence length
-        int transitedEncodingSeqLength = 1 + TLV.getNbBytes( transitedEncodingLength ) + transitedEncodingLength;
-
-        return transitedEncodingSeqLength;
+        return 1 + TLV.getNbBytes( transitedEncodingLength ) + transitedEncodingLength;
     }
 
 
@@ -222,7 +220,7 @@ public class TransitedEncoding implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "TransitedEncoding encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "TransitedEncoding initial value : {}", toString() );
+            log.debug( "TransitedEncoding initial value : {}", this );
         }
 
         return buffer;
@@ -254,7 +252,7 @@ public class TransitedEncoding implements Asn1Object
             return true;
         }
 
-        if ( obj == null )
+        if ( !( obj instanceof TransitedEncoding ) )
         {
             return false;
         }
@@ -266,12 +264,7 @@ public class TransitedEncoding implements Asn1Object
             return false;
         }
 
-        if ( trType != other.trType )
-        {
-            return false;
-        }
-
-        return true;
+        return trType == other.trType;
     }
 
 

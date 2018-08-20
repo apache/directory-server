@@ -56,9 +56,9 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     private final JdbmTable<K, V> table;
 
     /** A container to pass to the underlying JDBM to get back a tuple */
-    private jdbm.helper.Tuple<K, V> jdbmTuple = new jdbm.helper.Tuple<K, V>();
+    private jdbm.helper.Tuple<K, V> jdbmTuple = new jdbm.helper.Tuple<>();
 
-    private Tuple<K, DupsContainer<V>> returnedTuple = new Tuple<K, DupsContainer<V>>();
+    private Tuple<K, DupsContainer<V>> returnedTuple = new Tuple<>();
 
     /** A browser over the JDBM Table */
     private TupleBrowser<K, V> browser;
@@ -117,7 +117,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void beforeKey( K key ) throws LdapException, CursorException
+    public void beforeKey( K key ) throws CursorException
     {
         checkNotClosed();
         try
@@ -137,7 +137,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void afterKey( K key ) throws LdapException, CursorException
+    public void afterKey( K key ) throws CursorException
     {
         checkNotClosed();
 
@@ -218,7 +218,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, DupsContainer<V>> element ) throws LdapException, CursorException
+    public void after( Tuple<K, DupsContainer<V>> element ) throws CursorException
     {
         afterKey( element.getKey() );
     }

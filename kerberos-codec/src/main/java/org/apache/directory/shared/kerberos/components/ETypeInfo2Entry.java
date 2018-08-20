@@ -268,7 +268,7 @@ public class ETypeInfo2Entry implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "ETYPE-INFO2-ENTRY encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "ETYPE-INFO2-ENTRY initial value : {}", toString() );
+            LOG.debug( "ETYPE-INFO2-ENTRY initial value : {}", this );
         }
 
         return buffer;

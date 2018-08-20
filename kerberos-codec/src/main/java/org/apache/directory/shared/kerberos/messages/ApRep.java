@@ -202,7 +202,7 @@ public class ApRep extends KerberosMessage
         if ( IS_DEBUG )
         {
             LOG.debug( "AP-REP encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "AP-REP initial value : {}", toString() );
+            LOG.debug( "AP-REP initial value : {}", this );
         }
 
         return buffer;

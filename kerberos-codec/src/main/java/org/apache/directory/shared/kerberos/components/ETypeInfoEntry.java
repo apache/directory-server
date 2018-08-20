@@ -220,7 +220,7 @@ public class ETypeInfoEntry implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "ETYPE-INFO-ENTRY encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "ETYPE-INFO-ENTRY initial value : {}", toString() );
+            LOG.debug( "ETYPE-INFO-ENTRY initial value : {}", this );
         }
 
         return buffer;

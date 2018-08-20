@@ -94,7 +94,7 @@ public class DnSerializer implements Serializer
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialized " + dn );
+                LOG.debug( "Serialized {}", dn );
             }
 
             return baos.toByteArray();

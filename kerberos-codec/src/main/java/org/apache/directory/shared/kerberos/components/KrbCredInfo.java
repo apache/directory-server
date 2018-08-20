@@ -374,7 +374,7 @@ public class KrbCredInfo implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "KrbCredInfo encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbCredInfo initial value : {}", toString() );
+            log.debug( "KrbCredInfo initial value : {}", this );
         }
 
         return buffer;

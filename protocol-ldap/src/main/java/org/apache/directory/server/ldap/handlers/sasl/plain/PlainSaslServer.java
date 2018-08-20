@@ -161,7 +161,6 @@ public final class PlainSaslServer extends AbstractSaslServer
                                 // This is optional : do nothing, but change
                                 // the element type
                                 element = InitialResponse.AUTHCID_EXPECTED;
-                                continue;
                             }
                             else
                             {
@@ -253,7 +252,7 @@ public final class PlainSaslServer extends AbstractSaslServer
      * Try to authenticate the user against the underlying LDAP server. The SASL PLAIN
      * authentication is based on the entry which uid is equal to the user name we received.
      */
-    private CoreSession authenticate( String user, String password ) throws InvalidNameException, Exception
+    private CoreSession authenticate( String user, String password ) throws Exception
     {
         LdapSession ldapSession = getLdapSession();
         CoreSession adminSession = getAdminSession();
@@ -262,7 +261,7 @@ public final class PlainSaslServer extends AbstractSaslServer
         OperationManager operationManager = directoryService.getOperationManager();
 
         // first, we have to find the entries which has the uid value
-        EqualityNode<String> filter = new EqualityNode<String>(
+        EqualityNode<String> filter = new EqualityNode<>(
             directoryService.getSchemaManager().getAttributeType( SchemaConstants.UID_AT ), new Value( user ) );
 
         SearchOperationContext searchContext = new SearchOperationContext( directoryService.getAdminSession() );

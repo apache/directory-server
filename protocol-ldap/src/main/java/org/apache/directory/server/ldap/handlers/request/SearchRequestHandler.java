@@ -47,6 +47,7 @@ import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.LdapResult;
+import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.message.Referral;
 import org.apache.directory.api.ldap.model.message.ReferralImpl;
 import org.apache.directory.api.ldap.model.message.Response;
@@ -115,10 +116,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     {
         AttributeType objectClassAT = session.getCoreSession().getDirectoryService().getAtProvider().getObjectClass();
 
-        EqualityNode<String> ocIsReferral = new EqualityNode<String>( objectClassAT,
-            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ) );
-
-        return ocIsReferral;
+        return new EqualityNode<>( objectClassAT, new Value( objectClassAT, SchemaConstants.REFERRAL_OC ) );
     }
 
 
@@ -206,14 +204,13 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             // we will return SearchResponseReference elements.
             LOG.debug( "ManageDsaITControl NOT detected." );
 
-            switch ( req.getType() )
+            if ( req.getType() == MessageTypeEnum.SEARCH_REQUEST )
             {
-                case SEARCH_REQUEST:
-                    handleWithReferrals( session, req );
-                    break;
-
-                default:
-                    throw new IllegalStateException( I18n.err( I18n.ERR_685, req ) );
+                handleWithReferrals( session, req );
+            }
+            else
+            {
+                throw new IllegalStateException( I18n.err( I18n.ERR_685, req ) );
             }
         }
     }
@@ -237,8 +234,6 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             result.setDiagnosticMessage( "Replication is not allowed on this server" );
             result.setResultCode( ResultCodeEnum.OTHER );
             session.getIoSession().write( searchRequest.getResultResponse() );
-
-            return;
         }
     }
 
@@ -502,8 +497,6 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             pagedResultsControl.setCritical( true );
             pagedResultsControl.setSize( 0 );
             req.getResultResponse().addControl( pagedResultsControl );
-
-            return;
         }
         else
         {
@@ -518,21 +511,15 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
                 // Stores the cursor current position
                 pagedContext.incrementCurrentPosition( pageCount );
-                return;
             }
             else
             {
                 // Return an exception, close the cursor, and clean the session
                 ldapResult.setResultCode( ResultCodeEnum.SIZE_LIMIT_EXCEEDED );
 
-                if ( cursor != null )
-                {
-                    cursor.close();
-                }
+                cursor.close();
 
                 session.removePagedSearchContext( cookieValue );
-
-                return;
             }
         }
     }
@@ -839,13 +826,9 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
             writeResults( session, req, ldapResult, cursor, sizeLimit );
         }
-        catch ( Exception e )
-        {
-            throw e;
-        }
         finally
         {
-            if ( ( cursor != null ) && !cursor.isClosed() )
+            if ( !cursor.isClosed() )
             {
                 try
                 {
@@ -1103,7 +1086,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     {
         if ( IS_DEBUG )
         {
-            LOG.debug( "Message received:  {}", req.toString() );
+            LOG.debug( "Message received:  {}", req );
         }
 
         // A flag set if we have a persistent search
@@ -1260,8 +1243,6 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
 
             handleIgnoringReferrals( session, req );
-
-            return;
         }
         else
         {
@@ -1309,8 +1290,6 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                     }
 
                     handleReferralEntryForSearch( session, req, entry );
-
-                    return;
                 }
                 catch ( Exception e )
                 {
@@ -1648,6 +1627,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     /**
      * Handles processing with referrals without ManageDsaIT decorator.
      */
+    @Override
     public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
     {
         LdapResult result = req.getResultResponse().getLdapResult();

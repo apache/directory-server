@@ -180,7 +180,7 @@ public class KrbPriv extends KerberosMessage
         if ( IS_DEBUG )
         {
             log.debug( "KrbPriv encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbPriv initial value : {}", toString() );
+            log.debug( "KrbPriv initial value : {}", this );
         }
 
         return buffer;

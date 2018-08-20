@@ -303,7 +303,6 @@ public class ReplicaJournalCursor extends AbstractCursor<ReplicaEventMessage>
         }
         catch ( Exception e )
         {
-
         }
     }
 

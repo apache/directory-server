@@ -148,8 +148,7 @@ public class TriggerSpecCache
 
                     if ( triggerSpec == null )
                     {
-                        LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any "
-                            + PRESCRIPTIVE_TRIGGER_ATTR );
+                        LOG.warn( "Found triggerExecutionSubentry '{}' without any {}", subentryDn, PRESCRIPTIVE_TRIGGER_ATTR );
                         continue;
                     }
 
@@ -173,7 +172,7 @@ public class TriggerSpecCache
     }
 
 
-    private boolean hasPrescriptiveTrigger( Entry entry ) throws LdapException
+    private boolean hasPrescriptiveTrigger( Entry entry )
     {
         // only do something if the entry contains prescriptiveTrigger
         Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -182,7 +181,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryAdded( Dn normName, Entry entry ) throws LdapException
+    public void subentryAdded( Dn normName, Entry entry )
     {
         // only do something if the entry contains prescriptiveTrigger
         Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );

@@ -78,14 +78,14 @@ public class LdifTupleReaderWriter<E> implements TupleReaderWriter<Dn, E>
         {
             if ( in.available() > 0 )
             {
-                Tuple<Dn, E> t = new Tuple<Dn, E>();
-                t.setKey( new Dn( in.readUTF() ) );
+                Tuple<Dn, E> tuple = new Tuple<>();
+                tuple.setKey( new Dn( in.readUTF() ) );
                 
                 String[] tokens = in.readUTF().split( ":" );
                 
-                long offset = Long.valueOf( tokens[0] );
+                long offset = Long.parseLong( tokens[0] );
                 
-                int length = Integer.valueOf( tokens[1] );
+                int length = Integer.parseInt( tokens[1] );
                 
                 raf.seek( offset );
                 
@@ -93,14 +93,15 @@ public class LdifTupleReaderWriter<E> implements TupleReaderWriter<Dn, E>
                 
                 raf.read( data, 0, length );
                 
-                LdifReader reader = new LdifReader();
+                try ( LdifReader ldifReader = new LdifReader() )
+                {
+                    LdifEntry ldifEntry = ldifReader.parseLdif( new String( data ) ).get( 0 );
+                    Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
+    
+                    tuple.setValue( ( E ) entry );
+                }
                 
-                LdifEntry ldifEntry = reader.parseLdif( new String( data ) ).get( 0 );
-                Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
-
-                t.setValue( ( E ) entry );
-                
-                return t;
+                return tuple;
             }
         }
         catch ( Exception e )
@@ -142,7 +143,7 @@ public class LdifTupleReaderWriter<E> implements TupleReaderWriter<Dn, E>
                     "Received null entry while parsing, check the LDIF file for possible incorrect/corrupted entries" );
             }
 
-            t = new Tuple<Dn, E>();
+            t = new Tuple<>();
 
             t.setKey( ldifEntry.getDn() );
             t.setValue( ( E ) ( ldifEntry.getOffset() + ":" + ldifEntry.getLengthBeforeParsing() ) );

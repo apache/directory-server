@@ -188,7 +188,7 @@ public class TicketFlagsTest
         flags.setFlag( TicketFlag.PROXIABLE );
         flags.setFlag( TicketFlag.MAY_POSTDATE );
         flags.setFlag( TicketFlag.RENEWABLE );
-        assertEquals( flags.toString(), "FORWARDABLE(1) PROXIABLE(3) MAY_POSTDATE(5) RENEWABLE(8)" );
+        assertEquals( "FORWARDABLE(1) PROXIABLE(3) MAY_POSTDATE(5) RENEWABLE(8)", flags.toString() );
     }
 
 

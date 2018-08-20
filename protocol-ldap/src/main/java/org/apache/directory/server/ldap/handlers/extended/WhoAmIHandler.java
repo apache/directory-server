@@ -49,7 +49,7 @@ public class WhoAmIHandler implements ExtendedOperationHandler<WhoAmIRequest, Wh
 
     static
     {
-        Set<String> set = new HashSet<String>( 2 );
+        Set<String> set = new HashSet<>( 2 );
         set.add( WhoAmIRequest.EXTENSION_OID );
         set.add( WhoAmIResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );

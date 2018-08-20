@@ -88,20 +88,13 @@ public abstract class AbstractReadEncryptedPart<E extends Asn1Container> extends
         encryptedDataContainer.setStream( container.getStream() );
 
         // Decode the Ticket PDU
-        try
-        {
-            encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
 
         EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncryptedData : " + encryptedData );
+            LOG.debug( "EncryptedData : {}", encryptedData );
         }
 
         setEncryptedData( encryptedData, container );

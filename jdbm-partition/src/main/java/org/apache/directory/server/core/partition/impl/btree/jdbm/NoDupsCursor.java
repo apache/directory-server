@@ -53,7 +53,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private final JdbmTable<K, V> table;
 
     private jdbm.helper.Tuple jdbmTuple = new jdbm.helper.Tuple();
-    private Tuple<K, V> returnedTuple = new Tuple<K, V>();
+    private Tuple<K, V> returnedTuple = new Tuple<>();
     private TupleBrowser browser;
     private boolean valueAvailable;
 
@@ -90,7 +90,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void beforeKey( K key ) throws LdapException, CursorException
+    public void beforeKey( K key ) throws CursorException
     {
         checkNotClosed();
         try
@@ -106,7 +106,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
 
     @SuppressWarnings("unchecked")
-    public void afterKey( K key ) throws LdapException, CursorException
+    public void afterKey( K key ) throws CursorException
     {
         try
         {
@@ -149,7 +149,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     }
 
 
-    public void afterValue( K key, V value ) throws Exception
+    public void afterValue( K key, V value )
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
     }
@@ -161,7 +161,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @param element the tuple who's key is used to position this Cursor
      * @throws IOException if there are failures to position the Cursor
      */
-    public void before( Tuple<K, V> element ) throws LdapException, CursorException
+    public void before( Tuple<K, V> element ) throws CursorException
     {
         beforeKey( element.getKey() );
     }
@@ -170,7 +170,7 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, V> element ) throws LdapException, CursorException
+    public void after( Tuple<K, V> element ) throws CursorException
     {
         afterKey( element.getKey() );
     }

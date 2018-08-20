@@ -81,20 +81,20 @@ public class KerberosUtils
     public static final int NULL = -1;
 
     /** An empty list of principal names */
-    public static final List<String> EMPTY_PRINCIPAL_NAME = new ArrayList<String>();
+    public static final List<String> EMPTY_PRINCIPAL_NAME = new ArrayList<>();
 
     /** 
      * an order preserved map containing cipher names to the corresponding algorithm 
      * names in the descending order of strength
      */
-    private static final Map<String, String> cipherAlgoMap = new LinkedHashMap<String, String>();
+    private static final Map<String, String> cipherAlgoMap = new LinkedHashMap<>();
 
     public static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
 
     /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
     public static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
 
-    private static final Set<EncryptionType> oldEncTypes = new HashSet<EncryptionType>();
+    private static final Set<EncryptionType> oldEncTypes = new HashSet<>();
 
     static
     {
@@ -198,7 +198,7 @@ public class KerberosUtils
             return EMPTY_PRINCIPAL_NAME;
         }
 
-        List<String> nameComponents = new ArrayList<String>();
+        List<String> nameComponents = new ArrayList<>();
 
         // Start the parsing. Another State Machine :)
         char[] chars = principalNames.toCharArray();
@@ -408,7 +408,7 @@ public class KerberosUtils
      */
     public static Set<EncryptionType> orderEtypesByStrength( Set<EncryptionType> etypes )
     {
-        Set<EncryptionType> ordered = new LinkedHashSet<EncryptionType>( etypes.size() );
+        Set<EncryptionType> ordered = new LinkedHashSet<>( etypes.size() );
 
         for ( String algo : cipherAlgoMap.values() )
         {

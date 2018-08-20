@@ -64,7 +64,7 @@ public class MethodData implements Asn1Object
      */
     public MethodData()
     {
-        this.paDatas = new ArrayList<PaData>();
+        this.paDatas = new ArrayList<>();
     }
 
 
@@ -182,7 +182,7 @@ public class MethodData implements Asn1Object
         // Compute the PA-DATA length.
         methodDataLength = 0;
 
-        if ( ( paDatas != null ) && ( paDatas.size() != 0 ) )
+        if ( ( paDatas != null ) && !paDatas.isEmpty() )
         {
             for ( PaData paData : paDatas )
             {
@@ -224,7 +224,7 @@ public class MethodData implements Asn1Object
             buffer.put( TLV.getBytes( methodDataLength ) );
 
             // The PA-DATA list, if it's not empty
-            if ( ( paDatas != null ) && ( paDatas.size() != 0 ) )
+            if ( ( paDatas != null ) && !paDatas.isEmpty() )
             {
                 for ( PaData paData : paDatas )
                 {
@@ -242,7 +242,7 @@ public class MethodData implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "METHOD-DATA encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "METHOD-DATA initial value : {}", toString() );
+            LOG.debug( "METHOD-DATA initial value : {}", this );
         }
 
         return buffer;

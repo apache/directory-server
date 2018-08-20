@@ -92,7 +92,7 @@ public class Keytab
     public static final short VERSION_0X502 = 0x0502;
 
     private byte[] keytabVersion = VERSION_0X502_BYTES;
-    private List<KeytabEntry> entries = new ArrayList<KeytabEntry>();
+    private List<KeytabEntry> entries = new ArrayList<>();
 
 
     /**

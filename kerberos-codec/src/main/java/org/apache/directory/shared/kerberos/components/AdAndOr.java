@@ -184,7 +184,7 @@ public class AdAndOr implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "AD-AND-OR encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "AD-AND-OR initial value : {}", toString() );
+            LOG.debug( "AD-AND-OR initial value : {}", this );
         }
 
         return buffer;

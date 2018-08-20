@@ -527,7 +527,7 @@ public class Authenticator extends KerberosMessage
         if ( IS_DEBUG )
         {
             LOG.debug( "Authenticator encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "Authenticator initial value : {}", toString() );
+            LOG.debug( "Authenticator initial value : {}", this );
         }
 
         return buffer;

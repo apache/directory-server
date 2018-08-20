@@ -139,16 +139,7 @@ public class TimerInterceptor extends BaseInterceptor
      * {@inheritDoc}
      */
     @Override
-public void init( DirectoryService directoryService ) throws LdapException
-    {
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-public void destroy()
+    public void init( DirectoryService directoryService ) throws LdapException
     {
     }
 

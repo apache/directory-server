@@ -211,10 +211,7 @@ public class Checksum implements Asn1Object
         checksumLength += 1 + TLV.getNbBytes( checksumBytesLength ) + checksumBytesLength;
 
         // Compute the whole sequence length
-        int checksumSeqLength = 1 + TLV.getNbBytes( checksumLength ) + checksumLength;
-
-        return checksumSeqLength;
-
+        return 1 + TLV.getNbBytes( checksumLength ) + checksumLength;
     }
 
 
@@ -267,7 +264,7 @@ public class Checksum implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "Checksum encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "Checksum initial value : {}", toString() );
+            log.debug( "Checksum initial value : {}", this );
         }
 
         return buffer;

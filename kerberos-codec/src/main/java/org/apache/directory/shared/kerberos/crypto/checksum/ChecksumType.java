@@ -229,6 +229,7 @@ public enum ChecksumType implements Comparable<ChecksumType>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return getName() + " (" + value + ")";

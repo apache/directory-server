@@ -416,7 +416,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
      * @param entry the entry to be written
      * @throws LdapException
      */
-    private void appendLdif( Entry entry ) throws IOException, LdapException
+    private void appendLdif( Entry entry ) throws IOException
     {
         synchronized ( lock )
         {

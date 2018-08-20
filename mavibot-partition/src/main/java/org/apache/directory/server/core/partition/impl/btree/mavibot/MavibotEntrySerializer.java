@@ -175,12 +175,10 @@ public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialize " + entry );
+                LOG.debug( "Serialize {}", entry );
             }
 
-            byte[] bytes = baos.toByteArray();
-
-            return bytes;
+            return baos.toByteArray();
         }
         catch ( Exception e )
         {

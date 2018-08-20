@@ -334,7 +334,7 @@ public class EncTicketPart implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "EncTicketPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "EncTicketPart initial value : {}", toString() );
+            log.debug( "EncTicketPart initial value : {}", this );
         }
 
         return buffer;

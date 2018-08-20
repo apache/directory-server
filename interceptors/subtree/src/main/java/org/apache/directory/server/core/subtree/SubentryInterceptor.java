@@ -255,7 +255,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     }
                     catch ( Exception e )
                     {
-                        LOG.warn( "Failed while parsing subtreeSpecification for " + subentryDn );
+                        LOG.warn( "Failed while parsing subtreeSpecification for {}", subentryDn );
                         continue;
                     }
 
@@ -333,9 +333,8 @@ public class SubentryInterceptor extends BaseInterceptor
      *
      * @param opContext the invocation object to use for determining subentry visibility
      * @return true if subentries should be visible, false otherwise
-     * @throws Exception if there are problems accessing request controls
      */
-    private boolean isSubentryVisible( OperationContext opContext ) throws LdapException
+    private boolean isSubentryVisible( OperationContext opContext )
     {
         if ( !opContext.hasRequestControls() )
         {
@@ -697,7 +696,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * associated with the administrative roles.
      */
     private List<Modification> getOperationalModsForReplace( Dn oldDn, Dn newDn, Subentry subentry, Entry entry )
-        throws Exception
+        throws LdapException
     {
         List<Modification> modifications = new ArrayList<>();
 

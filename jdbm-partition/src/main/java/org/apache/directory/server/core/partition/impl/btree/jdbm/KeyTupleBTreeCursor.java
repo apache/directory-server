@@ -55,8 +55,8 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private final BTree btree;
     private final K key;
 
-    private jdbm.helper.Tuple<K, V> valueTuple = new jdbm.helper.Tuple<K, V>();
-    private Tuple<K, V> returnedTuple = new Tuple<K, V>();
+    private jdbm.helper.Tuple<K, V> valueTuple = new jdbm.helper.Tuple<>();
+    private Tuple<K, V> returnedTuple = new Tuple<>();
     private TupleBrowser<K, V> browser;
     private boolean valueAvailable;
 
@@ -135,7 +135,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void afterValue( K key, V value ) throws LdapException, CursorException
+    public void afterValue( K key, V value ) throws CursorException
     {
         if ( key != null && !key.equals( this.key ) )
         {
@@ -216,7 +216,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, V> element ) throws LdapException, CursorException
+    public void after( Tuple<K, V> element ) throws CursorException
     {
         afterValue( key, element.getValue() );
     }

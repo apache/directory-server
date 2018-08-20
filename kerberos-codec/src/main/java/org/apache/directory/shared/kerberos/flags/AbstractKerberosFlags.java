@@ -79,7 +79,7 @@ public abstract class AbstractKerberosFlags extends BitString
         bytes[0] = 0;
 
         bytes[1] = ( byte ) ( value >> 24 );
-        bytes[3] = ( byte ) ( ( value >> 16 ) & 0x00FF );
+        bytes[2] = ( byte ) ( ( value >> 16 ) & 0x00FF );
         bytes[3] = ( byte ) ( ( value >> 8 ) & 0x00FF );
         bytes[4] = ( byte ) ( value & 0x00FF );
 
@@ -213,6 +213,9 @@ public abstract class AbstractKerberosFlags extends BitString
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals( Object obj )
     {
@@ -221,7 +224,7 @@ public abstract class AbstractKerberosFlags extends BitString
             return true;
         }
 
-        if ( obj == null )
+        if ( !( obj instanceof AbstractKerberosFlags ) )
         {
             return false;
         }

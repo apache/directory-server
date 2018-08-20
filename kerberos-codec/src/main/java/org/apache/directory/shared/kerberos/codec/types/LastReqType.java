@@ -119,6 +119,7 @@ public enum LastReqType
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return name + " (" + value + ")";

@@ -77,20 +77,13 @@ public class StoreLastReq extends GrammarAction<EncKdcRepPartContainer>
         LastReqContainer lastReqContainer = new LastReqContainer();
 
         // Decode the LastReq PDU
-        try
-        {
-            lastReqDecoder.decode( encKdcRepPartContainer.getStream(), lastReqContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        lastReqDecoder.decode( encKdcRepPartContainer.getStream(), lastReqContainer );
 
         LastReq lastReq = lastReqContainer.getLastReq();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "LastReq : " + lastReq );
+            LOG.debug( "LastReq : {}", lastReq );
         }
 
         encKdcRepPartContainer.getEncKdcRepPart().setLastReq( lastReq );

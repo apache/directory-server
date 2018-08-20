@@ -57,7 +57,7 @@ public class StoreSalt extends GrammarAction<ETypeInfo2EntryContainer>
     /**
      * {@inheritDoc}
      */
-    public void action( ETypeInfo2EntryContainer eTypeInfo2EntryContainer ) throws DecoderException
+    public void action( ETypeInfo2EntryContainer eTypeInfo2EntryContainer )
     {
         TLV tlv = eTypeInfo2EntryContainer.getCurrentTLV();
         ETypeInfo2Entry etypeInfo2Entry = eTypeInfo2EntryContainer.getETypeInfo2Entry();

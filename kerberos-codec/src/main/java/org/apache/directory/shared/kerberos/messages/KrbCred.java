@@ -192,7 +192,7 @@ public class KrbCred extends KerberosMessage
         if ( IS_DEBUG )
         {
             log.debug( "KrbCred encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbCred initial value : {}", toString() );
+            log.debug( "KrbCred initial value : {}", this );
         }
 
         return buffer;
@@ -249,7 +249,7 @@ public class KrbCred extends KerberosMessage
 
         if ( tickets == null )
         {
-            tickets = new ArrayList<Ticket>();
+            tickets = new ArrayList<>();
         }
 
         tickets.add( ticket );

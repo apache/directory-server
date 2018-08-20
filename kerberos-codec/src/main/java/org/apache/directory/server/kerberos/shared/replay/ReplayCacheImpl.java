@@ -52,7 +52,7 @@ public class ReplayCacheImpl implements ReplayCache
     private Cache cache;
 
     /** default clock skew */
-    private static final long DEFAULT_CLOCK_SKEW = 5 * KerberosTime.MINUTE;
+    private static final long DEFAULT_CLOCK_SKEW = 5L * KerberosTime.MINUTE;
 
     /** The clock skew */
     private long clockSkew = DEFAULT_CLOCK_SKEW;
@@ -160,14 +160,9 @@ public class ReplayCacheImpl implements ReplayCache
          */
         public boolean compare( Element element1, Element element2 )
         {
-            ReplayCacheEntry entry = ( ReplayCacheEntry ) element2.getValue();
+            ReplayCacheEntry entry = ( ReplayCacheEntry ) element2.getObjectValue();
 
-            if ( entry.isOutsideClockSkew( clockSkew ) )
-            {
-                return true;
-            }
-
-            return false;
+            return entry.isOutsideClockSkew( clockSkew );
         }
     }
 
@@ -225,16 +220,11 @@ public class ReplayCacheImpl implements ReplayCache
             return false;
         }
 
-        entry = ( ReplayCacheEntry ) element.getValue();
+        entry = ( ReplayCacheEntry ) element.getObjectValue();
 
-        if ( serverPrincipal.equals( entry.serverPrincipal ) &&
+        return serverPrincipal.equals( entry.serverPrincipal ) &&
             clientTime.equals( entry.clientTime ) &&
-            ( clientMicroSeconds == entry.clientMicroSeconds ) )
-        {
-            return true;
-        }
-
-        return false;
+            ( clientMicroSeconds == entry.clientMicroSeconds );
     }
 
 

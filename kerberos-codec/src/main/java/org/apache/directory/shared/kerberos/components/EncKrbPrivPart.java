@@ -360,7 +360,7 @@ public class EncKrbPrivPart implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "EncKrbPrivPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "EncKrbPrivPart initial value : {}", toString() );
+            log.debug( "EncKrbPrivPart initial value : {}", this );
         }
 
         return buffer;

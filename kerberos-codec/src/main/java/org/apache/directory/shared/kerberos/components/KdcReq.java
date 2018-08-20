@@ -73,7 +73,7 @@ public abstract class KdcReq extends KerberosMessage
     public KdcReq( KerberosMessageType msgType )
     {
         super( msgType );
-        paData = new ArrayList<PaData>();
+        paData = new ArrayList<>();
     }
 
 
@@ -171,7 +171,7 @@ public abstract class KdcReq extends KerberosMessage
         kdcReqSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
 
         // Compute the pa-data length.
-        if ( paData.size() > 0 )
+        if ( !paData.isEmpty() )
         {
             paDataLengths = new int[paData.size()];
             int pos = 0;
@@ -234,7 +234,7 @@ public abstract class KdcReq extends KerberosMessage
         BerValue.encode( buffer, getMessageType().getValue() );
 
         // The PD-DATA if any -------------------------------------------------
-        if ( paData.size() > 0 )
+        if ( !paData.isEmpty() )
         {
             // The tag
             buffer.put( ( byte ) KerberosConstants.KDC_REQ_PA_DATA_TAG );

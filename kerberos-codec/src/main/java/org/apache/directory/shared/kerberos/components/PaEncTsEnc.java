@@ -223,7 +223,7 @@ public class PaEncTsEnc implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "Checksum encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "Checksum initial value : {}", toString() );
+            log.debug( "Checksum initial value : {}", this );
         }
 
         return buffer;

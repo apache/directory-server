@@ -91,14 +91,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     AsReqContainer asReqContainer = new AsReqContainer( stream );
 
                     // Decode the AS_REQ PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, asReqContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, asReqContainer );
 
                     KerberosMessage asReq = asReqContainer.getAsReq();
                     kerberosMessageContainer.setMessage( asReq );
@@ -109,14 +102,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     AsRepContainer asRepContainer = new AsRepContainer( stream );
 
                     // Decode the AS-REP PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, asRepContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, asRepContainer );
 
                     KerberosMessage asRep = asRepContainer.getAsRep();
                     kerberosMessageContainer.setMessage( asRep );
@@ -127,14 +113,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     TgsReqContainer tgsReqContainer = new TgsReqContainer( stream );
 
                     // Decode the TGS-REQ PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, tgsReqContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, tgsReqContainer );
 
                     KerberosMessage tgsReq = tgsReqContainer.getTgsReq();
                     kerberosMessageContainer.setMessage( tgsReq );
@@ -145,14 +124,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     TgsRepContainer tgsRepContainer = new TgsRepContainer( stream );
 
                     // Decode the TGS-REP PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, tgsRepContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, tgsRepContainer );
 
                     KerberosMessage tgsRep = tgsRepContainer.getTgsRep();
                     kerberosMessageContainer.setMessage( tgsRep );
@@ -163,14 +135,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     ApReqContainer apReqContainer = new ApReqContainer( stream );
 
                     // Decode the AP-REQ PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, apReqContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, apReqContainer );
 
                     KerberosMessage apReq = apReqContainer.getApReq();
                     kerberosMessageContainer.setMessage( apReq );
@@ -180,14 +145,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     ApRepContainer apRepContainer = new ApRepContainer( stream );
 
                     // Decode the AP-REP PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, apRepContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, apRepContainer );
 
                     KerberosMessage apRep = apRepContainer.getApRep();
                     kerberosMessageContainer.setMessage( apRep );
@@ -197,14 +155,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     KrbSafeContainer krbSafeContainer = new KrbSafeContainer( stream );
 
                     // Decode the KRB-SAFE PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, krbSafeContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, krbSafeContainer );
 
                     KerberosMessage krbSafe = krbSafeContainer.getKrbSafe();
                     kerberosMessageContainer.setMessage( krbSafe );
@@ -214,14 +165,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     KrbPrivContainer krbPrivContainer = new KrbPrivContainer( stream );
 
                     // Decode the KRB-PRIV PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, krbPrivContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, krbPrivContainer );
 
                     KerberosMessage krbPriv = krbPrivContainer.getKrbPriv();
                     kerberosMessageContainer.setMessage( krbPriv );
@@ -231,14 +175,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     KrbCredContainer krbCredContainer = new KrbCredContainer( stream );
 
                     // Decode the KRB-CRED PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, krbCredContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, krbCredContainer );
 
                     KerberosMessage krbCred = krbCredContainer.getKrbCred();
                     kerberosMessageContainer.setMessage( krbCred );
@@ -248,14 +185,7 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
                     KrbErrorContainer krbErrorContainer = new KrbErrorContainer( stream );
 
                     // Decode the KRB-ERROR PDU
-                    try
-                    {
-                        kerberosDecoder.decode( stream, krbErrorContainer );
-                    }
-                    catch ( DecoderException de )
-                    {
-                        throw de;
-                    }
+                    kerberosDecoder.decode( stream, krbErrorContainer );
 
                     KerberosMessage krbError = krbErrorContainer.getKrbError();
                     kerberosMessageContainer.setMessage( krbError );

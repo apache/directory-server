@@ -192,9 +192,8 @@ public class SchemaInterceptor extends BaseInterceptor
      *
      * @param atSeen ???
      * @param objectClass the object class to gather MUST attributes for
-     * @throws Exception if there are problems resolving schema entitites
      */
-    private void computeMustAttributes( ObjectClass objectClass, Set<String> atSeen ) throws LdapException
+    private void computeMustAttributes( ObjectClass objectClass, Set<String> atSeen )
     {
         List<ObjectClass> parents = superiors.get( objectClass.getOid() );
 
@@ -236,9 +235,8 @@ public class SchemaInterceptor extends BaseInterceptor
      *
      * @param atSeen ???
      * @param objectClass the object class to get all the MAY attributes for
-     * @throws Exception with problems accessing registries
      */
-    private void computeMayAttributes( ObjectClass objectClass, Set<String> atSeen ) throws LdapException
+    private void computeMayAttributes( ObjectClass objectClass, Set<String> atSeen )
     {
         List<ObjectClass> parents = superiors.get( objectClass.getOid() );
 
@@ -1770,11 +1768,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on each values
         for ( Value value : attribute )
         {
-            if ( value.isHumanReadable() )
-            {
-                continue;
-            }
-            else
+            if ( !value.isHumanReadable() )
             {
                 // we have a byte[] value. It should be a String UTF-8 encoded
                 // Let's transform it
@@ -1801,11 +1795,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on each values
         for ( Value value : attribute )
         {
-            if ( !value.isHumanReadable() )
-            {
-                continue;
-            }
-            else
+            if ( value.isHumanReadable() )
             {
                 // We have a String value. It should be a byte[]
                 // Let's transform it

@@ -65,8 +65,8 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
 
     public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
-        byte[] Kc = deriveKey( key, getUsageKc( usage ), 128, getKeyLength() );
-        byte[] checksum = processChecksum( data, Kc );
+        byte[] kc = deriveKey( key, getUsageKc( usage ), 128, getKeyLength() );
+        byte[] checksum = processChecksum( data, kc );
 
         return removeTrailingBytes( checksum, 0, checksum.length - getChecksumLength() );
     }
@@ -74,8 +74,8 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
 
     public byte[] calculateIntegrity( byte[] data, byte[] key, KeyUsage usage )
     {
-        byte[] Ki = deriveKey( key, getUsageKi( usage ), 128, getKeyLength() );
-        byte[] checksum = processChecksum( data, Ki );
+        byte[] ki = deriveKey( key, getUsageKi( usage ), 128, getKeyLength() );
+        byte[] checksum = processChecksum( data, ki );
 
         return removeTrailingBytes( checksum, 0, checksum.length - getChecksumLength() );
     }
@@ -83,7 +83,7 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
 
     public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
-        byte[] Ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 128, getKeyLength() );
+        byte[] ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 128, getKeyLength() );
 
         byte[] encryptedData = data.getCipher();
 
@@ -96,7 +96,7 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
         encryptedData = removeTrailingBytes( encryptedData, 0, getChecksumLength() );
 
         // decrypt the data
-        byte[] decryptedData = decrypt( encryptedData, Ke );
+        byte[] decryptedData = decrypt( encryptedData, ke );
 
         // remove leading confounder
         byte[] withoutConfounder = removeLeadingBytes( decryptedData, getConfounderLength(), 0 );
@@ -116,7 +116,7 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
 
     public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText, KeyUsage usage )
     {
-        byte[] Ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 128, getKeyLength() );
+        byte[] ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 128, getKeyLength() );
 
         // build the ciphertext structure
         byte[] conFounder = getRandomBytes( getConfounderLength() );
@@ -124,7 +124,7 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
 
         byte[] checksumBytes = calculateIntegrity( dataBytes, key.getKeyValue(), usage );
 
-        byte[] encryptedData = encrypt( dataBytes, Ke );
+        byte[] encryptedData = encrypt( dataBytes, ke );
         byte[] cipherText = concatenateBytes( encryptedData, checksumBytes );
 
         return new EncryptedData( getEncryptionType(), key.getKeyVersion(), cipherText );

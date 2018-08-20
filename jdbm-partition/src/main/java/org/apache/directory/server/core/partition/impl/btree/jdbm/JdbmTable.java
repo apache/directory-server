@@ -119,12 +119,12 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( valueSerializer != null )
         {
-            marshaller = new ArrayMarshaller<V>( valueComparator,
+            marshaller = new ArrayMarshaller<>( valueComparator,
                 new MarshallerSerializerBridge<V>( valueSerializer ) );
         }
         else
         {
-            marshaller = new ArrayMarshaller<V>( valueComparator );
+            marshaller = new ArrayMarshaller<>( valueComparator );
         }
 
         this.numDupLimit = numDupLimit;
@@ -630,7 +630,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             {
                 if ( LOG.isDebugEnabled() )
                 {
-                    LOG.debug( "<--- Remove NULL key " + name );
+                    LOG.debug( "<--- Remove NULL key {}", name );
                 }
 
                 return;
@@ -650,8 +650,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     {
                         LOG.debug( "<--- Remove ONE " + name + " = " + key + ", " + value );
                     }
-
-                    return;
                 }
 
                 return;
@@ -681,8 +679,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     {
                         LOG.debug( "<--- Remove AVL " + name + " = " + key + ", " + value );
                     }
-
-                    return;
                 }
 
                 return;
@@ -710,8 +706,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 {
                     LOG.debug( "<--- Remove BTREE " + name + " = " + key + ", " + value );
                 }
-
-                return;
             }
         }
         catch ( Exception e )
@@ -777,8 +771,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
                 recMan.delete( tree.getRecordId() );
                 duplicateBtrees.remove( tree.getRecordId() );
-
-                return;
             }
             else
             {
@@ -789,8 +781,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 {
                     LOG.debug( "<--- Remove AVL {} = {}", name, key );
                 }
-
-                return;
             }
         }
         catch ( Exception e )
@@ -944,12 +934,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
 
-        if ( values.isBTreeRedirect() )
-        {
-            return true;
-        }
-
-        return false;
+        return values.isBTreeRedirect();
     }
 
 
@@ -957,14 +942,14 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     {
         if ( serialized == null )
         {
-            return new DupsContainer<V>( new ArrayTree<V>( valueComparator ) );
+            return new DupsContainer<>( new ArrayTree<V>( valueComparator ) );
         }
 
         if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
             try
             {
-                return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+                return new DupsContainer<>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
             }
             catch ( IOException ioe )
             {
@@ -975,7 +960,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            return new DupsContainer<V>( marshaller.deserialize( serialized ) );
+            return new DupsContainer<>( marshaller.deserialize( serialized ) );
         }
         catch ( IOException ioe )
         {
@@ -1052,7 +1037,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     @SuppressWarnings("unchecked")
     private ArrayTree<V> convertToArrayTree( BTree bTree ) throws IOException
     {
-        ArrayTree<V> avlTree = new ArrayTree<V>( valueComparator );
+        ArrayTree<V> avlTree = new ArrayTree<>( valueComparator );
         TupleBrowser browser = bTree.browse();
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
 
@@ -1071,22 +1056,22 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( valueSerializer != null )
         {
-            bTree = new BTree<V, K>( recMan, valueComparator, valueSerializer, null );
+            bTree = new BTree<>( recMan, valueComparator, valueSerializer, null );
         }
         else
         {
-            bTree = new BTree<V, K>( recMan, valueComparator );
+            bTree = new BTree<>( recMan, valueComparator );
         }
 
-        Cursor<V> keys = new ArrayTreeCursor<V>( arrayTree );
-        keys.beforeFirst();
-
-        while ( keys.next() )
+        try ( Cursor<V> keys = new ArrayTreeCursor<>( arrayTree ) )
         {
-            bTree.insert( keys.get(), ( K ) Strings.EMPTY_BYTES, true );
+            keys.beforeFirst();
+    
+            while ( keys.next() )
+            {
+                bTree.insert( keys.get(), ( K ) Strings.EMPTY_BYTES, true );
+            }
         }
-
-        keys.close();
 
         return bTree;
     }

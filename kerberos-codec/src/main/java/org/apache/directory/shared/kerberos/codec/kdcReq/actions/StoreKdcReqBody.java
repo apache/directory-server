@@ -78,14 +78,7 @@ public class StoreKdcReqBody extends GrammarAction<KdcReqContainer>
         KdcReqBodyContainer kdcReqBodyContainer = new KdcReqBodyContainer( kdcReqContainer.getStream() );
 
         // Decode the KDC-REQ-BODY PDU
-        try
-        {
-            kdcReqBodyDecoder.decode( kdcReqContainer.getStream(), kdcReqBodyContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        kdcReqBodyDecoder.decode( kdcReqContainer.getStream(), kdcReqBodyContainer );
 
         // Store the KDC-REQ-BODY in the container
         KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();

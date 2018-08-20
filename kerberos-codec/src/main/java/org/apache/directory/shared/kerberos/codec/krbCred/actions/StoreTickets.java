@@ -71,15 +71,8 @@ public class StoreTickets extends GrammarAction<KrbCredContainer>
 
         krbCredContainer.rewind();
 
-        try
-        {
-            // decode Ticket
-            decoder.decode( krbCredContainer.getStream(), ticketContainer );
-        }
-        catch ( DecoderException e )
-        {
-            throw e;
-        }
+        // decode Ticket
+        decoder.decode( krbCredContainer.getStream(), ticketContainer );
 
         Ticket ticket = ticketContainer.getTicket();
         // add Ticket to the list of tickets

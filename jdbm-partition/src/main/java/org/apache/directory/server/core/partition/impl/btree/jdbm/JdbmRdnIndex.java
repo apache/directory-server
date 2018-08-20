@@ -57,6 +57,10 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void init( RecordManager recMan, SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
@@ -70,9 +74,7 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn>
 
         if ( this.wkDirPath == null )
         {
-            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-
-            throw e;
+            throw new NullPointerException( "The index working directory has not be set" );
         }
 
         //System.out.println( "IDX Created index " + path )
@@ -110,7 +112,7 @@ public class JdbmRdnIndex extends JdbmIndex<ParentIdAndRdn>
             throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
         }
 
-        ParentIdAndRdnComparator<String> comp = new ParentIdAndRdnComparator<String>( mr.getOid() );
+        ParentIdAndRdnComparator<String> comp = new ParentIdAndRdnComparator<>( mr.getOid() );
 
         UuidComparator.INSTANCE.setSchemaManager( schemaManager );
 

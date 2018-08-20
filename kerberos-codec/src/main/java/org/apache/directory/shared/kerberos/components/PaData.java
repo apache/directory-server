@@ -238,7 +238,7 @@ public class PaData implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "PreAuthenticationData encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "PreAuthenticationData initial value : {}", toString() );
+            log.debug( "PreAuthenticationData initial value : {}", this );
         }
 
         return buffer;

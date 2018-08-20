@@ -87,7 +87,7 @@ public class StoreCksumType extends GrammarAction<ChecksumContainer>
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "cksumType : " + cksumType );
+                LOG.debug( "cksumType : {}", cksumType );
             }
         }
         catch ( IntegerDecoderException ide )

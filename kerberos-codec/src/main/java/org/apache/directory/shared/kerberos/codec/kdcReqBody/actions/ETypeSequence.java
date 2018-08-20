@@ -45,7 +45,7 @@ public class ETypeSequence extends GrammarAction<KdcReqBodyContainer>
     /**
      * {@inheritDoc}
      */
-    public void action( KdcReqBodyContainer kdcReqBodyContainer ) throws DecoderException
+    public void action( KdcReqBodyContainer kdcReqBodyContainer )
     {
         TLV tlv = kdcReqBodyContainer.getCurrentTLV();
 

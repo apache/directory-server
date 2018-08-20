@@ -86,20 +86,13 @@ public abstract class AbstractReadCheckSum<E extends Asn1Container> extends Gram
         ChecksumContainer checksumContainer = new ChecksumContainer();
 
         // Decode the Checksum PDU
-        try
-        {
-            checksumDecoder.decode( container.getStream(), checksumContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        checksumDecoder.decode( container.getStream(), checksumContainer );
 
         Checksum checksum = checksumContainer.getChecksum();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Checksum : " + checksum );
+            LOG.debug( "Checksum : {}", checksum );
         }
 
         setChecksum( checksum, container );

@@ -82,14 +82,7 @@ public class AddHostAddress extends GrammarAction<HostAddressesContainer>
         hostAddressesContainer.rewind();
 
         // Decode the HostAddress PDU
-        try
-        {
-            hostAddressDecoder.decode( hostAddressesContainer.getStream(), hostAddressContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        hostAddressDecoder.decode( hostAddressesContainer.getStream(), hostAddressContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

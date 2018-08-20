@@ -184,6 +184,7 @@ public class TicketFlags extends AbstractKerberosFlags
     /**
      * Converts the object to a printable string.
      */
+    @Override
     public String toString()
     {
         StringBuilder result = new StringBuilder();

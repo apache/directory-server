@@ -301,7 +301,7 @@ public class HostAddress implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "Checksum encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "Checksum initial value : {}", toString() );
+            LOG.debug( "Checksum initial value : {}", this );
         }
 
         return buffer;

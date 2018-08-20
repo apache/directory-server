@@ -120,7 +120,7 @@ public class PagedSearchContext
     private Set<String> buildAttributeSet( SearchRequest request,
         SchemaManager schemaManager )
     {
-        Set<String> requestSet = new HashSet<String>();
+        Set<String> requestSet = new HashSet<>();
 
         // Build the set of attributeType from the attributes
         for ( String attribute : request.getAttributes() )

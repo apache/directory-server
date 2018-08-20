@@ -243,12 +243,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
         ReplicaEventLog other = ( ReplicaEventLog ) obj;
 
-        if ( replicaId != other.getId() )
-        {
-            return false;
-        }
-
-        return true;
+        return replicaId == other.getId();
     }
 
 

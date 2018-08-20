@@ -165,7 +165,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "Processing callback {} of {}: {}" + callback.getClass(), ( i + 1 ), callbacks.length );
+                LOG.debug( "Processing callback {} of {}: {}", callback.getClass(), ( i + 1 ), callbacks.length );
             }
 
             if ( callback instanceof NameCallback )
@@ -300,7 +300,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      */
     protected Hashtable<String, Object> getEnvironment( IoSession session )
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = new Hashtable<>();
         env.put( Context.PROVIDER_URL, session.getAttribute( "baseDn" ) );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );

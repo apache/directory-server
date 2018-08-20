@@ -119,7 +119,7 @@ public class ParentIdAndRdnSerializer implements Serializer
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialize " + parentIdAndRdn );
+                LOG.debug( "Serialize {}", parentIdAndRdn );
             }
 
             return baos.toByteArray();

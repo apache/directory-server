@@ -269,7 +269,7 @@ public class AdKdcIssued implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "AD-KDCIssued encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "AD-KDCIssued initial value : {}", toString() );
+            LOG.debug( "AD-KDCIssued initial value : {}", this );
         }
 
         return buffer;

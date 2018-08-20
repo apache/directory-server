@@ -131,8 +131,8 @@ public class KdcReqBody implements Asn1Object
      */
     public KdcReqBody()
     {
-        additionalTickets = new ArrayList<Ticket>();
-        eType = new LinkedHashSet<EncryptionType>();
+        additionalTickets = new ArrayList<>();
+        eType = new LinkedHashSet<>();
     }
 
 
@@ -541,7 +541,7 @@ public class KdcReqBody implements Asn1Object
         }
 
         // The additionalTickets length
-        if ( additionalTickets.size() != 0 )
+        if ( !additionalTickets.isEmpty() )
         {
             additionalTicketsLengths = new int[additionalTickets.size()];
             additionalTicketSeqLength = 0;
@@ -706,7 +706,7 @@ public class KdcReqBody implements Asn1Object
         }
 
         // The additional-tickets, if any -------------------------------------
-        if ( additionalTickets.size() != 0 )
+        if ( !additionalTickets.isEmpty() )
         {
             // The tag
             buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG );
@@ -836,7 +836,7 @@ public class KdcReqBody implements Asn1Object
             sb.append( tabs ).append( "enc-authorization-data" ).append( encAuthorizationData );
         }
 
-        if ( additionalTickets.size() != 0 )
+        if ( !additionalTickets.isEmpty() )
         {
             sb.append( '\n' );
             sb.append( tabs ).append( "Tickets : " );

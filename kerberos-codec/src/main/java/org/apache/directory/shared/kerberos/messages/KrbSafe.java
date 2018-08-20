@@ -217,7 +217,7 @@ public class KrbSafe extends KerberosMessage
         if ( IS_DEBUG )
         {
             log.debug( "KrbSafe encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbSafe initial value : {}", toString() );
+            log.debug( "KrbSafe initial value : {}", this );
         }
 
         return buffer;

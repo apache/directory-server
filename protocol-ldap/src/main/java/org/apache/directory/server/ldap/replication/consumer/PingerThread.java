@@ -40,7 +40,7 @@ public class PingerThread extends Thread
     private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( Loggers.CONSUMER_LOG.getName() );
 
     /** The list of consumers we want to check */
-    private Queue<ReplicationConsumer> consumers = new ConcurrentLinkedQueue<ReplicationConsumer>();
+    private Queue<ReplicationConsumer> consumers = new ConcurrentLinkedQueue<>();
 
     /** A flag to stop the pinger */
     private boolean stop = false;
@@ -57,7 +57,7 @@ public class PingerThread extends Thread
     {
         if ( sleepSec > 0 )
         {
-            sleepTime = sleepSec * 1000;
+            sleepTime = sleepSec * 1000L;
         }
         
         CONSUMER_LOG.info( "Configured pinger thread to sleep for {} seconds", ( sleepTime / 1000 ) );
@@ -69,6 +69,7 @@ public class PingerThread extends Thread
     /**
      * Starts the thread
      */
+    @Override
     public void run()
     {
         try

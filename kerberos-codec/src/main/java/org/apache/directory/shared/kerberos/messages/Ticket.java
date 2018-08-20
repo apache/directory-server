@@ -118,7 +118,7 @@ public class Ticket extends KerberosMessage
      * @param sName The server principal
      * @param encPart The encoded part
      */
-    public Ticket( int tktvno, PrincipalName sName, EncryptedData encPart ) throws InvalidTicketException
+    public Ticket( int tktvno, PrincipalName sName, EncryptedData encPart )
     {
         super( tktvno, KerberosMessageType.TICKET );
         this.encPart = encPart;
@@ -343,7 +343,7 @@ public class Ticket extends KerberosMessage
         if ( IS_DEBUG )
         {
             LOG.debug( "Ticket encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "Ticket initial value : {}", toString() );
+            LOG.debug( "Ticket initial value : {}", this );
         }
 
         return buffer;
@@ -376,7 +376,7 @@ public class Ticket extends KerberosMessage
             return true;
         }
 
-        if ( obj == null )
+        if ( !( obj instanceof Ticket ) )
         {
             return false;
         }

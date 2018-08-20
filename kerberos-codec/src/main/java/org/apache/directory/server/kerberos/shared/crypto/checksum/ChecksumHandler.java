@@ -21,7 +21,7 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes128CtsSha1Encryption;
@@ -46,7 +46,7 @@ public class ChecksumHandler
 
     static
     {
-        Map<ChecksumType, Class<?>> map = new HashMap<ChecksumType, Class<?>>();
+        EnumMap<ChecksumType, Class<?>> map = new EnumMap<>( ChecksumType.class );
 
         map.put( ChecksumType.HMAC_MD5, HmacMd5Checksum.class );
         map.put( ChecksumType.HMAC_SHA1_96_AES128, Aes128CtsSha1Encryption.class );

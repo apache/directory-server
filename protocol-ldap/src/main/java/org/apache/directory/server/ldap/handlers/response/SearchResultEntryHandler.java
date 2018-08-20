@@ -45,7 +45,5 @@ public class SearchResultEntryHandler extends LdapResponseHandler<SearchResultEn
         {
             searchRequestContainer.increment();
         }
-        
-        //System.out.println( "SearchResultEntry : " + searchRequestContainer );
     }
 }

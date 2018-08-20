@@ -132,6 +132,7 @@ public class AsRep extends KdcRep
      *  +--&gt;  0x30 L2 KDC-REP sequence
      * </pre>
      */
+    @Override
     public int computeLength()
     {
         kdcRepLength = super.computeLength();
@@ -148,6 +149,7 @@ public class AsRep extends KdcRep
      * @return The encoded component
      * @throws org.apache.directory.api.asn1.EncoderException If the encoding failed
      */
+    @Override
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         if ( buffer == null )

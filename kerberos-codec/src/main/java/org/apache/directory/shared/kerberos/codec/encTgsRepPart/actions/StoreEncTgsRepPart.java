@@ -77,14 +77,7 @@ public class StoreEncTgsRepPart extends GrammarAction<EncTgsRepPartContainer>
         EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer( encTgsRepPartContainer.getStream() );
 
         // Decode the EncKdcRepPart PDU
-        try
-        {
-            encKdcRepPartDecoder.decode( encTgsRepPartContainer.getStream(), encKdcRepPartContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        encKdcRepPartDecoder.decode( encTgsRepPartContainer.getStream(), encKdcRepPartContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

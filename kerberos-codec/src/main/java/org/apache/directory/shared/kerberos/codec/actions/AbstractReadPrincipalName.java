@@ -86,20 +86,13 @@ public abstract class AbstractReadPrincipalName<E extends Asn1Container> extends
         PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        try
-        {
-            principalNameDecoder.decode( container.getStream(), principalNameContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        principalNameDecoder.decode( container.getStream(), principalNameContainer );
 
         PrincipalName principalName = principalNameContainer.getPrincipalName();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrincipalName : " + principalName );
+            LOG.debug( "PrincipalName : {}", principalName );
         }
 
         setPrincipalName( principalName, container );

@@ -304,7 +304,7 @@ public class EncApRepPart extends KerberosMessage
         if ( IS_DEBUG )
         {
             LOG.debug( "EncApRepPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "EncApRepPart initial value : {}", toString() );
+            LOG.debug( "EncApRepPart initial value : {}", this );
         }
 
         return buffer;

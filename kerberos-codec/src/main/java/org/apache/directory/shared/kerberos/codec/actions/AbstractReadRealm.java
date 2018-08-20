@@ -85,7 +85,7 @@ public abstract class AbstractReadRealm<E extends Asn1Container> extends Grammar
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "read realm value : " + realm );
+            LOG.debug( "read realm value : {}", realm );
         }
 
         setRealm( realm, container );

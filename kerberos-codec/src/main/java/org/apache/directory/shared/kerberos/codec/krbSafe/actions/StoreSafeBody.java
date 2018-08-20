@@ -80,14 +80,7 @@ public class StoreSafeBody extends GrammarAction<KrbSafeContainer>
         krbSafeBodyContainer.setStream( krbSafeContainer.getStream() );
 
         // Decode the KrbSafeBody PDU
-        try
-        {
-            krbSafeBodyDecoder.decode( krbSafeContainer.getStream(), krbSafeBodyContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        krbSafeBodyDecoder.decode( krbSafeContainer.getStream(), krbSafeBodyContainer );
 
         // Store the KrbSafeBody in the container
         KrbSafeBody krbSafeBody = krbSafeBodyContainer.getKrbSafeBody();

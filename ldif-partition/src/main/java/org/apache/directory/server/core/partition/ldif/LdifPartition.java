@@ -143,6 +143,7 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doInit() throws LdapException
     {
         if ( !initialized )
@@ -215,7 +216,7 @@ public class LdifPartition extends AbstractLdifPartition
                 }
 
                 // Initialization of the context entry
-                if ( ( suffixDn != null ) && ( contextEntry != null ) )
+                if ( suffixDn != null )
                 {
                     Dn contextEntryDn = contextEntry.getDn();
 
@@ -309,6 +310,7 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         super.add( addContext );
@@ -320,6 +322,7 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry delete( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         Entry deletedEntry = super.delete( partitionTxn, id );
@@ -350,6 +353,7 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         PartitionTxn partitionTxn = modifyContext.getTransaction();
@@ -376,11 +380,9 @@ public class LdifPartition extends AbstractLdifPartition
         Dn dn = modifyContext.getDn();
 
         // And write it back on disk
-        try
+        try ( FileWriter fw = new FileWriter( getFile( dn, DELETE ) ) )
         {
-            FileWriter fw = new FileWriter( getFile( dn, DELETE ) );
             fw.write( LdifUtils.convertToLdif( modifiedEntry, true ) );
-            fw.close();
         }
         catch ( IOException ioe )
         {
@@ -392,6 +394,7 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         PartitionTxn partitionTxn = moveContext.getTransaction();
@@ -444,6 +447,7 @@ public class LdifPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         PartitionTxn partitionTxn = renameContext.getTransaction(); 
@@ -880,11 +884,9 @@ public class LdifPartition extends AbstractLdifPartition
         // Remove the EntryDN
         entry.removeAttributes( entryDnAT );
 
-        try
+        try ( FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) ) )
         {
-            FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) );
             fw.write( LdifUtils.convertToLdif( entry ) );
-            fw.close();
         }
         catch ( IOException ioe )
         {

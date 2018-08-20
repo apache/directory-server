@@ -53,14 +53,14 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
 
         bites[0] = 1;
 
-        bites[1] = ( byte ) ( redirect.recId >> 56 );
-        bites[2] = ( byte ) ( redirect.recId >> 48 );
-        bites[3] = ( byte ) ( redirect.recId >> 40 );
-        bites[4] = ( byte ) ( redirect.recId >> 32 );
-        bites[5] = ( byte ) ( redirect.recId >> 24 );
-        bites[6] = ( byte ) ( redirect.recId >> 16 );
-        bites[7] = ( byte ) ( redirect.recId >> 8 );
-        bites[8] = ( byte ) redirect.recId;
+        bites[1] = ( byte ) ( 0xFF & ( redirect.recId >> 56 ) );
+        bites[2] = ( byte ) ( 0xFF & ( redirect.recId >> 48 ) );
+        bites[3] = ( byte ) ( 0xFF & ( redirect.recId >> 40 ) );
+        bites[4] = ( byte ) ( 0xFF & ( redirect.recId >> 32 ) );
+        bites[5] = ( byte ) ( 0xFF & ( redirect.recId >> 24 ) );
+        bites[6] = ( byte ) ( 0xFF & ( redirect.recId >> 16 ) );
+        bites[7] = ( byte ) ( 0xFF & ( redirect.recId >> 8 ) );
+        bites[8] = ( byte ) ( 0xFF & ( redirect.recId ) );
 
         return bites;
     }
@@ -83,22 +83,14 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
             }
         }
 
-        long recId;
-        recId = bytes[1] + ( ( bytes[1] < 0 ) ? 256 : 0 );
-        recId <<= 8;
-        recId += bytes[2] + ( ( bytes[2] < 0 ) ? 256 : 0 );
-        recId <<= 8;
-        recId += bytes[3] + ( ( bytes[3] < 0 ) ? 256 : 0 );
-        recId <<= 8;
-        recId += bytes[4] + ( ( bytes[4] < 0 ) ? 256 : 0 );
-        recId <<= 8;
-        recId += bytes[5] + ( ( bytes[5] < 0 ) ? 256 : 0 );
-        recId <<= 8;
-        recId += bytes[6] + ( ( bytes[6] < 0 ) ? 256 : 0 );
-        recId <<= 8;
-        recId += bytes[7] + ( ( bytes[7] < 0 ) ? 256 : 0 );
-        recId <<= 8;
-        recId += bytes[8] + ( ( bytes[8] < 0 ) ? 256 : 0 );
+        long recId = ( ( long ) ( bytes[1] & 0xFF ) << 56 )
+                | ( ( long ) ( bytes[2] & 0xFF ) << 48 )
+                | ( ( long ) ( bytes[3] & 0xFF ) << 40 )
+                | ( ( long ) ( bytes[4] & 0xFF ) << 32 )
+                | ( ( long ) ( bytes[5] & 0xFF ) << 24 )
+                | ( ( long ) ( bytes[6] & 0xFF ) << 16 )
+                | ( ( long ) ( bytes[7] & 0xFF ) << 8 )
+                | ( ( long ) ( bytes[8] & 0xFF ) );
 
         return new BTreeRedirect( recId );
     }

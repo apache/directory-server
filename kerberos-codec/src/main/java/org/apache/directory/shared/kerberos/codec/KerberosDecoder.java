@@ -110,7 +110,7 @@ public class KerberosDecoder
                 {
                     if ( IS_DEBUG )
                     {
-                        LOG.debug( "Decoded KerberosMessage : " + kerberosMessageContainer.getMessage() );
+                        LOG.debug( "Decoded KerberosMessage : {}", kerberosMessageContainer.getMessage() );
                         buf.mark();
                     }
         
@@ -159,9 +159,7 @@ public class KerberosDecoder
         }
 
         // get the decoded EncryptedData
-        EncryptedData encryptedData = ( ( EncryptedDataContainer ) encryptedDataContainer ).getEncryptedData();
-
-        return encryptedData;
+        return ( ( EncryptedDataContainer ) encryptedDataContainer ).getEncryptedData();
     }
     
     
@@ -194,9 +192,7 @@ public class KerberosDecoder
         }
 
         // get the decoded PaEncTsEnc
-        PaEncTsEnc paEncTsEnc = ( ( PaEncTsEncContainer ) paEncTsEncContainer ).getPaEncTsEnc();
-
-        return paEncTsEnc;
+        return ( ( PaEncTsEncContainer ) paEncTsEncContainer ).getPaEncTsEnc();
     }
     
     
@@ -229,9 +225,7 @@ public class KerberosDecoder
         }
 
         // get the decoded EncApRepPart
-        EncApRepPart encApRepPart = ( ( EncApRepPartContainer ) encApRepPartContainer ).getEncApRepPart();
-
-        return encApRepPart;
+        return ( ( EncApRepPartContainer ) encApRepPartContainer ).getEncApRepPart();
     }
     
     
@@ -264,9 +258,7 @@ public class KerberosDecoder
         }
 
         // get the decoded EncKdcRepPart
-        EncKdcRepPart encKdcRepPart = ( ( EncKdcRepPartContainer ) encKdcRepPartContainer ).getEncKdcRepPart();
-
-        return encKdcRepPart;
+        return ( ( EncKdcRepPartContainer ) encKdcRepPartContainer ).getEncKdcRepPart();
     }
     
     
@@ -299,9 +291,7 @@ public class KerberosDecoder
         }
 
         // get the decoded EncKrbPrivPart
-        EncKrbPrivPart encKrbPrivPart = ( ( EncKrbPrivPartContainer ) encKrbPrivPartContainer ).getEncKrbPrivPart();
-
-        return encKrbPrivPart;
+        return ( ( EncKrbPrivPartContainer ) encKrbPrivPartContainer ).getEncKrbPrivPart();
     }
     
     
@@ -334,9 +324,7 @@ public class KerberosDecoder
         }
 
         // get the decoded EncTicketPart
-        EncTicketPart encTicketPart = ( ( EncTicketPartContainer ) encTicketPartContainer ).getEncTicketPart();
-
-        return encTicketPart;
+        return ( ( EncTicketPartContainer ) encTicketPartContainer ).getEncTicketPart();
     }
     
     
@@ -369,9 +357,7 @@ public class KerberosDecoder
         }
 
         // get the decoded EncryptionKey
-        EncryptionKey encryptionKey = ( ( EncryptionKeyContainer ) encryptionKeyContainer ).getEncryptionKey();
-
-        return encryptionKey;
+        return ( ( EncryptionKeyContainer ) encryptionKeyContainer ).getEncryptionKey();
     }
     
     
@@ -404,9 +390,7 @@ public class KerberosDecoder
         }
 
         // get the decoded PrincipalName
-        PrincipalName principalName = ( ( PrincipalNameContainer ) principalNameContainer ).getPrincipalName();
-
-        return principalName;
+        return ( ( PrincipalNameContainer ) principalNameContainer ).getPrincipalName();
     }
     
     
@@ -439,9 +423,7 @@ public class KerberosDecoder
         }
 
         // get the decoded Ticket
-        Ticket ticket = ( ( TicketContainer ) ticketContainer ).getTicket();
-
-        return ticket;
+        return ( ( TicketContainer ) ticketContainer ).getTicket();
     }
     
     
@@ -474,9 +456,7 @@ public class KerberosDecoder
         }
 
         // get the decoded Authenticator
-        Authenticator authenticator = ( ( AuthenticatorContainer ) authenticatorContainer ).getAuthenticator();
-
-        return authenticator;
+        return ( ( AuthenticatorContainer ) authenticatorContainer ).getAuthenticator();
     }
     
     
@@ -509,9 +489,7 @@ public class KerberosDecoder
         }
 
         // get the decoded AuthorizationData
-        AuthorizationData authorizationData = ( ( AuthorizationDataContainer ) authorizationDataContainer ).getAuthorizationData();
-
-        return authorizationData;
+        return ( ( AuthorizationDataContainer ) authorizationDataContainer ).getAuthorizationData();
     }
 
     
@@ -544,9 +522,7 @@ public class KerberosDecoder
         }
 
         // get the decoded ApRep
-        ApRep apRep = ( ( ApRepContainer ) apRepContainer ).getApRep();
-
-        return apRep;
+        return ( ( ApRepContainer ) apRepContainer ).getApRep();
     }
 
     
@@ -579,9 +555,7 @@ public class KerberosDecoder
         }
 
         // get the decoded ApReq
-        ApReq apReq = ( ( ApReqContainer ) apReqContainer ).getApReq();
-
-        return apReq;
+        return ( ( ApReqContainer ) apReqContainer ).getApReq();
     }
 
     
@@ -614,9 +588,7 @@ public class KerberosDecoder
         }
 
         // get the decoded KrbPriv
-        KrbPriv krbPriv = ( ( KrbPrivContainer ) krbPrivContainer ).getKrbPriv();
-
-        return krbPriv;
+        return ( ( KrbPrivContainer ) krbPrivContainer ).getKrbPriv();
     }
     
     
@@ -649,9 +621,7 @@ public class KerberosDecoder
         }
 
         // get the decoded EncAsRepPart
-        EncAsRepPart encAsRepPart = ( ( EncAsRepPartContainer ) encAsRepPartContainer ).getEncAsRepPart();
-
-        return encAsRepPart;
+        return ( ( EncAsRepPartContainer ) encAsRepPartContainer ).getEncAsRepPart();
     }
 
     
@@ -684,8 +654,6 @@ public class KerberosDecoder
         }
 
         // get the decoded EncTgsRepPart
-        EncTgsRepPart encTgsRepPart = ( ( EncTgsRepPartContainer ) encTgsRepPartContainer ).getEncTgsRepPart();
-
-        return encTgsRepPart;
+        return ( ( EncTgsRepPartContainer ) encTgsRepPartContainer ).getEncTgsRepPart();
     }
 }

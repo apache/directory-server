@@ -60,7 +60,7 @@ public class LastReq implements Asn1Object
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** The list of LastReq elements */
-    private List<LastReqEntry> lastReqs = new ArrayList<LastReqEntry>();
+    private List<LastReqEntry> lastReqs = new ArrayList<>();
 
     /** The current LastReqEntry being processed */
     private LastReqEntry currentLR;
@@ -262,7 +262,7 @@ public class LastReq implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "LastReq encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "LastReq initial value : {}", toString() );
+            LOG.debug( "LastReq initial value : {}", this );
         }
 
         return buffer;

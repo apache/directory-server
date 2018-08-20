@@ -82,14 +82,7 @@ public class StoreKdcRep extends GrammarAction<TgsRepContainer>
         kdcRepContainer.setKdcRep( tgsRep );
 
         // Decode the KDC_REP PDU
-        try
-        {
-            kdcRepDecoder.decode( tgsRepContainer.getStream(), kdcRepContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        kdcRepDecoder.decode( tgsRepContainer.getStream(), kdcRepContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

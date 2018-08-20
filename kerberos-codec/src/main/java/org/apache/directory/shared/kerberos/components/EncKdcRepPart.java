@@ -622,7 +622,7 @@ public class EncKdcRepPart implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "EncKdcRepPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "EncKdcRepPart initial value : {}", toString() );
+            log.debug( "EncKdcRepPart initial value : {}", this );
         }
 
         return buffer;

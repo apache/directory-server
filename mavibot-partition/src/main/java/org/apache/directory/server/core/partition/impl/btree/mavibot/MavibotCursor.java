@@ -48,7 +48,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private final MavibotTable<K, V> table;
 
     /** The tuple which will be returned */
-    private Tuple<K, V> returnedTuple = new Tuple<K, V>();
+    private Tuple<K, V> returnedTuple = new Tuple<>();
 
     /** A flag set when there is a Tuple available */
     private boolean valueAvailable = false;
@@ -95,7 +95,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @throws LdapException 
      * @throws CursorException
      */
-    public void beforeKey( K key ) throws LdapException, CursorException
+    public void beforeKey( K key ) throws CursorException
     {
         checkNotClosed();
         closeBrowser( browser );
@@ -119,7 +119,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * @throws LdapException 
      * @throws CursorException
      */
-    public void afterKey( K key ) throws LdapException, CursorException
+    public void afterKey( K key ) throws CursorException
     {
         checkNotClosed();
 

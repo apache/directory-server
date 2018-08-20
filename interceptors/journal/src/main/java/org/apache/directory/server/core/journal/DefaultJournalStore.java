@@ -129,11 +129,7 @@ public class DefaultJournalStore implements JournalStore
                 writer.write( LdifUtils.convertToLdif( forward, 80 ) );
                 writer.flush();
             }
-            catch ( LdapException ne )
-            {
-                return false;
-            }
-            catch ( IOException ioe )
+            catch ( LdapException | IOException e )
             {
                 return false;
             }

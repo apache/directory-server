@@ -62,6 +62,7 @@ public class AsReq extends KdcReq
      *  +--&gt;  0x30 L2 KDC-REQ sequence
      * </pre>
      */
+    @Override
     public int computeLength()
     {
         kdcReqLength = super.computeLength();
@@ -76,6 +77,7 @@ public class AsReq extends KdcReq
      * @return The encoded component
      * @throws EncoderException If the encoding failed
      */
+    @Override
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         if ( buffer == null )

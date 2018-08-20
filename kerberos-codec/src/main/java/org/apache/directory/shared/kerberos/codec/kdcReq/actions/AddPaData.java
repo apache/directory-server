@@ -82,14 +82,7 @@ public class AddPaData extends GrammarAction<KdcReqContainer>
         kdcReqContainer.rewind();
 
         // Decode the PA-DATA PDU
-        try
-        {
-            paDataDecoder.decode( kdcReqContainer.getStream(), paDataContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        paDataDecoder.decode( kdcReqContainer.getStream(), paDataContainer );
 
         // Update the parent
         kdcReqContainer.updateParent();

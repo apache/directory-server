@@ -82,14 +82,7 @@ public class AddETypeInfo2Entry extends GrammarAction<ETypeInfo2Container>
         eTypeInfo2Container.rewind();
 
         // Decode the ETypeInfo2Entry PDU
-        try
-        {
-            etypeInfo2EntryDecoder.decode( eTypeInfo2Container.getStream(), etypeInfo2EntryContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        etypeInfo2EntryDecoder.decode( eTypeInfo2Container.getStream(), etypeInfo2EntryContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

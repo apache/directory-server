@@ -148,7 +148,7 @@ public class ReplConsumerManager
             return;
         }
 
-        PROVIDER_LOG.debug( "Adding a consumer for replica {}", replica.toString() );
+        PROVIDER_LOG.debug( "Adding a consumer for replica {}", replica );
 
         // Check that we don't already have an entry for this consumer
         Dn consumerDn = directoryService.getDnFactory().create(

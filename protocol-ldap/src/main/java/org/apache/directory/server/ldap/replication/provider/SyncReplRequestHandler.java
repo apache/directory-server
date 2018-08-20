@@ -134,7 +134,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /** The CSN AttributeType instance */
     private AttributeType csnAT;
 
-    private Map<Integer, ReplicaEventLog> replicaLogMap = new ConcurrentHashMap<Integer, ReplicaEventLog>();
+    private Map<Integer, ReplicaEventLog> replicaLogMap = new ConcurrentHashMap<>();
 
     private File syncReplData;
 
@@ -196,12 +196,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             // Get and create the replication directory if it does not exist
             syncReplData = dirService.getInstanceLayout().getReplDirectory();
 
-            if ( !syncReplData.exists() )
+            if ( !syncReplData.exists() && !syncReplData.mkdirs() )
             {
-                if ( !syncReplData.mkdirs() )
-                {
-                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, syncReplData ) );
-                }
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, syncReplData ) );
             }
 
             // Create the replication manager
@@ -269,7 +266,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         {
             try
             {
-                PROVIDER_LOG.debug( "Stopping the logging for replica ", log.getId() );
+                PROVIDER_LOG.debug( "Stopping the logging for replica {}", log.getId() );
                 evtSrv.removeListener( log.getPersistentListener() );
                 log.stop();
             }
@@ -992,10 +989,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
-        EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
+        return new EqualityNode<>( SchemaConstants.OBJECT_CLASS_AT, 
             new Value( objectClassAT, SchemaConstants.REFERRAL_OC ).getValue() );
-
-        return ocIsReferral;
     }
 
 
@@ -1105,7 +1100,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     private Runnable createConsumerInfoUpdateTask( final CountDownLatch latch )
     {
-        Runnable task = new Runnable()
+        return new Runnable()
         {
             public void run()
             {
@@ -1126,15 +1121,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 }
             }
         };
-
-        return task;
     }
 
 
     /**
      * Get the Replica event log from the replica ID found in the cookie
      */
-    private ReplicaEventLog getReplicaEventLog( String cookieString ) throws Exception
+    private ReplicaEventLog getReplicaEventLog( String cookieString )
     {
         ReplicaEventLog replicaLog = null;
 
@@ -1168,7 +1161,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /**
      * Send an error response to he consue r: it has to send a SYNC_REFRESH request first.
      */
-    private void sendESyncRefreshRequired( LdapSession session, SearchRequest req ) throws Exception
+    private void sendESyncRefreshRequired( LdapSession session, SearchRequest req )
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );

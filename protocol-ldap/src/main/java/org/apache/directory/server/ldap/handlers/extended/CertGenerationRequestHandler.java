@@ -47,7 +47,7 @@ public class CertGenerationRequestHandler
 
     static
     {
-        Set<String> set = new HashSet<String>( 2 );
+        Set<String> set = new HashSet<>( 2 );
         set.add( CertGenerationRequest.EXTENSION_OID );
         set.add( CertGenerationResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );

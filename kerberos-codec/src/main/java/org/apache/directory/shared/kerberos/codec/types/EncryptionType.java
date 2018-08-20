@@ -180,10 +180,10 @@ public enum EncryptionType
     private final String name;
 
     /** A map containing all the values */
-    private static Map<String, EncryptionType> encryptionTypesByName = new HashMap<String, EncryptionType>();
+    private static Map<String, EncryptionType> encryptionTypesByName = new HashMap<>();
 
     /** A map containing all the values */
-    private static Map<Integer, EncryptionType> encryptionTypesByValue = new HashMap<Integer, EncryptionType>();
+    private static Map<Integer, EncryptionType> encryptionTypesByValue = new HashMap<>();
 
     /** Initialization of the previous map */
     static
@@ -286,6 +286,7 @@ public enum EncryptionType
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return getName() + " (" + value + ")";

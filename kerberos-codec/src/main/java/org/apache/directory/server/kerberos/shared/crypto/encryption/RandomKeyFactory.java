@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +51,7 @@ public class RandomKeyFactory
 
     static
     {
-        Map<EncryptionType, String> map = new HashMap<EncryptionType, String>();
+        EnumMap<EncryptionType, String> map = new EnumMap<>( EncryptionType.class );
 
         map.put( EncryptionType.DES_CBC_MD5, "DES" );
         map.put( EncryptionType.DES3_CBC_SHA1_KD, "DESede" );
@@ -84,7 +85,7 @@ public class RandomKeyFactory
     public static Map<EncryptionType, EncryptionKey> getRandomKeys( Set<EncryptionType> ciphers )
         throws KerberosException
     {
-        Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
+        Map<EncryptionType, EncryptionKey> map = new HashMap<>();
 
         for ( EncryptionType encryptionType : ciphers )
         {

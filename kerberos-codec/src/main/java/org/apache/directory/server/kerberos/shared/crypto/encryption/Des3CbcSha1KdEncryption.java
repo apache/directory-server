@@ -76,23 +76,23 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
 
     public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
-        byte[] Kc = deriveKey( key, getUsageKc( usage ), 64, 168 );
+        byte[] kc = deriveKey( key, getUsageKc( usage ), 64, 168 );
 
-        return processChecksum( data, Kc );
+        return processChecksum( data, kc );
     }
 
 
     public byte[] calculateIntegrity( byte[] data, byte[] key, KeyUsage usage )
     {
-        byte[] Ki = deriveKey( key, getUsageKi( usage ), 64, 168 );
+        byte[] ki = deriveKey( key, getUsageKi( usage ), 64, 168 );
 
-        return processChecksum( data, Ki );
+        return processChecksum( data, ki );
     }
 
 
     public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
-        byte[] Ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 64, 168 );
+        byte[] ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 64, 168 );
 
         byte[] encryptedData = data.getCipher();
 
@@ -105,7 +105,7 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
         encryptedData = removeTrailingBytes( encryptedData, 0, getChecksumLength() );
 
         // decrypt the data
-        byte[] decryptedData = decrypt( encryptedData, Ke );
+        byte[] decryptedData = decrypt( encryptedData, ke );
 
         // remove leading confounder
         byte[] withoutConfounder = removeLeadingBytes( decryptedData, getConfounderLength(), 0 );
@@ -125,17 +125,14 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
 
     public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText, KeyUsage usage )
     {
-        byte[] Ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 64, 168 );
+        byte[] ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 64, 168 );
 
         // build the ciphertext structure
         byte[] conFounder = getRandomBytes( getConfounderLength() );
         byte[] paddedPlainText = padString( plainText );
         byte[] dataBytes = concatenateBytes( conFounder, paddedPlainText );
         byte[] checksumBytes = calculateIntegrity( dataBytes, key.getKeyValue(), usage );
-
-        //byte[] encryptedData = encrypt( paddedDataBytes, key.getKeyValue() );
-        byte[] encryptedData = encrypt( dataBytes, Ke );
-
+        byte[] encryptedData = encrypt( dataBytes, ke );
         byte[] cipherText = concatenateBytes( encryptedData, checksumBytes );
 
         return new EncryptedData( getEncryptionType(), key.getKeyVersion(), cipherText );

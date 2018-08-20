@@ -89,7 +89,7 @@ public class StoreEType extends GrammarAction<ETypeInfo2EntryContainer>
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "etype : " + etype );
+                LOG.debug( "etype : {}", etype );
             }
 
             // The next tag is optional, we can end here

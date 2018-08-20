@@ -80,7 +80,7 @@ public class StoreEText extends GrammarAction<KrbErrorContainer>
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "eText: " + eText );
+            LOG.debug( "eText: {}", eText );
         }
 
         krbErrorContainer.setGrammarEndAllowed( true );

@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +27,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Value;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.KerberosDecoder;

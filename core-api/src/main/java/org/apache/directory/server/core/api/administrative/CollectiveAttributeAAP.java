@@ -66,6 +66,7 @@ public class CollectiveAttributeAAP extends CollectiveAttributeAdministrativePoi
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isAutonomous()
     {
         return true;
@@ -75,6 +76,7 @@ public class CollectiveAttributeAAP extends CollectiveAttributeAdministrativePoi
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "CollectiveAttribute AAP : " + super.toString();

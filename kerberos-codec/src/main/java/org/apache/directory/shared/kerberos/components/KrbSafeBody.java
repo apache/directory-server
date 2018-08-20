@@ -357,7 +357,7 @@ public class KrbSafeBody implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "KrbSafeBody encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbSafeBody initial value : {}", toString() );
+            log.debug( "KrbSafeBody initial value : {}", this );
         }
 
         return buffer;

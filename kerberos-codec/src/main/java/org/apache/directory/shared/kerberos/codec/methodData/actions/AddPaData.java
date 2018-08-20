@@ -82,14 +82,7 @@ public class AddPaData extends GrammarAction<MethodDataContainer>
         methodDataContainer.rewind();
 
         // Decode the PA-DATA PDU
-        try
-        {
-            paDataDecoder.decode( methodDataContainer.getStream(), paDataContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        paDataDecoder.decode( methodDataContainer.getStream(), paDataContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

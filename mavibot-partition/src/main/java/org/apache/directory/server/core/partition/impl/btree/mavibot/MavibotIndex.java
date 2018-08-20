@@ -131,8 +131,7 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
 
         if ( this.wkDirPath == null )
         {
-            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-            throw e;
+            throw new NullPointerException( "The index working directory has not be set" );
         }
 
         try
