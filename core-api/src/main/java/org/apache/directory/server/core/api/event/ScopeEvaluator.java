@@ -58,6 +58,10 @@ public class ScopeEvaluator implements Evaluator
                 {
                     return ( snode.getBaseDn().size() + 1 ) == dn.size();
                 }
+                else
+                {
+                    return false;
+                }
 
             case SUBTREE:
                 return dn.isDescendantOf( snode.getBaseDn() );
