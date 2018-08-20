@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
@@ -224,13 +223,13 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             // We have something in the list
             // first, ignore all the unkown AT and convert the strings to 
             // AttributeTypeOptions
-            returningAttributes = new HashSet<AttributeTypeOptions>();
-            Set<String> attributesString = new HashSet<String>();
+            returningAttributes = new HashSet<>();
+            Set<String> attributesString = new HashSet<>();
 
             Set<AttributeTypeOptions> collectedAttributes = collectAttributeTypes( attributeIds );
 
             // If we have valid, '*' or '+' attributes, we can get rid of the NoAttributes flag
-            if ( ( collectedAttributes.size() > 0 ) || allUserAttributes || allOperationalAttributes )
+            if ( !collectedAttributes.isEmpty() || allUserAttributes || allOperationalAttributes )
             {
                 noAttributes = false;
             }
@@ -238,7 +237,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             // Now, loop on the list of attributes, and remove all the USER attributes if
             // we have the '*' attribute, and remove all the OPERATIONAL attributes if we
             // have the '+' attribute
-            if ( collectedAttributes.size() > 0 )
+            if ( !collectedAttributes.isEmpty() )
             {
                 for ( AttributeTypeOptions attributeTypeOption : collectedAttributes )
                 {
@@ -258,7 +257,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                 }
             }
 
-            if ( attributesString.size() > 0 )
+            if ( !attributesString.isEmpty() )
             {
                 // We have some valid attributes, lt's convert it to String
                 returningAttributesString = attributesString.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
@@ -280,7 +279,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
     private Set<AttributeTypeOptions> collectAttributeTypes( String... attributesIds )
     {
-        Set<AttributeTypeOptions> collectedAttributes = new HashSet<AttributeTypeOptions>();
+        Set<AttributeTypeOptions> collectedAttributes = new HashSet<>();
 
         if ( ( attributesIds != null ) && ( attributesIds.length != 0 ) )
         {
@@ -319,12 +318,6 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                     AttributeTypeOptions attrOptions = new AttributeTypeOptions( attributeType, options );
 
                     collectedAttributes.add( attrOptions );
-                }
-                catch ( LdapNoSuchAttributeException nsae )
-                {
-                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored",
-                        returnAttribute );
-                    // Unknown attributes should be silently ignored, as RFC 2251 states
                 }
                 catch ( LdapException le )
                 {

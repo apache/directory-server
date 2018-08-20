@@ -55,7 +55,7 @@ public class AvlSingletonOrOrderedSetCursor<K, V> extends AbstractCursor<Tuple<K
     /** The current position of this cursor, relative to the node */
     private Position position = Position.BEFORE_FIRST;
 
-    private Tuple<K, SingletonOrOrderedSet<V>> returnedTuple = new Tuple<K, SingletonOrOrderedSet<V>>();
+    private Tuple<K, SingletonOrOrderedSet<V>> returnedTuple = new Tuple<>();
 
 
     public AvlSingletonOrOrderedSetCursor( AvlTreeMap<K, V> tree )

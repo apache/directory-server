@@ -328,7 +328,7 @@ public class DescriptionParsers
             }
 
             // if the super objectClasses are provided make sure it exists in some schema
-            if ( objectClass.getSuperiorOids() != null && objectClass.getSuperiorOids().size() > 0 )
+            if ( objectClass.getSuperiorOids() != null && !objectClass.getSuperiorOids().isEmpty() )
             {
                 for ( String superiorOid : objectClass.getSuperiorOids() )
                 {
@@ -347,7 +347,7 @@ public class DescriptionParsers
             }
 
             // if the may list is provided make sure attributes exists in some schema
-            if ( objectClass.getMayAttributeTypeOids() != null && objectClass.getMayAttributeTypeOids().size() > 0 )
+            if ( objectClass.getMayAttributeTypeOids() != null && !objectClass.getMayAttributeTypeOids().isEmpty() )
             {
                 for ( String mayAttrOid : objectClass.getMayAttributeTypeOids() )
                 {
@@ -360,7 +360,7 @@ public class DescriptionParsers
             }
 
             // if the must list is provided make sure attributes exists in some schema
-            if ( objectClass.getMustAttributeTypeOids() != null && objectClass.getMustAttributeTypeOids().size() > 0 )
+            if ( objectClass.getMustAttributeTypeOids() != null && !objectClass.getMustAttributeTypeOids().isEmpty() )
             {
                 for ( String mustAttrOid : objectClass.getMustAttributeTypeOids() )
                 {

@@ -530,24 +530,10 @@ public class DefaultDirectoryService implements DirectoryService
         for ( Method method : methods )
         {
             Class<?>[] param = method.getParameterTypes();
-            boolean hasCorrestSig;
 
             // check for the correct signature
-            if ( ( param == null ) || ( param.length > 1 ) || ( param.length == 0 ) )
-            {
-                continue;
-            }
-
-            if ( OperationContext.class.isAssignableFrom( param[0] ) )
-            {
-                hasCorrestSig = true;
-            }
-            else
-            {
-                continue;
-            }
-
-            if ( hasCorrestSig && method.getName().equals( operation.getMethodName() ) )
+            if ( ( param != null ) && ( param.length == 1 ) 
+                    && OperationContext.class.isAssignableFrom( param[0] ) && method.getName().equals( operation.getMethodName() ) )
             {
                 if ( !selectedInterceptorList.contains( interceptor.getName() ) )
                 {
@@ -743,49 +729,34 @@ public class DefaultDirectoryService implements DirectoryService
         this.instanceLayout = instanceLayout;
 
         // Create the directories if they are missing
-        if ( !instanceLayout.getInstanceDirectory().exists() )
+        if ( !instanceLayout.getInstanceDirectory().exists() && !instanceLayout.getInstanceDirectory().mkdirs() )
         {
-            if ( !instanceLayout.getInstanceDirectory().mkdirs() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
-                    instanceLayout.getInstanceDirectory() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+                instanceLayout.getInstanceDirectory() ) );
         }
 
-        if ( !instanceLayout.getLogDirectory().exists() )
+        if ( !instanceLayout.getLogDirectory().exists() && !instanceLayout.getLogDirectory().mkdirs() )
         {
-            if ( !instanceLayout.getLogDirectory().mkdirs() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
-                    instanceLayout.getLogDirectory() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+                instanceLayout.getLogDirectory() ) );
         }
 
-        if ( !instanceLayout.getRunDirectory().exists() )
+        if ( !instanceLayout.getRunDirectory().exists() && !instanceLayout.getRunDirectory().mkdirs() )
         {
-            if ( !instanceLayout.getRunDirectory().mkdirs() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
-                    instanceLayout.getRunDirectory() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+                instanceLayout.getRunDirectory() ) );
         }
 
-        if ( !instanceLayout.getPartitionsDirectory().exists() )
+        if ( !instanceLayout.getPartitionsDirectory().exists() && !instanceLayout.getPartitionsDirectory().mkdirs() )
         {
-            if ( !instanceLayout.getPartitionsDirectory().mkdirs() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
-                    instanceLayout.getPartitionsDirectory() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+                instanceLayout.getPartitionsDirectory() ) );
         }
 
-        if ( !instanceLayout.getConfDirectory().exists() )
+        if ( !instanceLayout.getConfDirectory().exists() && !instanceLayout.getConfDirectory().mkdirs() )
         {
-            if ( !instanceLayout.getConfDirectory().mkdirs() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
-                    instanceLayout.getConfDirectory() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+                instanceLayout.getConfDirectory() ) );
         }
     }
 
@@ -888,18 +859,10 @@ public class DefaultDirectoryService implements DirectoryService
     {
         partition.setSchemaManager( schemaManager );
 
-        try
+        // can be null when called before starting up
+        if ( partitionNexus != null )
         {
-            // can be null when called before starting up
-            if ( partitionNexus != null )
-            {
-                partitionNexus.addContextPartition( partition );
-            }
-        }
-        catch ( LdapException le )
-        {
-            // We've got an exception, we cannot add the partition to the partitions
-            throw le;
+            partitionNexus.addContextPartition( partition );
         }
 
         // Now, add the partition to the set of managed partitions
@@ -913,18 +876,10 @@ public class DefaultDirectoryService implements DirectoryService
     public void removePartition( Partition partition ) throws LdapException
     {
         // Do the backend cleanup first
-        try
+        // can be null when called before starting up
+        if ( partitionNexus != null )
         {
-            // can be null when called before starting up
-            if ( partitionNexus != null )
-            {
-                partitionNexus.removeContextPartition( partition.getSuffixDn().getNormName() );
-            }
-        }
-        catch ( LdapException le )
-        {
-            // Bad ! We can't go any further
-            throw le;
+            partitionNexus.removeContextPartition( partition.getSuffixDn().getNormName() );
         }
 
         // And update the set of managed partitions
@@ -1837,9 +1792,9 @@ public class DefaultDirectoryService implements DirectoryService
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword;
 
-        Dn adminDn = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        Partition partition = partitionNexus.getPartition( adminDn );
-        LookupOperationContext lookupContext = new LookupOperationContext( adminSession, adminDn );
+        Dn admin = getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        Partition partition = partitionNexus.getPartition( admin );
+        LookupOperationContext lookupContext = new LookupOperationContext( adminSession, admin );
         lookupContext.setPartition( partition );
         
         Entry adminEntry;
@@ -1859,8 +1814,8 @@ public class DefaultDirectoryService implements DirectoryService
 
         if ( needToChangeAdminPassword )
         {
-            LOG.warn( "You didn't change the admin password of directory service " + "instance '" + instanceId + "'.  "
-                + "Please update the admin password as soon as possible " + "to prevent a possible security breach." );
+            LOG.warn( "You didn't change the admin password of directory service instance '{}'.  "
+                + "Please update the admin password as soon as possible to prevent a possible security breach.", instanceId );
         }
     }
 
@@ -1868,7 +1823,7 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * Adds test entries into the core.
      *
-     * @todo this may no longer be needed when JNDI is not used for bootstrapping
+     * TODO this may no longer be needed when JNDI is not used for bootstrapping
      *
      * @throws LdapException if the creation of test entries fails.
      */
@@ -1905,9 +1860,9 @@ public class DefaultDirectoryService implements DirectoryService
 
         // Add root context entry for system partition
         Dn systemSuffixDn = getDnFactory().create( ServerDNConstants.SYSTEM_DN );
-        CoreSession adminSession = getAdminSession();
+        CoreSession admin = getAdminSession();
 
-        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( adminSession, systemSuffixDn );
+        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( admin, systemSuffixDn );
         Partition partition = getPartitionNexus().getPartition( systemSuffixDn );
         hasEntryContext.setPartition( partition );
         
@@ -1931,7 +1886,7 @@ public class DefaultDirectoryService implements DirectoryService
                 systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
                     .getRdnValue( ServerDNConstants.SYSTEM_DN ) );
     
-                AddOperationContext addOperationContext = new AddOperationContext( adminSession, systemEntry );
+                AddOperationContext addOperationContext = new AddOperationContext( admin, systemEntry );
                 addOperationContext.setPartition( partition );
                 
                 PartitionTxn writeTxn = null;
@@ -2029,7 +1984,7 @@ public class DefaultDirectoryService implements DirectoryService
         adminSession = new DefaultCoreSession( new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.STRONG ),
             this );
 
-        // @TODO - NOTE: Need to find a way to instantiate without dependency on DPN
+        // TODO - NOTE: Need to find a way to instantiate without dependency on DPN
         partitionNexus = new DefaultPartitionNexus( new DefaultEntry( schemaManager, Dn.ROOT_DSE ) );
         partitionNexus.setDirectoryService( this );
         partitionNexus.initialize();
@@ -2100,8 +2055,6 @@ public class DefaultDirectoryService implements DirectoryService
      * @param text The ldif format file
      * @return An entry.
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     private Entry readEntry( String text )
     {
         StringReader strIn = new StringReader( text );
@@ -2178,7 +2131,6 @@ public class DefaultDirectoryService implements DirectoryService
 
             entry.setDn( newDn );
 
-            // TODO Let's get rid of this Attributes crap
             return new DefaultEntry( schemaManager, entry );
         }
         catch ( Exception e )

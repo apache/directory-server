@@ -41,11 +41,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
@@ -127,7 +126,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private Set<Authenticator> authenticators = new HashSet<>();
 
     /** A map of authenticators associated with the authentication level required */
-    private final Map<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new HashMap<>();
+    private final EnumMap<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new EnumMap<>( AuthenticationLevel.class );
 
     private CoreSession adminSession;
 
@@ -468,6 +467,12 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
         }
 
+        if ( selectedAuthenticator == null )
+        {
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
+                    "Cannot Bind for Dn " + bindDn.getName() + ", there is no authenticator for it" );
+        }
+        
         return selectedAuthenticator;
     }
     
@@ -968,8 +973,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 break;
             }
         }
-
-        return;
     }
 
     

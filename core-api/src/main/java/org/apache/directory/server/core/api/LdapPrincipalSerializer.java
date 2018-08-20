@@ -102,8 +102,6 @@ public final class LdapPrincipalSerializer
             throw ioe;
         }
 
-        LdapPrincipal principal = new LdapPrincipal( schemaManager, dn, authenticationLevel );
-
-        return principal;
+        return new LdapPrincipal( schemaManager, dn, authenticationLevel );
     }
 }

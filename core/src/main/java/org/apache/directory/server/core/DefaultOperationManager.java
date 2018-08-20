@@ -183,10 +183,7 @@ public class DefaultOperationManager implements OperationManager
             else
             {
                 // This is an error : we *must* have an entry if we want to be able to rename.
-                LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
-                    opContext.getDn() ) );
-
-                throw ldnfe;
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, opContext.getDn() ) );
             }
         }
     }
@@ -208,10 +205,8 @@ public class DefaultOperationManager implements OperationManager
         else
         {
             // This is an error : we *must* have an entry if we want to be able to rename.
-            LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
                 opContext.getDn() ) );
-
-            throw ldnfe;
         }
     }
 
@@ -221,7 +216,7 @@ public class DefaultOperationManager implements OperationManager
         // Get the Ref attributeType
         Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
 
-        List<String> urls = new ArrayList<String>();
+        List<String> urls = new ArrayList<>();
 
         try
         {
@@ -263,7 +258,7 @@ public class DefaultOperationManager implements OperationManager
         // Get the Ref attributeType
         Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
 
-        List<String> urls = new ArrayList<String>();
+        List<String> urls = new ArrayList<>();
 
         // manage each Referral, building the correct URL for each of them
         for ( Value url : refs )
@@ -387,13 +382,11 @@ public class DefaultOperationManager implements OperationManager
                 // a different exception.
                 if ( addContext.isReferralIgnored() )
                 {
-                    LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                    throw exception;
+                    throw buildLdapPartialResultException( childDn );
                 }
                 else
                 {
-                    LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                    throw exception;
+                    throw buildReferralException( parentEntry, childDn );
                 }
             }
         }
@@ -460,7 +453,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Add operation took " + ( System.nanoTime() - addStart ) + " ns" );
+            OPERATION_TIME.debug( "Add operation took {} ns", ( System.nanoTime() - addStart ) );
         }
     }
 
@@ -526,7 +519,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Bind operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Bind operation took {} ns", ( System.nanoTime() - opStart )  );
         }
     }
 
@@ -579,8 +572,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !compareContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -589,13 +581,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( compareContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -644,7 +634,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Compare operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Compare operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return result;
@@ -700,8 +690,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !deleteContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -712,13 +701,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( deleteContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -769,10 +756,7 @@ public class DefaultOperationManager implements OperationManager
         {
             try
             {
-                if ( transaction != null )
-                {
-                    transaction.abort();
-                }
+                transaction.abort();
                 
                 throw new LdapOtherException( ioe.getMessage(), ioe );
             }
@@ -793,7 +777,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Delete operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Delete operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -989,7 +973,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Lookup operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Lookup operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return entry;
@@ -1046,8 +1030,7 @@ public class DefaultOperationManager implements OperationManager
                         // We have found a parent referral for the current Dn
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( referralManager.hasParentReferral( dn ) )
@@ -1061,16 +1044,14 @@ public class DefaultOperationManager implements OperationManager
                         // We have found a parent referral for the current Dn
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
                         // We have found a parent referral for the current Dn
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -1142,7 +1123,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Modify operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Modify operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -1204,8 +1185,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !moveContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -1216,13 +1196,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( moveContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -1233,10 +1211,7 @@ public class DefaultOperationManager implements OperationManager
             if ( directoryService.getReferralManager().isReferral( newSuperiorDn )
                 || directoryService.getReferralManager().hasParentReferral( newSuperiorDn ) )
             {
-                LdapAffectMultipleDsaException exception = new LdapAffectMultipleDsaException();
-                //exception.setRemainingName( dn );
-
-                throw exception;
+                throw new LdapAffectMultipleDsaException();
             }
 
         }
@@ -1313,7 +1288,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Move operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Move operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -1366,8 +1341,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !moveAndRenameContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -1378,13 +1352,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( moveAndRenameContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -1406,10 +1378,7 @@ public class DefaultOperationManager implements OperationManager
             {
                 // The parent Dn is a referral, we have to issue a AffectMultipleDsas result
                 // as stated by RFC 3296 Section 5.6.2
-                LdapAffectMultipleDsaException exception = new LdapAffectMultipleDsaException();
-                //exception.setRemainingName( dn );
-
-                throw exception;
+                throw new LdapAffectMultipleDsaException();
             }
         }
         finally
@@ -1460,10 +1429,7 @@ public class DefaultOperationManager implements OperationManager
         {
             try
             {
-                if ( transaction != null )
-                {
-                    transaction.abort();
-                }
+                transaction.abort();
                 
                 throw new LdapOtherException( ioe.getMessage(), ioe );
             }
@@ -1484,7 +1450,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "MoveAndRename operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "MoveAndRename operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -1554,8 +1520,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !renameContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -1566,13 +1531,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( renameContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -1680,7 +1643,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Rename operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Rename operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -1733,9 +1696,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !searchContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
-                            searchContext.getScope() );
-                        throw exception;
+                        throw buildReferralExceptionForSearch( parentEntry, childDn, searchContext.getScope() );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -1746,14 +1707,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( searchContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
-                            searchContext.getScope() );
-                        throw exception;
+                        throw buildReferralExceptionForSearch( parentEntry, childDn, searchContext.getScope() );
                     }
                 }
             }
@@ -1797,7 +1755,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Search operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Search operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return cursor;
@@ -1835,7 +1793,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Unbind operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Unbind operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 

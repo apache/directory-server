@@ -148,9 +148,8 @@ public class ModifyOperationContext extends AbstractChangeOperationContext
 
 
     public static List<Modification> createModItems( Entry serverEntry, ModificationOperation modOp )
-        throws LdapException
     {
-        List<Modification> items = new ArrayList<Modification>( serverEntry.size() );
+        List<Modification> items = new ArrayList<>( serverEntry.size() );
 
         for ( Attribute attribute : serverEntry )
         {

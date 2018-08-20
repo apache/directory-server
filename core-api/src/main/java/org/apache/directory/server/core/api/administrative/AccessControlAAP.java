@@ -46,6 +46,7 @@ public class AccessControlAAP extends AccessControlAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public AdministrativePoint getParent()
     {
         return parent;
@@ -75,6 +76,7 @@ public class AccessControlAAP extends AccessControlAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isAutonomous()
     {
         return true;
@@ -84,6 +86,7 @@ public class AccessControlAAP extends AccessControlAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "AccessControl AAP : " + super.toString();

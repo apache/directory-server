@@ -141,7 +141,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
 
         this.wrapped = wrapped;
         this.operationContext = operationContext;
-        this.filters = new ArrayList<EntryFilter>();
+        this.filters = new ArrayList<>();
         this.filters.addAll( filters );
         this.schemaManager = schemaManager;
     }
@@ -577,7 +577,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
             sb.append( tabs ).append( "BaseEntryFilteringCursor, no wrapped\n" );
         }
 
-        if ( ( filters != null ) && ( filters.size() > 0 ) )
+        if ( ( filters != null ) && !filters.isEmpty() )
         {
             sb.append( tabs ).append( "Filters : \n" );
 

@@ -315,6 +315,7 @@ public class SearchOperationContext extends FilteringOperationContext
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return "SearchContext for Dn '" + getDn().getName() + "', filter :'"

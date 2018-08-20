@@ -66,6 +66,7 @@ public class SubschemaAAP extends SubschemaAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isAutonomous()
     {
         return true;
@@ -75,6 +76,7 @@ public class SubschemaAAP extends SubschemaAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "Subschema AAP : " + super.toString();

@@ -79,7 +79,7 @@ public enum EventType
      */
     public static EventType[] getEventTypes( int psearchChangeTypes )
     {
-        ArrayList<EventType> types = new ArrayList<EventType>();
+        ArrayList<EventType> types = new ArrayList<>();
 
         if ( isAdd( psearchChangeTypes ) )
         {

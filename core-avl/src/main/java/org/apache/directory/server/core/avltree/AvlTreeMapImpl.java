@@ -153,18 +153,18 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
 
         if ( root == null )
         {
-            root = new LinkedAvlMapNode<K, V>( key, value );
+            root = new LinkedAvlMapNode<>( key, value );
             first = root;
             last = root;
             size++;
             return null;
         }
 
-        node = new LinkedAvlMapNode<K, V>( key, value );
+        node = new LinkedAvlMapNode<>( key, value );
 
         temp = root;
         
-        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<LinkedAvlMapNode<K, V>>();
+        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<>();
 
         while ( temp != null )
         {
@@ -235,7 +235,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
         else
         {
             // create avlTree, insert singleton into it, then switch modes 
-            dupsTree = new AvlTreeImpl<V>( valueComparator );
+            dupsTree = new AvlTreeImpl<>( valueComparator );
             dupsTree.insert( existingNode.value.getSingleton() );
             existingNode.value.switchToOrderedSet( dupsTree );
         }
@@ -333,7 +333,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
 
         LinkedAvlMapNode<K, V> temp = null;
 
-        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<LinkedAvlMapNode<K, V>>();
+        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<>();
 
         treePath = find( key, root, treePath );
 
@@ -370,7 +370,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
 
         LinkedAvlMapNode<K, V> temp = null;
 
-        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<LinkedAvlMapNode<K, V>>();
+        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<>();
 
         treePath = find( key, root, treePath );
 
@@ -395,14 +395,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
                 // if the tree is empty because of the removal, the entire 
                 // node will be removed which might require balancing, so we continue
                 // further down in this function
-                if ( ( removedVal != null ) && !dupsTree.isEmpty() )
-                {
-                    return removedVal;//no need to balance
-                }
-                /* 
-                 * if the value is not found then we should return
-                 */
-                else if ( removedVal == null )
+                if ( ( removedVal == null ) || !dupsTree.isEmpty() )
                 {
                     return removedVal;//no need to balance
                 }
@@ -545,13 +538,13 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     {
         LinkedAvlMapNode<K, V> parentNode = null;
 
-        int size = treePath.size();
+        int treePathSize = treePath.size();
 
         for ( LinkedAvlMapNode<K, V> node : treePath )
         {
             int balFactor = getBalance( node );
 
-            if ( node != root && treePath.indexOf( node ) < ( size - 1 ) )
+            if ( node != root && treePath.indexOf( node ) < ( treePathSize - 1 ) )
             {
                 parentNode = treePath.get( treePath.indexOf( node ) + 1 );
             }
@@ -659,7 +652,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
      */
     public List<K> getKeys()
     {
-        List<K> keys = new ArrayList<K>();
+        List<K> keys = new ArrayList<>();
         LinkedAvlMapNode<K, V> node = first;
 
         while ( node != null )
@@ -1082,7 +1075,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
             x = x.right;
         }
 
-        path = new ArrayList<LinkedAvlMapNode<K, V>>( 2 );
+        path = new ArrayList<>( 2 );
         path.add( x );
 
         if ( y != null )
@@ -1118,7 +1111,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
             x = x.left;
         }
 
-        path = new ArrayList<LinkedAvlMapNode<K, V>>( 2 );
+        path = new ArrayList<>( 2 );
         path.add( x );
 
         if ( y != null )

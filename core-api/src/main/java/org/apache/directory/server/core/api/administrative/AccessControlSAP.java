@@ -47,6 +47,7 @@ public class AccessControlSAP extends AccessControlAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public AdministrativePoint getParent()
     {
         return parent;
@@ -76,6 +77,7 @@ public class AccessControlSAP extends AccessControlAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "AccessControl SAP : " + super.toString();

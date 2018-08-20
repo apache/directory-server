@@ -311,7 +311,6 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             }
 
             return principal;
-
         }
         catch ( LdapException e )
         {

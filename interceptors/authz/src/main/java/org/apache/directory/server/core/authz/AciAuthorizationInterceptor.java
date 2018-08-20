@@ -1181,7 +1181,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldName = renameContext.getDn();
-        Entry originalEntry = null;
+        Entry originalEntry = renameContext.getOriginalEntry();
 
         if ( renameContext.getEntry() != null )
         {
@@ -1337,7 +1337,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void cacheNewGroup( String name, Entry entry ) throws Exception
+    public void cacheNewGroup( String name, Entry entry ) throws LdapException
     {
         groupCache.groupAdded( name, entry );
     }

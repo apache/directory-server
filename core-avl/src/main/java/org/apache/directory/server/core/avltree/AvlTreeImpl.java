@@ -79,18 +79,18 @@ public class AvlTreeImpl<K> implements AvlTree<K>
 
         if ( root == null )
         {
-            root = new LinkedAvlNode<K>( key );
+            root = new LinkedAvlNode<>( key );
             first = root;
             last = root;
             size++;
             return null;
         }
 
-        node = new LinkedAvlNode<K>( key );
+        node = new LinkedAvlNode<>( key );
 
         temp = root;
 
-        List<LinkedAvlNode<K>> treePath = new ArrayList<LinkedAvlNode<K>>();
+        List<LinkedAvlNode<K>> treePath = new ArrayList<>();
 
         while ( temp != null )
         {
@@ -212,7 +212,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
         LinkedAvlNode<K> temp = null;
         LinkedAvlNode<K> y = null;
 
-        List<LinkedAvlNode<K>> treePath = new ArrayList<LinkedAvlNode<K>>();
+        List<LinkedAvlNode<K>> treePath = new ArrayList<>();
 
         treePath = find( key, root, treePath );
 
@@ -453,7 +453,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
      */
     public List<K> getKeys()
     {
-        List<K> keys = new ArrayList<K>();
+        List<K> keys = new ArrayList<>();
         LinkedAvlNode<K> node = first;
 
         while ( node != null )
@@ -835,7 +835,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
             x = x.right;
         }
 
-        path = new ArrayList<LinkedAvlNode<K>>( 2 );
+        path = new ArrayList<>( 2 );
         path.add( x );
 
         if ( y != null )
@@ -871,7 +871,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
             x = x.left;
         }
 
-        path = new ArrayList<LinkedAvlNode<K>>( 2 );
+        path = new ArrayList<>( 2 );
         path.add( x );
 
         if ( y != null )

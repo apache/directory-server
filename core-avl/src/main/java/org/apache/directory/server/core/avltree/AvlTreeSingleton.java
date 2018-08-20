@@ -40,7 +40,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
 
     public AvlTreeSingleton( K key, Comparator<K> comparator )
     {
-        this.singleton = new LinkedAvlNode<K>( key );
+        this.singleton = new LinkedAvlNode<>( key );
         this.comparator = comparator;
     }
 

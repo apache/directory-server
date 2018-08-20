@@ -66,6 +66,7 @@ public class SubschemaSAP extends SubschemaAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "Subschema SAP : " + super.toString();

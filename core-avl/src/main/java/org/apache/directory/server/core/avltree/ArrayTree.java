@@ -215,7 +215,7 @@ public class ArrayTree<K>
      */
     public List<K> getKeys()
     {
-        List<K> list = new ArrayList<K>( size );
+        List<K> list = new ArrayList<>( size );
 
         for ( int i = 0; i < size; i++ )
         {
@@ -237,7 +237,7 @@ public class ArrayTree<K>
             return;
         }
 
-        boolean isFirst = false;
+        boolean isFirst = true;
 
         for ( K key : array )
         {
@@ -259,9 +259,8 @@ public class ArrayTree<K>
      * Get the element at a given position
      * @param position The position in the tree
      * @return The found key, or null if the position is out of scope
-     * @throws ArrayIndexOutOfBoundsException If the position is not within the array boundaries
      */
-    public K get( int position ) throws ArrayIndexOutOfBoundsException
+    public K get( int position )
     {
         if ( ( position < 0 ) || ( position >= size ) )
         {

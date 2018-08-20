@@ -306,7 +306,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * Check if the entry contains any collective AttributeType (those starting with 'c-')
      */
-    private boolean containsAnyCollectiveAttributes( Entry entry ) throws LdapException
+    private boolean containsAnyCollectiveAttributes( Entry entry )
     {
         for ( Attribute attribute : entry.getAttributes() )
         {
@@ -350,7 +350,10 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             return;
         }
 
-        LOG.debug( "Filtering entry " + entry.getDn() );
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "Filtering entry {}", entry.getDn() );
+        }
 
         /*
          * Before we proceed we need to lookup the exclusions within the entry

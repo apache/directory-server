@@ -208,7 +208,7 @@ public class SortedEntrySerializer implements Serializer
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialize " + entry );
+                LOG.debug( "Serialize {}", entry );
             }
 
             return baos.toByteArray();

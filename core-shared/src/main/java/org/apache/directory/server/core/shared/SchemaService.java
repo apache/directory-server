@@ -400,7 +400,7 @@ public final class SchemaService
 
                 Entry mods =
                     directoryService.getSchemaPartition().lookup( lookupContext );
-                // @todo enable this optimization at some point but for now it
+                // TODO enable this optimization at some point but for now it
                 // is causing some problems so I will just turn it off
                 //          Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
                 //
@@ -435,8 +435,6 @@ public final class SchemaService
             {
                 throw new LdapOtherException( ioe.getMessage(), ioe );
             }
-
-            //            }
 
             // ---------------------------------------------------------------
             // Prep Work: Transform the attributes to their OID counterpart

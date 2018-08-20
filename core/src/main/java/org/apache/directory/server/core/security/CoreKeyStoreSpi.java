@@ -38,6 +38,7 @@ import java.util.Enumeration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.SingletonEnumeration;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -74,9 +75,10 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     }
 
 
-    private Entry getTlsEntry() throws Exception
+    private Entry getTlsEntry() throws LdapException
     {
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
+        
         return directoryService.getAdminSession().lookup( adminDn );
     }
 
@@ -88,7 +90,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     public Enumeration<String> engineAliases()
     {
         LOG.debug( "engineAliases() called." );
-        return new SingletonEnumeration<String>( APACHEDS_ALIAS );
+        return new SingletonEnumeration<>( APACHEDS_ALIAS );
     }
 
 
@@ -100,12 +102,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     {
         LOG.debug( "engineContainsAlias({}) called.", alias );
 
-        if ( alias.equalsIgnoreCase( APACHEDS_ALIAS ) )
-        {
-            return true;
-        }
-
-        return false;
+        return alias.equalsIgnoreCase( APACHEDS_ALIAS );
     }
 
 
@@ -298,7 +295,11 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     public void engineSetKeyEntry( String alias, Key key, char[] password, Certificate[] chain )
         throws KeyStoreException
     {
-        LOG.debug( "engineSetKeyEntry({}, key, {}, chain) called.", alias, new String( password ) );
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "engineSetKeyEntry({}, key, {}, chain) called.", alias, new String( password ) );
+        }
+        
         throw new NotImplementedException();
     }
 
@@ -309,7 +310,11 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     @Override
     public int engineSize()
     {
-        LOG.debug( "engineSize() called." );
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "engineSize() called." );
+        }
+        
         return 1;
     }
 
@@ -321,6 +326,9 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     public void engineStore( OutputStream stream, char[] password ) throws IOException, NoSuchAlgorithmException,
         CertificateException
     {
-        LOG.debug( "engineStore(stream, {}) called.", new String( password ) );
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "engineStore(stream, {}) called.", new String( password ) );
+        }
     }
 }

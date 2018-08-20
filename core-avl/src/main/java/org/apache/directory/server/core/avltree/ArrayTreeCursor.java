@@ -315,6 +315,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -329,6 +330,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
@@ -343,6 +345,7 @@ public class ArrayTreeCursor<E> extends AbstractCursor<E>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

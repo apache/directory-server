@@ -104,7 +104,6 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
             writeTree( tree.getRoot(), out );
             out.flush();
             data = byteStream.toByteArray();
-            out.close();
         }
         catch ( IOException e )
         {
@@ -171,7 +170,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 
         if ( data.length == 1 && data[0] == 0 )
         {
-            return new AvlTreeImpl<E>( comparator );
+            return new AvlTreeImpl<>( comparator );
         }
 
         ByteArrayInputStream bin = new ByteArrayInputStream( data );

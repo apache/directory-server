@@ -154,38 +154,16 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadRevision() throws IOException
     {
         File revFile = new File( workingDirectory, REV_FILE );
 
         if ( revFile.exists() )
         {
-            BufferedReader reader = null;
-
-            try
+            try ( BufferedReader reader = new BufferedReader( new FileReader( revFile ) ) )
             {
-                reader = new BufferedReader( new FileReader( revFile ) );
                 String line = reader.readLine();
                 currentRevision = Long.valueOf( line );
-            }
-            catch ( IOException e )
-            {
-                throw e;
-            }
-            finally
-            {
-                if ( reader != null )
-                {
-                    //noinspection EmptyCatchBlock
-                    try
-                    {
-                        reader.close();
-                    }
-                    catch ( IOException e )
-                    {
-                    }
-                }
             }
         }
     }
@@ -205,15 +183,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             out.println( currentRevision );
             out.flush();
         }
-        catch ( IOException e )
-        {
-            throw e;
-        }
     }
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void saveTags() throws IOException
     {
         File tagFile = new File( workingDirectory, TAG_FILE );
@@ -248,29 +221,17 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             props.store( out, null );
             out.flush();
         }
-        catch ( IOException e )
-        {
-            throw e;
-        }
         finally
         {
             if ( out != null )
             {
-                //noinspection EmptyCatchBlock
-                try
-                {
-                    out.close();
-                }
-                catch ( IOException e )
-                {
-                }
+                out.close();
             }
         }
     }
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadTags() throws IOException
     {
         File revFile = new File( workingDirectory, REV_FILE );
@@ -316,22 +277,11 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
                 latest = tag;
             }
-            catch ( IOException e )
-            {
-                throw e;
-            }
             finally
             {
                 if ( in != null )
                 {
-                    //noinspection EmptyCatchBlock
-                    try
-                    {
-                        in.close();
-                    }
-                    catch ( IOException e )
-                    {
-                    }
+                    in.close();
                 }
             }
         }
@@ -339,18 +289,14 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
-    private void loadChangeLog() throws IOException, LdapException
+    private void loadChangeLog() throws IOException
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
 
         if ( file.exists() )
         {
-            ObjectInputStream in = null;
-
-            try
+            try ( ObjectInputStream in = new ObjectInputStream( Files.newInputStream( file.toPath() ) ) )
             {
-                in = new ObjectInputStream( Files.newInputStream( file.toPath() ) );
                 int size = in.readInt();
 
                 ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<>( size );
@@ -367,30 +313,11 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
                 this.events.clear();
                 this.events.addAll( changeLogEvents );
             }
-            catch ( Exception e )
-            {
-                throw e;
-            }
-            finally
-            {
-                if ( in != null )
-                {
-                    //noinspection EmptyCatchBlock
-                    try
-                    {
-                        in.close();
-                    }
-                    catch ( IOException e )
-                    {
-                    }
-                }
-            }
         }
     }
 
 
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void saveChangeLog() throws IOException
     {
         File file = new File( workingDirectory, CHANGELOG_FILE );
@@ -400,21 +327,10 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, file.getAbsolutePath() ) );
         }
 
-        try
-        {
-            file.createNewFile();
-        }
-        catch ( IOException e )
-        {
-            throw e;
-        }
+        file.createNewFile();
 
-        ObjectOutputStream out = null;
-
-        try
+        try ( ObjectOutputStream out = new ObjectOutputStream( Files.newOutputStream( file.toPath() ) ) )
         {
-            out = new ObjectOutputStream( Files.newOutputStream( file.toPath() ) );
-
             out.writeInt( events.size() );
 
             for ( ChangeLogEvent event : events )
@@ -423,24 +339,6 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             }
 
             out.flush();
-        }
-        catch ( Exception e )
-        {
-            throw e;
-        }
-        finally
-        {
-            if ( out != null )
-            {
-                //noinspection EmptyCatchBlock
-                try
-                {
-                    out.close();
-                }
-                catch ( IOException e )
-                {
-                }
-            }
         }
     }
 
@@ -631,19 +529,16 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         sb.append( "MemoryChangeLog\n" );
         sb.append( "latest tag : " ).append( latest ).append( '\n' );
 
-        if ( events != null )
+        sb.append( "Nb of events : " ).append( events.size() ).append( '\n' );
+
+        int i = 0;
+
+        for ( ChangeLogEvent event : events )
         {
-            sb.append( "Nb of events : " ).append( events.size() ).append( '\n' );
-
-            int i = 0;
-
-            for ( ChangeLogEvent event : events )
-            {
-                sb.append( "event[" ).append( i++ ).append( "] : " );
-                sb.append( "\n---------------------------------------\n" );
-                sb.append( event );
-                sb.append( "\n---------------------------------------\n" );
-            }
+            sb.append( "event[" ).append( i++ ).append( "] : " );
+            sb.append( "\n---------------------------------------\n" );
+            sb.append( event );
+            sb.append( "\n---------------------------------------\n" );
         }
 
         return sb.toString();

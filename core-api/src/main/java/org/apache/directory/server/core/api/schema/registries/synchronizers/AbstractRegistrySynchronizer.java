@@ -91,7 +91,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
 
 
-    protected AbstractRegistrySynchronizer( SchemaManager schemaManager ) throws Exception
+    protected AbstractRegistrySynchronizer( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
         moidAT = schemaManager.getAttributeType( MetaSchemaConstants.M_OID_AT );
@@ -106,7 +106,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      * @return true if the schema is loaded
      * @throws Exception If The Dn is not a SchemaObject Dn
      */
-    protected boolean isSchemaLoaded( Dn dn ) throws Exception
+    protected boolean isSchemaLoaded( Dn dn ) throws LdapException
     {
         return schemaManager.isSchemaLoaded( getSchemaName( dn ) );
     }
@@ -232,7 +232,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     }
 
 
-    protected void checkOidIsUnique( SchemaObject schemaObject ) throws Exception
+    protected void checkOidIsUnique( SchemaObject schemaObject ) throws LdapException
     {
         String oid = schemaObject.getOid();
 

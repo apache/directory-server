@@ -1729,7 +1729,6 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
      * @return the farthest referral ancestor or null
      */
     // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     public static final Entry getFarthestReferralAncestor( LdapSession session, Dn target )
     {
         Entry entry;

@@ -113,12 +113,9 @@ public abstract class AbstractLayout
     {
         for ( File requiredDirectory : requiredDirectories )
         {
-            if ( !requiredDirectory.exists() )
+            if ( !requiredDirectory.exists() && !requiredDirectory.mkdirs() )
             {
-                if ( !requiredDirectory.mkdirs() )
-                {
-                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, requiredDirectory ) );
-                }
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, requiredDirectory ) );
             }
         }
     }

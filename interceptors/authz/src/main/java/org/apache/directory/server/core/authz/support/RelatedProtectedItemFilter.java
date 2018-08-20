@@ -119,16 +119,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
 
                 return true;
             }
-            else if ( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES )
-            {
-                if ( scope != OperationScope.ATTRIBUTE_TYPE && scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
-                {
-                    continue;
-                }
-
-                return true;
-            }
-            else if ( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES )
+            else if ( ( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES ) 
+                    || ( item == ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES ) )
             {
                 if ( scope != OperationScope.ATTRIBUTE_TYPE && scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
                 {

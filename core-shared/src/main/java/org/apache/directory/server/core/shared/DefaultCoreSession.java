@@ -1227,18 +1227,6 @@ public class DefaultCoreSession implements CoreSession
         {
             // Don't close the transaction !!!
             LOG.debug( "Search done, the transaction is still opened" );
-            /*
-            try
-            {
-                ( ( EntryFilteringCursor ) cursor ).getOperationContext().getTransaction().close();
-            }
-            catch ( IOException ioe )
-            {
-                done.addAllControls( searchContext.getResponseControls() );
-                
-                throw new LdapOtherException( ioe.getMessage(), ioe );
-            }
-            */
         }
 
         if ( sortRespCtrl != null )

@@ -213,7 +213,7 @@ public class DirectoryServiceAnnotationTest
             DummyAuthenticator.class,
             authenticators.iterator().next().getClass() );
         service.getSession( new Dn( "uid=non-existant-user,ou=system" ), "wrong-password".getBytes() );
-        assertTrue( "Expedted dummy authenticator to have been invoked", dummyAuthenticatorCalled );
+        assertTrue( "Expected dummy authenticator to have been invoked", dummyAuthenticatorCalled );
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }

@@ -98,7 +98,7 @@ public final class ChangeLogEventSerializer
      * @throws LdapInvalidDnException If the deserialization failed
      */
     public static ChangeLogEvent deserialize( SchemaManager schemaManager, ObjectInput in )
-        throws IOException, LdapInvalidDnException
+        throws IOException
     {
         // The date the change has been created, "yyyyMMddHHmmss'Z'" 
         String zuluTime = in.readUTF();
@@ -126,7 +126,7 @@ public final class ChangeLogEventSerializer
         // The reverse LDIFs number
         int nbReverses = in.readInt();
 
-        List<LdifEntry> reverses = new ArrayList<LdifEntry>( nbReverses );
+        List<LdifEntry> reverses = new ArrayList<>( nbReverses );
 
         for ( int i = 0; i < nbReverses; i++ )
         {
@@ -146,9 +146,6 @@ public final class ChangeLogEventSerializer
             reverses.add( reverseEntry );
         }
 
-        ChangeLogEvent changeLogEvent = new ChangeLogEvent( revision, zuluTime, committerPrincipal, forwardEntry,
-            reverses );
-
-        return changeLogEvent;
+        return new ChangeLogEvent( revision, zuluTime, committerPrincipal, forwardEntry, reverses );
     }
 }

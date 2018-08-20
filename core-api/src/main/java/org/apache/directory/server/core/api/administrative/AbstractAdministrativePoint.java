@@ -106,18 +106,6 @@ public abstract class AbstractAdministrativePoint implements AdministrativePoint
     /**
      * {@inheritDoc}
      */
-    public abstract boolean isInner();
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public abstract boolean isSpecific();
-
-
-    /**
-     * {@inheritDoc}
-     */
     public AdministrativePoint getParent()
     {
         return parent;

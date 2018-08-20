@@ -71,7 +71,7 @@ public abstract class BaseInterceptor implements Interceptor
     protected DnFactory dnFactory;
 
     /** set of operational attribute types used for representing the password policy state of a user entry */
-    protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
+    protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<>();
 
     /**
      * The final interceptor which acts as a proxy in charge to dialog with the nexus partition.
@@ -312,9 +312,7 @@ public abstract class BaseInterceptor implements Interceptor
             return finalInterceptor;
         }
 
-        Interceptor interceptor = directoryService.getInterceptor( currentInterceptor );
-
-        return interceptor;
+        return directoryService.getInterceptor( currentInterceptor );
     }
 
 

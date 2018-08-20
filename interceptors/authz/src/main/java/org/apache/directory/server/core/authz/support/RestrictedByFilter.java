@@ -75,7 +75,6 @@ public class RestrictedByFilter implements ACITupleFilter
 
 
     public boolean isRemovable( ACITuple tuple, AttributeType attributeType, Value attrValue, Entry entry )
-        throws LdapException
     {
         for ( ProtectedItem item : tuple.getProtectedItems() )
         {

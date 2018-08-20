@@ -329,12 +329,8 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             {
                 TriggerExecutionAdministrativePoint iap = new TriggerExecutionIAP( dn, uuid );
                 directoryService.getTriggerExecutionAPCache().add( dn, iap );
-
-                continue;
             }
         }
-
-        return;
     }
 
 
@@ -425,8 +421,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         {
             TriggerExecutionAdministrativePoint iap = new TriggerExecutionIAP( dn, uuid );
             teapCache.add( dn, iap );
-
-            return;
         }
     }
 
@@ -485,8 +479,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         if ( isTriggerExecutionSpecificRole( role ) || isTriggerExecutionInnerRole( role ) )
         {
             teapCache.remove( dn );
-
-            return;
         }
     }
 
@@ -887,8 +879,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             if ( isTriggerExecutionSpecificRole( role ) || isTriggerExecutionInnerRole( role ) )
             {
                 directoryService.getTriggerExecutionAPCache().remove( dn );
-
-                continue;
             }
         }
     }
@@ -1058,10 +1048,6 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                 LOG.error( message );
                 throw new LdapUnwillingToPerformException( message );
             }
-            else
-            {
-                return;
-            }
         }
     }
 
@@ -1226,9 +1212,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             unlock();
         }
 
-        LOG.debug( "Added an Administrative Point at {}", dn );
-
-        return;
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "Added an Administrative Point at {}", dn );
+        }
     }
 
 
@@ -1291,9 +1278,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             unlock();
         }
 
-        LOG.debug( "Deleted an Administrative Point at {}", dn );
-
-        return;
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "Deleted an Administrative Point at {}", dn );
+        }
     }
 
 

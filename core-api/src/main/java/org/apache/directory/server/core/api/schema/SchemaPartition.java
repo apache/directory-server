@@ -184,6 +184,7 @@ public final class SchemaPartition extends AbstractPartition
      * Has no affect: the id is fixed at {@link SchemaPartition#SCHEMA_ID}: 'schema'.
      * A warning is logged.
      */
+    @Override
     public void setId( String id )
     {
         LOG.warn( "This partition's ID is fixed: {}", SCHEMA_ID );
@@ -197,6 +198,7 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sync() throws LdapException
     {
         wrapped.sync();
@@ -518,7 +520,7 @@ public final class SchemaPartition extends AbstractPartition
         String modifiersName = opContext.getSession().getEffectivePrincipal().getName();
         String modifyTimestamp = DateUtils.getGeneralizedTime();
 
-        List<Modification> mods = new ArrayList<Modification>( 2 );
+        List<Modification> mods = new ArrayList<>( 2 );
 
         mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultAttribute(
             ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, schemaManager
@@ -581,9 +583,7 @@ public final class SchemaPartition extends AbstractPartition
      */
     public Subordinates getSubordinates( PartitionTxn partitionTxn, Entry entry ) throws LdapException
     {
-        Subordinates subordinates = new Subordinates();
-        
-        return subordinates;
+        return new Subordinates();
     }
 
 

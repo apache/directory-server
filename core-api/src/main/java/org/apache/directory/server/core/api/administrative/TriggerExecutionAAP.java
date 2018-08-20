@@ -66,6 +66,7 @@ public class TriggerExecutionAAP extends TriggerExecutionAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isAutonomous()
     {
         return true;
@@ -75,6 +76,7 @@ public class TriggerExecutionAAP extends TriggerExecutionAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "TriggerExecution AAP : " + super.toString();

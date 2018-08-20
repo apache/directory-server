@@ -428,7 +428,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Check if Dn '" + dn + "' exists." );
+            LOG.debug( "Check if Dn '{}' exists.", dn );
         }
 
         if ( dn.isRootDse() )
@@ -595,15 +595,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             AttributeType type = schemaManager.lookupAttributeTypeRegistry( attribute.getId() );
 
-            if ( realIds.contains( type.getOid() ) )
-            {
-                serverEntry.put( attribute );
-            }
-            else if ( allUserAttributes && ( type.getUsage() == UsageEnum.USER_APPLICATIONS ) )
-            {
-                serverEntry.put( attribute );
-            }
-            else if ( allOperationalAttributes && ( type.getUsage() != UsageEnum.USER_APPLICATIONS ) )
+            if ( realIds.contains( type.getOid() )
+                    || ( allUserAttributes && ( type.getUsage() == UsageEnum.USER_APPLICATIONS ) )
+                    || ( allOperationalAttributes && ( type.getUsage() != UsageEnum.USER_APPLICATIONS ) ) )
             {
                 serverEntry.put( attribute );
             }
@@ -633,7 +627,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // Not sure we need this code...
         if ( !baseDn.isSchemaAware() )
         {
-            baseDn = new Dn( schemaManager, baseDn );
+            searchContext.setDn( new Dn( schemaManager, baseDn ) );
         }
 
         // Normal case : do a search on the specific partition
@@ -1041,7 +1035,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      * BackendNexus.
      * @throws Exception if there are problems unregistering the partition
      */
-    private void unregister( Partition partition ) throws LdapException
+    private void unregister( Partition partition )
     {
         Attribute namingContexts = rootDse.get( SchemaConstants.NAMING_CONTEXTS_AT );
 

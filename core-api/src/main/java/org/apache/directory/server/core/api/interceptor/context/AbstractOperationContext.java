@@ -291,13 +291,6 @@ public abstract class AbstractOperationContext implements OperationContext
 
 
     /**
-     * @return the operation name
-     */
-    @Override
-    public abstract String getName();
-
-
-    /**
      * @return the originalEntry
      */
     public Entry getOriginalEntry()

@@ -154,8 +154,7 @@ public class TupleCache
 
                     if ( aci == null )
                     {
-                        LOG.warn( "Found accessControlSubentry '" + subentryDn + "' without any "
-                            + SchemaConstants.PRESCRIPTIVE_ACI_AT );
+                        LOG.warn( "Found accessControlSubentry '{}' without any {}", subentryDn, SchemaConstants.PRESCRIPTIVE_ACI_AT );
                         continue;
                     }
 
@@ -246,7 +245,7 @@ public class TupleCache
             return;
         }
 
-        tuples.remove( dn.getNormName().toString() );
+        tuples.remove( dn.getNormName() );
     }
 
 
@@ -283,14 +282,13 @@ public class TupleCache
     }
 
 
-    @SuppressWarnings("unchecked")
     public List<ACITuple> getACITuples( String subentryDn )
     {
         List<ACITuple> aciTuples = tuples.get( subentryDn );
 
         if ( aciTuples == null )
         {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         return Collections.unmodifiableList( aciTuples );

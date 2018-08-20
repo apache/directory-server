@@ -111,12 +111,6 @@ public class ExceptionInterceptor extends BaseInterceptor
     }
 
 
-    @Override
-    public void destroy()
-    {
-    }
-
-
     /**
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
@@ -168,9 +162,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                LdapNoSuchObjectException e2 = new LdapNoSuchObjectException(
-                    I18n.err( I18n.ERR_251_PARENT_NOT_FOUND, parentDn.getName() ) );
-                throw e2;
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_251_PARENT_NOT_FOUND, parentDn.getName() ) );
             }
 
             Attribute objectClass = ( ( ClonedServerEntry ) attrs ).getOriginalEntry().get(
@@ -179,9 +171,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
                 String msg = I18n.err( I18n.ERR_252_ALIAS_WITH_CHILD_NOT_ALLOWED, name.getName(), parentDn.getName() );
-                LdapAliasException e = new LdapAliasException( msg );
-                //e.setResolvedName( DNFactory.create( parentDn.getName() ) );
-                throw e;
+                throw new LdapAliasException( msg );
             }
             else
             {
@@ -345,10 +335,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             // we want to allow this.
             if ( !newDn.equals( dn ) )
             {
-                LdapEntryAlreadyExistsException e;
-                e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
-                //e.setResolvedName( DNFactory.create( newDn.getName() ) );
-                throw e;
+                throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
             }
         }
 

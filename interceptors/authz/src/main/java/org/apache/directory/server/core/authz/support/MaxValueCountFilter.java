@@ -89,7 +89,6 @@ public class MaxValueCountFilter implements ACITupleFilter
 
 
     private boolean isRemovable( MaxValueCountItem mvc, AttributeType attributeType, Entry entryView )
-        throws LdapException
     {
         for ( Iterator<MaxValueCountElem> k = mvc.iterator(); k.hasNext(); )
         {

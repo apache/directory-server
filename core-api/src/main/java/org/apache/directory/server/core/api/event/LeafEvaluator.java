@@ -27,6 +27,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidSearchFilterException;
+import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.filter.ApproximateNode;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -62,9 +63,6 @@ public class LeafEvaluator implements Evaluator
     /** substring matching type constant */
     private static final int SUBSTRING_MATCH = 3;
 
-    //    /** SchemaManager needed for normalizing and comparing values */
-    //    private SchemaManager schemaManager;
-
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
 
@@ -87,19 +85,6 @@ public class LeafEvaluator implements Evaluator
         this.substringEvaluator = substringEvaluator;
     }
 
-
-    //    /**
-    //     * Creates a leaf expression node evaluator.
-    //     *
-    //     * @param schemaManager The server schemaManager
-    //     */
-    //    public LeafEvaluator( SchemaManager schemaManager,
-    //        SubstringEvaluator substringEvaluator )
-    //    {
-    //        this.schemaManager = schemaManager;
-    //        this.scopeEvaluator = new ScopeEvaluator();
-    //        this.substringEvaluator = substringEvaluator;
-    //    }
 
     public ScopeEvaluator getScopeEvaluator()
     {
@@ -165,7 +150,6 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws LdapException if there is a database access failure
      */
-    @SuppressWarnings("unchecked")
     private boolean evalGreaterOrLesser( SimpleNode<?> node, Entry entry, boolean isGreaterOrLesser )
         throws LdapException
     {
@@ -227,7 +211,7 @@ public class LeafEvaluator implements Evaluator
      * @param entry the perspective candidate
      * @return the ava evaluation on the perspective candidate
      */
-    private boolean evalPresence( AttributeType attributeType, Entry entry ) throws LdapException
+    private boolean evalPresence( AttributeType attributeType, Entry entry )
     {
         if ( entry == null )
         {
@@ -247,7 +231,6 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws org.apache.directory.api.ldap.model.exception.LdapException if there is a database access failure
      */
-    @SuppressWarnings("unchecked")
     private boolean evalEquality( EqualityNode<?> node, Entry entry ) throws LdapException
     {
         Normalizer normalizer = getNormalizer( node.getAttributeType() );
@@ -322,6 +305,11 @@ public class LeafEvaluator implements Evaluator
     {
         MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
 
+        if ( mrule == null )
+        {
+            throw new LdapUnwillingToPerformException( "No EQUALITY MatchingRule for the '" + attributeType + "' attributeType" );
+        }
+
         return mrule.getLdapComparator();
     }
 
@@ -337,6 +325,11 @@ public class LeafEvaluator implements Evaluator
     {
         MatchingRule mrule = getMatchingRule( attributeType, EQUALITY_MATCH );
 
+        if ( mrule == null )
+        {
+            throw new LdapUnwillingToPerformException( "No EQUALITY MatchingRule for the '" + attributeType + "' attributeType" );
+        }
+        
         return mrule.getNormalizer();
     }
 

@@ -48,7 +48,7 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
     private final AvlSingletonOrOrderedSetCursor<K, V> wrapped;
-    private final Tuple<K, V> returnedTuple = new Tuple<K, V>();
+    private final Tuple<K, V> returnedTuple = new Tuple<>();
 
 
     public AvlTreeMapNoDupsWrapperCursor( AvlSingletonOrOrderedSetCursor<K, V> wrapped )
@@ -189,6 +189,10 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -200,6 +204,10 @@ public class AvlTreeMapNoDupsWrapperCursor<K, V> extends AbstractCursor<Tuple<K,
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )

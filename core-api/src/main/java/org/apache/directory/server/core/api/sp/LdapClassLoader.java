@@ -174,11 +174,17 @@ public class LdapClassLoader extends ClassLoader
                 {
                     classBytes = findClassInDIT( searchContexts, name );
 
-                    LOG.debug( "Class " + name + " found under default search contexts." );
+                    if ( LOG.isDebugEnabled() )
+                    { 
+                        LOG.debug( "Class {} found under default search contexts.", name );
+                    }
                 }
                 catch ( ClassNotFoundException e )
                 {
-                    LOG.debug( "Class " + name + " could not be found under default search contexts." );
+                    if ( LOG.isDebugEnabled() )
+                    { 
+                        LOG.debug( "Class {} could not be found under default search contexts.", name );
+                    }
                 }
             }
 

@@ -120,6 +120,10 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -182,6 +186,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         if ( deleteContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -246,6 +251,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         CoreSession session = lookupContext.getSession();
@@ -274,6 +280,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( !modifyContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -299,6 +306,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -313,6 +321,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -335,6 +344,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -349,6 +359,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = next( searchContext );
@@ -530,7 +541,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
 
     // False positive, we want to keep the comment
-    @SuppressWarnings("PMD.CollapsibleIfStatements")
     private boolean isSearchable( OperationContext opContext, Entry entry ) throws LdapException
     {
         Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();

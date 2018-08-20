@@ -233,6 +233,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public void throwReferral()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_320 ) );
@@ -242,6 +243,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isReferralThrown()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_321 ) );
@@ -251,6 +253,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public void ignoreReferral()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_322 ) );
@@ -260,6 +263,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isReferralIgnored()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_323 ) );

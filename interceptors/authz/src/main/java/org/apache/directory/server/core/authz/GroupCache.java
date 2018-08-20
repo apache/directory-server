@@ -212,7 +212,7 @@ public class GroupCache
      * @param entry the entry inspected for member attributes
      * @return the member attribute
      */
-    private Attribute getMemberAttribute( Entry entry ) throws LdapException
+    private Attribute getMemberAttribute( Entry entry )
     {
         Attribute member = entry.get( directoryService.getAtProvider().getMember() );
 
@@ -255,6 +255,7 @@ public class GroupCache
             catch ( LdapException e )
             {
                 LOG.warn( "Malformed member Dn in groupOf[Unique]Names entry.  Member not added to GroupCache.", e );
+                continue;
             }
 
             memberSet.add( memberDn.getNormName() );
@@ -284,6 +285,7 @@ public class GroupCache
             catch ( LdapException e )
             {
                 LOG.warn( "Malformed member Dn in groupOf[Unique]Names entry.  Member not removed from GroupCache.", e );
+                continue;
             }
 
             memberSet.remove( memberDn.getNormName() );

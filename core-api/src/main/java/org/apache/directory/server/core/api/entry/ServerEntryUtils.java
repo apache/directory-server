@@ -408,12 +408,8 @@ public final class ServerEntryUtils
 
         }
 
-        Modification modification = new DefaultModification(
-            operation,
+        return new DefaultModification( operation,
             ServerEntryUtils.toServerAttribute( modificationImpl.getAttribute(), attributeType ) );
-
-        return modification;
-
     }
 
 
@@ -459,12 +455,9 @@ public final class ServerEntryUtils
     private static Modification toServerModification( Modification modification, AttributeType attributeType )
         throws LdapException
     {
-        Modification serverModification = new DefaultModification(
+        return new DefaultModification(
             modification.getOperation(),
             new DefaultAttribute( attributeType, modification.getAttribute() ) );
-
-        return serverModification;
-
     }
 
 
@@ -481,7 +474,7 @@ public final class ServerEntryUtils
     {
         if ( modifications != null )
         {
-            List<Modification> modificationsList = new ArrayList<Modification>();
+            List<Modification> modificationsList = new ArrayList<>();
 
             for ( Modification modification : modifications )
             {
@@ -533,7 +526,7 @@ public final class ServerEntryUtils
     {
         if ( modifications != null )
         {
-            List<Modification> modificationsList = new ArrayList<Modification>();
+            List<Modification> modificationsList = new ArrayList<>();
 
             for ( ModificationItem modification : modifications )
             {
@@ -626,7 +619,7 @@ public final class ServerEntryUtils
     {
         if ( result instanceof EmptyEnumeration<?> )
         {
-            return new EmptyEnumeration<SearchResult>();
+            return new EmptyEnumeration<>();
         }
 
         return new NamingEnumeration<SearchResult>()
@@ -653,13 +646,11 @@ public final class ServerEntryUtils
             {
                 ServerSearchResult rec = result.next();
 
-                SearchResult searchResult = new SearchResult(
+                return new SearchResult(
                     rec.getDn().getName(),
                     rec.getObject(),
                     toBasicAttributes( rec.getServerEntry() ),
                     rec.isRelative() );
-
-                return searchResult;
             }
 
 
@@ -681,13 +672,11 @@ public final class ServerEntryUtils
                 {
                     ServerSearchResult rec = result.next();
 
-                    SearchResult searchResult = new SearchResult(
+                    return new SearchResult(
                         rec.getDn().getName(),
                         rec.getObject(),
                         toBasicAttributes( rec.getServerEntry() ),
                         rec.isRelative() );
-
-                    return searchResult;
                 }
                 catch ( NamingException ne )
                 {
@@ -739,7 +728,7 @@ public final class ServerEntryUtils
 
         if ( optionsPos != -1 )
         {
-            Set<String> options = new HashSet<String>();
+            Set<String> options = new HashSet<>();
 
             String[] res = attributeId.substring( optionsPos + 1 ).split( ";" );
 

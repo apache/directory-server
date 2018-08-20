@@ -117,7 +117,7 @@ public class SubtreeEvaluator
          */
         // Now, get the entry's relative part
 
-        if ( ( subtree.getChopBeforeExclusions().size() != 0 ) || ( subtree.getChopAfterExclusions().size() != 0 ) )
+        if ( !subtree.getChopBeforeExclusions().isEmpty() || !subtree.getChopAfterExclusions().isEmpty() )
         {
             Dn entryRelativeDn = entryDn.getDescendantOf( apDn ).getDescendantOf( subtree.getBase() );
 

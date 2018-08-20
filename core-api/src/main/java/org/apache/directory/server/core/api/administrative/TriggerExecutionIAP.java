@@ -66,6 +66,7 @@ public class TriggerExecutionIAP extends TriggerExecutionAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "TriggerExecution IAP : " + super.toString();
