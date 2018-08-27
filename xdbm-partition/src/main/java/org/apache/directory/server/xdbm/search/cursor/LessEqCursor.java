@@ -283,6 +283,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed();
@@ -319,6 +320,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         checkNotClosed();

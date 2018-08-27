@@ -69,6 +69,7 @@ public class CreateDsRule implements TestRule
     public Statement apply( final Statement base, final Description description )
     {
         final CreateDS createDs = description.getAnnotation( CreateDS.class );
+        
         if ( createDs == null )
         {
             final DirectoryService directoryService = getDirectoryService();

@@ -165,7 +165,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
                     APACHEDS_DASH + getVersion() + ".tar.gz",
                     APACHEDS_DASH + getVersion()
             },
-                new File( getTargetDirectory(), "/" + SOURCES ),
+                new File( getTargetDirectory(), File.separator + SOURCES ),
                 false );
         }
         catch ( Exception e )
@@ -206,7 +206,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
 
             File finalFile = new File( mojo.getOutputDirectory(), finalName );
 
-            FileUtils.copyFile( new File( getTargetDirectory(), RPMS + "/" + target.getOsArch() + "/" + rpmName ),
+            FileUtils.copyFile( new File( getTargetDirectory(), RPMS + File.separator + target.getOsArch() + File.separator + rpmName ),
                 finalFile );
 
             log.info( "=> RPM generated at " + finalFile );
@@ -260,6 +260,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void initializeFilterProperties()
     {
         super.initializeFilterProperties();
@@ -313,7 +314,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
         // Copying and filtering the spec file
         MojoHelperUtils.copyAsciiFile( mojo, properties, APACHEDS_SPEC_FILE,
             getClass().getResourceAsStream( APACHEDS_SPEC_FILE ),
-            new File( getTargetDirectory(), SPECS + "/" + APACHEDS_SPEC_FILE ), true );
+            new File( getTargetDirectory(), SPECS + File.separator + APACHEDS_SPEC_FILE ), true );
     }
 
 
@@ -324,7 +325,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
      */
     private File getAdsSourcesDirectory()
     {
-        return new File( getTargetDirectory(), SOURCES + "/" + APACHEDS_DASH + getVersion() );
+        return new File( getTargetDirectory(), SOURCES + File.separator + APACHEDS_DASH + getVersion() );
     }
 
 

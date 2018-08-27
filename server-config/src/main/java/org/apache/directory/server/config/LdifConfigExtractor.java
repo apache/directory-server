@@ -135,12 +135,9 @@ public final class LdifConfigExtractor
     {
         LOG.debug( "copyFile(): source = {}, destination = {}", source, destination );
 
-        if ( !destination.getParentFile().exists() )
+        if ( !destination.getParentFile().exists() && !destination.getParentFile().mkdirs() )
         {
-            if ( !destination.getParentFile().mkdirs() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, destination.getParentFile() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, destination.getParentFile() ) );
         }
 
         if ( !source.getParentFile().exists() )
@@ -148,17 +145,20 @@ public final class LdifConfigExtractor
             throw new FileNotFoundException( I18n.err( I18n.ERR_509, source.getAbsolutePath() ) );
         }
 
-        FileWriter out = new FileWriter( destination );
-        BufferedReader in = new BufferedReader( new FileReader( source ) );
-        String line;
-        while ( null != ( line = in.readLine() ) )
+        try ( FileWriter out = new FileWriter( destination ) )
         {
-            out.write( line + "\n" );
+            try ( BufferedReader in = new BufferedReader( new FileReader( source ) ) )
+            {
+                String line;
+                
+                while ( null != ( line = in.readLine() ) )
+                {
+                    out.write( line + "\n" );
+                }
+            }
+        
+            out.flush();
         }
-
-        in.close();
-        out.flush();
-        out.close();
     }
 
 
@@ -185,13 +185,10 @@ public final class LdifConfigExtractor
                 return;
             }
 
-            if ( !destination.getParentFile().exists() )
+            if ( !destination.getParentFile().exists() && !destination.getParentFile().mkdirs() )
             {
-                if ( !destination.getParentFile().mkdirs() )
-                {
-                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
-                        destination.getParentFile() ) );
-                }
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+                    destination.getParentFile() ) );
             }
 
             try ( OutputStream out = Files.newOutputStream( destination.toPath() ) )
@@ -216,7 +213,7 @@ public final class LdifConfigExtractor
     private static File getDestinationFile( File outputDirectory, File resource )
     {
         File parent = resource.getParentFile();
-        Stack<String> fileComponentStack = new Stack<String>();
+        Stack<String> fileComponentStack = new Stack<>();
         fileComponentStack.push( resource.getName() );
 
         while ( parent != null )

@@ -141,12 +141,6 @@ public abstract class AbstractTransport implements Transport
 
 
     /**
-     * Initialize the Acceptor if needed
-     */
-    public abstract void init();
-
-
-    /**
      * {@inheritDoc}
      */
     public int getPort()
@@ -182,12 +176,6 @@ public abstract class AbstractTransport implements Transport
     {
         this.address = address;
     }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public abstract IoAcceptor getAcceptor();
 
 
     /**
@@ -256,7 +244,7 @@ public abstract class AbstractTransport implements Transport
 
 
     /**
-     * @return  <code>true</code> id SSL is enabled for this transport
+     * @return <code>true</code> id SSL is enabled for this transport
      */
     public boolean getEnableSSL()
     {

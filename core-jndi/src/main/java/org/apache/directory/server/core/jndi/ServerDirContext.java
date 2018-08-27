@@ -206,7 +206,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         if ( attrs != null )
         {
-            modItems = new ArrayList<ModificationItem>( attrs.size() );
+            modItems = new ArrayList<>( attrs.size() );
             NamingEnumeration<? extends javax.naming.directory.Attribute> e = attrs.getAll();
 
             while ( e.hasMore() )
@@ -435,7 +435,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             // Serialize and add outAttrs
             Entry clone = serverEntry.clone();
 
-            if ( outServerEntry != null && outServerEntry.size() > 0 )
+            if ( outServerEntry.size() > 0 )
             {
                 for ( Attribute attribute : outServerEntry )
                 {
@@ -897,7 +897,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         int start;
         int index;
 
-        StringBuffer buf = new StringBuffer( filterExpr );
+        StringBuilder buf = new StringBuilder( filterExpr );
 
         // Scan until we hit the end of the string buffer
         for ( int ii = 0; ii < buf.length(); ii++ )
@@ -1005,7 +1005,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         NamingListener namingListener ) throws NamingException
     {
         int start;
-        StringBuffer buf = new StringBuffer( filterExpr );
+        StringBuilder buf = new StringBuilder( filterExpr );
 
         // Scan until we hit the end of the string buffer
         for ( int ii = 0; ii < buf.length(); ii++ )

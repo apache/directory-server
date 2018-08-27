@@ -52,7 +52,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     private final ArrayTreeCursor<V> wrapped;
     private final K key;
 
-    private Tuple<K, V> returnedTuple = new Tuple<K, V>();
+    private Tuple<K, V> returnedTuple = new Tuple<>();
     private boolean valueAvailable;
 
 
@@ -65,7 +65,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     public KeyTupleArrayCursor( ArrayTree<V> arrayTree, K key )
     {
         this.key = key;
-        this.wrapped = new ArrayTreeCursor<V>( arrayTree );
+        this.wrapped = new ArrayTreeCursor<>( arrayTree );
 
         if ( IS_DEBUG )
         {
@@ -259,6 +259,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -278,6 +279,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
@@ -297,6 +299,7 @@ public class KeyTupleArrayCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

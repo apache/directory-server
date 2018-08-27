@@ -70,8 +70,7 @@ public class LdifPartitionFactory implements PartitionFactory
         LdifPartition ldifPartition = ( LdifPartition ) partition;
         Set<Index<?, String>> indexedAttributes = ldifPartition.getIndexedAttributes();
 
-        AvlIndex<Object> index = new AvlIndex<Object>( attributeId, false );
-        //index.setCacheSize( cacheSize );
+        AvlIndex<Object> index = new AvlIndex<>( attributeId, false );
 
         indexedAttributes.add( index );
         ldifPartition.setIndexedAttributes( indexedAttributes );

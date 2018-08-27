@@ -114,6 +114,7 @@ public class ArchiveInstallerCommand extends LinuxInstallerCommand<ArchiveTarget
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void createInstanceLayout() throws IOException
     {
         // Getting the instance layout and creating directories
@@ -355,15 +356,6 @@ public class ArchiveInstallerCommand extends LinuxInstallerCommand<ArchiveTarget
         }
 
         return true;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    protected void initializeFilterProperties()
-    {
-        super.initializeFilterProperties();
     }
 
 

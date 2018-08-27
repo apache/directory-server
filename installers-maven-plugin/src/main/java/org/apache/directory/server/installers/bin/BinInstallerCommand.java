@@ -222,6 +222,7 @@ public class BinInstallerCommand extends LinuxInstallerCommand<BinTarget>
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void initializeFilterProperties()
     {
         super.initializeFilterProperties();

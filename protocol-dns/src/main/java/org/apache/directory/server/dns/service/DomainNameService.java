@@ -81,11 +81,14 @@ public final class DomainNameService
     }
 
 
-    private static void monitorRequest( DnsMessage request ) throws Exception
+    private static void monitorRequest( DnsMessage request )
     {
         try
         {
-            LOG.debug( monitorMessage( request, "request" ) );
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( monitorMessage( request, "request" ) );
+            }
         }
         catch ( Exception e )
         {
@@ -95,7 +98,7 @@ public final class DomainNameService
     }
 
 
-    private static void getResourceRecords( DnsContext dnsContext, DnsMessage request ) throws Exception
+    private static void getResourceRecords( DnsContext dnsContext, DnsMessage request ) throws DnsException
     {
         RecordStore store = dnsContext.getStore();
 
@@ -135,14 +138,14 @@ public final class DomainNameService
     }
 
 
-    private static void monitorContext( DnsContext dnsContext ) throws Exception
+    private static void monitorContext( DnsContext dnsContext )
     {
         try
         {
             RecordStore store = dnsContext.getStore();
             List<ResourceRecord> records = dnsContext.getResourceRecords();
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append( "Monitoring context:" );
             sb.append( "\n\t" + "store:                     " + store );
             sb.append( "\n\t" + "records:                   " + records );
@@ -157,7 +160,7 @@ public final class DomainNameService
     }
 
 
-    private static void buildReply( DnsContext dnsContext, DnsMessage request ) throws Exception
+    private static void buildReply( DnsContext dnsContext, DnsMessage request ) 
     {
         List<ResourceRecord> records = dnsContext.getResourceRecords();
 
@@ -183,13 +186,16 @@ public final class DomainNameService
     }
 
 
-    private static void monitorReply( DnsContext dnsContext ) throws Exception
+    private static void monitorReply( DnsContext dnsContext )
     {
         try
         {
             DnsMessage reply = dnsContext.getReply();
 
-            LOG.debug( monitorMessage( reply, "reply" ) );
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( monitorMessage( reply, "reply" ) );
+            }
         }
         catch ( Exception e )
         {
@@ -206,7 +212,7 @@ public final class DomainNameService
         ResponseCode responseCode = message.getResponseCode();
         int transactionId = message.getTransactionId();
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append( "Monitoring " + direction + ":" );
         sb.append( "\n\t" + "messageType                " + messageType );
         sb.append( "\n\t" + "opCode                     " + opCode );

@@ -41,7 +41,7 @@ public class HashInterceptorBean extends InterceptorBean
 
     /** The reference to the Password Policy component */
     @ConfigurationElement(attributeType = "ads-hashAttribute", isOptional = true, defaultValues = {"2.5.4.35"} )
-    private Set<String> hashAttributes = new HashSet<String>();
+    private Set<String> hashAttributes = new HashSet<>();
 
 
     /**
@@ -62,7 +62,7 @@ public class HashInterceptorBean extends InterceptorBean
         {
             if ( this.hashAttributes == null ) 
             {
-                this.hashAttributes = new HashSet<String>();
+                this.hashAttributes = new HashSet<>();
             }
             this.hashAttributes.addAll( Arrays.asList( hashAttributes ) );
         }
@@ -99,6 +99,7 @@ public class HashInterceptorBean extends InterceptorBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -111,7 +112,7 @@ public class HashInterceptorBean extends InterceptorBean
             sb.append( tabs ).append( "  hashAlgorithm : " )
                     .append( hashAlgorithm ).append( "\n" );
         }
-        if ( ( hashAttributes != null ) && ( hashAttributes.size() > 0 ) )
+        if ( ( hashAttributes != null ) && !hashAttributes.isEmpty() )
         {
             sb.append( tabs ).append( "  hashAttributes :\n" );
 

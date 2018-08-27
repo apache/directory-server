@@ -95,7 +95,7 @@ public class CursorBuilder
 
     public <T> long build( PartitionTxn partitionTxn, ExprNode node, PartitionSearchResult searchResult ) throws LdapException
     {
-        Object count = node.get( "count" );
+        Object count = node.get( DefaultOptimizer.COUNT_ANNOTATION );
 
         if ( ( count != null ) && ( ( Long ) count ) == 0L )
         {
@@ -173,7 +173,7 @@ public class CursorBuilder
     private <T> long computeApproximate( PartitionTxn partitionTxn, ApproximateNode<T> node, PartitionSearchResult searchResult )
         throws LdapException, IndexNotFoundException, CursorException, IOException
     {
-        ApproximateCursor<T> cursor = new ApproximateCursor<T>( partitionTxn, db,
+        ApproximateCursor<T> cursor = new ApproximateCursor<>( partitionTxn, db,
             ( ApproximateEvaluator<T> ) evaluatorBuilder
                 .build( partitionTxn, node ) );
 
@@ -382,13 +382,12 @@ public class CursorBuilder
                 partitionTxn, attributeType.getOid() );
 
             // Position the index on the element we should start from
-            IndexEntry<String, String> indexEntry = new IndexEntry<>();
             Set<String> uuidSet = searchResult.getCandidateSet();
 
             // And loop on it
             while ( presenceCursor.next() )
             {
-                indexEntry = presenceCursor.get();
+                IndexEntry<String, String> indexEntry = presenceCursor.get();
 
                 String uuid = indexEntry.getId();
                 boolean added = uuidSet.add( uuid );
@@ -417,7 +416,7 @@ public class CursorBuilder
      * we have an index for the AT.
      */
     private long computeOneLevelScope( PartitionTxn partitionTxn, ScopeNode node, PartitionSearchResult searchResult )
-        throws LdapException, IndexNotFoundException, CursorException, IOException
+        throws LdapException, CursorException, IOException
     {
         int nbResults = 0;
 
@@ -729,7 +728,7 @@ public class CursorBuilder
      * @throws Exception on db access failures
      */
     private long computeOr( PartitionTxn partitionTxn, OrNode node, PartitionSearchResult searchResult ) 
-        throws LdapException, IndexNotFoundException, CursorException, IOException
+        throws LdapException
     {
         List<ExprNode> children = node.getChildren();
 
@@ -738,9 +737,9 @@ public class CursorBuilder
         // Recursively create Cursors and Evaluators for each child expression node
         for ( ExprNode child : children )
         {
-            Object count = child.get( "count" );
+            Object count = child.get( DefaultOptimizer.COUNT_ANNOTATION );
 
-            if ( ( count != null ) && ( ( Long ) count == 0L ) )
+            if ( count != null )
             {
                 long countLong = ( Long ) count;
 
@@ -781,11 +780,11 @@ public class CursorBuilder
      * @throws Exception on db access failures
      */
     private long computeAnd( PartitionTxn partitionTxn, AndNode node, PartitionSearchResult searchResult ) 
-        throws LdapException, IndexNotFoundException, CursorException, IOException
+        throws LdapException
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
-        long value = Long.MAX_VALUE;
+        long value;
 
         /*
          * We scan the child nodes of a branch node searching for the child
@@ -797,7 +796,7 @@ public class CursorBuilder
         for ( int i = 0; i < children.size(); i++ )
         {
             ExprNode child = children.get( i );
-            Object count = child.get( "count" );
+            Object count = child.get( DefaultOptimizer.COUNT_ANNOTATION );
 
             if ( count == null )
             {
@@ -838,7 +837,7 @@ public class CursorBuilder
         final List<ExprNode> children = node.getChildren();
 
         ExprNode child = children.get( 0 );
-        Object count = child.get( "count" );
+        Object count = child.get( DefaultOptimizer.COUNT_ANNOTATION );
 
         if ( count == null )
         {

@@ -93,7 +93,7 @@ public class ConfigWriter
         {
             if ( entries == null )
             {
-                entries = new ArrayList<LdifEntry>();
+                entries = new ArrayList<>();
 
                 // Building the default config root entry 'ou=config'
                 LdifEntry configRootEntry = new LdifEntry();
@@ -146,9 +146,10 @@ public class ConfigWriter
     public void writeToFile( File file ) throws ConfigurationException, IOException
     {
         // Writing the file to disk
-        FileWriter writer = new FileWriter( file );
-        writer.append( writeToString() );
-        writer.close();
+        try ( FileWriter writer = new FileWriter( file ) )
+        {
+            writer.append( writeToString() );
+        }
     }
 
 
@@ -214,7 +215,7 @@ public class ConfigWriter
         if ( objectClassObject != null )
         {
             // Building the list of 'objectClass' attribute values
-            Set<String> objectClassAttributeValues = new HashSet<String>();
+            Set<String> objectClassAttributeValues = new HashSet<>();
             computeObjectClassAttributeValues( schemaManager, objectClassAttributeValues, objectClassObject );
 
             // Adding values to the entry
@@ -257,7 +258,7 @@ public class ConfigWriter
             objectClassAttributeValues.add( objectClass.getName() );
 
             List<ObjectClass> superiors = objectClass.getSuperiors();
-            if ( ( superiors != null ) && ( superiors.size() > 0 ) )
+            if ( ( superiors != null ) && !superiors.isEmpty() )
             {
                 for ( ObjectClass superior : superiors )
                 {
@@ -364,20 +365,16 @@ public class ConfigWriter
                         if ( ( attributeType != null ) && ( !"".equals( attributeType ) ) )
                         {
                             // Checking if the field is optional and if the default value matches
-                            if ( isOptional )
-                            {
-                                if ( ( defaultValue != null ) && ( fieldValue != null )
+                            if ( isOptional 
+                                    && ( defaultValue != null ) && ( fieldValue != null )
                                     && ( defaultValue.equalsIgnoreCase( fieldValue.toString() ) ) )
-                                {
-                                    // Skipping the addition of the value
-                                    continue;
-                                }
+                            {
+                                // Skipping the addition of the value
+                                continue;
                             }
 
                             // Adding values to the entry
                             addAttributeTypeValues( configurationElement.attributeType(), fieldValue, entry );
-
-                            continue;
                         }
                         // Checking if we have a value for the object class
                         else if ( ( objectClass != null ) && ( !"".equals( objectClass ) ) )
@@ -407,8 +404,6 @@ public class ConfigWriter
                                                 // Adding the bean
                                                 addBean( containerEntry.getDn(), schemaManager, ( AdsBaseBean ) object,
                                                     entries, entry, attributeType );
-
-                                                continue;
                                             }
                                             else
                                             {
@@ -503,11 +498,10 @@ public class ConfigWriter
      * @return
      *      the Dn associated with the configuration bean based on the given base Dn.
      * @throws LdapInvalidDnException
-     * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws LdapInvalidAttributeValueException 
      */
-    private Dn getDn( Dn baseDn, AdsBaseBean bean ) throws LdapInvalidDnException, IllegalArgumentException,
+    private Dn getDn( Dn baseDn, AdsBaseBean bean ) throws LdapInvalidDnException,
         IllegalAccessException, LdapInvalidAttributeValueException
     {
         // Getting the class of the bean
@@ -572,12 +566,10 @@ public class ConfigWriter
             {
                 // Adding each single value separately
                 Collection<?> values = ( Collection<?> ) o;
-                if ( values != null )
+
+                for ( Object value : values )
                 {
-                    for ( Object value : values )
-                    {
-                        addAttributeTypeValue( attributeType, value, entry );
-                    }
+                    addAttributeTypeValue( attributeType, value, entry );
                 }
             }
             else
@@ -625,7 +617,7 @@ public class ConfigWriter
             else if ( value instanceof Boolean )
             {
                 // Value is a byte[]
-                attribute.add( Strings.toUpperCase( value.toString() ) );
+                attribute.add( Strings.toUpperCaseAscii( value.toString() ) );
             }
             else
             {

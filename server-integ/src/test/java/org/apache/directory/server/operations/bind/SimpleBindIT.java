@@ -158,7 +158,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
                 uid = ( String ) attrs.get( "uid" ).get();
             }
 
-            assertEquals( uid, "hnelson" );
+            assertEquals( "hnelson", uid );
         }
         catch ( NamingException e )
         {

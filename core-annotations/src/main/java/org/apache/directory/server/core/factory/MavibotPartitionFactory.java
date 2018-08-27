@@ -70,7 +70,7 @@ public class MavibotPartitionFactory implements PartitionFactory
         MavibotPartition mavibotPartition = ( MavibotPartition ) partition;
         Set<Index<?, String>> indexedAttributes = mavibotPartition.getIndexedAttributes();
 
-        MavibotIndex<Object> index = new MavibotIndex<Object>( attributeId, false );
+        MavibotIndex<Object> index = new MavibotIndex<>( attributeId, false );
         index.setCacheSize( cacheSize );
 
         indexedAttributes.add( index );

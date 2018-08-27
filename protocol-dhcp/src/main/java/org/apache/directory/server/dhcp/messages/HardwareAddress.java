@@ -126,32 +126,30 @@ public final class HardwareAddress
      */
     public String getNativeRepresentation()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
-        switch ( type )
+        if ( type == 1 )
         {
-            case 1:
-                for ( int i = 0; i < length; i++ )
+            for ( int i = 0; i < length; i++ )
+            {
+                if ( i > 0 )
                 {
-                    if ( i > 0 )
-                    {
-                        sb.append( ":" );
-                    }
-
-                    String hex = Integer.toHexString( address[i] & 0xff );
-
-                    if ( hex.length() < 2 )
-                    {
-                        sb.append( '0' );
-                    }
-
-                    sb.append( hex );
+                    sb.append( ":" );
                 }
 
-                break;
+                String hex = Integer.toHexString( address[i] & 0xff );
 
-            default:
-                sb.append( toString() );
+                if ( hex.length() < 2 )
+                {
+                    sb.append( '0' );
+                }
+
+                sb.append( hex );
+            }
+        }
+        else
+        {
+            sb.append( toString() );
         }
 
         return sb.toString();
@@ -169,7 +167,7 @@ public final class HardwareAddress
      */
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append( type );
         sb.append( "/" );
 

@@ -73,7 +73,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration<IndexEntry>
         boolean enableDupCheck ) throws NamingException
     {
         this.underlying = underlying;
-        candidates = new HashMap<Object, Object>();
+        candidates = new HashMap<>();
         this.assertion = assertion;
         checkDups = enableDupCheck;
         prefetch();

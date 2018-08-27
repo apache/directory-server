@@ -129,6 +129,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -144,6 +145,7 @@ public class InterceptorBean extends AdsBaseBean implements Comparable<Intercept
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

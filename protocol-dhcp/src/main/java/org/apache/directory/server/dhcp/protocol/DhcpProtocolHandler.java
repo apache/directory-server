@@ -72,6 +72,7 @@ public class DhcpProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void sessionCreated( IoSession session ) throws Exception
     {
         LOG.debug( "{} CREATED", session.getLocalAddress() );
@@ -80,6 +81,7 @@ public class DhcpProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void sessionOpened( IoSession session )
     {
         LOG.debug( "{} -> {} OPENED", session.getRemoteAddress(), session
@@ -87,6 +89,7 @@ public class DhcpProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void sessionClosed( IoSession session )
     {
         LOG.debug( "{} -> {} CLOSED", session.getRemoteAddress(), session
@@ -94,27 +97,30 @@ public class DhcpProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         // ignore
     }
 
 
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.error( "EXCEPTION CAUGHT ", cause );
         cause.printStackTrace( System.out );
 
-        session.close( true );
+        session.closeNow();
     }
 
 
+    @Override
     public void messageReceived( IoSession session, Object message )
         throws Exception
     {
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "{} -> {} RCVD: {} " + message, session.getRemoteAddress(),
+            LOG.debug( "{} -> {} RCVD: {} ", message, session.getRemoteAddress(),
                 session.getLocalAddress() );
         }
 
@@ -208,15 +214,18 @@ public class DhcpProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void messageSent( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "{} -> {} SENT: " + message, session.getRemoteAddress(),
+            LOG.debug( "{} -> {} SENT: ", message, session.getRemoteAddress(),
                 session.getLocalAddress() );
         }
     }
+
     
+    @Override
     public void inputClosed( IoSession session )
     {
     }

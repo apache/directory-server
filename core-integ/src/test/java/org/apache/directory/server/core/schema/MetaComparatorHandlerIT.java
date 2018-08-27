@@ -116,7 +116,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Post-checks
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
-        assertEquals( schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", schemaManager.getComparatorRegistry().getSchemaName( OID ) );
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, StringComparator.class );
         assertTrue( isOnDisk( dn ) );
@@ -221,9 +221,9 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Post-checks
         assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
-        assertEquals( schemaManager.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", schemaManager.getComparatorRegistry().getSchemaName( OID ) );
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(), "org.apache.directory.api.ldap.model.schema.comparators.DummyComparator" );
+        assertEquals( "org.apache.directory.api.ldap.model.schema.comparators.DummyComparator", clazz.getName() );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -397,8 +397,8 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "comparator OID should still be present", schemaManager.getComparatorRegistry().contains( OID ) );
 
-        assertEquals( "comparator schema should be set to apachemeta", schemaManager.getComparatorRegistry()
-            .getSchemaName( OID ), "apachemeta" );
+        assertEquals( "comparator schema should be set to apachemeta", "apachemeta", 
+                schemaManager.getComparatorRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, BooleanComparator.class );
@@ -418,8 +418,8 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "comparator OID should still be present", schemaManager.getComparatorRegistry().contains( OID ) );
 
-        assertEquals( "comparator schema should be set to apachemeta", schemaManager.getComparatorRegistry()
-            .getSchemaName( OID ), "apachemeta" );
+        assertEquals( "comparator schema should be set to apachemeta", "apachemeta", 
+                schemaManager.getComparatorRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, BooleanComparator.class );
@@ -477,7 +477,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapUnwillingToPerformException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
 
         assertTrue( "comparator should still be in the registry after rename failure", schemaManager
@@ -504,8 +504,8 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "comparator OID should still be present", schemaManager.getComparatorRegistry().contains( OID ) );
 
-        assertEquals( "comparator schema should be set to apache not apachemeta", schemaManager.getComparatorRegistry()
-            .getSchemaName( OID ), "apache" );
+        assertEquals( "comparator schema should be set to apache not apachemeta", "apachemeta", 
+                schemaManager.getComparatorRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, StringComparator.class );
@@ -528,8 +528,8 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
 
         assertTrue( "new comparator OID should be present", schemaManager.getComparatorRegistry().contains( NEW_OID ) );
 
-        assertEquals( "comparator with new oid should have schema set to apache NOT apachemeta", schemaManager
-            .getComparatorRegistry().getSchemaName( NEW_OID ), "apache" );
+        assertEquals( "comparator with new oid should have schema set to apache NOT apachemeta", "apachemeta", 
+                schemaManager.getComparatorRegistry().getSchemaName( NEW_OID ) );
 
         Class<?> clazz = schemaManager.getComparatorRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, StringComparator.class );
@@ -557,7 +557,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapUnwillingToPerformException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
 
         assertTrue( "comparator should still be in the registry after move failure", schemaManager
@@ -585,7 +585,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapUnwillingToPerformException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.UNWILLING_TO_PERFORM );
+            assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
 
         assertTrue( "comparator should still be in the registry after move failure", schemaManager
@@ -617,7 +617,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapInvalidDnException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
+            assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
         assertTrue( "comparator should still be in the registry after move failure", schemaManager
@@ -642,7 +642,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapInvalidDnException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
+            assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
         assertTrue( "comparator should still be in the registry after move failure", schemaManager
@@ -686,7 +686,7 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "comparator OID should be present when moved to enabled schema", schemaManager
             .getComparatorRegistry().contains( OID ) );
 
-        assertEquals( "comparator should be in apachemeta schema after move", schemaManager.getComparatorRegistry()
-            .getSchemaName( OID ), "apachemeta" );
+        assertEquals( "comparator should be in apachemeta schema after move", "apachemeta", 
+                schemaManager.getComparatorRegistry().getSchemaName( OID ) );
     }
 }

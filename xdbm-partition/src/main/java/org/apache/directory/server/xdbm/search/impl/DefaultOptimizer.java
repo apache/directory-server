@@ -62,7 +62,9 @@ import org.apache.directory.server.xdbm.search.Optimizer;
  */
 public class DefaultOptimizer implements Optimizer
 {
-    static final String CANDIDATES_ANNOTATION_KEY = "candidates";
+    /* Package protected*/ static final String CANDIDATES_ANNOTATION_KEY = "candidates";
+    
+    /* Package protected*/ static final String COUNT_ANNOTATION = "count"; 
 
     /** the database this optimizer operates on */
     private final Store db;
@@ -229,7 +231,7 @@ public class DefaultOptimizer implements Optimizer
             count = Long.MAX_VALUE;
         }
 
-        node.set( "count", count );
+        node.set( COUNT_ANNOTATION, count );
 
         return count;
     }
@@ -260,7 +262,7 @@ public class DefaultOptimizer implements Optimizer
             }
 
             annotate( partitionTxn, child );
-            count = Math.min( ( ( Long ) child.get( "count" ) ), count );
+            count = Math.min( ( ( Long ) child.get( COUNT_ANNOTATION ) ), count );
 
             if ( count == 0 )
             {
@@ -290,7 +292,7 @@ public class DefaultOptimizer implements Optimizer
         for ( ExprNode child : children )
         {
             annotate( partitionTxn, child );
-            total += ( Long ) child.get( "count" );
+            total += ( Long ) child.get( COUNT_ANNOTATION );
 
             if ( total == Long.MAX_VALUE )
             {

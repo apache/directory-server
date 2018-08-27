@@ -81,7 +81,7 @@ public class GetFlatRecord implements DnsOperation
         matchAttrs.put( new BasicAttribute( DnsAttribute.TYPE, question.getRecordType().name() ) );
         matchAttrs.put( new BasicAttribute( DnsAttribute.CLASS, question.getRecordClass().name() ) );
 
-        Set<ResourceRecord> record = new HashSet<ResourceRecord>();
+        Set<ResourceRecord> record = new HashSet<>();
 
         NamingEnumeration<SearchResult> answer = ctx.search( base, matchAttrs );
 

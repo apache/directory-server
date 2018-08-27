@@ -216,6 +216,7 @@ public class AvlPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public URI getPartitionPath()
     {
         // It's a in-memory partition, return null

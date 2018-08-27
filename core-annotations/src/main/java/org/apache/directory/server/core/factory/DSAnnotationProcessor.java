@@ -87,7 +87,11 @@ public final class DSAnnotationProcessor
     public static DirectoryService createDS( CreateDS dsBuilder )
         throws Exception
     {
-        LOG.debug( "Starting DS {}...", dsBuilder.name() );
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "Starting DS {}...", dsBuilder.name() );
+        }
+        
         Class<?> factory = dsBuilder.factory();
         DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory
             .newInstance();
@@ -125,7 +129,7 @@ public final class DSAnnotationProcessor
                     "authentication interceptor not found" );
             }
 
-            Set<Authenticator> authenticators = new HashSet<Authenticator>();
+            Set<Authenticator> authenticators = new HashSet<>();
 
             for ( CreateAuthenticator createAuthenticator : dsBuilder
                 .authenticators() )
@@ -195,7 +199,7 @@ public final class DSAnnotationProcessor
 
                     if ( schemaManager.isDisabled( schemaName ) )
                     {
-                        LOG.error( "Cannot enable " + schemaName );
+                        LOG.error( "Cannot enable {}", schemaName );
                     }
                 }
                 else
@@ -204,7 +208,7 @@ public final class DSAnnotationProcessor
 
                     if ( schemaManager.isEnabled( schemaName ) )
                     {
-                        LOG.error( "Cannot disable " + schemaName );
+                        LOG.error( "Cannot disable {}", schemaName );
                     }
                 }
             }
@@ -251,8 +255,7 @@ public final class DSAnnotationProcessor
                 Class<?>[] partypes = new Class[]
                     { SchemaManager.class, DnFactory.class };
                 Constructor<?> constructor = createPartition.type().getConstructor( partypes );
-                partition = ( Partition ) constructor.newInstance( new Object[]
-                    { schemaManager, service.getDnFactory() } );
+                partition = ( Partition ) constructor.newInstance( schemaManager, service.getDnFactory() );
                 partition.setId( createPartition.name() );
                 partition.setSuffixDn( new Dn( schemaManager, createPartition.suffix() ) );
 
@@ -270,14 +273,7 @@ public final class DSAnnotationProcessor
 
                     for ( CreateIndex createIndex : indexes )
                     {
-                        if ( createIndex.type() == JdbmIndex.class )
-                        {
-                            // JDBM index
-                            JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
-
-                            btreePartition.addIndexedAttributes( index );
-                        }
-                        else if ( createIndex.type() == MavibotIndex.class )
+                        if ( createIndex.type() == MavibotIndex.class )
                         {
                             // Mavibot index
                             MavibotIndex index = new MavibotIndex( createIndex.attribute(), false );
@@ -443,16 +439,15 @@ public final class DSAnnotationProcessor
     public static void injectEntries( DirectoryService service, String ldif )
         throws Exception
     {
-        LdifReader reader = new LdifReader();
-        List<LdifEntry> entries = reader.parseLdif( ldif );
-
-        for ( LdifEntry entry : entries )
+        try ( LdifReader reader = new LdifReader() )
         {
-            injectEntry( entry, service );
+            List<LdifEntry> entries = reader.parseLdif( ldif );
+    
+            for ( LdifEntry entry : entries )
+            {
+                injectEntry( entry, service );
+            }
         }
-
-        // And close the reader
-        reader.close();
     }
 
 
@@ -469,10 +464,6 @@ public final class DSAnnotationProcessor
             return;
         }
 
-        /*for ( Class<?> loadSchema : dsBuilder.additionalInterceptors() )
-        {
-            service.addLast( ( Interceptor ) interceptorClass.newInstance() );
-        }*/
         LoadSchema loadSchema = desc
             .getAnnotation( LoadSchema.class );
 

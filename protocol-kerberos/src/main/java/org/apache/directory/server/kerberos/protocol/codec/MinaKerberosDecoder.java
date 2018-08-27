@@ -150,7 +150,7 @@ public class MinaKerberosDecoder extends CumulativeProtocolDecoder
             {
                 if ( IS_DEBUG )
                 {
-                    LOG_KRB.debug( "Decoded KerberosMessage : " + krbMsgContainer.getMessage() );
+                    LOG_KRB.debug( "Decoded KerberosMessage : {}", krbMsgContainer.getMessage() );
                     incomingBuf.mark();
                 }
                 

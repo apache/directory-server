@@ -119,6 +119,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         indexCursor.setClosureMonitor( monitor );
@@ -128,6 +129,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -142,6 +144,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -195,6 +198,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isClosed()
     {
         return indexCursor.isClosed();
@@ -231,6 +235,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

@@ -56,7 +56,7 @@ public class GetCatalog implements DirectoryServiceOperation
             FilterParser.parse( session.getDirectoryService().getSchemaManager(), filter ),
             AliasDerefMode.DEREF_ALWAYS );
 
-        Map<String, String> catalog = new HashMap<String, String>();
+        Map<String, String> catalog = new HashMap<>();
 
         list.beforeFirst();
 

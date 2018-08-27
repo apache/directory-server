@@ -41,6 +41,7 @@ public class LongComparator extends SerializableComparator<Long>
     }
 
 
+    @Override
     public int compare( Long l1, Long l2 )
     {
         return ( l1 < l2 ? -1 : ( l1.equals( l2 ) ? 0 : 1 ) );

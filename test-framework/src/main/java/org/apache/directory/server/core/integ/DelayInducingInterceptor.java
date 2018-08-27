@@ -47,6 +47,7 @@ public class DelayInducingInterceptor extends BaseInterceptor
     }
 
 
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = next( searchContext );

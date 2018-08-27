@@ -68,7 +68,7 @@ public class GenerateMojo extends AbstractMojo
     /**
      * The associated maven project.
      * 
-     * @parameter expression="${project}" default-value="${project}"
+     * @parameter property="project" default-value="${project}"
      * @required
      */
     private MavenProject project;
@@ -126,7 +126,7 @@ public class GenerateMojo extends AbstractMojo
      *  The dpkg utility executable.
      *  
      *  @parameter
-     *      expression="${installers.dpkg}"
+     *      property="installers.dpkg"
      *      default-value="/usr/bin/dpkg"
      */
     private File dpkgUtility;
@@ -135,7 +135,7 @@ public class GenerateMojo extends AbstractMojo
      *  The PackageMaker utility executable.
      *  
      *  @parameter
-     *      expression="${installers.packageMaker}"
+     *      property="installers.packageMaker"
      *      default-value="/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker"
      */
     private File packageMakerUtility;
@@ -144,7 +144,7 @@ public class GenerateMojo extends AbstractMojo
      *  The makensis utility executable.
      *  
      *  @parameter
-     *      expression="${installers.makensis}"
+     *      property="installers.makensis"
      *      default-value="/usr/bin/makensis"
      */
     private File makensisUtility;
@@ -153,13 +153,13 @@ public class GenerateMojo extends AbstractMojo
      *  The rpmbuild utility executable.
      *  
      *  @parameter
-     *      expression="${installers.rpmbuild}"
+     *      property="installers.rpmbuild"
      *      default-value="/usr/bin/rpmbuild"
      */
     private File rpmbuildUtility;
 
     /** The list containing all the targets */
-    private List<Target> allTargets = new ArrayList<Target>();
+    private List<Target> allTargets = new ArrayList<>();
 
 
     /**

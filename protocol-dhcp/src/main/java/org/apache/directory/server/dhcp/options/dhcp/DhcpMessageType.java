@@ -68,12 +68,14 @@ public class DhcpMessageType extends DhcpOption
     }
 
 
+    @Override
     public void setData( byte[] messageType )
     {
         type = MessageType.getTypeByCode( messageType[0] );
     }
 
 
+    @Override
     public byte[] getData()
     {
         return new byte[]

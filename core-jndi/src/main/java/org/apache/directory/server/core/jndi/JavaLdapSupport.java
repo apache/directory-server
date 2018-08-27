@@ -22,7 +22,6 @@ package org.apache.directory.server.core.jndi;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -87,12 +86,11 @@ final class JavaLdapSupport
      */
     static Object deserialize( Entry serverEntry ) throws NamingException
     {
-        ObjectInputStream in = null;
         String className = null;
 
         try
         {
-            className = ( String ) serverEntry.get( JCLASSNAME_ATTR ).getString();
+            className = serverEntry.get( JCLASSNAME_ATTR ).getString();
         }
         catch ( LdapInvalidAttributeValueException liave )
         {
@@ -101,11 +99,9 @@ final class JavaLdapSupport
             throw ne;
         }
 
-        try
+        try ( ObjectInputStream in = new ObjectInputStream( 
+                new ByteArrayInputStream( ( byte[] ) serverEntry.get( JSERIALDATA_ATTR ).getBytes() ) ) )
         {
-            byte[] data = ( byte[] ) serverEntry.get( JSERIALDATA_ATTR ).getBytes();
-            in = new ObjectInputStream( new ByteArrayInputStream( data ) );
-
             return in.readObject();
         }
         catch ( Exception e )
@@ -113,20 +109,6 @@ final class JavaLdapSupport
             NamingException ne = new NamingException( I18n.err( I18n.ERR_479, className, e.getLocalizedMessage() ) );
             ne.setRootCause( e );
             throw ne;
-        }
-        finally
-        {
-            try
-            {
-                if ( in != null )
-                {
-                    in.close();
-                }
-            }
-            catch ( IOException e )
-            {
-                throw new NamingException( I18n.err( I18n.ERR_480 ) );
-            }
         }
     }
 
@@ -140,35 +122,17 @@ final class JavaLdapSupport
      */
     static byte[] serialize( Object obj ) throws LdapException
     {
-        ByteArrayOutputStream bytesOut = null;
-        ObjectOutputStream out = null;
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
 
-        try
+        try ( ObjectOutputStream out = new ObjectOutputStream( bytesOut ) )
         {
-            bytesOut = new ByteArrayOutputStream();
-            out = new ObjectOutputStream( bytesOut );
             out.writeObject( obj );
+            
             return bytesOut.toByteArray();
         }
         catch ( Exception e )
         {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_481, obj, e.getLocalizedMessage() ) );
-            //ne.setRootCause( e );
-            throw ne;
-        }
-        finally
-        {
-            try
-            {
-                if ( out != null )
-                {
-                    out.close();
-                }
-            }
-            catch ( IOException e )
-            {
-                throw new LdapException( I18n.err( I18n.ERR_482 ) );
-            }
+            throw new LdapException( I18n.err( I18n.ERR_481, obj, e.getLocalizedMessage() ) );
         }
     }
 

@@ -100,6 +100,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -121,6 +122,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      * for the principal.  If the 'userPassword' is the special keyword 'randomKey', set 
      * random keys for the principal.  Set the key version number (kvno) to '0'.
      */
+    @Override
     public void add( AddOperationContext addContext ) throws LdapException
     {
         // Bypass the replication events
@@ -143,19 +145,17 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             Value userPassword = entry.get( userPasswordAT ).get();
             String strUserPassword = userPassword.getValue();
 
-            if ( LOG.isDebugEnabled() )
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.append( "'" + strUserPassword + "' ( " );
-                sb.append( userPassword );
-                sb.append( " )" );
-                LOG.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
-            }
-
             String principalName = entry.get( krb5PrincipalNameAT ).getString();
 
-            LOG.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
-            LOG_KRB.debug( "Got principal '{}' with userPassword '{}'.", principalName, strUserPassword );
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( "Got principal '{}'.", principalName );
+            }
+            
+            if ( LOG_KRB.isDebugEnabled() )
+            {
+                LOG_KRB.debug( "Got principal '{}'", principalName );
+            }
 
             Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, strUserPassword );
 
@@ -165,10 +165,17 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             Attribute keyAttribute = getKeyAttribute( keys );
             entry.put( keyAttribute );
 
-            LOG.debug( "Adding modified entry '{}' for Dn '{}'.", entry, normName
-                .getName() );
-            LOG_KRB.debug( "Adding modified entry '{}' for Dn '{}'.", entry, normName
-                .getName() );
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( "Adding modified entry '{}' for Dn '{}'.", entry, normName
+                    .getName() );
+            }
+            
+            if ( LOG_KRB.isDebugEnabled() )
+            {
+                LOG_KRB.debug( "Adding modified entry '{}' for Dn '{}'.", entry, normName
+                    .getName() );
+            }
         }
 
         next( addContext );
@@ -186,6 +193,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
      *
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      */
+    @Override
     public void modify( ModifyOperationContext modContext ) throws LdapException
     {
         // bypass replication events
@@ -268,21 +276,9 @@ public class KeyDerivationInterceptor extends BaseInterceptor
                 else
                 {
                     password = Strings.utf8ToString( firstValue.getBytes() );
-
-                    if ( LOG.isDebugEnabled() )
-                    {
-                        StringBuffer sb = new StringBuffer();
-                        sb.append( "'" + password + "' ( " );
-                        sb.append( Strings.dumpBytes( firstValue.getBytes() ).trim() );
-                        sb.append( " )" );
-                        LOG.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
-                        LOG_KRB.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
-                    }
                 }
 
                 subContext.setUserPassword( password );
-                LOG.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
-                LOG_KRB.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
             }
 
             if ( krb5PrincipalNameAT.equals( attr.getAttributeType() ) )
@@ -356,7 +352,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
         }
         else
         {
-            int oldKeyVersionNumber = Integer.valueOf( keyVersionNumberAttr.getString() );
+            int oldKeyVersionNumber = Integer.parseInt( keyVersionNumberAttr.getString() );
             int newKeyVersionNumber = oldKeyVersionNumber + 1;
             subContext.setNewKeyVersionNumber( newKeyVersionNumber );
             LOG.debug( "Found key version number '{}', setting to '{}'.", oldKeyVersionNumber, newKeyVersionNumber );
@@ -386,7 +382,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
-        List<Modification> newModsList = new ArrayList<Modification>();
+        List<Modification> newModsList = new ArrayList<>();
 
         // Make sure we preserve any other modification items.
         for ( Modification mod : mods )

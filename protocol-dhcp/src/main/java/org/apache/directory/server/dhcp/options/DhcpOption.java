@@ -212,8 +212,8 @@ public abstract class DhcpOption
         try
         {
             // initialize the tag-to-class and class-to-tag map
-            Map<Integer, Class<?>> classByCode = new HashMap<Integer, Class<?>>();
-            Map<Class<?>, Integer> codeByClass = new HashMap<Class<?>, Integer>();
+            Map<Integer, Class<?>> classByCode = new HashMap<>();
+            Map<Class<?>, Integer> codeByClass = new HashMap<>();
             
             for ( int i = 0; i < OPTION_CLASSES.length; i++ )
             {

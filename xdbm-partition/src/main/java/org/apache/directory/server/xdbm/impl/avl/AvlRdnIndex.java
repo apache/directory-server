@@ -51,6 +51,7 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
     }
 
 
+    @Override
     public void init( SchemaManager schemaManager, AttributeType attributeType ) throws LdapException
     {
         this.attributeType = attributeType;
@@ -74,7 +75,7 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
             throw new LdapOtherException( I18n.err( I18n.ERR_212, attributeType ) );
         }
 
-        ParentIdAndRdnComparator<String> comp = new ParentIdAndRdnComparator<String>( mr.getOid() );
+        ParentIdAndRdnComparator<String> comp = new ParentIdAndRdnComparator<>( mr.getOid() );
 
         UuidComparator.INSTANCE.setSchemaManager( schemaManager );
 

@@ -30,15 +30,15 @@ import org.apache.directory.api.ldap.model.entry.Entry;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <K> The key stored in the Tuple, associated key for the object
- * @param <ID> The ID of the object
+ * @param <I> The ID of the object
  */
-public class IndexEntry<K, ID>
+public class IndexEntry<K, I>
 {
     /** The referenced Entry if loaded from the store */
     private Entry entry;
 
     /** The underlying Tuple */
-    private final Tuple<K, ID> tuple = new Tuple<K, ID>();
+    private final Tuple<K, I> tuple = new Tuple<>();
 
 
     /**
@@ -56,7 +56,7 @@ public class IndexEntry<K, ID>
      *
      * @param tuple the tuple for the ForwardIndexEntry
      */
-    public void setTuple( Tuple<K, ID> tuple )
+    public void setTuple( Tuple<K, I> tuple )
     {
         // Clear the entry
         entry = null;
@@ -70,7 +70,7 @@ public class IndexEntry<K, ID>
     /**
      * {@inheritDoc}
      */
-    public ID getId()
+    public I getId()
     {
         return tuple.getValue();
     }
@@ -88,7 +88,7 @@ public class IndexEntry<K, ID>
     /**
      * {@inheritDoc}
      */
-    public void setId( ID id )
+    public void setId( I id )
     {
         tuple.setValue( id );
     }
@@ -124,7 +124,7 @@ public class IndexEntry<K, ID>
     /**
      * {@inheritDoc}
      */
-    public Tuple<K, ID> getTuple()
+    public Tuple<K, I> getTuple()
     {
         return tuple;
     }
@@ -144,7 +144,7 @@ public class IndexEntry<K, ID>
     /**
      * {@inheritDoc}
      */
-    public void copy( IndexEntry<K, ID> entry )
+    public void copy( IndexEntry<K, I> entry )
     {
         this.entry = entry.getEntry();
         tuple.setKey( entry.getKey() );
@@ -176,19 +176,14 @@ public class IndexEntry<K, ID>
         }
 
         @SuppressWarnings("unchecked")
-        IndexEntry<K, ID> thatIndexEntry = ( IndexEntry<K, ID> ) that;
+        IndexEntry<K, I> thatIndexEntry = ( IndexEntry<K, I> ) that;
 
         if ( thatIndexEntry.getId() == null )
         {
             return getId() == null;
         }
 
-        if ( thatIndexEntry.getId().equals( getId() ) )
-        {
-            return true;
-        }
-
-        return false;
+        return thatIndexEntry.getId().equals( getId() );
     }
 
 

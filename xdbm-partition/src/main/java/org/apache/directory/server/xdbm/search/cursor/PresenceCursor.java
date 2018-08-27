@@ -232,6 +232,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         checkNotClosed();
@@ -259,6 +260,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         checkNotClosed();

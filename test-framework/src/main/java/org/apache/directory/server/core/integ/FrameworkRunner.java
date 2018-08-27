@@ -27,7 +27,6 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
@@ -212,9 +211,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
      */
     private int getMinPort()
     {
-        int minPort = 0;
-
-        return minPort;
+        return 0;
     }
 
 
@@ -460,7 +457,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
     }
 
 
-    private void updateTlsKey( DirectoryService ds ) throws LdapException, LdapInvalidDnException
+    private void updateTlsKey( DirectoryService ds ) throws LdapException
     {
         // Update TLS key for tests. Newer Java 8 releases consider RSA keys
         // with less than 1024 bits as insecure and such are disabled by default, see 

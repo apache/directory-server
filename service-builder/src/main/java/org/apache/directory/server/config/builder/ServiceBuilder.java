@@ -167,10 +167,10 @@ public final class ServiceBuilder
      */
     public static List<Interceptor> createInterceptors( List<InterceptorBean> interceptorBeans ) throws LdapException
     {
-        List<Interceptor> interceptors = new ArrayList<Interceptor>( interceptorBeans.size() );
+        List<Interceptor> interceptors = new ArrayList<>( interceptorBeans.size() );
 
         // First order the interceptorBeans
-        Set<InterceptorBean> orderedInterceptorBeans = new TreeSet<InterceptorBean>();
+        Set<InterceptorBean> orderedInterceptorBeans = new TreeSet<>();
 
         for ( InterceptorBean interceptorBean : interceptorBeans )
         {
@@ -372,7 +372,7 @@ public final class ServiceBuilder
      */
     public static List<LdifEntry> readTestEntries( String entryFilePath ) throws ConfigurationException
     {
-        List<LdifEntry> entries = new ArrayList<LdifEntry>();
+        List<LdifEntry> entries = new ArrayList<>();
 
         File file = new File( entryFilePath );
 
@@ -596,14 +596,14 @@ public final class ServiceBuilder
                 ( ( TcpTransport ) transport ).setWantClientAuth( transportBean.getWantClientAuth() );
                 List<String> enabledProtocols = transportBean.getEnabledProtocols();
 
-                if ( ( enabledProtocols != null ) && ( enabledProtocols.size() != 0 ) )
+                if ( ( enabledProtocols != null ) && !enabledProtocols.isEmpty() )
                 {
                     ( ( TcpTransport ) transport ).setEnabledProtocols( enabledProtocols );
                 }
 
                 List<String> enabledCiphers = transportBean.getEnabledCiphers();
 
-                if ( ( enabledCiphers != null ) && ( enabledCiphers.size() != 0 ) )
+                if ( ( enabledCiphers != null ) && !enabledCiphers.isEmpty() )
                 {
                     ( ( TcpTransport ) transport ).setEnabledCiphers( enabledCiphers );
                 }
@@ -646,7 +646,7 @@ public final class ServiceBuilder
      */
     public static Transport[] createTransports( TransportBean[] transportBeans )
     {
-        List<Transport> transports = new ArrayList<Transport>();
+        List<Transport> transports = new ArrayList<>();
 
         for ( TransportBean transportBean : transportBeans )
         {
@@ -665,12 +665,12 @@ public final class ServiceBuilder
      */
     private static EncryptionType[] createEncryptionTypes( List<String> encryptionTypes )
     {
-        if ( ( encryptionTypes == null ) || ( encryptionTypes.size() == 0 ) )
+        if ( ( encryptionTypes == null ) || encryptionTypes.isEmpty() )
         {
             return new EncryptionType[0];
         }
 
-        List<EncryptionType> types = new ArrayList<EncryptionType>();
+        List<EncryptionType> types = new ArrayList<>();
 
         for ( String encryptionType : encryptionTypes )
         {
@@ -698,7 +698,6 @@ public final class ServiceBuilder
      * @throws LdapException If the NtpServer instance cannot be created
      */
     public static NtpServer createNtpServer( NtpServerBean ntpServerBean, DirectoryService directoryService )
-        throws LdapException
     {
         // Fist, do nothing if the NtpServer is disabled
         if ( ( ntpServerBean == null ) || ntpServerBean.isDisabled() )
@@ -755,8 +754,7 @@ public final class ServiceBuilder
      * @return Instance of KdcServer
      * @throws LdapException If the KdcServce cannot be created
      */
-    public static KdcServer createKdcServer( DirectoryServiceBean directoryServiceBean,
-        DirectoryService directoryService ) throws LdapException
+    public static KdcServer createKdcServer( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService )
     {
         KdcServerBean kdcServerBean = directoryServiceBean.getKdcServerBean();
 
@@ -853,9 +851,8 @@ public final class ServiceBuilder
      * @throws LdapException If the HttpWebApps instance cannot be created
      */
     public static Set<WebApp> createHttpWebApps( List<HttpWebAppBean> httpWebAppBeans, DirectoryService directoryService )
-        throws LdapException
     {
-        Set<WebApp> webApps = new HashSet<WebApp>();
+        Set<WebApp> webApps = new HashSet<>();
 
         if ( httpWebAppBeans == null )
         {
@@ -893,7 +890,6 @@ public final class ServiceBuilder
      * @throws LdapException If the HttpServer cannot be created
      */
     public static HttpServer createHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService )
-        throws LdapException
     {
         // Fist, do nothing if the HttpServer is disabled
         if ( ( httpServerBean == null ) || httpServerBean.isDisabled() )
@@ -1146,7 +1142,7 @@ public final class ServiceBuilder
     public static List<ReplicationConsumer> createReplConsumers( List<ReplConsumerBean> replConsumerBeans )
         throws ConfigurationException
     {
-        List<ReplicationConsumer> lst = new ArrayList<ReplicationConsumer>();
+        List<ReplicationConsumer> lst = new ArrayList<>();
 
         if ( replConsumerBeans == null )
         {
@@ -1191,7 +1187,7 @@ public final class ServiceBuilder
                 }
                 catch ( IllegalArgumentException iae )
                 {
-                    LOG.error( iae.getMessage() + ", defaulted to 'never'" );
+                    LOG.error( "{}, defaulted to 'never'", iae.getMessage() );
                 }
 
                 config.setAttributes( replBean.getReplAttributes().toArray( new String[0] ) );
@@ -1265,8 +1261,6 @@ public final class ServiceBuilder
         index.setNumDupLimit( jdbmIndexBean.getIndexNumDupLimit() );
 
         // Find the OID for this index
-        SchemaManager schemaManager = directoryService.getSchemaManager();
-
         if ( jdbmIndexBean.getIndexWorkingDir() != null )
         {
             index.setWkDirPath( new File( jdbmIndexBean.getIndexWorkingDir() ).toURI() );
@@ -1288,7 +1282,7 @@ public final class ServiceBuilder
         List<IndexBean> indexesBeans,
         DirectoryService directoryService ) //throws Exception
     {
-        Set<Index<?, String>> indexes = new HashSet<Index<?, String>>();
+        Set<Index<?, String>> indexes = new HashSet<>();
 
         for ( IndexBean indexBean : indexesBeans )
         {
@@ -1391,7 +1385,7 @@ public final class ServiceBuilder
     public static Map<String, Partition> createPartitions( DirectoryService directoryService,
         List<PartitionBean> partitionBeans ) throws ConfigurationException
     {
-        Map<String, Partition> partitions = new HashMap<String, Partition>( partitionBeans.size() );
+        Map<String, Partition> partitions = new HashMap<>( partitionBeans.size() );
 
         for ( PartitionBean partitionBean : partitionBeans )
         {
@@ -1517,7 +1511,6 @@ public final class ServiceBuilder
             directoryService.getDnFactory() );
 
         mvbtPartition.setId( mvbtPartitionBean.getPartitionId() );
-        //mvbtPartition.setOptimizerEnabled( mvbtPartitionBean.isJdbmPartitionOptimizerEnabled() );
         File partitionPath = new File( directoryService.getInstanceLayout().getPartitionsDirectory(),
             mvbtPartitionBean.getPartitionId() );
         mvbtPartition.setPartitionPath( partitionPath.toURI() );
@@ -1550,7 +1543,7 @@ public final class ServiceBuilder
         List<IndexBean> indexesBeans,
         DirectoryService directoryService ) //throws Exception
     {
-        Set<Index<?, String>> indexes = new HashSet<Index<?, String>>();
+        Set<Index<?, String>> indexes = new HashSet<>();
 
         for ( IndexBean indexBean : indexesBeans )
         {
@@ -1596,7 +1589,7 @@ public final class ServiceBuilder
         }
         else
         {
-            index = new MavibotIndex<String>( mavibotIndexBean.getIndexAttributeId(), hasReverse );
+            index = new MavibotIndex<>( mavibotIndexBean.getIndexAttributeId(), hasReverse );
         }
 
         index.setWkDirPath( partition.getPartitionPath() );
@@ -1624,25 +1617,20 @@ public final class ServiceBuilder
                 // Replace '\n' to real LF
                 String entryStr = contextEntry.replaceAll( "\\\\n", "\n" );
 
-                LdifReader ldifReader = new LdifReader( partition.getSchemaManager() );
-
-                List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
-
-                if ( ( entries != null ) && ( entries.size() > 0 ) )
+                try ( LdifReader ldifReader = new LdifReader( partition.getSchemaManager() ) )
                 {
-                    LdifEntry entry = entries.get( 0 );
-                    partition.setContextEntry( entry.getEntry() );
-                }
-
-                try
-                {
-                    ldifReader.close();
+                    List<LdifEntry> entries = ldifReader.parseLdif( entryStr );
+    
+                    if ( ( entries != null ) && !entries.isEmpty() )
+                    {
+                        LdifEntry entry = entries.get( 0 );
+                        partition.setContextEntry( entry.getEntry() );
+                    }
                 }
                 catch ( IOException ioe )
                 {
                     LOG.error( "Cannot close the ldif reader" );
                 }
-
             }
             catch ( LdapLdifException lle )
             {

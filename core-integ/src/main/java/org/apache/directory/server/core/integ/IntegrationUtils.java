@@ -69,7 +69,7 @@ public class IntegrationUtils
     /** The class logger */
     private static final Logger LOG = LoggerFactory.getLogger( IntegrationUtils.class );
 
-    private static final List<LdapConnection> OPEN_CONNECTIONS = new ArrayList<LdapConnection>();
+    private static final List<LdapConnection> OPEN_CONNECTIONS = new ArrayList<>();
 
 
     /**
@@ -108,32 +108,30 @@ public class IntegrationUtils
      */
     public static void injectEntries( DirectoryService service, String ldif ) throws Exception
     {
-        LdifReader reader = new LdifReader();
-        List<LdifEntry> entries = reader.parseLdif( ldif );
-
-        for ( LdifEntry entry : entries )
+        try ( LdifReader reader = new LdifReader() )
         {
-            if ( entry.isEntry() )
+            List<LdifEntry> entries = reader.parseLdif( ldif );
+    
+            for ( LdifEntry entry : entries )
             {
-                service.getAdminSession().add(
-                    new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
-            }
-            else if ( entry.isChangeModify() )
-            {
-                service.getAdminSession().modify(
-                    entry.getDn(), entry.getModifications() );
-            }
-            else
-            {
-                String message = I18n.err( I18n.ERR_117, entry.getChangeType() );
-                LOG.error( message );
-                reader.close();
-                throw new NamingException( message );
+                if ( entry.isEntry() )
+                {
+                    service.getAdminSession().add(
+                        new DefaultEntry( service.getSchemaManager(), entry.getEntry() ) );
+                }
+                else if ( entry.isChangeModify() )
+                {
+                    service.getAdminSession().modify(
+                        entry.getDn(), entry.getModifications() );
+                }
+                else
+                {
+                    String message = I18n.err( I18n.ERR_117, entry.getChangeType() );
+                    LOG.error( message );
+                    throw new NamingException( message );
+                }
             }
         }
-
-        // And close the reader
-        reader.close();
     }
 
 
@@ -160,8 +158,8 @@ public class IntegrationUtils
         }
 
         CoreSession session = service.getSession( principal );
-        LdapContext ctx = new ServerLdapContext( service, session, new LdapName( dn ) );
-        return ctx;
+
+        return new ServerLdapContext( service, session, new LdapName( dn ) );
     }
 
 
@@ -176,9 +174,7 @@ public class IntegrationUtils
         Dn userDn = new Dn( service.getSchemaManager(), principalDn );
         LdapPrincipal principal = new LdapPrincipal( service.getSchemaManager(), userDn, AuthenticationLevel.SIMPLE );
 
-        CoreSession session = service.getSession( principal );
-        
-        return session;
+        return service.getSession( principal );
     }
 
 
@@ -438,6 +434,7 @@ public class IntegrationUtils
 
         connection.bind( dn, password );
         OPEN_CONNECTIONS.add( connection );
+        
         return connection;
     }
 
@@ -451,9 +448,7 @@ public class IntegrationUtils
      */
     public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws LdapException
     {
-        LdapConnection connection = getAnonymousNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
-
-        return connection;
+        return getAnonymousNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
     }
 
 

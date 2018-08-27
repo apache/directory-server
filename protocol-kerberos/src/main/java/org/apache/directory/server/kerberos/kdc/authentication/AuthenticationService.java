@@ -67,7 +67,6 @@ import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
-import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -139,10 +138,8 @@ public final class AuthenticationService
      * 
      * @param authContext
      * @throws KerberosException
-     * @throws InvalidTicketException
      */
-    private static void selectEncryptionType( AuthenticationContext authContext ) throws KerberosException,
-        InvalidTicketException
+    private static void selectEncryptionType( AuthenticationContext authContext ) throws KerberosException
     {
 
         LOG_KRB.debug( "--> Selecting the EncryptionType" );
@@ -166,8 +163,7 @@ public final class AuthenticationService
     }
 
 
-    private static void getClientEntry( AuthenticationContext authContext ) throws KerberosException,
-        InvalidTicketException
+    private static void getClientEntry( AuthenticationContext authContext ) throws KerberosException
     {
         LOG_KRB.debug( "--> Getting the client Entry" );
         KdcReqBody kdcReqBody = authContext.getRequest().getKdcReqBody();
@@ -192,8 +188,7 @@ public final class AuthenticationService
     }
 
 
-    private static void verifyPolicy( AuthenticationContext authContext ) throws KerberosException,
-        InvalidTicketException
+    private static void verifyPolicy( AuthenticationContext authContext ) throws KerberosException
     {
         LOG_KRB.debug( "--> Verifying the policy" );
         PrincipalStoreEntry entry = authContext.getClientEntry();
@@ -218,7 +213,7 @@ public final class AuthenticationService
     }
 
 
-    private static void verifySam( AuthenticationContext authContext ) throws KerberosException, InvalidTicketException
+    private static void verifySam( AuthenticationContext authContext ) throws KerberosException
     {
         LOG_KRB.debug( "--> Verifying using SAM subsystem." );
         KdcReq request = authContext.getRequest();
@@ -241,7 +236,7 @@ public final class AuthenticationService
 
             List<PaData> preAuthData = request.getPaData();
 
-            if ( ( preAuthData == null ) || ( preAuthData.size() == 0 ) )
+            if ( ( preAuthData == null ) || preAuthData.isEmpty() )
             {
                 LOG_KRB.debug( "No PreAuth Data" );
                 throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError(
@@ -279,8 +274,7 @@ public final class AuthenticationService
     }
 
 
-    private static void verifyEncryptedTimestamp( AuthenticationContext authContext ) throws KerberosException,
-        InvalidTicketException
+    private static void verifyEncryptedTimestamp( AuthenticationContext authContext ) throws KerberosException
     {
         LOG_KRB.debug( "--> Verifying using encrypted timestamp." );
 
@@ -344,14 +338,6 @@ public final class AuthenticationService
 
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_FAILED );
                 }
-
-                /*
-                 * if(decrypted_enc_timestamp and usec is replay)
-                 *         error_out(KDC_ERR_PREAUTH_FAILED);
-                 * endif
-                 * 
-                 * add decrypted_enc_timestamp and usec to replay cache;
-                 */
             }
         }
 
@@ -365,13 +351,12 @@ public final class AuthenticationService
     }
 
 
-    private static void getServerEntry( AuthenticationContext authContext ) throws KerberosException,
-        InvalidTicketException
+    private static void getServerEntry( AuthenticationContext authContext ) throws KerberosException
     {
         PrincipalName principal = authContext.getRequest().getKdcReqBody().getSName();
         PrincipalStore store = authContext.getStore();
 
-        LOG_KRB.debug( "--> Getting the server entry for {}" + principal );
+        LOG_KRB.debug( "--> Getting the server entry for {}", principal );
 
         KerberosPrincipal principalWithRealm = new KerberosPrincipal( principal.getNameString() + "@"
             + authContext.getRequest().getKdcReqBody().getRealm() );
@@ -380,8 +365,7 @@ public final class AuthenticationService
     }
 
 
-    private static void generateTicket( AuthenticationContext authContext ) throws KerberosException,
-        InvalidTicketException
+    private static void generateTicket( AuthenticationContext authContext ) throws KerberosException
     {
         KdcReq request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
@@ -655,14 +639,16 @@ public final class AuthenticationService
         newTicket.setRealm( serverRealm );
         newTicket.setEncTicketPart( encTicketPart );
 
-        LOG_KRB.debug( "Ticket will be issued for access to {}.", serverPrincipal.toString() );
+        if ( LOG_KRB.isDebugEnabled() )
+        {
+            LOG_KRB.debug( "Ticket will be issued for access to {}.", serverPrincipal );
+        }
 
         authContext.setTicket( newTicket );
     }
 
 
-    private static void buildReply( AuthenticationContext authContext ) throws KerberosException,
-        InvalidTicketException
+    private static void buildReply( AuthenticationContext authContext ) throws KerberosException
     {
         LOG_KRB.debug( "--> Building reply" );
         KdcReq request = authContext.getRequest();
@@ -731,23 +717,23 @@ public final class AuthenticationService
             {
                 String clientAddress = kdcContext.getClientAddress().getHostAddress();
 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
-                sb.append( "Received " + SERVICE_NAME + " request:" );
-                sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
-                sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
-                sb.append( "\n\t" + "clientAddress:         " + clientAddress );
-                sb.append( "\n\t" + "nonce:                 " + request.getKdcReqBody().getNonce() );
-                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcReqBody().getKdcOptions() );
-                sb.append( "\n\t" + "clientPrincipal:       " + request.getKdcReqBody().getCName() );
-                sb.append( "\n\t" + "serverPrincipal:       " + request.getKdcReqBody().getSName() );
-                sb.append( "\n\t" + "encryptionType:        "
+                sb.append( "Received " ).append( SERVICE_NAME ).append( " request:" );
+                sb.append( "\n\tmessageType:           " ).append( request.getMessageType() );
+                sb.append( "\n\tprotocolVersionNumber: " ).append( request.getProtocolVersionNumber() );
+                sb.append( "\n\tclientAddress:         " ).append( clientAddress );
+                sb.append( "\n\tnonce:                 " ).append( request.getKdcReqBody().getNonce() );
+                sb.append( "\n\tkdcOptions:            " ).append( request.getKdcReqBody().getKdcOptions() );
+                sb.append( "\n\tclientPrincipal:       " ).append( request.getKdcReqBody().getCName() );
+                sb.append( "\n\tserverPrincipal:       " ).append( request.getKdcReqBody().getSName() );
+                sb.append( "\n\tencryptionType:        "
                     + KerberosUtils.getEncryptionTypesString( request.getKdcReqBody().getEType() ) );
-                sb.append( "\n\t" + "realm:                 " + request.getKdcReqBody().getRealm() );
-                sb.append( "\n\t" + "from time:             " + request.getKdcReqBody().getFrom() );
-                sb.append( "\n\t" + "till time:             " + request.getKdcReqBody().getTill() );
-                sb.append( "\n\t" + "renew-till time:       " + request.getKdcReqBody().getRTime() );
-                sb.append( "\n\t" + "hostAddresses:         " + request.getKdcReqBody().getAddresses() );
+                sb.append( "\n\trealm:                 " ).append( request.getKdcReqBody().getRealm() );
+                sb.append( "\n\tfrom time:             " ).append( request.getKdcReqBody().getFrom() );
+                sb.append( "\n\ttill time:             " ).append( request.getKdcReqBody().getTill() );
+                sb.append( "\n\trenew-till time:       " ).append( request.getKdcReqBody().getRTime() );
+                sb.append( "\n\thostAddresses:         " ).append( request.getKdcReqBody().getAddresses() );
 
                 String message = sb.toString();
                 LOG_KRB.debug( message );
@@ -763,51 +749,54 @@ public final class AuthenticationService
 
     private static void monitorContext( AuthenticationContext authContext )
     {
-        try
+        if ( LOG_KRB.isDebugEnabled() )
         {
-            long clockSkew = authContext.getConfig().getAllowableClockSkew();
-            InetAddress clientAddress = authContext.getClientAddress();
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.append( "Monitoring " + SERVICE_NAME + " context:" );
-
-            sb.append( "\n\t" + "clockSkew              " + clockSkew );
-            sb.append( "\n\t" + "clientAddress          " + clientAddress );
-
-            KerberosPrincipal clientPrincipal = authContext.getClientEntry().getPrincipal();
-            PrincipalStoreEntry clientEntry = authContext.getClientEntry();
-
-            sb.append( "\n\t" + "principal              " + clientPrincipal );
-            sb.append( "\n\t" + "cn                     " + clientEntry.getCommonName() );
-            sb.append( "\n\t" + "realm                  " + clientEntry.getRealmName() );
-            sb.append( "\n\t" + "principal              " + clientEntry.getPrincipal() );
-            sb.append( "\n\t" + "SAM type               " + clientEntry.getSamType() );
-
-            PrincipalName serverPrincipal = authContext.getRequest().getKdcReqBody().getSName();
-            PrincipalStoreEntry serverEntry = authContext.getServerEntry();
-
-            sb.append( "\n\t" + "principal              " + serverPrincipal );
-            sb.append( "\n\t" + "cn                     " + serverEntry.getCommonName() );
-            sb.append( "\n\t" + "realm                  " + serverEntry.getRealmName() );
-            sb.append( "\n\t" + "principal              " + serverEntry.getPrincipal() );
-            sb.append( "\n\t" + "SAM type               " + serverEntry.getSamType() );
-
-            EncryptionType encryptionType = authContext.getEncryptionType();
-            int clientKeyVersion = clientEntry.getKeyMap().get( encryptionType ).getKeyVersion();
-            int serverKeyVersion = serverEntry.getKeyMap().get( encryptionType ).getKeyVersion();
-            sb.append( "\n\t" + "Request key type       " + encryptionType );
-            sb.append( "\n\t" + "Client key version     " + clientKeyVersion );
-            sb.append( "\n\t" + "Server key version     " + serverKeyVersion );
-
-            String message = sb.toString();
-
-            LOG_KRB.debug( message );
-        }
-        catch ( Exception e )
-        {
-            // This is a monitor.  No exceptions should bubble up.
-            LOG_KRB.error( I18n.err( I18n.ERR_154 ), e );
+            try
+            {
+                long clockSkew = authContext.getConfig().getAllowableClockSkew();
+                InetAddress clientAddress = authContext.getClientAddress();
+    
+                StringBuilder sb = new StringBuilder();
+    
+                sb.append( "Monitoring " ).append( SERVICE_NAME ).append( " context:" );
+    
+                sb.append( "\n\tclockSkew              " ).append( clockSkew );
+                sb.append( "\n\tclientAddress          " ).append( clientAddress );
+    
+                KerberosPrincipal clientPrincipal = authContext.getClientEntry().getPrincipal();
+                PrincipalStoreEntry clientEntry = authContext.getClientEntry();
+    
+                sb.append( "\n\tprincipal              " ).append( clientPrincipal );
+                sb.append( "\n\tcn                     " ).append( clientEntry.getCommonName() );
+                sb.append( "\n\trealm                  " ).append( clientEntry.getRealmName() );
+                sb.append( "\n\tprincipal              " ).append( clientEntry.getPrincipal() );
+                sb.append( "\n\tSAM type               " ).append( clientEntry.getSamType() );
+    
+                PrincipalName serverPrincipal = authContext.getRequest().getKdcReqBody().getSName();
+                PrincipalStoreEntry serverEntry = authContext.getServerEntry();
+    
+                sb.append( "\n\tprincipal              " ).append( serverPrincipal );
+                sb.append( "\n\tcn                     " ).append( serverEntry.getCommonName() );
+                sb.append( "\n\trealm                  " ).append( serverEntry.getRealmName() );
+                sb.append( "\n\tprincipal              " ).append( serverEntry.getPrincipal() );
+                sb.append( "\n\tSAM type               " ).append( serverEntry.getSamType() );
+    
+                EncryptionType encryptionType = authContext.getEncryptionType();
+                int clientKeyVersion = clientEntry.getKeyMap().get( encryptionType ).getKeyVersion();
+                int serverKeyVersion = serverEntry.getKeyMap().get( encryptionType ).getKeyVersion();
+                sb.append( "\n\tRequest key type       " ).append( encryptionType );
+                sb.append( "\n\tClient key version     " ).append( clientKeyVersion );
+                sb.append( "\n\tServer key version     " ).append( serverKeyVersion );
+    
+                String message = sb.toString();
+    
+                LOG_KRB.debug( message );
+            }
+            catch ( Exception e )
+            {
+                // This is a monitor.  No exceptions should bubble up.
+                LOG_KRB.error( I18n.err( I18n.ERR_154 ), e );
+            }
         }
     }
 
@@ -818,21 +807,21 @@ public final class AuthenticationService
         {
             try
             {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
-                sb.append( "Responding with " + SERVICE_NAME + " reply:" );
-                sb.append( "\n\t" + "messageType:           " + reply.getMessageType() );
-                sb.append( "\n\t" + "protocolVersionNumber: " + reply.getProtocolVersionNumber() );
-                sb.append( "\n\t" + "nonce:                 " + part.getNonce() );
-                sb.append( "\n\t" + "clientPrincipal:       " + reply.getCName() );
-                sb.append( "\n\t" + "client realm:          " + reply.getCRealm() );
-                sb.append( "\n\t" + "serverPrincipal:       " + part.getSName() );
-                sb.append( "\n\t" + "server realm:          " + part.getSRealm() );
-                sb.append( "\n\t" + "auth time:             " + part.getAuthTime() );
-                sb.append( "\n\t" + "start time:            " + part.getStartTime() );
-                sb.append( "\n\t" + "end time:              " + part.getEndTime() );
-                sb.append( "\n\t" + "renew-till time:       " + part.getRenewTill() );
-                sb.append( "\n\t" + "hostAddresses:         " + part.getClientAddresses() );
+                sb.append( "Responding with " ).append( SERVICE_NAME ).append( " reply:" );
+                sb.append( "\n\tmessageType:           " ).append( reply.getMessageType() );
+                sb.append( "\n\tprotocolVersionNumber: " ).append( reply.getProtocolVersionNumber() );
+                sb.append( "\n\tnonce:                 " ).append( part.getNonce() );
+                sb.append( "\n\tclientPrincipal:       " ).append( reply.getCName() );
+                sb.append( "\n\tclient realm:          " ).append( reply.getCRealm() );
+                sb.append( "\n\tserverPrincipal:       " ).append( part.getSName() );
+                sb.append( "\n\tserver realm:          " ).append( part.getSRealm() );
+                sb.append( "\n\tauth time:             " ).append( part.getAuthTime() );
+                sb.append( "\n\tstart time:            " ).append( part.getStartTime() );
+                sb.append( "\n\tend time:              " ).append( part.getEndTime() );
+                sb.append( "\n\trenew-till time:       " ).append( part.getRenewTill() );
+                sb.append( "\n\thostAddresses:         " ).append( part.getClientAddresses() );
 
                 String message = sb.toString();
 

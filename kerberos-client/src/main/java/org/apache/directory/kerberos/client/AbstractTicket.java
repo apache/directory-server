@@ -24,6 +24,7 @@ import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 
+
 /**
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -44,9 +45,10 @@ public abstract class AbstractTicket
 
     public EncKdcRepPart getEncKdcRepPart()
     {
-    	return this.encKdcRepPart;
+        return this.encKdcRepPart;
     }
-    
+
+
     public Ticket getTicket()
     {
         return ticket;
@@ -69,6 +71,7 @@ public abstract class AbstractTicket
     {
         return encKdcRepPart.getEndTime().getTime();
     }
+
 
     public boolean isForwardable()
     {

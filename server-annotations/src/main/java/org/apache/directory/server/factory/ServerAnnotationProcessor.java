@@ -196,7 +196,7 @@ public final class ServerAnnotationProcessor
                 }
             }
 
-            List<String> realms = new ArrayList<String>();
+            List<String> realms = new ArrayList<>();
             for ( String s : createLdapServer.saslRealms() )
             {
                 realms.add( s );
@@ -375,6 +375,7 @@ public final class ServerAnnotationProcessor
     public static KdcServer getKdcServer( DirectoryService directoryService, int startPort ) throws Exception
     {
         CreateKdcServer createKdcServer = ( CreateKdcServer ) getAnnotation( CreateKdcServer.class );
+        
         return createKdcServer( createKdcServer, directoryService );
     }
 
@@ -510,7 +511,7 @@ public final class ServerAnnotationProcessor
         else if ( protocol.equalsIgnoreCase( "KRB" ) || protocol.equalsIgnoreCase( "CPW" ) )
         {
             Transport tcp = new TcpTransport( address, port, nbThreads, backlog );
-            List< Transport > transports = new ArrayList< Transport >();
+            List< Transport > transports = new ArrayList<>();
             transports.add( tcp );
             
             Transport udp = new UdpTransport( address, port );
@@ -531,7 +532,6 @@ public final class ServerAnnotationProcessor
     }
 
     public static KdcServer getKdcServer( Description description, DirectoryService directoryService, int startPort )
-        throws Exception
     {
         CreateKdcServer createLdapServer = description.getAnnotation( CreateKdcServer.class );
 

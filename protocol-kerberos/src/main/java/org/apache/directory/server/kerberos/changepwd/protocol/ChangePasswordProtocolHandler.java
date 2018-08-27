@@ -75,6 +75,7 @@ public class ChangePasswordProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void sessionCreated( IoSession session ) throws Exception
     {
         if ( LOG.isDebugEnabled() )
@@ -87,24 +88,28 @@ public class ChangePasswordProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void sessionOpened( IoSession session )
     {
         LOG.debug( "{} OPENED", session.getRemoteAddress() );
     }
 
 
+    @Override
     public void sessionClosed( IoSession session )
     {
         LOG.debug( "{} CLOSED", session.getRemoteAddress() );
     }
 
 
+    @Override
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         LOG.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
     }
 
 
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.debug( session.getRemoteAddress() + " EXCEPTION", cause );
@@ -112,6 +117,7 @@ public class ChangePasswordProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void messageReceived( IoSession session, Object message )
     {
         LOG.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
@@ -159,6 +165,7 @@ public class ChangePasswordProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void messageSent( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )
@@ -225,6 +232,7 @@ public class ChangePasswordProtocolHandler extends IoHandlerAdapter
     }
 
     
+    @Override
     public void inputClosed( IoSession session )
     {
     }

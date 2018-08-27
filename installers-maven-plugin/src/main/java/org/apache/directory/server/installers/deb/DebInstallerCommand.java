@@ -264,6 +264,7 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void initializeFilterProperties()
     {
         super.initializeFilterProperties();
@@ -307,7 +308,7 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
      */
     public File getInstanceDirectory()
     {
-        return new File( getDebDirectory(), VAR_LIB_APACHEDS_DIR + mojo.getProject().getVersion() + "/" + DEFAULT );
+        return new File( getDebDirectory(), VAR_LIB_APACHEDS_DIR + mojo.getProject().getVersion() + File.separator + DEFAULT );
     }
 
 

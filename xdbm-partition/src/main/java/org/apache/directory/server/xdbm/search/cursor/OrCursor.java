@@ -189,6 +189,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         while ( cursors.get( cursorIndex ).previous() )
@@ -235,6 +236,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         while ( cursors.get( cursorIndex ).next() )

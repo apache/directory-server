@@ -214,7 +214,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( Dn normName, Entry entry ) throws LdapException
+    public void subentryDeleted( Dn normName, Entry entry )
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -225,7 +225,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( ModifyOperationContext opContext, Entry entry ) throws LdapException
+    public void subentryModified( ModifyOperationContext opContext, Entry entry )
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {

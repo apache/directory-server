@@ -146,10 +146,8 @@ public class StoreBasedDhcpService extends AbstractDhcpService
 
         InetAddress selectionBase = determineSelectionBase( clientAddress, request );
 
-        Lease lease = dhcpStore.getLeaseOffer( request.getHardwareAddress(), requestedAddress, selectionBase,
+        return dhcpStore.getLeaseOffer( request.getHardwareAddress(), requestedAddress, selectionBase,
             requestedLeaseTime, request.getOptions() );
-
-        return lease;
     }
 
 
@@ -158,6 +156,7 @@ public class StoreBasedDhcpService extends AbstractDhcpService
      *      java.net.InetSocketAddress,
      *      org.apache.directory.server.dhcp.messages.DhcpMessage)
      */
+    @Override
     protected DhcpMessage handleRELEASE( InetSocketAddress localAddress, InetSocketAddress clientAddress,
         DhcpMessage request ) throws DhcpException
     {
@@ -217,6 +216,7 @@ public class StoreBasedDhcpService extends AbstractDhcpService
      * @see org.apache.directory.server.dhcp.service.AbstractDhcpService#handleDISCOVER(java.net.InetSocketAddress,
      *      org.apache.directory.server.dhcp.messages.DhcpMessage)
      */
+    @Override
     protected DhcpMessage handleDISCOVER( InetSocketAddress localAddress, InetSocketAddress clientAddress,
         DhcpMessage request ) throws DhcpException
     {
@@ -259,6 +259,7 @@ public class StoreBasedDhcpService extends AbstractDhcpService
      * @see org.apache.directory.server.dhcp.service.AbstractDhcpService#handleREQUEST(java.net.InetSocketAddress,
      *      org.apache.directory.server.dhcp.messages.DhcpMessage)
      */
+    @Override
     protected DhcpMessage handleREQUEST( InetSocketAddress localAddress, InetSocketAddress clientAddress,
         DhcpMessage request ) throws DhcpException
     {

@@ -237,6 +237,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         if ( userIdxCursor != null )
@@ -262,6 +263,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         if ( userIdxCursor != null )

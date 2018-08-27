@@ -41,6 +41,7 @@ public abstract class IntOption extends DhcpOption
     /*
      * @see org.apache.directory.server.dhcp.options.DhcpOption#setData(byte[])
      */
+    @Override
     public void setData( byte[] data )
     {
         intValue = ( data[0] & 0xff ) << 24 | ( data[1] & 0xff ) << 16
@@ -51,6 +52,7 @@ public abstract class IntOption extends DhcpOption
     /*
      * @see org.apache.directory.server.dhcp.options.DhcpOption#getData()
      */
+    @Override
     public byte[] getData()
     {
         return new byte[]

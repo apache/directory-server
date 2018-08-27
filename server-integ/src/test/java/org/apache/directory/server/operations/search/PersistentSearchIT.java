@@ -283,7 +283,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
+        assertEquals( ChangeType.MODIFY, listener.result.control.getChangeType() );
     }
 
 
@@ -299,7 +299,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.MODDN );
+        assertEquals( ChangeType.MODDN, listener.result.control.getChangeType() );
         assertEquals( ( RDN + ",ou=system" ), listener.result.control.getPreviousDn().getName() );
     }
 
@@ -316,7 +316,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.DELETE );
+        assertEquals( ChangeType.DELETE,  listener.result.control.getChangeType() );
     }
 
 
@@ -332,7 +332,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
+        assertEquals( ChangeType.ADD, listener.result.control.getChangeType() );
     }
 
 
@@ -353,7 +353,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
+        assertEquals( ChangeType.ADD, listener.result.control.getChangeType() );
         tearDownListener();
 
         setUpListener( true, ctrl, true );
@@ -368,7 +368,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
+        assertEquals( ChangeType.MODIFY, listener.result.control.getChangeType() );
     }
 
 

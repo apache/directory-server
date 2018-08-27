@@ -44,7 +44,7 @@ public class TgtRequest
 
     private long renewTill;// rtime
 
-    private List<HostAddress> hostAddresses = new ArrayList<HostAddress>();
+    private List<HostAddress> hostAddresses = new ArrayList<>();
 
     private KdcOptions options = new KdcOptions();
 
@@ -53,13 +53,14 @@ public class TgtRequest
     /** the set of encryption types that the server replied */
     private Set<EncryptionType> eTypes;
 
+
     public TgtRequest()
     {
         startTime = System.currentTimeMillis();
         expiryTime = startTime + ( 8 * 60 * 60 * 1000 );
     }
-    
-    
+
+
     public void addHost( String hostNameOrIpAddress ) throws UnknownHostException
     {
         InetAddress address = InetAddress.getByName( hostNameOrIpAddress );
@@ -175,13 +176,13 @@ public class TgtRequest
         setOrClear( KdcOptions.POSTDATED, postdated );
     }
 
-    
+
     public void setRenewableOk( boolean renewableOk )
     {
         setOrClear( KdcOptions.RENEWABLE_OK, renewableOk );
     }
 
-    
+
     public void setRenewable( boolean renewable )
     {
         setOrClear( KdcOptions.RENEWABLE, renewable );
@@ -193,7 +194,7 @@ public class TgtRequest
         return options;
     }
 
-    
+
     public boolean isPreAuthEnabled()
     {
         return preAuthEnabled;
@@ -205,17 +206,19 @@ public class TgtRequest
         this.preAuthEnabled = preAuthEnabled;
     }
 
+
     public String getSName()
     {
         return KdcClientUtil.extractName( serverPrincipal );
     }
+
 
     public String getCName()
     {
         return KdcClientUtil.extractName( clientPrincipal );
     }
 
-    
+
     public Set<EncryptionType> getETypes()
     {
         return eTypes;

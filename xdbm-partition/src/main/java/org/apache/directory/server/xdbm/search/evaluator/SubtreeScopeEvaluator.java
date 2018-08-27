@@ -179,9 +179,9 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
         {
             Element element = db.getAliasCache().get( id );
             
-            if ( ( element != null ) && ( element.getValue() != null ) )
+            if ( ( element != null ) && ( element.getObjectValue() != null ) )
             {
-                Dn dn = ( Dn ) element.getValue();
+                Dn dn = ( Dn ) element.getObjectValue();
 
                 return false;
             }

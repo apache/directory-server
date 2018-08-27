@@ -45,7 +45,7 @@ public enum OpCode implements EnumConverter<Byte>
     /** Dynamic update message */
     UPDATE(5);
 
-    private static ReverseEnumMap<Byte, OpCode> map = new ReverseEnumMap<Byte, OpCode>( OpCode.class );
+    private static ReverseEnumMap<Byte, OpCode> map = new ReverseEnumMap<>( OpCode.class );
 
     private final byte value;
 

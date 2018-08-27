@@ -153,7 +153,7 @@ public abstract class ServerContext implements EventContext
 
     /** The set of registered NamingListeners */
     private final Map<NamingListener, DirectoryListener> listeners =
-        new HashMap<NamingListener, DirectoryListener>();
+        new HashMap<>();
 
     /** The request controls to set on operations before performing them */
     protected Control[] requestControls = EMPTY_CONTROLS;
@@ -167,7 +167,7 @@ public abstract class ServerContext implements EventContext
     /** The session */
     private final CoreSession session;
 
-    private static final Map<String, ControlEnum> ADS_CONTROLS = new HashMap<String, ControlEnum>();
+    private static final Map<String, ControlEnum> ADS_CONTROLS = new HashMap<>();
 
     static
     {
@@ -249,7 +249,7 @@ public abstract class ServerContext implements EventContext
         this.service = service;
         this.dn = JndiUtils.fromName( name );
 
-        this.env = new Hashtable<String, Object>();
+        this.env = new Hashtable<>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         session = new DefaultCoreSession( principal, service );
@@ -273,7 +273,7 @@ public abstract class ServerContext implements EventContext
     {
         this.service = service;
         this.dn = JndiUtils.fromName( name );
-        this.env = new Hashtable<String, Object>();
+        this.env = new Hashtable<>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.session = session;
@@ -683,7 +683,7 @@ public abstract class ServerContext implements EventContext
 
         // Now remove the ObjectClass attribute if it has not been requested
         if ( ( lookupContext.getReturningAttributes() != null )
-            && ( lookupContext.getReturningAttributes().size() != 0 )
+            && !lookupContext.getReturningAttributes().isEmpty()
             && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
             && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
         {
@@ -1082,7 +1082,7 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    private void injectRdnAttributeValues( Dn target, Entry serverEntry ) throws NamingException
+    private void injectRdnAttributeValues( Dn target, Entry serverEntry )
     {
         // Add all the Rdn attributes and their values to this entry
         Rdn rdn = target.getRdn();

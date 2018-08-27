@@ -623,7 +623,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
         {
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "---> Remove " + name + " = " + key + ", " + value );
+                LOG.debug( "---> Remove {} = {}, {}", name, key, value );
             }
 
             if ( key == null )
@@ -648,7 +648,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
                     if ( LOG.isDebugEnabled() )
                     {
-                        LOG.debug( "<--- Remove ONE " + name + " = " + key + ", " + value );
+                        LOG.debug( "<--- Remove ONE {} = {}, {}", name, key, value );
                     }
                 }
 
@@ -677,7 +677,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
                     if ( LOG.isDebugEnabled() )
                     {
-                        LOG.debug( "<--- Remove AVL " + name + " = " + key + ", " + value );
+                        LOG.debug( "<--- Remove AVL {} = {}, {}", name, key, value );
                     }
                 }
 
@@ -704,7 +704,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
                 if ( LOG.isDebugEnabled() )
                 {
-                    LOG.debug( "<--- Remove BTREE " + name + " = " + key + ", " + value );
+                    LOG.debug( "<--- Remove BTREE {} = {}, {}", name, key, value );
                 }
             }
         }

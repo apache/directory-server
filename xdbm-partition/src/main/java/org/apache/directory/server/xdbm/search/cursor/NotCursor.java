@@ -134,6 +134,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         while ( uuidCursor.previous() )
@@ -154,6 +155,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         while ( uuidCursor.next() )

@@ -261,6 +261,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         if ( userIdxCursor != null )

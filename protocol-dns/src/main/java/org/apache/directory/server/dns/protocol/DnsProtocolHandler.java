@@ -67,6 +67,7 @@ public class DnsProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void sessionCreated( IoSession session ) throws Exception
     {
         if ( LOG.isDebugEnabled() )
@@ -87,31 +88,36 @@ public class DnsProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void sessionOpened( IoSession session )
     {
         LOG.debug( "{} OPENED", session.getRemoteAddress() );
     }
 
 
+    @Override
     public void sessionClosed( IoSession session )
     {
         LOG.debug( "{} CLOSED", session.getRemoteAddress() );
     }
 
 
+    @Override
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         LOG.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
     }
 
 
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.error( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close( true );
+        session.closeNow();
     }
 
 
+    @Override
     public void messageReceived( IoSession session, Object message )
     {
         LOG.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
@@ -158,6 +164,7 @@ public class DnsProtocolHandler extends IoHandlerAdapter
     }
 
 
+    @Override
     public void messageSent( IoSession session, Object message )
     {
         LOG.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
@@ -170,6 +177,7 @@ public class DnsProtocolHandler extends IoHandlerAdapter
     }
 
     
+    @Override
     public void inputClosed( IoSession session )
     {
     }

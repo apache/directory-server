@@ -53,7 +53,7 @@ public class AddressRecordDecoder implements RecordDecoder
 {
     public Map<String, Object> decode( IoBuffer byteBuffer, short length ) throws IOException
     {
-        Map<String, Object> attributes = new HashMap<String, Object>();
+        Map<String, Object> attributes = new HashMap<>();
         byte[] addressBytes = new byte[length];
         byteBuffer.get( addressBytes );
         attributes.put( Strings.toLowerCaseAscii( DnsAttribute.IP_ADDRESS ), InetAddress.getByAddress( addressBytes ) );

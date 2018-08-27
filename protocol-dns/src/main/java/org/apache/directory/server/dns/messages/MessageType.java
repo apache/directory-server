@@ -36,7 +36,7 @@ public enum MessageType implements EnumConverter<Byte>
     /** A response message. */
     RESPONSE(1);
 
-    private static ReverseEnumMap<Byte, MessageType> map = new ReverseEnumMap<Byte, MessageType>( MessageType.class );
+    private static ReverseEnumMap<Byte, MessageType> map = new ReverseEnumMap<>( MessageType.class );
 
     private final byte value;
 

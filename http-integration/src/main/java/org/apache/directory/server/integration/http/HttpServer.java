@@ -221,7 +221,7 @@ public class HttpServer
                 sslContextFactory.setKeyManagerPassword( password );
 
                 HttpConfiguration httpsConfiguration = new HttpConfiguration();
-                httpsConfiguration.setSecureScheme( "https" );
+                httpsConfiguration.setSecureScheme( HTTPS_TRANSPORT_ID );
                 httpsConfiguration.setSecurePort( httpsTransport.getPort() );
                 httpsConfiguration.addCustomizer( new SecureRequestCustomizer() );
 

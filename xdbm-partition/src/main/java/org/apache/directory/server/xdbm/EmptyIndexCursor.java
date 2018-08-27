@@ -59,6 +59,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void before( IndexEntry<K, String> element ) throws LdapException, CursorException
     {
         checkNotClosed();
@@ -77,6 +78,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void after( IndexEntry<K, String> element ) throws LdapException, CursorException
     {
         checkNotClosed();
@@ -174,6 +176,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -188,6 +191,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )

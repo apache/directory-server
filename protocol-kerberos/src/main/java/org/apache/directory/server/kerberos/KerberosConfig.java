@@ -44,7 +44,7 @@ public class KerberosConfig
     public static final String DEFAULT_REALM = "EXAMPLE.COM";
 
     /** The default allowable clockskew */
-    public static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * 60000;
+    public static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5L * 60000L;
 
     /** The default for allowing empty addresses */
     public static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
@@ -438,7 +438,7 @@ public class KerberosConfig
     {
         String[] encryptionTypeStrings = KerberosConfig.DEFAULT_ENCRYPTION_TYPES;
 
-        encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes = new HashSet<>();
 
         for ( String enc : encryptionTypeStrings )
         {

@@ -49,16 +49,18 @@ public class NtpProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.error( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close( true );
+        session.closeNow();
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageReceived( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )

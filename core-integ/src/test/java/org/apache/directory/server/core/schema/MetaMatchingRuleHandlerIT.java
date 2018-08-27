@@ -128,7 +128,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
 
         // Post-checks
         assertTrue( schemaManager.getMatchingRuleRegistry().contains( OID ) );
-        assertEquals( schemaManager.getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", schemaManager.getMatchingRuleRegistry().getSchemaName( OID ) );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -248,8 +248,8 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddMatchingRuleToEnabledSchema();
 
         MatchingRule mr = schemaManager.getMatchingRuleRegistry().lookup( OID );
-        assertEquals( mr.getDescription(), DESCRIPTION0 );
-        assertEquals( mr.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
+        assertEquals( DESCRIPTION0, mr.getDescription() );
+        assertEquals( SchemaConstants.INTEGER_SYNTAX, mr.getSyntax().getOid() );
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
 
@@ -263,12 +263,12 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "matchingRule OID should still be present",
             schemaManager.getMatchingRuleRegistry().contains( OID ) );
 
-        assertEquals( "matchingRule schema should be set to apachemeta",
-            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "matchingRule schema should be set to apachemeta", "apachemeta", 
+            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ) );
 
         mr = schemaManager.getMatchingRuleRegistry().lookup( OID );
-        assertEquals( mr.getDescription(), DESCRIPTION1 );
-        assertEquals( mr.getSyntax().getOid(), SchemaConstants.DIRECTORY_STRING_SYNTAX );
+        assertEquals( DESCRIPTION1, mr.getDescription() );
+        assertEquals( SchemaConstants.DIRECTORY_STRING_SYNTAX, mr.getSyntax().getOid() );
     }
 
 
@@ -279,8 +279,8 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddMatchingRuleToEnabledSchema();
 
         MatchingRule mr = schemaManager.getMatchingRuleRegistry().lookup( OID );
-        assertEquals( mr.getDescription(), DESCRIPTION0 );
-        assertEquals( mr.getSyntax().getOid(), SchemaConstants.INTEGER_SYNTAX );
+        assertEquals( DESCRIPTION0, mr.getDescription() );
+        assertEquals( SchemaConstants.INTEGER_SYNTAX, mr.getSyntax().getOid() );
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=matchingRules,cn=apachemeta,ou=schema" );
 
@@ -294,12 +294,12 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "matchingRule OID should still be present",
             schemaManager.getMatchingRuleRegistry().contains( OID ) );
 
-        assertEquals( "matchingRule schema should be set to apachemeta",
-            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "matchingRule schema should be set to apachemeta", "apachemeta", 
+            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ) );
 
         mr = schemaManager.getMatchingRuleRegistry().lookup( OID );
-        assertEquals( mr.getDescription(), DESCRIPTION1 );
-        assertEquals( mr.getSyntax().getOid(), SchemaConstants.DIRECTORY_STRING_SYNTAX );
+        assertEquals( DESCRIPTION1, mr.getDescription() );
+        assertEquals( SchemaConstants.DIRECTORY_STRING_SYNTAX, mr.getSyntax().getOid() );
     }
 
 
@@ -351,8 +351,8 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "matchingRule OID should still be present",
             schemaManager.getMatchingRuleRegistry().contains( OID ) );
 
-        assertEquals( "matchingRule schema should be set to apache not apachemeta",
-            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ), "apache" );
+        assertEquals( "matchingRule schema should be set to apache not apachemeta", "apache",
+            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ) );
     }
 
 
@@ -374,8 +374,8 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "new matchingRule OID should be present",
             schemaManager.getMatchingRuleRegistry().contains( NEW_OID ) );
 
-        assertEquals( "matchingRule with new oid should have schema set to apache NOT apachemeta",
-            schemaManager.getMatchingRuleRegistry().getSchemaName( NEW_OID ), "apache" );
+        assertEquals( "matchingRule with new oid should have schema set to apache NOT apachemeta", "apache",
+            schemaManager.getMatchingRuleRegistry().getSchemaName( NEW_OID ) );
     }
 
 
@@ -504,7 +504,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapInvalidDnException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
+            assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
         assertTrue( "matchingRule should still be in the registry after move failure",
@@ -529,7 +529,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapInvalidDnException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
+            assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
         assertTrue( "matchingRule should still be in the registry after move failure",
@@ -574,7 +574,7 @@ public class MetaMatchingRuleHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "matchingRule OID should be present when moved to enabled schema",
             schemaManager.getMatchingRuleRegistry().contains( OID ) );
 
-        assertEquals( "matchingRule should be in apachemeta schema after move",
-            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "matchingRule should be in apachemeta schema after move", "apachemeta", 
+            schemaManager.getMatchingRuleRegistry().getSchemaName( OID ) );
     }
 }

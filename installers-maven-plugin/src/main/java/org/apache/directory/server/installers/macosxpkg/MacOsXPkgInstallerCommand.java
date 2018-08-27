@@ -555,6 +555,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void initializeFilterProperties()
     {
         super.initializeFilterProperties();
@@ -574,7 +575,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
      */
     public File getInstallationDirectory()
     {
-        return new File( getTargetDirectory(), ROOT + "/" + USR_LOCAL_APACHEDS
+        return new File( getTargetDirectory(), ROOT + File.separator + USR_LOCAL_APACHEDS
             + mojo.getProject().getVersion() );
     }
 

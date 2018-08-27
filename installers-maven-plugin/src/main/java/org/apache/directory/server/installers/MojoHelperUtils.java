@@ -129,7 +129,7 @@ public final class MojoHelperUtils
         throws MojoFailureException
     {
         // Creating the excludes set
-        Set<String> excludes = new HashSet<String>();
+        Set<String> excludes = new HashSet<>();
 
         if ( myMojo.getExcludes() != null )
         {
@@ -175,10 +175,11 @@ public final class MojoHelperUtils
 
         if ( doSudo )
         {
-            StringBuffer cmdString = new StringBuffer( " " );
-            for ( int ii = 0; ii < cmd.length; ii++ )
+            StringBuilder cmdString = new StringBuilder( " " );
+            
+            for ( String command : cmd )
             {
-                cmdString.append( cmd[ii] ).append( " " );
+                cmdString.append( command ).append( " " );
             }
 
             String[] temp = new String[2];
@@ -187,10 +188,11 @@ public final class MojoHelperUtils
             cmd = temp;
         }
 
-        StringBuffer cmdString = new StringBuffer( " " );
-        for ( int ii = 0; ii < cmd.length; ii++ )
+        StringBuilder cmdString = new StringBuilder( " " );
+        
+        for ( String command : cmd )
         {
-            cmdString.append( cmd[ii] ).append( " " );
+            cmdString.append( command ).append( " " );
         }
 
         try

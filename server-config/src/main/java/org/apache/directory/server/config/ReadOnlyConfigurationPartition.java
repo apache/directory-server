@@ -84,6 +84,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void doInit() throws LdapException
     {
         if ( !initialized )

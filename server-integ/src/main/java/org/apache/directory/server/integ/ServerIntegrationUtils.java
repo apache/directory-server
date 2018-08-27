@@ -83,7 +83,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
         throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, String> env = new Hashtable<>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, principalDn );
@@ -107,7 +107,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, String> env = new Hashtable<>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -140,7 +140,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapContext getWiredContextThrowOnRefferal( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, String> env = new Hashtable<>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -164,7 +164,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapContext getWiredContextRefferalIgnore( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, String> env = new Hashtable<>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -188,7 +188,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapContext getWiredContextFollowOnRefferal( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, String> env = new Hashtable<>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -209,19 +209,19 @@ public class ServerIntegrationUtils extends IntegrationUtils
             return getWiredConnection( ldapServer, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
         }
 
-        LOG.debug( "ldap.test.server = " + testServer );
+        LOG.debug( "ldap.test.server = {}", testServer );
 
         String admin = System.getProperty( testServer + ".admin", DEFAULT_ADMIN );
-        LOG.debug( testServer + ".admin = " + admin );
+        LOG.debug( "{}.admin = {}", testServer, admin );
 
         String password = System.getProperty( testServer + ".password", DEFAULT_PASSWORD );
-        LOG.debug( testServer + ".password = " + password );
+        LOG.debug( "{}.password = {}", testServer, password );
 
         String host = System.getProperty( testServer + ".host", Network.LOOPBACK_HOSTNAME );
-        LOG.debug( testServer + ".host = " + host );
+        LOG.debug( "{}.host = {}", testServer, host );
 
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
-        LOG.debug( testServer + ".port = " + port );
+        LOG.debug( "{}.port = {}", testServer, port );
 
         LdapConnection conn = new LdapNetworkConnection( host, port );
         conn.bind( admin, password );
@@ -239,19 +239,19 @@ public class ServerIntegrationUtils extends IntegrationUtils
             return getNsdkWiredConnection( ldapServer, ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
         }
 
-        LOG.debug( "ldap.test.server = " + testServer );
+        LOG.debug( "ldap.test.server = {}", testServer );
 
         String admin = System.getProperty( testServer + ".admin", DEFAULT_ADMIN );
-        LOG.debug( testServer + ".admin = " + admin );
+        LOG.debug( "{}.admin = {}", testServer, admin );
 
         String password = System.getProperty( testServer + ".password", DEFAULT_PASSWORD );
-        LOG.debug( testServer + ".password = " + password );
+        LOG.debug( "{}.password = {}", testServer, password );
 
         String host = System.getProperty( testServer + ".host", Network.LOOPBACK_HOSTNAME );
-        LOG.debug( testServer + ".host = " + host );
+        LOG.debug( "{}.host = {}", testServer, host );
 
         int port = Integer.parseInt( System.getProperty( testServer + ".port", Integer.toString( DEFAULT_PORT ) ) );
-        LOG.debug( testServer + ".port = " + port );
+        LOG.debug( "{}.port = {}", testServer, port );
 
         LDAPConnection conn = new LDAPConnection();
         conn.connect( 3, host, port, admin, password );
@@ -286,11 +286,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
      * @return A LdapConnection instance if we got one
      * @throws LdapException If the connection cannot be created
      */
-    public static LdapConnection getLdapConnection( LdapServer ldapServer ) throws LdapException
+    public static LdapConnection getLdapConnection( LdapServer ldapServer )
     {
-        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
-
-        return connection;
+        return new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
     }
 
 

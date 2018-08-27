@@ -190,7 +190,7 @@ public class EvaluatorBuilder
 
     private List<Evaluator<? extends ExprNode>> buildList( PartitionTxn partitionTxn, List<ExprNode> children ) throws LdapException
     {
-        List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>(
+        List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<>(
             children.size() );
 
         for ( ExprNode child : children )

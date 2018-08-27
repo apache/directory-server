@@ -48,7 +48,7 @@ public enum RecordClass implements EnumConverter<Short>
     /** Any class */
     ANY(255);
 
-    private static ReverseEnumMap<Short, RecordClass> map = new ReverseEnumMap<Short, RecordClass>( RecordClass.class );
+    private static ReverseEnumMap<Short, RecordClass> map = new ReverseEnumMap<>( RecordClass.class );
 
     private final short value;
 

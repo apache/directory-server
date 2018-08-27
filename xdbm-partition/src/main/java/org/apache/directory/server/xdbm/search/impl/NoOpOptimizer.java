@@ -44,14 +44,15 @@ public class NoOpOptimizer implements Optimizer
     {
         if ( node.isLeaf() )
         {
-            node.set( "count", MAX );
+            node.set( DefaultOptimizer.COUNT_ANNOTATION, MAX );
             return MAX;
         }
 
         BranchNode bnode = ( BranchNode ) node;
-        if ( bnode.getChildren().size() == 0 )
+        
+        if ( bnode.getChildren().isEmpty() )
         {
-            bnode.set( "count", MAX );
+            bnode.set( DefaultOptimizer.COUNT_ANNOTATION, MAX );
             return MAX;
         }
 
@@ -61,7 +62,7 @@ public class NoOpOptimizer implements Optimizer
             ExprNode child = bnode.getChildren().get( ii );
             if ( child.isLeaf() )
             {
-                child.set( "count", MAX );
+                child.set( DefaultOptimizer.COUNT_ANNOTATION, MAX );
             }
             else
             {
@@ -69,7 +70,7 @@ public class NoOpOptimizer implements Optimizer
             }
         }
 
-        bnode.set( "count", MAX );
+        bnode.set( DefaultOptimizer.COUNT_ANNOTATION, MAX );
         return MAX;
     }
 }

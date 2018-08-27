@@ -73,6 +73,7 @@ public class DSBasedServerBean extends ServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -87,6 +88,7 @@ public class DSBasedServerBean extends ServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

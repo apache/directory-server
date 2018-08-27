@@ -351,7 +351,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // Check, whether attribute objectClass is unchanged
         Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         ocls = attrs.get( "objectClass" );
-        assertEquals( ocls.size(), 4 );
+        assertEquals( 4, ocls.size() );
         assertTrue( ocls.contains( "top" ) );
         assertTrue( ocls.contains( "person" ) );
     }

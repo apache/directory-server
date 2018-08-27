@@ -130,6 +130,7 @@ public class UdpTransport extends AbstractTransport
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return "UdpTransport" + super.toString();

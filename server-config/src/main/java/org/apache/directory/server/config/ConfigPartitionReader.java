@@ -50,6 +50,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.ObjectClass;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.config.beans.AdsBaseBean;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
@@ -120,26 +121,19 @@ public class ConfigPartitionReader
      */
     private ObjectClass findObjectClass( Attribute objectClass ) throws Exception
     {
-        Set<ObjectClass> candidates = new HashSet<ObjectClass>();
+        Set<ObjectClass> candidates = new HashSet<>();
 
-        try
+        // Create the set of candidates
+        for ( Value ocValue : objectClass )
         {
-            // Create the set of candidates
-            for ( Value ocValue : objectClass )
+            String ocName = ocValue.getValue();
+            String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
+            ObjectClass oc = schemaManager.getObjectClassRegistry().get( ocOid );
+
+            if ( oc.isStructural() )
             {
-                String ocName = ocValue.getValue();
-                String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
-                ObjectClass oc = schemaManager.getObjectClassRegistry().get( ocOid );
-
-                if ( oc.isStructural() )
-                {
-                    candidates.add( oc );
-                }
+                candidates.add( oc );
             }
-        }
-        catch ( Exception e )
-        {
-            throw e;
         }
 
         // Now find the parent OC
@@ -151,12 +145,9 @@ public class ConfigPartitionReader
 
             for ( ObjectClass superior : oc.getSuperiors() )
             {
-                if ( oc.isStructural() )
+                if ( oc.isStructural() && candidates.contains( superior ) )
                 {
-                    if ( candidates.contains( superior ) )
-                    {
-                        candidates.remove( superior );
-                    }
+                    candidates.remove( superior );
                 }
             }
         }
@@ -184,7 +175,6 @@ public class ConfigPartitionReader
 
         // Now, let's instantiate the associated bean. Get rid of the 'ads-' in front of the name,
         // and uppercase the first letter. Finally add "Bean" at the end and add the package.
-        //String beanName = this.getClass().getPackage().getName() + "org.apache.directory.server.config.beans." + Character.toUpperCase( objectClassName.charAt( 4 ) ) + objectClassName.substring( 5 ) + "Bean";
         String beanName = this.getClass().getPackage().getName() + ".beans."
             + Character.toUpperCase( objectClassName.charAt( ADS_PREFIX.length() ) )
             + objectClassName.substring( ADS_PREFIX.length() + 1 ) + ADS_SUFFIX;
@@ -205,7 +195,7 @@ public class ConfigPartitionReader
             LOG.error( message );
             throw new ConfigurationException( message );
         }
-        catch ( SecurityException se )
+        catch ( SecurityException e )
         {
             String message = "Cannot access to the class " + beanName;
             LOG.error( message );
@@ -269,7 +259,14 @@ public class ConfigPartitionReader
             }
             else if ( type == byte[].class )
             {
-                beanField.set( bean, value.getBytes() );
+                if ( value != null )
+                {
+                    beanField.set( bean, value.getBytes() );
+                }
+                else
+                {
+                    beanField.set( bean, Strings.EMPTY_BYTES );
+                }
             }
             else if ( type == int.class )
             {
@@ -299,13 +296,7 @@ public class ConfigPartitionReader
                 }
             }
         }
-        catch ( IllegalArgumentException iae )
-        {
-            String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();
-            LOG.error( message );
-            throw new ConfigurationException( message );
-        }
-        catch ( IllegalAccessException e )
+        catch ( IllegalArgumentException | IllegalAccessException e )
         {
             String message = "Cannot store '" + valueStr + "' into attribute " + fieldAttr.getId();
             LOG.error( message );
@@ -368,7 +359,7 @@ public class ConfigPartitionReader
                         throw new ConfigurationException( message );
                     }
                 }
-                else if ( type == Set.class )
+                else if ( ( type == Set.class ) || ( type == List.class ) )
                 {
                     Type genericFieldType = field.getGenericType();
                     Class<?> fieldArgClass = null;
@@ -387,47 +378,16 @@ public class ConfigPartitionReader
                     Method method = bean.getClass().getMethod( addMethodName,
                         Array.newInstance( fieldArgClass, 0 ).getClass() );
 
-                    method.invoke( bean, new Object[]
-                        { new String[]
-                            { valueStr } } );
-                }
-                else if ( type == List.class )
-                {
-                    Type genericFieldType = field.getGenericType();
-                    Class<?> fieldArgClass = null;
-
-                    if ( genericFieldType instanceof ParameterizedType )
-                    {
-                        ParameterizedType parameterizedType = ( ParameterizedType ) genericFieldType;
-                        Type[] fieldArgTypes = parameterizedType.getActualTypeArguments();
-
-                        for ( Type fieldArgType : fieldArgTypes )
-                        {
-                            fieldArgClass = ( Class<?> ) fieldArgType;
-                        }
-                    }
-
-                    Method method = bean.getClass().getMethod( addMethodName,
-                        Array.newInstance( fieldArgClass, 0 ).getClass() );
-
-                    method.invoke( bean, new Object[]
-                        { new String[]
-                            { valueStr } } );
+                    method.invoke( bean, new Object[] { new String[] { valueStr } } );
                 }
             }
-            catch ( IllegalArgumentException iae )
+            catch ( IllegalArgumentException | IllegalAccessException e )
             {
                 String message = "Cannot store '" + valueStr + "' into attribute " + attribute.getId();
                 LOG.error( message );
                 throw new ConfigurationException( message );
             }
-            catch ( IllegalAccessException e )
-            {
-                String message = "Cannot store '" + valueStr + "' into attribute " + attribute.getId();
-                LOG.error( message );
-                throw new ConfigurationException( message );
-            }
-            catch ( SecurityException se )
+            catch ( SecurityException e )
             {
                 String message = "Cannot access to the class " + bean.getClass().getName();
                 LOG.error( message );
@@ -693,7 +653,7 @@ public class ConfigPartitionReader
                                 SearchScope.ONELEVEL, !isOptional );
 
                             // Setting the values to the field
-                            if ( ( fieldValues != null ) && ( fieldValues.size() > 0 ) )
+                            if ( ( fieldValues != null ) && !fieldValues.isEmpty() )
                             {
                                 field.set( bean, fieldValues );
                             }
@@ -706,7 +666,7 @@ public class ConfigPartitionReader
                                 SearchScope.ONELEVEL, !isOptional );
 
                             // Setting the value to the field
-                            if ( ( fieldValues != null ) && ( fieldValues.size() > 0 ) )
+                            if ( ( fieldValues != null ) && !fieldValues.isEmpty() )
                             {
                                 field.set( bean, fieldValues.get( 0 ) );
                             }
@@ -817,7 +777,7 @@ public class ConfigPartitionReader
 
         if ( LOG.isDebugEnabled() )
         {
-            if ( ( beans == null ) || ( beans.size() == 0 ) )
+            if ( ( beans == null ) || beans.isEmpty() )
             {
                 LOG.debug( "No {} element to read", objectClass );
             }

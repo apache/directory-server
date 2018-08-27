@@ -180,14 +180,6 @@ public class LdapJndiProperties
             {
                 props.level = AuthenticationLevel.STRONG;
                 props.saslMechanism = ( String ) authentication;
-                //                String[] mechList = ( ( String ) authentication ).trim().split( " " );
-                //                for ( String mech : mechList )
-                //                {
-                //                    if ( !mech.trim().equals( "" ) )
-                //                    {
-                //                        props.mechanisms.add( mech );
-                //                    }
-                //                }
             }
         }
 

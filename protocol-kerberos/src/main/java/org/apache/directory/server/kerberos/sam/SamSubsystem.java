@@ -20,9 +20,8 @@
 package org.apache.directory.server.kerberos.sam;
 
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Hashtable;
-import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -48,7 +47,7 @@ public final class SamSubsystem
     private static SamSubsystem instance;
 
     /** a map of verifiers so we do not need to create a new one every time */
-    private final Map<SamType, SamVerifier> verifiers = new HashMap<SamType, SamVerifier>();
+    private final EnumMap<SamType, SamVerifier> verifiers = new EnumMap<>( SamType.class );
 
     /** the key integrity checker used by the subsystem for all sam types */
     private KeyIntegrityChecker keyChecker;
@@ -118,7 +117,7 @@ public final class SamSubsystem
 
         String key = PROPKEY_BASE + entry.getSamType().getOrdinal();
 
-        Hashtable<Object, Object> env = new Hashtable<Object, Object>();
+        Hashtable<Object, Object> env = new Hashtable<>();
 
         try
         {

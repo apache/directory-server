@@ -84,6 +84,7 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sessionCreated( IoSession session ) throws Exception
     {
         if ( LOG.isDebugEnabled() )
@@ -101,6 +102,7 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sessionOpened( IoSession session )
     {
         if ( LOG.isDebugEnabled() )
@@ -118,6 +120,7 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sessionClosed( IoSession session )
     {
         if ( LOG.isDebugEnabled() )
@@ -135,6 +138,7 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         if ( LOG.isDebugEnabled() )
@@ -152,6 +156,7 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.error( "{} EXCEPTION", session.getRemoteAddress(), cause );
@@ -163,6 +168,7 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageReceived( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )
@@ -266,6 +272,7 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageSent( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )
@@ -339,6 +346,7 @@ public class KerberosProtocolHandler extends IoHandlerAdapter
     }
 
     
+    @Override
     public void inputClosed( IoSession session )
     {
         session.closeNow();

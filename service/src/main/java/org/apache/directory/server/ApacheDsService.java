@@ -122,9 +122,6 @@ public class ApacheDsService
     /** The configuration partition */
     private LdifPartition configPartition;
 
-    /** The configuration reader instance */
-    private ConfigPartitionReader cpReader;
-
     // variables used during the initial startup to update the mandatory operational
     // attributes
     /** The UUID syntax checker instance */
@@ -135,7 +132,7 @@ public class ApacheDsService
 
     private GeneralizedTimeSyntaxChecker timeChecker = GeneralizedTimeSyntaxChecker.INSTANCE;
 
-    private static final Map<String, AttributeTypeOptions> MANDATORY_ENTRY_ATOP_MAP = new HashMap<String, AttributeTypeOptions>();
+    private static final Map<String, AttributeTypeOptions> MANDATORY_ENTRY_ATOP_MAP = new HashMap<>();
     private static final String[] MANDATORY_ENTRY_ATOP_AT = new String[5];
 
     private boolean isSchemaPartitionFirstExtraction = false;
@@ -186,7 +183,7 @@ public class ApacheDsService
         initConfigPartition( instanceLayout, dnFactory, cacheService );
 
         // Read the configuration
-        cpReader = new ConfigPartitionReader( configPartition );
+        ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
 
         ConfigBean configBean = cpReader.readConfig();
 
@@ -295,7 +292,7 @@ public class ApacheDsService
 
         List<Throwable> errors = schemaManager.getErrors();
 
-        if ( errors.size() != 0 )
+        if ( !errors.isEmpty() )
         {
             throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors( errors ) ) );
         }
@@ -306,9 +303,8 @@ public class ApacheDsService
      * Initialize the schema partition
      * 
      * @param instanceLayout the instance layout
-     * @throws Exception in case of any problems while initializing the SchemaPartition
      */
-    private void initSchemaLdifPartition( InstanceLayout instanceLayout, DnFactory dnFactory ) throws Exception
+    private void initSchemaLdifPartition( InstanceLayout instanceLayout, DnFactory dnFactory )
     {
         File schemaPartitionDirectory = new File( instanceLayout.getPartitionsDirectory(), "schema" );
 
@@ -423,7 +419,7 @@ public class ApacheDsService
             ldapServer.start();
         }
 
-        LOG.info( "LDAP server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "" );
+        LOG.info( "LDAP server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) );
     }
 
 
@@ -604,21 +600,26 @@ public class ApacheDsService
 
     public void stop() throws Exception
     {
+        DirectoryService directoryService = null;
+        
         // Stops the server
         if ( ldapServer != null )
         {
             ldapServer.stop();
+            directoryService = ldapServer.getDirectoryService();
         }
 
         if ( kdcServer != null )
         {
             kdcServer.stop();
+            directoryService = kdcServer.getDirectoryService();
         }
 
-        /*if ( changePwdServer != null )
+        /* if ( changePwdServer != null )
         {
             changePwdServer.stop();
-        }*/
+            directoryService = changePwdServer.getDirectoryService();
+        } */
 
         if ( ntpServer != null )
         {
@@ -631,7 +632,10 @@ public class ApacheDsService
         }
 
         // We now have to stop the underlaying DirectoryService
-        ldapServer.getDirectoryService().shutdown();
+        if ( directoryService != null )
+        {
+            directoryService.shutdown();
+        }
     }
 
     private static final String BANNER_LDAP = "           _                     _          ____  ____   \n"
@@ -717,7 +721,7 @@ public class ApacheDsService
             AliasDerefMode.NEVER_DEREF_ALIASES, MANDATORY_ENTRY_ATOP_AT );
         cursor.beforeFirst();
 
-        List<Modification> mods = new ArrayList<Modification>();
+        List<Modification> mods = new ArrayList<>();
 
         while ( cursor.next() )
         {

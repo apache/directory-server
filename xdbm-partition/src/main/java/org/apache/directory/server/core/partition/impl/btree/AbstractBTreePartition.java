@@ -576,7 +576,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         try
         {
             master.close( partitionTxn );
-            LOG.debug( I18n.err( I18n.ERR_125, suffixDn ) );
+            
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( I18n.err( I18n.ERR_125, suffixDn ) );
+            }
         }
         catch ( Throwable t )
         {
@@ -640,7 +644,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     
             if ( cacheSizeConfig < cacheSize )
             {
-                piarCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize * 3 );
+                piarCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize * 3L );
             }
             
             entryDnCache = cacheService.getCache( "entryDn" );
@@ -1810,7 +1814,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 ( ( Index ) userIndex ).drop( partitionTxn, id );
                 nbValues = 0;
             }
-            else
+            else if ( nbValues > 0 )
             {
                 for ( Value value : mods )
                 {

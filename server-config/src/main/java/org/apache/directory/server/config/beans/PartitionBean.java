@@ -52,7 +52,7 @@ public abstract class PartitionBean extends AdsBaseBean
 
     /** The list of declared indexes */
     @ConfigurationElement(objectClass = "ads-index", container = "indexes")
-    private List<IndexBean> indexes = new ArrayList<IndexBean>();
+    private List<IndexBean> indexes = new ArrayList<>();
 
 
     /**
@@ -156,6 +156,7 @@ public abstract class PartitionBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -183,6 +184,7 @@ public abstract class PartitionBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

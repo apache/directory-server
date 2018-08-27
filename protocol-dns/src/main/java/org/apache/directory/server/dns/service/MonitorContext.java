@@ -52,7 +52,7 @@ public class MonitorContext implements IoHandlerCommand
                 RecordStore store = dnsContext.getStore();
                 List<ResourceRecord> records = dnsContext.getResourceRecords();
 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 sb.append( "Monitoring context:" );
                 sb.append( "\n\t" + "store:                     " + store );
                 sb.append( "\n\t" + "records:                   " + records );

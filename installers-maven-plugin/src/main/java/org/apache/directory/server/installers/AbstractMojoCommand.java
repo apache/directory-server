@@ -113,17 +113,6 @@ public abstract class AbstractMojoCommand<T extends Target>
         this.target = target;
 
         log = mojo.getLog();
-
-        /*
-        this.initializeFilterProperties();
-
-        Properties properties = mojo.getProject().getProperties();
-
-        for ( Object key : properties.keySet() )
-        {
-            log.info( "Using property [" + key + ", " + properties.getProperty( ( String ) key ) + "]" );
-        }
-        */
     }
 
 
@@ -243,24 +232,6 @@ public abstract class AbstractMojoCommand<T extends Target>
         // Getting the installation layout and creating directories
         InstallationLayout installationLayout = getInstallationLayout();
 
-        /*
-        log.info( "Create installation layout directories : " );
-
-        for ( File file : installationLayout.getRequiredDirectories() )
-        {
-            log.info( "    File " + file.getAbsolutePath() );
-        }
-
-        log.info( "Filter properties : " );
-
-        Properties properties = filterProperties;
-
-        for ( Object key : properties.keySet() )
-        {
-            log.info( "    property : [ " + key + ", '" + properties.get( ( String ) key ) + "']" );
-        }
-        */
-
         // Create the installation layout directories
         installationLayout.mkdirs();
 
@@ -310,24 +281,6 @@ public abstract class AbstractMojoCommand<T extends Target>
     {
         // Getting the instance layout and creating directories
         InstanceLayout instanceLayout = getInstanceLayout();
-
-        /*
-        log.info( "Create instance layout directories : " );
-
-        for ( File file : instanceLayout.getRequiredDirectories() )
-        {
-            log.info( "    File " + file.getAbsolutePath() );
-        }
-
-        log.info( "Filter properties : " );
-
-        Properties properties = filterProperties;
-
-        for ( Object key : properties.keySet() )
-        {
-            log.info( "    property : [ " + key + "," + properties.get( ( String ) key ) + "]" );
-        }
-        */
 
         instanceLayout.mkdirs();
 

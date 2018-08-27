@@ -79,6 +79,7 @@ import org.apache.directory.shared.kerberos.messages.TgsReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * 
  * A client to connect to kerberos servers using TCP or UDP transports.
@@ -94,15 +95,16 @@ public class KdcConnection
     private SecureRandom nonceGenerator;
 
     static final String TIME_OUT_ERROR = "TimeOut occured";
-    
+
     /** the cipher text handler */
     private CipherTextHandler cipherTextHandler;
 
     /** underlying network channel handler */
     private KerberosChannel channel;
-    
+
     private KdcConfig config;
-    
+
+
     /**
      * 
      * Creates a new instance of KdcConnection.
@@ -112,7 +114,7 @@ public class KdcConnection
     public KdcConnection( KdcConfig config )
     {
         this.config = config;
-        
+
         nonceGenerator = new SecureRandom( String.valueOf( System.currentTimeMillis() ).getBytes() );
         cipherTextHandler = new CipherTextHandler();
         channel = new KerberosChannel();
@@ -123,8 +125,8 @@ public class KdcConnection
     {
         channel.openConnection( config.getHostName(), config.getKdcPort(), config.getTimeout(), config.isUseUdp() );
     }
-    
-    
+
+
     /**
      * Authenticates to the Kerberos server and gets the initial Ticket Granting Ticket
      * 
@@ -136,13 +138,13 @@ public class KdcConnection
     public TgTicket getTgt( String principal, String password ) throws KerberosException
     {
         TgtRequest clientTgtReq = new TgtRequest();
-        
+
         clientTgtReq.setClientPrincipal( principal );
         clientTgtReq.setPassword( password );
-        
+
         return getTgt( clientTgtReq );
     }
-    
+
 
     /**
      * Authenticates to the Kerberos server and gets a service ticket for the given server principal
@@ -153,78 +155,76 @@ public class KdcConnection
      * @return A ServiceTicket instance
      * @throws KerberosException If the ServiceTicket cannot be fetch
      */
-    public ServiceTicket getServiceTicket( String clientPrincipal, String password, String serverPrincipal ) 
-            throws KerberosException
+    public ServiceTicket getServiceTicket( String clientPrincipal, String password, String serverPrincipal )
+        throws KerberosException
     {
         TgtRequest clientTgtReq = new TgtRequest();
         clientTgtReq.setClientPrincipal( clientPrincipal );
         clientTgtReq.setPassword( password );
-        
+
         TgTicket tgt = getTgt( clientTgtReq );
-        
+
         return getServiceTicket( new ServiceTicketRequest( tgt, serverPrincipal ) );
     }
+
 
     public TgTicket getTgt( TgtRequest clientTgtReq ) throws KerberosException
     {
         TgTicket tgt = null;
-        
+
         KerberosException ke = null;
-        
-        for( int i=0; i < 2; i++ )
+
+        for ( int i = 0; i < 2; i++ )
         {
             ke = null;
-            
+
             try
             {
                 tgt = _getTgt( clientTgtReq );
             }
-            catch( KerberosException e )
+            catch ( KerberosException e )
             {
                 // using exception for control flow, b.a.d, but here it is better than
                 // defining a new Result class to hold ticket and exception and validating
                 // the Result instance from _getTgt()
                 ke = e;
             }
-            
-            if( ke != null )
+
+            if ( ( ke != null ) && ( ke.getErrorCode() == ErrorType.KDC_ERR_PREAUTH_REQUIRED.getValue() ) )
             {
-                if ( ke.getErrorCode() == ErrorType.KDC_ERR_PREAUTH_REQUIRED.getValue() )
-                {
-                    clientTgtReq.setETypes( KdcClientUtil.getEtypesFromError( ke.getError() ) );
-                    clientTgtReq.setPreAuthEnabled( true );
-                }
+                clientTgtReq.setETypes( KdcClientUtil.getEtypesFromError( ke.getError() ) );
+                clientTgtReq.setPreAuthEnabled( true );
             }
         }
-        
-        if( ke != null )
+
+        if ( ke != null )
         {
             throw ke;
         }
-        
+
         return tgt;
     }
-    
+
 
     /* default protected */ TgTicket _getTgt( TgtRequest clientTgtReq ) throws KerberosException
     {
         String realm = clientTgtReq.getRealm();
-        
+
         if ( clientTgtReq.getServerPrincipal() == null )
         {
             String serverPrincipal = "krbtgt/" + realm + "@" + realm;
             clientTgtReq.setServerPrincipal( serverPrincipal );
         }
 
-        if( clientTgtReq.getETypes() == null )
+        if ( clientTgtReq.getETypes() == null )
         {
             clientTgtReq.setETypes( config.getEncryptionTypes() );
         }
-        
+
         KdcReqBody body = new KdcReqBody();
-        
+
         body.setFrom( new KerberosTime( clientTgtReq.getStartTime() ) );
-        
+
         PrincipalName cName = null;
         try
         {
@@ -234,31 +234,32 @@ public class KdcConnection
             PrincipalName sName = new PrincipalName( clientTgtReq.getSName(), PrincipalNameType.KRB_NT_SRV_INST );
             body.setSName( sName );
         }
-        catch( ParseException e )
+        catch ( ParseException e )
         {
             throw new IllegalArgumentException( "Couldn't parse the given principals", e );
         }
-        
+
         body.setTill( new KerberosTime( clientTgtReq.getExpiryTime() ) );
         int currentNonce = nonceGenerator.nextInt();
         body.setNonce( currentNonce );
         body.setEType( clientTgtReq.getETypes() );
         body.setKdcOptions( clientTgtReq.getOptions() );
-        
+
         List<HostAddress> lstAddresses = clientTgtReq.getHostAddresses();
         if ( !lstAddresses.isEmpty() )
         {
             HostAddresses addresses = new HostAddresses();
-            for( HostAddress h : lstAddresses )
+            for ( HostAddress h : lstAddresses )
             {
                 addresses.addHostAddress( h );
             }
-            
+
             body.setAddresses( addresses );
         }
-        
+
         EncryptionType encryptionType = clientTgtReq.getETypes().iterator().next();
-        EncryptionKey clientKey = KerberosKeyFactory.string2Key( clientTgtReq.getClientPrincipal(), clientTgtReq.getPassword(), encryptionType );
+        EncryptionKey clientKey = KerberosKeyFactory.string2Key( clientTgtReq.getClientPrincipal(),
+            clientTgtReq.getPassword(), encryptionType );
 
         AsReq req = new AsReq();
         req.setKdcReqBody( body );
@@ -267,21 +268,22 @@ public class KdcConnection
         {
             PaEncTsEnc tmstmp = new PaEncTsEnc();
             tmstmp.setPaTimestamp( new KerberosTime() );
-            
-            EncryptedData paDataValue = cipherTextHandler.encrypt( clientKey, getEncoded( tmstmp ), KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
-            
+
+            EncryptedData paDataValue = cipherTextHandler.encrypt( clientKey, getEncoded( tmstmp ),
+                KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
+
             PaData paEncTstmp = new PaData();
             paEncTstmp.setPaDataType( PaDataType.PA_ENC_TIMESTAMP );
             paEncTstmp.setPaDataValue( getEncoded( paDataValue ) );
-            
+
             req.addPaData( paEncTstmp );
         }
-        
+
         // Get the result from the future
         try
         {
             connect();
-            
+
             // Read the response, waiting for it if not available immediately
             // Get the response, blocking
             KerberosMessage kdcRep = sendAndReceiveKrbMsg( req );
@@ -301,75 +303,78 @@ public class KdcConnection
             }
 
             AsRep rep = ( AsRep ) kdcRep;
-            
+
             if ( !cName.getNameString().equals( rep.getCName().getNameString() ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_CLIENT_NAME_MISMATCH );
             }
-            
+
             if ( !realm.equals( rep.getCRealm() ) )
             {
                 throw new KerberosException( ErrorType.KRB_ERR_WRONG_REALM );
             }
-            
+
             if ( encryptionType != rep.getEncPart().getEType() )
             {
                 encryptionType = rep.getEncPart().getEType();
-                clientKey = KerberosKeyFactory.string2Key( clientTgtReq.getClientPrincipal(), clientTgtReq.getPassword(), encryptionType );
+                clientKey = KerberosKeyFactory.string2Key( clientTgtReq.getClientPrincipal(),
+                    clientTgtReq.getPassword(), encryptionType );
             }
-            
-            byte[] decryptedEncAsRepPart = cipherTextHandler.decrypt( clientKey, rep.getEncPart(), KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
-            
+
+            byte[] decryptedEncAsRepPart = cipherTextHandler.decrypt( clientKey, rep.getEncPart(),
+                KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
+
             EncKdcRepPart encKdcRepPart = null;
             try
             {
                 EncAsRepPart encAsRepPart = KerberosDecoder.decodeEncAsRepPart( decryptedEncAsRepPart );
                 encKdcRepPart = encAsRepPart.getEncKdcRepPart();
-            } 
-            catch( KerberosException e ) 
+            }
+            catch ( KerberosException e )
             {
-                LOG.info("Trying an encTgsRepPart instead");
+                LOG.info( "Trying an encTgsRepPart instead" );
                 EncTgsRepPart encTgsRepPart = KerberosDecoder.decodeEncTgsRepPart( decryptedEncAsRepPart );
                 encKdcRepPart = encTgsRepPart.getEncKdcRepPart();
             }
-            
+
             if ( currentNonce != encKdcRepPart.getNonce() )
             {
-                throw new KerberosException( ErrorType.KRB_ERR_GENERIC, "received nonce didn't match with the nonce sent in the request" );
+                throw new KerberosException( ErrorType.KRB_ERR_GENERIC,
+                    "received nonce didn't match with the nonce sent in the request" );
             }
-                       
+
             if ( !encKdcRepPart.getSName().getNameString().equals( clientTgtReq.getSName() ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_SERVER_NOMATCH );
             }
-            
+
             if ( !encKdcRepPart.getSRealm().equals( clientTgtReq.getRealm() ) )
             {
-                throw new KerberosException( ErrorType.KRB_ERR_GENERIC, "received server realm does not match with requested server realm" );
+                throw new KerberosException( ErrorType.KRB_ERR_GENERIC,
+                    "received server realm does not match with requested server realm" );
             }
-            
+
             List<HostAddress> hosts = clientTgtReq.getHostAddresses();
-            
-            if( !hosts.isEmpty() )
+
+            if ( !hosts.isEmpty() )
             {
                 HostAddresses addresses = encKdcRepPart.getClientAddresses();
-                for( HostAddress h : hosts )
+                for ( HostAddress h : hosts )
                 {
                     if ( !addresses.contains( h ) )
                     {
-                        throw new KerberosException( ErrorType.KRB_ERR_GENERIC, "requested client address" + h + " is not found in the ticket" );
+                        throw new KerberosException( ErrorType.KRB_ERR_GENERIC,
+                            "requested client address" + h + " is not found in the ticket" );
                     }
                 }
             }
-            
+
             // Everything is fine, return the response
             LOG.debug( "Authentication successful : {}", kdcRep );
-            
-            TgTicket tgTicket = new TgTicket( rep.getTicket(), encKdcRepPart, rep.getCName().getNameString() );
-            
-            return tgTicket;
+
+            return new TgTicket( rep.getTicket(), encKdcRepPart, rep.getCName().getNameString() );
         }
-        catch( KerberosException ke )
+        catch ( KerberosException ke )
         {
             throw ke;
         }
@@ -387,7 +392,7 @@ public class KdcConnection
                 {
                     channel.close();
                 }
-                catch( IOException e )
+                catch ( IOException e )
                 {
                     LOG.warn( "Failed to close the channel", e );
                 }
@@ -395,44 +400,46 @@ public class KdcConnection
         }
     }
 
-    
+
     private ServiceTicket getServiceTicket( ServiceTicketRequest srvTktReq ) throws KerberosException
     {
         String serverPrincipal = srvTktReq.getServerPrincipal();
-        
+
         // session key
         EncryptionKey sessionKey = srvTktReq.getTgt().getSessionKey();
-        
+
         Authenticator authenticator = new Authenticator();
-        
+
         try
         {
-            authenticator.setCName( new PrincipalName( srvTktReq.getTgt().getClientName(), PrincipalNameType.KRB_NT_PRINCIPAL ) );
+            authenticator.setCName(
+                new PrincipalName( srvTktReq.getTgt().getClientName(), PrincipalNameType.KRB_NT_PRINCIPAL ) );
         }
-        catch( ParseException e )
+        catch ( ParseException e )
         {
             throw new IllegalArgumentException( "Couldn't parse the given principal", e );
         }
-        
+
         authenticator.setCRealm( srvTktReq.getTgt().getRealm() );
         authenticator.setCTime( new KerberosTime() );
         authenticator.setCusec( 0 );
 
-        if( srvTktReq.getSubSessionKey() != null )
+        if ( srvTktReq.getSubSessionKey() != null )
         {
             sessionKey = srvTktReq.getSubSessionKey();
             authenticator.setSubKey( sessionKey );
         }
-        
-        EncryptedData authnData = cipherTextHandler.encrypt( sessionKey, getEncoded( authenticator ), KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY );
-        
+
+        EncryptedData authnData = cipherTextHandler.encrypt( sessionKey, getEncoded( authenticator ),
+            KeyUsage.TGS_REQ_PA_TGS_REQ_PADATA_AP_REQ_TGS_SESS_KEY );
+
         ApReq apReq = new ApReq();
-        
+
         apReq.setAuthenticator( authnData );
         apReq.setTicket( srvTktReq.getTgt().getTicket() );
 
         apReq.setApOptions( srvTktReq.getApOptions() );
-        
+
         KdcReqBody tgsReqBody = new KdcReqBody();
         tgsReqBody.setKdcOptions( srvTktReq.getKdcOptions() );
         tgsReqBody.setRealm( KdcClientUtil.extractRealm( serverPrincipal ) );
@@ -440,24 +447,25 @@ public class KdcConnection
         int currentNonce = nonceGenerator.nextInt();
         tgsReqBody.setNonce( currentNonce );
         tgsReqBody.setEType( config.getEncryptionTypes() );
-        
-        PrincipalName principalName = new PrincipalName( KdcClientUtil.extractName( serverPrincipal ), KerberosPrincipal.KRB_NT_SRV_HST );
+
+        PrincipalName principalName = new PrincipalName( KdcClientUtil.extractName( serverPrincipal ),
+            KerberosPrincipal.KRB_NT_SRV_HST );
         tgsReqBody.setSName( principalName );
-        
+
         TgsReq tgsReq = new TgsReq();
         tgsReq.setKdcReqBody( tgsReqBody );
-        
+
         PaData authnHeader = new PaData();
         authnHeader.setPaDataType( PaDataType.PA_TGS_REQ );
         authnHeader.setPaDataValue( getEncoded( apReq ) );
-        
+
         tgsReq.addPaData( authnHeader );
-        
+
         // Get the result from the future
         try
         {
             connect();
-            
+
             // Read the response, waiting for it if not available immediately
             // Get the response, blocking
             KerberosMessage kdcRep = sendAndReceiveKrbMsg( tgsReq );
@@ -477,23 +485,22 @@ public class KdcConnection
             }
 
             TgsRep rep = ( TgsRep ) kdcRep;
-            byte[] decryptedData = cipherTextHandler.decrypt( sessionKey, rep.getEncPart(), KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
+            byte[] decryptedData = cipherTextHandler.decrypt( sessionKey, rep.getEncPart(),
+                KeyUsage.TGS_REP_ENC_PART_TGS_SESS_KEY );
             EncTgsRepPart encTgsRepPart = KerberosDecoder.decodeEncTgsRepPart( decryptedData );
-            
+
             if ( currentNonce != encTgsRepPart.getEncKdcRepPart().getNonce() )
             {
-                throw new KerberosException( ErrorType.KRB_ERR_GENERIC, "received nonce didn't match with the nonce sent in the request" );
+                throw new KerberosException( ErrorType.KRB_ERR_GENERIC,
+                    "received nonce didn't match with the nonce sent in the request" );
             }
-            
-            
+
             // Everything is fine, return the response
             LOG.debug( "TGT request successful : {}", rep );
 
-            ServiceTicket srvTkt = new ServiceTicket( rep.getTicket(), encTgsRepPart.getEncKdcRepPart() );
-            
-            return srvTkt;
+            return new ServiceTicket( rep.getTicket(), encTgsRepPart.getEncKdcRepPart() );
         }
-        catch( KerberosException e )
+        catch ( KerberosException e )
         {
             throw e;
         }
@@ -511,33 +518,34 @@ public class KdcConnection
                 {
                     channel.close();
                 }
-                catch( IOException e )
+                catch ( IOException e )
                 {
                     LOG.warn( "Failed to close the channel", e );
                 }
             }
         }
     }
-    
-    
-    public ChangePasswordResult changePassword( String clientPrincipal, String oldPassword, String newPassword ) throws ChangePasswordException
+
+
+    public ChangePasswordResult changePassword( String clientPrincipal, String oldPassword, String newPassword )
+        throws ChangePasswordException
     {
         KerberosChannel channel = null;
-        
+
         try
         {
             TgtRequest clientTgtReq = new TgtRequest();
             clientTgtReq.setClientPrincipal( clientPrincipal );
             clientTgtReq.setPassword( oldPassword );
             clientTgtReq.setServerPrincipal( "kadmin/changepw@" + KdcClientUtil.extractRealm( clientPrincipal ) );
-            
+
             TgTicket tgt = getTgt( clientTgtReq );
-            
+
             ApReq apReq = new ApReq();
             ApOptions options = new ApOptions();
             apReq.setApOptions( options );
             apReq.setTicket( tgt.getTicket() );
-            
+
             Authenticator authenticator = new Authenticator();
             authenticator.setCName( new PrincipalName( tgt.getClientName(), PrincipalNameType.KRB_NT_PRINCIPAL ) );
             authenticator.setCRealm( tgt.getRealm() );
@@ -545,25 +553,25 @@ public class KdcConnection
             authenticator.setCTime( ctime );
             authenticator.setCusec( 0 );
             authenticator.setSeqNumber( nonceGenerator.nextInt() );
-            
+
             EncryptionKey subKey = RandomKeyFactory.getRandomKey( tgt.getEncKdcRepPart().getKey().getKeyType() );
-            
+
             authenticator.setSubKey( subKey );
-            
-            EncryptedData authData = cipherTextHandler.encrypt( tgt.getSessionKey(), getEncoded( authenticator ), KeyUsage.AP_REQ_AUTHNT_SESS_KEY );
+
+            EncryptedData authData = cipherTextHandler.encrypt( tgt.getSessionKey(), getEncoded( authenticator ),
+                KeyUsage.AP_REQ_AUTHNT_SESS_KEY );
             apReq.setAuthenticator( authData );
-            
-            
+
             KrbPriv privateMessage = new KrbPriv();
-            
+
             EncKrbPrivPart part = new EncKrbPrivPart();
             part.setSenderAddress( new HostAddress( Network.LOOPBACK ) );
             part.setSeqNumber( authenticator.getSeqNumber() );
             part.setTimestamp( authenticator.getCtime() );
 
             short changePwdPVNO = ChangePasswordRequest.PVNO;
-            
-            if( config.isUseLegacyChngPwdProtocol() )
+
+            if ( config.isUseLegacyChngPwdProtocol() )
             {
                 part.setUserData( Strings.getBytesUtf8( newPassword ) );
                 changePwdPVNO = ChangePasswordRequest.OLD_PVNO;
@@ -572,47 +580,44 @@ public class KdcConnection
             {
                 ChangePasswdData chngPwdData = new ChangePasswdData();
                 chngPwdData.setNewPasswd( Strings.getBytesUtf8( newPassword ) );
-                //chngPwdData.setTargName( new PrincipalName( clientPrincipal, PrincipalNameType.KRB_NT_PRINCIPAL ) );
-                //chngPwdData.setTargRealm( clientTgtReq.getRealm() );
                 byte[] data = getEncoded( chngPwdData );
                 part.setUserData( data );
             }
-            
-            EncryptedData encKrbPrivPartData = cipherTextHandler.encrypt( subKey, getEncoded( part ), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
+
+            EncryptedData encKrbPrivPartData = cipherTextHandler.encrypt( subKey, getEncoded( part ),
+                KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
             privateMessage.setEncPart( encKrbPrivPartData );
-            
+
             ChangePasswordRequest req = new ChangePasswordRequest( changePwdPVNO, apReq, privateMessage );
-            
+
             channel = new KerberosChannel();
-            channel.openConnection( config.getHostName(), config.getPasswdPort(), config.getTimeout(), config.isUseUdp() );
-            
+            channel.openConnection( config.getHostName(), config.getPasswdPort(), config.getTimeout(),
+                config.isUseUdp() );
+
             AbstractPasswordMessage reply = sendAndReceiveChngPwdMsg( req, channel );
-            
+
             if ( reply instanceof ChangePasswordError )
             {
                 ChangePasswordError err = ( ChangePasswordError ) reply;
-                
-                ChangePasswordResult result = new ChangePasswordResult( err.getKrbError().getEData() );
 
-                return result;
+                return new ChangePasswordResult( err.getKrbError().getEData() );
             }
-            
+
             ChangePasswordReply chngPwdReply = ( ChangePasswordReply ) reply;
 
             KrbPriv replyPriv = chngPwdReply.getPrivateMessage();
             // the same subKey present in ApReq is used for encrypting the KrbPriv present in reply
-            byte[] data = cipherTextHandler.decrypt( subKey, replyPriv.getEncPart(), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
+            byte[] data = cipherTextHandler.decrypt( subKey, replyPriv.getEncPart(),
+                KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
             part = KerberosDecoder.decodeEncKrbPrivPart( data );
-            
-            ChangePasswordResult result = new ChangePasswordResult( part.getUserData() );
-            
-            return result;
+
+            return new ChangePasswordResult( part.getUserData() );
         }
-        catch( ChangePasswordException e )
+        catch ( ChangePasswordException e )
         {
             throw e;
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             LOG.warn( "failed to change the password", e );
             throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_HARDERROR, e );
@@ -625,25 +630,25 @@ public class KdcConnection
                 {
                     channel.close();
                 }
-                catch( IOException e )
+                catch ( IOException e )
                 {
                     LOG.warn( "Failed to close the channel", e );
                 }
             }
         }
     }
-    
-    
+
+
     private byte[] getEncoded( Asn1Object obj )
     {
         try
         {
             ByteBuffer buf = ByteBuffer.allocate( obj.computeLength() );
             obj.encode( buf );
-            
+
             return buf.array();
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             // shouldn't happen, but if it does then log it and give  up
             LOG.error( "Failed to encode the ASN.1 object {}", obj );
@@ -651,20 +656,20 @@ public class KdcConnection
         }
     }
 
-    
+
     private KerberosTime getDefaultTill()
     {
         return new KerberosTime( System.currentTimeMillis() + ( KerberosTime.MINUTE * 60 ) );
     }
-    
+
 
     private KerberosMessage sendAndReceiveKrbMsg( KerberosMessage req ) throws Exception
     {
         ByteBuffer encodedBuf = KerberosEncoder.encode( req, channel.isUseTcp() );
         encodedBuf.flip();
-        
+
         ByteBuffer repData = channel.sendAndReceive( encodedBuf );
-        
+
         KerberosMessageContainer kerberosMessageContainer = new KerberosMessageContainer();
         kerberosMessageContainer.setStream( repData );
         kerberosMessageContainer.setGathering( true );
@@ -672,14 +677,15 @@ public class KdcConnection
 
         return ( KerberosMessage ) KerberosDecoder.decode( kerberosMessageContainer, new Asn1Decoder() );
     }
-    
-    
-    private AbstractPasswordMessage sendAndReceiveChngPwdMsg( AbstractPasswordMessage req, KerberosChannel chngPwdChannel ) throws Exception
+
+
+    private AbstractPasswordMessage sendAndReceiveChngPwdMsg( AbstractPasswordMessage req,
+        KerberosChannel chngPwdChannel ) throws Exception
     {
         ByteBuffer encodedBuf = ChangePasswordEncoder.encode( req, chngPwdChannel.isUseTcp() );
         encodedBuf.flip();
         ByteBuffer repData = chngPwdChannel.sendAndReceive( encodedBuf );
-        
+
         return ChangePasswordDecoder.decode( repData, chngPwdChannel.isUseTcp() );
     }
 }

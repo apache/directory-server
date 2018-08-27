@@ -53,9 +53,6 @@ import org.apache.directory.server.dhcp.service.Lease;
  */
 public class SimpleDhcpStore extends AbstractDhcpStore
 {
-    // private static final String DEFAULT_INITIAL_CONTEXT_FACTORY =
-    // "org.apache.directory.server.core.jndi.CoreContextFactory";
-
     // a map of current leases
     private Map leases = new HashMap();
 
@@ -83,8 +80,6 @@ public class SimpleDhcpStore extends AbstractDhcpStore
     {
         Hashtable env = new Hashtable();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        // env.put( Context.INITIAL_CONTEXT_FACTORY,
-        // DEFAULT_INITIAL_CONTEXT_FACTORY );
         env.put( Context.PROVIDER_URL, "ldap://localhost:389/dc=tcat,dc=test" );
 
         return new InitialDirContext( env );

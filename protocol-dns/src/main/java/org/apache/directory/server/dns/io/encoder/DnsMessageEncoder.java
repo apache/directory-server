@@ -23,7 +23,7 @@ package org.apache.directory.server.dns.io.encoder;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +61,7 @@ public class DnsMessageEncoder
 
     static
     {
-        Map<RecordType, RecordEncoder> map = new HashMap<RecordType, RecordEncoder>();
+        EnumMap<RecordType, RecordEncoder> map = new EnumMap<>( RecordType.class );
 
         map.put( RecordType.SOA, new StartOfAuthorityRecordEncoder() );
         map.put( RecordType.A, new AddressRecordEncoder() );

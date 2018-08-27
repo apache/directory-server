@@ -76,15 +76,15 @@ public class DirectoryServiceBean extends AdsBaseBean
 
     /** The servers */
     @ConfigurationElement(objectClass = "ads-server", container = "servers")
-    private List<ServerBean> servers = new ArrayList<ServerBean>();
+    private List<ServerBean> servers = new ArrayList<>();
 
     /** The list of declared interceptors */
     @ConfigurationElement(objectClass = "ads-interceptor", container = "interceptors")
-    private List<InterceptorBean> interceptors = new ArrayList<InterceptorBean>();
+    private List<InterceptorBean> interceptors = new ArrayList<>();
 
     /** The set of associated partitions */
     @ConfigurationElement(objectClass = "ads-partition", container = "partitions")
-    private List<PartitionBean> partitions = new ArrayList<PartitionBean>();
+    private List<PartitionBean> partitions = new ArrayList<>();
 
 
     /**
@@ -510,6 +510,7 @@ public class DirectoryServiceBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
@@ -529,7 +530,7 @@ public class DirectoryServiceBean extends AdsBaseBean
 
         sb.append( "  interceptors : \n" );
 
-        if ( ( interceptors != null ) && ( interceptors.size() > 0 ) )
+        if ( ( interceptors != null ) && !interceptors.isEmpty() )
         {
             for ( InterceptorBean interceptor : interceptors )
             {
@@ -539,7 +540,7 @@ public class DirectoryServiceBean extends AdsBaseBean
 
         sb.append( "  partitions : \n" );
 
-        if ( ( partitions != null ) && ( partitions.size() > 0 ) )
+        if ( ( partitions != null ) && !partitions.isEmpty() )
         {
             for ( PartitionBean partition : partitions )
             {
@@ -559,7 +560,7 @@ public class DirectoryServiceBean extends AdsBaseBean
 
         sb.append( "  servers : \n" );
 
-        if ( ( servers != null ) && ( servers.size() > 0 ) )
+        if ( ( servers != null ) && !servers.isEmpty() )
         {
             for ( ServerBean server : servers )
             {

@@ -84,6 +84,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean available()
     {
         return wrappedCursor.available();
@@ -93,6 +94,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void before( IndexEntry<K, String> element ) throws LdapException, CursorException
     {
         wrappedCursor.before( element.getTuple() );
@@ -102,6 +104,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void after( IndexEntry<K, String> element ) throws LdapException, CursorException
     {
         wrappedCursor.after( element.getTuple() );
@@ -147,6 +150,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isClosed()
     {
         return wrappedCursor.isClosed();
@@ -156,6 +160,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         return wrappedCursor.previous();
@@ -165,6 +170,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         return wrappedCursor.next();
@@ -184,6 +190,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     }
 
 
+    @Override
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         wrappedCursor.setClosureMonitor( monitor );
@@ -193,6 +200,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -207,6 +215,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception reason ) throws IOException
     {
         if ( IS_DEBUG )
@@ -218,15 +227,17 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     }
 
 
+    @Override
     public Iterator<IndexEntry<K, String>> iterator()
     {
-        return new CursorIterator<IndexEntry<K, String>>( this );
+        return new CursorIterator<>( this );
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isAfterLast()
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_13102_UNSUPPORTED_OPERATION, getClass().getName()
@@ -237,6 +248,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isBeforeFirst()
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_13102_UNSUPPORTED_OPERATION, getClass().getName()
@@ -247,6 +259,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isFirst()
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_13102_UNSUPPORTED_OPERATION, getClass().getName()
@@ -257,6 +270,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isLast()
     {
         throw new UnsupportedOperationException( I18n.err( I18n.ERR_13102_UNSUPPORTED_OPERATION, getClass().getName()
@@ -276,6 +290,7 @@ public class IndexCursorAdaptor<K> extends AbstractIndexCursor<K>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

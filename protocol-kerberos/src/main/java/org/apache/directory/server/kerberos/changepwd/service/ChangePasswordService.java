@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.changepwd.service;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -137,18 +136,17 @@ public final class ChangePasswordService
     }
     
     
-    private static void monitorRequest( ChangePasswordContext changepwContext ) throws KerberosException
+    private static void monitorRequest( ChangePasswordContext changepwContext )
     {
         try
         {
             ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
             short versionNumber = request.getVersionNumber();
 
-            StringBuffer sb = new StringBuffer();
-            sb.append( "Responding to change password request:" );
-            sb.append( "\n\t" + "versionNumber    " + versionNumber );
-
-            LOG.debug( sb.toString() );
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( "Responding to change password request:\\n\\tversionNumber    {}", versionNumber );
+            }
         }
         catch ( Exception e )
         {
@@ -284,7 +282,7 @@ public final class ChangePasswordService
     }
 
     
-    private static void monitorContext( ChangePasswordContext changepwContext ) throws KerberosException
+    private static void monitorContext( ChangePasswordContext changepwContext )
     {
         try
         {
@@ -308,33 +306,36 @@ public final class ChangePasswordService
                 caddrContainsSender = ticket.getEncTicketPart().getClientAddresses().contains( new HostAddress( clientAddress ) );
             }
 
-            StringBuffer sb = new StringBuffer();
-            sb.append( "Monitoring context:" );
-            sb.append( "\n\t" + "store                  " + store );
-            sb.append( "\n\t" + "authHeader             " + authHeader );
-            sb.append( "\n\t" + "ticket                 " + ticket );
-            sb.append( "\n\t" + "replayCache            " + replayCache );
-            sb.append( "\n\t" + "clockSkew              " + clockSkew );
-            sb.append( "\n\t" + "clientPrincipal        " + clientPrincipal );
-            sb.append( "\n\t" + "ChangePasswdData        " + changepwContext.getPasswordData() );
-            sb.append( "\n\t" + "clientAddress          " + clientAddress );
-            sb.append( "\n\t" + "clientAddresses        " + clientAddresses );
-            sb.append( "\n\t" + "caddr contains sender  " + caddrContainsSender );
-            sb.append( "\n\t" + "Ticket principal       " + ticket.getSName() );
+            if ( LOG.isDebugEnabled() )
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append( "Monitoring context:" );
+                sb.append( "\n\tstore                  " ).append( store );
+                sb.append( "\n\tauthHeader             " ).append( authHeader );
+                sb.append( "\n\tticket                 " ).append( ticket );
+                sb.append( "\n\treplayCache            " ).append( replayCache );
+                sb.append( "\n\tclockSkew              " ).append( clockSkew );
+                sb.append( "\n\tclientPrincipal        " ).append( clientPrincipal );
+                sb.append( "\n\tChangePasswdData       " ).append( changepwContext.getPasswordData() );
+                sb.append( "\n\tclientAddress          " ).append( clientAddress );
+                sb.append( "\n\tclientAddresses        " ).append( clientAddresses );
+                sb.append( "\n\tcaddr contains sender  " ).append( caddrContainsSender );
+                sb.append( "\n\tTicket principal       " ).append( ticket.getSName() );
+    
+                PrincipalStoreEntry ticketPrincipal = changepwContext.getServerEntry();
+                
+                sb.append( "\n\tcn                     " ).append( ticketPrincipal.getCommonName() );
+                sb.append( "\n\trealm                  " ).append( ticketPrincipal.getRealmName() );
+                sb.append( "\n\tService principal      " ).append( ticketPrincipal.getPrincipal() );
+                sb.append( "\n\tSAM type               " ).append( ticketPrincipal.getSamType() );
+    
+                EncryptionType encryptionType = ticket.getEncPart().getEType();
+                int keyVersion = ticketPrincipal.getKeyMap().get( encryptionType ).getKeyVersion();
+                sb.append( "\n\tTicket key type        " ).append( encryptionType );
+                sb.append( "\n\tService key version    " ).append( keyVersion );
 
-            PrincipalStoreEntry ticketPrincipal = changepwContext.getServerEntry();
-            
-            sb.append( "\n\t" + "cn                     " + ticketPrincipal.getCommonName() );
-            sb.append( "\n\t" + "realm                  " + ticketPrincipal.getRealmName() );
-            sb.append( "\n\t" + "Service principal      " + ticketPrincipal.getPrincipal() );
-            sb.append( "\n\t" + "SAM type               " + ticketPrincipal.getSamType() );
-
-            EncryptionType encryptionType = ticket.getEncPart().getEType();
-            int keyVersion = ticketPrincipal.getKeyMap().get( encryptionType ).getKeyVersion();
-            sb.append( "\n\t" + "Ticket key type        " + encryptionType );
-            sb.append( "\n\t" + "Service key version    " + keyVersion );
-
-            LOG.debug( sb.toString() );
+                LOG.debug( sb.toString() );
+            }
         }
         catch ( Exception e )
         {
@@ -344,7 +345,7 @@ public final class ChangePasswordService
     }
     
     
-    private static void buildReply( ChangePasswordContext changepwContext ) throws KerberosException, UnknownHostException
+    private static void buildReply( ChangePasswordContext changepwContext ) throws KerberosException
     {
         Authenticator authenticator = changepwContext.getAuthenticator();
         Ticket ticket = changepwContext.getTicket();
@@ -412,7 +413,7 @@ public final class ChangePasswordService
     }
 
     
-    private static void monitorReply( ChangePasswordContext changepwContext ) throws KerberosException
+    private static void monitorReply( ChangePasswordContext changepwContext )
     {
         try
         {
@@ -420,12 +421,8 @@ public final class ChangePasswordService
             ApRep appReply = reply.getApplicationReply();
             KrbPriv priv = reply.getPrivateMessage();
 
-            StringBuilder sb = new StringBuilder();
-            sb.append( "Responding with change password reply:" );
-            sb.append( "\n\t" + "appReply               " + appReply );
-            sb.append( "\n\t" + "priv                   " + priv );
-
-            LOG.debug( sb.toString() );
+            LOG.debug( "Responding with change password reply:\\n\\tappReply               {}\\n\\tpriv                   {}",
+                    appReply, priv );
         }
         catch ( Exception e )
         {

@@ -146,6 +146,7 @@ public class JdbmIndexBean extends IndexBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -164,6 +165,7 @@ public class JdbmIndexBean extends IndexBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

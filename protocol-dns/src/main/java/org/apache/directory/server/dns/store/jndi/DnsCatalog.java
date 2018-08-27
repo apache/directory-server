@@ -51,19 +51,20 @@ class DnsCatalog implements Catalog
     {
         if ( name.endsWith( "." ) )
         {
-            int last = name.lastIndexOf( "." );
+            int last = name.lastIndexOf( '.' );
             name = name.substring( 0, last );
         }
 
-        while ( !name.equals( "" ) && name != null )
+        while ( name.length() > 0 )
         {
             String candidate = ( String ) map.get( name );
+            
             if ( candidate != null )
             {
                 return candidate;
             }
 
-            int period = name.indexOf( "." );
+            int period = name.indexOf( '.' );
 
             if ( period > -1 )
             {

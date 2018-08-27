@@ -77,7 +77,7 @@ public class ApacheDS
     /** Directory where are stored the LDIF files to be loaded at startup */
     private File ldifDirectory;
 
-    private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
+    private final List<LdifLoadFilter> ldifFilters = new ArrayList<>();
 
     /** The LDAP server protocol handler */
     private final LdapServer ldapServer;
@@ -364,14 +364,13 @@ public class ApacheDS
         {
             String time = ( ( ClonedServerEntry ) fileEntry ).getOriginalEntry()
                 .get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString();
-            LOG.info( "Load of LDIF file '" + getCanonical( ldifFile )
-                + "' skipped.  It has already been loaded on " + time + "." );
+            LOG.info( "Load of LDIF file '{}' skipped.  It has already been loaded on {}.", getCanonical( ldifFile ), time );
         }
         else
         {
             LdifFileLoader loader = new LdifFileLoader( directoryService.getAdminSession(), ldifFile, ldifFilters );
             int count = loader.execute();
-            LOG.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFile ) + "'" );
+            LOG.info( "Loaded {} entries from LDIF file '{}", count, getCanonical( ldifFile ) );
             addFileEntry( ldifFile );
         }
     }
@@ -513,7 +512,7 @@ public class ApacheDS
 
         List<Throwable> errors = schemaManager.getErrors();
 
-        if ( errors.size() != 0 )
+        if ( !errors.isEmpty() )
         {
             throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors( errors ) ) );
         }

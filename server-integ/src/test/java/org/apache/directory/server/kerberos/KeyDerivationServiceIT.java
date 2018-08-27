@@ -249,7 +249,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
             uid = ( String ) attributes.get( "uid" ).get();
         }
 
-        assertEquals( uid, "hnelson" );
+        assertEquals( "hnelson", uid );
 
         byte[] userPassword = null;
 

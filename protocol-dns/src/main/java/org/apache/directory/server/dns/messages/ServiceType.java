@@ -270,7 +270,7 @@ public enum ServiceType implements EnumConverter<Byte>
     /** LINK */
     LINK(245);
 
-    private static ReverseEnumMap<Byte, ServiceType> map = new ReverseEnumMap<Byte, ServiceType>( ServiceType.class );
+    private static ReverseEnumMap<Byte, ServiceType> map = new ReverseEnumMap<>( ServiceType.class );
 
     private final byte value;
 

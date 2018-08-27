@@ -260,6 +260,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void initializeFilterProperties()
     {
         super.initializeFilterProperties();
@@ -293,7 +294,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
      */
     public File getInstanceDirectory()
     {
-        return new File( getTargetDirectory(), INSTANCES_FILES + "/" + DEFAULT );
+        return new File( getTargetDirectory(), INSTANCES_FILES + File.separator + DEFAULT );
     }
 
 

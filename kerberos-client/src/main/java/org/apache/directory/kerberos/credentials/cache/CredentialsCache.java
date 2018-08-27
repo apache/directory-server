@@ -19,6 +19,7 @@
  */
 package org.apache.directory.kerberos.credentials.cache;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -30,131 +31,145 @@ import java.util.List;
 
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 
+
 /**
  * Kerberos credentials cache in FCC format
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class CredentialsCache
-{	
-	private int version = CredentialsCacheConstants.FCC_FVNO_4;
-	private List<Tag> tags;
-	private PrincipalName primaryPrincipal;
-	private List<Credentials> credentialsList = new ArrayList<Credentials> ();
-	
-    public static CredentialsCache load( File cacheFile ) throws IOException 
+{
+    private int version = CredentialsCacheConstants.FCC_FVNO_4;
+    private List<Tag> tags;
+    private PrincipalName primaryPrincipal;
+    private List<Credentials> credentialsList = new ArrayList<>();
+
+
+    public static CredentialsCache load( File cacheFile ) throws IOException
     {
         return load( Files.newInputStream( cacheFile.toPath() ) );
     }
-    
-    public static CredentialsCache load( InputStream is ) throws IOException 
+
+
+    public static CredentialsCache load( InputStream is ) throws IOException
     {
-        try ( CacheInputStream cis = new CacheInputStream(is) )
+        try (CacheInputStream cis = new CacheInputStream( is ))
         {
             CredentialsCache credCache = new CredentialsCache();
-            cis.read(credCache);
+            cis.read( credCache );
             return credCache;
         }
     }
-    
-    public static void store( File fileName, CredentialsCache credCache ) throws IOException 
+
+
+    public static void store( File fileName, CredentialsCache credCache ) throws IOException
     {
         store( Files.newOutputStream( fileName.toPath() ), credCache );
     }
-    
-    public static void store( OutputStream os, CredentialsCache credCache ) throws IOException 
+
+
+    public static void store( OutputStream os, CredentialsCache credCache ) throws IOException
     {
-        CacheOutputStream cos = new CacheOutputStream(os);
-        
+        CacheOutputStream cos = new CacheOutputStream( os );
+
         cos.write( credCache );
-        
+
         cos.close();
     }
-    
+
+
     public void addCredentials( Credentials cred )
     {
-    	this.credentialsList.add( cred );
+        this.credentialsList.add( cred );
     }
-    
+
+
     public int getVersion()
     {
-    	return this.version;
+        return this.version;
     }
-    
+
+
     public void setVersion( int version )
     {
-    	this.version = version;
+        this.version = version;
     }
-    
+
+
     /**
      * @return the primary principal
      */
-    public PrincipalName getPrimaryPrincipalName() 
+    public PrincipalName getPrimaryPrincipalName()
     {
-    	return this.primaryPrincipal;
+        return this.primaryPrincipal;
     }
-    
+
+
     /**
      * Set the primary principal
      * 
      * @param principal The PrincipalName to set
      */
-    public void setPrimaryPrincipalName( PrincipalName principal ) 
+    public void setPrimaryPrincipalName( PrincipalName principal )
     {
-    	this.primaryPrincipal = principal;
+        this.primaryPrincipal = principal;
     }
-    
+
+
     public void setTags( List<Tag> tags )
     {
-    	this.tags = tags;
+        this.tags = tags;
     }
-    
+
+
     public List<Tag> getTags()
     {
-    	return this.tags;
+        return this.tags;
     }
-    
+
+
     /**
      * @return the credentials entries
      */
-    public List<Credentials> getCredsList() 
+    public List<Credentials> getCredsList()
     {
-    	return this.credentialsList;
+        return this.credentialsList;
     }
 
-    
-    public static void main(String[] args) throws IOException
+
+    public static void main( String[] args ) throws IOException
     {
         String dumpFile = File.createTempFile( "credCache-", ".cc" ).getAbsolutePath();
-        System.out.println( "This tool tests CredentialsCache reading and writing, " + 
-                "and will load the built-in sample credentials cache by default, and dump to " + dumpFile );
-        
-        System.out.println( "To specify your own credentials cache file, run this as: CredentialsCache [cred-cache-file] " );
-        
+        System.out.println( "This tool tests CredentialsCache reading and writing, " +
+            "and will load the built-in sample credentials cache by default, and dump to " + dumpFile );
+
+        System.out
+            .println( "To specify your own credentials cache file, run this as: CredentialsCache [cred-cache-file] " );
+
         System.out.println( "When dumped successfully, run 'klist -e -c' from MIT to check the dumped file" );
-        
+
         CredentialsCache cc;
         String cacheFile = args.length > 0 ? args[0] : null;
-        if (cacheFile == null)
+        if ( cacheFile == null )
         {
             byte[] sampleCache = SampleCredentialsCacheResource.getCacheContent();
-            ByteArrayInputStream bais = new ByteArrayInputStream(sampleCache);
-            cc = CredentialsCache.load(bais);
+            ByteArrayInputStream bais = new ByteArrayInputStream( sampleCache );
+            cc = CredentialsCache.load( bais );
         }
         else
         {
             cc = CredentialsCache.load( new File( cacheFile ) );
         }
-        
+
         if ( cc != null )
         {
             System.out.println( "Reading credentials cache is successful" );
-        
-        File tmpCacheFile = new File(dumpFile);
-        tmpCacheFile.delete();
-        CredentialsCache.store(tmpCacheFile, cc);
-        
-        System.out.println( "Writing credentials cache successfully to: " + dumpFile );
+
+            File tmpCacheFile = new File( dumpFile );
+            tmpCacheFile.delete();
+            CredentialsCache.store( tmpCacheFile, cc );
+
+            System.out.println( "Writing credentials cache successfully to: " + dumpFile );
         }
     }
 }

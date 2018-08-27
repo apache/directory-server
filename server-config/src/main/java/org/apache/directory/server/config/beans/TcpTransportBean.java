@@ -39,6 +39,7 @@ public class TcpTransportBean extends TransportBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         return tabs + "TCP transport : \n" + super.toString( "  " + tabs );
@@ -48,6 +49,7 @@ public class TcpTransportBean extends TransportBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

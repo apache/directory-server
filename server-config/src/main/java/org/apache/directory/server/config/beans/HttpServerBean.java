@@ -39,7 +39,7 @@ public class HttpServerBean extends ServerBean
 
     /** The list of supported web apps */
     @ConfigurationElement(objectClass = "ads-httpWebApp", container = "httpWebApps")
-    private List<HttpWebAppBean> httpWebApps = new ArrayList<HttpWebAppBean>();
+    private List<HttpWebAppBean> httpWebApps = new ArrayList<>();
 
 
     /**
@@ -105,6 +105,7 @@ public class HttpServerBean extends ServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -113,7 +114,7 @@ public class HttpServerBean extends ServerBean
         sb.append( super.toString( tabs + "  " ) );
         sb.append( toString( tabs, "  http configuration file", httpConfFile ) );
 
-        if ( ( httpWebApps != null ) && ( httpWebApps.size() > 0 ) )
+        if ( ( httpWebApps != null ) && !httpWebApps.isEmpty() )
         {
             sb.append( tabs ).append( "  web applications :\n" );
 
@@ -130,6 +131,7 @@ public class HttpServerBean extends ServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

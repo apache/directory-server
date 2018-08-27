@@ -84,16 +84,16 @@ public class KdcClientUtil
             MethodDataContainer container = new MethodDataContainer();
             container.setStream( stream );
             decoder.decode( stream, container );
-            
+
             MethodData methodData = container.getMethodData();
-            
-            for( PaData pd : methodData.getPaDatas() )
+
+            for ( PaData pd : methodData.getPaDatas() )
             {
-                if( pd.getPaDataType() == PaDataType.PA_ENCTYPE_INFO2 )
+                if ( pd.getPaDataType() == PaDataType.PA_ENCTYPE_INFO2 )
                 {
                     return parseEtpeInfo2( pd.getPaDataValue() );
                 }
-                else if( pd.getPaDataType() == PaDataType.PA_ENCTYPE_INFO )
+                else if ( pd.getPaDataType() == PaDataType.PA_ENCTYPE_INFO )
                 {
                     return parseEtpeInfo( pd.getPaDataValue() );
                 }
@@ -104,52 +104,52 @@ public class KdcClientUtil
             // shouldn't happen, but iff happens blast off
             throw new RuntimeException( e );
         }
-        
-        return Collections.EMPTY_SET;
+
+        return Collections.emptySet();
     }
-    
-    
+
+
     private static Set<EncryptionType> parseEtpeInfo2( byte[] data ) throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.wrap( data );
-        
+
         Asn1Decoder decoder = new Asn1Decoder();
         ETypeInfo2Container container = new ETypeInfo2Container();
         container.setStream( stream );
         decoder.decode( stream, container );
-        
+
         ETypeInfo2 info2 = container.getETypeInfo2();
 
-        Set<EncryptionType> lstEtypes = new LinkedHashSet<EncryptionType>();
-        
-        for( ETypeInfo2Entry e2e : info2.getETypeInfo2Entries() )
+        Set<EncryptionType> lstEtypes = new LinkedHashSet<>();
+
+        for ( ETypeInfo2Entry e2e : info2.getETypeInfo2Entries() )
         {
             lstEtypes.add( e2e.getEType() );
         }
-        
+
         return lstEtypes;
     }
-    
-    
+
+
     private static Set<EncryptionType> parseEtpeInfo( byte[] data ) throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.wrap( data );
-        
+
         Asn1Decoder decoder = new Asn1Decoder();
         ETypeInfoContainer container = new ETypeInfoContainer();
         container.setStream( stream );
         decoder.decode( stream, container );
-        
+
         ETypeInfo einfo = container.getETypeInfo();
 
-        Set<EncryptionType> lstEtypes = new LinkedHashSet<EncryptionType>();
-        
-        for( ETypeInfoEntry eie : einfo.getETypeInfoEntries() )
+        Set<EncryptionType> lstEtypes = new LinkedHashSet<>();
+
+        for ( ETypeInfoEntry eie : einfo.getETypeInfoEntries() )
         {
             lstEtypes.add( eie.getEType() );
         }
-        
+
         return lstEtypes;
     }
-    
+
 }

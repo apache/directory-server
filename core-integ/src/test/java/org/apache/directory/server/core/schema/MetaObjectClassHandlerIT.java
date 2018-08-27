@@ -117,7 +117,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         Dn dn = addObjectClass();
 
         assertTrue( getObjectClassRegistry().contains( OID ) );
-        assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", getObjectClassRegistry().getSchemaName( OID ) );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -268,8 +268,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
 
-        assertEquals( "objectClass schema should be set to apache not apachemeta",
-            getObjectClassRegistry().getSchemaName( OID ), "apache" );
+        assertEquals( "objectClass schema should be set to apache not apachemeta", "apache",
+            getObjectClassRegistry().getSchemaName( OID ) );
     }
 
 
@@ -291,8 +291,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "new objectClass OID should be present",
             getObjectClassRegistry().contains( NEW_OID ) );
 
-        assertEquals( "objectClass with new oid should have schema set to apache NOT apachemeta",
-            getObjectClassRegistry().getSchemaName( NEW_OID ), "apache" );
+        assertEquals( "objectClass with new oid should have schema set to apache NOT apachemeta","apache",
+            getObjectClassRegistry().getSchemaName( NEW_OID ) );
     }
 
 
@@ -303,8 +303,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
 
         ObjectClass oc = getObjectClassRegistry().lookup( OID );
-        assertEquals( oc.getDescription(), DESCRIPTION0 );
-        assertEquals( oc.getName(), NAME );
+        assertEquals( DESCRIPTION0, oc.getDescription() );
+        assertEquals( NAME, oc.getName() );
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
@@ -318,12 +318,12 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
 
-        assertEquals( "objectClass schema should be set to apachemeta",
-            getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "objectClass schema should be set to apachemeta", "apachemeta",
+            getObjectClassRegistry().getSchemaName( OID ) );
 
         oc = getObjectClassRegistry().lookup( OID );
-        assertEquals( oc.getDescription(), DESCRIPTION1 );
-        assertEquals( oc.getName(), NEW_NAME );
+        assertEquals( DESCRIPTION1, oc.getDescription() );
+        assertEquals( NEW_NAME, oc.getName() );
     }
 
 
@@ -334,8 +334,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         addObjectClass();
 
         ObjectClass oc = getObjectClassRegistry().lookup( OID );
-        assertEquals( oc.getDescription(), DESCRIPTION0 );
-        assertEquals( oc.getName(), NAME );
+        assertEquals( DESCRIPTION0, oc.getDescription() );
+        assertEquals( NAME, oc.getName() );
 
         Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
 
@@ -349,12 +349,12 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "objectClass OID should still be present",
             getObjectClassRegistry().contains( OID ) );
 
-        assertEquals( "objectClass schema should be set to apachemeta",
-            getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "objectClass schema should be set to apachemeta", "apachemeta",
+            getObjectClassRegistry().getSchemaName( OID ) );
 
         oc = getObjectClassRegistry().lookup( OID );
-        assertEquals( oc.getDescription(), DESCRIPTION1 );
-        assertEquals( oc.getName(), NEW_NAME );
+        assertEquals( DESCRIPTION1, oc.getDescription() );
+        assertEquals( NEW_NAME, oc.getName() );
     }
 
 
@@ -381,7 +381,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( DEPENDEE_OID ) );
-        assertEquals( getObjectClassRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
+        assertEquals( "apachemeta", getObjectClassRegistry().getSchemaName( DEPENDEE_OID ) );
     }
 
 
@@ -592,8 +592,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "objectClass OID should be present when moved to enabled schema",
             getObjectClassRegistry().contains( OID ) );
 
-        assertEquals( "objectClass should be in apachemeta schema after move",
-            getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "objectClass should be in apachemeta schema after move", "apachemeta",
+            getObjectClassRegistry().getSchemaName( OID ) );
     }
 
 
@@ -624,7 +624,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( OID ) );
-        assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", getObjectClassRegistry().getSchemaName( OID ) );
     }
 
 
@@ -720,7 +720,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
-        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
+        assertEquals( "apachemeta", getObjectClassRegistry().getSchemaName( NEW_OID ) );
     }
 
 
@@ -749,7 +749,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
-        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
+        assertEquals( "apachemeta", getObjectClassRegistry().getSchemaName( NEW_OID ) );
     }
 
 
@@ -811,7 +811,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
-        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
+        assertEquals( "apachemeta", getObjectClassRegistry().getSchemaName( NEW_OID ) );
     }
 
 
@@ -874,6 +874,6 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( getObjectClassRegistry().contains( NEW_OID ) );
-        assertEquals( getObjectClassRegistry().getSchemaName( NEW_OID ), "apachemeta" );
+        assertEquals( "apachemeta", getObjectClassRegistry().getSchemaName( NEW_OID ) );
     }
 }

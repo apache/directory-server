@@ -200,6 +200,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         while ( wrapped.previous() )
@@ -225,6 +226,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         while ( wrapped.next() )
