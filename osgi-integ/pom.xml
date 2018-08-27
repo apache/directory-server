@@ -275,6 +275,16 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <!-- ==================================== -->
+        <!-- We use 2.19.1 because newer versions -->
+        <!-- are slowing down the OSGi tests in a -->
+        <!-- terrible way (factor 10 slower).     -->
+        <!-- This most certainly has to do with   -->
+        <!-- the JVM shutdown, because the tests  -->
+        <!-- themselves are 'fast' (a couple of   -->
+        <!-- each).                               -->
+        <!-- ==================================== -->
+        <version>2.19.1</version>
         <configuration>
             <forkCount>1</forkCount>
             <reuseForks>false</reuseForks>
