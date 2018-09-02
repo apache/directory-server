@@ -23,7 +23,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleGetInfoString</key>
-	<string>Copyright © 2010 Apache Software Foundation</string>
+	<string>Copyright © 201-2018 Apache Software Foundation</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.apache.directory.server</string>
 	<key>IFPkgFlagAllowBackRev</key>
