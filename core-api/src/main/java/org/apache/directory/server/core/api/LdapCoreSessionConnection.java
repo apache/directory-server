@@ -1395,4 +1395,13 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     {
         this.schemaManager = schemaManager;
     }
+    
+    
+    /**
+     * @return The session, if we have some
+     */
+    public CoreSession getSession()
+    {
+        return session;
+    }
 }

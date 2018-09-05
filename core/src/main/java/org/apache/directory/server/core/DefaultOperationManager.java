@@ -99,7 +99,6 @@ public class DefaultOperationManager implements OperationManager
     /** A lock used to protect against concurrent operations */
     private ReadWriteLock rwLock = new ReentrantReadWriteLock( true );
 
-
     public DefaultOperationManager( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
@@ -402,15 +401,28 @@ public class DefaultOperationManager implements OperationManager
         lockWrite();
 
         // Start a Write transaction right away
-        PartitionTxn transaction = null; 
+        PartitionTxn transaction = addContext.getSession().getTransaction( partition ); 
         
         try
         {
-            transaction = partition.beginWriteTransaction();
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( addContext.getSession().hasSessionTransaction() )
+                {
+                    addContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+            
             addContext.setTransaction( transaction );
 
             head.add( addContext );
-            transaction.commit();
+            
+            if ( !addContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
         }
         catch ( LdapException le )
         {
@@ -720,11 +732,20 @@ public class DefaultOperationManager implements OperationManager
         lockWrite();
 
         // Start a Write transaction right away
-        PartitionTxn transaction = null; 
+        PartitionTxn transaction = deleteContext.getSession().getTransaction( partition ); 
         
         try
         {
-            transaction = partition.beginWriteTransaction();
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( deleteContext.getSession().hasSessionTransaction() )
+                {
+                    deleteContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+            
             deleteContext.setTransaction( transaction );
 
             eagerlyPopulateFields( deleteContext );
@@ -734,7 +755,10 @@ public class DefaultOperationManager implements OperationManager
 
             head.delete( deleteContext );
 
-            transaction.commit();
+            if ( !deleteContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
         }
         catch ( LdapException le )
         {
@@ -1064,14 +1088,25 @@ public class DefaultOperationManager implements OperationManager
         
         Partition partition = directoryService.getPartitionNexus().getPartition( dn );
         modifyContext.setPartition( partition );
-        PartitionTxn partitionTxn = null;
         
         lockWrite();
+        
+        // Start a Write transaction right away
+        PartitionTxn transaction = modifyContext.getSession().getTransaction( partition ); 
 
         try
         {
-            partitionTxn = partition.beginWriteTransaction();
-            modifyContext.setTransaction( partitionTxn );
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( modifyContext.getSession().hasSessionTransaction() )
+                {
+                    modifyContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+
+            modifyContext.setTransaction( transaction );
 
             // populate the context with the old entry
             eagerlyPopulateFields( modifyContext );
@@ -1080,15 +1115,19 @@ public class DefaultOperationManager implements OperationManager
             Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
 
             head.modify( modifyContext );
-            partitionTxn.commit();
+            
+            if ( !modifyContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
         }
         catch ( LdapException le )
         {
             try 
             {
-                if ( partitionTxn != null )
+                if ( transaction != null )
                 {
-                    partitionTxn.abort();
+                    transaction.abort();
                 }
                 
                 throw le;
@@ -1102,7 +1141,7 @@ public class DefaultOperationManager implements OperationManager
         {
             try 
             {
-                partitionTxn.abort();
+                transaction.abort();
                 
                 throw new LdapOtherException( ioe.getMessage(), ioe );
             }
@@ -1228,11 +1267,20 @@ public class DefaultOperationManager implements OperationManager
         moveContext.setPartition( partition );
 
         // Start a Write transaction right away
-        PartitionTxn transaction = null; 
+        PartitionTxn transaction = moveContext.getSession().getTransaction( partition ); 
         
         try
         {
-            transaction = partition.beginWriteTransaction();
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( moveContext.getSession().hasSessionTransaction() )
+                {
+                    moveContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+        
             moveContext.setTransaction( transaction );
             Entry originalEntry = getOriginalEntry( moveContext );
 
@@ -1242,7 +1290,11 @@ public class DefaultOperationManager implements OperationManager
             Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
 
             head.move( moveContext );
-            transaction.commit();
+            
+            if ( !moveContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
         }
         catch ( LdapException le )
         {
@@ -1391,13 +1443,23 @@ public class DefaultOperationManager implements OperationManager
         Partition partition = directoryService.getPartitionNexus().getPartition( dn );
         moveAndRenameContext.setPartition( partition );
 
-        PartitionTxn transaction = null; 
-        
         lockWrite();
+        
+        // Start a Write transaction right away
+        PartitionTxn transaction = moveAndRenameContext.getSession().getTransaction( partition ); 
         
         try
         {
-            transaction = partition.beginWriteTransaction();
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( moveAndRenameContext.getSession().hasSessionTransaction() )
+                {
+                    moveAndRenameContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+
             moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
             moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
             moveAndRenameContext.setTransaction( transaction );
@@ -1407,7 +1469,10 @@ public class DefaultOperationManager implements OperationManager
 
             head.moveAndRename( moveAndRenameContext );
 
-            transaction.commit();
+            if ( !moveAndRenameContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
         }
         catch ( LdapException le )
         {
@@ -1548,10 +1613,24 @@ public class DefaultOperationManager implements OperationManager
 
         lockWrite();
 
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+
+        // Start a Write transaction right away
+        PartitionTxn transaction = renameContext.getSession().getTransaction( partition ); 
+        
         // Call the rename method
         try
         {
-            Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( renameContext.getSession().hasSessionTransaction() )
+                {
+                    renameContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+
             renameContext.setPartition( partition );
 
             // populate the context with the old entry
@@ -1581,22 +1660,35 @@ public class DefaultOperationManager implements OperationManager
                 }
             }
 
-
             Entry originalEntry = getOriginalEntry( renameContext );
             renameContext.setOriginalEntry( originalEntry );
             renameContext.setModifiedEntry( originalEntry.clone() );
-
-            // Call the Rename method
-            PartitionTxn transaction = null; 
             Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
+
+            // Start a Write transaction right away
+            transaction = renameContext.getSession().getTransaction( partition ); 
             
+            // Call the Rename method
             try
             {
-                transaction = partition.beginWriteTransaction();
+                if ( transaction == null )
+                {
+                    transaction = partition.beginWriteTransaction();
+                    
+                    if ( renameContext.getSession().hasSessionTransaction() )
+                    {
+                        renameContext.getSession().addTransaction( partition, transaction );
+                    }
+                }
+
                 renameContext.setTransaction( transaction );
 
                 head.rename( renameContext );
-                transaction.commit();
+                
+                if ( !renameContext.getSession().hasSessionTransaction() )
+                {
+                    transaction.commit();
+                }
             }
             catch ( LdapException le )
             {

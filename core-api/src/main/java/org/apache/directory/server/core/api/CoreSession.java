@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.api;
 
 
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,8 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.changelog.LogChange;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -821,4 +824,44 @@ public interface CoreSession
      * @param pwdMustChange If the password must change or not
      */
     void setPwdMustChange( boolean pwdMustChange );
+    
+    
+    /**
+     * @return <tt>true</tt> if a session transaction has been started
+     */
+    boolean hasSessionTransaction();
+    
+    
+    /**
+     * Set the flag indicating we have received the startTransaction extended operation
+     */
+    void beginSessionTransaction();
+    
+    
+    /**
+     * Set the flag indicating we have received the sendTransaction extended operation
+     * 
+     * @throws IOException If one of the transaction cannot be closed
+     */
+    void endSessionTransaction() throws IOException;
+    
+    
+    /**
+     * Retrieve a transaction associated with a partition, if we have one.
+     * 
+     * @return The found transaction, or null if no transaction  has been started
+     * @param partition
+     * @return
+     */
+    PartitionTxn getTransaction( Partition partition );
+    
+    
+    /**
+     * Add a transaction associated with a partition if it's not already stored in teh 
+     * transaction map.
+     * 
+     * @param partition The Partition which will be associated with the transaction
+     * @param transaction The transaction to set
+     */
+    void addTransaction( Partition partition, PartitionTxn transaction );
 }

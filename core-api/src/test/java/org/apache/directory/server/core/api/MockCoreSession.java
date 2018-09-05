@@ -73,6 +73,8 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -984,4 +986,54 @@ public class MockCoreSession implements CoreSession
         this.pwdMustChange = pwdMustChange;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasSessionTransaction()
+    {
+        return false;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void beginSessionTransaction()
+    {
+        // Nothing to do
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void endSessionTransaction()
+    {
+        // Nothing to do
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PartitionTxn getTransaction( Partition partition ) 
+    {
+        // We don't manage transactions in the MockOperationManager
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addTransaction( Partition partition, PartitionTxn transaction )
+    {
+        // Nothing to do
+    }
 }
