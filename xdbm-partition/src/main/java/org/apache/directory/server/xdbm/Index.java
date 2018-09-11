@@ -234,16 +234,6 @@ public interface Index<K, E>
 
 
     /**
-     * Builds a Cursor on the Reverse index
-     * 
-     * @param partitionTxn The transaction to use
-     * @return The created Cursor
-     * @throws LdapException If the cursor can't be created
-     */
-    Cursor<IndexEntry<K, E>> reverseCursor( PartitionTxn partitionTxn ) throws LdapException;
-
-
-    /**
      * Builds a Cursor on the Forward index
      * 
      * @param partitionTxn The transaction to use
@@ -251,17 +241,6 @@ public interface Index<K, E>
      * @throws LdapException If the cursor can't be created
      */
     Cursor<IndexEntry<K, E>> forwardCursor( PartitionTxn partitionTxn ) throws LdapException;
-
-
-    /**
-     * Builds a Cursor on the Reverse index, starting at a specific entry Id
-     * 
-     * @param partitionTxn The transaction to use
-     * @param entryId The entry ID to start from
-     * @return The created Cursor
-     * @throws LdapException If the cursor can't be created
-     */
-    Cursor<IndexEntry<K, E>> reverseCursor( PartitionTxn partitionTxn, E entryId ) throws LdapException;
 
 
     /**

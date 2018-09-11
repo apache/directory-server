@@ -39,7 +39,6 @@ import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
-import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 
 
@@ -331,40 +330,6 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
         else
         {
             return false;
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Cursor<IndexEntry<K, String>> reverseCursor( PartitionTxn partitionTxn ) throws LdapException
-    {
-        if ( withReverse )
-        {
-            return new IndexCursorAdaptor( partitionTxn, reverse.cursor(), false );
-        }
-        else
-        {
-            return new EmptyIndexCursor<>( partitionTxn );
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Cursor<IndexEntry<K, String>> reverseCursor( PartitionTxn partitionTxn, String id ) throws LdapException
-    {
-        if ( withReverse )
-        {
-            return new IndexCursorAdaptor( partitionTxn, reverse.cursor( partitionTxn, id ), false );
-        }
-        else
-        {
-            return new EmptyIndexCursor<>( partitionTxn );
         }
     }
 

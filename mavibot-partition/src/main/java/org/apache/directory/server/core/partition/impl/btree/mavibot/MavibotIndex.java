@@ -45,7 +45,6 @@ import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartit
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
-import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -411,44 +410,10 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     // ------------------------------------------------------------------------
     // Index Cursor Operations
     // ------------------------------------------------------------------------
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Cursor<IndexEntry<K, String>> reverseCursor( PartitionTxn partitionTxn ) throws LdapException
-    {
-        if ( withReverse )
-        {
-            return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) reverse.cursor(), false );
-        }
-        else
-        {
-            return new EmptyIndexCursor<>( partitionTxn );
-        }
-    }
-
-
     @SuppressWarnings("unchecked")
     public Cursor<IndexEntry<K, String>> forwardCursor( PartitionTxn partitionTxn ) throws LdapException
     {
         return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) forward.cursor(), true );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Cursor<IndexEntry<K, String>> reverseCursor( PartitionTxn partitionTxn, String id ) throws LdapException
-    {
-        if ( withReverse )
-        {
-            return new IndexCursorAdaptor<>( partitionTxn, ( Cursor ) reverse.cursor( partitionTxn, id ), false );
-        }
-        else
-        {
-            return new EmptyIndexCursor<>( partitionTxn );
-        }
     }
 
 
