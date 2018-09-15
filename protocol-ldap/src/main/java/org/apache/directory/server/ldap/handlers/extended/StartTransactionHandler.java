@@ -27,11 +27,16 @@ import java.util.Set;
 import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionRequest;
 import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionResponse;
 import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionResponseImpl;
+import org.apache.directory.api.ldap.model.message.ExtendedRequest;
+import org.apache.directory.api.ldap.model.message.ExtendedResponse;
+import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jdbm.helper.Conversion;
 
 
 /**
@@ -39,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StartTransactionHandler implements ExtendedOperationHandler<StartTransactionRequest, StartTransactionResponse>
+public class StartTransactionHandler implements ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>
 {
     private static final Logger LOG = LoggerFactory.getLogger( StartTransactionHandler.class );
     public static final Set<String> EXTENSION_OIDS;
@@ -65,18 +70,20 @@ public class StartTransactionHandler implements ExtendedOperationHandler<StartTr
     /**
      * {@inheritDoc}
      */
-    public void handleExtendedOperation( LdapSession requestor, StartTransactionRequest req ) throws Exception
+    public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
         LOG.debug( "StartTransaction requested" );
         
         // We need to create a new transaction ID for the current session.
         // If the current session is already processing a transaction, we will return an error
-        StartTransactionResponse startTransactionResponse = new StartTransactionResponseImpl();
-        
-        requestor.getCoreSession().beginSessionTransaction();
+        CoreSession coreSession = session.getCoreSession();
+        long transactionId = coreSession.beginSessionTransaction();
+
+        StartTransactionResponse startTransactionResponse = new StartTransactionResponseImpl( 
+                req.getMessageId(), Conversion.convertToByteArray( transactionId ) );
 
         // write the response
-        requestor.getIoSession().write( startTransactionResponse );
+        session.getIoSession().write( startTransactionResponse );
     }
 
 

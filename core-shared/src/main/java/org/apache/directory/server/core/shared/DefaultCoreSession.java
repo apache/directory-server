@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import jdbm.recman.BaseRecordManager;
 
@@ -138,6 +139,9 @@ public class DefaultCoreSession implements CoreSession
     
     /** The Map containing the transactions associated with each partition */
     private Map<String, PartitionTxn> transactionMap = new HashMap<>();
+    
+    /** The transaction ID */
+    private AtomicLong transactionId = new AtomicLong( 0 );
 
     /**
      * Creates a new instance of a DefaultCoreSession
@@ -1484,9 +1488,11 @@ public class DefaultCoreSession implements CoreSession
      * {@inheritDoc}
      */
     @Override
-    public void beginSessionTransaction()
+    public long beginSessionTransaction()
     {
         hasSessionTransaction = true;
+        
+        return transactionId.getAndIncrement();
     }
     
     

@@ -834,8 +834,10 @@ public interface CoreSession
     
     /**
      * Set the flag indicating we have received the startTransaction extended operation
+     * 
+     * @return The transaction ID
      */
-    void beginSessionTransaction();
+    long beginSessionTransaction();
     
     
     /**

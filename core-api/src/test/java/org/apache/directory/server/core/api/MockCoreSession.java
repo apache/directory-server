@@ -1001,9 +1001,10 @@ public class MockCoreSession implements CoreSession
      * {@inheritDoc}
      */
     @Override
-    public void beginSessionTransaction()
+    public long beginSessionTransaction()
     {
         // Nothing to do
+        return 0L;
     }
     
     

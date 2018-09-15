@@ -522,6 +522,7 @@ public final class ServerAnnotationProcessor
         throw new IllegalArgumentException( I18n.err( I18n.ERR_689, protocol ) );
     }
 
+
     private static int getFreePort() throws IOException
     {
         ServerSocket ss = new ServerSocket( 0 );
@@ -531,11 +532,11 @@ public final class ServerAnnotationProcessor
         return port;
     }
 
+
     public static KdcServer getKdcServer( Description description, DirectoryService directoryService, int startPort )
     {
         CreateKdcServer createLdapServer = description.getAnnotation( CreateKdcServer.class );
 
         return createKdcServer( createLdapServer, directoryService );
     }
-
 }
