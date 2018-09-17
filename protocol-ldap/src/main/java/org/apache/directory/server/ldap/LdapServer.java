@@ -858,9 +858,8 @@ public class LdapServer extends DirectoryBackedService
      * @param eoh an extended operation handler
      * @throws Exception on failure to add the handler
      */
-    public void addExtendedOperationHandler(
-        ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> eoh )
-        throws Exception
+    public void addExtendedOperationHandler( ExtendedOperationHandler<? extends ExtendedRequest, 
+            ? extends ExtendedResponse> eoh ) throws LdapException
     {
         if ( started )
         {
@@ -876,7 +875,7 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * Deregisteres an {@link ExtendedOperationHandler} with the specified <tt>oid</tt>
+     * Deregister an {@link ExtendedOperationHandler} with the specified <tt>oid</tt>
      * from this protocol provider.
      *
      * @param oid the numeric identifier for the extended operation associated with
@@ -914,7 +913,8 @@ public class LdapServer extends DirectoryBackedService
     public ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> getExtendedOperationHandler(
         String oid )
     {
-        for ( ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> extendedOperationHandler : extendedOperationHandlers )
+        for ( ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> extendedOperationHandler : 
+            extendedOperationHandlers )
         {
             if ( extendedOperationHandler.getOid().equals( oid ) )
             {
