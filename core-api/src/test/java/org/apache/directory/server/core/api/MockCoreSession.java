@@ -1012,7 +1012,7 @@ public class MockCoreSession implements CoreSession
      * {@inheritDoc}
      */
     @Override
-    public void endSessionTransaction()
+    public void endSessionTransaction( boolean commit )
     {
         // Nothing to do
     }

@@ -20,7 +20,9 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
+import org.apache.directory.api.ldap.codec.decorators.AddResponseDecorator;
 import org.apache.directory.api.ldap.model.message.AddRequest;
+import org.apache.directory.api.ldap.model.message.AddResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.server.core.api.CoreSession;
@@ -45,26 +47,27 @@ public class AddRequestHandler extends LdapRequestHandler<AddRequest>
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, AddRequest req )
+    public void handle( LdapSession session, AddRequest addRequest )
     {
-        LOG.debug( "Handling request: {}", req );
-        LdapResult result = req.getResultResponse().getLdapResult();
+        LOG.debug( "Handling request: {}", addRequest );
+        AddResponse addResponse = ( AddResponse ) addRequest.getResultResponse();
 
         try
         {
             // Call the underlying layer to inject the new entry 
             CoreSession coreSession = session.getCoreSession();
-            coreSession.add( req );
+            coreSession.add( addRequest );
 
             // If success, here now, otherwise, we would have an exception.
+            LdapResult result = addResponse.getLdapResult();
             result.setResultCode( ResultCodeEnum.SUCCESS );
 
             // Write the AddResponse message
-            session.getIoSession().write( req.getResultResponse() );
+            session.getIoSession().write( new AddResponseDecorator( getLdapApiService(), addResponse ) );
         }
         catch ( Exception e )
         {
-            handleException( session, req, e );
+            handleException( session, addRequest, new AddResponseDecorator( getLdapApiService(), addResponse ), e );
         }
     }
 }

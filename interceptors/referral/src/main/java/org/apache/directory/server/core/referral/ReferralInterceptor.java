@@ -154,15 +154,7 @@ public class ReferralInterceptor extends BaseInterceptor
             return false;
         }
 
-        Attribute oc = entry.get( directoryService.getAtProvider().getObjectClass() );
-
-        if ( oc == null )
-        {
-            LOG.warn( "could not find objectClass attribute in entry: {}", entry );
-            return false;
-        }
-
-        if ( !oc.contains( SchemaConstants.REFERRAL_OC ) )
+        if ( !entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.REFERRAL_OC ) )
         {
             return false;
         }

@@ -1500,11 +1500,21 @@ public class DefaultCoreSession implements CoreSession
      * {@inheritDoc}
      */
     @Override
-    public void endSessionTransaction() throws IOException
+    public void endSessionTransaction( boolean commit ) throws IOException
     {
-        for ( Map.Entry<String, PartitionTxn> partitionTxn : transactionMap.entrySet() )
+        if ( commit )
         {
-            partitionTxn.getValue().commit();
+            for ( Map.Entry<String, PartitionTxn> partitionTxn : transactionMap.entrySet() )
+            {
+                partitionTxn.getValue().commit();
+            }
+        }
+        else
+        {
+            for ( Map.Entry<String, PartitionTxn> partitionTxn : transactionMap.entrySet() )
+            {
+                partitionTxn.getValue().abort();
+            }
         }
         
         hasSessionTransaction = false;

@@ -319,7 +319,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             "ou: People" );
 
         connection.add( rootPeople );
-        int nbUsers = 10000;
+        int nbUsers = 1000;
         
         System.out.println( "Sleeping..." );
         //Thread.sleep( 10000 );
@@ -416,12 +416,13 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
             SearchCursor cursor = connection.search( searchRequest );
 
+            //System.out.println( cursor.getEntry() );
             boolean hasNext = firstNext( cursor );
             
             while ( hasNext )
             {
                 count++;
-                cursor.getEntry();
+                //System.out.println( cursor.getEntry() );
                 hasNext = innerNext( cursor );
             }
 

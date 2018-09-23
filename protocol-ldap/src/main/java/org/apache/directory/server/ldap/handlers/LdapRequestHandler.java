@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.handlers;
 
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.exception.LdapReferralException;
 import org.apache.directory.api.ldap.model.message.AbandonRequest;
@@ -241,9 +242,9 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
      * @param req The response
      * @param e The associated exception 
      */
-    public void handleException( LdapSession session, ResultResponseRequest req, Exception e )
+    public void handleException( LdapSession session, ResultResponseRequest request, ResultResponse response, Exception e )
     {
-        LdapResult result = req.getResultResponse().getLdapResult();
+        LdapResult result = request.getResultResponse().getLdapResult();
 
         /*
          * Set the result code or guess the best option.
@@ -256,7 +257,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
         }
         else
         {
-            code = ResultCodeEnum.getBestEstimate( e, req.getType() );
+            code = ResultCodeEnum.getBestEstimate( e, request.getType() );
         }
 
         result.setResultCode( code );
@@ -266,7 +267,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
          * exception into the message if we are in debug mode.  Note we 
          * embed the result code name into the message.
          */
-        String msg = code.toString() + ": failed for " + req + ": " + e.getLocalizedMessage();
+        String msg = code.toString() + ": failed for " + request + ": " + e.getLocalizedMessage();
 
         LOG.debug( msg, e );
 
@@ -306,6 +307,15 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             }
         }
 
-        session.getIoSession().write( req.getResultResponse() );
+        session.getIoSession().write( response );
+    }
+    
+    
+    /**
+     * @return The LDAP API Codec service
+     */
+    protected LdapApiService getLdapApiService()
+    {
+        return ldapServer.getDirectoryService().getLdapCodecService();
     }
 }

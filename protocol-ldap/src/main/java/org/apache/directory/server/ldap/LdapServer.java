@@ -913,8 +913,8 @@ public class LdapServer extends DirectoryBackedService
     public ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> getExtendedOperationHandler(
         String oid )
     {
-        for ( ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> extendedOperationHandler : 
-            extendedOperationHandlers )
+        for ( ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> 
+                extendedOperationHandler : extendedOperationHandlers )
         {
             if ( extendedOperationHandler.getOid().equals( oid ) )
             {

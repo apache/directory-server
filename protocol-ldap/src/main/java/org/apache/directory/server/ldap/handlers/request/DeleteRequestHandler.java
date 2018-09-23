@@ -20,7 +20,9 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
+import org.apache.directory.api.ldap.codec.decorators.DeleteResponseDecorator;
 import org.apache.directory.api.ldap.model.message.DeleteRequest;
+import org.apache.directory.api.ldap.model.message.DeleteResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.server.core.api.CoreSession;
@@ -43,26 +45,29 @@ public class DeleteRequestHandler extends LdapRequestHandler<DeleteRequest>
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, DeleteRequest req )
+    public void handle( LdapSession session, DeleteRequest deleteRequest )
     {
-        LOG.debug( "Handling request: {}", req );
-        LdapResult result = req.getResultResponse().getLdapResult();
+        LOG.debug( "Handling request: {}", deleteRequest );
+        
+        DeleteResponse deleteResponse = ( DeleteResponse ) deleteRequest.getResultResponse();
+        
+        LdapResult result = deleteResponse.getLdapResult();
 
         try
         {
             // Call the underlying layer to delete the entry 
             CoreSession coreSession = session.getCoreSession();
-            coreSession.delete( req );
+            coreSession.delete( deleteRequest );
 
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
 
             // Write the DeleteResponse message
-            session.getIoSession().write( req.getResultResponse() );
+            session.getIoSession().write( new DeleteResponseDecorator( getLdapApiService(), deleteResponse ) );
         }
         catch ( Exception e )
         {
-            handleException( session, req, e );
+            handleException( session, deleteRequest, new DeleteResponseDecorator( getLdapApiService(), deleteResponse ), e );
         }
     }
 }

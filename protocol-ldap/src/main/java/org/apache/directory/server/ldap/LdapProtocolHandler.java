@@ -24,8 +24,10 @@ import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.api.ldap.codec.api.MessageDecorator;
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
+import org.apache.directory.api.ldap.codec.decorators.ExtendedResponseDecorator;
 import org.apache.directory.api.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.api.ldap.model.message.Control;
+import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.Message;
 import org.apache.directory.api.ldap.model.message.Request;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
@@ -247,7 +249,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
 
         LOG.warn( "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
 
-        session.write( NoticeOfDisconnect.PROTOCOLERROR );
+        session.write( new ExtendedResponseDecorator<ExtendedResponse>( 
+                ldapServer.getDirectoryService().getLdapCodecService(), NoticeOfDisconnect.PROTOCOLERROR ) );
         LdapSession ldapSession = this.ldapServer.getLdapSessionManager().removeLdapSession( session );
         cleanUpSession( ldapSession );
         session.closeNow();

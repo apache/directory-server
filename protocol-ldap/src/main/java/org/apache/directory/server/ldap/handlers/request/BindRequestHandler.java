@@ -26,6 +26,7 @@ import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.directory.api.ldap.codec.decorators.BindResponseDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
@@ -91,6 +92,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
     public void handleSimpleAuth( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         DirectoryService directoryService = ldapServer.getDirectoryService();
+        BindResponse bindResponse = ( BindResponse ) bindRequest.getResultResponse();
 
         // if the user is already bound, we have to unbind him
         if ( ldapSession.isAuthenticated() )
@@ -175,7 +177,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 SchemaConstants.REFERRAL_OC ) )
             {
                 LOG.info( "Bind principalDn points to referral." );
-                LdapResult result = bindRequest.getResultResponse().getLdapResult();
+                LdapResult result = bindResponse.getLdapResult();
                 result.setDiagnosticMessage( "Bind principalDn points to referral." );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
 
@@ -183,7 +185,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 ldapSession.setAnonymous();
 
                 // Write the response
-                ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+                ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
 
                 return;
             }
@@ -217,8 +219,8 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             }
 
             // Return the successful response
-            bindRequest.getResultResponse().addAllControls( bindContext.getResponseControls() );
-            sendBindSuccess( ldapSession, bindRequest, null );
+            bindResponse.addAllControls( bindContext.getResponseControls() );
+            sendBindSuccess( ldapSession, bindResponse, null );
         }
         catch ( Exception e )
         {
@@ -226,7 +228,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             // For BindRequest, it should be an InvalidCredentials, 
             // no matter what kind of exception we got.
             ResultCodeEnum code = null;
-            LdapResult result = bindRequest.getResultResponse().getLdapResult();
+            LdapResult result = bindResponse.getLdapResult();
 
             if ( e instanceof LdapUnwillingToPerformException )
             {
@@ -267,13 +269,13 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             }
 
             result.setDiagnosticMessage( msg );
-            bindRequest.getResultResponse().addAllControls( bindContext.getResponseControls() );
+            bindResponse.addAllControls( bindContext.getResponseControls() );
 
             // Before writing the response, be sure the session is set to anonymous
             ldapSession.setAnonymous();
 
             // Write the response
-            ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+            ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
         }
         finally
         {
@@ -316,7 +318,9 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
     private void generateSaslChallengeOrComplete( LdapSession ldapSession, SaslServer ss,
         BindRequest bindRequest ) throws Exception
     {
-        LdapResult result = bindRequest.getResultResponse().getLdapResult();
+        BindResponse bindResponse = ( BindResponse ) bindRequest.getResultResponse();
+
+        LdapResult result = bindResponse.getLdapResult();
 
         // SaslServer will throw an exception if the credentials are null.
         if ( bindRequest.getCredentials() == null )
@@ -375,7 +379,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 handler.cleanup( ldapSession );
 
                 // Return the successful response
-                sendBindSuccess( ldapSession, bindRequest, tokenBytes );
+                sendBindSuccess( ldapSession, bindResponse, tokenBytes );
             }
             else
             {
@@ -384,23 +388,22 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
                 // Build the response
                 result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
-                BindResponse resp = ( BindResponse ) bindRequest.getResultResponse();
 
                 // Store the challenge
-                resp.setServerSaslCreds( tokenBytes );
+                bindResponse.setServerSaslCreds( tokenBytes );
 
                 // Switch to SASLAuthPending
                 ldapSession.setSaslAuthPending();
 
                 // And write back the response
-                ldapSession.getIoSession().write( resp );
+                ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
 
                 LOG.debug( "Returning final authentication data to client to complete context." );
             }
         }
         catch ( SaslException se )
         {
-            sendInvalidCredentials( ldapSession, bindRequest, se );
+            sendInvalidCredentials( ldapSession, bindResponse, se );
         }
     }
 
@@ -410,19 +413,21 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      */
     private void sendAuthMethNotSupported( LdapSession ldapSession, BindRequest bindRequest )
     {
-        // First, r-einit the state to Anonymous, and clear the
+        BindResponse bindResponse = ( BindResponse ) bindRequest.getResultResponse();
+        
+        // First, re-init the state to Anonymous, and clear the
         // saslProperty map
         ldapSession.clearSaslProperties();
         ldapSession.setAnonymous();
 
         // And send the response to the client
-        LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
+        LdapResult bindResult = bindResponse.getLdapResult();
         bindResult.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
         bindResult.setDiagnosticMessage( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED.toString() + ": "
             + bindRequest.getSaslMechanism() + " is not a supported mechanism." );
 
         // Write back the error
-        ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+        ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
     }
 
 
@@ -430,9 +435,9 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      * Send back an INVALID-CREDENTIAL error message to the user. If we have an exception
      * as a third argument, then send back the associated message to the client. 
      */
-    private void sendInvalidCredentials( LdapSession ldapSession, BindRequest bindRequest, Exception e )
+    private void sendInvalidCredentials( LdapSession ldapSession, BindResponse bindResponse, Exception e )
     {
-        LdapResult result = bindRequest.getResultResponse().getLdapResult();
+        LdapResult result = bindResponse.getLdapResult();
 
         String message = "";
 
@@ -454,19 +459,18 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         ldapSession.setAnonymous();
 
         // Write back the error response
-        ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+        ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
     }
 
 
     /**
      * Send a SUCCESS message back to the client.
      */
-    private void sendBindSuccess( LdapSession ldapSession, BindRequest bindRequest, byte[] tokenBytes )
+    private void sendBindSuccess( LdapSession ldapSession, BindResponse bindResponse, byte[] tokenBytes )
     {
         // Return the successful response
-        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
-        response.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-        response.setServerSaslCreds( tokenBytes );
+        bindResponse.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+        bindResponse.setServerSaslCreds( tokenBytes );
 
         if ( !ldapSession.getCoreSession().isAnonymous() )
         {
@@ -487,9 +491,9 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             handler.cleanup( ldapSession );
         }
 
-        ldapSession.getIoSession().write( response );
+        ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
 
-        LOG.debug( "Returned SUCCESS message: {}.", response );
+        LOG.debug( "Returned SUCCESS message: {}.", bindResponse );
     }
 
 
@@ -614,7 +618,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             }
             catch ( SaslException se )
             {
-                sendInvalidCredentials( ldapSession, bindRequest, se );
+                sendInvalidCredentials( ldapSession, ( BindResponse ) bindRequest.getResultResponse(), se );
             }
         }
     }
@@ -634,11 +638,14 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         // Guard clause:  LDAP version 3
         if ( !bindRequest.getVersion3() )
         {
+            BindResponse bindResponse = ( BindResponse ) bindRequest.getResultResponse();
+            
             LOG.error( I18n.err( I18n.ERR_162 ) );
-            LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
+            LdapResult bindResult = bindResponse.getLdapResult();
             bindResult.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_163 ) );
-            ldapSession.getIoSession().write( bindRequest.getResultResponse() );
+            ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
+            
             return;
         }
 

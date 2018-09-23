@@ -24,10 +24,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.extras.extended.ads_impl.startTransaction.StartTransactionResponseDecorator;
-import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionRequest;
-import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionResponse;
-import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionResponseImpl;
+import org.apache.directory.api.ldap.extras.extended.ads_impl.endTransaction.EndTransactionRequestDecorator;
+import org.apache.directory.api.ldap.extras.extended.ads_impl.endTransaction.EndTransactionResponseDecorator;
+import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionRequest;
+import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionResponse;
+import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionResponseImpl;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.server.core.api.CoreSession;
@@ -37,23 +38,22 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jdbm.helper.Conversion;
-
 
 /**
- * An handler to manage the StartTransaction extended request operation
+ * An handler to manage the EndTransaction extended request operation
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class StartTransactionHandler implements ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>
+public class EndTransactionHandler implements ExtendedOperationHandler<ExtendedRequest, ExtendedResponse>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( StartTransactionHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( EndTransactionHandler.class );
     public static final Set<String> EXTENSION_OIDS;
 
     static
     {
         Set<String> set = new HashSet<>( 2 );
-        set.add( StartTransactionRequest.EXTENSION_OID );
+        set.add( EndTransactionRequest.EXTENSION_OID );
+        set.add( EndTransactionResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
 
@@ -63,7 +63,7 @@ public class StartTransactionHandler implements ExtendedOperationHandler<Extende
      */
     public String getOid()
     {
-        return StartTransactionRequest.EXTENSION_OID;
+        return EndTransactionRequest.EXTENSION_OID;
     }
 
 
@@ -72,21 +72,19 @@ public class StartTransactionHandler implements ExtendedOperationHandler<Extende
      */
     public void handleExtendedOperation( LdapSession session, ExtendedRequest req ) throws Exception
     {
-        LOG.debug( "StartTransaction requested" );
+        LOG.debug( "EndTransaction requested" );
         
         // We need to create a new transaction ID for the current session.
         // If the current session is already processing a transaction, we will return an error
         CoreSession coreSession = session.getCoreSession();
-        long transactionId = coreSession.beginSessionTransaction();
+        coreSession.endSessionTransaction( ( ( EndTransactionRequestDecorator ) req ).getCommit() );
 
-        StartTransactionResponse startTransactionResponse = new StartTransactionResponseImpl( 
-                req.getMessageId(), Conversion.convertToByteArray( transactionId ) );
+        EndTransactionResponse endTransactionResponse = new EndTransactionResponseImpl( req.getMessageId() );
 
         // write the response
-        session.getIoSession().write( 
-                new StartTransactionResponseDecorator( 
-                        session.getLdapServer().getDirectoryService().getLdapCodecService(), 
-                        startTransactionResponse ) );
+        session.getIoSession().write( new EndTransactionResponseDecorator( 
+                session.getLdapServer().getDirectoryService().getLdapCodecService(), 
+                endTransactionResponse )  );
     }
 
 

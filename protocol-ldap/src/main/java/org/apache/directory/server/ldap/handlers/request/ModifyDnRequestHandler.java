@@ -20,8 +20,10 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
+import org.apache.directory.api.ldap.codec.decorators.ModifyDnResponseDecorator;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ModifyDnRequest;
+import org.apache.directory.api.ldap.model.message.ModifyDnResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -58,63 +60,65 @@ public class ModifyDnRequestHandler extends LdapRequestHandler<ModifyDnRequest>
      * - newSuperior : this is a move operation. The entry is removed from its
      * current location, and created in the new one.
      */
-    public void handle( LdapSession session, ModifyDnRequest req )
+    public void handle( LdapSession session, ModifyDnRequest modifyDnRequest )
     {
-        LdapResult result = req.getResultResponse().getLdapResult();
-        LOG.debug( "Handling modify dn request while ignoring referrals: {}", req );
+        ModifyDnResponse modifyDnResponse = ( ModifyDnResponse ) modifyDnRequest.getResultResponse(); 
+        LdapResult result = modifyDnResponse.getLdapResult();
+        LOG.debug( "Handling modify dn request while ignoring referrals: {}", modifyDnRequest );
 
-        if ( req.getName().isEmpty() )
+        if ( modifyDnRequest.getName().isEmpty() )
         {
             // it is not allowed to modify the name of the Root DSE
             String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setDiagnosticMessage( msg );
-            session.getIoSession().write( req.getResultResponse() );
+            session.getIoSession().write( new ModifyDnResponseDecorator( getLdapApiService(), modifyDnResponse ) );
             return;
         }
 
         try
         {
             SchemaManager schemaManager = session.getCoreSession().getDirectoryService().getSchemaManager();
-            Dn newRdn = new Dn( schemaManager, req.getNewRdn().getName() );
+            Dn newRdn = new Dn( schemaManager, modifyDnRequest.getNewRdn().getName() );
 
-            Dn oldRdn = new Dn( schemaManager, req.getName().getRdn().getName() );
+            Dn oldRdn = new Dn( schemaManager, modifyDnRequest.getName().getRdn().getName() );
 
-            boolean rdnChanged = req.getNewRdn() != null && !newRdn.equals( oldRdn );
+            boolean rdnChanged = modifyDnRequest.getNewRdn() != null && !newRdn.equals( oldRdn );
 
             CoreSession coreSession = session.getCoreSession();
 
             if ( rdnChanged )
             {
-                if ( req.getNewSuperior() != null )
+                if ( modifyDnRequest.getNewSuperior() != null )
                 {
-                    coreSession.moveAndRename( req );
+                    coreSession.moveAndRename( modifyDnRequest );
                 }
                 else
                 {
-                    coreSession.rename( req );
+                    coreSession.rename( modifyDnRequest );
                 }
             }
-            else if ( req.getNewSuperior() != null )
+            else if ( modifyDnRequest.getNewSuperior() != null )
             {
-                req.setNewRdn( null );
-                coreSession.move( req );
+                modifyDnRequest.setNewRdn( null );
+                coreSession.move( modifyDnRequest );
             }
             else
             {
                 result.setDiagnosticMessage( "Attempt to move entry onto itself." );
                 result.setResultCode( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
-                result.setMatchedDn( req.getName() );
-                session.getIoSession().write( req.getResultResponse() );
+                result.setMatchedDn( modifyDnRequest.getName() );
+                session.getIoSession().write( new ModifyDnResponseDecorator( getLdapApiService(), modifyDnResponse ) );
+                
                 return;
             }
 
             result.setResultCode( ResultCodeEnum.SUCCESS );
-            session.getIoSession().write( req.getResultResponse() );
+            session.getIoSession().write( new ModifyDnResponseDecorator( getLdapApiService(), modifyDnResponse ) );
         }
         catch ( Exception e )
         {
-            handleException( session, req, e );
+            handleException( session, modifyDnRequest, new ModifyDnResponseDecorator( getLdapApiService(), modifyDnResponse ), e );
         }
     }
 }

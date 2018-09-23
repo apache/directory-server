@@ -71,8 +71,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * 
- * TODO MavibotPartition.
+ * A Mavibot partition
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */

@@ -843,9 +843,10 @@ public interface CoreSession
     /**
      * Set the flag indicating we have received the sendTransaction extended operation
      * 
+     * @param commit If we have to commit or rollback the transaction
      * @throws IOException If one of the transaction cannot be closed
      */
-    void endSessionTransaction() throws IOException;
+    void endSessionTransaction( boolean commit ) throws IOException;
     
     
     /**

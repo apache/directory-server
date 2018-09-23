@@ -25,6 +25,11 @@ import static org.junit.Assert.fail;
 
 import java.util.Random;
 
+import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionRequest;
+import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionRequestImpl;
+import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionRequest;
+import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionRequestImpl;
+import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionResponse;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
@@ -44,10 +49,14 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateExtendedOperation;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.ldap.handlers.extended.EndTransactionHandler;
+import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
+import org.apache.directory.server.ldap.handlers.extended.StartTransactionHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,6 +71,15 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateDS(
     name = "AddPerfDS",
+    extendedOperations = 
+        {
+            @CreateExtendedOperation( 
+                    oid = StartTransactionRequest.EXTENSION_OID,
+                    FQCN = "org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionRequestImpl" ),
+            @CreateExtendedOperation( 
+                    oid = EndTransactionRequest.EXTENSION_OID,
+                    FQCN = "org.apache.directory.api.ldap.extras.extended.startTransaction.EndTransactionRequestImpl" ),
+        },
     partitions =
         {
             @CreatePartition(
@@ -85,7 +103,13 @@ import org.junit.runner.RunWith;
     enableChangeLog = false)
 @CreateLdapServer(transports =
     //{ @CreateTransport(address = "192.168.1.1", port = 10389, protocol = "LDAP") })
-    { @CreateTransport(protocol = "LDAP") })
+    { @CreateTransport(protocol = "LDAP") },
+    extendedOpHandlers =
+    {
+        StartTransactionHandler.class,
+        EndTransactionHandler.class,
+    } 
+)
 public class SearchPerfIT extends AbstractLdapTestUnit
 {
 
@@ -422,7 +446,9 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     public void testSearch100kUsers() throws LdapException, CursorException, InterruptedException, Exception
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.setTimeOut(0L);
         connection.bind( "uid=admin,ou=system", "secret" );
+        int nbAdds = 10_000;
 
         Entry rootPeople = new DefaultEntry(
             "ou=People,dc=example,dc=com",
@@ -431,10 +457,37 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             "ou: People" );
 
         connection.add( rootPeople );
+        EndTransactionRequest endTransactionRequest;
+        StartTransactionRequest startTransactionRequest;
+        StartTransactionResponse startTransactionResponse = null;
+        boolean startedTxn = false;
+        
 
         long tadd0 = System.currentTimeMillis();
-        for ( int i = 0; i < 100000; i++ )
+        long tadd = tadd0;
+
+        for ( int i = 0; i < nbAdds; i++ )
         {
+            /*
+            if ( i % 1000 == 0 )
+            {
+                if ( startedTxn )
+                {
+                    endTransactionRequest = new EndTransactionRequestImpl();
+                    endTransactionRequest.setTransactionId( startTransactionResponse.getTransactionId() );
+                    endTransactionRequest.setCommit( true );
+                    connection.extended( endTransactionRequest );
+                }
+                else
+                {
+                    startedTxn = true;
+                }
+                
+                startTransactionRequest = new StartTransactionRequestImpl();
+                startTransactionResponse = ( StartTransactionResponse ) connection.extended( startTransactionRequest );
+            }
+            */
+            
             Entry user = new DefaultEntry(
                 "uid=user." + i + ",ou=People,dc=example,dc=com",
                 "objectClass: top",
@@ -463,12 +516,28 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
             if ( i % 100 == 0 )
             {
-                System.out.println( "Injected " + i );
+                long t100add = System.currentTimeMillis();
+                System.out.println( "Injected " + i + " in " + ( t100add - tadd ) );
+                tadd = t100add;
             }
         }
+        
+        /*
+        if ( startedTxn )
+        {
+            endTransactionRequest = new EndTransactionRequestImpl();
+            endTransactionRequest.setTransactionId( startTransactionResponse.getTransactionId() );
+            endTransactionRequest.setCommit( true );
+            connection.extended( endTransactionRequest );
+        }
+        */
+        
         long tadd1 = System.currentTimeMillis();
 
-        System.out.println( "Time to inject 100k entries : " + ( ( tadd1 - tadd0 ) / 1000 ) + "s" );
+        long nbSeconds = ( ( tadd1 - tadd0 ) / 1000 );
+        System.out.println( "Time to inject " + nbAdds + " entries : " + nbSeconds + "s, add/s : " + ( nbAdds / nbSeconds ) );
+
+        connection.extended( new EndTransactionRequestImpl() );
 
         // Sleep forever
         //Thread.sleep( 3600000L );
@@ -503,7 +572,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 t00 = System.currentTimeMillis();
             }
 
-            searchRequest.setFilter( "(cn=user" + random.nextInt( 100000 ) + ")" );
+            searchRequest.setFilter( "(cn=user" + random.nextInt( nbAdds ) + ")" );
 
             SearchCursor cursor = connection.search( searchRequest );
 
