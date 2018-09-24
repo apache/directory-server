@@ -20,9 +20,9 @@
 package org.apache.directory.server.ldap;
 
 
+import org.apache.directory.api.ldap.codec.api.AbstractMessageDecorator;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
-import org.apache.directory.api.ldap.codec.api.MessageDecorator;
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.decorators.ExtendedResponseDecorator;
 import org.apache.directory.api.ldap.model.exception.ResponseCarryingMessageException;
@@ -89,7 +89,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         session.setAttribute( LdapDecoder.MAX_PDU_SIZE_ATTR, ldapServer.getDirectoryService().getMaxPDUSize() );
 
         // Last, store the message container
-        LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
+        LdapMessageContainer<? extends AbstractMessageDecorator<Message>> ldapMessageContainer =
             new LdapMessageContainer<>(
                 ldapServer.getDirectoryService().getLdapCodecService(),
                 new SchemaBinaryAttributeDetector(

@@ -38,7 +38,7 @@ import org.apache.commons.net.SocketClient;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapEncoder;
 import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
-import org.apache.directory.api.ldap.codec.api.MessageDecorator;
+import org.apache.directory.api.ldap.codec.api.AbstractMessageDecorator;
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
@@ -727,7 +727,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainer<MessageDecorator<? extends Message>> container = new LdapMessageContainer(
+            LdapMessageContainer<AbstractMessageDecorator<? extends Message>> container = new LdapMessageContainer(
                 ldapServer.getDirectoryService().getLdapCodecService() );
             return ( BindResponse ) decoder.decode( _input_, container );
         }
@@ -766,7 +766,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainer<MessageDecorator<? extends Message>> container = new LdapMessageContainer(
+            LdapMessageContainer<AbstractMessageDecorator<? extends Message>> container = new LdapMessageContainer(
                 ldapServer.getDirectoryService().getLdapCodecService() );
             return ( BindResponse ) decoder.decode( _input_, container );
         }
