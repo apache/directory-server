@@ -49,7 +49,6 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.annotations.CreateExtendedOperation;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -71,15 +70,6 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateDS(
     name = "AddPerfDS",
-    extendedOperations = 
-        {
-            @CreateExtendedOperation( 
-                    oid = StartTransactionRequest.EXTENSION_OID,
-                    FQCN = "org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionRequestImpl" ),
-            @CreateExtendedOperation( 
-                    oid = EndTransactionRequest.EXTENSION_OID,
-                    FQCN = "org.apache.directory.api.ldap.extras.extended.startTransaction.EndTransactionRequestImpl" ),
-        },
     partitions =
         {
             @CreatePartition(
@@ -468,8 +458,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
         for ( int i = 0; i < nbAdds; i++ )
         {
-            /*
-            if ( i % 1000 == 0 )
+            if ( i % 100 == 0 )
             {
                 if ( startedTxn )
                 {
@@ -486,7 +475,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
                 startTransactionRequest = new StartTransactionRequestImpl();
                 startTransactionResponse = ( StartTransactionResponse ) connection.extended( startTransactionRequest );
             }
-            */
             
             Entry user = new DefaultEntry(
                 "uid=user." + i + ",ou=People,dc=example,dc=com",
@@ -522,7 +510,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             }
         }
         
-        /*
         if ( startedTxn )
         {
             endTransactionRequest = new EndTransactionRequestImpl();
@@ -530,7 +517,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             endTransactionRequest.setCommit( true );
             connection.extended( endTransactionRequest );
         }
-        */
         
         long tadd1 = System.currentTimeMillis();
 
