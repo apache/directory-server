@@ -173,8 +173,6 @@ class LdapProtocolHandler extends DemuxingIoHandler
     @Override
     public void event( IoSession session, FilterEvent event ) throws Exception 
     {
-        Object message;
-        
         if ( event instanceof SslEvent )
         {
             if ( ( ( SslEvent ) event ) == SslEvent.SECURED ) 
