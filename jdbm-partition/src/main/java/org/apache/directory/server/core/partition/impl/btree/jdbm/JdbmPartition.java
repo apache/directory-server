@@ -29,14 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import jdbm.RecordManager;
-import jdbm.helper.MRU;
-import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
-import jdbm.recman.TransactionManager;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -67,6 +59,7 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionReadTxnImpl;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
@@ -80,6 +73,14 @@ import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jdbm.RecordManager;
+import jdbm.helper.MRU;
+import jdbm.recman.BaseRecordManager;
+import jdbm.recman.CacheRecordManager;
+import jdbm.recman.TransactionManager;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 
 
 /**
@@ -1016,7 +1017,7 @@ public class JdbmPartition extends AbstractBTreePartition
     @Override
     public PartitionReadTxn beginReadTransaction()
     {
-        return new PartitionReadTxn();
+        return new PartitionReadTxnImpl();
     }
 
 

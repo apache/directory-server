@@ -30,6 +30,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 
 
 /**
@@ -293,7 +294,10 @@ public class StoreUtils
         entry.add( SchemaConstants.ENTRY_UUID_AT, Strings.getUUID( index ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        addContext.setTransaction( new MockPartitionWriteTxn() );
-        ( ( Partition ) store ).add( addContext );
+        Partition p = ( Partition ) store;
+        PartitionWriteTxn tx = p.beginWriteTransaction();
+        addContext.setTransaction( tx );
+        p.add( addContext );
+        tx.commit();
     }
 }

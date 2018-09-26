@@ -56,8 +56,10 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionReadTxnImpl;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxnImpl;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -549,13 +551,13 @@ public class MavibotPartition extends AbstractBTreePartition
     @Override
     public PartitionReadTxn beginReadTransaction()
     {
-        return new PartitionReadTxn();
+        return new PartitionReadTxnImpl();
     }
 
 
     @Override
     public PartitionWriteTxn beginWriteTransaction()
     {
-        return new PartitionWriteTxn();
+        return new PartitionWriteTxnImpl();
     }
 }

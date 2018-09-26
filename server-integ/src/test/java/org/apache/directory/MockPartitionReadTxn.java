@@ -28,7 +28,7 @@ import org.apache.directory.server.core.api.partition.PartitionReadTxn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MockPartitionReadTxn extends PartitionReadTxn
+public class MockPartitionReadTxn implements PartitionReadTxn
 {
 
     @Override

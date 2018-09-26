@@ -28,7 +28,7 @@ import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class MockPartitionWriteTxn extends PartitionWriteTxn
+public class MockPartitionWriteTxn implements PartitionWriteTxn
 {
 
     @Override

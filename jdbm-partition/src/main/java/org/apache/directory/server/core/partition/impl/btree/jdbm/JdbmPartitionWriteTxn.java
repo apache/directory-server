@@ -32,7 +32,7 @@ import jdbm.recman.CacheRecordManager;
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class JdbmPartitionWriteTxn extends PartitionWriteTxn
+public class JdbmPartitionWriteTxn implements PartitionWriteTxn
 {
     /** The associated record manager */
     private RecordManager recordManager;

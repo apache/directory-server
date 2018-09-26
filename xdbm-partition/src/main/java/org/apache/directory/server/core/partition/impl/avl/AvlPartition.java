@@ -29,7 +29,9 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionReadTxnImpl;
 import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxnImpl;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -227,13 +229,13 @@ public class AvlPartition extends AbstractBTreePartition
     @Override
     public PartitionReadTxn beginReadTransaction()
     {
-        return new PartitionReadTxn();
+        return new PartitionReadTxnImpl();
     }
 
 
     @Override
     public PartitionWriteTxn beginWriteTransaction()
     {
-        return new PartitionWriteTxn();
+        return new PartitionWriteTxnImpl();
     }
 }
