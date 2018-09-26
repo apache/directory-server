@@ -67,6 +67,11 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-jdbm-partition</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apacheds-bdbje-partition</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>${project.groupId}</groupId>

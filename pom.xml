@@ -106,6 +106,7 @@
     <module>all</module>
     <module>jdbm-partition</module>
     <module>mavibot-partition</module>
+    <module>bdbje-partition</module>
     <!--module>lmdb-partition</module-->
     <!--module>mavibotv2-partition</module-->
     <module>xdbm-partition</module>
@@ -747,6 +748,12 @@
         <version>${project.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>apacheds-bdbje-partition</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-kerberos-shared</artifactId>
