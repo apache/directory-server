@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.api.filtering;
 
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -441,6 +442,19 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
             {
                 LOG.warn( "Failed to close the cursor" );
             }
+        }
+        try
+        {
+            // FIXME this is incorrect instead close the txn associated with each cursor
+            // the below code only commits the last searched partition's txn
+            // the fix is to modify the cursor impls to accept a flag and a txn handle
+            // and then decide whether the caller wants the txn to be closed at the time of
+            // closing the cursor
+            searchContext.getTransaction().commit();
+        }
+        catch ( IOException e )
+        {
+            //ignore
         }
     }
 

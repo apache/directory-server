@@ -81,8 +81,10 @@ import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionReadTxnImpl;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxnImpl;
 import org.apache.directory.server.core.api.partition.Subordinates;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -1121,13 +1123,13 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     @Override
     public PartitionReadTxn beginReadTransaction()
     {
-        return new PartitionReadTxn();
+        return new PartitionReadTxnImpl();
     }
 
 
     @Override
     public PartitionWriteTxn beginWriteTransaction()
     {
-        return new PartitionWriteTxn();
+        return new PartitionWriteTxnImpl();
     }
 }

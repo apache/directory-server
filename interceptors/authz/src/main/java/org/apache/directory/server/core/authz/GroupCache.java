@@ -52,6 +52,7 @@ import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,11 +157,13 @@ public class GroupCache
                 baseDn, filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
             searchOperationContext.setPartition( partition );
-            searchOperationContext.setTransaction( partition.beginReadTransaction() );
+            PartitionTxn tx = partition.beginReadTransaction();
+            searchOperationContext.setTransaction( tx );
             EntryFilteringCursor results = nexus.search( searchOperationContext );
 
             try
             {
+                tx.commit();
                 while ( results.next() )
                 {
                     Entry result = results.get();
