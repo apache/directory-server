@@ -38,8 +38,10 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionReadTxnImpl;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxnImpl;
 import org.apache.directory.server.core.api.partition.Subordinates;
 
 /**
@@ -59,14 +61,14 @@ public class RootPartition extends AbstractPartition
     @Override
     public PartitionReadTxn beginReadTransaction()
     {
-        return new PartitionReadTxn();
+        return new PartitionReadTxnImpl();
     }
 
     
     @Override
     public PartitionWriteTxn beginWriteTransaction()
     {
-        return new PartitionWriteTxn();
+        return new PartitionWriteTxnImpl();
     }
 
     @Override
