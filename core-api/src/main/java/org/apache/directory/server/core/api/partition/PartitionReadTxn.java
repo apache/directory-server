@@ -19,48 +19,11 @@
  */
 package org.apache.directory.server.core.api.partition;
 
-import java.io.IOException;
-
 /**
  * The Read Transaction interface
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PartitionReadTxn implements PartitionTxn
+public interface PartitionReadTxn extends PartitionTxn
 {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void commit() throws IOException
-    {
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void abort() throws IOException
-    {
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isClosed()
-    {
-        return false;
-    }
-
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void close() throws IOException
-    {
-    }
 }
