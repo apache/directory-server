@@ -165,8 +165,8 @@
                 <filter>
                   <artifact>org.bouncycastle:bcprov-jdk15on</artifact>
                   <excludes>
-                    <exclude>META-INF/BCKEY.SF</exclude>
-                    <exclude>META-INF/BCKEY.DSA</exclude>
+                    <exclude>META-INF/BCK*.SF</exclude>
+                    <exclude>META-INF/BCK*.DSA</exclude>
                   </excludes>
                 </filter>
               </filters>
