@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.kerberos;
 
@@ -77,7 +77,7 @@ import org.junit.runner.RunWith;
  * An test case for testing the {@link KeyDerivationInterceptor}'s
  * ability to derive Kerberos symmetric keys based on userPassword and principal
  * name and to generate random keys when the special keyword "randomKey" is used.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
@@ -134,6 +134,8 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         String vendor = System.getProperty( "java.vm.vendor" );
 
+        System.out.println( vendor + "/" + krb5key );
+
         if ( vendor.equalsIgnoreCase( "IBM Corporation" ) )
         {
             // Will be 2 or 3 on IBM JRE whether AES-256 is enabled or not
@@ -168,6 +170,10 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
         {
             // Could be 4 or 5 depending on whether AES-256 is enabled or not, on Apple JVM
             assertTrue( "Number of keys", krb5key.size() > 3 );
+        }
+        else if ( vendor.equalsIgnoreCase( "Azul Systems, Inc." ) )
+        {
+            assertTrue( "Number of keys", krb5key.size() > 4 );
         }
         else
         {
@@ -219,7 +225,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
     /**
      * Tests that the addition of an entry caused keys to be derived and added.
-     * 
+     *
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
@@ -292,7 +298,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
     /**
      * Tests that the modification of an entry caused keys to be derived and modified.  The
      * modify request contains both the 'userPassword' and the 'krb5PrincipalName'.
-     * 
+     *
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
@@ -433,7 +439,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
      * Tests that the modification of an entry caused keys to be derived and modified.  The
      * modify request contains only the 'userPassword'.  The 'krb5PrincipalName' is to be
      * obtained from the initial add of the user principal entry.
-     * 
+     *
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      */
@@ -566,7 +572,7 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
     /**
      * Tests that the addition of an entry caused random keys to be derived and added.
-     * 
+     *
      * @throws NamingException failure to perform LDAP operations
      * @throws IOException on network errors
      * @throws InvalidKeyException if the incorrect key results
