@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.operations.bind;
 
@@ -35,10 +35,10 @@ import javax.naming.directory.InitialDirContext;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.net.SocketClient;
+import org.apache.directory.api.ldap.codec.api.AbstractMessageDecorator;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapEncoder;
 import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
-import org.apache.directory.api.ldap.codec.api.AbstractMessageDecorator;
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
@@ -87,7 +87,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An {@link AbstractServerTest} testing SASL authentication.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
@@ -713,8 +713,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            LdapEncoder encoder = new LdapEncoder( getLdapServer().getDirectoryService().getLdapCodecService() );
-            ByteBuffer bb = encoder.encodeMessage( request );
+            ByteBuffer bb = LdapEncoder.encodeMessage( getService().getLdapCodecService(), request );
 
             bb.flip();
 
@@ -753,8 +752,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            LdapEncoder encoder = new LdapEncoder( getLdapServer().getDirectoryService().getLdapCodecService() );
-            ByteBuffer bb = encoder.encodeMessage( request );
+            ByteBuffer bb = LdapEncoder.encodeMessage( getService().getLdapCodecService(), request );
             bb.flip();
 
             _output_.write( bb.array() );
