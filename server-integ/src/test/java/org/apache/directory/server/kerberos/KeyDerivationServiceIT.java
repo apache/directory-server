@@ -134,8 +134,6 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
 
         String vendor = System.getProperty( "java.vm.vendor" );
 
-        System.out.println( vendor + "/" + krb5key );
-
         if ( vendor.equalsIgnoreCase( "IBM Corporation" ) )
         {
             // Will be 2 or 3 on IBM JRE whether AES-256 is enabled or not
