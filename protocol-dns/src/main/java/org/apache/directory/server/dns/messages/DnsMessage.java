@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 
 package org.apache.directory.server.dns.messages;
@@ -23,9 +23,9 @@ package org.apache.directory.server.dns.messages;
 
 import java.util.List;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -44,7 +44,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  *     +---------------------+
  *     |      Additional     | ResourceRecords holding additional information
  *     +---------------------+
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DnsMessage
@@ -242,6 +242,7 @@ public class DnsMessage
     /**
      * @see java.lang.Object#equals(Object)
      */
+    @Override
     public boolean equals( Object object )
     {
         if ( object == this )
@@ -266,8 +267,9 @@ public class DnsMessage
 
     /**
      * @see java.lang.Object#hashCode()
-     * @return the instance's hash code 
+     * @return the instance's hash code
      */
+    @Override
     public int hashCode()
     {
         return new HashCodeBuilder( -1805208585, -276770303 ).append( this.transactionId ).append( this.answerRecords )
@@ -281,6 +283,7 @@ public class DnsMessage
     /**
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString()
     {
         return new ToStringBuilder( this ).appendSuper( super.toString() ).append( "transactionId", this.transactionId )

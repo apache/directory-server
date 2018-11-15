@@ -6,31 +6,31 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 
 package org.apache.directory.server.dns.messages;
 
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
  * The question section is used to carry the "question" in most queries,
  * i.e., the parameters that define what is being asked.  The section
  * contains QDCOUNT (usually 1) entries, each of the following format:
- * 
+ *
  *                                     1  1  1  1  1  1
  *       0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
  *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
@@ -42,7 +42,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
  *     |                     QCLASS                    |
  *     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class QuestionRecord
@@ -87,7 +87,7 @@ public class QuestionRecord
     /**
      * The domain name of this query.
      * For example, www.example.com.
-     * 
+     *
      * @return The domain name.
      */
     public String getDomainName()
@@ -99,7 +99,7 @@ public class QuestionRecord
     /**
      * The type of the query.
      * For example, the type is A for address records.
-     * 
+     *
      * @return The {@link RecordType}.
      */
     public RecordType getRecordType()
@@ -111,7 +111,7 @@ public class QuestionRecord
     /**
      * The class for this query.
      * For example, the class is IN for the Internet.
-     * 
+     *
      * @return The {@link RecordClass}.
      */
     public RecordClass getRecordClass()
@@ -123,6 +123,7 @@ public class QuestionRecord
     /**
      * @see java.lang.Object#equals(Object)
      */
+    @Override
     public boolean equals( Object object )
     {
         if ( object == this )
@@ -141,8 +142,9 @@ public class QuestionRecord
 
     /**
      * @see java.lang.Object#hashCode()
-     * @return the instance's hash code 
+     * @return the instance's hash code
      */
+    @Override
     public int hashCode()
     {
         return new HashCodeBuilder( 1493545107, 315848479 ).append( this.domainName ).append( this.recordClass )
@@ -153,6 +155,7 @@ public class QuestionRecord
     /**
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString()
     {
         return new ToStringBuilder( this ).appendSuper( super.toString() ).append( "domainName", this.domainName )

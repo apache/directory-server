@@ -43,11 +43,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-constants</artifactId>
     </dependency>
@@ -101,7 +96,12 @@
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-util</artifactId>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+  
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
@@ -178,7 +178,7 @@
             <Import-Package>
                 net.sf.ehcache;version=${ehcache.version},
                 net.sf.ehcache.config;version=${ehcache.version},
-                org.apache.commons.lang;version=${commons.lang.version},
+                org.apache.commons.lang3;version=${commons.lang.version},
                 org.apache.directory.api.asn1.util;version=${org.apache.directory.api.version},
                 org.apache.directory.api.i18n;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},

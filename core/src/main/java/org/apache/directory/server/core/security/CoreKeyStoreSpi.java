@@ -34,13 +34,13 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Objects;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.SingletonEnumeration;
+import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.i18n.I18n;
@@ -78,7 +78,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     private Entry getTlsEntry() throws LdapException
     {
         Dn adminDn = directoryService.getDnFactory().create( ServerDNConstants.ADMIN_SYSTEM_DN );
-        
+
         return directoryService.getAdminSession().lookup( adminDn );
     }
 
@@ -162,7 +162,8 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         try
         {
             Entry entry = getTlsEntry();
-            if ( ArrayUtils.isEquals( cert.getEncoded(), entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) )
+
+            if ( Objects.deepEquals( cert.getEncoded(), entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) )
             {
                 return APACHEDS_ALIAS;
             }
@@ -299,7 +300,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             LOG.debug( "engineSetKeyEntry({}, key, {}, chain) called.", alias, new String( password ) );
         }
-        
+
         throw new NotImplementedException();
     }
 
@@ -314,7 +315,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             LOG.debug( "engineSize() called." );
         }
-        
+
         return 1;
     }
 

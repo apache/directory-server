@@ -130,11 +130,6 @@
     </dependency>
     
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-codec-core</artifactId>
     </dependency>
@@ -217,7 +212,6 @@
             </Export-Package>
             <Import-Package>
                 javax.security.auth.x500,
-                org.apache.commons.lang;version=${commons.lang.version},
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},

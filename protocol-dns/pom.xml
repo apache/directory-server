@@ -59,8 +59,8 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
 
     <dependency>
@@ -126,7 +126,7 @@
                 javax.naming,
                 javax.naming.directory,
                 javax.naming.ldap,
-                org.apache.commons.lang.builder;version=${commons.lang.version},
+                org.apache.commons.lang3.builder;version=${commons.lang.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},

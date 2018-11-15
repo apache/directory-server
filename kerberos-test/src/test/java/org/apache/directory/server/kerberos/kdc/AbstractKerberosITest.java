@@ -29,14 +29,14 @@ import java.util.Collections;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosTicket;
 
-import org.apache.directory.api.util.FileUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -124,7 +124,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
 
         assertEquals( 2, subject.getPrivateCredentials().size() );
         assertEquals( 0, subject.getPublicCredentials().size() );
-        
+
         for ( KerberosTicket kt : subject.getPrivateCredentials( KerberosTicket.class ) )
         {
             // System.out.println( kt.getClient() );
@@ -149,7 +149,7 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         // create krb5.conf with proper encryption type
         String krb5confPath = createKrb5Conf( parameters.checksumType, parameters.encryptionType, parameters.transport == TcpTransport.class );
         System.setProperty( "java.security.krb5.conf", krb5confPath );
-        
+
         // change encryption type in KDC
         kdcServer.getConfig().setEncryptionTypes( Collections.singleton( parameters.encryptionType ) );
 
@@ -168,21 +168,21 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
 
     /**
      * Creates the krb5.conf file for the test.
-     * 
+     *
      * It looks similar to this:
-     * 
+     *
      * <pre>
      * [libdefaults]
      *     default_realm = EXAMPLE.COM
      *     default_tkt_enctypes = aes256-cts-hmac-sha1-96
      *     default_tgs_enctypes = aes256-cts-hmac-sha1-96
      *     permitted_enctypes = aes256-cts-hmac-sha1-96
-     * 
+     *
      * [realms]
      *     EXAMPLE.COM = {
      *         kdc = localhost:6088
      *     }
-     * 
+     *
      * [domain_realm]
      *     .example.com = EXAMPLE.COM
      *     example.com = EXAMPLE.COM
@@ -207,12 +207,12 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
         //        data += "default_checksum = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
         //        data += "ap_req_checksum_type = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
         data += "default-checksum_type = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
-        
+
         if ( isTcp )
         {
             data += "udp_preference_limit = 1" + SystemUtils.LINE_SEPARATOR;
         }
-            
+
 
         data += "[realms]" + SystemUtils.LINE_SEPARATOR;
         data += REALM + " = {" + SystemUtils.LINE_SEPARATOR;

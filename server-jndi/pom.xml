@@ -71,8 +71,8 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
 
     <dependency>
@@ -141,7 +141,7 @@
                 org.apache.directory.server.configuration;version=${project.version}
             </Export-Package>
             <Import-Package>
-                org.apache.commons.lang;version=${commons.lang.version},
+                org.apache.commons.lang3;version=${commons.lang.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},

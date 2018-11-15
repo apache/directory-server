@@ -75,8 +75,8 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
     
     <dependency>
@@ -210,9 +210,9 @@
                 jdbm,
                 jdbm.helper,
                 jdbm.recman,
-                org.apache.commons.collections.map;version=${commons.collections.version},
-                org.apache.commons.lang;version=${commons.lang.version},
-                org.apache.commons.lang.exception;version=${commons.lang.version},
+                org.apache.commons.collections4.map;version=${commons.collections.version},
+                org.apache.commons.lang3;version=${commons.lang.version},
+                org.apache.commons.lang3.exception;version=${commons.lang.version},
                 org.apache.directory.api.asn1.ber.tlv;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.codec.controls.manageDsaIT;version=${org.apache.directory.api.version},

@@ -6,23 +6,23 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.ldap.handlers.sasl;
 
 
 import javax.security.sasl.SaslServer;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
@@ -52,9 +52,10 @@ public class SimpleMechanismHandler implements MechanismHandler
     private static final Logger LOG = LoggerFactory.getLogger( SimpleMechanismHandler.class );
 
 
+    @Override
     public SaslServer handleMechanism( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
-        // create a new Bind context, with a null session, as we don't have 
+        // create a new Bind context, with a null session, as we don't have
         // any context yet.
         BindOperationContext bindContext = new BindOperationContext( null );
 
@@ -88,7 +89,7 @@ public class SimpleMechanismHandler implements MechanismHandler
         }
         catch ( LdapException e )
         {
-            // Something went wrong. Write back an error message            
+            // Something went wrong. Write back an error message
             ResultCodeEnum code = null;
             LdapResult result = bindRequest.getResultResponse().getLdapResult();
 
@@ -136,6 +137,7 @@ public class SimpleMechanismHandler implements MechanismHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init( LdapSession ldapSession )
     {
         // Do nothing
@@ -145,6 +147,7 @@ public class SimpleMechanismHandler implements MechanismHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void cleanup( LdapSession ldapSession )
     {
         ldapSession.clearSaslProperties();

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -23,7 +23,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -69,7 +69,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
     /**
      * Creates a new instance of FilteringOperationContext.
-     * 
+     *
      * @param session The session to use
      */
     public FilteringOperationContext( CoreSession session )
@@ -141,7 +141,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
     /**
      * Tells if an attribute is present in the list of attribute to return
-     * 
+     *
      * @param schemaManager The SchemaManager instance
      * @param attribute The attribute we are looking for
      * @return true if the attribute is present
@@ -168,7 +168,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
     /**
      * Tells if an attribute is present in the list of attribute to return
-     * 
+     *
      * @param schemaManager The SchemaManager instance
      * @param attributeType The attributeType we are looking for
      * @return true if the attribute is present
@@ -201,7 +201,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         {
             return true;
         }
-        
+
         // Ok, do it the slow way...
         for ( AttributeTypeOptions attributeTypeOptions : returningAttributes )
         {
@@ -221,7 +221,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         if ( ( attributeIds != null ) && ( attributeIds.length != 0 ) && ( attributeIds[0] != null ) )
         {
             // We have something in the list
-            // first, ignore all the unkown AT and convert the strings to 
+            // first, ignore all the unkown AT and convert the strings to
             // AttributeTypeOptions
             returningAttributes = new HashSet<>();
             Set<String> attributesString = new HashSet<>();
@@ -407,6 +407,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

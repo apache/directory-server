@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.ldap.handlers.extended;
 
@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.extended.storedProcedure.StoredProcedureRequest;
 import org.apache.directory.api.ldap.extras.extended.storedProcedure.StoredProcedureResponse;
@@ -45,7 +45,7 @@ import org.apache.directory.server.ldap.LdapSession;
 
 /**
  * A Handler for the StoredProcedure extended operation
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class StoredProcedureExtendedOperationHandler implements
@@ -68,6 +68,7 @@ public class StoredProcedureExtendedOperationHandler implements
     }
 
 
+    @Override
     public void handleExtendedOperation( LdapSession session, StoredProcedureRequest req ) throws Exception
     {
         String procedure = req.getProcedureSpecification();
@@ -103,6 +104,7 @@ public class StoredProcedureExtendedOperationHandler implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getOid()
     {
         return StoredProcedureRequest.EXTENSION_OID;
@@ -122,6 +124,7 @@ public class StoredProcedureExtendedOperationHandler implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
@@ -131,6 +134,7 @@ public class StoredProcedureExtendedOperationHandler implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setLdapServer( LdapServer ldapServer )
     {
     }

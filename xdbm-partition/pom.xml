@@ -65,11 +65,6 @@
     </dependency>
     
     <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-model</artifactId>
     </dependency>
@@ -129,7 +124,6 @@
                 net.sf.ehcache;version=${ehcache.version},
                 net.sf.ehcache.config;version=${ehcache.version},
                 net.sf.ehcache.store;version=${ehcache.version},
-                org.apache.commons.collections;version=${commons.collections.version},
                 org.apache.directory.api.i18n;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},

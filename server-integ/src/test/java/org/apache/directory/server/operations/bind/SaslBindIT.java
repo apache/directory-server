@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -33,7 +34,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.net.SocketClient;
 import org.apache.directory.api.ldap.codec.api.AbstractMessageDecorator;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
@@ -573,13 +573,13 @@ public class SaslBindIT extends AbstractLdapTestUnit
         BindResponse type2response = client.bindType1( "type1_test".getBytes() );
         assertEquals( 1, type2response.getMessageId() );
         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
-        assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
-        assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+        assertTrue( Objects.deepEquals( "type1_test".getBytes(), provider.getType1Response() ) );
+        assertTrue( Objects.deepEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
 
         BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
-        assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+        assertTrue( Objects.deepEquals( "type3_test".getBytes(), provider.getType3Response() ) );
     }
 
 
@@ -602,13 +602,13 @@ public class SaslBindIT extends AbstractLdapTestUnit
         BindResponse type2response = client.bindType1( "type1_test".getBytes() );
         assertEquals( 1, type2response.getMessageId() );
         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
-        assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
-        assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+        assertTrue( Objects.deepEquals( "type1_test".getBytes(), provider.getType1Response() ) );
+        assertTrue( Objects.deepEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
 
         BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
-        assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+        assertTrue( Objects.deepEquals( "type3_test".getBytes(), provider.getType3Response() ) );
     }
 
 

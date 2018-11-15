@@ -29,7 +29,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import javax.naming.NamingException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -88,7 +90,7 @@ public class ApacheDS
 
     /**
      * Creates a new instance of the ApacheDS server
-     * 
+     *
      * @param ldapServer The ldap server protocol handler
      * @throws LdapException If we can't create teh ApacheDS instance
      */
@@ -114,7 +116,7 @@ public class ApacheDS
      *  <li>start the LDAP server</li>
      *  <li>start the LDAPS server</li>
      * </ul>
-     * 
+     *
      * @throws Exception If the server cannot be started
      */
     public void startup() throws Exception
@@ -230,7 +232,7 @@ public class ApacheDS
 
     /**
      * Get the directory where the LDIF files are stored
-     * 
+     *
      * @return The directory where the LDIF files are stored
      */
     public File getLdifDirectory()
@@ -255,9 +257,9 @@ public class ApacheDS
 
     /**
      * Check that the entry where are stored the loaded Ldif files is created.
-     * 
+     *
      * If not, create it.
-     * 
+     *
      * The files are stored in ou=loadedLdifFiles,ou=configuration,ou=system
      */
     private void ensureLdifFileBase() throws LdapException
@@ -287,7 +289,7 @@ public class ApacheDS
 
     /**
      * Create a string containing a hex dump of the loaded ldif file name.
-     * 
+     *
      * It is associated with the attributeType wrt to the underlying system.
      */
     private Dn buildProtectedFileEntryDn( File ldif ) throws Exception
@@ -340,13 +342,11 @@ public class ApacheDS
 
     /**
      * Load a ldif into the directory.
-     * 
+     *
      * @param root The context in which we will inject the entries
      * @param ldifFile The ldif file to read
      * @throws NamingException If something went wrong while loading the entries
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadLdif( File ldifFile ) throws Exception
     {
         Entry fileEntry = null;
@@ -378,7 +378,7 @@ public class ApacheDS
 
     /**
      * Load the existing LDIF files in alphabetic order
-     * 
+     *
      * @throws LdapException If we can't load the ldifs
      */
     public void loadLdifs() throws LdapException
@@ -426,6 +426,7 @@ public class ApacheDS
             // get all the ldif files within the directory
             File[] ldifFiles = ldifDirectory.listFiles( new FileFilter()
             {
+                @Override
                 public boolean accept( File pathname )
                 {
                     boolean isLdif = Strings.toLowerCaseAscii( pathname.getName() ).endsWith( ".ldif" );
@@ -444,6 +445,7 @@ public class ApacheDS
             // Sort ldifFiles in alphabetic order
             Arrays.sort( ldifFiles, new Comparator<File>()
             {
+                @Override
                 public int compare( File f1, File f2 )
                 {
                     return f1.getName().compareTo( f2.getName() );
@@ -472,7 +474,7 @@ public class ApacheDS
 
     /**
      * initialize the schema partition by loading the schema LDIF files
-     * 
+     *
      * @throws Exception in case of any problems while extracting and writing the schema files
      */
     private void initSchema() throws Exception

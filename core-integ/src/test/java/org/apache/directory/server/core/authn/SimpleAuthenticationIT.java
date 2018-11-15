@@ -27,7 +27,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.apache.commons.lang.ArrayUtils;
+import java.util.Objects;
+
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
@@ -91,7 +92,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 
         Entry entry = connection.lookup( userDn );
         performAdminAccountChecks( entry );
-        assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
+        assertTrue( Objects.deepEquals( entry.get( "userPassword" ).get().getBytes(), Strings
             .getBytesUtf8( "secret" ) ) );
         connection.close();
 
@@ -101,7 +102,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         connection = getConnectionAs( getService(), userDn, "secret" );
         entry = connection.lookup( userDn );
         performAdminAccountChecks( entry );
-        assertTrue( ArrayUtils.isEquals( entry.get( "userPassword" ).get().getBytes(), Strings
+        assertTrue( Objects.deepEquals( entry.get( "userPassword" ).get().getBytes(), Strings
             .getBytesUtf8( "secret" ) ) );
         connection.close();
     }
@@ -528,8 +529,8 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         assertNotNull( entry );
         assertTrue( entry.get( "uid" ).contains( "akarasulu" ) );
     }
-    
-    
+
+
     @Test
     public void testBCRYPT() throws Exception
     {
@@ -545,7 +546,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
         // now modify the password for akarasulu : 'secret', encrypted using CRYPT
         ModifyRequest modReq = new ModifyRequestImpl();
         modReq.setName( new Dn( userDn ) );
-        
+
         // The hash is for 'secret'
         modReq.replace( "userPassword", "{crypt}$2a$06$LH2xIb/TZmajuLJGDNuegeeY.SCwkg6YAVLNXTh8n4Xfb1uwmLXg6" );
         connection.modify( modReq );

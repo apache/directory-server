@@ -6,21 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.ldap.handlers;
 
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.exception.LdapReferralException;
@@ -83,16 +83,16 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
 
     /**
-     * Checks to see if confidentiality requirements are met.  If the 
+     * Checks to see if confidentiality requirements are met.  If the
      * LdapServer requires confidentiality and the SSLFilter is engaged
-     * this will return true.  If confidentiality is not required this 
+     * this will return true.  If confidentiality is not required this
      * will return true.  If confidentially is required and the SSLFilter
      * is not engaged in the IoFilterChain this will return false.
-     * 
+     *
      * This method is used by handlers to determine whether to send back
      * {@link ResultCodeEnum#CONFIDENTIALITY_REQUIRED} error responses back
      * to clients.
-     * 
+     *
      * @param session the MINA IoSession to check for TLS security
      * @return true if confidentiality requirement is met, false otherwise
      */
@@ -119,8 +119,9 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
 
     /**
-     *{@inheritDoc} 
+     *{@inheritDoc}
      */
+    @Override
     public final void handleMessage( IoSession session, T message ) throws Exception
     {
         LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
@@ -137,7 +138,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
         // was a SASL BindRequest
         if ( ldapSession.isAuthPending() )
         {
-            // Only SASL BinRequest are allowed if we already are handling a 
+            // Only SASL BinRequest are allowed if we already are handling a
             // SASL BindRequest
             if ( !( message instanceof BindRequest ) || ( ( BindRequest ) message ).isSimple()
                 || ldapSession.isSimpleAuthPending() )
@@ -152,17 +153,17 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             }
         }
 
-        // TODO - session you get from LdapServer should have the ldapServer 
+        // TODO - session you get from LdapServer should have the ldapServer
         // member already set no?  Should remove these lines where ever they
         // may be if that's the case.
         ldapSession.setLdapServer( ldapServer );
 
-        // protect against insecure conns when confidentiality is required 
+        // protect against insecure conns when confidentiality is required
         if ( !isConfidentialityRequirementSatisfied( session ) )
         {
             if ( message instanceof ExtendedRequest )
             {
-                // Reject all extended operations except StartTls  
+                // Reject all extended operations except StartTls
                 ExtendedRequest req = ( ExtendedRequest ) message;
 
                 if ( !req.getRequestName().equals( StartTlsHandler.EXTENSION_OID ) )
@@ -175,7 +176,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             }
             else if ( message instanceof ResultResponseRequest )
             {
-                // Reject all other operations that have a result response  
+                // Reject all other operations that have a result response
                 rejectWithoutConfidentiality( session, ( ( ResultResponseRequest ) message )
                     .getResultResponse() );
                 return;
@@ -198,7 +199,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             CoreSession coreSession = null;
 
             /*
-             * All requests except bind automatically presume the authentication 
+             * All requests except bind automatically presume the authentication
              * is anonymous if the session has not been authenticated.  Hence a
              * default bind is presumed as the anonymous identity.
              */
@@ -227,7 +228,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
     /**
      * Handle a Ldap message associated with a session
-     * 
+     *
      * @param session The associated session
      * @param message The message we have to handle
      * @throws Exception If there is an error during the processing of this message
@@ -237,10 +238,10 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
     /**
      * Handles processing with referrals without ManageDsaIT decorator.
-     * 
+     *
      * @param session The associated session
      * @param req The response
-     * @param e The associated exception 
+     * @param e The associated exception
      */
     public void handleException( LdapSession session, ResultResponseRequest request, ResultResponse response, Exception e )
     {
@@ -264,7 +265,7 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
         /*
          * Setup the error message to put into the request and put entire
-         * exception into the message if we are in debug mode.  Note we 
+         * exception into the message if we are in debug mode.  Note we
          * embed the result code name into the message.
          */
         String msg = code.toString() + ": failed for " + request + ": " + e.getLocalizedMessage();
@@ -309,8 +310,8 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
 
         session.getIoSession().write( response );
     }
-    
-    
+
+
     /**
      * @return The LDAP API Codec service
      */

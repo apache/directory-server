@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.ldap.handlers.request;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.codec.decorators.BindResponseDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -72,7 +72,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
     /**
      * Set the mechanisms handler map.
-     * 
+     *
      * @param handlers The associations btween a machanism and its handler
      */
     public void setSaslMechanismHandlers( Map<String, MechanismHandler> handlers )
@@ -107,17 +107,17 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
         // Now, bind the user
 
-        // create a new Bind context, with a null session, as we don't have 
+        // create a new Bind context, with a null session, as we don't have
         // any context yet.
         BindOperationContext bindContext = new BindOperationContext( null );
 
         // Stores the Dn of the user to check, and its password
         Dn bindDn = bindRequest.getDn();
-        
+
         if ( bindDn == null )
         {
             String name = bindRequest.getName();
-            
+
             try
             {
                 bindDn = new Dn( directoryService.getSchemaManager(), name );
@@ -129,7 +129,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 LOG.debug( "Unable to convert the name to a DN." );
             }
         }
-        
+
         bindContext.setDn( bindRequest.getDn() );
         bindContext.setCredentials( bindRequest.getCredentials() );
         bindContext.setIoSession( ldapSession.getIoSession() );
@@ -142,18 +142,18 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         {
             /*
              * Referral handling as specified by RFC 3296 here:
-             *    
+             *
              *      http://www.faqs.org/rfcs/rfc3296.html
-             *      
+             *
              * See section 5.6.1 where if the bind principal Dn is a referral
              * we return an invalidCredentials result response.  Optionally we
              * could support delegated authentication in the future with this
              * potential.  See the following JIRA for more on this possibility:
-             * 
+             *
              *      https://issues.apache.org/jira/browse/DIRSERVER-1217
-             *      
-             * NOTE: if this is done then this handler should extend the 
-             * a modified form of the ReferralAwareRequestHandler so it can 
+             *
+             * NOTE: if this is done then this handler should extend the
+             * a modified form of the ReferralAwareRequestHandler so it can
              * detect conditions where ancestors of the Dn are referrals
              * and delegate appropriately.
              */
@@ -190,8 +190,8 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 return;
             }
 
-            // TODO - might cause issues since lookups are not returning all 
-            // attributes right now - this is an optimization that can be 
+            // TODO - might cause issues since lookups are not returning all
+            // attributes right now - this is an optimization that can be
             // enabled later after determining whether or not this will cause
             // issues.
             // reuse the looked up entry so we don't incur another lookup
@@ -225,7 +225,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         catch ( Exception e )
         {
             // Something went wrong. Write back an error message
-            // For BindRequest, it should be an InvalidCredentials, 
+            // For BindRequest, it should be an InvalidCredentials,
             // no matter what kind of exception we got.
             ResultCodeEnum code = null;
             LdapResult result = bindResponse.getLdapResult();
@@ -308,7 +308,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
 
     /**
-     * For challenge/response exchange, generate the challenge. 
+     * For challenge/response exchange, generate the challenge.
      * If the exchange is complete then send bind success.
      *
      * @param ldapSession
@@ -363,7 +363,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                     CoreSession userSession = ds.getSession( ldapPrincipal.getDn(),
                         password, saslMechanism, null );
 
-                    // Set the user session into the ldap session 
+                    // Set the user session into the ldap session
                     ldapSession.setCoreSession( userSession );
 
                     // Store the IoSession in the coreSession
@@ -414,7 +414,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
     private void sendAuthMethNotSupported( LdapSession ldapSession, BindRequest bindRequest )
     {
         BindResponse bindResponse = ( BindResponse ) bindRequest.getResultResponse();
-        
+
         // First, re-init the state to Anonymous, and clear the
         // saslProperty map
         ldapSession.clearSaslProperties();
@@ -433,7 +433,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
     /**
      * Send back an INVALID-CREDENTIAL error message to the user. If we have an exception
-     * as a third argument, then send back the associated message to the client. 
+     * as a third argument, then send back the associated message to the client.
      */
     private void sendInvalidCredentials( LdapSession ldapSession, BindResponse bindResponse, Exception e )
     {
@@ -541,7 +541,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
      * <li>The user already has a session</li>
      * <li>The user has started a SASL negotiation</li>
      * </ul>
-     * 
+     *
      * In the first case, we initiate a SaslBind session, which will be used all
      * along the negotiation.<br>
      * In the second case, we first have to unbind the user, and initiate a new
@@ -626,11 +626,12 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
     /**
      * Deal with a received BindRequest
-     * 
+     *
      * @param ldapSession The current session
      * @param bindRequest The received BindRequest
      * @throws Exception If the authentication cannot be handled
      */
+    @Override
     public void handle( LdapSession ldapSession, BindRequest bindRequest ) throws Exception
     {
         LOG.debug( "Received: {}", bindRequest );
@@ -639,13 +640,13 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         if ( !bindRequest.getVersion3() )
         {
             BindResponse bindResponse = ( BindResponse ) bindRequest.getResultResponse();
-            
+
             LOG.error( I18n.err( I18n.ERR_162 ) );
             LdapResult bindResult = bindResponse.getLdapResult();
             bindResult.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_163 ) );
             ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
-            
+
             return;
         }
 

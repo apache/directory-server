@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.codec.decorators.SearchResultDoneDecorator;
 import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
@@ -74,6 +74,7 @@ import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
@@ -98,7 +99,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     private static final Logger LOG = LoggerFactory.getLogger( SearchRequestHandler.class );
 
     private static final Logger SEARCH_TIME_LOG = LoggerFactory.getLogger( "org.apache.directory.server.ldap.handlers.request.SEARCH_TIME_LOG" );
-    
+
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
@@ -146,7 +147,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             if ( done.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
             {
                 session.getIoSession().write( new SearchResultDoneDecorator( getLdapApiService(), done ) );
-                
+
                 return;
             }
         }
@@ -176,6 +177,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void handle( LdapSession session, SearchRequest req ) throws Exception
     {
         if ( IS_DEBUG )
@@ -224,7 +226,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     private void handleReplication( LdapSession session, SearchRequest searchRequest ) throws LdapException
     {
         SearchResultDone done = ( SearchResultDone ) searchRequest.getResultResponse();
-        
+
         if ( replicationReqHandler != null )
         {
             replicationReqHandler.handleSyncRequest( session, searchRequest );
@@ -470,7 +472,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         boolean hasMoreEntry = cursor.next();
 
-        // We have some entry, move back to the first one, as we just moved forward 
+        // We have some entry, move back to the first one, as we just moved forward
         // to get the first entry
         if ( hasMoreEntry )
         {
@@ -1138,19 +1140,19 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             // ===============================================================
 
             boolean isLogSearchTime = SEARCH_TIME_LOG.isDebugEnabled();
-            
+
             long t0 = 0;
             String filter = null;
-            
+
             if ( isLogSearchTime )
             {
                 t0 = System.nanoTime();
                 filter = req.getFilter().toString();
             }
-            
+
             SearchResultDone done = doSimpleSearch( session, req );
             session.getIoSession().write( new SearchResultDoneDecorator( getLdapApiService(), done ) );
-            
+
             if ( isLogSearchTime )
             {
                 long t1 = System.nanoTime();

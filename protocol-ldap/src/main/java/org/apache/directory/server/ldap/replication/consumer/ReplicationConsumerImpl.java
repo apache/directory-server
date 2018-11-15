@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.collections4.map.LRUMap;
 import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
@@ -170,6 +170,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * @return the config
      */
+    @Override
     public SyncReplConfiguration getConfig()
     {
         return config;
@@ -180,6 +181,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
      * Init the replication service
      * @param directoryservice The directory service
      */
+    @Override
     public void init( DirectoryService directoryservice ) throws Exception
     {
         this.directoryService = directoryservice;
@@ -506,7 +508,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                     CONSUMER_LOG.debug( "setting the cookie from the sync info: {}", Strings.utf8ToString( cookie ) );
                     CONSUMER_LOG.debug( "setting the cookie from the sync info: {}", Strings.utf8ToString( cookie ) );
                 }
-                
+
                 syncCookie = cookie;
 
                 String cookieString = Strings.utf8ToString( syncCookie );
@@ -544,6 +546,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * {@inheritDoc}
      */
+    @Override
     public void connectionClosed()
     {
         if ( CONSUMER_LOG.isDebugEnabled() )
@@ -560,6 +563,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * Starts the synchronization operation
      */
+    @Override
     public ReplicationStatusEnum startSync()
     {
         CONSUMER_LOG.debug( "Starting the SyncRepl process for consumer {}", config.getReplicaId() );
@@ -624,6 +628,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setConfig( ReplicationConsumerConfig config )
     {
         this.config = ( SyncReplConfiguration ) config;
@@ -633,6 +638,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean connect( boolean now )
     {
         boolean connected = false;
@@ -671,6 +677,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * {@inheritDoc}
      */
+    @Override
     public void ping()
     {
         boolean connected = !disconnected;
@@ -705,6 +712,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stop()
     {
         if ( !disconnected )
@@ -717,6 +725,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getId()
     {
         return String.valueOf( getConfig().getReplicaId() );
@@ -1090,7 +1099,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             // If the parentDn are equals, it's a RENAME
             CONSUMER_LOG.debug( "renaming the Dn {} with new Rdn {} and deleteOldRdn flag set to {}",
                 localDn.getName(), remoteRdn.getName(), String.valueOf( deleteOldRdn ) );
-            
+
             RenameOperationContext renCtx = new RenameOperationContext( session, localDn, remoteRdn,
                 deleteOldRdn );
             renCtx.setReplEvent( true );
@@ -1106,7 +1115,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 remoteParentDn.getName(),
                 remoteRdn.getName(),
                 String.valueOf( deleteOldRdn ) );
-            
+
             MoveAndRenameOperationContext movRenCtx = new MoveAndRenameOperationContext( session, localDn,
                 remoteParentDn, remoteRdn, deleteOldRdn );
             movRenCtx.setReplEvent( true );
@@ -1126,9 +1135,9 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         lookupCtx.setSyncreplLookup( true );
 
         Entry localEntry;
-        
+
         Partition partition = session.getDirectoryService().getPartitionNexus().getPartition( remoteEntry.getDn() );
-        
+
         try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
             lookupCtx.setTransaction( partitionTxn );
@@ -1370,7 +1379,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             ctx.setReplEvent( true );
             ctx.setRid( replicaId );
 
-            // DO NOT generate replication event if this is being deleted as part of 
+            // DO NOT generate replication event if this is being deleted as part of
             // e_sync_refresh_required
             if ( reload )
             {
@@ -1401,7 +1410,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
     /**
      * removes all child entries present under the given Dn and finally the Dn itself
-     * 
+     *
      * @param rootDn the Dn which will be removed after removing its children
      * @param rid the replica ID
      * @throws Exception If the Dn is not valid or if the deletion failed
@@ -1440,7 +1449,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 ctx.setReplEvent( true );
                 ctx.setRid( rid );
 
-                // DO NOT generate replication event if this is being deleted as part of 
+                // DO NOT generate replication event if this is being deleted as part of
                 // e_sync_refresh_required
                 if ( reload )
                 {
@@ -1471,6 +1480,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
