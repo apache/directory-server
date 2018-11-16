@@ -76,6 +76,11 @@
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-util</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -128,6 +133,7 @@
                 org.apache.directory.server.core.schema;version=${project.version}
             </Export-Package>
             <Import-Package>
+                org.apache.commons.codec;version=${commons.codec.version},
                 org.apache.directory.api.i18n;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},
