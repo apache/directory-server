@@ -63,7 +63,7 @@ public class ClonedServerEntry implements Entry
 
     /**
      * Creates a new instance of ClonedServerEntry.
-     * 
+     *
      * The original entry is cloned in order to protect its content.
      *
      * @param originalEntry The original entry
@@ -93,66 +93,77 @@ public class ClonedServerEntry implements Entry
     }
 
 
+    @Override
     public Entry add( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.add( attributeType, values );
     }
 
 
+    @Override
     public Entry add( AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.add( attributeType, values );
     }
 
 
+    @Override
     public Entry add( AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.add( attributeType, values );
     }
 
 
+    @Override
     public Entry add( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.add( attributeType, values );
     }
 
 
+    @Override
     public Entry add( String upId, AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.add( attributeType, values );
     }
 
 
+    @Override
     public Entry add( String upId, AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.add( attributeType, values );
     }
 
 
+    @Override
     public boolean contains( AttributeType attributeType, byte[]... values )
     {
         return clonedEntry.contains( attributeType, values );
     }
 
 
+    @Override
     public boolean contains( AttributeType attributeType, String... values )
     {
         return clonedEntry.contains( attributeType, values );
     }
 
 
+    @Override
     public boolean contains( AttributeType attributeType, Value... values )
     {
         return clonedEntry.contains( attributeType, values );
     }
 
 
+    @Override
     public boolean containsAttribute( AttributeType attributeType )
     {
         return clonedEntry.containsAttribute( attributeType );
     }
 
 
+    @Override
     public Attribute get( AttributeType attributeType )
     {
         return clonedEntry.get( attributeType );
@@ -162,156 +173,182 @@ public class ClonedServerEntry implements Entry
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<Attribute> getAttributes()
     {
         return clonedEntry.getAttributes();
     }
 
 
+    @Override
     public boolean hasObjectClass( Attribute... objectClasses )
     {
         return clonedEntry.hasObjectClass( objectClasses );
     }
 
 
+    @Override
     public Attribute put( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
+    @Override
     public Attribute put( AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
+    @Override
     public Attribute put( AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
+    @Override
     public Attribute put( String upId, AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.put( attributeType, values );
     }
 
 
+    @Override
     public Attribute put( String upId, AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
 
 
+    @Override
     public Attribute put( String upId, AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.put( upId, attributeType, values );
     }
 
 
+    @Override
     public boolean remove( AttributeType attributeType, byte[]... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
 
 
+    @Override
     public boolean remove( AttributeType attributeType, String... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
 
 
+    @Override
     public boolean remove( AttributeType attributeType, Value... values ) throws LdapException
     {
         return clonedEntry.remove( attributeType, values );
     }
 
 
+    @Override
     public List<Attribute> remove( Attribute... attributes ) throws LdapException
     {
         return clonedEntry.remove( attributes );
     }
 
 
+    @Override
     public void removeAttributes( AttributeType... attributes )
     {
         clonedEntry.removeAttributes( attributes );
     }
 
 
+    @Override
     public Entry add( Attribute... attributes ) throws LdapException
     {
         return clonedEntry.add( attributes );
     }
 
 
+    @Override
     public Entry add( String upId, String... values ) throws LdapException
     {
         return clonedEntry.add( upId, values );
     }
 
 
+    @Override
     public Entry add( String upId, byte[]... values ) throws LdapException
     {
         return clonedEntry.add( upId, values );
     }
 
 
+    @Override
     public Entry add( String upId, Value... values ) throws LdapException
     {
         return clonedEntry.add( upId, values );
     }
 
 
+    @Override
     public void clear()
     {
         clonedEntry.clear();
     }
 
 
+    @Override
     public boolean contains( Attribute... attributes )
     {
         return clonedEntry.contains( attributes );
     }
 
 
+    @Override
     public boolean contains( String upId, byte[]... values )
     {
         return clonedEntry.contains( upId, values );
     }
 
 
+    @Override
     public boolean contains( String upId, String... values )
     {
         return clonedEntry.contains( upId, values );
     }
 
 
+    @Override
     public boolean contains( String upId, Value... values )
     {
         return clonedEntry.contains( upId, values );
     }
 
 
+    @Override
     public boolean containsAttribute( String... attributes )
     {
         return clonedEntry.containsAttribute( attributes );
     }
 
 
+    @Override
     public Attribute get( String alias )
     {
         return clonedEntry.get( alias );
     }
 
 
+    @Override
     public Dn getDn()
     {
         return clonedEntry.getDn();
     }
 
 
+    @Override
     public boolean hasObjectClass( String... objectClasses )
     {
         return clonedEntry.hasObjectClass( objectClasses );
@@ -321,78 +358,91 @@ public class ClonedServerEntry implements Entry
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isSchemaAware()
     {
         return clonedEntry.isSchemaAware();
     }
 
 
+    @Override
     public Iterator<Attribute> iterator()
     {
         return clonedEntry.iterator();
     }
 
 
+    @Override
     public List<Attribute> put( Attribute... attributes ) throws LdapException
     {
         return clonedEntry.put( attributes );
     }
 
 
+    @Override
     public Attribute put( String upId, byte[]... values )
     {
         return clonedEntry.put( upId, values );
     }
 
 
+    @Override
     public Attribute put( String upId, String... values )
     {
         return clonedEntry.put( upId, values );
     }
 
 
+    @Override
     public Attribute put( String upId, Value... values )
     {
         return clonedEntry.put( upId, values );
     }
 
 
+    @Override
     public boolean remove( String upId, byte[]... values ) throws LdapException
     {
         return clonedEntry.remove( upId, values );
     }
 
 
+    @Override
     public boolean remove( String upId, String... values ) throws LdapException
     {
         return clonedEntry.remove( upId, values );
     }
 
 
+    @Override
     public boolean remove( String upId, Value... values ) throws LdapException
     {
         return clonedEntry.remove( upId, values );
     }
 
 
+    @Override
     public void removeAttributes( String... attributes )
     {
         clonedEntry.removeAttributes( attributes );
     }
 
 
+    @Override
     public void setDn( Dn dn )
     {
         clonedEntry.setDn( dn );
     }
 
 
+    @Override
     public void setDn( String dn ) throws LdapInvalidDnException
     {
         clonedEntry.setDn( dn );
     }
 
 
+    @Override
     public int size()
     {
         return clonedEntry.size();
@@ -417,9 +467,10 @@ public class ClonedServerEntry implements Entry
 
     /**
      * @see java.io.Externalizable#readExternal(ObjectInput)
-     * 
+     *
      * We can't use this method for a ServerEntry
      */
+    @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
         throw new IllegalStateException( I18n.err( I18n.ERR_455 ) );
@@ -428,21 +479,24 @@ public class ClonedServerEntry implements Entry
 
     /**
      * @see java.io.Externalizable#writeExternal(ObjectOutput)
-     * 
+     *
      * We can't use this method for a ServerEntry
      */
+    @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
         throw new IllegalStateException( I18n.err( I18n.ERR_456 ) );
     }
 
 
+    @Override
     public Entry clone()
     {
         return clonedEntry.clone();
     }
 
 
+    @Override
     public Entry shallowClone()
     {
         return clonedEntry.shallowClone();
@@ -499,6 +553,7 @@ public class ClonedServerEntry implements Entry
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return toString( "" );
@@ -508,6 +563,7 @@ public class ClonedServerEntry implements Entry
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         return clonedEntry.toString( tabs );

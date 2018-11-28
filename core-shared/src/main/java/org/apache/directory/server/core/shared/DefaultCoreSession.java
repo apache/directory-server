@@ -65,7 +65,7 @@ import org.apache.directory.api.ldap.model.message.UnbindRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
 import org.apache.directory.api.ldap.model.message.controls.SortRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortResponse;
-import org.apache.directory.api.ldap.model.message.controls.SortResponseControlImpl;
+import org.apache.directory.api.ldap.model.message.controls.SortResponseImpl;
 import org.apache.directory.api.ldap.model.message.controls.SortResultCode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
@@ -1290,7 +1290,7 @@ public class DefaultCoreSession implements CoreSession
      */
     private SortResponse canSort( SortRequest sortControl, LdapResult ldapResult, SchemaManager schemaManager )
     {
-        SortResponse resp = new SortResponseControlImpl();
+        SortResponse resp = new SortResponseImpl();
 
         List<SortKey> keys = sortControl.getSortKeys();
 

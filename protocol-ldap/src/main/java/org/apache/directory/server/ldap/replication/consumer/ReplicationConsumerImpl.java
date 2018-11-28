@@ -69,7 +69,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
 import org.apache.directory.api.ldap.model.message.controls.SortRequest;
-import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -1362,7 +1362,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         req.addAttributes( SchemaConstants.ENTRY_DN_AT );
 
         SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, "2.5.13.1" );
-        SortRequest ctrl = new SortRequestControlImpl();
+        SortRequest ctrl = new SortRequestImpl();
         ctrl.addSortKey( sk );
         req.addControl( ctrl );
 
@@ -1432,7 +1432,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
             SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, "2.5.13.1" );
 
-            SortRequest ctrl = new SortRequestControlImpl();
+            SortRequest ctrl = new SortRequestImpl();
             ctrl.addSortKey( sk );
             req.addControl( ctrl );
 

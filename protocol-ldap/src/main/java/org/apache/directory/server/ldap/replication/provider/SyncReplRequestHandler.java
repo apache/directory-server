@@ -82,7 +82,7 @@ import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
 import org.apache.directory.api.ldap.model.message.controls.SortRequest;
-import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.url.LdapUrl;
@@ -507,7 +507,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         sk.setMatchingRuleId( "2.5.13.1" );
         sk.setReverseOrder( true );
 
-        ctrl = new SortRequestControlImpl();
+        ctrl = new SortRequestImpl();
         ctrl.addSortKey( sk );
 
         request.addControl( ctrl );
