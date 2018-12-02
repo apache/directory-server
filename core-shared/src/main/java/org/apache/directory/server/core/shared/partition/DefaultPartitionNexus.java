@@ -206,8 +206,16 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
         if ( !initialized )
         {
-            // Add the supported controls
-            Iterator<String> ctrlOidItr = directoryService.getLdapCodecService().registeredControls();
+            // Add the supported request controls
+            Iterator<String> ctrlOidItr = directoryService.getLdapCodecService().registeredRequestControls();
+
+            while ( ctrlOidItr.hasNext() )
+            {
+                rootDse.add( SchemaConstants.SUPPORTED_CONTROL_AT, ctrlOidItr.next() );
+            }
+
+            // Add the supported response controls
+            ctrlOidItr = directoryService.getLdapCodecService().registeredResponseControls();
 
             while ( ctrlOidItr.hasNext() )
             {
@@ -270,7 +278,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      * {@inheritDoc}
      */
     @Override
-    protected synchronized void doDestroy( PartitionTxn partitionTxn ) 
+    protected synchronized void doDestroy( PartitionTxn partitionTxn )
     {
         if ( !initialized )
         {
@@ -333,7 +341,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             catch ( Exception e )
             {
                 LOG.warn( "Failed to flush partition data out.", e );
-                
+
                 if ( errors == null )
                 {
                     //noinspection ThrowableInstanceNeverThrown
@@ -588,7 +596,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         GetRootDseOperationContext getRootDseContext = new GetRootDseOperationContext( searchContext.getSession() );
         getRootDseContext.setPartition( searchContext.getPartition() );
         getRootDseContext.setTransaction( searchContext.getTransaction() );
-        
+
         Entry foundRootDse = getRootDse( getRootDseContext );
 
         for ( Attribute attribute : foundRootDse )
@@ -647,7 +655,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
      * C) The scope is SUBLEVEL :
      * In this case, we have to do a search in each of the existing partition. We will get
      * back a list of cursors and we will wrap this list in the resulting EntryFilteringCursor.
-     *   
+     *
      * @param searchContext
      * @return
      * @throws LdapException
@@ -691,7 +699,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         else if ( isOnelevelScope )
         {
             // Loop on all the partitions
-            // We will look into all the partitions, thus we create a list of cursors. 
+            // We will look into all the partitions, thus we create a list of cursors.
             List<EntryFilteringCursor> cursors = new ArrayList<>();
 
             for ( Partition partition : partitions.values() )
@@ -878,18 +886,18 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         if ( namingContexts != null )
         {
             Value foundNC = null;
-            
+
             for ( Value namingContext : namingContexts )
             {
                 String normalizedNC = new Dn( schemaManager, namingContext.getValue() ).getNormName();
-                
+
                 if ( partitionSuffix.equals( normalizedNC ) )
                 {
                     foundNC = namingContext;
                     break;
                 }
             }
-            
+
             if ( foundNC != null )
             {
                 namingContexts.remove( foundNC );
@@ -928,7 +936,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public Partition getPartition( Dn dn ) throws LdapException
     {
         Partition parent;
-        
+
         if ( dn == null )
         {
             dn = Dn.ROOT_DSE;
@@ -938,12 +946,12 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         {
             dn = new Dn( schemaManager, dn );
         }
-        
+
         if ( dn.isRootDse() || dn.getNormName().equals( subschemaSubentryDn.getNormName() ) )
         {
             return new RootPartition( schemaManager );
         }
-        
+
         synchronized ( partitionLookupTree )
         {
             parent = partitionLookupTree.getElement( dn );
@@ -1084,8 +1092,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         mods.add( timeStampMod );
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -1101,8 +1109,8 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     public void saveContextCsn( PartitionTxn partitionTxn ) throws LdapException
     {
     }
-    
-    
+
+
     /**
      * Return the number of children and subordinates for a given entry
      *
