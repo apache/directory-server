@@ -217,6 +217,7 @@
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.codec.controls.manageDsaIT;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.codec.controls.search.pagedSearch;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.codec.decorators;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.ppolicy;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone;version=${org.apache.directory.api.version},
