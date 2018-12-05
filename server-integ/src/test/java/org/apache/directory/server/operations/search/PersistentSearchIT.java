@@ -693,7 +693,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                                 if ( jndiControl.getID().equals(
                                     EntryChange.OID ) )
                                 {
-                                    ecControl = ( EntryChange ) JndiUtils.fromJndiControl( codec, jndiControl );
+                                    ecControl = ( EntryChange ) JndiUtils.fromJndiResponseControl( codec, jndiControl );
                                     ( ( EntryChangeDecorator ) ecControl ).decode( jndiControl.getEncodedValue() );
                                 }
                             }

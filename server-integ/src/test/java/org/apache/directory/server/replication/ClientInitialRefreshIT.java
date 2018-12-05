@@ -30,6 +30,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.util.FileUtils;
+import org.apache.directory.api.ldap.codec.api.LdapApiService;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
@@ -157,6 +161,12 @@ public class ClientInitialRefreshIT
     public static void startProvider() throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
+        
+        // Load the replication controls
+        LdapApiService codec = provDirService.getLdapCodecService();
+        codec.registerRequestControl( new SyncRequestValueFactory( codec ) );
+        codec.registerResponseControl( new SyncDoneValueFactory( codec ) );
+        codec.registerResponseControl( new SyncStateValueFactory( codec ) );
 
         providerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
 

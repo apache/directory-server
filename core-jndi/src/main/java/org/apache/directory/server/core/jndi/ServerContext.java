@@ -54,10 +54,11 @@ import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChan
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
 import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequestImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyRequestDecorator;
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyResponseDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
@@ -175,7 +176,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( EntryChange.OID, ControlEnum.ENTRY_CHANGE_CONTROL );
         ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
         ADS_CONTROLS.put( PagedResults.OID, ControlEnum.PAGED_RESULTS_CONTROL );
-        ADS_CONTROLS.put( PasswordPolicy.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
+        ADS_CONTROLS.put( PasswordPolicyRequest.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
         ADS_CONTROLS.put( PersistentSearch.OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
         ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
         ADS_CONTROLS.put( SyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
@@ -415,13 +416,13 @@ public abstract class ServerContext implements EventContext
             case PASSWORD_POLICY_REQUEST_CONTROL:
                 if ( isRequest )
                 {
-                    control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(),
-                        new PasswordPolicyImpl() );
+                    control = new PasswordPolicyRequestDecorator( getDirectoryService().getLdapCodecService(),
+                        new PasswordPolicyRequestImpl() );
                 }
                 else
                 {
-                    control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(),
-                        new PasswordPolicyImpl( new PasswordPolicyResponseImpl() ) );
+                    control = new PasswordPolicyResponseDecorator( getDirectoryService().getLdapCodecService(),
+                        new PasswordPolicyResponseImpl() );
                 }
 
                 break;

@@ -24,9 +24,11 @@ import static org.junit.Assert.assertNotNull;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequestImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyResponseDecorator;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.BindRequestImpl;
@@ -78,8 +80,8 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
 {
     private static Logger logger = LoggerFactory.getLogger( LdapCoreSessionConnection.class );
     private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
-    private static final PasswordPolicyDecorator passwordPolicyRequestControl =
-        new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
+    private static final PasswordPolicyResponseDecorator passwordPolicyRequestControl =
+        new PasswordPolicyResponseDecorator( codec, new PasswordPolicyResponseImpl() );
 
 
     @Before
@@ -117,7 +119,7 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
             BindResponse bindResponse = connection.bind( bindRequest );
             Control responseControl = bindResponse.getControls().get( passwordPolicyRequestControl.getOid() );
             assertNotNull( responseControl );
-            PasswordPolicy passwordPolicy = ( ( PasswordPolicyDecorator ) responseControl ).getDecorated();
+            PasswordPolicyResponse passwordPolicy = ( ( PasswordPolicyResponseDecorator ) responseControl ).getDecorated();
             assertNotNull( passwordPolicy );
         }
         finally
@@ -145,7 +147,7 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
             BindResponse bindResponse = connection.bind( bindRequest );
             Control responseControl = bindResponse.getControls().get( passwordPolicyRequestControl.getOid() );
             assertNotNull( responseControl );
-            PasswordPolicy passwordPolicy = ( ( PasswordPolicyDecorator ) responseControl ).getDecorated();
+            PasswordPolicyResponse passwordPolicy = ( ( PasswordPolicyResponseDecorator ) responseControl ).getDecorated();
             assertNotNull( passwordPolicy );
         }
         finally

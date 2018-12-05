@@ -93,8 +93,7 @@ public final class DSAnnotationProcessor
         }
         
         Class<?> factory = dsBuilder.factory();
-        DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory
-            .newInstance();
+        DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
 
         DirectoryService service = dsf.getDirectoryService();
         service.setAccessControlEnabled( dsBuilder.enableAccessControl() );

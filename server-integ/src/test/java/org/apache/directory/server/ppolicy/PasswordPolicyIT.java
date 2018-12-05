@@ -41,10 +41,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequestImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyResponseDecorator;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -105,8 +106,8 @@ import org.junit.runner.RunWith;
 @CreateDS(enableChangeLog = false, name = "PasswordPolicyTest")
 public class PasswordPolicyIT extends AbstractLdapTestUnit
 {
-    private static final PasswordPolicy PP_REQ_CTRL =
-        new PasswordPolicyImpl();
+    private static final PasswordPolicyRequest PP_REQ_CTRL =
+        new PasswordPolicyRequestImpl();
 
 
     private PasswordPolicyConfiguration policyConfig;
@@ -157,7 +158,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     /**
      * Get the PasswordPolicy control from a response
      */
-    private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
+    private PasswordPolicyResponse getPwdRespCtrl( Response resp ) throws Exception
     {
         Control control = resp.getControls().get( PP_REQ_CTRL.getOid() );
 
@@ -166,7 +167,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             return null;
         }
 
-        return ( ( PasswordPolicyDecorator ) control ).getDecorated();
+        return ( ( PasswordPolicyResponseDecorator ) control ).getDecorated();
     }
 
 
@@ -189,7 +190,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        PasswordPolicyResponse respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
         
         return userEntry.getDn();
@@ -308,9 +309,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
             ModifyResponse response = changePassword( userDn, password, password );
             assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, response.getLdapResult().getResultCode() );
-            PasswordPolicy respCtrl = getPwdRespCtrl( response );
+            PasswordPolicyResponse respCtrl = getPwdRespCtrl( response );
             assertNotNull( respCtrl );
-            assertEquals( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY, respCtrl.getResponse().getPasswordPolicyError() );
+            assertEquals( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY, respCtrl.getPasswordPolicyError() );
 
             ModifyRequest modifyRequest = new ModifyRequestImpl();
             modifyRequest.setName( userDn );
@@ -366,9 +367,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
                 ModifyResponse response = changePassword( userDn, password, password );
                 assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, response.getLdapResult().getResultCode() );
-                PasswordPolicy respCtrl = getPwdRespCtrl( response );
+                PasswordPolicyResponse respCtrl = getPwdRespCtrl( response );
                 assertNotNull( respCtrl );
-                assertEquals( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY, respCtrl.getResponse().getPasswordPolicyError() );
+                assertEquals( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY, respCtrl.getPasswordPolicyError() );
 
                 ModifyRequest modifyRequest = new ModifyRequestImpl();
                 modifyRequest.setName( userDn );
@@ -423,9 +424,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, addResp.getLdapResult().getResultCode() );
 
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        PasswordPolicyResponse respCtrl = getPwdRespCtrl( addResp );
         assertNotNull( respCtrl );
-        assertEquals( INSUFFICIENT_PASSWORD_QUALITY, respCtrl.getResponse().getPasswordPolicyError() );
+        assertEquals( INSUFFICIENT_PASSWORD_QUALITY, respCtrl.getPasswordPolicyError() );
 
         // Relax the Check Quality to CHECK_ACCEPT
         policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_ACCEPT ); // allow the password if its quality can't be checked
@@ -534,7 +535,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        PasswordPolicyResponse respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
 
         BindRequest bindReq = new BindRequestImpl();
@@ -671,9 +672,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     
             response = changePassword( userDn, "abcde", "67891" );
             assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, response.getLdapResult().getResultCode() );
-            PasswordPolicy respCtrl = getPwdRespCtrl( response );
+            PasswordPolicyResponse respCtrl = getPwdRespCtrl( response );
             assertNotNull( respCtrl );
-            assertEquals( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY, respCtrl.getResponse().getPasswordPolicyError() );
+            assertEquals( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY, respCtrl.getPasswordPolicyError() );
             checkBindSuccess( userDn, "abcde" );
     
             // Try to reuse the very first password, should succeed
@@ -755,9 +756,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             BindResponse bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
     
-            PasswordPolicy respCtrl = getPwdRespCtrl( bindResp );
+            PasswordPolicyResponse respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+            assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
     
             Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
     
@@ -766,7 +767,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
 
             respCtrl = getPwdRespCtrl( bindResp );
-            assertEquals( PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+            assertEquals( PASSWORD_EXPIRED, respCtrl.getPasswordPolicyError() );
         }
 
         adminConnection.close();
@@ -804,9 +805,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             BindResponse bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
     
-            PasswordPolicy respCtrl = getPwdRespCtrl( bindResp );
+            PasswordPolicyResponse respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+            assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
     
             Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
     
@@ -815,21 +816,21 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertEquals( 1, respCtrl.getResponse().getGraceAuthNRemaining() );
+            assertEquals( 1, respCtrl.getGraceAuthNRemaining() );
     
             // bind for one last time, should succeed
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertEquals( 0, respCtrl.getResponse().getGraceAuthNRemaining() );
+            assertEquals( 0, respCtrl.getGraceAuthNRemaining() );
     
             // this time it should fail
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
     
             respCtrl = getPwdRespCtrl( bindResp );
-            assertEquals( PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+            assertEquals( PASSWORD_EXPIRED, respCtrl.getPasswordPolicyError() );
         }
         adminConnection.close();
     }
@@ -867,9 +868,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             BindResponse bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
     
-            PasswordPolicy respCtrl = getPwdRespCtrl( bindResp );
+            PasswordPolicyResponse respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+            assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
     
             Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
     
@@ -878,7 +879,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertEquals( 1, respCtrl.getResponse().getGraceAuthNRemaining() );
+            assertEquals( 1, respCtrl.getGraceAuthNRemaining() );
     
             // Wait 1 second, we should still be able to bind
             // bind for one last time, should succeed
@@ -886,14 +887,14 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertEquals( 0, respCtrl.getResponse().getGraceAuthNRemaining() );
+            assertEquals( 0, respCtrl.getGraceAuthNRemaining() );
     
             // this time it should fail
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
     
             respCtrl = getPwdRespCtrl( bindResp );
-            assertEquals( PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+            assertEquals( PASSWORD_EXPIRED, respCtrl.getPasswordPolicyError() );
         }
         adminConnection.close();
     }
@@ -931,9 +932,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             BindResponse bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
     
-            PasswordPolicy respCtrl = getPwdRespCtrl( bindResp );
+            PasswordPolicyResponse respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+            assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
     
             Thread.sleep( 4000 ); // sleep for four seconds so that the password expires
     
@@ -942,21 +943,21 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
-            assertEquals( 1, respCtrl.getResponse().getGraceAuthNRemaining() );
+            assertEquals( 1, respCtrl.getGraceAuthNRemaining() );
     
             // this extra second sleep is necessary to modify pwdGraceUseTime attribute with a different timestamp
             Thread.sleep( 1000 );
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResp );
-            assertEquals( 0, respCtrl.getResponse().getGraceAuthNRemaining() );
+            assertEquals( 0, respCtrl.getGraceAuthNRemaining() );
     
             // this time it should fail
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
     
             respCtrl = getPwdRespCtrl( bindResp );
-            assertEquals( PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+            assertEquals( PASSWORD_EXPIRED, respCtrl.getPasswordPolicyError() );
         }
         adminConnection.close();
     }
@@ -1035,8 +1036,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Thread.sleep( 2000 ); // let the password expire
         BindResponse bindResp = userConnection.bind( bindReq );
         assertTrue( userConnection.isAuthenticated() );
-        PasswordPolicy ppolicy = getPwdRespCtrl( bindResp );
-        assertEquals( 1, ppolicy.getResponse().getGraceAuthNRemaining() );
+        PasswordPolicyResponse ppolicy = getPwdRespCtrl( bindResp );
+        assertEquals( 1, ppolicy.getGraceAuthNRemaining() );
 
         Entry userEntry = adminConnection.lookup( userDn, "+" );
         Attribute pwdGraceAuthUseTime = userEntry.get( PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT );
@@ -1420,9 +1421,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             bindReq.setCredentials( "12345" );
             bindReq.addControl( PP_REQ_CTRL );
             BindResponse bindResponse = userConnection2.bind( bindReq );
-            PasswordPolicy respCtrl = getPwdRespCtrl( bindResponse );
+            PasswordPolicyResponse respCtrl = getPwdRespCtrl( bindResponse );
             assertNotNull( respCtrl );
-            assertNull( respCtrl.getResponse() );
 
             // now modify change time to trigger warning
             ModifyRequest modifyRequest = new ModifyRequestImpl();
@@ -1433,12 +1433,12 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             BindRequest bindReq2 = new BindRequestImpl();
             bindReq2.setDn( userDn );
             bindReq2.setCredentials( "12345" );
-            bindReq2.addControl( new PasswordPolicyImpl() );
+            bindReq2.addControl( new PasswordPolicyRequestImpl() );
             bindResponse = userConnection.bind( bindReq2 );
             respCtrl = getPwdRespCtrl( bindResponse );
             assertNotNull( respCtrl );
-            assertNotNull( respCtrl.getResponse() );
-            assertTrue( respCtrl.getResponse().getTimeBeforeExpiration() > 0 );
+            assertNotNull( respCtrl );
+            assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
 
             // now modify change time to trigger expired
             modifyRequest = new ModifyRequestImpl();
@@ -1449,13 +1449,13 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             BindRequest bindReq3 = new BindRequestImpl();
             bindReq3.setDn( userDn );
             bindReq3.setCredentials( "12345" );
-            bindReq3.addControl( new PasswordPolicyImpl() );
+            bindReq3.addControl( new PasswordPolicyRequestImpl() );
             bindResponse = userConnection.bind( bindReq3 );
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResponse.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResponse );
             assertNotNull( respCtrl );
-            assertNotNull( respCtrl.getResponse() );
-            assertEquals( PasswordPolicyErrorEnum.PASSWORD_EXPIRED, respCtrl.getResponse().getPasswordPolicyError() );
+            assertNotNull( respCtrl );
+            assertEquals( PasswordPolicyErrorEnum.PASSWORD_EXPIRED, respCtrl.getPasswordPolicyError() );
         }
         finally {
             safeCloseConnections( userConnection, userConnection2, adminConnection );
@@ -1528,7 +1528,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
        BindResponse bindResponse = userConnection.bind( bindRequest );
        assertEquals( ResultCodeEnum.SUCCESS, bindResponse.getLdapResult().getResultCode() );
        assertEquals( PasswordPolicyErrorEnum.CHANGE_AFTER_RESET, 
-           getPwdRespCtrl( bindResponse ).getResponse().getPasswordPolicyError() );
+           getPwdRespCtrl( bindResponse ).getPasswordPolicyError() );
 
        // in this case all other operations must be disallowed
        // see section #8.1.2.2.  Password must be changed now
@@ -1552,7 +1552,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
        assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION, 
            modifyResponse.getLdapResult().getResultCode() );
        assertEquals( PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG, 
-           getPwdRespCtrl( modifyResponse ).getResponse().getPasswordPolicyError() );
+           getPwdRespCtrl( modifyResponse ).getPasswordPolicyError() );
 
        // Wait for the pwdMinAge delay to be over
        Thread.sleep( 1000 );

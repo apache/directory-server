@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequest;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponse;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponseImpl;
@@ -138,7 +138,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
         ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( userDn );
 
-        Control ppolicyControl = req.getControl( PasswordPolicy.OID );
+        Control ppolicyControl = req.getControl( PasswordPolicyRequest.OID );
         
         if ( ppolicyControl != null )
         {
@@ -200,7 +200,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             PasswordModifyResponseImpl pmrl = new PasswordModifyResponseImpl(
                 req.getMessageId(), ResultCodeEnum.SUCCESS );
 
-            ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicy.OID );
+            ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
 
             if ( ppolicyControl != null )
             {
@@ -229,7 +229,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             req.getMessageId(), errorCode, "Cannot modify the password for user "
                 + userDn + ", exception : " + errorMessage );
 
-        ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicy.OID );
+        ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
 
         if ( ppolicyControl != null )
         {

@@ -30,10 +30,12 @@ import static org.junit.Assert.assertNull;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequestImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
+import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyResponseDecorator;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequest;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequestImpl;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponse;
@@ -90,8 +92,8 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 {
     private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
-    private static final PasswordPolicyDecorator PP_REQ_CTRL =
-        new PasswordPolicyDecorator( codec, new PasswordPolicyImpl() );
+    private static final PasswordPolicyResponseDecorator PP_REQ_CTRL =
+        new PasswordPolicyResponseDecorator( codec, new PasswordPolicyResponseImpl() );
 
     /** The passwordPolicy configuration */
     private PasswordPolicyConfiguration policyConfig;
@@ -100,7 +102,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
     /**
      * Get the PasswordPolicy control from a response
      */
-    private PasswordPolicy getPwdRespCtrl( Response resp ) throws Exception
+    private PasswordPolicyResponse getPwdRespCtrl( Response resp ) throws Exception
     {
         Control control = resp.getControls().get( PP_REQ_CTRL.getOid() );
 
@@ -109,7 +111,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             return null;
         }
 
-        return ( ( PasswordPolicyDecorator ) control ).getDecorated();
+        return ( ( PasswordPolicyResponseDecorator ) control ).getDecorated();
     }
 
 
@@ -132,7 +134,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         AddResponse addResp = adminConnection.add( addRequest );
         assertEquals( ResultCodeEnum.SUCCESS, addResp.getLdapResult().getResultCode() );
-        PasswordPolicy respCtrl = getPwdRespCtrl( addResp );
+        PasswordPolicyResponse respCtrl = getPwdRespCtrl( addResp );
         assertNull( respCtrl );
     }
 
@@ -515,8 +517,8 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             Dn userDn = new Dn( "cn=UserXY,ou=system" );
 
             userConnection = getNetworkConnectionAs( ldapServer, userDn.toString(), "secret3" );
-            PasswordPolicyDecorator passwordPolicyRequestControl =
-                new PasswordPolicyDecorator( LdapApiServiceFactory.getSingleton(), new PasswordPolicyImpl() );
+            PasswordPolicyResponseDecorator passwordPolicyRequestControl =
+                new PasswordPolicyResponseDecorator( LdapApiServiceFactory.getSingleton(), new PasswordPolicyResponseImpl() );
             PasswordModifyRequest selfPwdModifyRequest = new PasswordModifyRequestImpl();
             selfPwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( userDn.getNormName() ) );
             selfPwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret3" ) );
@@ -531,8 +533,8 @@ public class PwdModifyIT extends AbstractLdapTestUnit
                 .getControl( passwordPolicyRequestControl.getOid() );
             assertNotNull( passwordPolicyResponseControl );
             assertEquals( PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG,
-                ( ( PasswordPolicyDecorator ) passwordPolicyResponseControl )
-                    .getDecorated().getResponse().getPasswordPolicyError() );
+                ( ( PasswordPolicyResponseDecorator ) passwordPolicyResponseControl )
+                    .getDecorated().getPasswordPolicyError() );
 
             addUser( adminConnection, "UserZZ", "secret4" );
             Dn otherUserDn = new Dn( "cn=UserZZ,ou=system" );
