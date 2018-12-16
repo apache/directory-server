@@ -65,8 +65,6 @@ import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
-import org.apache.directory.api.ldap.model.message.IntermediateResponse;
-import org.apache.directory.api.ldap.model.message.IntermediateResponseImpl;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ReferralImpl;
 import org.apache.directory.api.ldap.model.message.Response;
@@ -451,18 +449,15 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( refreshNPersist )
             {
-                IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-                intermResp.setResponseName( SyncInfoValue.OID );
-
-                SyncInfoValue syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
-                    .getLdapCodecService(),
+                SyncInfoValue syncInfoValue = new SyncInfoValueDecorator(
+                    ldapServer.getDirectoryService().getLdapCodecService(), 
                     SynchronizationInfoEnum.NEW_COOKIE );
-                syncInfo.setCookie( cookie );
-                intermResp.setResponseValue( ( ( SyncInfoValueDecorator ) syncInfo ).getValue() );
+                syncInfoValue.setMessageId( req.getMessageId() );
+                syncInfoValue.setCookie( cookie );
 
                 PROVIDER_LOG.debug( "Sent the intermediate response to the {} consumer, {}", replicaLog.getId(),
-                    intermResp );
-                session.getIoSession().write( intermResp );
+                    syncInfoValue );
+                session.getIoSession().write( syncInfoValue );
 
                 replicaLog.getPersistentListener().setPushInRealTime( refreshNPersist );
             }
@@ -594,17 +589,16 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                 byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), replicaLog.getLastSentCsn() );
 
-                IntermediateResponse intermResp = new IntermediateResponseImpl( request.getMessageId() );
-                intermResp.setResponseName( SyncInfoValue.OID );
+                SyncInfoValue syncInfoValue = new SyncInfoValueDecorator(
+                    ldapServer.getDirectoryService().getLdapCodecService(), 
+                    SynchronizationInfoEnum.NEW_COOKIE );
+                syncInfoValue.setMessageId( request.getMessageId() );
+                syncInfoValue.setCookie( cookie );
 
-                SyncInfoValue syncInfo = new SyncInfoValueDecorator(
-                    ldapServer.getDirectoryService().getLdapCodecService(), SynchronizationInfoEnum.NEW_COOKIE );
-                syncInfo.setCookie( cookie );
-                intermResp.setResponseValue( ( ( SyncInfoValueDecorator ) syncInfo ).getValue() );
+                PROVIDER_LOG.info( "Sending the intermediate response to consumer {}, {}", 
+                    replicaLog, syncInfoValue );
 
-                PROVIDER_LOG.info( "Sending the intermediate response to consumer {}, {}", replicaLog, syncInfo );
-
-                session.getIoSession().write( intermResp );
+                session.getIoSession().write( syncInfoValue );
 
                 // switch the handler mode to realtime push
                 replicationListener.setPushInRealTime( refreshNPersist );
