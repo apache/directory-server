@@ -30,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.api.ldap.codec.decorators.SearchResultDoneDecorator;
-import org.apache.directory.api.ldap.codec.decorators.SearchResultEntryDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -146,7 +144,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             // ok if normal search beforehand failed somehow quickly abandon psearch
             if ( done.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS )
             {
-                session.getIoSession().write( new SearchResultDoneDecorator( getLdapApiService(), done ) );
+                session.getIoSession().write( done );
 
                 return;
             }
@@ -239,7 +237,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
             result.setDiagnosticMessage( "Replication is not allowed on this server" );
             result.setResultCode( ResultCodeEnum.OTHER );
-            session.getIoSession().write( new SearchResultDoneDecorator( getLdapApiService(), done ) );
+            session.getIoSession().write( done );
         }
     }
 
@@ -278,7 +276,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         session.getIoSession().write( generateResponse( session, req, entry ) );
 
         // write the SearchResultDone message
-        session.getIoSession().write( new SearchResultDoneDecorator( getLdapApiService(), ( SearchResultDone ) req.getResultResponse() ) );
+        session.getIoSession().write( req.getResultResponse() );
     }
 
 
@@ -931,7 +929,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 respEntry.getEntry().removeAttributes( SchemaConstants.USER_PASSWORD_AT );
             }
 
-            return new SearchResultEntryDecorator( getLdapApiService(), respEntry );
+            return respEntry;
         }
     }
 
@@ -1151,7 +1149,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
 
             SearchResultDone done = doSimpleSearch( session, req );
-            session.getIoSession().write( new SearchResultDoneDecorator( getLdapApiService(), done ) );
+            session.getIoSession().write( done );
 
             if ( isLogSearchTime )
             {
@@ -1698,7 +1696,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
         }
 
-        session.getIoSession().write( new SearchResultDoneDecorator( getLdapApiService(), done ) );
+        session.getIoSession().write( done );
     }
 
 

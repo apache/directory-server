@@ -280,7 +280,6 @@ public class ClientInitialRefreshIT
         config.setReplUserPassword( "secret".getBytes() );
         config.setUseTls( false );
         config.setBaseDn( "dc=example,dc=com" );
-        config.setRefreshInterval( 1000 );
 
         syncreplClient.setConfig( config );
 

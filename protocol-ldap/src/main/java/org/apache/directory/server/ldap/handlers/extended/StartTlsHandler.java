@@ -31,15 +31,13 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.codec.decorators.ExtendedResponseDecorator;
 import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsRequest;
+import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsResponse;
 import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsResponseImpl;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
@@ -134,12 +132,10 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             sslFilter.startSsl( session.getIoSession() );
         }
 
-        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>(
-            LdapApiServiceFactory.getSingleton(), new StartTlsResponseImpl( req.getMessageId() ) );
+        StartTlsResponse res = new StartTlsResponseImpl( req.getMessageId() );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );
-        res.setResponseValue( Strings.EMPTY_BYTES );
 
         // Send a response.
         session.getIoSession().setAttribute( SslFilter.DISABLE_ENCRYPTION_ONCE );

@@ -46,7 +46,7 @@ import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStat
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.intermediate.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValueImpl;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SynchronizationInfoEnum;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -449,9 +449,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( refreshNPersist )
             {
-                SyncInfoValue syncInfoValue = new SyncInfoValueDecorator(
-                    ldapServer.getDirectoryService().getLdapCodecService(), 
-                    SynchronizationInfoEnum.NEW_COOKIE );
+                SyncInfoValue syncInfoValue = new SyncInfoValueImpl();
+                syncInfoValue.setSyncInfoValueType( SynchronizationInfoEnum.NEW_COOKIE );
                 syncInfoValue.setMessageId( req.getMessageId() );
                 syncInfoValue.setCookie( cookie );
 
@@ -589,9 +588,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                 byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), replicaLog.getLastSentCsn() );
 
-                SyncInfoValue syncInfoValue = new SyncInfoValueDecorator(
-                    ldapServer.getDirectoryService().getLdapCodecService(), 
-                    SynchronizationInfoEnum.NEW_COOKIE );
+                SyncInfoValue syncInfoValue = new SyncInfoValueImpl();
+                syncInfoValue.setSyncInfoValueType( SynchronizationInfoEnum.NEW_COOKIE );
                 syncInfoValue.setMessageId( request.getMessageId() );
                 syncInfoValue.setCookie( cookie );
 

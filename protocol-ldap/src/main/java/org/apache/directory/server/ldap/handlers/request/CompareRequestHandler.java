@@ -20,7 +20,6 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
-import org.apache.directory.api.ldap.codec.decorators.CompareResponseDecorator;
 import org.apache.directory.api.ldap.model.message.CompareRequest;
 import org.apache.directory.api.ldap.model.message.CompareResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
@@ -64,11 +63,11 @@ public class CompareRequestHandler extends LdapRequestHandler<CompareRequest>
             }
 
             result.setMatchedDn( compareRequest.getName() );
-            session.getIoSession().write( new CompareResponseDecorator( getLdapApiService(), compareResponse ) );
+            session.getIoSession().write( compareResponse );
         }
         catch ( Exception e )
         {
-            handleException( session, compareRequest, new CompareResponseDecorator( getLdapApiService(), compareResponse ), e );
+            handleException( session, compareRequest, compareResponse, e );
         }
     }
 }

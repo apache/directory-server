@@ -20,7 +20,6 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
-import org.apache.directory.api.ldap.codec.decorators.ModifyDnResponseDecorator;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ModifyDnRequest;
 import org.apache.directory.api.ldap.model.message.ModifyDnResponse;
@@ -72,7 +71,7 @@ public class ModifyDnRequestHandler extends LdapRequestHandler<ModifyDnRequest>
             String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setDiagnosticMessage( msg );
-            session.getIoSession().write( new ModifyDnResponseDecorator( getLdapApiService(), modifyDnResponse ) );
+            session.getIoSession().write( modifyDnResponse );
             return;
         }
 
@@ -108,17 +107,17 @@ public class ModifyDnRequestHandler extends LdapRequestHandler<ModifyDnRequest>
                 result.setDiagnosticMessage( "Attempt to move entry onto itself." );
                 result.setResultCode( ResultCodeEnum.ENTRY_ALREADY_EXISTS );
                 result.setMatchedDn( modifyDnRequest.getName() );
-                session.getIoSession().write( new ModifyDnResponseDecorator( getLdapApiService(), modifyDnResponse ) );
+                session.getIoSession().write( modifyDnResponse );
                 
                 return;
             }
 
             result.setResultCode( ResultCodeEnum.SUCCESS );
-            session.getIoSession().write( new ModifyDnResponseDecorator( getLdapApiService(), modifyDnResponse ) );
+            session.getIoSession().write( modifyDnResponse );
         }
         catch ( Exception e )
         {
-            handleException( session, modifyDnRequest, new ModifyDnResponseDecorator( getLdapApiService(), modifyDnResponse ), e );
+            handleException( session, modifyDnRequest, modifyDnResponse, e );
         }
     }
 }

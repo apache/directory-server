@@ -35,6 +35,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import org.apache.commons.net.SocketClient;
+import org.apache.directory.api.asn1.util.Asn1Buffer;
 import org.apache.directory.api.ldap.codec.api.AbstractMessageDecorator;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapEncoder;
@@ -713,7 +714,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            ByteBuffer bb = LdapEncoder.encodeMessage( getService().getLdapCodecService(), request );
+            Asn1Buffer buffer = new Asn1Buffer();
+            ByteBuffer bb = LdapEncoder.encodeMessageReverse( buffer, getService().getLdapCodecService(), request );
 
             bb.flip();
 
@@ -752,7 +754,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            ByteBuffer bb = LdapEncoder.encodeMessage( getService().getLdapCodecService(), request );
+            Asn1Buffer buffer = new Asn1Buffer();
+            ByteBuffer bb = LdapEncoder.encodeMessageReverse( buffer, getService().getLdapCodecService(), request );
             bb.flip();
 
             _output_.write( bb.array() );

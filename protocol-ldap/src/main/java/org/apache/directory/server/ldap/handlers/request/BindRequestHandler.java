@@ -26,7 +26,6 @@ import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.directory.api.ldap.codec.decorators.BindResponseDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
@@ -185,7 +184,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 ldapSession.setAnonymous();
 
                 // Write the response
-                ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
+                ldapSession.getIoSession().write( bindResponse );
 
                 return;
             }
@@ -275,7 +274,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             ldapSession.setAnonymous();
 
             // Write the response
-            ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
+            ldapSession.getIoSession().write( bindResponse );
         }
         finally
         {
@@ -396,7 +395,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 ldapSession.setSaslAuthPending();
 
                 // And write back the response
-                ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
+                ldapSession.getIoSession().write( bindResponse );
 
                 LOG.debug( "Returning final authentication data to client to complete context." );
             }
@@ -427,7 +426,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             + bindRequest.getSaslMechanism() + " is not a supported mechanism." );
 
         // Write back the error
-        ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
+        ldapSession.getIoSession().write( bindResponse );
     }
 
 
@@ -459,7 +458,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         ldapSession.setAnonymous();
 
         // Write back the error response
-        ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
+        ldapSession.getIoSession().write( bindResponse );
     }
 
 
@@ -491,7 +490,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             handler.cleanup( ldapSession );
         }
 
-        ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
+        ldapSession.getIoSession().write( bindResponse );
 
         LOG.debug( "Returned SUCCESS message: {}.", bindResponse );
     }
@@ -645,7 +644,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             LdapResult bindResult = bindResponse.getLdapResult();
             bindResult.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_163 ) );
-            ldapSession.getIoSession().write( new BindResponseDecorator( getLdapApiService(), bindResponse ) );
+            ldapSession.getIoSession().write( bindResponse );
 
             return;
         }

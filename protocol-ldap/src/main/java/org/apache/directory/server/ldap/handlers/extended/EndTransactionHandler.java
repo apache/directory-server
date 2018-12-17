@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.api.ldap.extras.extended.ads_impl.endTransaction.EndTransactionRequestDecorator;
-import org.apache.directory.api.ldap.extras.extended.ads_impl.endTransaction.EndTransactionResponseDecorator;
 import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionRequest;
 import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionResponse;
 import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionResponseImpl;
@@ -82,9 +81,7 @@ public class EndTransactionHandler implements ExtendedOperationHandler<ExtendedR
         EndTransactionResponse endTransactionResponse = new EndTransactionResponseImpl( req.getMessageId() );
 
         // write the response
-        session.getIoSession().write( new EndTransactionResponseDecorator( 
-                session.getLdapServer().getDirectoryService().getLdapCodecService(), 
-                endTransactionResponse )  );
+        session.getIoSession().write( endTransactionResponse );
     }
 
 

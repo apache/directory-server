@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.extras.extended.ads_impl.startTransaction.StartTransactionResponseDecorator;
 import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionRequest;
 import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionResponse;
 import org.apache.directory.api.ldap.extras.extended.startTransaction.StartTransactionResponseImpl;
@@ -83,10 +82,7 @@ public class StartTransactionHandler implements ExtendedOperationHandler<Extende
                 req.getMessageId(), Conversion.convertToByteArray( transactionId ) );
 
         // write the response
-        session.getIoSession().write( 
-                new StartTransactionResponseDecorator( 
-                        session.getLdapServer().getDirectoryService().getLdapCodecService(), 
-                        startTransactionResponse ) );
+        session.getIoSession().write( startTransactionResponse );
     }
 
 

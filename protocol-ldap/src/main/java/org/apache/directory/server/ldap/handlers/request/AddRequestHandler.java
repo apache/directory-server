@@ -20,7 +20,6 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
-import org.apache.directory.api.ldap.codec.decorators.AddResponseDecorator;
 import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.AddResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
@@ -63,11 +62,11 @@ public class AddRequestHandler extends LdapRequestHandler<AddRequest>
             result.setResultCode( ResultCodeEnum.SUCCESS );
 
             // Write the AddResponse message
-            session.getIoSession().write( new AddResponseDecorator( getLdapApiService(), addResponse ) );
+            session.getIoSession().write( addResponse );
         }
         catch ( Exception e )
         {
-            handleException( session, addRequest, new AddResponseDecorator( getLdapApiService(), addResponse ), e );
+            handleException( session, addRequest, addResponse, e );
         }
     }
 }

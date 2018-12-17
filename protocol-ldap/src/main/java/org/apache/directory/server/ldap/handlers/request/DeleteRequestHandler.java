@@ -20,7 +20,6 @@
 package org.apache.directory.server.ldap.handlers.request;
 
 
-import org.apache.directory.api.ldap.codec.decorators.DeleteResponseDecorator;
 import org.apache.directory.api.ldap.model.message.DeleteRequest;
 import org.apache.directory.api.ldap.model.message.DeleteResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
@@ -63,11 +62,11 @@ public class DeleteRequestHandler extends LdapRequestHandler<DeleteRequest>
             result.setResultCode( ResultCodeEnum.SUCCESS );
 
             // Write the DeleteResponse message
-            session.getIoSession().write( new DeleteResponseDecorator( getLdapApiService(), deleteResponse ) );
+            session.getIoSession().write( deleteResponse );
         }
         catch ( Exception e )
         {
-            handleException( session, deleteRequest, new DeleteResponseDecorator( getLdapApiService(), deleteResponse ), e );
+            handleException( session, deleteRequest, deleteResponse, e );
         }
     }
 }
