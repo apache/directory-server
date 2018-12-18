@@ -95,7 +95,7 @@ public final class TlsKeyGenerator
      *    http://www.apache.org/licenses/exports
      */
     private static final int KEY_SIZE = 512;
-    private static final long YEAR_MILLIS = 365L * 24L * 3600L * 1000L;
+    public static final long YEAR_MILLIS = 365L * 24L * 3600L * 1000L;
 
     static
     {
@@ -213,91 +213,18 @@ public final class TlsKeyGenerator
      */
     public static void addKeyPair( Entry entry ) throws LdapException
     {
-        Attribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
-
-        if ( objectClass == null )
-        {
-            entry.put( SchemaConstants.OBJECT_CLASS_AT, TLS_KEY_INFO_OC, SchemaConstants.INET_ORG_PERSON_OC );
-        }
-        else if ( !objectClass.contains( SchemaConstants.INET_ORG_PERSON_OC ) )
-        {
-            objectClass.add( SchemaConstants.INET_ORG_PERSON_OC );
-        }
-        else if ( !objectClass.contains( TLS_KEY_INFO_OC ) )
-        {
-            objectClass.add( TLS_KEY_INFO_OC );
-        }
-
-        KeyPairGenerator generator = null;
-        try
-        {
-            generator = KeyPairGenerator.getInstance( ALGORITHM );
-        }
-        catch ( NoSuchAlgorithmException e )
-        {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_291 ) );
-            ne.initCause( e );
-            throw ne;
-        }
-
-        generator.initialize( KEY_SIZE );
-        KeyPair keypair = generator.genKeyPair();
-        entry.put( KEY_ALGORITHM_AT, ALGORITHM );
-
-        // Generate the private key attributes 
-        PrivateKey privateKey = keypair.getPrivate();
-        entry.put( PRIVATE_KEY_AT, privateKey.getEncoded() );
-        entry.put( PRIVATE_KEY_FORMAT_AT, privateKey.getFormat() );
-        LOG.debug( "PrivateKey: {}", privateKey );
-
-        PublicKey publicKey = keypair.getPublic();
-        entry.put( PUBLIC_KEY_AT, publicKey.getEncoded() );
-        entry.put( PUBLIC_KEY_FORMAT_AT, publicKey.getFormat() );
-        LOG.debug( "PublicKey: {}", publicKey );
-
-        // Generate the self-signed certificate
-        Date startDate = new Date();
-        Date expiryDate = new Date( System.currentTimeMillis() + YEAR_MILLIS );
-        BigInteger serialNumber = BigInteger.valueOf( System.currentTimeMillis() );
-
-        X509V1CertificateGenerator certGen = new X509V1CertificateGenerator();
-        X500Principal issuerDn = new X500Principal( CERTIFICATE_PRINCIPAL_DN );
-
-        X500Principal subjectDn = null;
-
+        String subjectDn = null;
         try
         {
             String hostName = InetAddress.getLocalHost().getHostName();
-            subjectDn = new X500Principal( "CN=" + hostName + "," + BASE_DN );
+            subjectDn = "CN=" + hostName + "," + BASE_DN;
         }
         catch ( Exception e )
         {
             LOG.warn( "failed to create certificate subject name from host name", e );
-            subjectDn = issuerDn;
+            subjectDn = CERTIFICATE_PRINCIPAL_DN;
         }
-
-        certGen.setSerialNumber( serialNumber );
-        certGen.setIssuerDN( issuerDn );
-        certGen.setNotBefore( startDate );
-        certGen.setNotAfter( expiryDate );
-        certGen.setSubjectDN( subjectDn );
-        certGen.setPublicKey( publicKey );
-        certGen.setSignatureAlgorithm( "SHA1With" + ALGORITHM );
-
-        try
-        {
-            X509Certificate cert = certGen.generate( privateKey, "BC" );
-            entry.put( USER_CERTIFICATE_AT, cert.getEncoded() );
-            LOG.debug( "X509 Certificate: {}", cert );
-        }
-        catch ( Exception e )
-        {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_292 ) );
-            ne.initCause( e );
-            throw ne;
-        }
-
-        LOG.info( "Keys and self signed certificate successfully generated." );
+        addKeyPair( entry, CERTIFICATE_PRINCIPAL_DN, subjectDn, ALGORITHM, KEY_SIZE );
     }
 
 
@@ -310,9 +237,6 @@ public final class TlsKeyGenerator
     /**
      * @see #addKeyPair(org.apache.directory.api.ldap.model.entry.Entry)
      * 
-     * TODO the code is duplicate atm, will eliminate this redundancy after finding
-     * a better thought (an instant one is to call this method from the aboveaddKeyPair(entry) and remove the impl there)
-     * 
      * @param entry The Entry to update
      * @param issuerDN The issuer
      * @param subjectDN The subject
@@ -322,6 +246,15 @@ public final class TlsKeyGenerator
      */
     public static void addKeyPair( Entry entry, String issuerDN, String subjectDN, String keyAlgo, int keySize )
         throws LdapException
+    {
+        Date startDate = new Date();
+        Date expiryDate = new Date( System.currentTimeMillis() + YEAR_MILLIS );
+        addKeyPair( entry, issuerDN, subjectDN, startDate, expiryDate, keyAlgo, keySize, null );
+    }
+
+
+    public static void addKeyPair( Entry entry, String issuerDN, String subjectDN, Date startDate, Date expiryDate,
+        String keyAlgo, int keySize, PrivateKey optionalSigningKey ) throws LdapException
     {
         Attribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -362,8 +295,6 @@ public final class TlsKeyGenerator
         LOG.debug( "PublicKey: {}", publicKey );
 
         // Generate the self-signed certificate
-        Date startDate = new Date();
-        Date expiryDate = new Date( System.currentTimeMillis() + YEAR_MILLIS );
         BigInteger serialNumber = BigInteger.valueOf( System.currentTimeMillis() );
 
         X509V1CertificateGenerator certGen = new X509V1CertificateGenerator();
@@ -377,10 +308,12 @@ public final class TlsKeyGenerator
         certGen.setSubjectDN( subjectName );
         certGen.setPublicKey( publicKey );
         certGen.setSignatureAlgorithm( "SHA1With" + keyAlgo );
+        
 
         try
         {
-            X509Certificate cert = certGen.generate( privateKey, "BC" );
+            PrivateKey signingKey = optionalSigningKey != null ? optionalSigningKey : privateKey;
+            X509Certificate cert = certGen.generate( signingKey, "BC" );
             entry.put( USER_CERTIFICATE_AT, cert.getEncoded() );
             LOG.debug( "X509 Certificate: {}", cert );
         }
