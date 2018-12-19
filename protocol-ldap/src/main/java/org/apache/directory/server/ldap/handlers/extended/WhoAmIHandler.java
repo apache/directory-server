@@ -74,7 +74,7 @@ public class WhoAmIHandler implements ExtendedOperationHandler<WhoAmIRequest, Wh
 
         LdapPrincipal ldapPrincipal = requestor.getCoreSession().getAuthenticatedPrincipal();
         
-        WhoAmIResponse whoAmIResponse = new WhoAmIResponseImpl( req.getMessageId(), ResultCodeEnum.SUCCESS );
+        WhoAmIResponseImpl whoAmIResponse = new WhoAmIResponseImpl( req.getMessageId(), ResultCodeEnum.SUCCESS );
 
         String authzId = "dn:" + ldapPrincipal.getDn();
         whoAmIResponse.setAuthzId( Strings.getBytesUtf8( authzId ) );
