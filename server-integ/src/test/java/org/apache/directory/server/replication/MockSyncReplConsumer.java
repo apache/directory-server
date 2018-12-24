@@ -222,7 +222,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
-                connection.setTimeOut( -1L );
+                connection.setTimeOut( 10000L );
 
                 if ( config.isUseTls() )
                 {
