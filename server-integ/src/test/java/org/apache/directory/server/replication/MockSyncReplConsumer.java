@@ -116,7 +116,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     private final Object mutex = new Object();
 
     /** the sync cookie sent by the server */
-    private byte[] syncCookie;
+    private volatile byte[] syncCookie;
 
     /** connection to the syncrepl provider */
     private LdapNetworkConnection connection;
@@ -407,14 +407,17 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
             byte[] syncInfoBytes = syncInfoResp.getResponseValue();
+            LOG.debug( "received intermediate response: " + syncInfoResp );
 
             if ( syncInfoBytes == null )
             {
+                LOG.debug( "received null sync info");
                 return;
             }
 
             SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( ldapCodecService );
             SyncInfoValue syncInfoValue = ( SyncInfoValue ) decorator.decode( syncInfoBytes );
+            LOG.debug( "received sync info: " + syncInfoValue );
 
             byte[] cookie = syncInfoValue.getCookie();
 
@@ -761,9 +764,6 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 {
                     refreshThread.stopRefreshing();
                 }
-
-                connection.unBind();
-                LOG.info( "Unbound from the server {}", config.getRemoteHost() );
 
                 connection.close();
                 LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
@@ -1264,4 +1264,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     {
         nbAdded.getAndSet( 0 );
     }
+
+
+    public boolean hasSyncCookie()
+    {
+        return syncCookie != null;
+    }
+
 }
