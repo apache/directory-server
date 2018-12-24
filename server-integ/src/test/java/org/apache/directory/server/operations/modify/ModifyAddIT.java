@@ -705,7 +705,6 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testModifyAddWithNullValues() throws LdapException, IOException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         // Use the client API
         connection.bind( "uid=admin,ou=system", "secret" );
@@ -747,7 +746,6 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testModifyReplaceWithNullValues() throws LdapException, IOException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         // Use the client API
         connection.bind( "uid=admin,ou=system", "secret" );

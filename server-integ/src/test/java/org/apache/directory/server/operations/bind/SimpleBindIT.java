@@ -467,7 +467,6 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     public void testBindSimpleAuthenticatorDisabled() throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0 );
 
         try
         {

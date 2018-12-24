@@ -333,7 +333,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     public void testSearchRequestSubtreeLevelScopePerf() throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0 );
 
         try
         {
@@ -435,7 +434,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     public void testSearch100kUsers() throws LdapException, CursorException, InterruptedException, Exception
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut(0L);
         connection.bind( "uid=admin,ou=system", "secret" );
         int nbAdds = 10_000;
 

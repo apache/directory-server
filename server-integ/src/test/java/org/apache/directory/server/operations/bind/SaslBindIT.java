@@ -240,7 +240,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
     public void testSaslBindPLAIN() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         BindResponse resp = connection.bindSaslPlain( "hnelson", "secret" );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
@@ -298,7 +297,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         SaslCramMd5Request request = new SaslCramMd5Request();
         request.setUsername( userDn.getRdn().getValue() );
@@ -482,7 +480,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         kdcServer.getConfig().setPaEncTimestampRequired( false );
 
