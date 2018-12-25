@@ -168,7 +168,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
             }
             catch ( LdapException e )
             {
-                e.printStackTrace();
+                //e.printStackTrace();
                 assertTrue( e.getMessage().contains( "ERR_04120_TLS_HANDSHAKE_ERROR The TLS handshake failed" ) );
             }
             assertFalse( conn.isConnected() );
