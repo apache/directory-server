@@ -91,7 +91,6 @@ public class SortedSearchIT extends AbstractLdapTestUnit
         {
             con = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
             con.bind( "uid=admin,ou=system", "secret" );
-            con.setTimeOut( Long.MAX_VALUE );
         }
 
         baseDn = new Dn( "ou=parent,ou=system" );

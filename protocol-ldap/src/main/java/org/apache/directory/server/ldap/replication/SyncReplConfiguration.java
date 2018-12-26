@@ -349,7 +349,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
      */
     public void setSearchSizeLimit( int searchSizeLimit )
     {
-        if ( searchTimeout < 0 )
+        if ( searchSizeLimit < 0 )
         {
             throw new IllegalArgumentException( "search size limit value cannot be negative " + searchSizeLimit );
         }

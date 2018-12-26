@@ -156,7 +156,6 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
             config.setLdapPort( 10389 );
             config.setName( DEFAULT_ADMIN );
             config.setCredentials( DEFAULT_PASSWORD );
-            config.setTimeout( 30000 );
 
             long t0 = System.currentTimeMillis();
 
@@ -214,7 +213,6 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
-        config.setTimeout( 30000 );
         PooledObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         pool = new LdapConnectionPool( factory );
         pool.setTestOnBorrow( true );
@@ -247,7 +245,6 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
-        config.setTimeout( 30000 );
         PooledObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         LdapConnectionPool poolNoIdle = new LdapConnectionPool( factory );
         poolNoIdle.setTestOnBorrow( true );
@@ -298,7 +295,6 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
-        config.setTimeout( 30000 );
         PooledObjectFactory<LdapConnection> factory = new DefaultPoolableLdapConnectionFactory( config );
         LdapConnectionPool poolWithIdle = new LdapConnectionPool( factory );
         poolWithIdle.setTestOnBorrow( true );

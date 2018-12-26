@@ -1532,7 +1532,6 @@ public class AddIT extends AbstractLdapTestUnit
     public void testAddNullValue() throws LdapException, IOException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         // Use the client API
         connection.bind( "uid=admin,ou=system", "secret" );
@@ -1571,7 +1570,6 @@ public class AddIT extends AbstractLdapTestUnit
     public void testAddNullValueDirectoryString() throws LdapException, IOException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         // Use the client API
         connection.bind( "uid=admin,ou=system", "secret" );

@@ -152,7 +152,6 @@ public class MultiThreadedReadWriteTest
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 10389 );
         connection.bind( "uid=admin,ou=system", "secret" );
-        connection.setTimeOut( Long.MAX_VALUE );
         
         return connection;
     }

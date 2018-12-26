@@ -117,7 +117,6 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
-        connection.setTimeOut( 0 );
 
         // Restart the service so that the index is created
         getService().shutdown();

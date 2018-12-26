@@ -375,7 +375,6 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Test
     public void testPreserveRdnUpName() throws Exception
     {
-        connection.setTimeOut( 0L );
         Dn dn = new Dn( getService().getSchemaManager(), "cn=testadd,ou=system" );
         Entry entry = new DefaultEntry( dn,
             "ObjectClass: person",
@@ -397,7 +396,6 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Test
     public void testAddNullValueSchemaAware() throws LdapException, IOException
     {
-        connection.setTimeOut( 0L );
         connection.loadSchema();
 
         // Use the client API

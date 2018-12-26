@@ -73,7 +73,6 @@ public class ServerSchemaLoaderTest extends AbstractLdapTestUnit
     @Test
     public void testLoadSSSE() throws Exception
     {
-        connection.setTimeOut( 0L );
         SchemaLoader loader = new DefaultSchemaLoader( connection );
 
         // Load the schemas

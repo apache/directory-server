@@ -220,7 +220,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
-                connection.setTimeOut( -1L );
                 connection.setSchemaManager( schemaManager );
 
                 if ( config.isUseTls() )

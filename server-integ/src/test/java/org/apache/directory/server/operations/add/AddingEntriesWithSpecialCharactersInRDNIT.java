@@ -387,7 +387,6 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     public void testAddRdnWithEscapedSpaces() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
-        connection.setTimeOut( -1 );
 
         Entry entry = new DefaultEntry(
             "cn=\\ User, ou=system",

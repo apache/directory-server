@@ -180,7 +180,6 @@ public final class LdapApiIntegrationUtils
     public static LdapConnection getAnonymousNetworkConnection( LdapServer ldapServer ) throws LdapException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
-        connection.setTimeOut( 0L );
         connection.bind();
 
         return connection;
