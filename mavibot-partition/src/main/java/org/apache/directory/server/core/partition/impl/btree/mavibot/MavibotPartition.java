@@ -30,9 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
@@ -66,6 +63,7 @@ import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
+import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +93,7 @@ public class MavibotPartition extends AbstractBTreePartition
     private RecordManager recordMan;
 
     /** the entry cache */
-    private Cache entryCache;
+    private Cache< String, Entry > entryCache;
 
 
     public MavibotPartition( SchemaManager schemaManager, DnFactory dnFactory )
@@ -176,11 +174,12 @@ public class MavibotPartition extends AbstractBTreePartition
             // First, check if the file storing the data exists
 
             // Create the master table (the table containing all the entries)
-            Cache masterTableCache = cacheService.getCache( suffixDn.getName() );
+            //Cache masterTableCache = cacheService.getCache( suffixDn.getName() );
             
             try
             {
-                master = new MavibotMasterTable( recordMan, schemaManager, "master", masterTableCache.getCacheConfiguration().getMaxElementsInMemory() );
+                //master = new MavibotMasterTable( recordMan, schemaManager, "master", masterTableCache.getCacheConfiguration().getMaxElementsInMemory() );
+                master = new MavibotMasterTable( recordMan, schemaManager, "master", cacheSize );                
             }
             catch ( IOException ioe )
             {
@@ -234,14 +233,14 @@ public class MavibotPartition extends AbstractBTreePartition
 
             if ( cacheService != null )
             {
-                entryCache = cacheService.getCache( getId() );
+                entryCache = cacheService.getCache( getId(), String.class, Entry.class );
                 
-                int cacheSizeConfig = entryCache.getCacheConfiguration().getMaxElementsInMemory();
+                //int cacheSizeConfig = entryCache.getCacheConfiguration().getMaxElementsInMemory();
 
-                if ( cacheSizeConfig < cacheSize )
-                {
-                    entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
-                }
+                //if ( cacheSizeConfig < cacheSize )
+                //{
+                //    entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
+                //}
             }
 
             // We are done !
@@ -333,7 +332,7 @@ public class MavibotPartition extends AbstractBTreePartition
         {
             if ( entryCache != null )
             {
-                entryCache.removeAll();
+                entryCache.clear();
             }
         }
 
@@ -457,19 +456,7 @@ public class MavibotPartition extends AbstractBTreePartition
     @Override
     public Entry lookupCache( String id )
     {
-        if ( entryCache == null )
-        {
-            return null;
-        }
-
-        Element el = entryCache.get( id );
-
-        if ( el != null )
-        {
-            return ( Entry ) el.getObjectValue();
-        }
-
-        return null;
+        return ( entryCache != null ) ? entryCache.get( id ) : null;
     }
 
 
@@ -486,7 +473,7 @@ public class MavibotPartition extends AbstractBTreePartition
             entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
         }
 
-        entryCache.put( new Element( id, entry ) );
+        entryCache.put( id, entry );
     }
 
 
@@ -512,13 +499,13 @@ public class MavibotPartition extends AbstractBTreePartition
                     entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
                 }
 
-                entryCache.replace( new Element( id, entry ) );
+                entryCache.replace( id, entry );
             }
             else if ( ( opCtx instanceof MoveOperationContext ) || ( opCtx instanceof MoveAndRenameOperationContext )
                 || ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
-                entryCache.removeAll();
+                entryCache.clear();
             }
             else if ( opCtx instanceof DeleteOperationContext )
             {

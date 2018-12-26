@@ -20,8 +20,6 @@
 package org.apache.directory.server.xdbm.search.evaluator;
 
 
-import net.sf.ehcache.Element;
-
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ScopeNode;
@@ -177,12 +175,10 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          */
         if ( db.getAliasCache() != null )
         {
-            Element element = db.getAliasCache().get( id );
+            Dn dn = db.getAliasCache().get( id );
             
-            if ( ( element != null ) && ( element.getObjectValue() != null ) )
+            if ( dn != null )
             {
-                Dn dn = ( Dn ) element.getObjectValue();
-
                 return false;
             }
         }

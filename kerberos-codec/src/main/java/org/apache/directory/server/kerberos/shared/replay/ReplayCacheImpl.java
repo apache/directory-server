@@ -24,12 +24,8 @@ import java.io.Serializable;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.store.AbstractPolicy;
-
 import org.apache.directory.shared.kerberos.KerberosTime;
+import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +45,7 @@ public class ReplayCacheImpl implements ReplayCache
     private static final Logger LOG = LoggerFactory.getLogger( ReplayCacheImpl.class );
 
     /** ehcache based storage to store the entries */
-    private Cache cache;
+    private Cache< String, Object > cache;
 
     /** default clock skew */
     private static final long DEFAULT_CLOCK_SKEW = 5L * KerberosTime.MINUTE;
@@ -140,41 +136,41 @@ public class ReplayCacheImpl implements ReplayCache
         }
     }
 
-    /**
-     * an expiration policy based on the clockskew
-     */
-    private class ClockskewExpirationPolicy extends AbstractPolicy
-    {
+    ///**
+    // * an expiration policy based on the clockskew
+    // */
+    //private class ClockskewExpirationPolicy extends AbstractPolicy
+    //{
 
-        /**
-         * {@inheritDoc}
-         */
-        public String getName()
-        {
-            return "CLOCK-SKEW";
-        }
+    //    /**
+    //     * {@inheritDoc}
+    //     */
+    //    public String getName()
+    //    {
+    //        return "CLOCK-SKEW";
+    //    }
 
 
-        /**
-         * {@inheritDoc}
-         */
-        public boolean compare( Element element1, Element element2 )
-        {
-            ReplayCacheEntry entry = ( ReplayCacheEntry ) element2.getObjectValue();
+    //    /**
+    //     * {@inheritDoc}
+    //     */
+    //    public boolean compare( Element element1, Element element2 )
+    //    {
+    //        ReplayCacheEntry entry = ( ReplayCacheEntry ) element2.getObjectValue();
 
-            return entry.isOutsideClockSkew( clockSkew );
-        }
-    }
+    //        return entry.isOutsideClockSkew( clockSkew );
+    //    }
+    //}
 
 
     /**
      * Creates a new instance of InMemoryReplayCache. Sets the
      * delay between each cleaning run to 5 seconds.
      */
-    public ReplayCacheImpl( Cache cache )
+    public ReplayCacheImpl( Cache < String, Object > cache )
     {
         this.cache = cache;
-        this.cache.setMemoryStoreEvictionPolicy( new ClockskewExpirationPolicy() );
+        //this.cache.setMemoryStoreEvictionPolicy( new ClockskewExpirationPolicy() );
     }
 
 
@@ -185,11 +181,11 @@ public class ReplayCacheImpl implements ReplayCache
      * 
      * @param clockSkew the allowed skew (milliseconds)
      */
-    public ReplayCacheImpl( Cache cache, long clockSkew )
+    public ReplayCacheImpl( Cache< String, Object > cache, long clockSkew )
     {
         this.cache = cache;
         this.clockSkew = clockSkew;
-        this.cache.setMemoryStoreEvictionPolicy( new ClockskewExpirationPolicy() );
+        //this.cache.setMemoryStoreEvictionPolicy( new ClockskewExpirationPolicy() );
     }
 
 
@@ -213,14 +209,14 @@ public class ReplayCacheImpl implements ReplayCache
 
         ReplayCacheEntry entry = new ReplayCacheEntry( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds );
 
-        Element element = cache.get( entry.createKey() );
+        ReplayCacheEntry found = ( ReplayCacheEntry ) cache.get( entry.createKey() );
 
-        if ( element == null )
+        if ( found == null )
         {
             return false;
         }
 
-        entry = ( ReplayCacheEntry ) element.getObjectValue();
+        entry = found;
 
         return serverPrincipal.equals( entry.serverPrincipal ) &&
             clientTime.equals( entry.clientTime ) &&
@@ -237,8 +233,7 @@ public class ReplayCacheImpl implements ReplayCache
     {
         ReplayCacheEntry entry = new ReplayCacheEntry( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds );
 
-        Element element = new Element( entry.createKey(), entry );
-        cache.put( element );
+        cache.put( entry.createKey(), entry );
     }
 
 
@@ -248,8 +243,6 @@ public class ReplayCacheImpl implements ReplayCache
     public void clear()
     {
         LOG.debug( "removing all the elements from cache" );
-        if (cache.getStatus().equals(Status.STATUS_ALIVE)) {
-            cache.removeAll();
-        }
+        cache.clear();
     }
 }

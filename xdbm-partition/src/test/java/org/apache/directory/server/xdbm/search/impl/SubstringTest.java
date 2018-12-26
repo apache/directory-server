@@ -109,7 +109,7 @@ public class SubstringTest
 
         cacheService = new CacheService();
         cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache", String.class, Dn.class ) );
     }
 
 

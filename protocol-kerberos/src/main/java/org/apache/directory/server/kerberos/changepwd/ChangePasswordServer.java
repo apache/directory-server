@@ -22,8 +22,6 @@ package org.apache.directory.server.kerberos.changepwd;
 
 import java.io.IOException;
 
-import net.sf.ehcache.Cache;
-
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.kerberos.ChangePasswordConfig;
@@ -39,6 +37,7 @@ import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
+import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +94,7 @@ public class ChangePasswordServer extends DirectoryBackedService
 
         LOG.debug( "initializing the changepassword replay cache" );
 
-        Cache cache = getDirectoryService().getCacheService().getCache( "changePwdReplayCache" );
+        Cache< String, Object > cache = getDirectoryService().getCacheService().getCache( "changePwdReplayCache", String.class, Object.class );
         replayCache = new ReplayCacheImpl( cache );
 
         for ( Transport transport : transports )

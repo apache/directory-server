@@ -23,8 +23,6 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.ehcache.Element;
-
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -157,12 +155,7 @@ public class DefaultSearchEngine implements SearchEngine
 
         if ( db.getAliasCache() != null )
         {
-            Element aliasBaseElement = db.getAliasCache().get( baseId );
-
-            if ( aliasBaseElement != null )
-            {
-                aliasedBase = ( Dn ) ( aliasBaseElement ).getObjectValue();
-            }
+            aliasedBase = db.getAliasCache().get( baseId );
         }
         else
         {

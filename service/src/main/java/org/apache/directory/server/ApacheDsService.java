@@ -178,7 +178,7 @@ public class ApacheDsService
         cacheService.initialize( instanceLayout );
 
         initSchemaManager( instanceLayout );
-        DnFactory dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        DnFactory dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache", String.class, Dn.class ) );
         initSchemaLdifPartition( instanceLayout, dnFactory );
         initConfigPartition( instanceLayout, dnFactory, cacheService );
 
