@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.extras.extended.ads_impl.endTransaction.EndTransactionRequestDecorator;
 import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionRequest;
 import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionResponse;
 import org.apache.directory.api.ldap.extras.extended.endTransaction.EndTransactionResponseImpl;
@@ -76,7 +75,7 @@ public class EndTransactionHandler implements ExtendedOperationHandler<ExtendedR
         // We need to create a new transaction ID for the current session.
         // If the current session is already processing a transaction, we will return an error
         CoreSession coreSession = session.getCoreSession();
-        coreSession.endSessionTransaction( ( ( EndTransactionRequestDecorator ) req ).getCommit() );
+        coreSession.endSessionTransaction( ( ( EndTransactionRequest ) req ).getCommit() );
 
         EndTransactionResponse endTransactionResponse = new EndTransactionResponseImpl( req.getMessageId() );
 

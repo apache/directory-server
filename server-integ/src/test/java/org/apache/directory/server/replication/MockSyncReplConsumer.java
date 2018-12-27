@@ -32,17 +32,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.api.ldap.codec.api.LdapApiService;
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValueImpl;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.intermediate.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl_impl.SyncInfoValueFactory;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -102,9 +100,6 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
 
     /** A dedicated logger for the consumer */
     private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( Loggers.CONSUMER_LOG.getName() );
-
-    /** The codec */
-    private LdapApiService ldapCodecService = LdapApiServiceFactory.getSingleton();
 
     /** the syncrepl configuration */
     private SyncReplConfiguration config;
@@ -414,8 +409,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 return;
             }
 
-            SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( ldapCodecService );
-            SyncInfoValue syncInfoValue = ( SyncInfoValue ) decorator.decode( syncInfoBytes );
+            SyncInfoValue syncInfoValue = new SyncInfoValueFactory().newResponse( syncInfoBytes );
 
             byte[] cookie = syncInfoValue.getCookie();
 
@@ -667,7 +661,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      */
     private ReplicationStatusEnum doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
-        SyncRequestValue syncReq = new SyncRequestValueDecorator( ldapCodecService );
+        SyncRequestValue syncReq = new SyncRequestValueImpl();
 
         syncReq.setMode( syncType );
         syncReq.setReloadHint( reloadHint );

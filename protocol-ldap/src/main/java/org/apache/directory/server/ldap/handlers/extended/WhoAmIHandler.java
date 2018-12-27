@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.extras.extended.ads_impl.whoAmI.WhoAmIFactory;
 import org.apache.directory.api.ldap.extras.extended.whoAmI.WhoAmIRequest;
 import org.apache.directory.api.ldap.extras.extended.whoAmI.WhoAmIResponse;
 import org.apache.directory.api.ldap.extras.extended.whoAmI.WhoAmIResponseImpl;
@@ -74,9 +75,11 @@ public class WhoAmIHandler implements ExtendedOperationHandler<WhoAmIRequest, Wh
 
         LdapPrincipal ldapPrincipal = requestor.getCoreSession().getAuthenticatedPrincipal();
         
-        WhoAmIResponse whoAmIResponse = new WhoAmIResponseImpl( req.getMessageId(), ResultCodeEnum.SUCCESS );
+        WhoAmIResponseImpl whoAmIResponse = new WhoAmIResponseImpl( req.getMessageId(), ResultCodeEnum.SUCCESS );
 
         String authzId = "dn:" + ldapPrincipal.getDn();
+       
+        WhoAmIFactory.decode( whoAmIResponse, Strings.getBytesUtf8( authzId ) );
         whoAmIResponse.setAuthzId( Strings.getBytesUtf8( authzId ) );
         
         // write the response

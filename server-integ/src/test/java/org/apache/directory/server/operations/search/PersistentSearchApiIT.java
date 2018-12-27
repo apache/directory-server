@@ -44,10 +44,8 @@ import javax.naming.event.ObjectChangeListener;
 import javax.naming.ldap.HasControls;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.api.ldap.codec.api.CodecControl;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
-import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeFactory;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -605,23 +603,22 @@ public class PersistentSearchApiIT extends AbstractLdapTestUnit
     {
         boolean isReady = false;
         PSearchNotification result;
-        final PersistentSearchDecorator persistentSearch;
+        final PersistentSearch persistentSearch;
         LdapContext ctx;
         NamingEnumeration<SearchResult> list;
 
 
         PSearchListener()
         {
-            persistentSearch = new PersistentSearchDecorator( getLdapServer().getDirectoryService()
-                .getLdapCodecService() );
+            persistentSearch = new PersistentSearchImpl();
         }
 
 
         PSearchListener( PersistentSearch persistentSearch )
         {
-            CodecControl<? extends Control> wrapped =
-                getLdapServer().getDirectoryService().getLdapCodecService().newRequestControl( persistentSearch );
-            this.persistentSearch = ( PersistentSearchDecorator ) wrapped;
+            LdapApiService codec = getLdapServer().getDirectoryService().getLdapCodecService();
+            
+            this.persistentSearch = ( PersistentSearch ) codec.getRequestControlFactories().get( PersistentSearch.OID ).newControl();
         }
 
 
@@ -660,8 +657,8 @@ public class PersistentSearchApiIT extends AbstractLdapTestUnit
         {
             LOG.debug( "PSearchListener.run() called." );
             LdapApiService codec = getLdapServer().getDirectoryService().getLdapCodecService();
+            EntryChangeFactory factory = ( EntryChangeFactory ) codec.getResponseControlFactories().get( EntryChange.OID );
             persistentSearch.setCritical( true );
-            persistentSearch.setValue( persistentSearch.getValue() );
 
             Control[] ctxCtls = new Control[]
                 { persistentSearch };
@@ -694,7 +691,7 @@ public class PersistentSearchApiIT extends AbstractLdapTestUnit
                                     EntryChange.OID ) )
                                 {
                                     ecControl = ( EntryChange ) JndiUtils.fromJndiResponseControl( codec, jndiControl );
-                                    ( ( EntryChangeDecorator ) ecControl ).decode( jndiControl.getEncodedValue() );
+                                    factory.decodeValue( ecControl, jndiControl.getEncodedValue() );
                                 }
                             }
                         }

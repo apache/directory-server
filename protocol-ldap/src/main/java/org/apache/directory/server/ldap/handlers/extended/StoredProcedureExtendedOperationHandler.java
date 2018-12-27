@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.directory.api.ldap.codec.api.LdapApiService;
+import org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory;
 import org.apache.directory.api.ldap.extras.extended.storedProcedure.StoredProcedureRequest;
 import org.apache.directory.api.ldap.extras.extended.storedProcedure.StoredProcedureResponse;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -94,9 +95,11 @@ public class StoredProcedureExtendedOperationHandler implements
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
-        StoredProcedureResponse resp =
-            LdapApiServiceFactory.getSingleton().newExtendedResponse( req.getRequestName(), req.getMessageId(),
-                serializedResponse );
+        LdapApiService codec = session.getLdapServer().getDirectoryService().getLdapCodecService();
+        StoredProcedureFactory factory = ( StoredProcedureFactory ) codec.getExtendedResponseFactories().get( req.getRequestName() );
+        StoredProcedureResponse resp = ( StoredProcedureResponse ) factory.newResponse( serializedResponse );
+        resp.setMessageId( req.getMessageId() );
+        
         session.getIoSession().write( resp );
     }
 

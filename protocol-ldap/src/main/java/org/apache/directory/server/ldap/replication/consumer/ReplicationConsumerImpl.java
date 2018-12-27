@@ -27,15 +27,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.LRUMap;
-import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValueImpl;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.intermediate.syncrepl_impl.SyncInfoValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValueImpl;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
@@ -296,8 +295,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
 
         if ( !config.isChaseReferrals() )
         {
-            searchRequest.addControl( new ManageDsaITDecorator( directoryService.getLdapCodecService(),
-                new ManageDsaITImpl() ) );
+            searchRequest.addControl( new ManageDsaITImpl() );
         }
 
         if ( CONSUMER_LOG.isDebugEnabled() )
@@ -488,8 +486,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 return;
             }
 
-            SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( directoryService.getLdapCodecService() );
-            SyncInfoValue syncInfoValue = ( SyncInfoValue ) decorator.decode( syncInfoBytes );
+            SyncInfoValue syncInfoValue = new SyncInfoValueImpl();
 
             byte[] cookie = syncInfoValue.getCookie();
 
@@ -751,7 +748,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
     {
         CONSUMER_LOG.debug( "Starting synchronization mode {}, reloadHint {}", syncType, reloadHint );
         // Prepare the Syncrepl Request
-        SyncRequestValue syncReq = new SyncRequestValueDecorator( directoryService.getLdapCodecService() );
+        SyncRequestValue syncReq = new SyncRequestValueImpl();
 
         syncReq.setMode( syncType );
         syncReq.setReloadHint( reloadHint );

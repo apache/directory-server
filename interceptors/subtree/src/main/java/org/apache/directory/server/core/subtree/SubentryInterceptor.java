@@ -27,7 +27,6 @@ import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
@@ -344,9 +343,8 @@ public class SubentryInterceptor extends BaseInterceptor
         // found the subentry request control so we return its value
         if ( opContext.hasRequestControl( SUBENTRY_CONTROL ) )
         {
-            SubentriesDecorator subentriesDecorator = ( SubentriesDecorator ) opContext
-                .getRequestControl( SUBENTRY_CONTROL );
-            return subentriesDecorator.getDecorated().isVisible();
+            Subentries subentries = ( Subentries ) opContext.getRequestControl( SUBENTRY_CONTROL );
+            return subentries.isVisible();
         }
 
         return false;

@@ -192,6 +192,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             LOG.error( I18n.err( I18n.ERR_181, getTestClass().getName() ) );
             LOG.error( e.getLocalizedMessage() );
             notifier.fireTestFailure( new Failure( getDescription(), e ) );

@@ -33,7 +33,6 @@ import java.util.Set;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
@@ -1036,7 +1035,7 @@ public class PagedSearchApiIT extends AbstractLdapTestUnit
         {
             connection.bind( "uid=admin,ou=system", "secret" );
     
-            PagedResults pagedSearchControl = new PagedResultsDecorator( codec );
+            PagedResults pagedSearchControl = new PagedResultsImpl();
             pagedSearchControl.setSize( 3 );
     
             SearchRequest searchRequest = new SearchRequestImpl();

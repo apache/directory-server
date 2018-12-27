@@ -45,7 +45,6 @@ import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyReque
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequestImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyResponseDecorator;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -167,7 +166,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             return null;
         }
 
-        return ( ( PasswordPolicyResponseDecorator ) control ).getDecorated();
+        return ( PasswordPolicyResponse) control;
     }
 
 

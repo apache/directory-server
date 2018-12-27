@@ -28,14 +28,10 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequestImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyResponseDecorator;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequest;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequestImpl;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponse;
@@ -90,10 +86,7 @@ import org.junit.runner.RunWith;
     { Sha512PasswordHashingInterceptor.class })
 public class PwdModifyIT extends AbstractLdapTestUnit
 {
-    private static final LdapApiService codec = LdapApiServiceFactory.getSingleton();
-
-    private static final PasswordPolicyResponseDecorator PP_REQ_CTRL =
-        new PasswordPolicyResponseDecorator( codec, new PasswordPolicyResponseImpl() );
+    private static final PasswordPolicyResponse PP_REQ_CTRL = new PasswordPolicyResponseImpl();
 
     /** The passwordPolicy configuration */
     private PasswordPolicyConfiguration policyConfig;
@@ -111,7 +104,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             return null;
         }
 
-        return ( ( PasswordPolicyResponseDecorator ) control ).getDecorated();
+        return ( PasswordPolicyResponse ) control;
     }
 
 
@@ -517,8 +510,8 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             Dn userDn = new Dn( "cn=UserXY,ou=system" );
 
             userConnection = getNetworkConnectionAs( ldapServer, userDn.toString(), "secret3" );
-            PasswordPolicyResponseDecorator passwordPolicyRequestControl =
-                new PasswordPolicyResponseDecorator( LdapApiServiceFactory.getSingleton(), new PasswordPolicyResponseImpl() );
+            PasswordPolicyResponse passwordPolicyRequestControl =
+                new PasswordPolicyResponseImpl();
             PasswordModifyRequest selfPwdModifyRequest = new PasswordModifyRequestImpl();
             selfPwdModifyRequest.setUserIdentity( Strings.getBytesUtf8( userDn.getNormName() ) );
             selfPwdModifyRequest.setOldPassword( Strings.getBytesUtf8( "secret3" ) );
@@ -533,8 +526,8 @@ public class PwdModifyIT extends AbstractLdapTestUnit
                 .getControl( passwordPolicyRequestControl.getOid() );
             assertNotNull( passwordPolicyResponseControl );
             assertEquals( PasswordPolicyErrorEnum.PASSWORD_TOO_YOUNG,
-                ( ( PasswordPolicyResponseDecorator ) passwordPolicyResponseControl )
-                    .getDecorated().getPasswordPolicyError() );
+                ( ( PasswordPolicyResponse ) passwordPolicyResponseControl )
+                    .getPasswordPolicyError() );
 
             addUser( adminConnection, "UserZZ", "secret4" );
             Dn otherUserDn = new Dn( "cn=UserZZ,ou=system" );

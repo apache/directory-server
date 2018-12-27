@@ -22,7 +22,7 @@ package org.apache.directory.server.ldap.replication.provider;
 
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValueImpl;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -175,7 +175,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
     private SyncStateValue createControl( DirectoryService directoryService, SyncStateTypeEnum operation, Entry entry ) 
         throws LdapInvalidAttributeValueException
     {
-        SyncStateValue syncStateValue = new SyncStateValueDecorator( directoryService.getLdapCodecService() );
+        SyncStateValue syncStateValue = new SyncStateValueImpl();
 
         syncStateValue.setSyncStateType( operation );
         String uuidStr = entry.get( SchemaConstants.ENTRY_UUID_AT ).getString();

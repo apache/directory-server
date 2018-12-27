@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -62,6 +61,7 @@ import org.apache.directory.api.ldap.model.message.SearchResultReferenceImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.PagedResults;
+import org.apache.directory.api.ldap.model.message.controls.PagedResultsImpl;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -437,7 +437,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
     private void readPagedResults( LdapSession session, SearchRequest req, LdapResult ldapResult,
         Cursor<Entry> cursor, long sizeLimit, int pagedLimit, PagedSearchContext pagedContext,
-        PagedResultsDecorator pagedResultsControl ) throws Exception
+        PagedResults pagedResultsControl ) throws Exception
     {
         req.addAbandonListener( new SearchAbandonListener( ldapServer, cursor ) );
         setTimeLimitsOnCursor( req, session, cursor );
@@ -496,8 +496,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 }
             }
 
-            pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
-                .getLdapCodecService() );
+            pagedResultsControl = new PagedResultsImpl();
             pagedResultsControl.setCritical( true );
             pagedResultsControl.setSize( 0 );
             req.getResultResponse().addControl( pagedResultsControl );
@@ -591,11 +590,11 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
     /**
      * Handle a Paged Search request.
      */
-    private SearchResultDone doPagedSearch( LdapSession session, SearchRequest req, PagedResultsDecorator control )
+    private SearchResultDone doPagedSearch( LdapSession session, SearchRequest req, PagedResults control )
         throws Exception
     {
-        PagedResultsDecorator pagedSearchControl = control;
-        PagedResultsDecorator pagedResultsControl = null;
+        PagedResults pagedSearchControl = control;
+        PagedResults pagedResultsControl = null;
 
         // Get the size limits
         // Don't bother setting size limits for administrators that don't ask for it
@@ -676,8 +675,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
                 session.addPagedSearchContext( pagedContext );
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
-                    .getLdapCodecService() );
+                pagedResultsControl = new PagedResultsImpl();
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
@@ -710,8 +708,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
                 // get the cookie
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
-                    .getLdapCodecService() );
+                pagedResultsControl = new PagedResultsImpl();
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
@@ -734,8 +731,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 session.addPagedSearchContext( pagedContext );
 
                 cookie = pagedContext.getCookie();
-                pagedResultsControl = new PagedResultsDecorator( ldapServer.getDirectoryService()
-                    .getLdapCodecService() );
+                pagedResultsControl = new PagedResultsImpl();
                 pagedResultsControl.setCookie( cookie );
                 pagedResultsControl.setSize( 0 );
                 pagedResultsControl.setCritical( true );
@@ -792,7 +788,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         if ( control != null )
         {
             // Let's deal with the pagedControl
-            return doPagedSearch( session, req, ( PagedResultsDecorator ) control );
+            return doPagedSearch( session, req, ( PagedResults ) control );
         }
 
         // A normal search

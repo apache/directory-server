@@ -259,7 +259,7 @@ public class GracefulShutdownHandler implements
                 try
                 {
                     future.awaitUninterruptibly( 1000 );
-                    sessionIt.next().close( true );
+                    sessionIt.next().closeNow();
                 }
                 catch ( Exception e )
                 {

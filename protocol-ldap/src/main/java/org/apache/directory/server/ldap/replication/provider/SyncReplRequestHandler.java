@@ -40,11 +40,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValueImpl;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValueImpl;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValueImpl;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SynchronizationInfoEnum;
@@ -464,8 +464,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
                 searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-                SyncDoneValue syncDone = new SyncDoneValueDecorator(
-                    ldapServer.getDirectoryService().getLdapCodecService() );
+                SyncDoneValue syncDone = new SyncDoneValueImpl();
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
 
@@ -608,8 +607,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), contextCsn );
 
                 // no need to send from the log, that will be done in the next refreshOnly session
-                SyncDoneValue syncDone = new SyncDoneValueDecorator(
-                    ldapServer.getDirectoryService().getLdapCodecService() );
+                SyncDoneValue syncDone = new SyncDoneValueImpl();
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
                 PROVIDER_LOG.info( "Sending the searchResultDone response to consumer {}, {}", replicaLog,
@@ -763,8 +761,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
 
         // Create the SyncState control
-        SyncStateValue syncStateControl = new SyncStateValueDecorator(
-            ldapServer.getDirectoryService().getLdapCodecService() );
+        SyncStateValue syncStateControl = new SyncStateValueImpl();
         syncStateControl.setSyncStateType( syncStateType );
         syncStateControl.setEntryUUID( Strings.uuidToBytes( uuid.getString() ) );
 
@@ -1157,8 +1154,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
-        SyncDoneValue syncDone = new SyncDoneValueDecorator(
-            ldapServer.getDirectoryService().getLdapCodecService() );
+        SyncDoneValue syncDone = new SyncDoneValueImpl();
         searchDoneResp.addControl( syncDone );
 
         session.getIoSession().write( searchDoneResp );

@@ -47,24 +47,11 @@ import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.api.asn1.DecoderException;
-import org.apache.directory.api.ldap.codec.api.CodecControl;
-import org.apache.directory.api.ldap.codec.controls.cascade.CascadeDecorator;
-import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
+import org.apache.directory.api.ldap.codec.api.ControlFactory;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequestImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyRequestDecorator;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyResponseDecorator;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
 import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
 import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -83,10 +70,8 @@ import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.Cascade;
-import org.apache.directory.api.ldap.model.message.controls.CascadeImpl;
 import org.apache.directory.api.ldap.model.message.controls.EntryChange;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.message.controls.PagedResults;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.api.ldap.model.message.controls.Subentries;
@@ -386,87 +371,30 @@ public abstract class ServerContext implements EventContext
     private org.apache.directory.api.ldap.model.message.Control convertControl( boolean isRequest,
         Control jndiControl ) throws DecoderException
     {
-        String controlIDStr = jndiControl.getID();
-        CodecControl<? extends org.apache.directory.api.ldap.model.message.Control> control = null;
-
-        ControlEnum controlId = ADS_CONTROLS.get( controlIDStr );
-
-        switch ( controlId )
+        String controlIdStr = jndiControl.getID();
+        
+        ControlFactory<?> controlFactory;
+        
+        if ( isRequest )
         {
-            case CASCADE_CONTROL:
-                control = new CascadeDecorator( getDirectoryService().getLdapCodecService(), new CascadeImpl() );
-
-                break;
-
-            case ENTRY_CHANGE_CONTROL:
-                control = new EntryChangeDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case MANAGE_DSA_IT_CONTROL:
-                control = new ManageDsaITDecorator( getDirectoryService().getLdapCodecService(), new ManageDsaITImpl() );
-
-                break;
-
-            case PAGED_RESULTS_CONTROL:
-                control = new PagedResultsDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case PASSWORD_POLICY_REQUEST_CONTROL:
-                if ( isRequest )
-                {
-                    control = new PasswordPolicyRequestDecorator( getDirectoryService().getLdapCodecService(),
-                        new PasswordPolicyRequestImpl() );
-                }
-                else
-                {
-                    control = new PasswordPolicyResponseDecorator( getDirectoryService().getLdapCodecService(),
-                        new PasswordPolicyResponseImpl() );
-                }
-
-                break;
-
-            case PERSISTENT_SEARCH_CONTROL:
-                control = new PersistentSearchDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SUBENTRIES_CONTROL:
-                control = new SubentriesDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SYNC_DONE_VALUE_CONTROL:
-                control = new SyncDoneValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SYNC_REQUEST_VALUE_CONTROL:
-                control = new SyncRequestValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SYNC_STATE_VALUE_CONTROL:
-                control = new SyncStateValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            default:
-                throw new IllegalArgumentException( "Unsupported control " + controlIDStr );
+             controlFactory = service.getLdapCodecService().getRequestControlFactories().get( controlIdStr );
+        }
+        else
+        {
+            controlFactory = service.getLdapCodecService().getResponseControlFactories().get( controlIdStr );
         }
 
-        control.setCritical( jndiControl.isCritical() );
-        control.setValue( jndiControl.getEncodedValue() );
-
-        byte[] value = jndiControl.getEncodedValue();
-
-        if ( !Strings.isEmpty( value ) )
+        if ( controlFactory == null )
         {
-            control.decode( value );
+            throw new IllegalArgumentException( "Unsupported control " + controlIdStr );
         }
 
-        return control;
+        org.apache.directory.api.ldap.model.message.Control apiControl = controlFactory.newControl();
+        
+        apiControl.setCritical( jndiControl.isCritical() );
+        controlFactory.decodeValue( apiControl, jndiControl.getEncodedValue() );
+
+        return apiControl;
     }
 
 
