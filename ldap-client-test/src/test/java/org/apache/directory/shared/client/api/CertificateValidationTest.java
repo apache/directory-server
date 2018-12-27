@@ -40,6 +40,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.CertPathBuilderException;
 import java.security.cert.CertPathValidatorException;
+import java.security.cert.CertPathValidatorException.BasicReason;
+import java.security.cert.CertPathValidatorException.Reason;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
@@ -54,6 +56,7 @@ import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapTlsHandshakeException;
+import org.apache.directory.api.ldap.model.exception.LdapTlsHandshakeFailCause.LdapApiReason;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
@@ -161,7 +164,7 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAPS"), keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
     @Test
     public void testLdaps_Valid_NoVerificationTrustManager() throws Exception
     {
@@ -171,7 +174,7 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAP"), extendedOpHandlers = StartTlsHandler.class, keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW, extendedOpHandlers = StartTlsHandler.class)
     @Test
     public void testStartTls_Valid_NoVerificationTrustManager() throws Exception
     {
@@ -181,29 +184,55 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAPS"), keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = ROOT_CA_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @Test
+    public void testLdaps_SelfSigned_JvmDefaultTrustManager() throws Exception
+    {
+        LdapConnectionConfig config = ldapsConnectionConfig();
+        config.setTrustManagers( jvmDefaultTrustManagers() );
+        connectAndExpectTlsHandshakeException( config, CertPathBuilderException.class,
+            LdapApiReason.NO_VALID_CERTIFICATION_PATH, "Failed to build certification path",
+            "unable to find valid certification path to requested target" );
+    }
+
+
+    @CreateLdapServer(keyStore = ROOT_CA_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW, extendedOpHandlers = StartTlsHandler.class)
+    @Test
+    public void testStartTls_SelfSigned_JvmDefaultTrustManager() throws Exception
+    {
+        LdapConnectionConfig config = startTlsConnectionConfig();
+        config.setTrustManagers( jvmDefaultTrustManagers() );
+        connectAndExpectTlsHandshakeException( config, CertPathBuilderException.class,
+            LdapApiReason.NO_VALID_CERTIFICATION_PATH, "Failed to build certification path",
+            "unable to find valid certification path to requested target" );
+    }
+
+
+    @CreateLdapServer(keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
     @Test
     public void testLdaps_Valid_JvmDefaultTrustManager() throws Exception
     {
         LdapConnectionConfig config = ldapsConnectionConfig();
         config.setTrustManagers( jvmDefaultTrustManagers() );
         connectAndExpectTlsHandshakeException( config, CertPathBuilderException.class,
-            "Failed to build certification path", "unable to find valid certification path to requested target" );
+            LdapApiReason.NO_VALID_CERTIFICATION_PATH, "Failed to build certification path",
+            "unable to find valid certification path to requested target" );
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAP"), extendedOpHandlers = StartTlsHandler.class, keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW, extendedOpHandlers = StartTlsHandler.class)
     @Test
     public void testStartTls_Valid_JvmDefaultTrustManager() throws Exception
     {
         LdapConnectionConfig config = startTlsConnectionConfig();
         config.setTrustManagers( jvmDefaultTrustManagers() );
         connectAndExpectTlsHandshakeException( config, CertPathBuilderException.class,
-            "Failed to build certification path", "unable to find valid certification path to requested target" );
+            LdapApiReason.NO_VALID_CERTIFICATION_PATH, "Failed to build certification path",
+            "unable to find valid certification path to requested target" );
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAPS"), keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
     @Test
     public void testLdaps_Valid_RootCaTrustManager() throws Exception
     {
@@ -213,7 +242,7 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAP"), extendedOpHandlers = StartTlsHandler.class, keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW, extendedOpHandlers = StartTlsHandler.class)
     @Test
     public void testStartTls_Valid_RootCaTrustManager() throws Exception
     {
@@ -223,72 +252,70 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAPS"), keyStore = EXPIRED_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = EXPIRED_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
     @Test
     public void testLdaps_Expired_RootCaTrustManager() throws Exception
     {
         LdapConnectionConfig config = ldapsConnectionConfig();
         config.setTrustManagers( getCustomTrustManager( ROOT_CA_KEYSTORE ) );
-        connectAndExpectTlsHandshakeException( config, CertificateExpiredException.class, "Certificate expired",
-            "NotAfter" );
+        connectAndExpectTlsHandshakeException( config, CertificateExpiredException.class, BasicReason.EXPIRED,
+            "Certificate expired", "NotAfter" );
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAP"), extendedOpHandlers = StartTlsHandler.class, keyStore = EXPIRED_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = EXPIRED_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW, extendedOpHandlers = StartTlsHandler.class)
     @Test
     public void testStartTls_Expired_RootCaTrustManager() throws Exception
     {
         LdapConnectionConfig config = startTlsConnectionConfig();
         config.setTrustManagers( getCustomTrustManager( ROOT_CA_KEYSTORE ) );
-        connectAndExpectTlsHandshakeException( config, CertificateExpiredException.class, "Certificate expired",
-            "NotAfter" );
+        connectAndExpectTlsHandshakeException( config, CertificateExpiredException.class, BasicReason.EXPIRED,
+            "Certificate expired", "NotAfter" );
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAPS"), keyStore = NOT_YET_VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = NOT_YET_VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
     @Test
     public void testLdaps_NotYetValid_RootCaTrustManager() throws Exception
     {
         LdapConnectionConfig config = ldapsConnectionConfig();
         config.setTrustManagers( getCustomTrustManager( ROOT_CA_KEYSTORE ) );
-        connectAndExpectTlsHandshakeException( config, CertificateNotYetValidException.class,
-            "Certificate not yet valid",
-            "NotBefore" );
+        connectAndExpectTlsHandshakeException( config, CertificateNotYetValidException.class, BasicReason.NOT_YET_VALID,
+            "Certificate not yet valid", "NotBefore" );
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAP"), extendedOpHandlers = StartTlsHandler.class, keyStore = NOT_YET_VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = NOT_YET_VALID_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW, extendedOpHandlers = StartTlsHandler.class)
     @Test
     public void testStartTls_NotYetValid_RootCaTrustManager() throws Exception
     {
         LdapConnectionConfig config = startTlsConnectionConfig();
         config.setTrustManagers( getCustomTrustManager( ROOT_CA_KEYSTORE ) );
-        connectAndExpectTlsHandshakeException( config, CertificateNotYetValidException.class,
-            "Certificate not yet valid",
-            "NotBefore" );
+        connectAndExpectTlsHandshakeException( config, CertificateNotYetValidException.class, BasicReason.NOT_YET_VALID,
+            "Certificate not yet valid", "NotBefore" );
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAPS"), keyStore = SMALL_KEYSIZE_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = SMALL_KEYSIZE_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
     @Test
     public void testLdaps_SmallKeySize_RootCaTrustManager() throws Exception
     {
         LdapConnectionConfig config = ldapsConnectionConfig();
         config.setTrustManagers( getCustomTrustManager( ROOT_CA_KEYSTORE ) );
         connectAndExpectTlsHandshakeException( config, CertPathValidatorException.class,
-            "Failed to verify certification path",
+            BasicReason.ALGORITHM_CONSTRAINED, "Failed to verify certification path",
             "Algorithm constraints check failed on keysize limits" );
     }
 
 
-    @CreateLdapServer(transports = @CreateTransport(protocol = "LDAP"), extendedOpHandlers = StartTlsHandler.class, keyStore = SMALL_KEYSIZE_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW)
+    @CreateLdapServer(keyStore = SMALL_KEYSIZE_KEYSTORE_PATH, certificatePassword = KEYSTORE_PW, extendedOpHandlers = StartTlsHandler.class)
     @Test
     public void testStartTls_SmallKeySize_RootCaTrustManager() throws Exception
     {
         LdapConnectionConfig config = startTlsConnectionConfig();
         config.setTrustManagers( getCustomTrustManager( ROOT_CA_KEYSTORE ) );
         connectAndExpectTlsHandshakeException( config, CertPathValidatorException.class,
-            "Failed to verify certification path",
+            BasicReason.ALGORITHM_CONSTRAINED, "Failed to verify certification path",
             "Algorithm constraints check failed on keysize limits" );
     }
 
@@ -319,7 +346,7 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
 
 
     private void connectAndExpectTlsHandshakeException( LdapConnectionConfig config,
-        Class<? extends Throwable> rootCauseExceptionClass,
+        Class<? extends Throwable> rootCauseExceptionClass, Reason reason,
         String reasonPhrase, String reasonMessage ) throws IOException
     {
         assertTrue( getLdapServer().isStarted() );
@@ -345,11 +372,11 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
             }
             catch ( LdapException e )
             {
-                //e.printStackTrace();
                 assertThat( e, is( instanceOf( LdapTlsHandshakeException.class ) ) );
                 LdapTlsHandshakeException lthse = ( LdapTlsHandshakeException ) e;
-                assertThat( lthse.getRootCause(), instanceOf( rootCauseExceptionClass ) );
-                assertThat( lthse.getReasonPhrase(), equalTo( reasonPhrase ) );
+                assertThat( lthse.getFailCause().getRootCause(), instanceOf( rootCauseExceptionClass ) );
+                assertThat( lthse.getFailCause().getReason(), equalTo( reason ) );
+                assertThat( lthse.getFailCause().getReasonPhrase(), equalTo( reasonPhrase ) );
                 assertThat( lthse.getMessage(), containsString( "ERR_04120_TLS_HANDSHAKE_ERROR" ) );
                 assertThat( lthse.getMessage(), containsString( "The TLS handshake failed" ) );
                 assertThat( lthse.getMessage(), containsString( "reason: " + reasonPhrase ) );
