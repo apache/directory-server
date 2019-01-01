@@ -333,7 +333,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     public void testSearchRequestSubtreeLevelScopePerf() throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0 );
 
         try
         {
@@ -435,7 +434,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
     public void testSearch100kUsers() throws LdapException, CursorException, InterruptedException, Exception
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut(0L);
         connection.bind( "uid=admin,ou=system", "secret" );
         int nbAdds = 10_000;
 
@@ -575,5 +573,6 @@ public class SearchPerfIT extends AbstractLdapTestUnit
         Long deltaWarmed = ( t1 - t00 );
         System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 50000 ) * 1000 ) / deltaWarmed )
             + " per s ) /" + ( t1 - t0 ) + ", count : " + count );
+        connection.close();
     }
 }

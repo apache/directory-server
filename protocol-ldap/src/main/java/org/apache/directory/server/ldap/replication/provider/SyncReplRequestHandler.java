@@ -497,7 +497,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             .debug( "Adding sort control to sort the entries by entryDn attribute to preserve order of insertion" );
         SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT );
         // matchingrule for "entryDn"
-        sk.setMatchingRuleId( "2.5.13.1" );
+        sk.setMatchingRuleId( SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID );
         sk.setReverseOrder( true );
 
         ctrl = new SortRequestImpl();

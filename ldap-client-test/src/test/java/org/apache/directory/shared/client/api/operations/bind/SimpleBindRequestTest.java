@@ -106,7 +106,6 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
     }
 
 

@@ -53,7 +53,6 @@ public class LookupIT extends AbstractLdapTestUnit
     public void testLookupExistingEntryAPI() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
-        connection.setTimeOut( 0L );
 
         Entry entry = connection.lookup( "uid=admin,ou=system", "name" );
         assertNotNull( entry );
@@ -74,7 +73,6 @@ public class LookupIT extends AbstractLdapTestUnit
     public void testLookupRootDSE() throws Exception
     {
         LdapConnection connection = ServerIntegrationUtils.getAdminConnection( getLdapServer() );
-        connection.setTimeOut( 0L );
 
         Entry entry = connection.lookup( "" );
         assertNotNull( entry );

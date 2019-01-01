@@ -748,8 +748,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            userCon.setTimeOut( 0 );
-    
             Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
     
             BindResponse bindResp = userCon.bind( bindReq );
@@ -797,8 +795,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            userCon.setTimeOut( 0 );
-    
             Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
     
             BindResponse bindResp = userCon.bind( bindReq );
@@ -860,8 +856,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            userCon.setTimeOut( 0 );
-    
             Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
     
             BindResponse bindResp = userCon.bind( bindReq );
@@ -924,8 +918,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            userCon.setTimeOut( 0 );
-    
             Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
     
             BindResponse bindResp = userCon.bind( bindReq );
@@ -1099,7 +1091,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         bindReq.setDn( userDn );
         bindReq.setCredentials( "12345" ); // correct password
         bindReq.addControl( PP_REQ_CTRL );
-        userConnection.setTimeOut( Long.MAX_VALUE );
         userConnection.bind( bindReq );
         assertTrue( userConnection.isAuthenticated() );
 
@@ -1125,7 +1116,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addUser( adminConnection, "userLockout", "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
-        userConnection.setTimeOut( 0L );
 
         checkBind( userConnection, userDn, "badPassword", 3,
             "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout,ou=system" );
@@ -1159,7 +1149,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addUser( adminConnection, "userLockout2", "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
-        userConnection.setTimeOut( 0L );
 
         checkBind( userConnection, userDn, "badPassword", 3,
             "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout2,ou=system" );
@@ -1218,7 +1207,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addUser( adminConnection, "userLockout3", "12345" );
 
         LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
-        userConnection.setTimeOut( 0L );
 
         // First attempt
         checkBind( userConnection, userDn, "badPassword", 1,
@@ -1355,8 +1343,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            userConnection.setTimeOut( 0L );
-    
             // We should be able to bind
             checkBindSuccess( userDn, "12345" );
         }
@@ -1370,8 +1356,6 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             modReq.addControl( PP_REQ_CTRL );
             modReq.replace( "userPassword", "67890" );
 
-            userConnection.setTimeOut( 0L );
-    
             ModifyResponse modifyResponse = userConnection.modify( modReq );
     
             assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modifyResponse.getLdapResult().getResultCode() );
@@ -1409,9 +1393,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             String password = "12345";
             adminConnection = getAdminNetworkConnection( getLdapServer() );
             userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
-            userConnection.setTimeOut( 0L );
             userConnection2 = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
-            userConnection2.setTimeOut( 0L );
 
             addUser( adminConnection, userCn, password );
 

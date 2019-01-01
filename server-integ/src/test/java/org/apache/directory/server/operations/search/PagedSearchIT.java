@@ -1174,5 +1174,8 @@ public class PagedSearchIT extends AbstractLdapTestUnit
 
         assertEquals( 4, loop );
         checkResults( results, 10 );
+
+        // And close the connection
+        closeConnection( ctx );
     }
 }

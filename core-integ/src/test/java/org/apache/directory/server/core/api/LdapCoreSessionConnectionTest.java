@@ -103,7 +103,6 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
         try
         {
             connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-            connection.setTimeOut( 0L );
 
             BindRequest bindRequest = new BindRequestImpl();
             bindRequest.setDn( new Dn( "cn=user,ou=system" ) );

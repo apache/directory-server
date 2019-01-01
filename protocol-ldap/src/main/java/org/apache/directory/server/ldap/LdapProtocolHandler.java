@@ -245,8 +245,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
         LOG.warn( "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
 
         session.write( NoticeOfDisconnect.PROTOCOLERROR );
-        LdapSession ldapSession = this.ldapServer.getLdapSessionManager().removeLdapSession( session );
-        cleanUpSession( ldapSession );
-        session.closeNow();
+        session.closeOnFlush();
+        //LdapSession ldapSession = this.ldapServer.getLdapSessionManager().removeLdapSession( session );
+        //cleanUpSession( ldapSession );
     }
 }

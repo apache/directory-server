@@ -369,7 +369,6 @@ public class LdapConnectionTemplateTest
         config.setCredentials( "secret" );
 
         DefaultLdapConnectionFactory factory = new DefaultLdapConnectionFactory( config );
-        factory.setTimeOut( 30000 );
 
         // optional, values below are defaults
         GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();

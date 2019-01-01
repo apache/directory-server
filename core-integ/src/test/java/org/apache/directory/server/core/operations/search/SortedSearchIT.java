@@ -365,7 +365,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
     public void testSortByDn() throws Exception
     {
         sk.setAttributeTypeDesc( "entryDn" );
-        sk.setMatchingRuleId( "2.5.13.1" );
+        sk.setMatchingRuleId( SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID );
         SearchCursor cursor = connection.search( req );
 
         List<Entry> actualOrder = new ArrayList<Entry>();

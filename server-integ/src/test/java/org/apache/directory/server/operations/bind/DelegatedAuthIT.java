@@ -106,7 +106,6 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         assertEquals( "DelegatedAuthIT-method", getService().getInstanceId() );
         LdapConnection ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 10200 );
 
-        ldapConnection.setTimeOut( 0L );
         ldapConnection.bind( "uid=antoine,ou=users,ou=system", "secret" );
 
         assertTrue( ldapConnection.isAuthenticated() );
@@ -171,7 +170,6 @@ public class DelegatedAuthIT extends AbstractLdapTestUnit
         assertTrue( getService().isStarted() );
         assertEquals( "DelegatedAuthIT-MultipleAuthenticators-method", getService().getInstanceId() );
         LdapConnection ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 10200 );
-        ldapConnection.setTimeOut( 0L );
         ldapConnection.bind( "uid=emmanuel,ou=users,ou=system", "sesame" );
 
         assertTrue( ldapConnection.isAuthenticated() );

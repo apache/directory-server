@@ -1200,6 +1200,7 @@ public class AddIT extends AbstractLdapTestUnit
             }
             assertFalse( connection.isConnected() );
         }
+        connection.close();
     }
 
 

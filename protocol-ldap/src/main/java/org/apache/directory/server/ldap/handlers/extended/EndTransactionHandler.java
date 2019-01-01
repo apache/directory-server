@@ -79,6 +79,12 @@ public class EndTransactionHandler implements ExtendedOperationHandler<ExtendedR
 
         EndTransactionResponse endTransactionResponse = new EndTransactionResponseImpl( req.getMessageId() );
 
+        // Store the StartTransaction request name in the response, to be able to
+        // encode the response properly.
+        // Kurt Zeilenga should have set a responseName to make it easier to 
+        // implement in RFC 5805 :/
+        endTransactionResponse.setResponseName( EndTransactionRequest.EXTENSION_OID );
+
         // write the response
         session.getIoSession().write( endTransactionResponse );
     }

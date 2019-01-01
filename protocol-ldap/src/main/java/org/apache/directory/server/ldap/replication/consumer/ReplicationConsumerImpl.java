@@ -219,7 +219,6 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
-                connection.setTimeOut( -1L );
                 connection.setSchemaManager( schemaManager );
 
                 if ( config.isUseTls() )
@@ -1358,7 +1357,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         // the ENTRY_DN_AT must be in the attribute list, otherwise sorting fails
         req.addAttributes( SchemaConstants.ENTRY_DN_AT );
 
-        SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, "2.5.13.1" );
+        SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID );
         SortRequest ctrl = new SortRequestImpl();
         ctrl.addSortKey( sk );
         req.addControl( ctrl );
@@ -1427,7 +1426,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             // the ENTRY_DN_AT must be in the attribute list, otherwise sorting fails
             req.addAttributes( SchemaConstants.ENTRY_DN_AT );
 
-            SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, "2.5.13.1" );
+            SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT, SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID );
 
             SortRequest ctrl = new SortRequestImpl();
             ctrl.addSortKey( sk );

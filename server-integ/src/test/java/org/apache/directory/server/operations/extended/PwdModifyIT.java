@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
@@ -214,7 +213,6 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // Bind as the user
         LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), "cn=user1,ou=system", "secret1" );
-        userConnection.setTimeOut( 0L );
 
         // Now change the password
         PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
@@ -257,7 +255,6 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // Bind as the user
         LdapConnection anonymousConnection = getAnonymousNetworkConnection( getLdapServer() );
-        anonymousConnection.setTimeOut( 0L );
 
         // Now change the password
         PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
@@ -310,7 +307,6 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // Bind as the user
         LdapConnection anonymousConnection = getAnonymousNetworkConnection( getLdapServer() );
-        anonymousConnection.setTimeOut( 0L );
 
         // Now change the password
         PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();
@@ -505,7 +501,6 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         try
         {
             adminConnection = getAdminNetworkConnection( getLdapServer() );
-            adminConnection.setTimeOut( Long.MAX_VALUE );
             addUser( adminConnection, "UserXY", "secret3" );
             Dn userDn = new Dn( "cn=UserXY,ou=system" );
 
@@ -561,7 +556,6 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // Bind as the user
         LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), "cn=user11,ou=system", "secret1" );
-        userConnection.setTimeOut( 0L );
 
         // Now change the password
         PasswordModifyRequest pwdModifyRequest = new PasswordModifyRequestImpl();

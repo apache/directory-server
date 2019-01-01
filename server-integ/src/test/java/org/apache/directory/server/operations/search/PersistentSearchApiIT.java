@@ -616,9 +616,7 @@ public class PersistentSearchApiIT extends AbstractLdapTestUnit
 
         PSearchListener( PersistentSearch persistentSearch )
         {
-            LdapApiService codec = getLdapServer().getDirectoryService().getLdapCodecService();
-            
-            this.persistentSearch = ( PersistentSearch ) codec.getRequestControlFactories().get( PersistentSearch.OID ).newControl();
+            this.persistentSearch = persistentSearch;
         }
 
 

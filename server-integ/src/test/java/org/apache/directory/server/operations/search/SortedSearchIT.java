@@ -91,7 +91,6 @@ public class SortedSearchIT extends AbstractLdapTestUnit
         {
             con = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
             con.bind( "uid=admin,ou=system", "secret" );
-            con.setTimeOut( Long.MAX_VALUE );
         }
 
         baseDn = new Dn( "ou=parent,ou=system" );
@@ -368,7 +367,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
     public void testSortByDn() throws Exception
     {
         sk.setAttributeTypeDesc( "entryDn" );
-        sk.setMatchingRuleId( "2.5.13.1" );
+        sk.setMatchingRuleId( SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID );
         SearchCursor cursor = con.search( req );
 
         List<Entry> actualOrder = new ArrayList<Entry>();

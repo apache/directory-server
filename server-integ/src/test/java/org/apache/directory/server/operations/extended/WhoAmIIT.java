@@ -65,8 +65,6 @@ public class WhoAmIIT extends AbstractLdapTestUnit
     {
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        adminConnection.setTimeOut( 0L );
-
         // Create a new RBAC session
         WhoAmIRequest whoAmIRequest = new WhoAmIRequestImpl();
 

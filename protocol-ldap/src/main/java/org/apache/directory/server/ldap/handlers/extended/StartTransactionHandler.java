@@ -80,6 +80,12 @@ public class StartTransactionHandler implements ExtendedOperationHandler<Extende
 
         StartTransactionResponse startTransactionResponse = new StartTransactionResponseImpl( 
                 req.getMessageId(), Conversion.convertToByteArray( transactionId ) );
+        
+        // Store the StartTransaction request name in the response, to be able to
+        // encode the response properly.
+        // Kurt Zeilenga should have set a responseName to make it easier to 
+        // implement in RFC 5805 :/
+        startTransactionResponse.setResponseName( StartTransactionRequest.EXTENSION_OID );
 
         // write the response
         session.getIoSession().write( startTransactionResponse );

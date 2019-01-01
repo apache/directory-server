@@ -41,6 +41,7 @@ import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -61,6 +62,8 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
 
@@ -69,8 +72,12 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+//@Ignore
 public class ClientInitialRefreshIT
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private static LdapServer providerServer;
 
     private static SchemaManager schemaManager;
@@ -162,12 +169,6 @@ public class ClientInitialRefreshIT
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
         
-        // Load the replication controls
-        LdapApiService codec = provDirService.getLdapCodecService();
-        codec.registerRequestControl( new SyncRequestValueFactory( codec ) );
-        codec.registerResponseControl( new SyncDoneValueFactory( codec ) );
-        codec.registerResponseControl( new SyncStateValueFactory( codec ) );
-
         providerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
 
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
@@ -199,58 +200,24 @@ public class ClientInitialRefreshIT
     /**
      * Wait for the expected number of entries to be added into the client
      */
-    private boolean waitForSyncReplClient( ReplicationConsumer consumer, int expected ) throws Exception
-    {
-        //boolean isFirst = true;
-
-        for ( int i = 0; i < 50; i++ )
-        {
-            int nbAdded = ( ( MockSyncReplConsumer ) consumer ).getNbAdded();
-
-            /*
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                System.out.print( ", " );
-            }
-
-            System.out.print( nbAdded );
-            */
-
-            if ( nbAdded == expected )
-            {
-                return true;
-            }
-
-            Thread.sleep( 100 );
-        }
-
-        return false;
-    }
-
-
-    /**
-     * Wait for the expected number of entries to be added into the client
-     */
-    private boolean waitUntilLimitSyncReplClient( int limit, ReplicationConsumer... consumers ) throws Exception
+    private boolean waitUntilLimitSyncReplClient( int limit, MockSyncReplConsumer... consumers ) throws Exception
     {
         //System.out.println( "\nCompleted so far : " );
         int nbConsumers = consumers.length;
         int[] nbAddeds = new int[nbConsumers];
+        boolean[] hasSyncCookies = new boolean[nbConsumers];
         int nbCompleted = 0;
 
         for ( int i = 0; i < 50; i++ )
         {
             for ( int j = 0; j < nbConsumers; j++ )
             {
-                if ( nbAddeds[j] != limit )
+                if ( nbAddeds[j] != limit || !hasSyncCookies[j] )
                 {
-                    nbAddeds[j] = ( ( MockSyncReplConsumer ) consumers[j] ).getNbAdded();
+                    nbAddeds[j] = consumers[j].getNbAdded();
+                    hasSyncCookies[j] = consumers[j].hasSyncCookie();
 
-                    if ( nbAddeds[j] >= limit )
+                    if ( nbAddeds[j] == limit && hasSyncCookies[j] )
                     {
                         nbCompleted++;
                         //System.out.println( "(consumer" + ( j + 1 ) + " completed) " );
@@ -270,9 +237,9 @@ public class ClientInitialRefreshIT
     }
 
 
-    private ReplicationConsumer createConsumer() throws Exception
+    private MockSyncReplConsumer createConsumer() throws Exception
     {
-        final ReplicationConsumer syncreplClient = new MockSyncReplConsumer();
+        final MockSyncReplConsumer syncreplClient = new MockSyncReplConsumer();
         final SyncReplConfiguration config = new SyncReplConfiguration();
         config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
         config.setRemotePort( 16000 );
@@ -364,10 +331,10 @@ public class ClientInitialRefreshIT
     {
         //System.out.println( "\n---> Running testInitialRefreshLoad" );
 
-        ReplicationConsumer consumer = createConsumer();
+        MockSyncReplConsumer consumer = createConsumer();
 
-        // We should have 1000 entries plus the base entry = TOTAL_COUNT
-        assertTrue( waitForSyncReplClient( consumer, TOTAL_COUNT ) );
+        /// We should have INSERT_COUNT entries plus the base entry = TOTAL_COUNT
+        assertTrue( waitUntilLimitSyncReplClient( TOTAL_COUNT,  consumer ) );
         consumer.stop();
 
         //System.out.println( "\n<-- Done" );
@@ -383,10 +350,10 @@ public class ClientInitialRefreshIT
     {
         //System.out.println( "\n---> Running testInitialRefreshLoadAndAdd" );
 
-        ReplicationConsumer consumer = createConsumer();
+        MockSyncReplConsumer consumer = createConsumer();
 
         // We should have INSERT_COUNT entries plus the base entry = TOTAL_COUNT
-        assertTrue( waitForSyncReplClient( consumer, TOTAL_COUNT ) );
+        assertTrue( waitUntilLimitSyncReplClient( TOTAL_COUNT, consumer ) );
 
         // Reset the added counter
         ( ( MockSyncReplConsumer ) consumer ).resetNbAdded();
@@ -398,7 +365,7 @@ public class ClientInitialRefreshIT
         try 
         {
             // Now check that the entry has been copied in the consumer
-            assertTrue( waitForSyncReplClient( consumer, 1 ) );
+            assertTrue( waitUntilLimitSyncReplClient( 1, consumer ) );
         }
         finally
         {
@@ -419,13 +386,11 @@ public class ClientInitialRefreshIT
     {
         //System.out.println( "\n---> Running testInitialRefreshStopAndGo" );
 
-        ReplicationConsumer consumer = createConsumer();
+        MockSyncReplConsumer consumer = createConsumer();
 
-        // Load all the entries
+        // We should have INSERT_COUNT entries plus the base entry = TOTAL_COUNT
         assertTrue( waitUntilLimitSyncReplClient( TOTAL_COUNT, consumer ) );
 
-        Thread.sleep( 500 );
-        
         // Stop the consumer
         consumer.stop();
 
@@ -445,7 +410,7 @@ public class ClientInitialRefreshIT
         try
         {
             // We should get only the additional values cause consumer sends a cookie now
-            assertTrue( waitForSyncReplClient( consumer, additionalCount ) );
+            assertTrue( waitUntilLimitSyncReplClient( additionalCount, consumer ) );
         }
         finally
         {
@@ -469,10 +434,10 @@ public class ClientInitialRefreshIT
     {
         //System.out.println( "\n--->Running testInitialRefresh4Consumers" );
 
-        ReplicationConsumer consumer1 = createConsumer();
-        ReplicationConsumer consumer2 = createConsumer();
-        ReplicationConsumer consumer3 = createConsumer();
-        ReplicationConsumer consumer4 = createConsumer();
+        MockSyncReplConsumer consumer1 = createConsumer();
+        MockSyncReplConsumer consumer2 = createConsumer();
+        MockSyncReplConsumer consumer3 = createConsumer();
+        MockSyncReplConsumer consumer4 = createConsumer();
 
         assertTrue( waitUntilLimitSyncReplClient( TOTAL_COUNT, consumer1, consumer2, consumer3, consumer4 ) );
 

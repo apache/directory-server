@@ -61,7 +61,6 @@ public class AddAliasIT extends AbstractLdapTestUnit
         try
         {
             conn = getAdminConnection( getLdapServer() );
-            conn.setTimeOut( -1L );
 
             conn.add( new DefaultEntry(
                 "cn=foo,ou=system",
@@ -98,7 +97,6 @@ public class AddAliasIT extends AbstractLdapTestUnit
         try
         {
             conn = getAdminConnection( getLdapServer() );
-            conn.setTimeOut( -1L );
 
             conn.add( new DefaultEntry(
                 "cn=foo,ou=system",
@@ -164,7 +162,6 @@ public class AddAliasIT extends AbstractLdapTestUnit
         try
         {
             conn = getAdminConnection( getLdapServer() );
-            conn.setTimeOut( -1L );
 
             conn.add( new DefaultEntry(
                 "cn=test,ou=system",

@@ -111,7 +111,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     private final Object mutex = new Object();
 
     /** the sync cookie sent by the server */
-    private byte[] syncCookie;
+    private volatile byte[] syncCookie;
 
     /** connection to the syncrepl provider */
     private LdapNetworkConnection connection;
@@ -217,7 +217,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
-                connection.setTimeOut( -1L );
+                connection.setTimeOut( 10000L );
 
                 if ( config.isUseTls() )
                 {
@@ -396,20 +396,13 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /**
      * {@inheritDoc}
      */
-    public void handleSyncInfo( IntermediateResponse syncInfoResp )
+    public void handleSyncInfo( SyncInfoValue syncInfoValue )
     {
         try
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
-            byte[] syncInfoBytes = syncInfoResp.getResponseValue();
-
-            if ( syncInfoBytes == null )
-            {
-                return;
-            }
-
-            SyncInfoValue syncInfoValue = new SyncInfoValueFactory().newResponse( syncInfoBytes );
+            LOG.debug( "received sync info: " + syncInfoValue );
 
             byte[] cookie = syncInfoValue.getCookie();
 
@@ -691,7 +684,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             }
             else if ( resp instanceof IntermediateResponse )
             {
-                handleSyncInfo( ( IntermediateResponse ) resp );
+                handleSyncInfo( ( SyncInfoValue ) resp );
             }
 
             resp = sf.get();
@@ -756,9 +749,6 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 {
                     refreshThread.stopRefreshing();
                 }
-
-                connection.unBind();
-                LOG.info( "Unbound from the server {}", config.getRemoteHost() );
 
                 connection.close();
                 LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
@@ -1259,4 +1249,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     {
         nbAdded.getAndSet( 0 );
     }
+
+
+    public boolean hasSyncCookie()
+    {
+        return syncCookie != null;
+    }
+
 }
