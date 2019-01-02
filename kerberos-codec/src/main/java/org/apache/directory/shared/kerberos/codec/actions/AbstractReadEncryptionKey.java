@@ -81,12 +81,10 @@ public abstract class AbstractReadEncryptionKey<E extends Asn1Container> extends
         }
 
         // Now, let's decode the EncryptionKey
-        Asn1Decoder encryptionKeyDecoder = new Asn1Decoder();
-
         EncryptionKeyContainer encryptionKeyContainer = new EncryptionKeyContainer();
 
         // Decode the EncryptionKey PDU
-        encryptionKeyDecoder.decode( container.getStream(), encryptionKeyContainer );
+        Asn1Decoder.decode( container.getStream(), encryptionKeyContainer );
 
         EncryptionKey encryptionKey = encryptionKeyContainer.getEncryptionKey();
 

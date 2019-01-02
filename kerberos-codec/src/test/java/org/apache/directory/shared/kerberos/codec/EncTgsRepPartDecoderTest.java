@@ -52,7 +52,6 @@ public class EncTgsRepPartDecoderTest
     @Test
     public void testDecodeFullEncTgsRepPart() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xA2 );
 
@@ -111,7 +110,7 @@ public class EncTgsRepPartDecoderTest
         // Decode the EncTgsRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encTgsRepPartContainer );
+            Asn1Decoder.decode( stream, encTgsRepPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -149,7 +148,6 @@ public class EncTgsRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncTgsRepPartEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -162,7 +160,7 @@ public class EncTgsRepPartDecoderTest
         Asn1Container encTgsRepPartContainer = new EncTgsRepPartContainer( stream );
 
         // Decode the EncTgsRepPart PDU
-        kerberosDecoder.decode( stream, encTgsRepPartContainer );
+        Asn1Decoder.decode( stream, encTgsRepPartContainer );
         fail();
     }
 
@@ -173,7 +171,6 @@ public class EncTgsRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncTgsRepPartEmptyEncKdcRepPart() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -189,7 +186,7 @@ public class EncTgsRepPartDecoderTest
         Asn1Container encTgsRepPartContainer = new EncTgsRepPartContainer( stream );
 
         // Decode the EncTgsRepPart PDU
-        kerberosDecoder.decode( stream, encTgsRepPartContainer );
+        Asn1Decoder.decode( stream, encTgsRepPartContainer );
         fail();
     }
 }

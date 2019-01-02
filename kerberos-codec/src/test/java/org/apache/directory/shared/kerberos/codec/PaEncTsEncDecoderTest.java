@@ -45,7 +45,6 @@ public class PaEncTsEncDecoderTest
     @Test
     public void testDecodeFullPaEncTsEnc()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x1A );
 
@@ -84,7 +83,7 @@ public class PaEncTsEncDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, paEncTsEncContainer );
+            Asn1Decoder.decode( stream, paEncTsEncContainer );
         }
         catch ( DecoderException de )
         {
@@ -119,7 +118,6 @@ public class PaEncTsEncDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodePaEncTsEncWithEmptySeq() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 2 );
 
@@ -132,7 +130,7 @@ public class PaEncTsEncDecoderTest
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
 
-        krbDecoder.decode( stream, paEncTsEncContainer );
+        Asn1Decoder.decode( stream, paEncTsEncContainer );
         fail();
     }
 
@@ -140,7 +138,6 @@ public class PaEncTsEncDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodePaEncTsEncEmptyPaTimestamp() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 4 );
 
@@ -154,7 +151,7 @@ public class PaEncTsEncDecoderTest
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
 
-        krbDecoder.decode( stream, paEncTsEncContainer );
+        Asn1Decoder.decode( stream, paEncTsEncContainer );
         fail();
     }
 
@@ -162,7 +159,6 @@ public class PaEncTsEncDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrNullPaTimestamp() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 6 );
 
@@ -177,7 +173,7 @@ public class PaEncTsEncDecoderTest
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
 
-        krbDecoder.decode( stream, paEncTsEncContainer );
+        Asn1Decoder.decode( stream, paEncTsEncContainer );
         fail();
     }
 
@@ -185,7 +181,6 @@ public class PaEncTsEncDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrNoPaTimestamp() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
@@ -202,7 +197,7 @@ public class PaEncTsEncDecoderTest
 
         PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
 
-        krbDecoder.decode( stream, paEncTsEncContainer );
+        Asn1Decoder.decode( stream, paEncTsEncContainer );
         fail();
     }
 
@@ -210,7 +205,6 @@ public class PaEncTsEncDecoderTest
     @Test
     public void testDecodePaEncTsEncNoPaUsec()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x15 );
 
@@ -244,7 +238,7 @@ public class PaEncTsEncDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, paEncTsEncContainer );
+            Asn1Decoder.decode( stream, paEncTsEncContainer );
         }
         catch ( DecoderException de )
         {

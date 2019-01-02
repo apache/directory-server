@@ -52,7 +52,6 @@ public class EncAsRepPartDecoderTest
     @Test
     public void testDecodeFullEncAsRepPart() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xA2 );
 
@@ -111,7 +110,7 @@ public class EncAsRepPartDecoderTest
         // Decode the EncAsRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encAsRepPartContainer );
+            Asn1Decoder.decode( stream, encAsRepPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -149,7 +148,6 @@ public class EncAsRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncAsRepPartEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -162,7 +160,7 @@ public class EncAsRepPartDecoderTest
         Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 
         // Decode the EncAsRepPart PDU
-        kerberosDecoder.decode( stream, encAsRepPartContainer );
+        Asn1Decoder.decode( stream, encAsRepPartContainer );
         fail();
     }
 
@@ -173,7 +171,6 @@ public class EncAsRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncAsRepPartEmptyEncKdcRepPart() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -189,7 +186,7 @@ public class EncAsRepPartDecoderTest
         Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 
         // Decode the EncAsRepPart PDU
-        kerberosDecoder.decode( stream, encAsRepPartContainer );
+        Asn1Decoder.decode( stream, encAsRepPartContainer );
         fail();
     }
 }

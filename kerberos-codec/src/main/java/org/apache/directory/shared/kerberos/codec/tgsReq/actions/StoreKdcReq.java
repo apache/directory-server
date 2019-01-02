@@ -73,8 +73,6 @@ public class StoreKdcReq extends GrammarAction<TgsReqContainer>
         }
 
         // Now, let's decode the KDC-REQ
-        Asn1Decoder kdcReqDecoder = new Asn1Decoder();
-
         KdcReqContainer kdcReqContainer = new KdcReqContainer( tgsReqContainer.getStream() );
 
         // Store the created TGS-REQ object into the KDC-REQ container
@@ -82,7 +80,7 @@ public class StoreKdcReq extends GrammarAction<TgsReqContainer>
         kdcReqContainer.setKdcReq( tgsReq );
 
         // Decode the KDC_REQ PDU
-        kdcReqDecoder.decode( tgsReqContainer.getStream(), kdcReqContainer );
+        Asn1Decoder.decode( tgsReqContainer.getStream(), kdcReqContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

@@ -79,7 +79,7 @@ public class KerberosDecoder
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
 
-    public static Object decode( KerberosMessageContainer kerberosMessageContainer, Asn1Decoder asn1Decoder ) throws DecoderException
+    public static Object decode( KerberosMessageContainer kerberosMessageContainer ) throws DecoderException
     {
         ByteBuffer buf = kerberosMessageContainer.getStream();
         
@@ -104,7 +104,7 @@ public class KerberosDecoder
         {
             try
             {
-                asn1Decoder.decode( buf, kerberosMessageContainer );
+                Asn1Decoder.decode( buf, kerberosMessageContainer );
                 
                 if ( kerberosMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
                 {
@@ -146,12 +146,10 @@ public class KerberosDecoder
         // Allocate a EncryptedData Container
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the EncryptedData PDU
         try
         {
-            kerberosDecoder.decode( stream, encryptedDataContainer );
+            Asn1Decoder.decode( stream, encryptedDataContainer );
         }
         catch ( DecoderException de )
         {
@@ -179,12 +177,10 @@ public class KerberosDecoder
         // Allocate a PaEncTsEnc Container
         Asn1Container paEncTsEncContainer = new PaEncTsEncContainer();
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the PaEncTsEnc PDU
         try
         {
-            kerberosDecoder.decode( stream, paEncTsEncContainer );
+            Asn1Decoder.decode( stream, paEncTsEncContainer );
         }
         catch ( DecoderException de )
         {
@@ -212,12 +208,10 @@ public class KerberosDecoder
         // Allocate a EncApRepPart Container
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the EncApRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encApRepPartContainer );
+            Asn1Decoder.decode( stream, encApRepPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -245,12 +239,10 @@ public class KerberosDecoder
         // Allocate a EncKdcRepPart Container
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the EncKdcRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encKdcRepPartContainer );
+            Asn1Decoder.decode( stream, encKdcRepPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -278,12 +270,10 @@ public class KerberosDecoder
         // Allocate a EncKrbPrivPart Container
         Asn1Container encKrbPrivPartContainer = new EncKrbPrivPartContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the EncKrbPrivPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encKrbPrivPartContainer );
+            Asn1Decoder.decode( stream, encKrbPrivPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -311,12 +301,10 @@ public class KerberosDecoder
         // Allocate a EncTicketPart Container
         Asn1Container encTicketPartContainer = new EncTicketPartContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the EncTicketPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encTicketPartContainer );
+            Asn1Decoder.decode( stream, encTicketPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -344,12 +332,10 @@ public class KerberosDecoder
         // Allocate a EncryptionKey Container
         Asn1Container encryptionKeyContainer = new EncryptionKeyContainer();
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the EncryptionKey PDU
         try
         {
-            kerberosDecoder.decode( stream, encryptionKeyContainer );
+            Asn1Decoder.decode( stream, encryptionKeyContainer );
         }
         catch ( DecoderException de )
         {
@@ -377,12 +363,10 @@ public class KerberosDecoder
         // Allocate a PrincipalName Container
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the PrincipalName PDU
         try
         {
-            kerberosDecoder.decode( stream, principalNameContainer );
+            Asn1Decoder.decode( stream, principalNameContainer );
         }
         catch ( DecoderException de )
         {
@@ -410,12 +394,10 @@ public class KerberosDecoder
         // Allocate a Ticket Container
         Asn1Container ticketContainer = new TicketContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the Ticket PDU
         try
         {
-            kerberosDecoder.decode( stream, ticketContainer );
+            Asn1Decoder.decode( stream, ticketContainer );
         }
         catch ( DecoderException de )
         {
@@ -443,12 +425,10 @@ public class KerberosDecoder
         // Allocate a Authenticator Container
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the Ticket PDU
         try
         {
-            kerberosDecoder.decode( stream, authenticatorContainer );
+            Asn1Decoder.decode( stream, authenticatorContainer );
         }
         catch ( DecoderException de )
         {
@@ -476,12 +456,10 @@ public class KerberosDecoder
         // Allocate a AuthorizationData Container
         Asn1Container authorizationDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the Ticket PDU
         try
         {
-            kerberosDecoder.decode( stream, authorizationDataContainer );
+            Asn1Decoder.decode( stream, authorizationDataContainer );
         }
         catch ( DecoderException de )
         {
@@ -509,12 +487,10 @@ public class KerberosDecoder
         // Allocate a ApRep Container
         Asn1Container apRepContainer = new ApRepContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the ApRep PDU
         try
         {
-            kerberosDecoder.decode( stream, apRepContainer );
+            Asn1Decoder.decode( stream, apRepContainer );
         }
         catch ( DecoderException de )
         {
@@ -542,12 +518,10 @@ public class KerberosDecoder
         // Allocate a ApReq Container
         Asn1Container apReqContainer = new ApReqContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the ApReq PDU
         try
         {
-            kerberosDecoder.decode( stream, apReqContainer );
+            Asn1Decoder.decode( stream, apReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -575,12 +549,10 @@ public class KerberosDecoder
         // Allocate a KrbPriv Container
         Asn1Container krbPrivContainer = new KrbPrivContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the KrbPriv PDU
         try
         {
-            kerberosDecoder.decode( stream, krbPrivContainer );
+            Asn1Decoder.decode( stream, krbPrivContainer );
         }
         catch ( DecoderException de )
         {
@@ -608,12 +580,10 @@ public class KerberosDecoder
         // Allocate a EncAsRepPart Container
         Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the EncAsRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encAsRepPartContainer );
+            Asn1Decoder.decode( stream, encAsRepPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -641,12 +611,10 @@ public class KerberosDecoder
         // Allocate a EncTgsRepPart Container
         Asn1Container encTgsRepPartContainer = new EncTgsRepPartContainer( stream );
 
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         // Decode the EncTgsRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encTgsRepPartContainer );
+            Asn1Decoder.decode( stream, encTgsRepPartContainer );
         }
         catch ( DecoderException de )
         {

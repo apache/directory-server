@@ -29,7 +29,6 @@ import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.Asn1Object;
-import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
@@ -675,7 +674,7 @@ public class KdcConnection
         kerberosMessageContainer.setGathering( true );
         kerberosMessageContainer.setTCP( channel.isUseTcp() );
 
-        return ( KerberosMessage ) KerberosDecoder.decode( kerberosMessageContainer, new Asn1Decoder() );
+        return ( KerberosMessage ) KerberosDecoder.decode( kerberosMessageContainer );
     }
 
 

@@ -82,13 +82,11 @@ public abstract class AbstractReadEncryptedPart<E extends Asn1Container> extends
         }
 
         // Now, let's decode the PrincipalName
-        Asn1Decoder encryptedDataDecoder = new Asn1Decoder();
-
         EncryptedDataContainer encryptedDataContainer = new EncryptedDataContainer();
         encryptedDataContainer.setStream( container.getStream() );
 
         // Decode the Ticket PDU
-        encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
+        Asn1Decoder.decode( container.getStream(), encryptedDataContainer );
 
         EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
 

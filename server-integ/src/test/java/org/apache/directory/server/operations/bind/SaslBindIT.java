@@ -38,7 +38,7 @@ import org.apache.commons.net.SocketClient;
 import org.apache.directory.api.asn1.util.Asn1Buffer;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapEncoder;
-import org.apache.directory.api.ldap.codec.api.LdapMessageContainerDirect;
+import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
@@ -711,7 +711,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // Send encoded request to server
             Asn1Buffer buffer = new Asn1Buffer();
-            ByteBuffer bb = LdapEncoder.encodeMessageReverse( buffer, getService().getLdapCodecService(), request );
+            ByteBuffer bb = LdapEncoder.encodeMessage( buffer, getService().getLdapCodecService(), request );
 
             bb.flip();
 
@@ -724,7 +724,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainerDirect<? extends Message> container = new LdapMessageContainerDirect(
+            LdapMessageContainer<? extends Message> container = new LdapMessageContainer(
                 ldapServer.getDirectoryService().getLdapCodecService() );
             
             return ( BindResponse ) decoder.decode( _input_, container );
@@ -752,7 +752,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
             // Send encoded request to server
             Asn1Buffer buffer = new Asn1Buffer();
-            ByteBuffer bb = LdapEncoder.encodeMessageReverse( buffer, getService().getLdapCodecService(), request );
+            ByteBuffer bb = LdapEncoder.encodeMessage( buffer, getService().getLdapCodecService(), request );
             bb.flip();
 
             _output_.write( bb.array() );
@@ -764,7 +764,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainerDirect<? extends Message> container = new LdapMessageContainerDirect(
+            LdapMessageContainer<? extends Message> container = new LdapMessageContainer(
                 ldapServer.getDirectoryService().getLdapCodecService() );
             
             return ( BindResponse ) decoder.decode( _input_, container );

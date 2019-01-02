@@ -64,8 +64,6 @@ public class AdKdcIssuedDecoderTest
     @Test
     public void testDecodeAdKdcIssued()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x60 );
 
         stream.put( new byte[]
@@ -174,7 +172,7 @@ public class AdKdcIssuedDecoderTest
         // Decode the AdKdcIssued PDU
         try
         {
-            kerberosDecoder.decode( stream, adKdcIssuedContainer );
+            Asn1Decoder.decode( stream, adKdcIssuedContainer );
         }
         catch ( DecoderException de )
         {
@@ -241,8 +239,6 @@ public class AdKdcIssuedDecoderTest
     @Test
     public void testDecodeAdKdcIssuedNoOptionalFields()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x3B );
 
         stream.put( new byte[]
@@ -314,7 +310,7 @@ public class AdKdcIssuedDecoderTest
         // Decode the AdKdcIssued PDU
         try
         {
-            kerberosDecoder.decode( stream, adKdcIssuedContainer );
+            Asn1Decoder.decode( stream, adKdcIssuedContainer );
         }
         catch ( DecoderException de )
         {
@@ -381,8 +377,6 @@ public class AdKdcIssuedDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmpty() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
         stream.put( new byte[]
@@ -395,6 +389,6 @@ public class AdKdcIssuedDecoderTest
         adKdcIssuedContainer.setStream( stream );
 
         // Decode the AdKDCIssued PDU
-        kerberosDecoder.decode( stream, adKdcIssuedContainer );
+        Asn1Decoder.decode( stream, adKdcIssuedContainer );
     }
 }

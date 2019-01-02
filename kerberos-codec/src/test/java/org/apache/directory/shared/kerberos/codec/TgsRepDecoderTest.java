@@ -52,7 +52,6 @@ public class TgsRepDecoderTest
     @Test
     public void testDecodeFullTgsRep() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xAC );
 
@@ -235,7 +234,7 @@ public class TgsRepDecoderTest
         // Decode the TgsRep PDU
         try
         {
-            kerberosDecoder.decode( stream, tgsRepContainer );
+            Asn1Decoder.decode( stream, tgsRepContainer );
         }
         catch ( DecoderException de )
         {
@@ -273,7 +272,6 @@ public class TgsRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testTgsRepEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -286,7 +284,7 @@ public class TgsRepDecoderTest
         Asn1Container tgsRepContainer = new TgsRepContainer( stream );
 
         // Decode the TGS-REP PDU
-        kerberosDecoder.decode( stream, tgsRepContainer );
+        Asn1Decoder.decode( stream, tgsRepContainer );
         fail();
     }
 
@@ -297,7 +295,6 @@ public class TgsRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testTgsRepEmptyPvnoTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -313,7 +310,7 @@ public class TgsRepDecoderTest
         Asn1Container tgsRepContainer = new TgsRepContainer( stream );
 
         // Decode the TGS-REP PDU
-        kerberosDecoder.decode( stream, tgsRepContainer );
+        Asn1Decoder.decode( stream, tgsRepContainer );
         fail();
     }
 
@@ -324,7 +321,6 @@ public class TgsRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testTgsRepEmptyPvnoValue() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -341,7 +337,7 @@ public class TgsRepDecoderTest
         Asn1Container tgsRepContainer = new TgsRepContainer( stream );
 
         // Decode the TGS-REP PDU
-        kerberosDecoder.decode( stream, tgsRepContainer );
+        Asn1Decoder.decode( stream, tgsRepContainer );
         fail();
     }
 }

@@ -49,7 +49,6 @@ public class LastReqDecoderTest
     @Test
     public void testLastReqData()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x36 );
 
@@ -116,7 +115,7 @@ public class LastReqDecoderTest
         // Decode the LastReq PDU
         try
         {
-            kerberosDecoder.decode( stream, lastReqContainer );
+            Asn1Decoder.decode( stream, lastReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -163,7 +162,6 @@ public class LastReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testLastReqWithoutType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x15 );
 
@@ -194,7 +192,7 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        kerberosDecoder.decode( stream, lastReqContainer );
+        Asn1Decoder.decode( stream, lastReqContainer );
         fail();
     }
 
@@ -202,7 +200,6 @@ public class LastReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testLastReqWithoutValue() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
@@ -218,7 +215,7 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        kerberosDecoder.decode( stream, lastReqContainer );
+        Asn1Decoder.decode( stream, lastReqContainer );
         fail();
     }
 
@@ -226,7 +223,6 @@ public class LastReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testLastReqWithIncorrectPdu() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -237,7 +233,7 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        kerberosDecoder.decode( stream, lastReqContainer );
+        Asn1Decoder.decode( stream, lastReqContainer );
         fail();
     }
 
@@ -245,7 +241,6 @@ public class LastReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testLastReqWithEmptyValue() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xB );
 
@@ -266,7 +261,7 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        kerberosDecoder.decode( stream, lastReqContainer );
+        Asn1Decoder.decode( stream, lastReqContainer );
         fail();
     }
 
@@ -274,7 +269,6 @@ public class LastReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testLastReqWithEmptyType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x19 );
 
@@ -309,7 +303,7 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        kerberosDecoder.decode( stream, lastReqContainer );
+        Asn1Decoder.decode( stream, lastReqContainer );
         fail();
     }
 }

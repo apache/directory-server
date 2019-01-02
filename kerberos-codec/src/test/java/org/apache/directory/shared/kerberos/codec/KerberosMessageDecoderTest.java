@@ -55,8 +55,6 @@ public class KerberosMessageDecoderTest
     @Test
     public void testDecodeKerberosMessages() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x21 );
 
         stream.put( new byte[]
@@ -102,7 +100,7 @@ public class KerberosMessageDecoderTest
         // Decode the ApRep PDU
         try
         {
-            kerberosDecoder.decode( stream, kerberosMessageContainer );
+            Asn1Decoder.decode( stream, kerberosMessageContainer );
         }
         catch ( DecoderException de )
         {
@@ -273,7 +271,7 @@ public class KerberosMessageDecoderTest
         // Decode the TgsReq PDU
         try
         {
-            kerberosDecoder.decode( stream, tgsReqContainer );
+            Asn1Decoder.decode( stream, tgsReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -445,7 +443,7 @@ public class KerberosMessageDecoderTest
         // Decode the AsReq PDU
         try
         {
-            kerberosDecoder.decode( stream, asReqContainer );
+            Asn1Decoder.decode( stream, asReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -537,7 +535,7 @@ public class KerberosMessageDecoderTest
         // Decode the AsReq PDU
         try
         {
-            kerberosDecoder.decode( stream, asReqContainer );
+            Asn1Decoder.decode( stream, asReqContainer );
         }
         catch ( DecoderException de )
         {

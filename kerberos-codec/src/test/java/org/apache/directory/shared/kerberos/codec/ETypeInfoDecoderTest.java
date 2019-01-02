@@ -58,7 +58,6 @@ public class ETypeInfoDecoderTest
     @Test
     public void testETypeInfo()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x20 );
 
@@ -105,7 +104,7 @@ public class ETypeInfoDecoderTest
         // Decode the ETypeInfo PDU
         try
         {
-            kerberosDecoder.decode( stream, etypeInfoContainer );
+            Asn1Decoder.decode( stream, etypeInfoContainer );
         }
         catch ( DecoderException de )
         {
@@ -155,7 +154,6 @@ public class ETypeInfoDecoderTest
     @Test(expected = DecoderException.class)
     public void testETypeInfoEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -168,7 +166,7 @@ public class ETypeInfoDecoderTest
         Asn1Container etypeInfoContainer = new ETypeInfoContainer();
 
         // Decode the ETypeInfo PDU
-        kerberosDecoder.decode( stream, etypeInfoContainer );
+        Asn1Decoder.decode( stream, etypeInfoContainer );
         fail();
     }
 
@@ -179,7 +177,6 @@ public class ETypeInfoDecoderTest
     @Test(expected = DecoderException.class)
     public void testETypeInfoNoETypeInfoEntry() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -195,7 +192,7 @@ public class ETypeInfoDecoderTest
         Asn1Container etypeInfoContainer = new ETypeInfoContainer();
 
         // Decode the ETypeInfo PDU
-        kerberosDecoder.decode( stream, etypeInfoContainer );
+        Asn1Decoder.decode( stream, etypeInfoContainer );
         fail();
     }
 }

@@ -81,12 +81,10 @@ public abstract class AbstractReadPrincipalName<E extends Asn1Container> extends
         }
 
         // Now, let's decode the PrincipalName
-        Asn1Decoder principalNameDecoder = new Asn1Decoder();
-
         PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        principalNameDecoder.decode( container.getStream(), principalNameContainer );
+        Asn1Decoder.decode( container.getStream(), principalNameContainer );
 
         PrincipalName principalName = principalNameContainer.getPrincipalName();
 

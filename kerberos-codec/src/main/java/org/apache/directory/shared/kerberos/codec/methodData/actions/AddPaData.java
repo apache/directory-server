@@ -72,8 +72,6 @@ public class AddPaData extends GrammarAction<MethodDataContainer>
         }
 
         // Now, let's decode the PA-DATA
-        Asn1Decoder paDataDecoder = new Asn1Decoder();
-
         PaDataContainer paDataContainer = new PaDataContainer();
         paDataContainer.setStream( methodDataContainer.getStream() );
 
@@ -82,7 +80,7 @@ public class AddPaData extends GrammarAction<MethodDataContainer>
         methodDataContainer.rewind();
 
         // Decode the PA-DATA PDU
-        paDataDecoder.decode( methodDataContainer.getStream(), paDataContainer );
+        Asn1Decoder.decode( methodDataContainer.getStream(), paDataContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

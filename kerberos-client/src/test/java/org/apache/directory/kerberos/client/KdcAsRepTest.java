@@ -180,10 +180,9 @@ public class KdcAsRepTest extends AbstractLdapTestUnit
             stream.put( eData );
             stream.flip();
             
-            Asn1Decoder decoder = new Asn1Decoder();
             MethodDataContainer container = new MethodDataContainer();
             container.setStream( stream );
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
             MethodData padata = container.getMethodData();
             assertEquals( 2, padata.getPaDatas().length );
             assertEquals( PaDataType.PA_ENCTYPE_INFO2, padata.getPaDatas()[1].getPaDataType() );

@@ -48,7 +48,6 @@ public class EncryptionKeyDecoderTest
     @Test
     public void testDecodeFullEncryptionKey()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
@@ -78,7 +77,7 @@ public class EncryptionKeyDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException de )
         {
@@ -115,7 +114,6 @@ public class EncryptionKeyDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncryptionKeyWithEmptySeq() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -128,7 +126,7 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -136,7 +134,6 @@ public class EncryptionKeyDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncryptionKeyEmptyKeyTypeTag() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -150,7 +147,7 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -158,7 +155,6 @@ public class EncryptionKeyDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncryptionKeyEmptyKeyTypeValue() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -173,7 +169,7 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -181,7 +177,6 @@ public class EncryptionKeyDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncryptionKeyWithoutType() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0C );
 
@@ -203,7 +198,7 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer chkContainer = new EncryptionKeyContainer();
 
-        krbDecoder.decode( stream, chkContainer );
+        Asn1Decoder.decode( stream, chkContainer );
         fail();
     }
 
@@ -211,7 +206,6 @@ public class EncryptionKeyDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeChecksumWithoutEncryptionKeyValue() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
@@ -228,7 +222,7 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -236,7 +230,6 @@ public class EncryptionKeyDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeChecksumWitEmptyEncryptionKeyTag() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
@@ -255,7 +248,7 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -263,7 +256,6 @@ public class EncryptionKeyDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeChecksumWitEmptyEncryptionKeyValue() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
@@ -284,7 +276,7 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 }

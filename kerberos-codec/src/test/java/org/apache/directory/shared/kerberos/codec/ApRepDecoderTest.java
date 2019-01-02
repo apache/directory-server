@@ -52,7 +52,6 @@ public class ApRepDecoderTest
     @Test
     public void testDecodeFullApRep() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x21 );
 
@@ -98,7 +97,7 @@ public class ApRepDecoderTest
         // Decode the ApRep PDU
         try
         {
-            kerberosDecoder.decode( stream, apRepContainer );
+            Asn1Decoder.decode( stream, apRepContainer );
         }
         catch ( DecoderException de )
         {
@@ -136,7 +135,6 @@ public class ApRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeFullApRepWrongMsgType() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x21 );
 
@@ -180,7 +178,7 @@ public class ApRepDecoderTest
         ApRepContainer apRepContainer = new ApRepContainer( stream );
 
         // Decode the ApRep PDU
-        kerberosDecoder.decode( stream, apRepContainer );
+        Asn1Decoder.decode( stream, apRepContainer );
         fail();
     }
 
@@ -191,7 +189,6 @@ public class ApRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testApRepEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -204,7 +201,7 @@ public class ApRepDecoderTest
         Asn1Container apRepContainer = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
-        kerberosDecoder.decode( stream, apRepContainer );
+        Asn1Decoder.decode( stream, apRepContainer );
         fail();
     }
 
@@ -215,7 +212,6 @@ public class ApRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testApRepEmptSEQ() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -231,7 +227,7 @@ public class ApRepDecoderTest
         Asn1Container apRepContainer = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
-        kerberosDecoder.decode( stream, apRepContainer );
+        Asn1Decoder.decode( stream, apRepContainer );
         fail();
     }
 
@@ -242,7 +238,6 @@ public class ApRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testApRepEmptyPvnoTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -259,7 +254,7 @@ public class ApRepDecoderTest
         Asn1Container apRepContainer = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
-        kerberosDecoder.decode( stream, apRepContainer );
+        Asn1Decoder.decode( stream, apRepContainer );
         fail();
     }
 
@@ -270,7 +265,6 @@ public class ApRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testAsRepEmptyPvnoValue() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x08 );
 
@@ -288,7 +282,7 @@ public class ApRepDecoderTest
         Asn1Container apRepContainer = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
-        kerberosDecoder.decode( stream, apRepContainer );
+        Asn1Decoder.decode( stream, apRepContainer );
         fail();
     }
 }

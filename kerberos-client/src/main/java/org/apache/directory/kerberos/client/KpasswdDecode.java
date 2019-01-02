@@ -22,7 +22,6 @@ package org.apache.directory.kerberos.client;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.server.kerberos.changepwd.io.ChangePasswordDecoder;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordReply;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordRequest;
@@ -68,7 +67,7 @@ public abstract class KpasswdDecode
         kerberosMessageContainer.setGathering( true );
         kerberosMessageContainer.setTCP( false );
 
-        AsRep asReply = ( AsRep ) KerberosDecoder.decode( kerberosMessageContainer, new Asn1Decoder() );
+        AsRep asReply = ( AsRep ) KerberosDecoder.decode( kerberosMessageContainer );
 
         System.out.println( asReply );
         byte[] decryptedEncAsRepPart = cipherTextHandler.decrypt( clientKey, asReply.getEncPart(),

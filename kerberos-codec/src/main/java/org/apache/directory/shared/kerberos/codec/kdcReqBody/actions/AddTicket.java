@@ -73,15 +73,13 @@ public class AddTicket extends GrammarAction<KdcReqBodyContainer>
         }
 
         // Now, let's decode the Ticket
-        Asn1Decoder ticketDecoder = new Asn1Decoder();
-
         TicketContainer ticketContainer = new TicketContainer( kdcReqBodyContainer.getStream() );
 
         // We have to move back to the Ticket tag
         kdcReqBodyContainer.rewind();
 
         // Decode the Ticket PDU
-        ticketDecoder.decode( kdcReqBodyContainer.getStream(), ticketContainer );
+        Asn1Decoder.decode( kdcReqBodyContainer.getStream(), ticketContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

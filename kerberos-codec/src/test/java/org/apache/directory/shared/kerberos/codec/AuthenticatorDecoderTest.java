@@ -53,7 +53,6 @@ public class AuthenticatorDecoderTest
     @Test
     public void testDecodeFullAuthenticator() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x95 );
 
@@ -214,7 +213,7 @@ public class AuthenticatorDecoderTest
         // Decode the Authenticator PDU
         try
         {
-            kerberosDecoder.decode( stream, authenticatorContainer );
+            Asn1Decoder.decode( stream, authenticatorContainer );
         }
         catch ( DecoderException de )
         {
@@ -253,7 +252,6 @@ public class AuthenticatorDecoderTest
     @Test(expected = DecoderException.class)
     public void testAuthenticatorEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -266,7 +264,7 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        kerberosDecoder.decode( stream, authenticatorContainer );
+        Asn1Decoder.decode( stream, authenticatorContainer );
         fail();
     }
 
@@ -277,7 +275,6 @@ public class AuthenticatorDecoderTest
     @Test(expected = DecoderException.class)
     public void testKdcReqBodyEmptySequence() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -293,7 +290,7 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        kerberosDecoder.decode( stream, authenticatorContainer );
+        Asn1Decoder.decode( stream, authenticatorContainer );
         fail();
     }
 
@@ -304,7 +301,6 @@ public class AuthenticatorDecoderTest
     @Test(expected = DecoderException.class)
     public void testKdcReqBodyEmptyAuthenticatorTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -321,7 +317,7 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        kerberosDecoder.decode( stream, authenticatorContainer );
+        Asn1Decoder.decode( stream, authenticatorContainer );
         fail();
     }
 
@@ -332,7 +328,6 @@ public class AuthenticatorDecoderTest
     @Test(expected = DecoderException.class)
     public void testKdcReqBodyEmptyAuthenticatorValue() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x08 );
 
@@ -350,7 +345,7 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        kerberosDecoder.decode( stream, authenticatorContainer );
+        Asn1Decoder.decode( stream, authenticatorContainer );
         fail();
     }
 
@@ -361,7 +356,6 @@ public class AuthenticatorDecoderTest
     @Test(expected = DecoderException.class)
     public void testKdcReqBodyNoOptions() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x152 );
 
@@ -479,7 +473,7 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        kerberosDecoder.decode( stream, authenticatorContainer );
+        Asn1Decoder.decode( stream, authenticatorContainer );
         fail();
     }
 }

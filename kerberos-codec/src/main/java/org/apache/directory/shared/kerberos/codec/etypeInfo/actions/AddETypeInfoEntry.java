@@ -72,8 +72,6 @@ public class AddETypeInfoEntry extends GrammarAction<ETypeInfoContainer>
         }
 
         // Now, let's decode the ETYPE-INFO-ENTRY
-        Asn1Decoder etypeInfoEntryDecoder = new Asn1Decoder();
-
         ETypeInfoEntryContainer etypeInfoEntryContainer = new ETypeInfoEntryContainer();
         etypeInfoEntryContainer.setStream( eTypeInfoContainer.getStream() );
 
@@ -82,7 +80,7 @@ public class AddETypeInfoEntry extends GrammarAction<ETypeInfoContainer>
         eTypeInfoContainer.rewind();
 
         // Decode the ETypeInfoEntry PDU
-        etypeInfoEntryDecoder.decode( eTypeInfoContainer.getStream(), etypeInfoEntryContainer );
+        Asn1Decoder.decode( eTypeInfoContainer.getStream(), etypeInfoEntryContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

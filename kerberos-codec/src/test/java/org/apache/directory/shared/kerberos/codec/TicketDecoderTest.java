@@ -59,7 +59,6 @@ public class TicketDecoderTest
     @Test
     public void testDecodeFullTicket()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x46 );
 
@@ -144,7 +143,7 @@ public class TicketDecoderTest
         // Decode the Ticket PDU
         try
         {
-            kerberosDecoder.decode( stream, ticketContainer );
+            Asn1Decoder.decode( stream, ticketContainer );
         }
         catch ( DecoderException de )
         {
@@ -196,7 +195,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmpty() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -209,7 +207,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -219,7 +217,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptySEQ() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -235,7 +232,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -245,7 +242,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyTktVnoTag() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -262,7 +258,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -272,7 +268,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyTktVnoValue() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x08 );
 
@@ -290,7 +285,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -300,7 +295,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketBadTktVnoValue() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
@@ -318,7 +312,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -328,7 +322,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketNoRealm() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
@@ -346,7 +339,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -356,7 +349,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyRealmTag() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
@@ -375,7 +367,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -385,7 +377,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyRealmValue() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0D );
 
@@ -405,7 +396,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -415,7 +406,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketNoSname() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x18 );
 
@@ -435,7 +425,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -445,7 +435,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptySnameTag() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x1A );
 
@@ -466,7 +455,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -476,7 +465,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptySnameValue() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x1C );
 
@@ -498,7 +486,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -508,7 +496,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketBadSName() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x20 );
 
@@ -553,7 +540,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -563,7 +550,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketNoEncPart() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x2E );
 
@@ -622,7 +608,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -632,7 +618,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyEncPartTag() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x30 );
 
@@ -693,7 +678,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -703,7 +688,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketEmptyEncPart() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x32 );
 
@@ -766,7 +750,7 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 
 
@@ -776,7 +760,6 @@ public class TicketDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeTicketBadEncPart() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x34 );
 
@@ -841,6 +824,6 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        kerberosDecoder.decode( stream, ticketContainer );
+        Asn1Decoder.decode( stream, ticketContainer );
     }
 }

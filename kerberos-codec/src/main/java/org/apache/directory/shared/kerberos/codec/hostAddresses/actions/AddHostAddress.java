@@ -72,8 +72,6 @@ public class AddHostAddress extends GrammarAction<HostAddressesContainer>
         }
 
         // Now, let's decode the HostAddress
-        Asn1Decoder hostAddressDecoder = new Asn1Decoder();
-
         HostAddressContainer hostAddressContainer = new HostAddressContainer();
         hostAddressContainer.setStream( hostAddressesContainer.getStream() );
 
@@ -82,7 +80,7 @@ public class AddHostAddress extends GrammarAction<HostAddressesContainer>
         hostAddressesContainer.rewind();
 
         // Decode the HostAddress PDU
-        hostAddressDecoder.decode( hostAddressesContainer.getStream(), hostAddressContainer );
+        Asn1Decoder.decode( hostAddressesContainer.getStream(), hostAddressContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

@@ -57,7 +57,6 @@ public class TransitedEncodingDecoderTest
     @Test
     public void testTransitedEncoding()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
         int len = 0x11;
 
         ByteBuffer stream = ByteBuffer.allocate( len );
@@ -89,7 +88,7 @@ public class TransitedEncodingDecoderTest
         // Decode the TransitedEncoding PDU
         try
         {
-            kerberosDecoder.decode( stream, transitedEncodingContainer );
+            Asn1Decoder.decode( stream, transitedEncodingContainer );
         }
         catch ( DecoderException de )
         {
@@ -130,8 +129,6 @@ public class TransitedEncodingDecoderTest
     @Test(expected = DecoderException.class)
     public void testTransitedEncodingEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
         stream.put( new byte[]
@@ -143,7 +140,7 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        kerberosDecoder.decode( stream, transitedEncodingContainer );
+        Asn1Decoder.decode( stream, transitedEncodingContainer );
         fail();
     }
 
@@ -154,8 +151,6 @@ public class TransitedEncodingDecoderTest
     @Test(expected = DecoderException.class)
     public void testTransitedEncodingEmptyTrTypeTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
         stream.put( new byte[]
@@ -169,7 +164,7 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        kerberosDecoder.decode( stream, transitedEncodingContainer );
+        Asn1Decoder.decode( stream, transitedEncodingContainer );
         fail();
     }
 
@@ -180,8 +175,6 @@ public class TransitedEncodingDecoderTest
     @Test(expected = DecoderException.class)
     public void testTransitedEncodingNoTrType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
         stream.put( new byte[]
@@ -197,7 +190,7 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        kerberosDecoder.decode( stream, transitedEncodingContainer );
+        Asn1Decoder.decode( stream, transitedEncodingContainer );
         fail();
     }
 
@@ -208,8 +201,6 @@ public class TransitedEncodingDecoderTest
     @Test(expected = DecoderException.class)
     public void testTransitedEncodingNoTrTypeTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
         stream.put( new byte[]
@@ -225,7 +216,7 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        kerberosDecoder.decode( stream, transitedEncodingContainer );
+        Asn1Decoder.decode( stream, transitedEncodingContainer );
         fail();
     }
 
@@ -236,8 +227,6 @@ public class TransitedEncodingDecoderTest
     @Test(expected = DecoderException.class)
     public void testTransitedEncodingEmptyContentsTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
         stream.put( new byte[]
@@ -256,7 +245,7 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        kerberosDecoder.decode( stream, transitedEncodingContainer );
+        Asn1Decoder.decode( stream, transitedEncodingContainer );
         fail();
     }
 
@@ -267,8 +256,6 @@ public class TransitedEncodingDecoderTest
     @Test(expected = DecoderException.class)
     public void testTransitedEncodingBadTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x0C );
 
         stream.put( new byte[]
@@ -290,7 +277,7 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        kerberosDecoder.decode( stream, transitedEncodingContainer );
+        Asn1Decoder.decode( stream, transitedEncodingContainer );
         fail();
     }
 }

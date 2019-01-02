@@ -64,15 +64,13 @@ public class StoreTickets extends GrammarAction<KrbCredContainer>
         }
 
         // decoder for Ticket
-        Asn1Decoder decoder = new Asn1Decoder();
-
         // Ticket container
         TicketContainer ticketContainer = new TicketContainer( krbCredContainer.getStream() );
 
         krbCredContainer.rewind();
 
         // decode Ticket
-        decoder.decode( krbCredContainer.getStream(), ticketContainer );
+        Asn1Decoder.decode( krbCredContainer.getStream(), ticketContainer );
 
         Ticket ticket = ticketContainer.getTicket();
         // add Ticket to the list of tickets

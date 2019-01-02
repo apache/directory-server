@@ -80,10 +80,9 @@ public class KdcClientUtil
         {
             ByteBuffer stream = ByteBuffer.wrap( error.getEData() );
 
-            Asn1Decoder decoder = new Asn1Decoder();
             MethodDataContainer container = new MethodDataContainer();
             container.setStream( stream );
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
 
             MethodData methodData = container.getMethodData();
 
@@ -113,10 +112,9 @@ public class KdcClientUtil
     {
         ByteBuffer stream = ByteBuffer.wrap( data );
 
-        Asn1Decoder decoder = new Asn1Decoder();
         ETypeInfo2Container container = new ETypeInfo2Container();
         container.setStream( stream );
-        decoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
 
         ETypeInfo2 info2 = container.getETypeInfo2();
 
@@ -135,10 +133,9 @@ public class KdcClientUtil
     {
         ByteBuffer stream = ByteBuffer.wrap( data );
 
-        Asn1Decoder decoder = new Asn1Decoder();
         ETypeInfoContainer container = new ETypeInfoContainer();
         container.setStream( stream );
-        decoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
 
         ETypeInfo einfo = container.getETypeInfo();
 

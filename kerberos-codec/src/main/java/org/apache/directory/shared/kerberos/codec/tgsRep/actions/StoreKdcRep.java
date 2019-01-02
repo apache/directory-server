@@ -73,8 +73,6 @@ public class StoreKdcRep extends GrammarAction<TgsRepContainer>
         }
 
         // Now, let's decode the KDC-REP
-        Asn1Decoder kdcRepDecoder = new Asn1Decoder();
-
         KdcRepContainer kdcRepContainer = new KdcRepContainer( tgsRepContainer.getStream() );
 
         // Store the created TGS-REP object into the KDC-REP container
@@ -82,7 +80,7 @@ public class StoreKdcRep extends GrammarAction<TgsRepContainer>
         kdcRepContainer.setKdcRep( tgsRep );
 
         // Decode the KDC_REP PDU
-        kdcRepDecoder.decode( tgsRepContainer.getStream(), kdcRepContainer );
+        Asn1Decoder.decode( tgsRepContainer.getStream(), kdcRepContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

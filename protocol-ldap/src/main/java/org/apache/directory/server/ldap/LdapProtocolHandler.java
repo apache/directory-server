@@ -21,7 +21,7 @@ package org.apache.directory.server.ldap;
 
 
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
-import org.apache.directory.api.ldap.codec.api.LdapMessageContainerDirect;
+import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.api.ldap.model.message.Control;
@@ -86,8 +86,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
         session.setAttribute( LdapDecoder.MAX_PDU_SIZE_ATTR, ldapServer.getDirectoryService().getMaxPDUSize() );
 
         // Last, store the message container
-        LdapMessageContainerDirect<Message> ldapMessageContainer =
-            new LdapMessageContainerDirect<>(
+        LdapMessageContainer<Message> ldapMessageContainer =
+            new LdapMessageContainer<>(
                 ldapServer.getDirectoryService().getLdapCodecService(),
                 new SchemaBinaryAttributeDetector(
                     ldapServer.getDirectoryService().getSchemaManager() ) );

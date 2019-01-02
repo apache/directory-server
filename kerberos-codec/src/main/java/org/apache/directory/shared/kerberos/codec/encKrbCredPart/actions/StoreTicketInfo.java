@@ -64,8 +64,6 @@ public class StoreTicketInfo extends GrammarAction<EncKrbCredPartContainer>
         }
 
         // decoder for KrbCredInfo
-        Asn1Decoder decoder = new Asn1Decoder();
-
         // KrbCredInfo container
         KrbCredInfoContainer ticketInfoContainer = new KrbCredInfoContainer();
         ticketInfoContainer.setStream( encKrbCredPartContainer.getStream() );
@@ -73,7 +71,7 @@ public class StoreTicketInfo extends GrammarAction<EncKrbCredPartContainer>
         encKrbCredPartContainer.rewind();
 
         // decode KrbCredInfo
-        decoder.decode( encKrbCredPartContainer.getStream(), ticketInfoContainer );
+        Asn1Decoder.decode( encKrbCredPartContainer.getStream(), ticketInfoContainer );
 
         KrbCredInfo ticketInfo = ticketInfoContainer.getKrbCredInfo();
         // add KrbCredInfo to the list of ticket-info

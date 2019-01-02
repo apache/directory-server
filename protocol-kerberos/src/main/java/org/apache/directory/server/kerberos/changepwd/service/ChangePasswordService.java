@@ -266,10 +266,9 @@ public final class ChangePasswordService
             }
             else
             {
-                Asn1Decoder passwordDecoder = new Asn1Decoder();
                 ByteBuffer stream = ByteBuffer.wrap( privatePart.getUserData() );
                 ChangePasswdDataContainer container = new ChangePasswdDataContainer( stream );
-                passwordDecoder.decode( stream, container );
+                Asn1Decoder.decode( stream, container );
                 passwordData = container.getChngPwdData();
             }
         }

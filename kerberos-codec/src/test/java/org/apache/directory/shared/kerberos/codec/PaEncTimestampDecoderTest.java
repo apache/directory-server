@@ -57,7 +57,6 @@ public class PaEncTimestampDecoderTest
     @Test
     public void testPaEncTimestamp()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x16 );
 
@@ -94,7 +93,7 @@ public class PaEncTimestampDecoderTest
         // Decode the PaEncTimestamp PDU
         try
         {
-            kerberosDecoder.decode( stream, paEncTimestampContainer );
+            Asn1Decoder.decode( stream, paEncTimestampContainer );
         }
         catch ( DecoderException de )
         {

@@ -72,12 +72,10 @@ public class StoreEncTgsRepPart extends GrammarAction<EncTgsRepPartContainer>
         }
 
         // Now, let's decode the EncKdcRepPart
-        Asn1Decoder encKdcRepPartDecoder = new Asn1Decoder();
-
         EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer( encTgsRepPartContainer.getStream() );
 
         // Decode the EncKdcRepPart PDU
-        encKdcRepPartDecoder.decode( encTgsRepPartContainer.getStream(), encKdcRepPartContainer );
+        Asn1Decoder.decode( encTgsRepPartContainer.getStream(), encKdcRepPartContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

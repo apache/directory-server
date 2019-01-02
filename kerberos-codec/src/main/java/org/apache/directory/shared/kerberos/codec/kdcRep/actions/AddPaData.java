@@ -73,8 +73,6 @@ public class AddPaData extends GrammarAction<KdcRepContainer>
         }
 
         // Now, let's decode the PA-DATA
-        Asn1Decoder paDataDecoder = new Asn1Decoder();
-
         PaDataContainer paDataContainer = new PaDataContainer();
         paDataContainer.setStream( kdcRepContainer.getStream() );
 
@@ -82,7 +80,7 @@ public class AddPaData extends GrammarAction<KdcRepContainer>
         kdcRepContainer.rewind();
 
         // Decode the PA-DATA PDU
-        paDataDecoder.decode( kdcRepContainer.getStream(), paDataContainer );
+        Asn1Decoder.decode( kdcRepContainer.getStream(), paDataContainer );
 
         // Update the parent
         kdcRepContainer.updateParent();

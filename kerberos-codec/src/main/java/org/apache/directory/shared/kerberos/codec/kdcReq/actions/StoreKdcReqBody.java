@@ -73,12 +73,10 @@ public class StoreKdcReqBody extends GrammarAction<KdcReqContainer>
         }
 
         // Now, let's decode the KDC-REQ-BODY
-        Asn1Decoder kdcReqBodyDecoder = new Asn1Decoder();
-
         KdcReqBodyContainer kdcReqBodyContainer = new KdcReqBodyContainer( kdcReqContainer.getStream() );
 
         // Decode the KDC-REQ-BODY PDU
-        kdcReqBodyDecoder.decode( kdcReqContainer.getStream(), kdcReqBodyContainer );
+        Asn1Decoder.decode( kdcReqContainer.getStream(), kdcReqBodyContainer );
 
         // Store the KDC-REQ-BODY in the container
         KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();

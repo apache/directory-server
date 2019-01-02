@@ -48,7 +48,6 @@ public class ChecksumDecoderTest
     @Test
     public void testDecodeChecksum()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
@@ -78,7 +77,7 @@ public class ChecksumDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, chkContainer );
+            Asn1Decoder.decode( stream, chkContainer );
         }
         catch ( DecoderException de )
         {
@@ -113,7 +112,6 @@ public class ChecksumDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeChecksumWithoutType() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xC );
 
@@ -135,7 +133,7 @@ public class ChecksumDecoderTest
 
         ChecksumContainer chkContainer = new ChecksumContainer();
 
-        krbDecoder.decode( stream, chkContainer );
+        Asn1Decoder.decode( stream, chkContainer );
         fail();
     }
 
@@ -143,7 +141,6 @@ public class ChecksumDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeChecksumWithoutChecksumValue() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
@@ -160,7 +157,7 @@ public class ChecksumDecoderTest
 
         ChecksumContainer chkContainer = new ChecksumContainer();
 
-        krbDecoder.decode( stream, chkContainer );
+        Asn1Decoder.decode( stream, chkContainer );
         fail();
     }
 
@@ -168,7 +165,6 @@ public class ChecksumDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeChecksumWithEmptySeq() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 2 );
 
@@ -181,7 +177,7 @@ public class ChecksumDecoderTest
 
         ChecksumContainer chkContainer = new ChecksumContainer();
 
-        krbDecoder.decode( stream, chkContainer );
+        Asn1Decoder.decode( stream, chkContainer );
         fail();
     }
 

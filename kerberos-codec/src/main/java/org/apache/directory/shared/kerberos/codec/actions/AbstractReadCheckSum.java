@@ -81,12 +81,10 @@ public abstract class AbstractReadCheckSum<E extends Asn1Container> extends Gram
         }
 
         // Now, let's decode the Checksum
-        Asn1Decoder checksumDecoder = new Asn1Decoder();
-
         ChecksumContainer checksumContainer = new ChecksumContainer();
 
         // Decode the Checksum PDU
-        checksumDecoder.decode( container.getStream(), checksumContainer );
+        Asn1Decoder.decode( container.getStream(), checksumContainer );
 
         Checksum checksum = checksumContainer.getChecksum();
 

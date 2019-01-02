@@ -72,12 +72,10 @@ public class StoreLastReq extends GrammarAction<EncKdcRepPartContainer>
         }
 
         // Now, let's decode the LastReq
-        Asn1Decoder lastReqDecoder = new Asn1Decoder();
-
         LastReqContainer lastReqContainer = new LastReqContainer();
 
         // Decode the LastReq PDU
-        lastReqDecoder.decode( encKdcRepPartContainer.getStream(), lastReqContainer );
+        Asn1Decoder.decode( encKdcRepPartContainer.getStream(), lastReqContainer );
 
         LastReq lastReq = lastReqContainer.getLastReq();
 

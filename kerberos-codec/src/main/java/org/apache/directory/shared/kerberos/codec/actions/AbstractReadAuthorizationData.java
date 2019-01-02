@@ -81,12 +81,10 @@ public abstract class AbstractReadAuthorizationData<E extends Asn1Container> ext
         }
 
         // Now, let's decode the AuthorizationData
-        Asn1Decoder authorizationDataDecoder = new Asn1Decoder();
-
         AuthorizationDataContainer authorizationDataContainer = new AuthorizationDataContainer();
 
         // Decode the AuthorizationData PDU
-        authorizationDataDecoder.decode( container.getStream(), authorizationDataContainer );
+        Asn1Decoder.decode( container.getStream(), authorizationDataContainer );
 
         AuthorizationData authorizationData = authorizationDataContainer.getAuthorizationData();
 

@@ -72,15 +72,13 @@ public class StoreSafeBody extends GrammarAction<KrbSafeContainer>
         }
 
         // Now, let's decode the HostAddress
-        Asn1Decoder krbSafeBodyDecoder = new Asn1Decoder();
-
         KrbSafeBodyContainer krbSafeBodyContainer = new KrbSafeBodyContainer();
 
         // Passes the Stream to the decoder
         krbSafeBodyContainer.setStream( krbSafeContainer.getStream() );
 
         // Decode the KrbSafeBody PDU
-        krbSafeBodyDecoder.decode( krbSafeContainer.getStream(), krbSafeBodyContainer );
+        Asn1Decoder.decode( krbSafeContainer.getStream(), krbSafeBodyContainer );
 
         // Store the KrbSafeBody in the container
         KrbSafeBody krbSafeBody = krbSafeBodyContainer.getKrbSafeBody();

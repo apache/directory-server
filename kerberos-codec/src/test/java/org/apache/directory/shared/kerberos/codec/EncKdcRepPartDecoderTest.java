@@ -50,7 +50,6 @@ public class EncKdcRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncKdcRepPartEmpty() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x02;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -65,7 +64,7 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        decoder.decode( stream, encKdcRepPartContainer );
+        Asn1Decoder.decode( stream, encKdcRepPartContainer );
         fail();
     }
 
@@ -77,7 +76,6 @@ public class EncKdcRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncKdcRepPartEmptyKey() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x04;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -93,7 +91,7 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        decoder.decode( stream, encKdcRepPartContainer );
+        Asn1Decoder.decode( stream, encKdcRepPartContainer );
         fail();
     }
 
@@ -105,7 +103,6 @@ public class EncKdcRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncKdcRepPartMissingKey() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x04;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -121,7 +118,7 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        decoder.decode( stream, encKdcRepPartContainer );
+        Asn1Decoder.decode( stream, encKdcRepPartContainer );
         fail();
     }
 
@@ -133,7 +130,6 @@ public class EncKdcRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncKdcRepPartEmptylastReq() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x17;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -156,7 +152,7 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        decoder.decode( stream, encKdcRepPartContainer );
+        Asn1Decoder.decode( stream, encKdcRepPartContainer );
         fail();
     }
 
@@ -168,7 +164,6 @@ public class EncKdcRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncKdcRepPartLastReqMissing() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x17;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -191,7 +186,7 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        decoder.decode( stream, encKdcRepPartContainer );
+        Asn1Decoder.decode( stream, encKdcRepPartContainer );
         fail();
     }
 
@@ -203,7 +198,6 @@ public class EncKdcRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncKdcRepPartEmptyNonce() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x4F;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -240,7 +234,7 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        decoder.decode( stream, encKdcRepPartContainer );
+        Asn1Decoder.decode( stream, encKdcRepPartContainer );
         fail();
     }
 
@@ -252,7 +246,6 @@ public class EncKdcRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncKdcRepPartNonceMissing() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x4F;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -289,7 +282,7 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        decoder.decode( stream, encKdcRepPartContainer );
+        Asn1Decoder.decode( stream, encKdcRepPartContainer );
         fail();
     }
 
@@ -301,7 +294,6 @@ public class EncKdcRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEncKdcRepPartEmptyKeyExpiration() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x54;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -340,7 +332,7 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        decoder.decode( stream, encKdcRepPartContainer );
+        Asn1Decoder.decode( stream, encKdcRepPartContainer );
         fail();
     }
 
@@ -352,7 +344,6 @@ public class EncKdcRepPartDecoderTest
     @Test
     public void testDecodeEncKdcRepPartNoOptionalFields() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x9F;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -411,7 +402,7 @@ public class EncKdcRepPartDecoderTest
         // Decode the EncKdcRepPart PDU
         try
         {
-            decoder.decode( stream, encKdcRepPartContainer );
+            Asn1Decoder.decode( stream, encKdcRepPartContainer );
         }
         catch ( Exception e )
         {

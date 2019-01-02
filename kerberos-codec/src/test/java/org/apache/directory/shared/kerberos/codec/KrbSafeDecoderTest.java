@@ -109,13 +109,11 @@ public class KrbSafeDecoderTest
         int streamLen = data.length;
         ByteBuffer stream = ByteBuffer.wrap( data );
 
-        Asn1Decoder decoder = new Asn1Decoder();
-
         KrbSafeContainer container = new KrbSafeContainer( stream );
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -168,10 +166,8 @@ public class KrbSafeDecoderTest
 
         ByteBuffer stream = ByteBuffer.wrap( data );
 
-        Asn1Decoder decoder = new Asn1Decoder();
-
         KrbSafeContainer container = new KrbSafeContainer( stream );
 
-        decoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
     }
 }

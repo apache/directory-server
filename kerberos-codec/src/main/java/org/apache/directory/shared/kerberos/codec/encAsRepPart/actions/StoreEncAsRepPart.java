@@ -72,14 +72,12 @@ public class StoreEncAsRepPart extends GrammarAction<EncAsRepPartContainer>
         }
 
         // Now, let's decode the EncKdcRepPart
-        Asn1Decoder encKdcRepPartDecoder = new Asn1Decoder();
-
         EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer( encAsRepPartContainer.getStream() );
 
         // Decode the EncKdcRepPart PDU
         try
         {
-            encKdcRepPartDecoder.decode( encAsRepPartContainer.getStream(), encKdcRepPartContainer );
+            Asn1Decoder.decode( encAsRepPartContainer.getStream(), encKdcRepPartContainer );
         }
         catch ( DecoderException de )
         {

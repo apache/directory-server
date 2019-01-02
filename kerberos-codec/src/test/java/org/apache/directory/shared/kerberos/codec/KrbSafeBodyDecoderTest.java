@@ -50,7 +50,6 @@ public class KrbSafeBodyDecoderTest
     @Test
     public void testDecodeKrbSafeBody() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x47;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -135,7 +134,7 @@ public class KrbSafeBodyDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -178,7 +177,6 @@ public class KrbSafeBodyDecoderTest
     @Test
     public void testDecodeKrbSafeBodyWithoutTimestamp() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x34;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -245,7 +243,7 @@ public class KrbSafeBodyDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -287,7 +285,6 @@ public class KrbSafeBodyDecoderTest
     @Test
     public void testDecodeKrbSafeBodyWithoutTimestampAndUsec() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x2F;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -349,7 +346,7 @@ public class KrbSafeBodyDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -391,7 +388,6 @@ public class KrbSafeBodyDecoderTest
     @Test
     public void testDecodeKrbSafeBodyWithoutTimestampUsecAndSeqNumber() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x2A;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -448,7 +444,7 @@ public class KrbSafeBodyDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -491,7 +487,6 @@ public class KrbSafeBodyDecoderTest
     @Test
     public void testDecodeKrbSafeBodyWithoutSequenceNumber() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x42;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -572,7 +567,7 @@ public class KrbSafeBodyDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -615,7 +610,6 @@ public class KrbSafeBodyDecoderTest
     @Test
     public void testDecodeKrbSafeBodyWithoutOptionalValues() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x19;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -656,7 +650,7 @@ public class KrbSafeBodyDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
