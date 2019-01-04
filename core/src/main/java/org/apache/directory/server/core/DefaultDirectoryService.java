@@ -202,9 +202,6 @@ public class DefaultDirectoryService implements DirectoryService
     /** The default delay to wait between sync on disk : 15 seconds */
     private static final long DEFAULT_SYNC_PERIOD = 15000;
 
-    /** */
-    private Thread workerThread;
-
     /** The default timeLimit : 100 entries */
     public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
 
@@ -1966,7 +1963,8 @@ public class DefaultDirectoryService implements DirectoryService
 
         if ( dnFactory == null )
         {
-            dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+            dnFactory = new DefaultDnFactory( schemaManager, 
+                cacheService.getCache( "dnCache", String.class, Dn.class ) );
         }
 
         // triggers partition to load schema fully from schema partition

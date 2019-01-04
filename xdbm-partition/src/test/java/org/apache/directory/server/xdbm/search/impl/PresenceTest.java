@@ -115,7 +115,9 @@ public class PresenceTest
 
         cacheService = new CacheService();
         cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        dnFactory = new DefaultDnFactory( schemaManager, 
+            cacheService.getCache( "dnCache", String.class, Dn.class ) );
+
         
         NORMALIZED_CN_OID = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_PRESENCE_AT ).getEquality().getNormalizer().normalize( SchemaConstants.CN_AT_OID );
     }

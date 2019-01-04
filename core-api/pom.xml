@@ -108,7 +108,7 @@
     </dependency>
     
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
+      <groupId>org.ehcache</groupId>
       <artifactId>ehcache</artifactId>
     </dependency>
 
@@ -157,6 +157,12 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.core.api</Bundle-SymbolicName>
             <Export-Package>
+                org.ehcache;version=${ehcache.version},
+                org.ehcache.Cache;version=${ehcache.version},
+                org.ehcache.config;version=${ehcache.version},
+                org.ehcache.config.builders;version=${ehcache.version},
+                org.ehcache.xml;version=${ehcache.version},
+                org.ehcache.xml.exceptions;version=${ehcache.version},
                 org.apache.directory.server.core.api;version=${project.version},
                 org.apache.directory.server.core.api.administrative;version=${project.version},
                 org.apache.directory.server.core.api.authn.ppolicy;version=${project.version},
@@ -176,8 +182,11 @@
                 org.apache.directory.server.core.api.subtree;version=${project.version}
             </Export-Package>
             <Import-Package>
-                net.sf.ehcache;version=${ehcache.version},
-                net.sf.ehcache.config;version=${ehcache.version},
+                org.ehcache;version=${ehcache.version},
+                org.ehcache.Cache;version=${ehcache.version},
+                org.ehcache.config.builders;version=${ehcache.version},
+                org.ehcache.xml;version=${ehcache.version},
+                org.ehcache.xml.exceptions;version=${ehcache.version},
                 org.apache.commons.lang3;version=${commons.lang.version},
                 org.apache.directory.api.asn1.util;version=${org.apache.directory.api.version},
                 org.apache.directory.api.i18n;version=${org.apache.directory.api.version},

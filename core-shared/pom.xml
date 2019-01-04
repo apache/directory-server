@@ -78,7 +78,7 @@
     </dependency>
     
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
+      <groupId>org.ehcache</groupId>
       <artifactId>ehcache</artifactId>
     </dependency>
 
@@ -147,7 +147,7 @@
                 jdbm.btree,
                 jdbm.helper,
                 jdbm.recman,
-                net.sf.ehcache;version=${ehcache.version},
+                org.ehcache;version=${ehcache.version},
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.syncrepl.syncState;version=${org.apache.directory.api.version},

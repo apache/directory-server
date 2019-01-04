@@ -120,16 +120,6 @@
       <artifactId>api-ldap-schema-data</artifactId>
     </dependency>
     
-    <!--dependency>
-      <groupId>org.apache.directory.api</groupId>
-      <artifactId>api-util</artifactId>
-    </dependency-->
-    
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-extras-codec</artifactId>

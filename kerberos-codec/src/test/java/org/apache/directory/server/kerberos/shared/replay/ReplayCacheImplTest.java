@@ -20,20 +20,29 @@
 package org.apache.directory.server.kerberos.shared.replay;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
+import org.ehcache.Cache;
+import org.ehcache.Cache.Entry;
+import org.ehcache.CacheManager;
+import org.ehcache.Status;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,15 +79,24 @@ public class ReplayCacheImplTest
         {
             long clockSkew = 1000; // 1 sec
 
-            cacheManager = new CacheManager();
+            cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+            
+            cacheManager.init();
 
-            cacheManager.addCache( "kdcReplayCache" );
-            Cache ehCache = cacheManager.getCache( "kdcReplayCache" );
-            ehCache.getCacheConfiguration().setMaxElementsInMemory( 4 );
-            ehCache.getCacheConfiguration().setTimeToLiveSeconds( 1 );
-            ehCache.getCacheConfiguration().setTimeToIdleSeconds( 1 );
-            ehCache.getCacheConfiguration().setDiskExpiryThreadIntervalSeconds( 1 );
-
+            Cache< String, Object > ehCache = cacheManager.createCache( 
+                    "kdcReplayCache", 
+                    CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                            String.class, 
+                            Object.class, 
+                            ResourcePoolsBuilder.heap(4)
+                    )
+                        .withExpiry(
+                            ExpiryPolicyBuilder
+                                .timeToIdleExpiration( Duration.ofMillis( 1000 ) )
+                                )
+                        .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration( Duration.ofMillis( 1000 )))
+            );
+            
             ReplayCacheImpl cache = new ReplayCacheImpl( ehCache, clockSkew );
 
             int i = 0;
@@ -96,7 +114,13 @@ public class ReplayCacheImplTest
                 i++;
             }
 
-            List<?> keys = ehCache.getKeys();
+            List<String> keys = new ArrayList<>();
+            Iterator<Entry<String, Object>> it = ehCache.iterator();
+            
+            while (it.hasNext())
+            {
+                keys.add(it.next().getKey());
+            }
 
             // We should have 4 entries
             assertTrue( keys.size() != 0 );
@@ -105,18 +129,18 @@ public class ReplayCacheImplTest
             Thread.sleep( 1200 );
 
             // then access the cache so that the objects present in the cache will be expired
-            for ( Object k : keys )
+            for ( String k : keys )
             {
                 assertNull( ehCache.get( k ) );
             }
 
-            assertEquals( 0, ehCache.getKeys().size() );
+            assertFalse( ehCache.iterator().hasNext() );
         }
         finally
         {
-            if ( cacheManager != null )
+            if ( cacheManager != null && cacheManager.getStatus() != Status.UNINITIALIZED)
             {
-                cacheManager.shutdown();
+                cacheManager.close();
             }
         }
     }

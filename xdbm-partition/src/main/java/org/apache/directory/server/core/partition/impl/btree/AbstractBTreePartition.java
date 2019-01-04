@@ -35,10 +35,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.store.LruPolicy;
+import org.ehcache.Cache;
+import org.ehcache.config.CacheConfiguration;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -131,10 +129,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected int cacheSize = DEFAULT_CACHE_SIZE;
 
     /** The alias cache */
-    protected Cache aliasCache;
+    protected Cache< String, Dn > aliasCache;
 
     /** The ParentIdAndRdn cache */
-    protected Cache piarCache;
+    protected Cache< String, ParentIdAndRdn > piarCache;
 
     /** true if we sync disks on every write operation */
     protected AtomicBoolean isSyncOnWrite = new AtomicBoolean( true );
@@ -206,7 +204,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     private ReadWriteLock rwLock;
 
     /** a cache to hold <entryUUID, Dn> pairs, this is used for speeding up the buildEntryDn() method */
-    private Cache entryDnCache;
+    private Cache<String, Dn> entryDnCache;
     
     /** a semaphore to serialize the writes on context entry while updating contextCSN attribute */
     private Semaphore ctxCsnSemaphore = new Semaphore( 1 );
@@ -541,7 +539,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // don't reset initialized flag
         initialized = false;
 
-        entryDnCache.removeAll();
+        entryDnCache.clear();
         
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
@@ -627,29 +625,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         if ( cacheService != null )
         {
-            aliasCache = cacheService.getCache( "alias" );
+            aliasCache = cacheService.getCache( "alias", String.class, Dn.class );
     
-            CacheConfiguration cacheConfiguration = aliasCache.getCacheConfiguration();
+            CacheConfiguration< String, Dn > aliasCacheConfig = aliasCache.getRuntimeConfiguration();
             
-            int cacheSizeConfig = ( int ) cacheConfiguration.getMaxEntriesLocalHeap();
-    
-            if ( cacheSizeConfig < cacheSize )
-            {
-                aliasCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize );
-            }
+            piarCache = cacheService.getCache( "piar", String.class, ParentIdAndRdn.class );
             
-            piarCache = cacheService.getCache( "piar" );
-            
-            cacheSizeConfig = ( int ) piarCache.getCacheConfiguration().getMaxEntriesLocalHeap();
-    
-            if ( cacheSizeConfig < cacheSize )
-            {
-                piarCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize * 3L );
-            }
-            
-            entryDnCache = cacheService.getCache( "entryDn" );
-            entryDnCache.setMemoryStoreEvictionPolicy( new LruPolicy() );
-            entryDnCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize );
+            entryDnCache = cacheService.getCache( "entryDn", String.class, Dn.class );
         }
     }
 
@@ -1303,6 +1285,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             rwLock.readLock().lock();
 
+            if ( id == null )
+            {
+                id = "";
+            }
+            
             Dn dn = buildEntryDn( partitionTxn, id );
 
             return fetch( partitionTxn, id, dn );
@@ -2022,7 +2009,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // Remove the EntryDN
         modifiedEntry.removeAttributes( entryDnAT );
 
-        entryDnCache.removeAll();
+        entryDnCache.clear();
         
         setContextCsn( modifiedEntry.get( entryCsnAT ).getString() );
 
@@ -2200,7 +2187,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         modifiedEntry.add( ApacheSchemaConstants.ENTRY_PARENT_ID_OID, newParentId );
         
         // Doom the DN cache now
-        entryDnCache.removeAll();
+        entryDnCache.clear();
 
         setContextCsn( modifiedEntry.get( entryCsnAT ).getString() );
 
@@ -2350,7 +2337,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             String newNormType = newAtav.getNormType();
             Object newNormValue = newAtav.getValue().getValue();
-            boolean oldRemoved = false;
 
             AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
@@ -2533,7 +2519,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         rdnIdx.add( partitionTxn, parentIdAndRdn, oldId );
 
-        entryDnCache.removeAll();
+        entryDnCache.clear();
         
         if ( isSyncOnWrite.get() )
         {
@@ -2631,11 +2617,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( entryDnCache != null )
             {
-                Element el = entryDnCache.get( id );
+                Dn cachedDn = entryDnCache.get( id );
                 
-                if ( el != null )
+                if ( cachedDn != null )
                 {
-                    return ( Dn ) el.getObjectValue();
+                    return cachedDn;
                 }
             }
             
@@ -2645,13 +2631,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
                 if ( piarCache != null )
                 {
-                    Element piar = piarCache.get( parentId );
+                    cur = piarCache.get( parentId );
                     
-                    if ( piar != null )
-                    {
-                        cur = ( ParentIdAndRdn ) piar.getObjectValue();
-                    }
-                    else
+                    if ( cur == null )
                     {
                         cur = rdnIdx.reverseLookup( partitionTxn, parentId );
                         
@@ -2660,7 +2642,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                             return null;
                         }
                         
-                        piarCache.put( new Element( parentId, cur ) );
+                        piarCache.put( parentId, cur );
                     }
                 }
                 else
@@ -2694,7 +2676,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
             dn = new Dn( schemaManager, Arrays.copyOf( rdnArray, pos ) );
             
-            entryDnCache.put( new Element( id, dn ) );
+            entryDnCache.put( id, dn );
             return dn;
         }
         finally
@@ -3198,7 +3180,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         
         if ( aliasCache != null )
         {
-            aliasCache.put( new Element( aliasId, aliasTarget ) );
+            aliasCache.put( aliasId, aliasTarget );
         }
 
         /*
@@ -3589,7 +3571,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
      * {@inheritDoc}
      */
     @Override
-    public Cache getAliasCache()
+    public Cache<String, Dn> getAliasCache()
     {
         return aliasCache;
     }

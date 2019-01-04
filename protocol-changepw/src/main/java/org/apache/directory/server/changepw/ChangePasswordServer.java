@@ -26,7 +26,7 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import net.sf.ehcache.Cache;
+import org.ehcache.Cache;
 
 import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
 import org.apache.directory.server.constants.ServerDNConstants;

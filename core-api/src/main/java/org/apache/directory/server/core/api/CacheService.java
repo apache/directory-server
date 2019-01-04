@@ -22,15 +22,16 @@ package org.apache.directory.server.core.api;
 
 
 import java.io.File;
-import java.util.UUID;
+import java.net.MalformedURLException;
+import java.util.Iterator;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.ConfigurationFactory;
-
-import org.apache.directory.api.util.FileUtils;
+import org.ehcache.Cache;
+import org.ehcache.Cache.Entry;
+import org.ehcache.CacheManager;
+import org.ehcache.Status;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.xml.XmlConfiguration;
+import org.ehcache.xml.exceptions.XmlConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +55,31 @@ public class CacheService
     private static final Logger LOG = LoggerFactory.getLogger( CacheService.class );
 
     /** the ehcache cache manager */
-    private CacheManager cacheManager;
+    private CacheManager cacheManager = null;
 
-    /** A flag telling if the cache Service has been intialized */
-    private boolean initialized;
-
+    /**
+     * Utility method to dump the cache contents to a StringBuffer.
+     * This is needed because ehcache 3.x Cache objects only implements Iterable
+     * 
+     * @return a StringBuffer
+     */
+    public static final StringBuffer dumpCacheContentsToString( Cache< ?, ? > cache ) 
+    {
+        Iterator<?> it = cache.iterator();
+        StringBuffer sb = new StringBuffer();
+        
+        while ( it.hasNext() )
+        {
+            Cache.Entry< ?, ? > nextObj = ( Entry<?, ?> ) it.next();
+            sb.append( '\t' )
+            .append( nextObj.getKey().toString() )
+            .append( " -> " )
+            .append( nextObj.getValue().toString() )
+            .append( '\n' );
+        }
+        
+        return sb;
+    }
 
     /**
      * Creates a new instance of CacheService.
@@ -76,11 +97,6 @@ public class CacheService
     public CacheService( CacheManager cachemanager )
     {
         this.cacheManager = cachemanager;
-
-        if ( cachemanager != null )
-        {
-            initialized = true;
-        }
     }
 
 
@@ -103,24 +119,16 @@ public class CacheService
      */
     public void initialize( InstanceLayout layout, String instanceId )
     {
-        if ( initialized )
-        {
-            LOG.debug( "CacheService was already initialized, returning" );
-            return;
-        }
-
         LOG.debug( "CacheService initialization, for instance {}", instanceId );
 
-        if ( ( cacheManager != null ) && ( cacheManager.getStatus() == Status.STATUS_ALIVE ) )
+        if ( ( cacheManager != null ) && ( cacheManager.getStatus() == Status.AVAILABLE ) )
         {
-            LOG.warn( "cache service was already initialized and is alive" );
-            initialized = true;
+            LOG.warn( "cache service was already initialized and is available" );
 
             return;
         }
 
-        Configuration cc;
-        String cachePath = null;
+        XmlConfiguration cc = null;
 
         if ( layout != null )
         {
@@ -129,41 +137,32 @@ public class CacheService
             if ( !configFile.exists() )
             {
                 LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
-                cc = ConfigurationFactory.parseConfiguration( getClass().getClassLoader().getResource(
+                cc = new XmlConfiguration( getClass( ).getClassLoader( ).getResource(
                     DIRECTORY_CACHESERVICE_XML ) );
             }
             else
             {
                 LOG.info( "loading cache configuration from the file {}", configFile );
-
-                cc = ConfigurationFactory.parseConfiguration( configFile );
+                
+                try
+                {
+                    cc = new XmlConfiguration( configFile.toURI( ).toURL( ) );
+                }
+                catch ( XmlConfigurationException | MalformedURLException e ) 
+                {
+                    LOG.error( "exception loading cache configuration from the file {}: {}", configFile, e.toString() );
+                }
             }
-
-            cachePath = layout.getCacheDirectory().getAbsolutePath();
         }
         else
         {
             LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
-            cc = ConfigurationFactory.parseConfiguration( getClass().getClassLoader().getResource(
+            cc = new XmlConfiguration( getClass( ).getClassLoader( ).getResource(
                 DIRECTORY_CACHESERVICE_XML ) );
-
-            cachePath = FileUtils.getTempDirectoryPath();
         }
 
-        String confName = UUID.randomUUID().toString();
-        cc.setName( confName );
-
-        if ( cachePath == null )
-        {
-            cachePath = FileUtils.getTempDirectoryPath();
-        }
-
-        cachePath += File.separator + confName;
-        cc.getDiskStoreConfiguration().setPath( cachePath );
-
-        cacheManager = new CacheManager( cc );
-
-        initialized = true;
+        cacheManager = CacheManagerBuilder.newCacheManager( cc );
+        cacheManager.init();
     }
 
 
@@ -172,17 +171,15 @@ public class CacheService
      */
     public void destroy()
     {
-        if ( !initialized )
+        if ( cacheManager == null )
         {
             return;
         }
 
         LOG.info( "clearing all the caches" );
 
-        initialized = false;
-
-        cacheManager.clearAll();
-        cacheManager.shutdown();
+        cacheManager.close();
+        cacheManager = null;
     }
 
 
@@ -192,9 +189,9 @@ public class CacheService
      * @param name The Cache name we want to retreive
      * @return The found cache. If we don't find it, we create a new one.
      */
-    public Cache getCache( String name )
+    public <K, V> Cache<K, V> getCache( String name, Class<K> keyClazz, Class<V> valueClazz )
     {
-        if ( !initialized )
+        if ( cacheManager == null )
         {
             LOG.error( "Cannot fetch the cache named {}, the CacheServcie is not initialized", name );
             throw new IllegalStateException( "CacheService was not initialized" );
@@ -202,15 +199,8 @@ public class CacheService
 
         LOG.info( "fetching the cache named {}", name );
 
-        Cache cache = cacheManager.getCache( name );
-
-        if ( cache == null )
-        {
-            LOG.info( "No cache with name {} exists, creating one", name );
-            cacheManager.addCache( name );
-            cache = cacheManager.getCache( name );
-        }
-
+        Cache<K, V> cache = cacheManager.getCache( name, keyClazz, valueClazz );
+        
         return cache;
     }
 
@@ -222,15 +212,8 @@ public class CacheService
      */
     public void remove( String name )
     {
-        if ( cacheManager.cacheExists( name ) )
-        {
-            LOG.info( "Removing the cache named {}", name );
-
-            cacheManager.removeCache( name );
-        }
-        else
-        {
-            LOG.info( "Cannot removing the cache named {}, it does not exist", name );
-        }
+        LOG.info( "Removing the cache named {}", name );
+        
+        cacheManager.removeCache( name );
     }
 }

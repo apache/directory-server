@@ -21,8 +21,7 @@
 package org.apache.directory.server.core.shared;
 
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
+import org.ehcache.Cache;
 
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -42,7 +41,7 @@ public class DefaultDnFactory implements DnFactory
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDnFactory.class );
 
     /** The cache for DNs */
-    private Cache dnCache;
+    private Cache<String, Dn> dnCache;
 
     /** The schema manager */
     private SchemaManager schemaManager;
@@ -61,7 +60,7 @@ public class DefaultDnFactory implements DnFactory
      * @param schemaManager The SchemaManager instance
      * @param dnCache The cache used to store DNs
      */
-    public DefaultDnFactory( SchemaManager schemaManager, Cache dnCache )
+    public DefaultDnFactory( SchemaManager schemaManager, Cache<String, Dn> dnCache )
     {
         this.schemaManager = schemaManager;
         this.dnCache = dnCache;
@@ -90,12 +89,7 @@ public class DefaultDnFactory implements DnFactory
         // for the reason for performing this check
         if ( dnCache != null )
         {
-            Element dnCacheEntry = dnCache.get( dn );
-
-            if ( dnCacheEntry != null )
-            {
-                cachedDn = ( Dn ) dnCacheEntry.getObjectValue();
-            }
+            cachedDn = dnCache.get( dn );
         }
 
         if ( cachedDn == null )
@@ -106,7 +100,7 @@ public class DefaultDnFactory implements DnFactory
 
             if ( dnCache != null )
             {
-                dnCache.put( new Element( dn, cachedDn ) );
+                dnCache.put( dn, cachedDn );
             }
 
             if ( enableStats )
