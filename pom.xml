@@ -64,7 +64,8 @@
     <commons.net.version>3.6</commons.net.version>
     <commons.pool.version>2.6.0</commons.pool.version>
     <dnsjava.version>2.1.8</dnsjava.version>
-    <ehcache.version>3.6.1</ehcache.version>
+    <!-- OSGi related issue in ehcache 3.6.x: https://github.com/ehcache/ehcache3/issues/2554 -->
+    <ehcache.version>3.5.3</ehcache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->

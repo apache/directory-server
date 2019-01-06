@@ -138,7 +138,7 @@ public class CacheService
             {
                 LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
                 cc = new XmlConfiguration( getClass( ).getClassLoader( ).getResource(
-                    DIRECTORY_CACHESERVICE_XML ) );
+                    DIRECTORY_CACHESERVICE_XML ), getClass().getClassLoader() );
             }
             else
             {
