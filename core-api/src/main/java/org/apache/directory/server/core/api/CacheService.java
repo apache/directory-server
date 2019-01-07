@@ -137,8 +137,8 @@ public class CacheService
             if ( !configFile.exists() )
             {
                 LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
-                cc = new XmlConfiguration( getClass( ).getClassLoader( ).getResource(
-                    DIRECTORY_CACHESERVICE_XML ) );
+                cc = new XmlConfiguration( getClass().getClassLoader().getResource(
+                    DIRECTORY_CACHESERVICE_XML ), getClass().getClassLoader() );
             }
             else
             {
@@ -146,7 +146,7 @@ public class CacheService
                 
                 try
                 {
-                    cc = new XmlConfiguration( configFile.toURI( ).toURL( ) );
+                    cc = new XmlConfiguration( configFile.toURI().toURL(), getClass().getClassLoader() );
                 }
                 catch ( XmlConfigurationException | MalformedURLException e ) 
                 {
@@ -157,8 +157,8 @@ public class CacheService
         else
         {
             LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
-            cc = new XmlConfiguration( getClass( ).getClassLoader( ).getResource(
-                DIRECTORY_CACHESERVICE_XML ) );
+            cc = new XmlConfiguration( getClass().getClassLoader().getResource(
+                DIRECTORY_CACHESERVICE_XML ), getClass().getClassLoader() );
         }
 
         cacheManager = CacheManagerBuilder.newCacheManager( cc );

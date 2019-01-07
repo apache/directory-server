@@ -31,13 +31,13 @@ then
       -v ${project.build.directory}/docker/deb.test:/deb.test \
       java:8 bash /deb.test
 
-    echo
-    echo
-    echo "Testing debian package with 'nimmis' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
-    docker run -i --rm \
-      -v ${DEB64}:/apacheds.deb \
-      -v ${project.build.directory}/docker/deb.test:/deb.test \
-      nimmis/java:oracle-7-jdk bash /deb.test
+    #echo
+    #echo
+    #echo "Testing debian package with 'nimmis' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
+    #docker run -i --rm \
+    #  -v ${DEB64}:/apacheds.deb \
+    #  -v ${project.build.directory}/docker/deb.test:/deb.test \
+    #  nimmis/java:oracle-7-jdk bash /deb.test
 fi
 
 
@@ -105,9 +105,9 @@ if [ -f ${ZIP} ]
 then
     echo
     echo
-    echo "Testing zip archive with 'nimmis' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
-    docker run -i --rm \
-      -v ${ZIP}:/apacheds.zip \
-      -v ${project.build.directory}/docker/archive.test:/archive.test \
-      nimmis/java:oracle-7-jdk bash /archive.test
+    #echo "Testing zip archive with 'nimmis' Java image (Ubuntu 14.04, Oracle Java 7, 64bit)"
+    #docker run -i --rm \
+    #  -v ${ZIP}:/apacheds.zip \
+    #  -v ${project.build.directory}/docker/archive.test:/archive.test \
+    #  nimmis/java:oracle-7-jdk bash /archive.test
 fi
