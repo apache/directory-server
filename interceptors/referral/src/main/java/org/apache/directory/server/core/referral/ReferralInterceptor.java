@@ -82,7 +82,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
     private static void checkRefAttributeValue( Value value ) throws LdapException
     {
-        String refVal = value.getValue();
+        String refVal = value.getString();
 
         LdapUrl ldapUrl = new LdapUrl( refVal );
 
@@ -204,7 +204,7 @@ public class ReferralInterceptor extends BaseInterceptor
         directoryService.setReferralManager( referralManager );
 
         Value subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
     }
 
 

@@ -140,7 +140,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
              * underlying userIdx Cursor position the element.
              */
             if ( greaterEqEvaluator.getComparator().compare( element.getKey(),
-                greaterEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
+                greaterEqEvaluator.getExpression().getValue().getString() ) <= 0 )
             {
                 beforeFirst();
                 return;
@@ -167,7 +167,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
         if ( userIdxCursor != null )
         {
             int comparedValue = greaterEqEvaluator.getComparator().compare( element.getKey(),
-                greaterEqEvaluator.getExpression().getValue().getValue() );
+                greaterEqEvaluator.getExpression().getValue().getString() );
 
             /*
              * First we need to check and make sure this element is within
@@ -214,7 +214,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
         if ( userIdxCursor != null )
         {
             IndexEntry<V, String> advanceTo = new IndexEntry<>();
-            String normalizedNode = greaterEqEvaluator.getNormalizer().normalize( greaterEqEvaluator.getExpression().getValue().getValue() );
+            String normalizedNode = greaterEqEvaluator.getNormalizer().normalize( greaterEqEvaluator.getExpression().getValue().getString() );
             advanceTo.setKey( ( V ) normalizedNode );
             userIdxCursor.before( advanceTo );
         }
@@ -291,7 +291,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
                 IndexEntry<?, String> candidate = userIdxCursor.get();
 
                 if ( greaterEqEvaluator.getComparator().compare( candidate.getKey(),
-                    greaterEqEvaluator.getExpression().getValue().getValue() ) >= 0 )
+                    greaterEqEvaluator.getExpression().getValue().getString() ) >= 0 )
                 {
                     return setAvailable( true );
                 }

@@ -740,7 +740,7 @@ public class LdifPartition extends AbstractLdifPartition
             
             if ( at.getSyntax().isHumanReadable() )
             {
-                normValue = ava.getValue().getValue();
+                normValue = ava.getValue().getString();
             }
             else
             {
@@ -779,7 +779,7 @@ public class LdifPartition extends AbstractLdifPartition
             String atName = at.getName();
 
             // Now, get the normalized value
-            String normValue = rdn.getAva().getValue().getValue();
+            String normValue = rdn.getAva().getValue().getString();
 
             if ( isFirst )
             {

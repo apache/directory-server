@@ -797,7 +797,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             for ( Value val : ref )
             {
-                String url = val.getValue();
+                String url = val.getString();
 
                 if ( !url.startsWith( "ldap" ) )
                 {
@@ -979,7 +979,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
         return new EqualityNode<>( SchemaConstants.OBJECT_CLASS_AT, 
-            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ).getValue() );
+            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ).getString() );
     }
 
 

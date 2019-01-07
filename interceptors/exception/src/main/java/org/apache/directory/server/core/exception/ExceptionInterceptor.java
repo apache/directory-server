@@ -107,7 +107,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
         Value attr = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemSubentryDn = dnFactory.create( attr.getValue() );
+        subschemSubentryDn = dnFactory.create( attr.getString() );
     }
 
 

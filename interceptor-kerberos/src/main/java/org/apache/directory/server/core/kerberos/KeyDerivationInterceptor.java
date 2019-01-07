@@ -143,7 +143,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             // Get the entry's password. We will use the first one.
             Value userPassword = entry.get( userPasswordAT ).get();
-            String strUserPassword = userPassword.getValue();
+            String strUserPassword = userPassword.getString();
 
             String principalName = entry.get( krb5PrincipalNameAT ).getString();
 
@@ -269,7 +269,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
                 if ( firstValue.isHumanReadable() )
                 {
-                    password = firstValue.getValue();
+                    password = firstValue.getString();
                     LOG.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                     LOG_KRB.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, password );
                 }

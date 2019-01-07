@@ -332,7 +332,7 @@ public class SchemaAwareEntryTest
         Attribute attributeCN = entry.get( "dc" );
         assertEquals( 1, attributeCN.size() );
         assertNotNull( attributeCN.get() );
-        assertNull( attributeCN.get().getValue() );
+        assertNull( attributeCN.get().getString() );
 
         Value value1 = new Value( atCN, "test1" );
         Value value2 = new Value( atCN, "test2" );
@@ -619,7 +619,7 @@ public class SchemaAwareEntryTest
         entry.add( atEMail, "test1" );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
         entry.add( atEMail, "test2", "test3" );
@@ -777,7 +777,7 @@ public class SchemaAwareEntryTest
         entry.add( atEMail, testEMail1 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
         entry.add( atEMail, testEMail2, testEMail3 );
@@ -872,7 +872,7 @@ public class SchemaAwareEntryTest
         assertEquals( "1.2.840.113549.1.9.1", entry.get( atEMail ).getId() );
         assertEquals( "EMail", entry.get( atEMail ).getUpId() );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
         entry.add( "EMail", "test2", "test3" );
@@ -994,7 +994,7 @@ public class SchemaAwareEntryTest
         entry.add( "eMail", test1 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
         assertTrue( entry.containsAttribute( atEMail ) );
         assertEquals( "eMail", entry.get( atEMail ).getUpId() );
 
@@ -1092,7 +1092,7 @@ public class SchemaAwareEntryTest
         entry.add( "email", atEMail, "test1" );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
 
         // Test some more addition
         entry.add( "EMAIL", atEMail, "test2", "test3" );
@@ -1214,7 +1214,7 @@ public class SchemaAwareEntryTest
         entry.add( "eMail", atEMail, test1 );
         assertNotNull( entry.get( atEMail ) );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test1", entry.get( atEMail ).get().getValue() );
+        assertEquals( "test1", entry.get( atEMail ).get().getString() );
         assertTrue( entry.containsAttribute( atEMail ) );
         assertEquals( "eMail", entry.get( atEMail ).getUpId() );
 
@@ -2392,7 +2392,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "userPassword" ) );
         assertEquals( 1, entry.get( "userPassword" ).size() );
-        assertNotNull( entry.get( "userPassword" ).get().getValue() );
+        assertNotNull( entry.get( "userPassword" ).get().getString() );
         assertTrue( entry.get( "userPassword" ).contains( BYTES1 ) );
 
         replaced = entry.put( "userPassword", BYTES1, BYTES2, BYTES1 );
@@ -2458,12 +2458,12 @@ public class SchemaAwareEntryTest
         assertEquals( 2, entry.size() );
         assertNotNull( entry.get( "cn" ) );
         assertEquals( 1, entry.get( "cn" ).size() );
-        assertNotNull( entry.get( "cn" ).get().getValue() );
+        assertNotNull( entry.get( "cn" ).get().getString() );
         assertTrue( entry.get( "cn" ).contains( "test" ) );
 
         replaced = entry.put( "cN", "test1", "test2", "test1" );
         assertNotNull( replaced );
-        assertEquals( "test", replaced.get().getValue() );
+        assertEquals( "test", replaced.get().getString() );
 
         assertEquals( 2, entry.size() );
         assertNotNull( entry.get( "cn" ) );
@@ -2528,7 +2528,7 @@ public class SchemaAwareEntryTest
         assertNotNull( entry.get( "domainComponent" ) );
         assertEquals( 1, entry.get( "domainComponent" ).size() );
         assertNotNull( entry.get( "domainComponent" ).get() );
-        assertNull( entry.get( "domainComponent" ).get().getValue() );
+        assertNull( entry.get( "domainComponent" ).get().getString() );
         entry.removeAttributes( "dc" );
 
         replaced = entry.put( "DC", strValue3 );
@@ -2536,7 +2536,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "dc" ) );
         assertEquals( 1, entry.get( "dc" ).size() );
-        assertNotNull( entry.get( "dc" ).get().getValue() );
+        assertNotNull( entry.get( "dc" ).get().getString() );
         assertTrue( entry.get( "dc" ).contains( strValue3 ) );
 
         replaced = entry.put( "dC", strValue1, strValue2, strValue1 );
@@ -2589,7 +2589,7 @@ public class SchemaAwareEntryTest
 
         assertEquals( 1, entry.size() );
         assertNotNull( entry.get( "l" ) );
-        assertEquals( "france", entry.get( "l" ).get().getValue() );
+        assertEquals( "france", entry.get( "l" ).get().getString() );
 
         Attribute sb = new DefaultAttribute( atC, "countryTest" );
         Attribute sc = new DefaultAttribute( atGN, "test" );
@@ -2598,11 +2598,11 @@ public class SchemaAwareEntryTest
 
         assertEquals( 4, entry.size() );
         assertNotNull( entry.get( atC ) );
-        assertEquals( "countryTest", entry.get( atC ).get().getValue() );
+        assertEquals( "countryTest", entry.get( atC ).get().getString() );
         assertNotNull( entry.get( atGN ) );
-        assertEquals( "test", entry.get( atGN ).get().getValue() );
+        assertEquals( "test", entry.get( atGN ).get().getString() );
         assertNotNull( entry.get( atStreet ) );
-        assertEquals( "testStreet", entry.get( atStreet ).get().getValue() );
+        assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
 
         // Test a replacement
         Attribute sbb = new DefaultAttribute( atC, "countryTestTest" );
@@ -2610,15 +2610,15 @@ public class SchemaAwareEntryTest
         List<Attribute> result = entry.put( sbb, scc );
 
         assertEquals( 2, result.size() );
-        assertEquals( "countryTest", result.get( 0 ).get().getValue() );
-        assertEquals( "test", result.get( 1 ).get().getValue() );
+        assertEquals( "countryTest", result.get( 0 ).get().getString() );
+        assertEquals( "test", result.get( 1 ).get().getString() );
         assertEquals( 4, entry.size() );
         assertNotNull( entry.get( atC ) );
-        assertEquals( "countryTestTest", entry.get( atC ).get().getValue() );
+        assertEquals( "countryTestTest", entry.get( atC ).get().getString() );
         assertNotNull( entry.get( atGN ) );
-        assertEquals( "testtest", entry.get( atGN ).get().getValue() );
+        assertEquals( "testtest", entry.get( atGN ).get().getString() );
         assertNotNull( entry.get( atStreet ) );
-        assertEquals( "testStreet", entry.get( atStreet ).get().getValue() );
+        assertEquals( "testStreet", entry.get( atStreet ).get().getString() );
 
         // test an ObjectClass replacement
         AttributeType OBJECT_CLASS_AT = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OBJECT_CLASS_AT );
@@ -2653,7 +2653,7 @@ public class SchemaAwareEntryTest
         entry.put( atEMail, ( String ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
-        assertNull( entry.get( atEMail ).get().getValue() );
+        assertNull( entry.get( atEMail ).get().getString() );
 
         // Check that we can't use invalid arguments
         try
@@ -2672,7 +2672,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test", entry.get( atEMail ).get().getValue() );
+        assertEquals( "test", entry.get( atEMail ).get().getString() );
 
         // Add more than one value
         entry.put( atEMail, "test1", "test2", "test3" );
@@ -2794,7 +2794,7 @@ public class SchemaAwareEntryTest
         assertEquals( 2, entry.size() );
         assertEquals( "cn", entry.get( atCN ).getUpId() );
         assertEquals( 1, entry.get( atCN ).size() );
-        assertEquals( "test", entry.get( atCN ).get().getValue() );
+        assertEquals( "test", entry.get( atCN ).get().getString() );
 
         // Add more than one value
         entry.put( atCN, new Value( atCN, "test1" ), new Value( atCN, "test2" ), new Value( atCN,
@@ -2835,7 +2835,7 @@ public class SchemaAwareEntryTest
 
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
-        assertNull( entry.get( atEMail ).get().getValue() );
+        assertNull( entry.get( atEMail ).get().getString() );
 
         // Check that we can't use invalid arguments
         try
@@ -2854,7 +2854,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
         assertEquals( 1, entry.get( atEMail ).size() );
-        assertEquals( "test", entry.get( atEMail ).get().getValue() );
+        assertEquals( "test", entry.get( atEMail ).get().getString() );
 
         // Add more than one value
         entry.put( "email", "test1", "test2", "test3" );
@@ -2972,21 +2972,21 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
         assertTrue( entry.containsAttribute( "email" ) );
-        assertNull( entry.get( atEMail ).get().getValue() );
+        assertNull( entry.get( atEMail ).get().getString() );
 
         // Check that we can use a null AttributeType
         entry.put( "email", ( AttributeType ) null, ( String ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
         assertTrue( entry.containsAttribute( "email" ) );
-        assertNull( entry.get( atEMail ).get().getValue() );
+        assertNull( entry.get( atEMail ).get().getString() );
 
         // Test that we can use a null upId
         entry.put( null, atEMail, ( String ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "email", entry.get( atEMail ).getUpId() );
         assertTrue( entry.containsAttribute( "email" ) );
-        assertNull( entry.get( atEMail ).get().getValue() );
+        assertNull( entry.get( atEMail ).get().getString() );
 
         try
         {
@@ -3111,7 +3111,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertNull( entry.get( atDC ).get().getString() );
 
         // Check that we can use a null AttributeType
         entry.put( "domainComponent", ( AttributeType ) null, ( Value ) null );
@@ -3119,14 +3119,14 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertNull( entry.get( atDC ).get().getString() );
 
         // Test that we can use a null upId
         entry.put( null, atDC, ( Value ) null );
         assertEquals( 1, entry.size() );
         assertEquals( "dc", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertNull( entry.get( atDC ).get().getString() );
 
         // Test that we can't use an upId which is not compatible
         // with the AT
@@ -3182,7 +3182,7 @@ public class SchemaAwareEntryTest
         assertEquals( 1, entry.size() );
         assertEquals( "domainComponent", entry.get( atDC ).getUpId() );
         assertTrue( entry.containsAttribute( "dc" ) );
-        assertNull( entry.get( atDC ).get().getValue() );
+        assertNull( entry.get( atDC ).get().getString() );
 
         // Test that we can add some new attributes with values
         Value test1 = new Value( atDC, "test1" );

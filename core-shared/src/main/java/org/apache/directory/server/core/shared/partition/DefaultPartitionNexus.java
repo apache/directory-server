@@ -225,7 +225,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             schemaManager = directoryService.getSchemaManager();
 
             Value attr = rootDse.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-            subschemaSubentryDn = directoryService.getDnFactory().create( attr.getValue() );
+            subschemaSubentryDn = directoryService.getDnFactory().create( attr.getString() );
 
             List<Partition> initializedPartitions = new ArrayList<>();
 
@@ -889,7 +889,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
             for ( Value namingContext : namingContexts )
             {
-                String normalizedNC = new Dn( schemaManager, namingContext.getValue() ).getNormName();
+                String normalizedNC = new Dn( schemaManager, namingContext.getString() ).getNormName();
 
                 if ( partitionSuffix.equals( normalizedNC ) )
                 {

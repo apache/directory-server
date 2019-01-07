@@ -166,7 +166,7 @@ public class RegistrySynchronizerAdaptor
         for ( Value value : oc )
         {
 
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -233,7 +233,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -289,7 +289,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -330,7 +330,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -359,7 +359,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -389,7 +389,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {

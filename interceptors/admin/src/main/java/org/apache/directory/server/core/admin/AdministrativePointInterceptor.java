@@ -259,7 +259,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
 
         for ( Value value : adminPoint )
         {
-            String role = value.getValue();
+            String role = value.getString();
 
             // Deal with AccessControl AP
             if ( isAccessControlSpecificRole( role ) )
@@ -597,7 +597,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void checkAddRole( Value role, Attribute adminPoint, Dn dn ) throws LdapException
     {
-        String roleStr = Strings.toLowerCaseAscii( Strings.trim( role.getValue() ) );
+        String roleStr = Strings.toLowerCaseAscii( Strings.trim( role.getString() ) );
 
         // Check that the added AdministrativeRole is valid
         if ( !ROLES.contains( roleStr ) )
@@ -652,7 +652,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
      */
     private void checkDelRole( Value role, Attribute adminPoint, Dn dn ) throws LdapException
     {
-        String roleStr = Strings.toLowerCaseAscii( Strings.trim( role.getValue() ) );
+        String roleStr = Strings.toLowerCaseAscii( Strings.trim( role.getString() ) );
 
         // Check that the removed AdministrativeRole is valid
         if ( !ROLES.contains( roleStr ) )
@@ -830,7 +830,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
         // Remove the APs in the AP cache
         for ( Value value : adminPoint )
         {
-            String role = value.getValue();
+            String role = value.getString();
 
             // Deal with Autonomous AP : delete the 4 associated SAP/AAP
             if ( isAutonomousAreaRole( role ) )
@@ -1258,7 +1258,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
             // any other check, as the deleted entry has no children.
             for ( Value role : adminPoint )
             {
-                if ( !isValidRole( role.getValue() ) )
+                if ( !isValidRole( role.getString() ) )
                 {
                     String message = "Cannot remove the given role, it's not a valid one :" + role;
                     LOG.error( message );
@@ -1365,7 +1365,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                             case ADD_ATTRIBUTE:
                                 for ( Value role : attribute )
                                 {
-                                    addRole( role.getValue(), dn, uuid, acapCache, caapCache, teapCache,
+                                    addRole( role.getString(), dn, uuid, acapCache, caapCache, teapCache,
                                         ssapCache );
 
                                     // Add the role to the modified attribute
@@ -1381,7 +1381,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                                     // Complete removal. Loop on all the existing roles and remove them
                                     for ( Value role : modifiedAdminRole )
                                     {
-                                        delRole( role.getValue(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
+                                        delRole( role.getString(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
                                     }
 
                                     modifiedAdminRole.clear();
@@ -1391,10 +1391,10 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                                 // Now deal with the values to remove
                                 for ( Value value : attribute )
                                 {
-                                    if ( !isValidRole( value.getValue() ) )
+                                    if ( !isValidRole( value.getString() ) )
                                     {
                                         // Not a valid role : we will throw an exception
-                                        String msg = "Invalid role : " + value.getValue();
+                                        String msg = "Invalid role : " + value.getString();
                                         LOG.error( msg );
                                         throw new LdapInvalidAttributeValueException(
                                             ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX,
@@ -1411,7 +1411,7 @@ public class AdministrativePointInterceptor extends BaseInterceptor
                                     }
 
                                     modifiedAdminRole.remove( value );
-                                    delRole( value.getValue(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
+                                    delRole( value.getString(), dn, uuid, acapCache, caapCache, teapCache, ssapCache );
 
                                 }
 

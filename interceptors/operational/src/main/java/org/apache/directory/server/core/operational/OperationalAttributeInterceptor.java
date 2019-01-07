@@ -220,7 +220,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
             directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
 
         // Create the Admin Dn
         adminDn = dnFactory.create( ServerDNConstants.ADMIN_SYSTEM_DN );
@@ -645,7 +645,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 Ava atav = atavs.next();
                 String type = schemaManager.lookupAttributeTypeRegistry( rdn.getNormType() ).getName();
-                buf.append( type ).append( '=' ).append( atav.getValue().getValue() );
+                buf.append( type ).append( '=' ).append( atav.getValue().getString() );
 
                 if ( atavs.hasNext() )
                 {

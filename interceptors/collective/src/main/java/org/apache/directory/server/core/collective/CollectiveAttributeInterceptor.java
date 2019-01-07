@@ -383,7 +383,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             for ( Value value : collectiveExclusions )
             {
-                AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( value.getValue() );
+                AttributeType attrType = schemaManager.lookupAttributeTypeRegistry( value.getString() );
                 exclusions.add( attrType );
                 LOG.debug( "Adding {} in the list of excluded collectiveAttributes", attrType.getName() );
             }
@@ -396,7 +396,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
          */
         for ( Value value : collectiveAttributeSubentries )
         {
-            String subentryDnStr = value.getValue();
+            String subentryDnStr = value.getString();
             Dn subentryDn = dnFactory.create( subentryDnStr );
 
             LOG.debug( "Applying subentries {}", subentryDn.getName() );
@@ -469,7 +469,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 for ( Value subentryColVal : subentryColAttr )
                 {
                     LOG.debug( "Adding the {} collective attribute into the entry", subentryColAttr );
-                    entryColAttr.add( subentryColVal.getValue() );
+                    entryColAttr.add( subentryColVal.getString() );
                 }
             }
         }

@@ -240,7 +240,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -402,7 +402,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -548,7 +548,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -696,7 +696,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -858,7 +858,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -1060,7 +1060,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -1339,7 +1339,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attributeTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
@@ -1391,7 +1391,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attributeTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
@@ -1472,7 +1472,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attributeTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
@@ -1528,7 +1528,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {

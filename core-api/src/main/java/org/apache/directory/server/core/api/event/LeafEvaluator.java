@@ -257,7 +257,7 @@ public class LeafEvaluator implements Evaluator
             }
             else
             {
-                value = new Value( attributeType, node.getValue().getValue() );
+                value = new Value( attributeType, node.getValue().getString() );
             }
         }
         else

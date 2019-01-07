@@ -828,7 +828,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     continue;
                 }
                 
-                String normalizedOc = objectClassNormalizer.normalize( value.getValue() );
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
 
                 objectClassIdx.add( partitionTxn, normalizedOc, id );
             }
@@ -859,7 +859,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 for ( Value value : adminRoles )
                 {
-                    adminRoleIdx.add( partitionTxn, value.getValue(), id );
+                    adminRoleIdx.add( partitionTxn, value.getString(), id );
                 }
 
                 // Adds only those attributes that are indexed
@@ -1081,7 +1081,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     continue;
                 }
                 
-                String normalizedOc = objectClassNormalizer.normalize( value.getValue() );
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
 
                 objectClassIdx.drop( partitionTxn, normalizedOc, id );
             }
@@ -1101,7 +1101,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 for ( Value value : adminRoles )
                 {
-                    adminRoleIdx.drop( partitionTxn, value.getValue(), id );
+                    adminRoleIdx.drop( partitionTxn, value.getString(), id );
                 }
 
                 // Deletes only those attributes that are indexed
@@ -1500,7 +1500,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     continue;
                 }
                 
-                String normalizedOc = objectClassNormalizer.normalize( value.getValue() );
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
 
                 objectClassIdx.add( partitionTxn, normalizedOc, id );
             }
@@ -1535,7 +1535,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // We may have more than one role 
             for ( Value value : mods )
             {
-                adminRoleIdx.add( partitionTxn, value.getValue(), id );
+                adminRoleIdx.add( partitionTxn, value.getString(), id );
             }
 
             // If the attr didn't exist for this id add it to presence index
@@ -1611,7 +1611,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     continue;
                 }
                 
-                String normalizedOc = objectClassNormalizer.normalize( value.getValue() );
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
 
                 objectClassIdx.drop( partitionTxn, normalizedOc, id );
             }
@@ -1623,7 +1623,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     continue;
                 }
                 
-                String normalizedOc = objectClassNormalizer.normalize( value.getValue() );
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
 
                 objectClassIdx.add( partitionTxn, normalizedOc, id );
             }
@@ -1670,7 +1670,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     continue;
                 }
                 
-                String normalizedOc = objectClassNormalizer.normalize( value.getValue() );
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
 
                 objectClassIdx.drop( partitionTxn, normalizedOc, id );
             }
@@ -1678,7 +1678,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // And add the new ones 
             for ( Value value : mods )
             {
-                String valueStr = value.getValue();
+                String valueStr = value.getString();
 
                 if ( valueStr.equals( topOCValue ) )
                 {
@@ -1759,7 +1759,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                         continue;
                     }
                     
-                    String normalizedOc = objectClassNormalizer.normalize( value.getValue() );
+                    String normalizedOc = objectClassNormalizer.normalize( value.getString() );
 
                     objectClassIdx.drop( partitionTxn, normalizedOc, id );
                 }
@@ -1773,7 +1773,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                         continue;
                     }
                     
-                    String normalizedOc = objectClassNormalizer.normalize( value.getValue() );
+                    String normalizedOc = objectClassNormalizer.normalize( value.getString() );
 
                     objectClassIdx.drop( partitionTxn, normalizedOc, id );
                 }
@@ -1831,7 +1831,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // We may have more than one role 
             for ( Value value : mods )
             {
-                adminRoleIdx.drop( partitionTxn, value.getValue(), id );
+                adminRoleIdx.drop( partitionTxn, value.getString(), id );
             }
 
             /*
@@ -2336,7 +2336,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         for ( Ava newAtav : newRdn )
         {
             String newNormType = newAtav.getNormType();
-            Object newNormValue = newAtav.getValue().getValue();
+            Object newNormValue = newAtav.getValue().getString();
 
             AttributeType newRdnAttrType = schemaManager.lookupAttributeTypeRegistry( newNormType );
 
@@ -2353,7 +2353,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 {
                     Index<?, String> userIndex = getUserIndex( newRdnAttrType );
 
-                    String normalized = oldAttributeType.getEquality().getNormalizer().normalize( oldAttribute.get().getValue() );
+                    String normalized = oldAttributeType.getEquality().getNormalizer().normalize( oldAttribute.get().getString() );
                     ( ( Index ) userIndex ).drop( partitionTxn, normalized, id );
 
                     /*
@@ -2370,7 +2370,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( newRdnAttrType.getSyntax().isHumanReadable() )
             {
-                entry.add( newRdnAttrType, newAtav.getValue().getValue() );
+                entry.add( newRdnAttrType, newAtav.getValue().getString() );
             }
             else
             {
@@ -2445,7 +2445,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 if ( mustRemove )
                 {
                     String oldNormType = oldAtav.getNormType();
-                    String oldNormValue = oldAtav.getValue().getValue();
+                    String oldNormValue = oldAtav.getValue().getString();
                     AttributeType oldRdnAttrType = schemaManager.lookupAttributeTypeRegistry( oldNormType );
                     entry.remove( oldRdnAttrType, oldNormValue );
 

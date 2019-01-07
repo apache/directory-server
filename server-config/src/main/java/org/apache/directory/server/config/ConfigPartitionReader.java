@@ -126,7 +126,7 @@ public class ConfigPartitionReader
         // Create the set of candidates
         for ( Value ocValue : objectClass )
         {
-            String ocName = ocValue.getValue();
+            String ocName = ocValue.getString();
             String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
             ObjectClass oc = schemaManager.getObjectClassRegistry().get( ocOid );
 
@@ -139,7 +139,7 @@ public class ConfigPartitionReader
         // Now find the parent OC
         for ( Value ocValue : objectClass )
         {
-            String ocName = ocValue.getValue();
+            String ocName = ocValue.getString();
             String ocOid = schemaManager.getObjectClassRegistry().getOidByName( ocName );
             ObjectClass oc = schemaManager.getObjectClassRegistry().get( ocOid );
 
@@ -245,7 +245,7 @@ public class ConfigPartitionReader
         
         if ( value != null )
         {
-            valueStr = value.getValue();
+            valueStr = value.getString();
         }
 
         Class<?> type = beanField.getType();
@@ -324,7 +324,7 @@ public class ConfigPartitionReader
         // loop on the values and inject them in the bean
         for ( Value value : attribute )
         {
-            String valueStr = value.getValue();
+            String valueStr = value.getString();
 
             try
             {

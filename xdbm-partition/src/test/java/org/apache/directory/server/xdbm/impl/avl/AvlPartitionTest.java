@@ -583,14 +583,14 @@ public class AvlPartitionTest
 
         Entry lookedup = partition.fetch( txn, partition.getEntryId( txn, dn ) );
 
-        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getValue() ); // before replacing
+        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
         lookedup = partition.modify( txn, dn, add );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().getValue() );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
         lookedup = partition.modify( txn, dn, new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT,
             "JWalker" ) );
-        assertEquals( "JWalker", lookedup.get( "sn" ).get().getValue() );
+        assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
     }
 
 
@@ -649,6 +649,6 @@ public class AvlPartitionTest
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
         lookedup = partition.modify( txn, dn, add );
-        assertEquals( attribVal, lookedup.get( "ou" ).get().getValue() );
+        assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 }

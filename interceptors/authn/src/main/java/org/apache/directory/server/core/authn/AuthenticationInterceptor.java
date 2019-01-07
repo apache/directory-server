@@ -1904,7 +1904,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         while ( itr.hasNext() )
         {
             Value value = itr.next();
-            String failureTime = value.getValue();
+            String failureTime = value.getString();
             long time = DateUtils.getDate( failureTime ).getTime();
             time += interval;
 

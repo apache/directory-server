@@ -172,7 +172,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         Value subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
 
         computeSuperiors();
 
@@ -491,7 +491,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( Value objectClass : objectClasses )
         {
-            String objectClassName = objectClass.getValue();
+            String objectClassName = objectClass.getString();
 
             if ( SchemaConstants.TOP_OC.equals( objectClassName ) )
             {
@@ -527,7 +527,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on all objectclasses
         for ( Value value : objectClasses )
         {
-            String ocName = value.getValue();
+            String ocName = value.getString();
             ObjectClass oc = schemaManager.lookupObjectClassRegistry( ocName );
 
             List<AttributeType> types = oc.getMustAttributeTypes();
@@ -556,7 +556,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on all objectclasses
         for ( Value objectClass : objectClasses )
         {
-            String ocName = objectClass.getValue();
+            String ocName = objectClass.getString();
             ObjectClass oc = schemaManager.lookupObjectClassRegistry( ocName );
 
             List<AttributeType> types = oc.getMayAttributeTypes();
@@ -598,7 +598,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Construct the new list of ObjectClasses
         for ( Value ocValue : objectClassAttr )
         {
-            String ocName = ocValue.getValue();
+            String ocName = ocValue.getString();
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
@@ -977,7 +977,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 try
                 {
-                    String supName = sup.getValue();
+                    String supName = sup.getString();
 
                     ObjectClass superior = schemaManager.lookupObjectClassRegistry( supName );
 
@@ -1480,7 +1480,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 SimpleNode node = ( SimpleNode ) filter;
                 String objectClass;
 
-                objectClass = node.getValue().getValue();
+                objectClass = node.getValue().getString();
 
                 String objectClassOid;
 
@@ -1729,9 +1729,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                if ( !syntaxChecker.isValidSyntax( value.getValue() ) )
+                if ( !syntaxChecker.isValidSyntax( value.getString() ) )
                 {
-                    String message = I18n.err( I18n.ERR_280, value.getValue(), attribute.getUpId() );
+                    String message = I18n.err( I18n.ERR_280, value.getString(), attribute.getUpId() );
                     LOG.info( message );
                     throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }

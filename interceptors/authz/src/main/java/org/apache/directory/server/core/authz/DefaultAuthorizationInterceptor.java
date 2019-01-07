@@ -172,7 +172,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value value : uniqueMember )
         {
-            Dn memberDn = dnFactory.create( value.getValue() );
+            Dn memberDn = dnFactory.create( value.getString() );
             newAdministrators.add( memberDn.getNormName() );
         }
 

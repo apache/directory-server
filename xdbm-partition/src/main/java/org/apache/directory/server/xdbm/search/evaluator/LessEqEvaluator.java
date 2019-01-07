@@ -228,11 +228,11 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
          */
         for ( Value value : attribute )
         {
-            if ( ldapComparator.compare( value.getValue(), node.getValue().getValue() ) <= 0 )
+            if ( ldapComparator.compare( value.getString(), node.getValue().getString() ) <= 0 )
             {
                 if ( indexEntry != null )
                 {
-                    indexEntry.setKey( value.getValue() );
+                    indexEntry.setKey( value.getString() );
                 }
                 
                 return true;

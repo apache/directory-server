@@ -246,7 +246,7 @@ public class CompareOperationContext extends AbstractOperationContext
             + ( ( value != null ) 
                 ? ", value :'"
                     + ( ( value.isHumanReadable() )
-                        ? value.getValue()
+                        ? value.getString()
                         : ( ( !value.isHumanReadable() )
                             ? Strings.dumpBytes( value.getBytes() )
                             : "unknown value type" ) )

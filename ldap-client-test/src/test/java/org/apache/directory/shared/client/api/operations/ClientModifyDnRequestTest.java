@@ -137,7 +137,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         assertNotNull( entry );
 
         Rdn oldRdn = oldDn.getRdn();
-        assertTrue( entry.contains( oldRdn.getType(), oldRdn.getAva().getValue().getValue() ) );
+        assertTrue( entry.contains( oldRdn.getType(), oldRdn.getAva().getValue().getString() ) );
     }
 
 

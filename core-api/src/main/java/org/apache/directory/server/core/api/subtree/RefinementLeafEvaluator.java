@@ -107,7 +107,7 @@ public class RefinementLeafEvaluator
 
         // check if Ava value exists in attribute
         // If the filter value for the objectClass is an OID we need to resolve a name
-        String value = node.getValue().getValue();
+        String value = node.getValue().getString();
 
         if ( objectClasses.contains( value ) )
         {

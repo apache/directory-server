@@ -456,7 +456,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                     }
                     else
                     {
-                        isNewStateDisabled = "TRUE".equalsIgnoreCase( val.getValue() );
+                        isNewStateDisabled = "TRUE".equalsIgnoreCase( val.getString() );
                     }
                 }
 
@@ -546,7 +546,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
             for ( Value value : dependencies )
             {
-                String dependency = value.getValue();
+                String dependency = value.getString();
 
                 if ( !loaded.containsKey( dependency ) )
                 {
@@ -561,7 +561,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         {
             for ( Value value : dependencies )
             {
-                String dependency = value.getValue();
+                String dependency = value.getString();
 
                 if ( schemaManager.getLoadedSchema( Strings.toLowerCaseAscii( dependency ) ) == null )
                 {

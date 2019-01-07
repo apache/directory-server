@@ -343,7 +343,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         if ( value.isHumanReadable() )
         {
-            compareRequest.setAssertionValue( value.getValue() );
+            compareRequest.setAssertionValue( value.getString() );
         }
         else
         {

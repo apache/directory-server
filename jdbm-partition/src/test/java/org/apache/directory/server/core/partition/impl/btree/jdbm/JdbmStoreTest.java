@@ -837,16 +837,16 @@ public class JdbmStoreTest
 
         Entry lookedup = partition.fetch( partitionTxn, partition.getEntryId( partitionTxn, dn ), dn );
 
-        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getValue() ); // before replacing
+        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
         lookedup = partition.modify( partitionTxn, dn, add );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().getValue() );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
         // testing the store.modify( dn, mod, entry ) API
         Modification replace = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" );
 
         lookedup = partition.modify( partitionTxn, dn, replace );
-        assertEquals( "JWalker", lookedup.get( "sn" ).get().getValue() );
+        assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
         assertEquals( 1, lookedup.get( "sn" ).size() );
     }
 
@@ -919,6 +919,6 @@ public class JdbmStoreTest
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
         lookedup = partition.modify( partitionTxn, dn, add );
-        assertEquals( attribVal, lookedup.get( "ou" ).get().getValue() );
+        assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 }

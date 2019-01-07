@@ -194,7 +194,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 for ( Value value : objectClass )
                 {
-                    String valueStr = value.getValue();
+                    String valueStr = value.getString();
 
                     if ( valueStr.equals( SchemaConstants.TOP_OC ) )
                     {
@@ -232,7 +232,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
                     for ( Value value : adminRoles )
                     {
-                        adminRoleIdx.add( partitionTxn, value.getValue(), id );
+                        adminRoleIdx.add( partitionTxn, value.getString(), id );
                     }
 
                     // Adds only those attributes that are indexed
@@ -255,7 +255,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
                         for ( Value value : attribute )
                         {
-                            idx.add( partitionTxn, value.getValue(), id );
+                            idx.add( partitionTxn, value.getString(), id );
                         }
 
                         // Adds only those attributes that are indexed
@@ -751,7 +751,7 @@ public class JdbmPartition extends AbstractBTreePartition
                     {
                         for ( Value value : entryAttr )
                         {
-                            index.add( partitionTxn, value.getValue(), id );
+                            index.add( partitionTxn, value.getString(), id );
                         }
     
                         // Adds only those attributes that are indexed

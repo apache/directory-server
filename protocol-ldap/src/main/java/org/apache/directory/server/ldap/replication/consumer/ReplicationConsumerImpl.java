@@ -1308,7 +1308,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             String uuid = Strings.uuidToString( limitedUuidList.get( 0 ) );
 
-            filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new Value( uuid ).getValue() );
+            filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new Value( uuid ).getString() );
             if ( isRefreshPresent )
             {
                 filter = new NotNode( filter );
@@ -1328,7 +1328,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             for ( int i = 0; i < size; i++ )
             {
                 String uuid = Strings.uuidToString( limitedUuidList.get( i ) );
-                ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new Value( uuid ) .getValue() );
+                ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new Value( uuid ) .getString() );
 
                 if ( isRefreshPresent )
                 {

@@ -86,7 +86,7 @@ public final class ServerEntryUtils
         {
             if ( attributeType.isHR() )
             {
-                attribute.add( value.getValue() );
+                attribute.add( value.getString() );
             }
             else
             {

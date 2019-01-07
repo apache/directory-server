@@ -126,7 +126,7 @@ public class TestCreateLdapServerRule
             Dn dn = new Dn( "cn=methodDs,ou=system" );
             Entry entry = ldapConnection.lookup( dn );
             assertNotNull( entry );
-            assertEquals( "methodDs", entry.get( "cn" ).get().getValue() );
+            assertEquals( "methodDs", entry.get( "cn" ).get().getString() );
     
             try
             {
@@ -184,7 +184,7 @@ public class TestCreateLdapServerRule
             Dn dn = new Dn( "cn=class,ou=system" );
             Entry entry = ldapConnection.lookup( dn );
             assertNotNull( entry );
-            assertEquals( "class", entry.get( "cn" ).get().getValue() );
+            assertEquals( "class", entry.get( "cn" ).get().getString() );
         }
         catch ( LdapException e )
         {
@@ -222,7 +222,7 @@ public class TestCreateLdapServerRule
             Dn dn = new Dn( "cn=class,ou=system" );
             Entry entry = directoryService.getAdminSession().lookup( dn );
             assertNotNull( entry );
-            assertEquals( "class", entry.get( "cn" ).get().getValue() );
+            assertEquals( "class", entry.get( "cn" ).get().getString() );
     
             LOG.debug( "getting network connection" );
             ldapServer.getPort();
@@ -232,7 +232,7 @@ public class TestCreateLdapServerRule
     
             entry = ldapConnection.lookup( dn );
             assertNotNull( entry );
-            assertEquals( "class", entry.get( "cn" ).get().getValue() );
+            assertEquals( "class", entry.get( "cn" ).get().getString() );
         }
         catch ( LdapException e )
         {

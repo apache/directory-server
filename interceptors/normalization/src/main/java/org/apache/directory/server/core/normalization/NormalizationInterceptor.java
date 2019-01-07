@@ -577,7 +577,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         for ( Ava ava : rdn )
         {
             Value value = ava.getValue();
-            String upValue = ava.getValue().getValue();
+            String upValue = ava.getValue().getString();
             String upId = ava.getType();
 
             // Check that the entry contains this Ava

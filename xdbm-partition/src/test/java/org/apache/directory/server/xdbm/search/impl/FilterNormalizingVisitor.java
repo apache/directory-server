@@ -284,7 +284,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         }
         else
         {
-            normalized = normalizeValue( node.getAttribute(), node.getValue().getValue() );
+            normalized = normalizeValue( node.getAttribute(), node.getValue().getString() );
         }
 
         if ( normalized == null )
@@ -342,7 +342,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
                 if ( normAny != null )
                 {
-                    normAnys.add( normAny.getValue() );
+                    normAnys.add( normAny.getString() );
                 }
             }
 
@@ -368,7 +368,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         if ( normInitial != null )
         {
-            node.setInitial( normInitial.getValue() );
+            node.setInitial( normInitial.getString() );
         }
         else
         {
@@ -379,7 +379,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
 
         if ( normFinal != null )
         {
-            node.setFinal( normFinal.getValue() );
+            node.setFinal( normFinal.getString() );
         }
         else
         {

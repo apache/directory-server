@@ -157,7 +157,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
         for ( Value value : subentries )
         {
-            Dn subentryDn = new Dn( directoryService.getSchemaManager(), value.getValue() );
+            Dn subentryDn = new Dn( directoryService.getSchemaManager(), value.getString() );
             triggerSpecs.addAll( triggerSpecCache.getSubentryTriggerSpecs( subentryDn ) );
         }
     }
@@ -183,7 +183,7 @@ public class TriggerInterceptor extends BaseInterceptor
 
         for ( Value value : entryTrigger )
         {
-            String triggerString = value.getValue();
+            String triggerString = value.getString();
             TriggerSpecification item;
 
             try

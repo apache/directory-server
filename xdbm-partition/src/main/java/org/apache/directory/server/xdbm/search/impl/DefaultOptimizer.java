@@ -328,7 +328,7 @@ public class DefaultOptimizer implements Optimizer
             }
             else
             {
-                normalizedKey = node.getAttributeType().getEquality().getNormalizer().normalize( node.getValue().getValue() );
+                normalizedKey = node.getAttributeType().getEquality().getNormalizer().normalize( node.getValue().getString() );
             }
             
             Cursor<String> result = idx.forwardValueCursor( partitionTxn, ( V ) normalizedKey );
@@ -388,11 +388,11 @@ public class DefaultOptimizer implements Optimizer
 
             if ( isGreaterThan )
             {
-                return idx.greaterThanCount( partitionTxn, ( V ) node.getValue().getValue() );
+                return idx.greaterThanCount( partitionTxn, ( V ) node.getValue().getString() );
             }
             else
             {
-                return idx.lessThanCount( partitionTxn, ( V ) node.getValue().getValue() );
+                return idx.lessThanCount( partitionTxn, ( V ) node.getValue().getString() );
             }
         }
 

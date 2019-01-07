@@ -239,7 +239,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
             {
                 if ( indexEntry != null )
                 {
-                    indexEntry.setKey( value.getValue() );
+                    indexEntry.setKey( value.getString() );
                 }
                 
                 return true;

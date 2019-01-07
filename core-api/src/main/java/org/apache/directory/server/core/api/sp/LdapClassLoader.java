@@ -166,7 +166,7 @@ public class LdapClassLoader extends ClassLoader
 
                 for ( Value val : attr )
                 {
-                    Dn dn = directoryService.getDnFactory().create( val.getValue() );
+                    Dn dn = directoryService.getDnFactory().create( val.getString() );
                     searchContexts.add( dn );
                 }
 

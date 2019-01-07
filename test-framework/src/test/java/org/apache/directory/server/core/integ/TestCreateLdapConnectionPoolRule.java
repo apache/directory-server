@@ -127,7 +127,7 @@ public class TestCreateLdapConnectionPoolRule
             Dn dn = new Dn( "cn=class,ou=system" );
             Entry entry = ldapConnection.lookup( dn );
             assertNotNull( entry );
-            assertEquals( "class", entry.get( "cn" ).get().getValue() );
+            assertEquals( "class", entry.get( "cn" ).get().getString() );
         }
         catch ( LdapException e )
         {

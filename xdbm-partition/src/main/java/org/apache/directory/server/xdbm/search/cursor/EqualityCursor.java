@@ -98,7 +98,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         if ( store.hasIndexOn( attributeType ) )
         {
             Index<V, String> userIndex = ( Index<V, String> ) store.getIndex( attributeType );
-            String normalizedValue = attributeType.getEquality().getNormalizer().normalize( value.getValue() );
+            String normalizedValue = attributeType.getEquality().getNormalizer().normalize( value.getString() );
             userIdxCursor = userIndex.forwardCursor( partitionTxn, ( V ) normalizedValue );
             uuidIdxCursor = null;
         }

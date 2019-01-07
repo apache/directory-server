@@ -304,7 +304,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
             directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
 
         // Init the caches now
         initTupleCache();
@@ -395,7 +395,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value value : subentries )
         {
-            String subentryDnStr = value.getValue();
+            String subentryDnStr = value.getString();
             Dn subentryDn = dnFactory.create( subentryDnStr );
             tuples.addAll( tupleCache.getACITuples( subentryDn.getNormName() ) );
         }
@@ -421,7 +421,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value value : entryAci )
         {
-            String aciString = value.getValue();
+            String aciString = value.getString();
             ACIItem item;
 
             try
@@ -481,7 +481,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value value : subentryAci )
         {
-            String aciString = value.getValue();
+            String aciString = value.getString();
             ACIItem item;
 
             try

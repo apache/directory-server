@@ -871,7 +871,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
             for ( Value val : ref )
             {
-                String url = val.getValue();
+                String url = val.getString();
 
                 if ( !url.startsWith( "ldap" ) )
                 {
@@ -1371,7 +1371,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         for ( Value refval : refAttr )
         {
-            String refstr = refval.getValue();
+            String refstr = refval.getString();
 
             // need to add non-ldap URLs as-is
             if ( !refstr.startsWith( "ldap" ) )
@@ -1434,7 +1434,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
         PartitionNexus nexus = ds.getPartitionNexus();
 
         Value subschemaSubentry = nexus.getRootDseValue( ds.getAtProvider().getSubschemaSubentry() );
-        Dn subschemaSubentryDn = ds.getDnFactory().create( subschemaSubentry.getValue() );
+        Dn subschemaSubentryDn = ds.getDnFactory().create( subschemaSubentry.getString() );
 
         return subschemaSubentryDn.equals( base );
     }
@@ -1465,7 +1465,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         for ( Value value : refAttr )
         {
-            String ref = value.getValue();
+            String ref = value.getString();
 
             if ( IS_DEBUG )
             {
@@ -1550,7 +1550,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
 
         for ( Value value : refAttr )
         {
-            String ref = value.getValue();
+            String ref = value.getString();
 
             if ( IS_DEBUG )
             {

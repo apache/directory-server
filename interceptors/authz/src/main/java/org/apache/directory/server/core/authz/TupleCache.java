@@ -216,7 +216,7 @@ public class TupleCache
         // store the associated tuples into the cache
         for ( Value value : prescriptiveAci )
         {
-            String aci = value.getValue();
+            String aci = value.getString();
             ACIItem item = null;
 
             try

@@ -280,7 +280,7 @@ public class CursorBuilder
 
             // Position the index on the element we should start from
             IndexEntry<T, String> indexEntry = new IndexEntry<>();
-            indexEntry.setKey( ( T ) value.getValue() );
+            indexEntry.setKey( ( T ) value.getString() );
 
             userIdxCursor.before( indexEntry );
             Set<String> uuidSet = searchResult.getCandidateSet();
@@ -332,7 +332,7 @@ public class CursorBuilder
 
             // Position the index on the element we should start from
             IndexEntry<T, String> indexEntry = new IndexEntry<>();
-            indexEntry.setKey( ( T ) value.getValue() );
+            indexEntry.setKey( ( T ) value.getString() );
 
             userIdxCursor.after( indexEntry );
             Set<String> uuidSet = searchResult.getCandidateSet();

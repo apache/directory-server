@@ -402,7 +402,7 @@ public class MavibotPartition extends AbstractBTreePartition
                 {
                     for ( Value value : entryAttr )
                     {
-                        index.add( partitionTxn, value.getValue(), id );
+                        index.add( partitionTxn, value.getString(), id );
                     }
 
                     // Adds only those attributes that are indexed

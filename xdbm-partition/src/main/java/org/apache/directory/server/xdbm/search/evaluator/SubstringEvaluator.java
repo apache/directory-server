@@ -156,7 +156,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
             {
                 for ( Value value : attr )
                 {
-                    String strValue = value.getValue();
+                    String strValue = value.getString();
                     String normalizedValue = attr.getAttributeType().getEquality().getNormalizer().normalize( strValue );
 
                     // Once match is found cleanup and return true
@@ -219,7 +219,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
                      */
                     for ( Value value : attr )
                     {
-                        String strValue = value.getValue();
+                        String strValue = value.getString();
                         String normalizedValue = attr.getAttributeType().getEquality().getNormalizer().normalize( strValue );
 
                         // Once match is found cleanup and return true
@@ -259,7 +259,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
              */
             for ( Value value : attr )
             {
-                String strValue = value.getValue();
+                String strValue = value.getString();
 
                 // Once match is found cleanup and return true
                 if ( regex.matcher( strValue ).matches() )
@@ -298,7 +298,7 @@ public class SubstringEvaluator implements Evaluator<SubstringNode>
                      */
                     for ( Value value : attr )
                     {
-                        String strValue = value.getValue();
+                        String strValue = value.getString();
 
                         // Once match is found cleanup and return true
                         if ( regex.matcher( strValue ).matches() )

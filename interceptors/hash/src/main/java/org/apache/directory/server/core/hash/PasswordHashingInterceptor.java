@@ -152,7 +152,7 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
         // Special case : deal with a potential empty value. We may have more than one
         for ( Value userPassword : pwdAt )
         {
-            if ( Strings.isEmpty( userPassword.getValue() ) )
+            if ( Strings.isEmpty( userPassword.getString() ) )
             {
                 continue;
             }
