@@ -35,12 +35,14 @@ import java.security.cert.X509Certificate;
 
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -121,8 +123,12 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     @Test
     public void testLdaps_DefaultAdminCert_NoVerificationTrustManager() throws Exception
     {
+        LdapConnectionConfig config = ldapsConnectionConfig();
+        
+        config.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+        
         try (
-            LdapNetworkConnection conn = new LdapNetworkConnection( ldapsConectionConfig() ); )
+            LdapNetworkConnection conn = new LdapNetworkConnection( config ); )
         {
             conn.connect();
             assertTrue( conn.isConnected() );
@@ -138,8 +144,12 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     @Test
     public void testStartTls_DefaultAdminCert_NoVerificationTrustManager() throws Exception
     {
+        LdapConnectionConfig config = startTlsConnectionConfig();
+        
+        config.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+
         try (
-            LdapNetworkConnection conn = new LdapNetworkConnection( startTlsConectionConfig() ); )
+            LdapNetworkConnection conn = new LdapNetworkConnection( config ); )
         {
             conn.startTls();
             assertTrue( conn.isConnected() );
@@ -155,8 +165,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     @Test
     public void testLdaps_DefaultAdminCert_DefaultTrustManager() throws Exception
     {
-        LdapConnectionConfig config = ldapsConectionConfig();
-        config.setTrustManagers( defaultTrustManagers() );
+        LdapConnectionConfig config = ldapsConnectionConfig();
 
         try (
             LdapNetworkConnection conn = new LdapNetworkConnection( config ); )
@@ -184,7 +193,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     @Test
     public void testStartTls_DefaultAdminCert_DefaultTrustManager() throws Exception
     {
-        LdapConnectionConfig config = startTlsConectionConfig();
+        LdapConnectionConfig config = startTlsConnectionConfig();
         config.setTrustManagers( defaultTrustManagers() );
 
         try (
@@ -214,8 +223,12 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     {
         assertTrue( getLdapServer().isStarted() );
 
+        LdapConnectionConfig config = ldapsConnectionConfig();
+        
+        config.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+
         try (
-            LdapNetworkConnection conn = new LdapNetworkConnection( ldapsConectionConfig() ); )
+            LdapNetworkConnection conn = new LdapNetworkConnection( config ); )
         {
             conn.connect();
             assertTrue( conn.isConnected() );
@@ -233,8 +246,12 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     {
         assertTrue( getLdapServer().isStarted() );
 
+        LdapConnectionConfig config = startTlsConnectionConfig();
+        
+        config.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+
         try (
-            LdapNetworkConnection conn = new LdapNetworkConnection( startTlsConectionConfig() ); )
+            LdapNetworkConnection conn = new LdapNetworkConnection( config ); )
         {
             conn.startTls();
             assertTrue( conn.isConnected() );
@@ -252,7 +269,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     {
         assertTrue( getLdapServer().isStarted() );
 
-        LdapConnectionConfig config = ldapsConectionConfig();
+        LdapConnectionConfig config = ldapsConnectionConfig();
         config.setTrustManagers( defaultTrustManagers() );
 
         try (
@@ -282,7 +299,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     {
         assertTrue( getLdapServer().isStarted() );
 
-        LdapConnectionConfig config = startTlsConectionConfig();
+        LdapConnectionConfig config = startTlsConnectionConfig();
         config.setTrustManagers( defaultTrustManagers() );
 
         try (
@@ -347,7 +364,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     }
 
 
-    private LdapConnectionConfig startTlsConectionConfig()
+    private LdapConnectionConfig startTlsConnectionConfig()
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setTimeout( 1000 );
@@ -358,7 +375,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     }
 
 
-    private LdapConnectionConfig ldapsConectionConfig()
+    private LdapConnectionConfig ldapsConnectionConfig()
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setTimeout( 1000 );

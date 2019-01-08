@@ -27,6 +27,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -135,8 +137,10 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testBindRequestSSLAuto() throws Exception
     {
+        sslConfig.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+
         try ( LdapNetworkConnection connection = 
-            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPortSSL(), true ) )
+            new LdapNetworkConnection( sslConfig ) )
         {
             connection.bind( "uid=admin,ou=system", "secret" );
             assertTrue( connection.getConfig().isUseSsl() );
@@ -219,8 +223,10 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testStartTLSAfterBind() throws Exception
     {
+        tlsConfig.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+
         try ( LdapNetworkConnection connection = 
-            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() ) )
+            new LdapNetworkConnection( tlsConfig ) )
         {
             connection.connect();
 
@@ -255,8 +261,10 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testStartTLS() throws Exception
     {
+        tlsConfig.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+
         try ( LdapNetworkConnection connection = 
-            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() ) )
+            new LdapNetworkConnection( tlsConfig ) )
         {
             assertFalse( connection.isConnected() );
             
@@ -354,6 +362,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         sslConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
         sslConfig.setUseSsl( true );
         sslConfig.setLdapPort( getLdapServer().getPortSSL() );
+        sslConfig.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+
 
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
         {
