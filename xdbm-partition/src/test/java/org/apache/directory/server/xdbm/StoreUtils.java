@@ -25,7 +25,7 @@ import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.model.schema.MutableAttributeType;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -76,7 +76,7 @@ public class StoreUtils
 
     private static void createTestInt( SchemaManager schemaManager ) throws LdapException
     {
-        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_OID );
+        AttributeType attributeType = new AttributeType( TEST_INT_OID );
         attributeType.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
         attributeType.setNames( "testInt" );
         attributeType.setEqualityOid( "2.5.13.14" );
@@ -91,7 +91,7 @@ public class StoreUtils
 
     private static void createTestIntDescendant( SchemaManager schemaManager ) throws LdapException
     {
-        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_DESCENDANT_OID );
+        AttributeType attributeType = new AttributeType( TEST_INT_DESCENDANT_OID );
         attributeType.setNames( "testIntDescendant" );
         attributeType.setSuperior( schemaManager.getAttributeType( TEST_INT_OID ) );
         attributeType.setEnabled( true );
@@ -103,7 +103,7 @@ public class StoreUtils
 
     private static void createTestIntNoIndex( SchemaManager schemaManager ) throws LdapException
     {
-        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_NO_INDEX_OID );
+        AttributeType attributeType = new AttributeType( TEST_INT_NO_INDEX_OID );
         attributeType.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
         attributeType.setNames( "testIntNoIndex" );
         attributeType.setEqualityOid( "2.5.13.14" );
@@ -118,7 +118,7 @@ public class StoreUtils
 
     private static void createTestIntDescendantNoIndex( SchemaManager schemaManager ) throws LdapException
     {
-        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_DESCENDANT_NO_INDEX_OID );
+        AttributeType attributeType = new AttributeType( TEST_INT_DESCENDANT_NO_INDEX_OID );
         attributeType.setNames( "testIntDescendantNoIndex" );
         attributeType.setSuperior( schemaManager.getAttributeType( TEST_INT_NO_INDEX_OID ) );
         attributeType.setEnabled( true );

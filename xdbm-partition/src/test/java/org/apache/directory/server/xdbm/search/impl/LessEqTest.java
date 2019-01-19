@@ -45,8 +45,7 @@ import org.apache.directory.api.ldap.model.filter.LessEqNode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.LdapSyntax;
-import org.apache.directory.api.ldap.model.schema.MutableAttributeType;
-import org.apache.directory.api.ldap.model.schema.MutableMatchingRule;
+import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.StringComparator;
 import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimToLowerNormalizer;
@@ -755,7 +754,7 @@ public class LessEqTest
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
         LdapSyntax syntax = new BogusSyntax( 10 );
-        MutableAttributeType at = new MutableAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
         at.setSyntax( syntax );
@@ -782,12 +781,12 @@ public class LessEqTest
     {
         LdapSyntax syntax = new BogusSyntax( 2 );
 
-        MutableMatchingRule mr = new MutableMatchingRule( "1.1" );
+        MatchingRule mr = new MatchingRule( "1.1" );
         mr.setSyntax( syntax );
         mr.setLdapComparator( new StringComparator( "1.1" ) );
         mr.setNormalizer( new DeepTrimToLowerNormalizer( "1.1" ) );
 
-        MutableAttributeType at = new MutableAttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".3000" );
+        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".3000" );
         at.addName( "bogus" );
         at.setSchemaName( "other" );
         at.setSyntax( syntax );
