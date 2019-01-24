@@ -129,6 +129,7 @@
                 org.apache.directory.server.core.api.entry;version=${project.version},
                 org.apache.directory.server.core.api.interceptor;version=${project.version},
                 org.apache.directory.server.core.api.interceptor.context;version=${project.version},
+                org.apache.directory.server.core.api.partition;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.kerberos.shared.crypto.encryption;version=${project.version},
                 org.apache.directory.shared.kerberos;version=${project.version},
