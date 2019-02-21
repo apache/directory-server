@@ -83,9 +83,9 @@
     <pax-exam.version>4.11.0</pax-exam.version>
     <pax-url.version>2.5.4</pax-url.version>
     <plexus.utils.version>3.0.24</plexus.utils.version>
-    <slf4j.api.version>1.7.25</slf4j.api.version>
+    <slf4j.api.version>1.7.26</slf4j.api.version>
     <slf4j.api.bundleversion>"$«range;[==,=+)»"</slf4j.api.bundleversion>
-    <slf4j.log4j12.version>1.7.25</slf4j.log4j12.version>
+    <slf4j.log4j12.version>1.7.26</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
   </properties>
 
