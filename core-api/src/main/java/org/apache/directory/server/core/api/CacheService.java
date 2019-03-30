@@ -21,23 +21,23 @@
 package org.apache.directory.server.core.api;
 
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.util.Iterator;
 
-import org.ehcache.Cache;
-import org.ehcache.Cache.Entry;
-import org.ehcache.CacheManager;
-import org.ehcache.Status;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.xml.XmlConfiguration;
-import org.ehcache.xml.exceptions.XmlConfigurationException;
+import javax.cache.Cache;
+import javax.cache.Cache.Entry;
+import javax.cache.CacheManager;
+
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.jcache.CacheManagerImpl;
+import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider;
+import com.typesafe.config.ConfigFactory;
+
 
 /**
- * A ehcache based cache service to be used for various caching requirement in the server. 
+ * A cache service to be used for various caching requirement in the server. 
  * 
  * If a cache config file with the name {@link #DIRECTORY_CACHESERVICE_XML} is present in
  * the "workdirectory" of the DirectoryService then that file will be used for configuring 
@@ -49,17 +49,17 @@ import org.slf4j.LoggerFactory;
 public class CacheService
 {
     /** The cache configuration file */
-    private static final String DIRECTORY_CACHESERVICE_XML = "directory-cacheservice.xml";
+    //private static final String DIRECTORY_CACHESERVICE_XML = "directory-cacheservice.xml";
 
     /** The associated logger */
     private static final Logger LOG = LoggerFactory.getLogger( CacheService.class );
 
-    /** the ehcache cache manager */
+    /** the cache manager */
     private CacheManager cacheManager = null;
 
     /**
      * Utility method to dump the cache contents to a StringBuffer.
-     * This is needed because ehcache 3.x Cache objects only implements Iterable
+     * This is needed because Cache objects only implements Iterable
      * 
      * @return a StringBuffer
      */
@@ -70,7 +70,7 @@ public class CacheService
         
         while ( it.hasNext() )
         {
-            Cache.Entry< ?, ? > nextObj = ( Entry<?, ?> ) it.next();
+            Entry<?, ?> nextObj = ( Entry<?, ?> ) it.next();
             sb.append( '\t' )
             .append( nextObj.getKey().toString() )
             .append( " -> " )
@@ -92,7 +92,7 @@ public class CacheService
     /**
      * Creates a new instance of CacheService with the given cache manager.
      *
-     * @param cachemanager The provided CaxcheManager instance
+     * @param cachemanager The provided CacheManager instance
      */
     public CacheService( CacheManager cachemanager )
     {
@@ -121,48 +121,26 @@ public class CacheService
     {
         LOG.debug( "CacheService initialization, for instance {}", instanceId );
 
-        if ( ( cacheManager != null ) && ( cacheManager.getStatus() == Status.AVAILABLE ) )
+        if ( ( cacheManager != null ) && ( !cacheManager.isClosed() ) )
         {
             LOG.warn( "cache service was already initialized and is available" );
 
             return;
         }
 
-        XmlConfiguration cc = null;
+        CaffeineCachingProvider p = new CaffeineCachingProvider();
+        cacheManager = new CacheManagerImpl( p, p.getDefaultURI(), getClass().getClassLoader(),
+            p.getDefaultProperties(),
+            ConfigFactory.load( getClass().getClassLoader() ) );
+        //CaffeineCachingProvider
+//        CachingProvider cachingProvider = Caching.getCachingProvider(
+//            "com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider",
+//            getClass().getClassLoader() );
+//        cacheManager = cachingProvider.getCacheManager();
+        System.out.println( "###### entryDn cache: " + cacheManager.getCache( "entryDn", String.class, Dn.class ) );
 
-        if ( layout != null )
-        {
-            File configFile = new File( layout.getConfDirectory(), DIRECTORY_CACHESERVICE_XML );
-
-            if ( !configFile.exists() )
-            {
-                LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
-                cc = new XmlConfiguration( getClass().getClassLoader().getResource(
-                    DIRECTORY_CACHESERVICE_XML ), getClass().getClassLoader() );
-            }
-            else
-            {
-                LOG.info( "loading cache configuration from the file {}", configFile );
-                
-                try
-                {
-                    cc = new XmlConfiguration( configFile.toURI().toURL(), getClass().getClassLoader() );
-                }
-                catch ( XmlConfigurationException | MalformedURLException e ) 
-                {
-                    LOG.error( "exception loading cache configuration from the file {}: {}", configFile, e.toString() );
-                }
-            }
-        }
-        else
-        {
-            LOG.info( "no custom cache configuration was set, loading the default cache configuration" );
-            cc = new XmlConfiguration( getClass().getClassLoader().getResource(
-                DIRECTORY_CACHESERVICE_XML ), getClass().getClassLoader() );
-        }
-
-        cacheManager = CacheManagerBuilder.newCacheManager( cc );
-        cacheManager.init();
+        // TODO: need to create caches?
+        //cacheManager.createCache( cacheName, configuration )
     }
 
 
@@ -200,7 +178,7 @@ public class CacheService
         LOG.info( "fetching the cache named {}", name );
 
         Cache<K, V> cache = cacheManager.getCache( name, keyClazz, valueClazz );
-        
+
         return cache;
     }
 
@@ -214,6 +192,6 @@ public class CacheService
     {
         LOG.info( "Removing the cache named {}", name );
         
-        cacheManager.removeCache( name );
+        cacheManager.destroyCache( name );
     }
 }

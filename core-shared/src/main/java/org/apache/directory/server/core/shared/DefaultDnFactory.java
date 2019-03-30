@@ -20,8 +20,7 @@
 
 package org.apache.directory.server.core.shared;
 
-
-import org.ehcache.Cache;
+import javax.cache.Cache;
 
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;

@@ -30,7 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.ehcache.Cache;
+import javax.cache.Cache;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;

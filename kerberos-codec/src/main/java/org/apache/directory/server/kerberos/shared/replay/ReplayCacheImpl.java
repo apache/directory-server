@@ -22,10 +22,10 @@ package org.apache.directory.server.kerberos.shared.replay;
 
 import java.io.Serializable;
 
+import javax.cache.Cache;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +44,8 @@ public class ReplayCacheImpl implements ReplayCache
 
     private static final Logger LOG = LoggerFactory.getLogger( ReplayCacheImpl.class );
 
-    /** ehcache based storage to store the entries */
-    private Cache< String, Object > cache;
+    /** cache to store the entries */
+    private Cache<String, ReplayCacheEntry> cache;
 
     /** default clock skew */
     private static final long DEFAULT_CLOCK_SKEW = 5L * KerberosTime.MINUTE;
@@ -141,7 +141,7 @@ public class ReplayCacheImpl implements ReplayCache
      * Creates a new instance of InMemoryReplayCache. Sets the
      * delay between each cleaning run to 5 seconds.
      */
-    public ReplayCacheImpl( Cache < String, Object > cache )
+    public ReplayCacheImpl( Cache<String, ReplayCacheEntry> cache )
     {
         this.cache = cache;
     }
@@ -154,7 +154,7 @@ public class ReplayCacheImpl implements ReplayCache
      * 
      * @param clockSkew the allowed skew (milliseconds)
      */
-    public ReplayCacheImpl( Cache< String, Object > cache, long clockSkew )
+    public ReplayCacheImpl( Cache<String, ReplayCacheEntry> cache, long clockSkew )
     {
         this.cache = cache;
         this.clockSkew = clockSkew;
@@ -180,7 +180,7 @@ public class ReplayCacheImpl implements ReplayCache
     {
         ReplayCacheEntry entry = new ReplayCacheEntry( serverPrincipal, 
             clientPrincipal, clientTime, clientMicroSeconds );
-        ReplayCacheEntry found = ( ReplayCacheEntry ) cache.get( entry.createKey() );
+        ReplayCacheEntry found = cache.get( entry.createKey() );
 
         if ( found == null )
         {

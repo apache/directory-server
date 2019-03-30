@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 
-import org.ehcache.Cache;
+import javax.cache.Cache;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -485,5 +485,5 @@ public interface Store
      * @return the Alias cache
      * @return The cache
      */
-    Cache< String, Dn > getAliasCache();
+    Cache<String, Dn> getAliasCache();
 }

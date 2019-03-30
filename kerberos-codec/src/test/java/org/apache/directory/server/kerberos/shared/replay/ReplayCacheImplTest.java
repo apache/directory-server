@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.shared.replay;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -28,25 +29,26 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.OptionalLong;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.spi.CachingProvider;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl.ReplayCacheEntry;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
-import org.ehcache.Cache;
-import org.ehcache.Cache.Entry;
-import org.ehcache.CacheManager;
-import org.ehcache.Status;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ExpiryPolicyBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.github.benmanes.caffeine.jcache.configuration.CaffeineConfiguration;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
@@ -79,25 +81,14 @@ public class ReplayCacheImplTest
         {
             long clockSkew = 1000; // 1 sec
 
-            cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
-            
-            cacheManager.init();
+            CachingProvider cachingProvider = Caching.getCachingProvider();
+            CacheManager cm = cachingProvider.getCacheManager();
+            CaffeineConfiguration<String, ReplayCacheEntry> config = new CaffeineConfiguration<>();
+            config.setMaximumSize( OptionalLong.of( 4L ) );
+            config.setExpireAfterAccess( OptionalLong.of( 1000L * 1000L * 1000L) );
+            Cache<String, ReplayCacheEntry> kdcReplayCache = cm.createCache( "kdcReplayCache", config );
 
-            Cache< String, Object > ehCache = cacheManager.createCache( 
-                    "kdcReplayCache", 
-                    CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                            String.class, 
-                            Object.class, 
-                            ResourcePoolsBuilder.heap(4)
-                    )
-                        .withExpiry(
-                            ExpiryPolicyBuilder
-                                .timeToIdleExpiration( Duration.ofMillis( 1000 ) )
-                                )
-                        .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration( Duration.ofMillis( 1000 )))
-            );
-            
-            ReplayCacheImpl cache = new ReplayCacheImpl( ehCache, clockSkew );
+            ReplayCacheImpl cache = new ReplayCacheImpl( kdcReplayCache, clockSkew );
 
             int i = 0;
 
@@ -115,7 +106,7 @@ public class ReplayCacheImplTest
             }
 
             List<String> keys = new ArrayList<>();
-            Iterator<Entry<String, Object>> it = ehCache.iterator();
+            Iterator<Cache.Entry<String, ReplayCacheEntry>> it = kdcReplayCache.iterator();
             
             while (it.hasNext())
             {
@@ -123,6 +114,7 @@ public class ReplayCacheImplTest
             }
 
             // We should have 4 entries
+            assertEquals( 4, keys.size() );
             assertTrue( keys.size() != 0 );
 
             // Wait till the timetolive time exceeds
@@ -131,14 +123,14 @@ public class ReplayCacheImplTest
             // then access the cache so that the objects present in the cache will be expired
             for ( String k : keys )
             {
-                assertNull( ehCache.get( k ) );
+                assertNull( kdcReplayCache.get( k ) );
             }
 
-            assertFalse( ehCache.iterator().hasNext() );
+            assertFalse( kdcReplayCache.iterator().hasNext() );
         }
         finally
         {
-            if ( cacheManager != null && cacheManager.getStatus() != Status.UNINITIALIZED)
+            if ( cacheManager != null && !cacheManager.isClosed() )
             {
                 cacheManager.close();
             }

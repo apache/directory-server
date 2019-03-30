@@ -22,6 +22,8 @@ package org.apache.directory.server.kerberos.kdc;
 
 import java.io.IOException;
 
+import javax.cache.Cache;
+
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.kerberos.KerberosConfig;
@@ -30,6 +32,7 @@ import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.protocol.codec.KerberosProtocolCodecFactory;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl.ReplayCacheEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -39,7 +42,6 @@ import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
-import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,8 +112,8 @@ public class KdcServer extends DirectoryBackedService
 
         LOG.debug( "initializing the kerberos replay cache" );
 
-        Cache< String, Object > cache = getDirectoryService().getCacheService().
-            getCache( "kdcReplayCache", String.class, Object.class );
+        Cache<String, ReplayCacheEntry> cache = getDirectoryService().getCacheService().getCache( "kdcReplayCache",
+            String.class, ReplayCacheEntry.class );
         replayCache = new ReplayCacheImpl( cache, config.getAllowableClockSkew() );
 
         // Kerberos can use UDP or TCP

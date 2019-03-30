@@ -25,9 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.cache.Cache;
 import javax.naming.directory.SearchControls;
-
-import org.ehcache.Cache;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;

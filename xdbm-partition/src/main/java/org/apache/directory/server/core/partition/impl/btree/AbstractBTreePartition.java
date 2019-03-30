@@ -35,8 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.ehcache.Cache;
-import org.ehcache.config.CacheConfiguration;
+import javax.cache.Cache;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -627,7 +626,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             aliasCache = cacheService.getCache( "alias", String.class, Dn.class );
     
-            CacheConfiguration< String, Dn > aliasCacheConfig = aliasCache.getRuntimeConfiguration();
+            //CacheConfiguration< String, Dn > aliasCacheConfig = aliasCache.getRuntimeConfiguration();
             
             piarCache = cacheService.getCache( "piar", String.class, ParentIdAndRdn.class );
             

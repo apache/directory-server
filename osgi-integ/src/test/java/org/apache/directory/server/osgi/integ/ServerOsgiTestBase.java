@@ -122,7 +122,7 @@ public abstract class ServerOsgiTestBase
         
         for ( Bundle bundle : bundles )
         {
-            //System.out.println( "### bundle=" + bundle + " " + bundle.getState() );
+            System.out.println( "### bundle=" + bundle + " " + bundle.getState() );
             if ( bundle != null && bundle.getSymbolicName() != null && bundle.getSymbolicName().equals( bundleName ) )
             {
                 bundleFound = true;

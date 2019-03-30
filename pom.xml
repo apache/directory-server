@@ -57,15 +57,15 @@
     <ant.version>1.10.1</ant.version>
     <bcprov.version>1.60</bcprov.version>
     <commons.cli.version>1.4</commons.cli.version>
-    <commons.codec.version>1.11</commons.codec.version>
-    <commons.collections.version>4.2</commons.collections.version>
+    <commons.codec.version>1.12</commons.codec.version>
+    <commons.collections.version>4.3</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
     <commons.lang.version>3.8.1</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
-    <commons.pool.version>2.6.0</commons.pool.version>
+    <commons.pool.version>2.6.1</commons.pool.version>
     <dnsjava.version>2.1.8</dnsjava.version>
-    <!-- OSGi related issue in ehcache 3.6.x: https://github.com/ehcache/ehcache3/issues/2554 -->
-    <ehcache.version>3.5.3</ehcache.version>
+    <javax.cache.version>1.1.0</javax.cache.version>
+    <caffeine.cache.version>2.7.0</caffeine.cache.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
@@ -78,7 +78,7 @@
     <maven.artifact.version>3.3.9</maven.artifact.version>
     <maven.plugin.api.version>3.3.9</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
-    <mina.core.version>2.0.18</mina.core.version>
+    <mina.core.version>2.1.0</mina.core.version>
     <org.apache.felix.version>6.0.0</org.apache.felix.version>
     <pax-exam.version>4.11.0</pax-exam.version>
     <pax-url.version>2.5.4</pax-url.version>
@@ -1238,11 +1238,37 @@
         <artifactId>annotations</artifactId>
         <version>${findbugs.annotations.version}</version>
       </dependency>
-      
+
       <dependency>
-        <groupId>org.ehcache</groupId>
-        <artifactId>ehcache</artifactId>
-        <version>${ehcache.version}</version>
+        <groupId>javax.cache</groupId>
+        <artifactId>cache-api</artifactId>
+        <version>${javax.cache.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>${caffeine.cache.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+           </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>jcache</artifactId>
+        <version>${caffeine.cache.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+          </exclusion>
+         </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>

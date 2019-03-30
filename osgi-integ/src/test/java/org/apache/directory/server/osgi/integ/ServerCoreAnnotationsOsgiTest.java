@@ -22,8 +22,22 @@ package org.apache.directory.server.osgi.integ;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Set;
+
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.spi.CachingProvider;
+
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.junit.Test;
+
+import com.github.benmanes.caffeine.jcache.CacheManagerImpl;
+import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider;
+import com.typesafe.config.ConfigFactory;
 
 
 public class ServerCoreAnnotationsOsgiTest extends ServerOsgiTestBase
@@ -43,6 +57,29 @@ public class ServerCoreAnnotationsOsgiTest extends ServerOsgiTestBase
         factory.init( "foo" );
         DirectoryService ds = factory.getDirectoryService();
         assertNotNull( ds );
+    }
+    
+    @Test
+    public void test123() {
+        CachingProvider cachingProvider = Caching.getCachingProvider(
+            "com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider",
+            CacheService.class.getClassLoader());
+        Cache<String, Set> cache = cachingProvider.getCacheManager()
+            .getCache("groupCache", String.class, Set.class);
+        System.out.println( cache );
+    }
+    
+    @Test
+    public void test234() {
+        CaffeineCachingProvider p = new CaffeineCachingProvider();
+        CacheManager cacheManager = new CacheManagerImpl( p, p.getDefaultURI(), getClass().getClassLoader(),
+            p.getDefaultProperties(),
+            ConfigFactory.load( getClass().getClassLoader() ) );
+
+        
+        Cache<String, Set> cache = cacheManager
+            .getCache("groupCache", String.class, Set.class);
+        System.out.println( cache );
     }
 
 }

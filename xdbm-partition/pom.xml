@@ -121,8 +121,7 @@
             </Export-Package>
             <Import-Package>
                 javax.naming,
-                org.ehcache;version=${ehcache.version},
-                org.ehcache.config;version=${ehcache.version},
+                javax.cache,
                 org.apache.directory.api.i18n;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},

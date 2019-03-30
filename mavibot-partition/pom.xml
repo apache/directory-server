@@ -133,7 +133,7 @@
                 org.apache.directory.server.core.partition.impl.btree.mavibot;version=${project.version}
             </Export-Package>
             <Import-Package>
-                org.ehcache;version=${ehcache.version},
+                javax.cache,
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},

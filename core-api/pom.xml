@@ -106,10 +106,18 @@
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>
-    
+
     <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>jcache</artifactId>
     </dependency>
   </dependencies>
 
@@ -156,12 +164,8 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.core.api</Bundle-SymbolicName>
             <Export-Package>
-                org.ehcache;version=${ehcache.version},
-                org.ehcache.config;version=${ehcache.version},
-                org.ehcache.config.builders;version=${ehcache.version},
-                org.ehcache.xml;version=${ehcache.version},
-                org.ehcache.xml.model;version=${ehcache.version},
-                org.ehcache.xml.exceptions;version=${ehcache.version},
+                javax.cache,
+                com.github.benmanes.caffeine.jcache.spi,
                 org.apache.directory.server.core.api;version=${project.version},
                 org.apache.directory.server.core.api.administrative;version=${project.version},
                 org.apache.directory.server.core.api.authn.ppolicy;version=${project.version},
@@ -181,9 +185,13 @@
                 org.apache.directory.server.core.api.subtree;version=${project.version}
             </Export-Package>
             <Require-Bundle>
-                org.ehcache.ehcache;bundle-version=${ehcache.version}
+                com.github.ben-manes.caffeine;bundle-version=${caffeine.cache.version},
+                com.github.ben-manes.caffeine.jcache;bundle-version=${caffeine.cache.version},
+                javax.cache.api;bundle-version=${javax.cache.version}
             </Require-Bundle>
             <Import-Package>
+                javax.cache,
+                javax.cache.spi,
                 org.apache.commons.lang3;version=${commons.lang.version},
                 org.apache.directory.api.asn1.util;version=${org.apache.directory.api.version},
                 org.apache.directory.api.i18n;version=${org.apache.directory.api.version},

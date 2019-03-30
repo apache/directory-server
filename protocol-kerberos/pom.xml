@@ -73,8 +73,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
     </dependency>
   </dependencies>
 
@@ -139,7 +139,7 @@
                 javax.naming,
                 javax.naming.directory,
                 javax.security.auth.kerberos,
-                org.ehcache;version=${ehcache.version},
+                javax.cache,
                 org.apache.directory.api.asn1;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber.tlv;version=${org.apache.directory.api.version},

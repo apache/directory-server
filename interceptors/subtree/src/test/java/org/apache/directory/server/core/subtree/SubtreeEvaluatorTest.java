@@ -28,6 +28,12 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.spi.CachingProvider;
+
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -46,11 +52,6 @@ import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -102,9 +103,10 @@ public class SubtreeEvaluatorTest
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
-        CacheManager cm = CacheManagerBuilder.newCacheManagerBuilder().withCache( "dnCache", CacheConfigurationBuilder.newCacheConfigurationBuilder( String.class, Dn.class, ResourcePoolsBuilder.heap(1000)).build()).build();
-        cm.init();
-        dnCache = cm.getCache( "dnCache", String.class, Dn.class );        dnFactory = new DefaultDnFactory( schemaManager, dnCache );
+        CachingProvider cachingProvider = Caching.getCachingProvider();
+        CacheManager cm = cachingProvider.getCacheManager();
+        dnCache = cm.getCache( "dnCache");
+        dnFactory = new DefaultDnFactory( schemaManager, dnCache );
 
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
 

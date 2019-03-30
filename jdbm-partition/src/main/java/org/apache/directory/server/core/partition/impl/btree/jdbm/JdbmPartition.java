@@ -29,6 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import javax.cache.Cache;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -70,7 +72,6 @@ import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
-import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -78,8 +78,19 @@
     </dependency>
     
     <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>jcache</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -134,8 +145,7 @@
             </Export-Package>
             <Import-Package>
                 javax.naming.directory,
-                org.ehcache;version=${ehcache.version},
-                org.ehcache.config.builders;version=${ehcache.version},
+                javax.cache,
                 org.apache.directory.api.ldap.codec.controls.search.subentries;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},

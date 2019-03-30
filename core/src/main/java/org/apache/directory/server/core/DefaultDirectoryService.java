@@ -267,7 +267,7 @@ public class DefaultDirectoryService implements DirectoryService
 
     private static final String LOCK_FILE_NAME = ".dirservice.lock";
 
-    /** the ehcache based cache service */
+    /** the cache service */
     private CacheService cacheService;
 
     /** The AccessControl AdministrativePoint cache */

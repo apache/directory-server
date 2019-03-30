@@ -73,8 +73,8 @@
     </dependency>
     
     <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
     </dependency>
   </dependencies>
 
@@ -130,7 +130,7 @@
             </Export-Package>
             <Import-Package>
                 javax.naming.directory,
-                org.ehcache;version=${ehcache.version},
+                javax.cache,
                 org.apache.directory.api.ldap.aci;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.aci.protectedItem;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},

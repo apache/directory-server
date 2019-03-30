@@ -69,8 +69,18 @@
     </dependency>
     
     <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>jcache</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -134,7 +144,7 @@
                 javax.crypto,
                 javax.crypto.spec,
                 javax.security.auth.kerberos,
-                org.ehcache;version=${ehcache.version},
+                javax.cache,
                 org.apache.directory.api.asn1;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.actions;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber;version=${org.apache.directory.api.version},
