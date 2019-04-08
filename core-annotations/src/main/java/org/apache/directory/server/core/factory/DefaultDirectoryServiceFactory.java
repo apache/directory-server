@@ -37,7 +37,6 @@ import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -246,11 +245,6 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
     {
         directoryService.setInstanceId( name );
         buildInstanceDirectory( name );
-
-        CacheService cacheService = new CacheService();
-        cacheService.initialize( directoryService.getInstanceLayout(), name );
-
-        directoryService.setCacheService( cacheService );
 
         // Init the service now
         initSchema();

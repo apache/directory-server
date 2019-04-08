@@ -32,7 +32,6 @@ import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.i18n.I18n;
 
@@ -63,9 +62,6 @@ public abstract class AbstractPartition implements Partition
 
     /** The root Dn for this partition */
     protected Dn suffixDn;
-
-    /** the cache service */
-    protected CacheService cacheService;
 
     /** the value of last successful add/update operation's CSN */
     private String contextCsn;
@@ -288,16 +284,6 @@ public abstract class AbstractPartition implements Partition
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setCacheService( CacheService cacheService )
-    {
-        this.cacheService = cacheService;
-    }
-
-    
     /**
      * {@inheritDoc}
      */

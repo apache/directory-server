@@ -133,7 +133,7 @@
                 org.apache.directory.server.core.partition.impl.btree.mavibot;version=${project.version}
             </Export-Package>
             <Import-Package>
-                org.ehcache;version=${ehcache.version},
+                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},

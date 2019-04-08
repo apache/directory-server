@@ -828,7 +828,6 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( !partition.isInitialized() )
         {
-            partition.setCacheService( directoryService.getCacheService() );
             partition.initialize();
         }
 

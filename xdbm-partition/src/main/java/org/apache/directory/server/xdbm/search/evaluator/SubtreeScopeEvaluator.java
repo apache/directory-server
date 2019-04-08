@@ -175,7 +175,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
          */
         if ( db.getAliasCache() != null )
         {
-            Dn dn = db.getAliasCache().get( id );
+            Dn dn = db.getAliasCache().getIfPresent( id );
             
             if ( dn != null )
             {

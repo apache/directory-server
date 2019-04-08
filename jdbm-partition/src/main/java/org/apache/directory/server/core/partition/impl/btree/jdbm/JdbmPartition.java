@@ -70,9 +70,11 @@ import org.apache.directory.server.xdbm.search.impl.DefaultOptimizer;
 import org.apache.directory.server.xdbm.search.impl.DefaultSearchEngine;
 import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
-import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
@@ -533,17 +535,7 @@ public class JdbmPartition extends AbstractBTreePartition
                 buildUserIndex( beginReadTransaction(), indexToBuild );
             }
 
-            if ( cacheService != null )
-            {
-                entryCache = cacheService.getCache( getId(), String.class, Entry.class );
-
-                //int cacheSizeConfig = ( int ) entryCache.getCacheConfiguration().getMaxEntriesLocalHeap();
-
-                //if ( cacheSizeConfig < cacheSize )
-                //{
-                //    entryCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize );
-                //}
-            }
+            entryCache = Caffeine.newBuilder().maximumSize( cacheSize ).build();
 
             // Initialization of the context entry
             if ( ( suffixDn != null ) && ( contextEntry != null ) )
@@ -884,7 +876,7 @@ public class JdbmPartition extends AbstractBTreePartition
         {
             if ( entryCache != null )
             {
-                entryCache.clear();
+                entryCache.invalidateAll();
             }
         }
 
@@ -951,20 +943,20 @@ public class JdbmPartition extends AbstractBTreePartition
                     entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
                 }
 
-                entryCache.replace( id, entry );
+                entryCache.put( id, entry );
             }
             else if ( ( opCtx instanceof MoveOperationContext )
                 || ( opCtx instanceof MoveAndRenameOperationContext )
                 || ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
-                entryCache.clear();
+                entryCache.invalidateAll();
             }
             else if ( opCtx instanceof DeleteOperationContext )
             {
                 // delete the entry
                 DeleteOperationContext delCtx = ( DeleteOperationContext ) opCtx;
-                entryCache.remove( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
+                entryCache.invalidate( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
             }
         }
         catch ( LdapException e )
@@ -977,7 +969,7 @@ public class JdbmPartition extends AbstractBTreePartition
     @Override
     public Entry lookupCache( String id )
     {
-        return ( entryCache != null ) ? entryCache.get( id ) : null;
+        return ( entryCache != null ) ? entryCache.getIfPresent( id ) : null;
     }
 
 

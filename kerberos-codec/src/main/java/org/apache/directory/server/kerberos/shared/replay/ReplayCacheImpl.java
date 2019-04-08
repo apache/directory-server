@@ -21,13 +21,16 @@ package org.apache.directory.server.kerberos.shared.replay;
 
 
 import java.io.Serializable;
+import java.time.Duration;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 
 /**
@@ -44,8 +47,8 @@ public class ReplayCacheImpl implements ReplayCache
 
     private static final Logger LOG = LoggerFactory.getLogger( ReplayCacheImpl.class );
 
-    /** ehcache based storage to store the entries */
-    private Cache< String, Object > cache;
+    /** Caffeine based storage to store the entries */
+    Cache<String, Object> cache;
 
     /** default clock skew */
     private static final long DEFAULT_CLOCK_SKEW = 5L * KerberosTime.MINUTE;
@@ -139,36 +142,15 @@ public class ReplayCacheImpl implements ReplayCache
 
     /**
      * Creates a new instance of InMemoryReplayCache. Sets the
-     * delay between each cleaning run to 5 seconds.
-     */
-    public ReplayCacheImpl( Cache < String, Object > cache )
-    {
-        this.cache = cache;
-    }
-
-
-    /**
-     * Creates a new instance of InMemoryReplayCache. Sets the
      * delay between each cleaning run to 5 seconds. Sets the
      * clockSkew to the given value
      * 
      * @param clockSkew the allowed skew (milliseconds)
      */
-    public ReplayCacheImpl( Cache< String, Object > cache, long clockSkew )
-    {
-        this.cache = cache;
-        this.clockSkew = clockSkew;
-    }
-
-
-    /**
-     * Sets the clock skew.
-     *
-     * @param clockSkew
-     */
-    public void setClockSkew( long clockSkew )
+    public ReplayCacheImpl( long clockSkew )
     {
         this.clockSkew = clockSkew;
+        this.cache = Caffeine.newBuilder().expireAfterWrite( Duration.ofMillis( clockSkew )).build();
     }
 
 
@@ -180,7 +162,7 @@ public class ReplayCacheImpl implements ReplayCache
     {
         ReplayCacheEntry entry = new ReplayCacheEntry( serverPrincipal, 
             clientPrincipal, clientTime, clientMicroSeconds );
-        ReplayCacheEntry found = ( ReplayCacheEntry ) cache.get( entry.createKey() );
+        ReplayCacheEntry found = ( ReplayCacheEntry ) cache.getIfPresent( entry.createKey() );
 
         if ( found == null )
         {
@@ -214,6 +196,6 @@ public class ReplayCacheImpl implements ReplayCache
     public void clear()
     {
         LOG.debug( "removing all the elements from cache" );
-        cache.clear();
+        cache.invalidateAll();
     }
 }

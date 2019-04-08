@@ -22,7 +22,6 @@ package org.apache.directory.server.osgi.integ;
 
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.administrative.SubschemaAAP;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -43,7 +42,6 @@ public class ServerCoreApiOsgiTest extends ServerOsgiTestBase
     @Override
     protected void useBundleClasses() throws Exception
     {
-        new CacheService();
         new LdapPrincipal();
         new SubschemaAAP( new Dn( "cn=foo" ), "uuid" );
         new ClonedServerEntry();

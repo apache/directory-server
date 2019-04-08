@@ -60,11 +60,11 @@ import org.apache.directory.server.config.ConfigPartitionInitializer;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
+import org.apache.directory.server.config.beans.JdbmPartitionBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.NtpServerBean;
 import org.apache.directory.server.config.builder.ServiceBuilder;
 import org.apache.directory.server.config.listener.ConfigChangeListener;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -74,6 +74,7 @@ import org.apache.directory.server.core.api.event.NotificationCriteria;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.i18n.I18n;
@@ -174,14 +175,10 @@ public class ApacheDsService
 
         LOG.info( "using partition dir {}", partitionsDir.getAbsolutePath() );
 
-        CacheService cacheService = new CacheService();
-        cacheService.initialize( instanceLayout );
-
         initSchemaManager( instanceLayout );
-        DnFactory dnFactory = new DefaultDnFactory( schemaManager, 
-            cacheService.getCache( "dnCache", String.class, Dn.class ) );
-        initSchemaLdifPartition( instanceLayout, dnFactory );
-        initConfigPartition( instanceLayout, dnFactory, cacheService );
+        DnFactory bootstrapDnFactory = new DefaultDnFactory( schemaManager, 100 );
+        initSchemaLdifPartition( instanceLayout, bootstrapDnFactory );
+        initConfigPartition( instanceLayout, bootstrapDnFactory );
 
         // Read the configuration
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
@@ -190,9 +187,20 @@ public class ApacheDsService
 
         DirectoryServiceBean directoryServiceBean = configBean.getDirectoryServiceBean();
 
+        /*
+         * Calculate the DN cache size: from all defined partitions get the max cache size setting.
+         * Note: currently only JDBM partition beans have such a setting.
+         */
+        int dnCacheSize = directoryServiceBean.getPartitions().stream()
+            .filter( JdbmPartitionBean.class::isInstance )
+            .map( JdbmPartitionBean.class::cast )
+            .map( JdbmPartitionBean::getPartitionCacheSize )
+            .mapToInt( Integer::intValue )
+            .max().orElse( AbstractBTreePartition.DEFAULT_CACHE_SIZE );
+        DnFactory dnFactory = new DefaultDnFactory( schemaManager, dnCacheSize );
+
         // Initialize the DirectoryService now
-        DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean, cacheService,
-            dnFactory );
+        DirectoryService directoryService = initDirectoryService( instanceLayout, directoryServiceBean, dnFactory );
 
         // start the LDAP server
         startLdap( directoryServiceBean.getLdapServerBean(), directoryService, startServers );
@@ -323,17 +331,17 @@ public class ApacheDsService
      * @param cacheService the Cache service
      * @throws Exception in case of any issues while extracting the schema
      */
-    private void initConfigPartition( InstanceLayout instanceLayout, DnFactory dnFactory, CacheService cacheService )
+    private void initConfigPartition( InstanceLayout instanceLayout, DnFactory dnFactory )
         throws Exception
     {
         ConfigPartitionInitializer initializer = new ConfigPartitionInitializer( instanceLayout, dnFactory,
-            cacheService, schemaManager );
+            schemaManager );
         configPartition = initializer.initConfigPartition();
     }
 
 
     private DirectoryService initDirectoryService( InstanceLayout instanceLayout,
-        DirectoryServiceBean directoryServiceBean, CacheService cacheService, DnFactory dnFactory ) throws Exception
+        DirectoryServiceBean directoryServiceBean, DnFactory dnFactory ) throws Exception
     {
         LOG.info( "Initializing the DirectoryService..." );
 
@@ -354,8 +362,6 @@ public class ApacheDsService
 
         // Store the default directories
         directoryService.setInstanceLayout( instanceLayout );
-
-        directoryService.setCacheService( cacheService );
 
         directoryService.startup();
 

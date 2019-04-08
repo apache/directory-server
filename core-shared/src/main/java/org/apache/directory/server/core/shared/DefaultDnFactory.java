@@ -21,7 +21,7 @@
 package org.apache.directory.server.core.shared;
 
 
-import org.ehcache.Cache;
+import java.time.Duration;
 
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -29,6 +29,9 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.DnFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 
 /**
@@ -58,12 +61,13 @@ public class DefaultDnFactory implements DnFactory
      * Instantiates a new default Dn factory.
      *
      * @param schemaManager The SchemaManager instance
-     * @param dnCache The cache used to store DNs
+     * @param cacheSize The cache size used to store DNs
      */
-    public DefaultDnFactory( SchemaManager schemaManager, Cache<String, Dn> dnCache )
+    public DefaultDnFactory( SchemaManager schemaManager, int cacheSize )
     {
         this.schemaManager = schemaManager;
-        this.dnCache = dnCache;
+        this.dnCache = Caffeine.newBuilder().maximumSize( cacheSize ).expireAfterAccess( Duration.ofMinutes( 10L ) )
+            .build();
     }
 
 
@@ -89,7 +93,7 @@ public class DefaultDnFactory implements DnFactory
         // for the reason for performing this check
         if ( dnCache != null )
         {
-            cachedDn = dnCache.get( dn );
+            cachedDn = dnCache.getIfPresent( dn );
         }
 
         if ( cachedDn == null )

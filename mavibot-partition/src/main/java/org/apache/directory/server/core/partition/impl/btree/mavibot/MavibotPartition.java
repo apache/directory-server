@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.ehcache.Cache;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
@@ -66,6 +65,9 @@ import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 
 /**
@@ -227,10 +229,7 @@ public class MavibotPartition extends AbstractBTreePartition
                         deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
             */
 
-            if ( cacheService != null )
-            {
-                entryCache = cacheService.getCache( getId(), String.class, Entry.class );
-            }
+            entryCache = Caffeine.newBuilder().maximumSize( cacheSize ).build();
 
             // We are done !
             initialized = true;
@@ -321,7 +320,7 @@ public class MavibotPartition extends AbstractBTreePartition
         {
             if ( entryCache != null )
             {
-                entryCache.clear();
+                entryCache.invalidateAll();
             }
         }
 
@@ -445,7 +444,7 @@ public class MavibotPartition extends AbstractBTreePartition
     @Override
     public Entry lookupCache( String id )
     {
-        return ( entryCache != null ) ? entryCache.get( id ) : null;
+        return ( entryCache != null ) ? entryCache.getIfPresent( id ) : null;
     }
 
 
@@ -488,19 +487,19 @@ public class MavibotPartition extends AbstractBTreePartition
                     entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
                 }
 
-                entryCache.replace( id, entry );
+                entryCache.put( id, entry );
             }
             else if ( ( opCtx instanceof MoveOperationContext ) || ( opCtx instanceof MoveAndRenameOperationContext )
                 || ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
-                entryCache.clear();
+                entryCache.invalidateAll();
             }
             else if ( opCtx instanceof DeleteOperationContext )
             {
                 // delete the entry
                 DeleteOperationContext delCtx = ( DeleteOperationContext ) opCtx;
-                entryCache.remove( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
+                entryCache.invalidate( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
             }
         }
         catch ( LdapException e )

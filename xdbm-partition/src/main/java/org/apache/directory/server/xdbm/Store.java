@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 
-import org.ehcache.Cache;
-
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
@@ -42,6 +40,8 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
+
+import com.github.benmanes.caffeine.cache.Cache;
 
 
 /**

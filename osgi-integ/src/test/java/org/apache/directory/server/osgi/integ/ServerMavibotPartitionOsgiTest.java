@@ -46,7 +46,7 @@ public class ServerMavibotPartitionOsgiTest extends ServerOsgiTestBase
     {
         new MavibotIndex<String>( "foo", false );
         SchemaManager schemaManager = new DefaultSchemaManager();
-        new MavibotPartition( schemaManager, new DefaultDnFactory( schemaManager, null ) );
+        new MavibotPartition( schemaManager, new DefaultDnFactory( schemaManager, 100 ) );
         new DnSerializer().serialize( new Dn( "cn=foo" ) );
 
         BTree<Object, Object> mavibotBTree = BTreeFactory.createInMemoryBTree();
