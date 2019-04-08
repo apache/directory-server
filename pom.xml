@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>42</version>
+    <version>44</version>
     <relativePath />
   </parent>
 
@@ -57,12 +57,12 @@
     <ant.version>1.10.1</ant.version>
     <bcprov.version>1.60</bcprov.version>
     <commons.cli.version>1.4</commons.cli.version>
-    <commons.codec.version>1.11</commons.codec.version>
-    <commons.collections.version>4.2</commons.collections.version>
+    <commons.codec.version>1.12</commons.codec.version>
+    <commons.collections.version>4.3</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
     <commons.lang.version>3.8.1</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
-    <commons.pool.version>2.6.0</commons.pool.version>
+    <commons.pool.version>2.6.1</commons.pool.version>
     <dnsjava.version>2.1.8</dnsjava.version>
     <!-- OSGi related issue in ehcache 3.6.x: https://github.com/ehcache/ehcache3/issues/2554 -->
     <ehcache.version>3.5.3</ehcache.version>
@@ -78,7 +78,7 @@
     <maven.artifact.version>3.3.9</maven.artifact.version>
     <maven.plugin.api.version>3.3.9</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
-    <mina.core.version>2.0.18</mina.core.version>
+    <mina.core.version>2.1.0</mina.core.version>
     <org.apache.felix.version>6.0.0</org.apache.felix.version>
     <pax-exam.version>4.11.0</pax-exam.version>
     <pax-url.version>2.5.4</pax-url.version>
@@ -320,18 +320,6 @@
           <artifactId>maven-release-plugin</artifactId>
           <configuration>
             <tagNameFormat>@{project.version}</tagNameFormat>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
-            <optimize>true</optimize>
-            <showDeprecations>true</showDeprecations>
-            <encoding>ISO-8859-1</encoding>
           </configuration>
         </plugin>
 
