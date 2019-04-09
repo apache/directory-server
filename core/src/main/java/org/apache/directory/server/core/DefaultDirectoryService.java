@@ -72,7 +72,6 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.admin.AdministrativePointInterceptor;
 import org.apache.directory.server.core.api.AttributeTypeProvider;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -266,9 +265,6 @@ public class DefaultDirectoryService implements DirectoryService
     private RandomAccessFile lockFile = null;
 
     private static final String LOCK_FILE_NAME = ".dirservice.lock";
-
-    /** the ehcache based cache service */
-    private CacheService cacheService;
 
     /** The AccessControl AdministrativePoint cache */
     private DnNode<AccessControlAdministrativePoint> accessControlAPCache;
@@ -1306,9 +1302,6 @@ public class DefaultDirectoryService implements DirectoryService
         // --------------------------------------------------------------------
         // And shutdown the server
         // --------------------------------------------------------------------
-        LOG.debug( "--- Deleting the cache service" );
-        cacheService.destroy();
-
         LOG.debug( "---Deleting the DnCache" );
         dnFactory = null;
 
@@ -1947,14 +1940,6 @@ public class DefaultDirectoryService implements DirectoryService
             setDefaultInterceptorConfigurations();
         }
 
-        if ( cacheService == null )
-        {
-            // Initialize a default cache service
-            cacheService = new CacheService();
-        }
-
-        cacheService.initialize( instanceLayout, instanceId );
-
         // Initialize the AP caches
         accessControlAPCache = new DnNode<>();
         collectiveAttributeAPCache = new DnNode<>();
@@ -1963,15 +1948,12 @@ public class DefaultDirectoryService implements DirectoryService
 
         if ( dnFactory == null )
         {
-            dnFactory = new DefaultDnFactory( schemaManager, 
-                cacheService.getCache( "dnCache", String.class, Dn.class ) );
+            dnFactory = new DefaultDnFactory( schemaManager, 10000 );
         }
 
         // triggers partition to load schema fully from schema partition
-        schemaPartition.setCacheService( cacheService );
         schemaPartition.initialize();
         partitions.add( schemaPartition );
-        systemPartition.setCacheService( cacheService );
         
         if ( !systemPartition.getSuffixDn().isSchemaAware() )
         {
@@ -2368,15 +2350,6 @@ public class DefaultDirectoryService implements DirectoryService
     /**
      * {@inheritDoc}
      */
-    public CacheService getCacheService()
-    {
-        return cacheService;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
     public DnNode<AccessControlAdministrativePoint> getAccessControlAPCache()
     {
         return accessControlAPCache;
@@ -2464,15 +2437,6 @@ public class DefaultDirectoryService implements DirectoryService
     public SubtreeEvaluator getEvaluator()
     {
         return evaluator;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setCacheService( CacheService cacheService )
-    {
-        this.cacheService = cacheService;
     }
 
 

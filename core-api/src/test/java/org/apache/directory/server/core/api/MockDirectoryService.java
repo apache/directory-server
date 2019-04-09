@@ -476,12 +476,6 @@ public class MockDirectoryService implements DirectoryService
     }
 
 
-    public CacheService getCacheService()
-    {
-        return null;
-    }
-
-
     /**
      * {@inheritDoc}
      */
@@ -611,15 +605,6 @@ public class MockDirectoryService implements DirectoryService
     public void remove( String interceptorName )
     {
         // TODO Auto-generated method stub
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setCacheService( CacheService cacheService )
-    {
-        // nothing
     }
 
 

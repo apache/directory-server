@@ -20,7 +20,10 @@
 package org.apache.directory.server.osgi.integ;
 
 
+import static org.junit.Assert.assertSame;
+
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.core.shared.NullStringSerializer;
 import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
@@ -39,7 +42,11 @@ public class ServerCoreSharedOsgiTest extends ServerOsgiTestBase
     @Override
     protected void useBundleClasses() throws Exception
     {
-        new DefaultDnFactory( null, null );
+        DefaultDnFactory dnFactory = new DefaultDnFactory( null, 100 );
+        Dn dn1 = dnFactory.create( "cn=foo" );
+        Dn dn2 = dnFactory.create( "cn=foo" );
+        assertSame( dn1, dn2 );
+
         NullStringSerializer.INSTANCE.serialize( null );
         NullStringSerializer.INSTANCE.deserialize( null );
         new DefaultPartitionNexus( new DefaultEntry() );

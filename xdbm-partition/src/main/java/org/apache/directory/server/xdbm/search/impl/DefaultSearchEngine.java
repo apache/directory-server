@@ -155,7 +155,7 @@ public class DefaultSearchEngine implements SearchEngine
 
         if ( db.getAliasCache() != null )
         {
-            aliasedBase = db.getAliasCache().get( baseId );
+            aliasedBase = db.getAliasCache().getIfPresent( baseId );
         }
         else
         {

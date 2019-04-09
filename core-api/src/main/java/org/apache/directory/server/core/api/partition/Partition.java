@@ -29,7 +29,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -308,13 +307,6 @@ public interface Partition
      */
     void dumpIndex( PartitionTxn partitionTxn, OutputStream stream, String name ) throws IOException;
 
-
-    /**
-     * Set the Cache service 
-     *
-     * @param cacheService The CacheService instance
-     */
-    void setCacheService( CacheService cacheService );
 
     
     /**

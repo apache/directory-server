@@ -277,7 +277,7 @@ public class ClientInitialRefreshIT
                     directoryService.setSchemaManager( schemaManager );
                     ( ( MockSyncReplConsumer ) syncreplClient ).init( directoryService );
                     
-                    directoryService.setDnFactory( new DefaultDnFactory( schemaManager, null ) );
+                    directoryService.setDnFactory( new DefaultDnFactory( schemaManager, 100 ) );
                     syncreplClient.connect( true );
                     syncreplClient.startSync();
                 }

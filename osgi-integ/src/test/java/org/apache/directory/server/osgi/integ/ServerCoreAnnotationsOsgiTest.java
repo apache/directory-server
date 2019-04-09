@@ -43,6 +43,7 @@ public class ServerCoreAnnotationsOsgiTest extends ServerOsgiTestBase
         factory.init( "foo" );
         DirectoryService ds = factory.getDirectoryService();
         assertNotNull( ds );
+        assertNotNull( ds.getDnFactory() );
     }
 
 }

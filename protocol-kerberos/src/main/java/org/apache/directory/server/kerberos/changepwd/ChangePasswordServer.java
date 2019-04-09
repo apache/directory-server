@@ -37,7 +37,6 @@ import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.SocketAcceptor;
-import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,9 +93,7 @@ public class ChangePasswordServer extends DirectoryBackedService
 
         LOG.debug( "initializing the changepassword replay cache" );
 
-        Cache< String, Object > cache = getDirectoryService().getCacheService().
-            getCache( "changePwdReplayCache", String.class, Object.class );
-        replayCache = new ReplayCacheImpl( cache );
+        replayCache = new ReplayCacheImpl( config.getAllowableClockSkew() );
 
         for ( Transport transport : transports )
         {

@@ -39,7 +39,6 @@ import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
-import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,9 +109,7 @@ public class KdcServer extends DirectoryBackedService
 
         LOG.debug( "initializing the kerberos replay cache" );
 
-        Cache< String, Object > cache = getDirectoryService().getCacheService().
-            getCache( "kdcReplayCache", String.class, Object.class );
-        replayCache = new ReplayCacheImpl( cache, config.getAllowableClockSkew() );
+        replayCache = new ReplayCacheImpl( config.getAllowableClockSkew() );
 
         // Kerberos can use UDP or TCP
         for ( Transport transport : transports )

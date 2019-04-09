@@ -58,7 +58,6 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -121,7 +120,6 @@ public class MavibotStoreTest
 
     private RecordManager recordMan;
 
-    private static CacheService cacheService;
     private PartitionTxn partitionTxn;
 
     @Rule
@@ -160,10 +158,7 @@ public class MavibotStoreTest
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, 
-            cacheService.getCache( "dnCache", String.class, Dn.class ) );
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
     }
 
 
@@ -193,7 +188,6 @@ public class MavibotStoreTest
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );
 
-        store.setCacheService( cacheService );
         store.initialize();
 
         recordMan = store.getRecordMan();
@@ -244,7 +238,6 @@ public class MavibotStoreTest
         store2.addIndex( new MavibotIndex( SchemaConstants.OU_AT_OID, false ) );
         store2.addIndex( new MavibotIndex( SchemaConstants.UID_AT_OID, false ) );
         store2.setSuffixDn( EXAMPLE_COM );
-        store2.setCacheService( cacheService );
         store2.initialize();
 
         // inject context entry

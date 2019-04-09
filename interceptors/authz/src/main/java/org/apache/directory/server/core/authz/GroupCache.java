@@ -21,13 +21,12 @@ package org.apache.directory.server.core.authz;
 
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.directory.SearchControls;
-
-import org.ehcache.Cache;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -45,7 +44,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -94,8 +92,7 @@ public class GroupCache
     private static final Set<String> EMPTY_GROUPS = new HashSet<>();
 
     /** String key for the Dn of a group to a Set (HashSet) for the Strings of member DNs */
-    private Cache< String, Set > groupCache;
-
+    private final Map<String, Set<String>> groups = new ConcurrentHashMap<>();
 
 
     /**
@@ -113,8 +110,6 @@ public class GroupCache
 
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
-
-        groupCache = dirService.getCacheService().getCache( "groupCache", String.class, Set.class );
 
         initialize( dirService.getAdminSession() );
     }
@@ -179,7 +174,7 @@ public class GroupCache
                         Set<String> memberSet = new HashSet<>( members.size() );
                         addMembers( memberSet, members );
 
-                        groupCache.put( groupDn.getNormName(), memberSet );
+                        groups.put( groupDn.getNormName(), memberSet );
                     }
                     else
                     {
@@ -200,8 +195,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents on startup:\n {}", 
-                CacheService.dumpCacheContentsToString( groupCache ) );
+            LOG.debug( "group cache contents on startup:\n {}", groups );
         }
     }
 
@@ -314,12 +308,11 @@ public class GroupCache
         Set<String> memberSet = new HashSet<>( members.size() );
         addMembers( memberSet, members );
 
-        groupCache.put( name, memberSet );
+        groups.put( name, memberSet );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after adding '{}' :\n {}", name,
-                CacheService.dumpCacheContentsToString( groupCache ) );
+            LOG.debug( "group cache contents after adding '{}' :\n {}", name, groups );
         }
     }
 
@@ -341,12 +334,11 @@ public class GroupCache
             return;
         }
 
-        groupCache.remove( name.getNormName() );
+        groups.remove( name.getNormName() );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(),
-                CacheService.dumpCacheContentsToString( groupCache ) );
+            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -427,7 +419,7 @@ public class GroupCache
         {
             if ( memberAttr.getOid() == modification.getAttribute().getId() )
             {
-                Set<String> memberSet = groupCache.get( name.getNormName() );
+                Set<String> memberSet = groups.get( name.getNormName() );
                 
                 if ( memberSet != null )
                 {
@@ -440,8 +432,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(),
-                CacheService.dumpCacheContentsToString( groupCache ) );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -464,7 +455,7 @@ public class GroupCache
             return;
         }
 
-        Set<String> memberSet = groupCache.get( name.getNormName() );
+        Set<String> memberSet = groups.get( name.getNormName() );
 
         if ( memberSet != null )
         {
@@ -473,8 +464,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(),
-                CacheService.dumpCacheContentsToString( groupCache ) );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -493,7 +483,7 @@ public class GroupCache
             return true;
         }
 
-        Set<String> members = groupCache.get( administratorsGroupDn.getNormName() );
+        Set<String> members = groups.get( administratorsGroupDn.getNormName() );
         
         if ( members == null )
         {
@@ -519,12 +509,10 @@ public class GroupCache
     {
         Set<String> memberGroups = null;
 
-        Iterator<Cache.Entry<String, Set>> iterator = groupCache.iterator();
-        while ( iterator.hasNext() )
+        for ( Map.Entry<String, Set<String>> entry : groups.entrySet() )
         {
-            Cache.Entry<String, Set> next = iterator.next();
-            String group = next.getKey();
-            Set<String> members = next.getValue();
+            String group = entry.getKey();
+            Set<String> members = entry.getValue();
 
             if ( members == null )
             {
@@ -553,18 +541,17 @@ public class GroupCache
 
     public boolean groupRenamed( Dn oldName, Dn newName )
     {
-        Set<String> members = groupCache.get( oldName.getNormName() );
+        Set<String> members = groups.get( oldName.getNormName() );
 
         if ( members != null )
         {
-            groupCache.remove( oldName.getNormName() );
+            groups.remove( oldName.getNormName() );
 
-            groupCache.put( newName.getNormName(), members );
+            groups.put( newName.getNormName(), members );
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(),
-                    CacheService.dumpCacheContentsToString( groupCache ) );
+                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(), groups );
             }
 
             return true;

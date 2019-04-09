@@ -45,7 +45,7 @@ public class ServerJdbmPartitionOsgiTest extends ServerOsgiTestBase
     {
         new JdbmIndex<String>( "foo", false );
         SchemaManager schemaManager = new DefaultSchemaManager();
-        new JdbmPartition( schemaManager, new DefaultDnFactory( schemaManager, null ) );
+        new JdbmPartition( schemaManager, new DefaultDnFactory( schemaManager, 100 ) );
         new ParentIdAndRdnSerializer( schemaManager );
         new DnSerializer( schemaManager ).serialize( new Dn( "cn=foo" ) );
     }

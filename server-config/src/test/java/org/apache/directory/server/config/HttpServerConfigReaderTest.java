@@ -37,7 +37,6 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.config.beans.HttpServerBean;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
@@ -60,7 +59,6 @@ public class HttpServerConfigReaderTest
 {
     private static SchemaManager schemaManager;
     private static DnFactory dnFactory;
-    private static CacheService cacheService;
 
     private static File workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work" );
 
@@ -98,10 +96,7 @@ public class HttpServerConfigReaderTest
             throw new Exception( "Schema load failed : " + Exceptions.printErrors( errors ) );
         }
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, 
-            cacheService.getCache( "dnCache", String.class, Dn.class ) );
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
     }
 
 
@@ -117,7 +112,6 @@ public class HttpServerConfigReaderTest
         configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
 
-        configPartition.setCacheService( cacheService );
         configPartition.initialize();
 
         ConfigPartitionReader cpReader = new ConfigPartitionReader( configPartition );
