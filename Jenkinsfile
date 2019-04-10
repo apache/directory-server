@@ -81,8 +81,7 @@ pipeline {
             }
           }
           steps {
-            // TODO: skip tests until ehcache fix
-            sh 'mvn -V clean verify -DskipTests'
+            sh 'mvn -V clean verify'
           }
           post {
             always {
