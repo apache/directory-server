@@ -20,7 +20,7 @@ pipeline {
   agent none
   options {
     buildDiscarder(logRotator(numToKeepStr: '3'))
-    timeout(time: 2, unit: 'HOURS')
+    timeout(time: 8, unit: 'HOURS')
   }
   triggers {
     cron('@weekly')
@@ -28,6 +28,9 @@ pipeline {
   }
   stages {
     stage ('Debug') {
+      options {
+        timeout(time: 1, unit: 'HOURS')
+      }
       agent {
         docker {
           label 'ubuntu'
@@ -47,6 +50,9 @@ pipeline {
     stage ('Build and Test') {
       parallel {
         stage ('Linux Java 8') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
           agent {
             docker {
               label 'ubuntu'
@@ -73,6 +79,9 @@ pipeline {
           }
         }
         stage ('Linux Java 11') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
           agent {
             docker {
               label 'ubuntu'
@@ -90,6 +99,9 @@ pipeline {
           }
         }
         stage ('Linux Java 12') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
           agent {
             docker {
               label 'ubuntu'
@@ -98,8 +110,7 @@ pipeline {
             }
           }
           steps {
-            // TODO: skip tests until ehcache fix
-            sh 'mvn -V clean verify -DskipTests'
+            sh 'mvn -V clean verify'
           }
           post {
             always {
@@ -108,6 +119,9 @@ pipeline {
           }
         }
         stage ('Windows Java 8') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
           agent {
             label 'Windows'
           }
@@ -128,6 +142,9 @@ pipeline {
       }
     }
     stage ('Deploy') {
+      options {
+        timeout(time: 2, unit: 'HOURS')
+      }
       agent {
         label 'ubuntu'
       }
