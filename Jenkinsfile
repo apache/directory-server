@@ -174,11 +174,6 @@ pipeline {
       }
       steps {
         sh 'mvn -V clean install -DskipTests'
-        sh '''
-        id
-        ls -l
-        ls -l /home/hnelson/.m2/repository/org/apache/directory/server/apacheds-service/2.0.0.AM26-SNAPSHOT/apacheds-service-2.0.0.AM26-SNAPSHOT.jar
-        '''
         sh 'cd installers && mvn -V clean package -Pinstallers -Pdocker'
         stash name: 'deb', includes: 'installers/target/installers/*.deb,installers/target/docker/*deb*'
         stash name: 'rpm', includes: 'installers/target/installers/*.rpm,installers/target/docker/*rpm*'
