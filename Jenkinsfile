@@ -47,126 +47,225 @@ pipeline {
         }
       }
     }
-    stage ('Build and Test') {
-      parallel {
-        stage ('Linux Java 8') {
-          options {
-            timeout(time: 2, unit: 'HOURS')
-          }
-          agent {
-            docker {
-              label 'ubuntu'
-              image 'apachedirectory/maven-build:jdk-8'
-              args '-v $HOME/.m2:/var/maven/.m2'
-            }
-          }
-          steps {
-            sh '''
-            mvn -V clean verify
-            '''
-          }
-          post {
-            always {
-              //junit '**/target/surefire-reports/*.xml'
-              archiveArtifacts artifacts: '**/target/surefire-reports/**'
-              deleteDir()
-            }
-          }
-        }
-        stage ('Linux Java 11') {
-          options {
-            timeout(time: 2, unit: 'HOURS')
-          }
-          agent {
-            docker {
-              label 'ubuntu'
-              image 'apachedirectory/maven-build:jdk-11'
-              args '-v $HOME/.m2:/var/maven/.m2'
-            }
-          }
-          steps {
-            sh 'mvn -V clean verify'
-          }
-          post {
-            always {
-              deleteDir()
-            }
-          }
-        }
-        stage ('Linux Java 12') {
-          options {
-            timeout(time: 2, unit: 'HOURS')
-          }
-          agent {
-            docker {
-              label 'ubuntu'
-              image 'apachedirectory/maven-build:jdk-12'
-              args '-v $HOME/.m2:/var/maven/.m2'
-            }
-          }
-          steps {
-            sh 'mvn -V clean verify'
-          }
-          post {
-            always {
-              deleteDir()
-            }
-          }
-        }
-        stage ('Windows Java 8') {
-          options {
-            timeout(time: 2, unit: 'HOURS')
-          }
-          agent {
-            label 'Windows'
-          }
-          steps {
-            // TODO: need to investigate test failure on Windows
-            bat '''
-            set JAVA_HOME=F:\\jenkins\\tools\\java\\latest1.8
-            set MAVEN_OPTS="-Xmx512m"
-            F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V clean verify -DskipTests
-            '''
-          }
-          post {
-            always {
-              deleteDir()
-            }
-          }
-        }
-      }
-    }
-    stage ('Deploy') {
+//    stage ('Build and Test') {
+//      parallel {
+//        stage ('Linux Java 8') {
+//          options {
+//            timeout(time: 2, unit: 'HOURS')
+//          }
+//          agent {
+//            docker {
+//              label 'ubuntu'
+//              image 'apachedirectory/maven-build:jdk-8'
+//              args '-v $HOME/.m2:/var/maven/.m2'
+//            }
+//          }
+//          steps {
+//            sh '''
+//            mvn -V clean verify
+//            '''
+//          }
+//          post {
+//            always {
+//              //junit '**/target/surefire-reports/*.xml'
+//              archiveArtifacts artifacts: '**/target/surefire-reports/**'
+//              deleteDir()
+//            }
+//          }
+//        }
+//        stage ('Linux Java 11') {
+//          options {
+//            timeout(time: 2, unit: 'HOURS')
+//          }
+//          agent {
+//            docker {
+//              label 'ubuntu'
+//              image 'apachedirectory/maven-build:jdk-11'
+//              args '-v $HOME/.m2:/var/maven/.m2'
+//            }
+//          }
+//          steps {
+//            sh 'mvn -V clean verify'
+//          }
+//          post {
+//            always {
+//              deleteDir()
+//            }
+//          }
+//        }
+//        stage ('Linux Java 12') {
+//          options {
+//            timeout(time: 2, unit: 'HOURS')
+//          }
+//          agent {
+//            docker {
+//              label 'ubuntu'
+//              image 'apachedirectory/maven-build:jdk-12'
+//              args '-v $HOME/.m2:/var/maven/.m2'
+//            }
+//          }
+//          steps {
+//            sh 'mvn -V clean verify'
+//          }
+//          post {
+//            always {
+//              deleteDir()
+//            }
+//          }
+//        }
+//        stage ('Windows Java 8') {
+//          options {
+//            timeout(time: 2, unit: 'HOURS')
+//          }
+//          agent {
+//            label 'Windows'
+//          }
+//          steps {
+//            // TODO: need to investigate test failure on Windows
+//            bat '''
+//            set JAVA_HOME=F:\\jenkins\\tools\\java\\latest1.8
+//            set MAVEN_OPTS="-Xmx512m"
+//            F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V clean verify -DskipTests
+//            '''
+//          }
+//          post {
+//            always {
+//              deleteDir()
+//            }
+//          }
+//        }
+//      }
+//    }
+//    stage ('Deploy') {
+//      options {
+//        timeout(time: 2, unit: 'HOURS')
+//      }
+//      agent {
+//        label 'ubuntu'
+//      }
+//      // https://cwiki.apache.org/confluence/display/INFRA/JDK+Installation+Matrix
+//      // https://cwiki.apache.org/confluence/display/INFRA/Maven+Installation+Matrix
+//      // TODO: do not deploy before merged to master
+//      steps {
+//        sh '''
+//        export JAVA_HOME=/home/jenkins/tools/java/latest1.8
+//        export MAVEN_OPTS="-Xmx512m"
+//        #/home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar deploy
+//        /home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar
+//        '''
+//      }
+//      post {
+//        always {
+//          deleteDir()
+//        }
+//      }
+//    }
+    stage ('Build Installers') {
       options {
-        timeout(time: 2, unit: 'HOURS')
+        timeout(time: 1, unit: 'HOURS')
       }
       agent {
-        label 'ubuntu'
+        docker {
+          label 'ubuntu'
+          image 'apachedirectory/maven-build:jdk-8'
+          args '-v $HOME/.m2:/var/maven/.m2'
+        }
       }
-      // https://cwiki.apache.org/confluence/display/INFRA/JDK+Installation+Matrix
-      // https://cwiki.apache.org/confluence/display/INFRA/Maven+Installation+Matrix
-      // TODO: do not deploy before merged to master
       steps {
-        sh '''
-        export JAVA_HOME=/home/jenkins/tools/java/latest1.8
-        export MAVEN_OPTS="-Xmx512m"
-        #/home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar deploy
-        /home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar
-        '''
+        sh 'mvn -V clean verify -DskipTests'
+        sh 'cd installers'
+        sh 'mvn -V clean install -Pinstallers -Pdocker'
+        stash name: 'deb', includes: 'installers/target/installers/*.deb,installers/target/docker/*deb*'
+        stash name: 'rpm', includes: 'installers/target/installers/*.rpm,installers/target/docker/*rpm*'
+        stash name: 'bin', includes: 'installers/target/installers/*.bin,installers/target/docker/*bin*'
+        stash name: 'archive', includes: 'installers/target/installers/*.zip,installers/target/installers/*.tar.gz,installers/target/docker/*archive*'
       }
       post {
         always {
+          archiveArtifacts 'installers/target/installers/*.zip,installers/target/installers/*.tar.gz,installers/target/installers/*.dmg,installers/target/installers/*.exe,installers/target/installers/*.bin,installers/target/installers/*.deb,installers/target/installers/*.rpm'
           deleteDir()
         }
       }
     }
-  }
-  post {
-    failure {
-      mail to: 'notifications@directory.apache.org',
-      subject: "Jenkins pipeline failed: ${currentBuild.fullDisplayName}",
-      body: "Jenkins build URL: ${env.BUILD_URL}"
+    stage ('Test Installers') {
+      parallel {
+        stage ('deb') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
+          agent {
+            label 'ubuntu'
+          }
+          steps {
+            unstash 'deb'
+            sh 'bash installers/target/docker/run-deb-tests.sh'
+          }
+          post {
+            always {
+              deleteDir()
+            }
+          }
+        }
+        stage ('rpm') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
+          agent {
+            label 'ubuntu'
+          }
+          steps {
+            unstash 'rpm'
+            sh 'bash installers/target/docker/run-rpm-tests.sh'
+          }
+          post {
+            always {
+              deleteDir()
+            }
+          }
+        }
+        stage ('bin') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
+          agent {
+            label 'ubuntu'
+          }
+          steps {
+            unstash 'bin'
+            sh 'bash installers/target/docker/run-bin-tests.sh'
+          }
+          post {
+            always {
+              deleteDir()
+            }
+          }
+        }
+        stage ('archive') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
+          agent {
+            label 'ubuntu'
+          }
+          steps {
+            unstash 'archive'
+            sh 'bash installers/target/docker/run-archive-tests.sh'
+          }
+          post {
+            always {
+              deleteDir()
+            }
+          }
+        }
+      }
     }
   }
+//  post {
+//    failure {
+//      mail to: 'notifications@directory.apache.org',
+//      subject: "Jenkins pipeline failed: ${currentBuild.fullDisplayName}",
+//      body: "Jenkins build URL: ${env.BUILD_URL}"
+//    }
+//  }
 }
 
