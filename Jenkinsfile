@@ -35,7 +35,7 @@ pipeline {
         docker {
           label 'ubuntu'
           image 'apachedirectory/maven-build:jdk-8'
-          args '-v $HOME/.m2:/var/maven/.m2'
+          args '-v $HOME/.m2:/home/hnelson/.m2'
         }
       }
       steps {
@@ -57,7 +57,7 @@ pipeline {
 //            docker {
 //              label 'ubuntu'
 //              image 'apachedirectory/maven-build:jdk-8'
-//              args '-v $HOME/.m2:/var/maven/.m2'
+//              args '-v $HOME/.m2:/home/hnelson/.m2'
 //            }
 //          }
 //          steps {
@@ -81,7 +81,7 @@ pipeline {
 //            docker {
 //              label 'ubuntu'
 //              image 'apachedirectory/maven-build:jdk-11'
-//              args '-v $HOME/.m2:/var/maven/.m2'
+//              args '-v $HOME/.m2:/home/hnelson/.m2'
 //            }
 //          }
 //          steps {
@@ -101,7 +101,7 @@ pipeline {
 //            docker {
 //              label 'ubuntu'
 //              image 'apachedirectory/maven-build:jdk-12'
-//              args '-v $HOME/.m2:/var/maven/.m2'
+//              args '-v $HOME/.m2:/home/hnelson/.m2'
 //            }
 //          }
 //          steps {
@@ -168,11 +168,17 @@ pipeline {
         docker {
           label 'ubuntu'
           image 'apachedirectory/maven-build:jdk-8'
-          args '-v $HOME/.m2:/var/maven/.m2'
+          args '-v $HOME/.m2:/home/hnelson/.m2'
+          alwaysPull true
         }
       }
       steps {
         sh 'mvn -V clean install -DskipTests'
+        sh '''
+        id
+        ls -l
+        ls -l /home/hnelson/.m2/repository/org/apache/directory/server/apacheds-service/2.0.0.AM26-SNAPSHOT/apacheds-service-2.0.0.AM26-SNAPSHOT.jar
+        '''
         sh 'cd installers && mvn -V clean package -Pinstallers -Pdocker'
         stash name: 'deb', includes: 'installers/target/installers/*.deb,installers/target/docker/*deb*'
         stash name: 'rpm', includes: 'installers/target/installers/*.rpm,installers/target/docker/*rpm*'
