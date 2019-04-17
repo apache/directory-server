@@ -21,7 +21,14 @@ package org.apache.directory.server;
 
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +82,7 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
+import org.apache.directory.server.core.security.CertificateUtil;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
@@ -84,12 +92,15 @@ import org.apache.directory.server.ntp.NtpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.security.x509.X500Name;
+
 
 /**
  * A class used to start various servers in a given {@link InstanceLayout}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@SuppressWarnings("restriction")
 public class ApacheDsService
 {
     /** A logger for this class */
@@ -195,7 +206,54 @@ public class ApacheDsService
             dnFactory );
 
         // start the LDAP server
-        startLdap( directoryServiceBean.getLdapServerBean(), directoryService, startServers );
+        LdapServerBean ldapServerBean = directoryServiceBean.getLdapServerBean();
+        
+        if ( ldapServerBean.getLdapServerKeystoreFile() == null )
+        {
+            File ldapServerKeystoreFile = instanceLayout.getKeyStoreFile();
+            
+            if ( !ldapServerKeystoreFile.exists() )
+            {
+                // We need to create a KeyStore
+                ldapServerKeystoreFile.createNewFile();
+                ldapServerKeystoreFile.deleteOnExit();
+                ldapServerBean.setLdapServerCertificatePassword( "secret" );
+
+                
+                KeyStore keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
+                char[] keyStorePassword = "secret".toCharArray();
+                
+                try ( InputStream keyStoreData = new FileInputStream( ldapServerKeystoreFile ) )
+                {
+                    keyStore.load( null, keyStorePassword );
+                }
+
+                // Generate the asymmetric keys, using EC algorithm
+                KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance( "EC" );
+                KeyPair keyPair = keyPairGenerator.generateKeyPair();
+                
+                // Generate the subject's name
+                @SuppressWarnings("restriction")
+                X500Name owner = new X500Name( "apacheds", "directory", "apache", "US" );
+
+                // Create the self-signed certificate
+                X509Certificate certificate = CertificateUtil.generateSelfSignedCertificate( owner, keyPair, 365, "SHA256WithECDSA" );
+                
+                keyStore.setKeyEntry( "apachedsKey", keyPair.getPrivate(), keyStorePassword, new X509Certificate[] { certificate } );
+                
+                FileOutputStream out = new FileOutputStream( ldapServerKeystoreFile );
+                keyStore.store( out, keyStorePassword );
+            }
+            
+            ldapServerBean.setLdapServerKeystoreFile( ldapServerKeystoreFile.getAbsolutePath() );
+        }
+        
+        if ( ldapServerBean.getLdapServerCertificatePassword() == null )
+        {
+            ldapServerBean.setLdapServerCertificatePassword( "secret" );
+        }
+        
+        startLdap( ldapServerBean, directoryService, startServers );
 
         // start the NTP server
         startNtp( directoryServiceBean.getNtpServerBean(), directoryService, startServers );
@@ -335,7 +393,7 @@ public class ApacheDsService
     private DirectoryService initDirectoryService( InstanceLayout instanceLayout,
         DirectoryServiceBean directoryServiceBean, CacheService cacheService, DnFactory dnFactory ) throws Exception
     {
-        LOG.info( "Initializing the DirectoryService..." );
+         LOG.info( "Initializing the DirectoryService..." );
 
         long startTime = System.currentTimeMillis();
 
@@ -403,6 +461,8 @@ public class ApacheDsService
     {
         LOG.info( "Starting the LDAP server" );
         long startTime = System.currentTimeMillis();
+        
+        // Add a reference to the KeyStore file, or create one if missing
 
         ldapServer = ServiceBuilder.createLdapServer( ldapServerBean, directoryService );
 

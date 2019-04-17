@@ -20,9 +20,22 @@
 package org.apache.directory.server.core.integ;
 
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.security.CertificateUtil;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
+
+import sun.security.x509.X500Name;
 
 
 /**
@@ -30,6 +43,7 @@ import org.apache.directory.server.ldap.LdapServer;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@SuppressWarnings("restriction")
 public abstract class AbstractLdapTestUnit
 {
     /** The used DirectoryService instance */
@@ -74,5 +88,35 @@ public abstract class AbstractLdapTestUnit
     public static void setKdcServer( KdcServer kdcServer )
     {
         AbstractLdapTestUnit.kdcServer = kdcServer;
+    }
+    
+    
+    public void changeCertificate( String keyStoreFile, String password, String issuerDn, String subjectDn, int days, String algorithm ) 
+        throws IOException, GeneralSecurityException
+    {
+        KeyStore keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
+        char[] keyStorePassword = password.toCharArray();
+        
+        try ( InputStream keyStoreData = new FileInputStream( keyStoreFile ) )
+        {
+            keyStore.load( null, keyStorePassword );
+        }
+        
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance( "EC" );
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        
+        // Generate the subject's name
+        X500Name subject = new X500Name( subjectDn, "directory", "apache", "US" );
+        
+        // Generate the issuer's name
+        X500Name issuer = new X500Name( issuerDn, "directory", "apache", "US" );
+
+        // Create the self-signed certificate
+        X509Certificate certificate = CertificateUtil.generateCertificate( subject, issuer, keyPair, days, algorithm );
+        
+        keyStore.setKeyEntry( "apachedsKey", keyPair.getPrivate(), keyStorePassword, new X509Certificate[] { certificate } );
+        
+        FileOutputStream out = new FileOutputStream( keyStoreFile );
+        keyStore.store( out, keyStorePassword );
     }
 }

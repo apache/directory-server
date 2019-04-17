@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
-import java.security.KeyPair;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
 import java.security.NoSuchAlgorithmException;
@@ -62,6 +62,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     private static final Logger LOG = LoggerFactory.getLogger( CoreKeyStoreSpi.class );
 
     private DirectoryService directoryService;
+    private KeyStore keyStore;
 
 
     /**
@@ -72,6 +73,12 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
     {
         LOG.debug( "Constructor called." );
         this.directoryService = directoryService;
+    }
+    
+    
+    public void setKeyStore( KeyStore keyStore )
+    {
+        this.keyStore = keyStore;
     }
 
 
@@ -128,8 +135,9 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             try
             {
-                Entry entry = getTlsEntry();
-                return TlsKeyGenerator.getCertificate( entry );
+                return keyStore.getCertificate( alias );
+                //Entry entry = getTlsEntry();
+                //return TlsKeyGenerator.getCertificate( entry );
             }
             catch ( Exception e )
             {
@@ -153,6 +161,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         {
             LOG.debug( "Certificate in alias request is X.509 based." );
             X509Certificate xcert = ( X509Certificate ) cert;
+            
             if ( xcert.getIssuerDN().toString().equals( TlsKeyGenerator.CERTIFICATE_PRINCIPAL_DN ) )
             {
                 return APACHEDS_ALIAS;
@@ -161,12 +170,20 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
 
         try
         {
+            Certificate certificate = keyStore.getCertificate( APACHEDS_ALIAS );
+            
+            if ( Objects.deepEquals( cert.getEncoded(), certificate.getEncoded() ) )
+            {
+                return APACHEDS_ALIAS;
+            }
+            /*
             Entry entry = getTlsEntry();
 
             if ( Objects.deepEquals( cert.getEncoded(), entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) )
             {
                 return APACHEDS_ALIAS;
             }
+            */
         }
         catch ( Exception e )
         {
@@ -189,7 +206,10 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
             Entry entry = getTlsEntry();
             LOG.debug( "Entry:\n{}", entry );
             return new Certificate[]
-                { TlsKeyGenerator.getCertificate( entry ) };
+                {
+                    keyStore.getCertificate( alias )
+                };
+                //{ TlsKeyGenerator.getCertificate( entry ) };
         }
         catch ( Exception e )
         {
@@ -221,9 +241,12 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
 
         try
         {
+            return keyStore.getKey( alias, password );
+            /*
             Entry entry = getTlsEntry();
             KeyPair keyPair = TlsKeyGenerator.getKeyPair( entry );
             return keyPair.getPrivate();
+            */
         }
         catch ( Exception e )
         {

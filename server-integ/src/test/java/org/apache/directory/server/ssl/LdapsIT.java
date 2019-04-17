@@ -92,7 +92,7 @@ public class LdapsIT extends AbstractLdapTestUnit
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://" + Network.LOOPBACK_HOSTNAME + ":"
             + getLdapServer().getPortSSL() + "/ou=system" );
-        env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
+        env.put( "java.naming.ldap.factory.socket", AdsSSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );

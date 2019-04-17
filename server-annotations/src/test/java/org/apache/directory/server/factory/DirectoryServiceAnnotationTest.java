@@ -173,6 +173,7 @@ public class DirectoryServiceAnnotationTest
     @Test
     @CreateDS(
         name = "MethodDSWithPartitionAndServer",
+        
         partitions =
             {
                 @CreatePartition(
@@ -192,6 +193,7 @@ public class DirectoryServiceAnnotationTest
                     })
         })
     @CreateLdapServer(
+        keyStore = "",
         transports =
             {
                 @CreateTransport(protocol = "LDAP"),

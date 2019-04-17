@@ -26,14 +26,10 @@ import static org.junit.Assert.assertNotNull;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
-import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -42,7 +38,6 @@ import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
@@ -94,7 +89,7 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://" + Network.LOOPBACK_HOSTNAME + ":"
             + getLdapServer().getPortSSL() + "/ou=system" );
-        env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
+        env.put( "java.naming.ldap.factory.socket", AdsSSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
@@ -113,34 +108,22 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldaps://" + Network.LOOPBACK_HOSTNAME + ":"
             + getLdapServer().getPortSSL() );
-        env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
+        env.put( "java.naming.ldap.factory.socket", AdsSSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
-        InitialDirContext ctx = new InitialDirContext( env );
+        new InitialDirContext( env );
 
         // create a new certificate
-        String newIssuerDN = "cn=new_issuer_dn";
-        String newSubjectDN = "cn=new_subject_dn";
-        Entry entry = getLdapServer().getDirectoryService().getAdminSession().lookup(
-            new Dn( "uid=admin,ou=system" ) );
-        TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA", 1024 );
+        String newIssuerDN = "new_issuer_dn";
+        String newSubjectDN = "new_subject_dn";
+        changeCertificate( ldapServer.getKeystoreFile(), "secret", newIssuerDN, newSubjectDN, 365, "SHA256WithECDSA" );
 
         // now update the certificate (over the wire)
-        ModificationItem[] mods = new ModificationItem[3];
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-            TlsKeyGenerator.PRIVATE_KEY_AT, entry.get( TlsKeyGenerator.PRIVATE_KEY_AT ).getBytes() ) );
-        mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-            TlsKeyGenerator.PUBLIC_KEY_AT, entry.get( TlsKeyGenerator.PUBLIC_KEY_AT ).getBytes() ) );
-        mods[2] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-            TlsKeyGenerator.USER_CERTIFICATE_AT, entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) );
-        ctx.modifyAttributes( "uid=admin,ou=system", mods );
-        ctx.close();
-
         getLdapServer().reloadSslContext();
 
         // create a secure connection
-        ctx = new InitialDirContext( env );
+        new InitialDirContext( env );
 
         // check the received certificate, it must contain the updated server certificate
         X509Certificate[] lastReceivedServerCertificates = BogusTrustManagerFactory.lastReceivedServerCertificates;
@@ -151,9 +134,8 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         // converting the values to lowercase is required cause the certificate is
         // having attribute names in capital letters e.c the above newIssuerDN will be present as CN=new_issuer_dn
         assertEquals( "Expected the new certificate with the new issuer",
-            Strings.toLowerCaseAscii( newIssuerDN ), Strings.toLowerCaseAscii( issuerDN ) );
+            Strings.toLowerCaseAscii( issuerDN ), Strings.toLowerCaseAscii( "CN=new_issuer_dn, OU=directory, O=apache, C=US" ) );
         assertEquals( "Expected the new certificate with the new subject",
-            Strings.toLowerCaseAscii( newSubjectDN ), Strings.toLowerCaseAscii( subjectDN ) );
+            Strings.toLowerCaseAscii( subjectDN ), Strings.toLowerCaseAscii( "CN=new_subject_dn, OU=directory, O=apache, C=US" ) );
     }
-
 }

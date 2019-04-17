@@ -121,7 +121,6 @@ import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
@@ -1513,8 +1512,6 @@ public class DefaultDirectoryService implements DirectoryService
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
     
-                TlsKeyGenerator.addKeyPair( serverEntry );
-                
                 addEntry( serverEntry );
             }
         }

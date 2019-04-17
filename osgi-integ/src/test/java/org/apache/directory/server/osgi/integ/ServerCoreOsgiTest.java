@@ -42,7 +42,6 @@ public class ServerCoreOsgiTest extends ServerOsgiTestBase
     {
         DefaultDirectoryService ds = new DefaultDirectoryService();
         new DefaultOperationManager( ds );
-        new CoreKeyStoreSpi( ds );
         TlsKeyGenerator.addKeyPair( new DefaultEntry() );
     }
 

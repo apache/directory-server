@@ -23,18 +23,9 @@ package org.apache.directory.server.ssl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
@@ -42,24 +33,18 @@ import javax.naming.ldap.StartTlsResponse;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -84,11 +69,6 @@ import org.slf4j.LoggerFactory;
         { StartTlsHandler.class })
 public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
 {
-    private static final Logger LOG = LoggerFactory.getLogger( StartTlsUpdateCertificateIT.class );
-    private static final String[] CERT_IDS = new String[]
-        { "userCertificate" };
-    private File ksFile;
-
     boolean oldConfidentialityRequiredValue;
 
 
@@ -105,28 +85,6 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
     @Before
     public void installKeyStoreWithCertificate() throws Exception
     {
-        if ( ksFile != null && ksFile.exists() )
-        {
-            ksFile.delete();
-        }
-
-        ksFile = File.createTempFile( "testStore", "ks" );
-        CoreSession session = getLdapServer().getDirectoryService().getAdminSession();
-        Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
-        byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
-        assertNotNull( userCertificate );
-
-        try ( ByteArrayInputStream in = new ByteArrayInputStream( userCertificate ) )
-        {
-            CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
-            Certificate cert = factory.generateCertificate( in );
-            KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
-            ks.load( null, null );
-            ks.setCertificateEntry( "apacheds", cert );
-            ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
-            LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
-        }
-
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
     }
 
@@ -137,12 +95,6 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
     @After
     public void deleteKeyStore() throws Exception
     {
-        if ( ksFile != null && ksFile.exists() )
-        {
-            ksFile.delete();
-        }
-
-        LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
         getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
     }
 
@@ -172,22 +124,10 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         tls.negotiate( BogusSSLContextFactory.getInstance( false ).getSocketFactory() );
 
         // create a new certificate
-        String newIssuerDN = "cn=new_issuer_dn";
-        String newSubjectDN = "cn=new_subject_dn";
-        Entry entry = getLdapServer().getDirectoryService().getAdminSession().lookup(
-            new Dn( "uid=admin,ou=system" ) );
-        TlsKeyGenerator.addKeyPair( entry, newIssuerDN, newSubjectDN, "RSA", 1024 );
-
-        // now update the certificate (over the wire)
-        ModificationItem[] mods = new ModificationItem[3];
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-            TlsKeyGenerator.PRIVATE_KEY_AT, entry.get( TlsKeyGenerator.PRIVATE_KEY_AT ).getBytes() ) );
-        mods[1] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-            TlsKeyGenerator.PUBLIC_KEY_AT, entry.get( TlsKeyGenerator.PUBLIC_KEY_AT ).getBytes() ) );
-        mods[2] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-            TlsKeyGenerator.USER_CERTIFICATE_AT, entry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ).getBytes() ) );
-        ctx.modifyAttributes( "uid=admin,ou=system", mods );
-        ctx.close();
+        // create a new certificate
+        String newIssuerDN = "new_issuer_dn";
+        String newSubjectDN = "new_subject_dn";
+        changeCertificate( ldapServer.getKeystoreFile(), "secret", newIssuerDN, newSubjectDN, 365, "SHA256WithECDSA" );
 
         getLdapServer().reloadSslContext();
 
@@ -201,6 +141,7 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
                 return true;
             }
         } );
+        
         tls.negotiate( BogusSSLContextFactory.getInstance( false ).getSocketFactory() );
 
         // check the received certificate, it must contain the updated server certificate
@@ -209,9 +150,9 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
         assertEquals( 1, lastReceivedServerCertificates.length );
         String issuerDN = lastReceivedServerCertificates[0].getIssuerDN().getName();
         String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
-        assertEquals( "Expected the new certificate with the new issuer", Strings.toLowerCaseAscii( newIssuerDN ),
-            Strings.toLowerCaseAscii( issuerDN ) );
-        assertEquals( "Expected the new certificate with the new subject", Strings.toLowerCaseAscii( newSubjectDN ),
-            Strings.toLowerCaseAscii( subjectDN ) );
+        assertEquals( "Expected the new certificate with the new issuer",
+            Strings.toLowerCaseAscii( issuerDN ), Strings.toLowerCaseAscii( "CN=new_issuer_dn, OU=directory, O=apache, C=US" ) );
+        assertEquals( "Expected the new certificate with the new subject",
+            Strings.toLowerCaseAscii( subjectDN ), Strings.toLowerCaseAscii( "CN=new_subject_dn, OU=directory, O=apache, C=US" ) );
     }
 }

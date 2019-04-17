@@ -19,6 +19,7 @@
 package org.apache.directory.server.factory;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -38,6 +39,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.annotations.AnnotationUtils;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.security.CertificateUtil;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.ChangePasswordConfig;
 import org.apache.directory.server.kerberos.KerberosConfig;
@@ -147,6 +149,20 @@ public final class ServerAnnotationProcessor
             {
                 ldapServer.setKeystoreFile( createLdapServer.keyStore() );
                 ldapServer.setCertificatePassword( createLdapServer.certificatePassword() );
+            }
+            else
+            {
+                try
+                {
+                    // Create a temporary keystore, be sure to remove it when exiting the test
+                    File keyStoreFile = CertificateUtil.createTempKeyStore( "testStore" );
+                    ldapServer.setKeystoreFile( keyStoreFile.getAbsolutePath() );
+                    ldapServer.setCertificatePassword( "secret" );
+                }
+                catch ( Exception e )
+                {
+                    
+                }
             }
 
             for ( Class<?> extOpClass : createLdapServer.extendedOpHandlers() )

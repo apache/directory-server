@@ -149,7 +149,7 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
         responses.close();
 
         // We should have 3 entries
-        assertEquals( 4, i );
+        assertEquals( 3, i );
 
         // Now, filter the entry with a cn starting with testing, and a certificate 
         responses = connection.search( "ou=system", "(&(cn=testing*)(userCertificate=*))", SearchScope.SUBTREE, "*" );

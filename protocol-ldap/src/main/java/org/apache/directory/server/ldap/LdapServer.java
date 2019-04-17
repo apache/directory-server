@@ -21,16 +21,8 @@ package org.apache.directory.server.ldap;
 
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.Provider;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -67,10 +59,9 @@ import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchResultReference;
 import org.apache.directory.api.ldap.model.message.UnbindRequest;
 import org.apache.directory.api.ldap.model.message.extended.NoticeOfDisconnect;
-import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
-import org.apache.directory.server.core.security.CoreKeyStoreSpi;
+import org.apache.directory.server.core.security.CertificateUtil;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.handlers.LdapRequestHandler;
 import org.apache.directory.server.ldap.handlers.LdapResponseHandler;
@@ -247,9 +238,6 @@ public class LdapServer extends DirectoryBackedService
      */
     private boolean confidentialityRequired;
 
-    /** The used Keystore */
-    private KeyStore keyStore = null;
-
     private List<IoFilterChainBuilder> chainBuilders = new ArrayList<>();
 
     /** The handler responsible for the replication */
@@ -363,86 +351,6 @@ public class LdapServer extends DirectoryBackedService
 
 
     /**
-     * Loads the digital certificate either from a keystore file or from the admin entry in DIT
-     *
-     * @throws Exception If the KeyStore can't be loaded
-     */
-    public void loadKeyStore() throws Exception
-    {
-        char[] keyStorePassword = Strings.isEmpty( certificatePassword ) ? null : certificatePassword.toCharArray();
-
-        if ( Strings.isEmpty( keystoreFile ) )
-        {
-            Provider provider = Security.getProvider( "SUN" );
-            LOG.debug( "provider = {}", provider );
-            CoreKeyStoreSpi coreKeyStoreSpi = new CoreKeyStoreSpi( getDirectoryService() );
-            keyStore = new KeyStore( coreKeyStoreSpi, provider, KeyStore.getDefaultType() )
-            {
-            };
-
-            try
-            {
-                keyStore.load( null, null );
-            }
-            catch ( Exception e )
-            {
-                // nothing really happens with this keystore
-            }
-        }
-        else
-        {
-            keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-
-            try ( InputStream is = Files.newInputStream( Paths.get( keystoreFile ) ) )
-            {
-                keyStore.load( is, keyStorePassword );
-            }
-        }
-
-        /*
-         * Verify key store:
-         * * Must only contain one entry which must be a key entry
-         * * Must contain a certificate chain
-         * * The private key must be recoverable by the key store password
-         */
-        Enumeration<String> aliases = keyStore.aliases();
-        if ( !aliases.hasMoreElements() )
-        {
-            throw new KeyStoreException( "Key store is empty" );
-        }
-        String alias = aliases.nextElement();
-        if ( aliases.hasMoreElements() )
-        {
-            throw new KeyStoreException( "Key store contains more than one entry" );
-        }
-        if ( !keyStore.isKeyEntry( alias ) )
-        {
-            throw new KeyStoreException( "Key store must contain a key entry" );
-        }
-        if ( keyStore.getCertificateChain( alias ) == null )
-        {
-            throw new KeyStoreException( "Key store must contain a certificate chain" );
-        }
-        if ( keyStore.getKey( alias, keyStorePassword ) == null )
-        {
-            throw new KeyStoreException( "Private key must be recoverable by the key store password" );
-        }
-
-        // Set up key manager factory to use our key store
-        String algorithm = Security.getProperty( "ssl.KeyManagerFactory.algorithm" );
-
-        if ( algorithm == null )
-        {
-            algorithm = KeyManagerFactory.getDefaultAlgorithm();
-        }
-
-        keyManagerFactory = KeyManagerFactory.getInstance( algorithm );
-
-        keyManagerFactory.init( keyStore, keyStorePassword );
-    }
-
-
-    /**
      * reloads the SSL context by replacing the existing SslFilter
      * with a new SslFilter after reloading the keystore.
      *
@@ -458,7 +366,7 @@ public class LdapServer extends DirectoryBackedService
 
         LOG.info( "reloading SSL context..." );
 
-        loadKeyStore();
+        keyManagerFactory = CertificateUtil.loadKeyStore( keystoreFile, certificatePassword );
 
         String sslFilterName = "sslFilter";
 
@@ -510,7 +418,7 @@ public class LdapServer extends DirectoryBackedService
             return;
         }
 
-        loadKeyStore();
+        keyManagerFactory = CertificateUtil.loadKeyStore( keystoreFile, certificatePassword );
 
         /*
          * The server is now initialized, we can

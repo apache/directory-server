@@ -28,7 +28,7 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 
 
 /**
- * An anntation for the DirectoryService builder
+ * An annotation for the DirectoryService builder
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -40,14 +40,14 @@ public @interface CreateDS
     /** @return The Factory to use to create a DirectoryService */
     Class<?> factory() default DefaultDirectoryServiceFactory.class;
 
-
+    
     /** @return The DS name */
     String name() default "defaultDS";
 
 
     /** @return flag to enable/disable access control, default is false */
     boolean enableAccessControl() default false;
-
+    
 
     /** @return flag to enable/disable anonymous access, default is false */
     boolean allowAnonAccess() default false;

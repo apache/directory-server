@@ -36,6 +36,7 @@ import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.ldap.client.api.LdapClientTrustStoreManager;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -160,7 +161,8 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     public void testBindRequestSSLWithTrustManager() throws Exception
     {
         try ( LdapNetworkConnection connection = 
-            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPortSSL(), new NoVerificationTrustManager() ) )
+            new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPortSSL(), 
+                new LdapClientTrustStoreManager( ldapServer.getKeystoreFile(), new char[] {'s', 'e', 'c', 'r', 'e', 't' }, null, true ) ) )
         {
             connection.bind( "uid=admin,ou=system", "secret" );
             
@@ -261,7 +263,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testStartTLS() throws Exception
     {
-        tlsConfig.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+        tlsConfig.setTrustManagers( new X509TrustManager[] { new LdapClientTrustStoreManager( ldapServer.getKeystoreFile(), new char[] {'s', 'e', 'c', 'r', 'e', 't' }, null, true ) } );
 
         try ( LdapNetworkConnection connection = 
             new LdapNetworkConnection( tlsConfig ) )

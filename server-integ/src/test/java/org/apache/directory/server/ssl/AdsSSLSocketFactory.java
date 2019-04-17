@@ -27,29 +27,30 @@ import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 
 /**
  * Simple Socket factory to create sockets with or without SSL enabled.
- * If SSL enabled a "bougus" SSL Context is used (suitable for test purposes)
+ * If SSL enabled a "bogus" SSL Context is used (suitable for test purposes)
  * 
  */
-public class SSLSocketFactory extends SocketFactory
+public class AdsSSLSocketFactory extends SocketFactory
 {
     private static boolean sslEnabled = true;
 
-    private static javax.net.ssl.SSLSocketFactory sslFactory = null;
+    private static SSLSocketFactory sslFactory = null;
 
     private static javax.net.SocketFactory factory = null;
 
 
     public static SocketFactory getDefault()
     {
-        return new SSLSocketFactory();
+        return new AdsSSLSocketFactory();
     }
 
 
-    public SSLSocketFactory()
+    public AdsSSLSocketFactory()
     {
         super();
     }
@@ -112,13 +113,13 @@ public class SSLSocketFactory extends SocketFactory
     {
         if ( factory == null )
         {
-            factory = new SSLSocketFactory();
+            factory = new AdsSSLSocketFactory();
         }
         return factory;
     }
 
 
-    private javax.net.ssl.SSLSocketFactory getSSLFactory()
+    private SSLSocketFactory getSSLFactory()
     {
         if ( sslFactory == null )
         {
@@ -131,6 +132,7 @@ public class SSLSocketFactory extends SocketFactory
                 throw new RuntimeException( "could not create SSL socket", e );
             }
         }
+        
         return sslFactory;
     }
 
