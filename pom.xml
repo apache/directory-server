@@ -24,7 +24,6 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>42</version>
     <version>44</version>
     <relativePath />
   </parent>
@@ -58,18 +57,13 @@
     <ant.version>1.10.1</ant.version>
     <bcprov.version>1.60</bcprov.version>
     <commons.cli.version>1.4</commons.cli.version>
-    <commons.codec.version>1.11</commons.codec.version>
-    <commons.collections.version>4.2</commons.collections.version>
     <commons.codec.version>1.12</commons.codec.version>
     <commons.collections.version>4.3</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
     <commons.lang.version>3.8.1</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
-    <commons.pool.version>2.6.0</commons.pool.version>
     <commons.pool.version>2.6.1</commons.pool.version>
     <dnsjava.version>2.1.8</dnsjava.version>
-    <!-- OSGi related issue in ehcache 3.6.x: https://github.com/ehcache/ehcache3/issues/2554 -->
-    <ehcache.version>3.5.3</ehcache.version>
     <caffeine.version>2.7.0</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
@@ -221,7 +215,7 @@
               <head>WARNING</head>
             </tag>
           </tags>
-          <source>1.7</source>
+          <source>1.8</source>
         </configuration>
         <reportSets>
           <reportSet>
@@ -335,8 +329,8 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
+            <source>1.8</source>
+            <target>1.8</target>
             <optimize>true</optimize>
             <showDeprecations>true</showDeprecations>
             <encoding>ISO-8859-1</encoding>
@@ -1248,9 +1242,6 @@
       </dependency>
       
       <dependency>
-        <groupId>org.ehcache</groupId>
-        <artifactId>ehcache</artifactId>
-        <version>${ehcache.version}</version>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>
         <version>${caffeine.version}</version>
