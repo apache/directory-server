@@ -39,7 +39,6 @@ import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
@@ -72,7 +71,6 @@ public class SubstringTest
     Store store;
     static SchemaManager schemaManager = null;
     private static DnFactory dnFactory;
-    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -107,11 +105,7 @@ public class SubstringTest
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, 
-            cacheService.getCache( "dnCache", String.class, Dn.class ) );
-
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
     }
 
 
@@ -139,7 +133,6 @@ public class SubstringTest
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         ( ( Partition ) store ).setSuffixDn( suffixDn );
 
-        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );

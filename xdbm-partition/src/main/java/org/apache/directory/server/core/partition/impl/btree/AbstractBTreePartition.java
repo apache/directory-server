@@ -23,6 +23,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,9 +35,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.ehcache.Cache;
-import org.ehcache.config.CacheConfiguration;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -102,6 +100,9 @@ import org.apache.directory.server.xdbm.search.SearchEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 
 /**
  * An abstract {@link Partition} that uses general BTree operations.
@@ -129,10 +130,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected int cacheSize = DEFAULT_CACHE_SIZE;
 
     /** The alias cache */
-    protected Cache< String, Dn > aliasCache;
+    protected Cache<String, Dn> aliasCache;
 
     /** The ParentIdAndRdn cache */
-    protected Cache< String, ParentIdAndRdn > piarCache;
+    protected Cache<String, ParentIdAndRdn> piarCache;
 
     /** true if we sync disks on every write operation */
     protected AtomicBoolean isSyncOnWrite = new AtomicBoolean( true );
@@ -539,8 +540,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // don't reset initialized flag
         initialized = false;
 
-        entryDnCache.clear();
-        
+        aliasCache.invalidateAll();
+        piarCache.invalidateAll();
+        entryDnCache.invalidateAll();
+
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
         for ( Index<?, String> index : userIndices.values() )
@@ -623,16 +626,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         setupSystemIndices();
         setupUserIndices();
 
-        if ( cacheService != null )
-        {
-            aliasCache = cacheService.getCache( "alias", String.class, Dn.class );
-    
-            CacheConfiguration< String, Dn > aliasCacheConfig = aliasCache.getRuntimeConfiguration();
-            
-            piarCache = cacheService.getCache( "piar", String.class, ParentIdAndRdn.class );
-            
-            entryDnCache = cacheService.getCache( "entryDn", String.class, Dn.class );
-        }
+        aliasCache = Caffeine.newBuilder().maximumSize( cacheSize ).expireAfterAccess( Duration.ofMinutes( 20 ) )
+            .build();
+
+        piarCache = Caffeine.newBuilder().maximumSize( cacheSize * 3L )
+            .expireAfterAccess( Duration.ofMinutes( 20 ) ).build();
+
+        entryDnCache = Caffeine.newBuilder().maximumSize( cacheSize ).expireAfterAccess( Duration.ofMinutes( 20 ) )
+            .build();
     }
 
 
@@ -1138,7 +1139,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
                 ////dumpRdnIdx();
 
-                entryDnCache.remove( id );
+                entryDnCache.invalidate( id );
                 
                 Attribute csn = entry.get( entryCsnAT );
                 // can be null while doing subentry deletion
@@ -2009,7 +2010,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // Remove the EntryDN
         modifiedEntry.removeAttributes( entryDnAT );
 
-        entryDnCache.clear();
+        entryDnCache.invalidateAll();
         
         setContextCsn( modifiedEntry.get( entryCsnAT ).getString() );
 
@@ -2187,7 +2188,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         modifiedEntry.add( ApacheSchemaConstants.ENTRY_PARENT_ID_OID, newParentId );
         
         // Doom the DN cache now
-        entryDnCache.clear();
+        entryDnCache.invalidateAll();
 
         setContextCsn( modifiedEntry.get( entryCsnAT ).getString() );
 
@@ -2519,7 +2520,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         rdnIdx.add( partitionTxn, parentIdAndRdn, oldId );
 
-        entryDnCache.clear();
+        entryDnCache.invalidateAll();
         
         if ( isSyncOnWrite.get() )
         {
@@ -2617,7 +2618,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( entryDnCache != null )
             {
-                Dn cachedDn = entryDnCache.get( id );
+                Dn cachedDn = entryDnCache.getIfPresent( id );
                 
                 if ( cachedDn != null )
                 {
@@ -2631,7 +2632,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
                 if ( piarCache != null )
                 {
-                    cur = piarCache.get( parentId );
+                    cur = piarCache.getIfPresent( parentId );
                     
                     if ( cur == null )
                     {
@@ -3284,7 +3285,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         if ( aliasCache != null )
         {
-            aliasCache.remove( aliasId );
+            aliasCache.invalidate( aliasId );
         }
     }
 

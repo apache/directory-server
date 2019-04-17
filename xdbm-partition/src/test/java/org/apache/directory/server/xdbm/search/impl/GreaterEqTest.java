@@ -56,7 +56,6 @@ import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -90,7 +89,6 @@ public class GreaterEqTest
     Store store;
     static SchemaManager schemaManager = null;
     private static DnFactory dnFactory;
-    private static CacheService cacheService;
 
     @BeforeClass
     public static void setup() throws Exception
@@ -125,11 +123,7 @@ public class GreaterEqTest
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, 
-            cacheService.getCache( "dnCache", String.class, Dn.class ) );
-
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
     }
 
 
@@ -155,7 +149,6 @@ public class GreaterEqTest
         store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         store.addIndex( new AvlIndex<String>( StoreUtils.TEST_INT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );

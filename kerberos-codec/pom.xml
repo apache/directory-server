@@ -69,8 +69,8 @@
     </dependency>
     
     <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
     </dependency>
   </dependencies>
 
@@ -134,7 +134,7 @@
                 javax.crypto,
                 javax.crypto.spec,
                 javax.security.auth.kerberos,
-                org.ehcache;version=${ehcache.version},
+                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.asn1;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.actions;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber;version=${org.apache.directory.api.version},

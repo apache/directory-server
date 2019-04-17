@@ -150,7 +150,7 @@
                 jdbm.btree,
                 jdbm.helper,
                 jdbm.recman,
-                org.ehcache;version=${ehcache.version},
+                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},

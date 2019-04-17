@@ -579,12 +579,6 @@ public interface DirectoryService extends ServerEntryFactory
 
 
     /**
-     * @return the cache service
-     */
-    CacheService getCacheService();
-
-
-    /**
      * @return The AccessControl AdministrativePoint cache
      */
     DnNode<AccessControlAdministrativePoint> getAccessControlAPCache();
@@ -628,14 +622,6 @@ public interface DirectoryService extends ServerEntryFactory
      * @param dnFactory The Dn factory to use
      */
     void setDnFactory( DnFactory dnFactory );
-
-
-    /**
-     * Sets the CacheService
-     * 
-     * @param cacheService the cache service
-     */
-    void setCacheService( CacheService cacheService );
 
 
     /**

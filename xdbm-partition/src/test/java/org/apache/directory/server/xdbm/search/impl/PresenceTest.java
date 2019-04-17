@@ -44,7 +44,6 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
@@ -77,7 +76,6 @@ public class PresenceTest
     Store store;
     static SchemaManager schemaManager = null;
     private static DnFactory dnFactory;
-    private static CacheService cacheService;
     private static String NORMALIZED_CN_OID;
 
 
@@ -113,13 +111,10 @@ public class PresenceTest
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, 
-            cacheService.getCache( "dnCache", String.class, Dn.class ) );
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
 
-        
-        NORMALIZED_CN_OID = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_PRESENCE_AT ).getEquality().getNormalizer().normalize( SchemaConstants.CN_AT_OID );
+        NORMALIZED_CN_OID = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_PRESENCE_AT ).getEquality()
+            .getNormalizer().normalize( SchemaConstants.CN_AT_OID );
     }
 
 
@@ -144,7 +139,6 @@ public class PresenceTest
         store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID, false ) );
         store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID, false ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         ( ( Partition ) store ).initialize();

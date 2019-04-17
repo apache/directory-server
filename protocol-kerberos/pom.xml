@@ -72,10 +72,6 @@
       <artifactId>mina-core</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -139,7 +135,7 @@
                 javax.naming,
                 javax.naming.directory,
                 javax.security.auth.kerberos,
-                org.ehcache;version=${ehcache.version},
+                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.asn1;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber.tlv;version=${org.apache.directory.api.version},

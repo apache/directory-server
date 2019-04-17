@@ -25,6 +25,7 @@
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
     <version>42</version>
+    <version>44</version>
     <relativePath />
   </parent>
 
@@ -59,13 +60,17 @@
     <commons.cli.version>1.4</commons.cli.version>
     <commons.codec.version>1.11</commons.codec.version>
     <commons.collections.version>4.2</commons.collections.version>
+    <commons.codec.version>1.12</commons.codec.version>
+    <commons.collections.version>4.3</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
     <commons.lang.version>3.8.1</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
     <commons.pool.version>2.6.0</commons.pool.version>
+    <commons.pool.version>2.6.1</commons.pool.version>
     <dnsjava.version>2.1.8</dnsjava.version>
     <!-- OSGi related issue in ehcache 3.6.x: https://github.com/ehcache/ehcache3/issues/2554 -->
     <ehcache.version>3.5.3</ehcache.version>
+    <caffeine.version>2.7.0</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
@@ -1246,6 +1251,19 @@
         <groupId>org.ehcache</groupId>
         <artifactId>ehcache</artifactId>
         <version>${ehcache.version}</version>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>${caffeine.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+           </exclusion>
+         </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>

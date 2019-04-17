@@ -20,29 +20,22 @@
 package org.apache.directory.server.kerberos.shared.replay;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
-import org.ehcache.Cache;
-import org.ehcache.Cache.Entry;
-import org.ehcache.CacheManager;
-import org.ehcache.Status;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ExpiryPolicyBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,83 +58,76 @@ public class ReplayCacheImplTest
 
 
     /**
-     * Test that the cache is working well. We will create a new entry
-     * every 500 ms, with 4 different serverPrincipals.
-     *
-     * After this period of time, we should only have 2 entries in the cache
+     * Test that the cache is working well.
+     * We will create 4 new entries, with 4 different serverPrincipals.
+     * Those 4 entries should remain in cache and replay should be detected
+     * After expiration time the entries should have been expired.
      */
     @Test
     public void testCacheSetting() throws Exception
     {
-        CacheManager cacheManager = null;
-
         try
         {
             long clockSkew = 1000; // 1 sec
 
-            cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
-            
-            cacheManager.init();
-
-            Cache< String, Object > ehCache = cacheManager.createCache( 
-                    "kdcReplayCache", 
-                    CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                            String.class, 
-                            Object.class, 
-                            ResourcePoolsBuilder.heap(4)
-                    )
-                        .withExpiry(
-                            ExpiryPolicyBuilder
-                                .timeToIdleExpiration( Duration.ofMillis( 1000 ) )
-                                )
-                        .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration( Duration.ofMillis( 1000 )))
-            );
-            
-            ReplayCacheImpl cache = new ReplayCacheImpl( ehCache, clockSkew );
-
-            int i = 0;
+            ReplayCacheImpl cache = new ReplayCacheImpl( clockSkew );
 
             // Inject 4 entries
-            while ( i < 4 )
+            List<Triple<KerberosPrincipal, KerberosPrincipal, KerberosTime>> triples = new ArrayList<>();
+            for ( int i = 0; i < 4; i++ )
             {
                 KerberosPrincipal serverPrincipal = new KerberosPrincipal( "server" + i + "@APACHE.ORG",
                     PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
                 KerberosPrincipal clientPrincipal = new KerberosPrincipal( "client" + i + "@APACHE.ORG",
                     PrincipalNameType.KRB_NT_PRINCIPAL.getValue() );
+                KerberosTime clientTime = new KerberosTime( System.currentTimeMillis() );
 
-                cache.save( serverPrincipal, clientPrincipal, new KerberosTime( System.currentTimeMillis() ), 0 );
+                cache.save( serverPrincipal, clientPrincipal, clientTime, 0 );
 
-                i++;
+                triples.add( Triple.of( serverPrincipal, clientPrincipal, clientTime ) );
             }
 
-            List<String> keys = new ArrayList<>();
-            Iterator<Entry<String, Object>> it = ehCache.iterator();
-            
-            while (it.hasNext())
+            // Get the 4 cache keys
+            Set<String> keys = cache.cache.asMap().keySet();
+            assertEquals( 4, keys.size() );
+            assertEquals( 4L, cache.cache.estimatedSize() );
+
+            // Wait a bit without exceeding timetolive time
+            Thread.sleep( 200L );
+
+            // Verify that cache entries are valid and replay is detected
+            for ( String key : keys )
             {
-                keys.add(it.next().getKey());
+                assertNotNull( cache.cache.getIfPresent( key ) );
             }
-
-            // We should have 4 entries
-            assertTrue( keys.size() != 0 );
+            for ( Triple<KerberosPrincipal, KerberosPrincipal, KerberosTime> triple : triples )
+            {
+                boolean isReplay = cache.isReplay( triple.getLeft(), triple.getMiddle(), triple.getRight(), 0 );
+                assertTrue( isReplay );
+            }
 
             // Wait till the timetolive time exceeds
-            Thread.sleep( 1200 );
+            Thread.sleep( 1000L );
 
-            // then access the cache so that the objects present in the cache will be expired
-            for ( String k : keys )
+            // Verify that cache entries are expired and no replay is detected
+            for ( Triple<KerberosPrincipal, KerberosPrincipal, KerberosTime> triple : triples )
             {
-                assertNull( ehCache.get( k ) );
+                boolean isReplay = cache.isReplay( triple.getLeft(), triple.getMiddle(), triple.getRight(), 0 );
+                assertFalse( isReplay );
             }
 
-            assertFalse( ehCache.iterator().hasNext() );
+            // then access the cache so that the objects present in the cache will be expired
+            for ( String key : keys )
+            {
+                assertNull( cache.cache.getIfPresent( key ) );
+            }
+
+            // After forced cache cleanup the size is recalculated
+            cache.cache.cleanUp();
+            assertEquals( 0L, cache.cache.estimatedSize() );
         }
         finally
         {
-            if ( cacheManager != null && cacheManager.getStatus() != Status.UNINITIALIZED)
-            {
-                cacheManager.close();
-            }
         }
     }
 }

@@ -46,16 +46,13 @@ import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
@@ -74,7 +71,6 @@ public class SubtreeEvaluatorTest
     private static SubtreeEvaluator evaluator;
     private static FilterNormalizingVisitor visitor;
     private static ConcreteNameComponentNormalizer ncn;
-    private static Cache<String, Dn> dnCache;
 
 
     @BeforeClass
@@ -102,9 +98,7 @@ public class SubtreeEvaluatorTest
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
-        CacheManager cm = CacheManagerBuilder.newCacheManagerBuilder().withCache( "dnCache", CacheConfigurationBuilder.newCacheConfigurationBuilder( String.class, Dn.class, ResourcePoolsBuilder.heap(1000)).build()).build();
-        cm.init();
-        dnCache = cm.getCache( "dnCache", String.class, Dn.class );        dnFactory = new DefaultDnFactory( schemaManager, dnCache );
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
 
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
 
@@ -118,7 +112,6 @@ public class SubtreeEvaluatorTest
     {
         visitor = null;
         evaluator = null;
-        dnCache.clear();
     }
 
 

@@ -68,7 +68,6 @@ import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -123,8 +122,6 @@ public class SingleFileLdifPartitionTest
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-    private static CacheService cacheService;
-
 
     @BeforeClass
     public static void init() throws Exception
@@ -174,10 +171,7 @@ public class SingleFileLdifPartitionTest
 
         contextEntry = new ClonedServerEntry( new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, 
-            cacheService.getCache( "dnCache", String.class, Dn.class ) );
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
     }
 
 
@@ -247,7 +241,6 @@ public class SingleFileLdifPartitionTest
         partition.setPartitionPath( new File( fileName ).toURI() );
         partition.setSuffixDn( new Dn( schemaManager, "ou=test,ou=system" ) );
         partition.setSchemaManager( schemaManager );
-        partition.setCacheService( cacheService );
         partition.initialize();
 
         return partition;

@@ -77,10 +77,6 @@
       <artifactId>api-util</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -134,8 +130,7 @@
             </Export-Package>
             <Import-Package>
                 javax.naming.directory,
-                org.ehcache;version=${ehcache.version},
-                org.ehcache.config.builders;version=${ehcache.version},
+                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.ldap.codec.controls.search.subentries;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
