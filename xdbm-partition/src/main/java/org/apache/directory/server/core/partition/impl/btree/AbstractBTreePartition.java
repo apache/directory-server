@@ -1443,6 +1443,10 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                         modifyReplace( partitionTxn, id, entry, attrMods );
                         break;
     
+                    case INCREMENT_ATTRIBUTE:
+                        modifyIncrement( partitionTxn, id, entry, attrMods );
+                        break;
+    
                     default:
                         throw new LdapException( I18n.err( I18n.ERR_221 ) );
                 }
@@ -1708,6 +1712,164 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             entry.remove( mods );
         }
+
+        if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
+        {
+            Dn entryDn = getEntryDn( partitionTxn, id );
+            addAliasIndices( partitionTxn, id, entryDn, new Dn( schemaManager, mods.getString() ) );
+        }
+    }
+
+
+    /**
+     * Completely replaces the existing set of values for an attribute with the
+     * modified values supplied affecting the appropriate userIndices.  The entry
+     * is not persisted: it is only changed in anticipation for a put into the
+     * master table.
+     *
+     * @param partitionTxn The transaction to use
+     * @param id the primary key of the entry
+     * @param entry the entry to alter
+     * @param mods the replacement attribute and values
+     * @throws Exception if index alteration or attribute modification
+     * fails.
+     */
+    @SuppressWarnings("unchecked")
+    private void modifyIncrement( PartitionTxn partitionTxn, String id, Entry entry, Attribute mods ) 
+        throws LdapException, IndexNotFoundException
+    {
+        if ( entry instanceof ClonedServerEntry )
+        {
+            throw new LdapOtherException( I18n.err( I18n.ERR_215_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
+        }
+
+        String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
+        AttributeType attributeType = mods.getAttributeType();
+
+        // Special case for the ObjectClass index
+        if ( attributeType.equals( objectClassAT ) )
+        {
+            // if the id exists in the index drop all existing attribute
+            // value index entries and add new ones
+            for ( Value value : entry.get( objectClassAT ) )
+            {
+                if ( value.equals( topOCValue ) )
+                {
+                    continue;
+                }
+                
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
+
+                objectClassIdx.drop( partitionTxn, normalizedOc, id );
+            }
+
+            for ( Value value : mods )
+            {
+                if ( value.equals( topOCValue ) )
+                {
+                    continue;
+                }
+                
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
+
+                objectClassIdx.add( partitionTxn, normalizedOc, id );
+            }
+        }
+        else if ( hasUserIndexOn( attributeType ) )
+        {
+            Index<?, String> userIndex = getUserIndex( attributeType );
+
+            // Drop all the previous values
+            Attribute oldAttribute = entry.get( mods.getAttributeType() );
+
+            if ( oldAttribute != null )
+            {
+                for ( Value value : oldAttribute )
+                {
+                    String normalized = value.getNormalized();
+                    ( ( Index<Object, String> ) userIndex ).drop( partitionTxn, normalized, id );
+                }
+            }
+
+            // And add the new ones
+            for ( Value value : mods )
+            {
+                String normalized = value.getNormalized();
+                ( ( Index ) userIndex ).add( partitionTxn, normalized, id );
+            }
+
+            /*
+             * If we have no new value, we have to drop the AT fro the presence index
+             */
+            if ( mods.size() == 0 )
+            {
+                presenceIdx.drop( partitionTxn, modsOid, id );
+            }
+        }
+        // Special case for the AdministrativeRole index
+        else if ( attributeType.equals( administrativeRoleAT ) )
+        {
+            // Remove the previous values
+            for ( Value value : entry.get( administrativeRoleAT ) )
+            {
+                if ( value.equals( topOCValue ) )
+                {
+                    continue;
+                }
+                
+                String normalizedOc = objectClassNormalizer.normalize( value.getString() );
+
+                objectClassIdx.drop( partitionTxn, normalizedOc, id );
+            }
+
+            // And add the new ones 
+            for ( Value value : mods )
+            {
+                String valueStr = value.getString();
+
+                if ( valueStr.equals( topOCValue ) )
+                {
+                    continue;
+                }
+                
+                adminRoleIdx.add( partitionTxn, valueStr, id );
+            }
+        }
+
+        String aliasAttributeOid = schemaManager.getAttributeTypeRegistry().getOidByName(
+            SchemaConstants.ALIASED_OBJECT_NAME_AT );
+
+        if ( mods.getAttributeType().equals( aliasedObjectNameAT ) )
+        {
+            dropAliasIndices( partitionTxn, id );
+        }
+
+        // replaces old attributes with new modified ones if they exist
+        Attribute attribute = entry.get( mods.getAttributeType() );
+        Value[] newValues = new Value[ attribute.size() ];
+        int increment = 1;
+        int i = 0;
+        
+        if ( mods.size() != 0 )
+        {
+            increment = Integer.parseInt( mods.getString() );
+        }
+
+        for ( Value value : attribute )
+        {
+            int intValue = Integer.parseInt( value.getNormalized() );
+            
+            if ( intValue >= Integer.MAX_VALUE - increment )
+            {
+                throw new IllegalArgumentException( "Increment operation overflow for attribute" 
+                    + attributeType );
+            }
+            
+            newValues[i++] = new Value( Integer.toString( intValue + increment ) );
+            attribute.remove( value );
+        }
+        
+        attribute.add( newValues );
 
         if ( modsOid.equals( aliasAttributeOid ) && mods.size() > 0 )
         {

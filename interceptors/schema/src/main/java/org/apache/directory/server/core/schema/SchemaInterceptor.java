@@ -813,6 +813,49 @@ public class SchemaInterceptor extends BaseInterceptor
                     }
 
                     break;
+                    
+                case INCREMENT_ATTRIBUTE:
+                    // The incremented attribute might not exist
+                    if ( !tempEntry.containsAttribute( attributeType ) )
+                    {
+                        throw new IllegalArgumentException( "Increment operation on a non existing attribute"
+                            + attributeType );
+                    }
+                    else if ( !SchemaConstants.INTEGER_SYNTAX.equals( attributeType.getSyntax().getOid() ) )
+                    {
+                        throw new IllegalArgumentException( "Increment operation on a non integer attribute"
+                            + attributeType );
+                    }
+                    else
+                    {
+                        Attribute modified = tempEntry.get( attributeType );
+                        Value[] newValues = new Value[ modified.size() ];
+                        int increment = 1;
+                        int i = 0;
+                        
+                        if ( mod.getAttribute().size() != 0 )
+                        {
+                            increment = Integer.parseInt( mod.getAttribute().getString() );
+                        }
+                        
+                        for ( Value value : modified )
+                        {
+                            int intValue = Integer.parseInt( value.getNormalized() );
+                            
+                            if ( intValue >= Integer.MAX_VALUE - increment )
+                            {
+                                throw new IllegalArgumentException( "Increment operation overflow for attribute" 
+                                    + attributeType );
+                            }
+                            
+                            newValues[i++] = new Value( Integer.toString( intValue + increment ) );
+                            modified.remove( value );
+                        }
+                        
+                        modified.add( newValues );
+                    }
+                    
+                    break;
 
                 default:
                     throw new IllegalArgumentException( "Unexpected modify operation " + mod.getOperation() );
