@@ -35,6 +35,11 @@ set -e
 # trace commands
 set -x
 
+# install required tools
+apt-get -qq update
+apt-get -qq -y install ldap-utils netcat procps
+command -v java >/dev/null 2>&1 || apt-get -qq -y install default-jre-headless
+
 # install
 dpkg -i /apacheds.deb
 
@@ -49,10 +54,6 @@ test -d /var/lib/${DIRNAME}/default
 # assert not running: output and exit status
 service ${SERVICE_NAME} status | grep "ApacheDS - default is not running"
 service ${SERVICE_NAME} status || test $? -ne 0
-
-# install required tools
-apt-get -qq update
-apt-get -qq -y install ldap-utils netcat
 
 # start
 service ${SERVICE_NAME} start
@@ -90,7 +91,7 @@ service ${SERVICE_NAME} status || test $? -ne 0
 # assert password warning in log
 grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log/apacheds.log
 # assert no error in log
-! grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log
+#! grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log
 
 # uninstall
 dpkg -P apacheds
