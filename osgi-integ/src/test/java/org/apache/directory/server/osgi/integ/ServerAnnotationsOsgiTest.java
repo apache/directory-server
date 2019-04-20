@@ -20,29 +20,22 @@
 package org.apache.directory.server.osgi.integ;
 
 
-import org.apache.directory.api.ldap.model.entry.DefaultEntry;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DefaultOperationManager;
 import org.apache.directory.server.core.security.CertificateUtil;
-import org.apache.directory.server.core.security.TlsKeyGenerator;
 
 
-public class ServerCoreOsgiTest extends ServerOsgiTestBase
+public class ServerAnnotationsOsgiTest extends ServerOsgiTestBase
 {
 
     @Override
     protected String getBundleName()
     {
-        return "org.apache.directory.server.core";
+        return "org.apache.directory.server.annotations";
     }
 
 
     @Override
     protected void useBundleClasses() throws Exception
     {
-        DefaultDirectoryService ds = new DefaultDirectoryService();
-        new DefaultOperationManager( ds );
-        TlsKeyGenerator.addKeyPair( new DefaultEntry() );
         CertificateUtil.createTempKeyStore( "foo" );
     }
 

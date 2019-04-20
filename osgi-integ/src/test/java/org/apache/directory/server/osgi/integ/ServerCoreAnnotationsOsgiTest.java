@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
+import org.apache.directory.server.core.security.CertificateUtil;
 
 
 public class ServerCoreAnnotationsOsgiTest extends ServerOsgiTestBase
@@ -44,6 +45,7 @@ public class ServerCoreAnnotationsOsgiTest extends ServerOsgiTestBase
         DirectoryService ds = factory.getDirectoryService();
         assertNotNull( ds );
         assertNotNull( ds.getDnFactory() );
+        CertificateUtil.createTempKeyStore( "foo" );
     }
 
 }

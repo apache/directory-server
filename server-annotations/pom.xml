@@ -145,6 +145,7 @@
                 org.apache.directory.server.constants;version=${project.version},
                 org.apache.directory.server.core.annotations;version=${project.version},
                 org.apache.directory.server.core.api;version=${project.version},
+                org.apache.directory.server.core.security;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.kerberos;version=${project.version},
                 org.apache.directory.server.kerberos.changepwd;version=${project.version},
