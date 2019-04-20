@@ -62,7 +62,7 @@ pipeline {
           }
           steps {
             sh '''
-            mvn -V clean verify
+            mvn -V -U clean verify
             '''
           }
           post {
@@ -84,7 +84,7 @@ pipeline {
             }
           }
           steps {
-            sh 'mvn -V clean verify'
+            sh 'mvn -V -U clean verify'
           }
           post {
             always {
@@ -104,7 +104,7 @@ pipeline {
             }
           }
           steps {
-            sh 'mvn -V clean verify'
+            sh 'mvn -V -U clean verify'
           }
           post {
             always {
@@ -124,7 +124,7 @@ pipeline {
             bat '''
             set JAVA_HOME=F:\\jenkins\\tools\\java\\latest1.8
             set MAVEN_OPTS="-Xmx512m"
-            F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V clean verify -DskipTests
+            F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V -U clean verify -DskipTests
             '''
           }
           post {
@@ -149,8 +149,8 @@ pipeline {
         sh '''
         export JAVA_HOME=/home/jenkins/tools/java/latest1.8
         export MAVEN_OPTS="-Xmx512m"
-        #/home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar deploy
-        /home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar -DskipTests
+        #/home/jenkins/tools/maven/latest3/bin/mvn -V -U clean install source:jar deploy
+        /home/jenkins/tools/maven/latest3/bin/mvn -V -U clean install source:jar -DskipTests
         '''
       }
       post {
@@ -172,7 +172,7 @@ pipeline {
         }
       }
       steps {
-        sh 'mvn -V clean install -DskipTests'
+        sh 'mvn -V -U clean install -DskipTests'
         sh 'cd installers && mvn -V clean package -Pinstallers -Pdocker'
         stash name: 'deb', includes: 'installers/target/installers/*.deb,installers/target/docker/*deb*'
         stash name: 'rpm', includes: 'installers/target/installers/*.rpm,installers/target/docker/*rpm*'
