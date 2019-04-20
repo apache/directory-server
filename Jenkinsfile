@@ -47,119 +47,118 @@ pipeline {
         }
       }
     }
-//    stage ('Build and Test') {
-//      parallel {
-//        stage ('Linux Java 8') {
-//          options {
-//            timeout(time: 2, unit: 'HOURS')
-//          }
-//          agent {
-//            docker {
-//              label 'ubuntu'
-//              image 'apachedirectory/maven-build:jdk-8'
-//              args '-v $HOME/.m2:/home/hnelson/.m2'
-//            }
-//          }
-//          steps {
-//            sh '''
-//            mvn -V clean verify
-//            '''
-//          }
-//          post {
-//            always {
-//              //junit '**/target/surefire-reports/*.xml'
-//              archiveArtifacts artifacts: '**/target/surefire-reports/**'
-//              deleteDir()
-//            }
-//          }
-//        }
-//        stage ('Linux Java 11') {
-//          options {
-//            timeout(time: 2, unit: 'HOURS')
-//          }
-//          agent {
-//            docker {
-//              label 'ubuntu'
-//              image 'apachedirectory/maven-build:jdk-11'
-//              args '-v $HOME/.m2:/home/hnelson/.m2'
-//            }
-//          }
-//          steps {
-//            sh 'mvn -V clean verify'
-//          }
-//          post {
-//            always {
-//              deleteDir()
-//            }
-//          }
-//        }
-//        stage ('Linux Java 12') {
-//          options {
-//            timeout(time: 2, unit: 'HOURS')
-//          }
-//          agent {
-//            docker {
-//              label 'ubuntu'
-//              image 'apachedirectory/maven-build:jdk-12'
-//              args '-v $HOME/.m2:/home/hnelson/.m2'
-//            }
-//          }
-//          steps {
-//            sh 'mvn -V clean verify'
-//          }
-//          post {
-//            always {
-//              deleteDir()
-//            }
-//          }
-//        }
-//        stage ('Windows Java 8') {
-//          options {
-//            timeout(time: 2, unit: 'HOURS')
-//          }
-//          agent {
-//            label 'Windows'
-//          }
-//          steps {
-//            // TODO: need to investigate test failure on Windows
-//            bat '''
-//            set JAVA_HOME=F:\\jenkins\\tools\\java\\latest1.8
-//            set MAVEN_OPTS="-Xmx512m"
-//            F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V clean verify -DskipTests
-//            '''
-//          }
-//          post {
-//            always {
-//              deleteDir()
-//            }
-//          }
-//        }
-//      }
-//    }
-//    stage ('Deploy') {
-//      options {
-//        timeout(time: 2, unit: 'HOURS')
-//      }
-//      agent {
-//        label 'ubuntu'
-//      }
-//      // https://cwiki.apache.org/confluence/display/INFRA/JDK+Installation+Matrix
-//      // https://cwiki.apache.org/confluence/display/INFRA/Maven+Installation+Matrix
-//      // TODO: do not deploy before merged to master
-//      steps {
-//        sh '''
-//        export JAVA_HOME=/home/jenkins/tools/java/latest1.8
-//        export MAVEN_OPTS="-Xmx512m"
-//        #/home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar deploy
-//        /home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar
-//        '''
-//      }
-//      post {
-//        always {
-//          deleteDir()
-//        }
-//      }
-//    }
+    stage ('Build and Test') {
+      parallel {
+        stage ('Linux Java 8') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
+          agent {
+            docker {
+              label 'ubuntu'
+              image 'apachedirectory/maven-build:jdk-8'
+              args '-v $HOME/.m2:/home/hnelson/.m2'
+            }
+          }
+          steps {
+            sh '''
+            mvn -V clean verify
+            '''
+          }
+          post {
+            always {
+              junit '**/target/surefire-reports/*.xml'
+              deleteDir()
+            }
+          }
+        }
+        stage ('Linux Java 11') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
+          agent {
+            docker {
+              label 'ubuntu'
+              image 'apachedirectory/maven-build:jdk-11'
+              args '-v $HOME/.m2:/home/hnelson/.m2'
+            }
+          }
+          steps {
+            sh 'mvn -V clean verify'
+          }
+          post {
+            always {
+              deleteDir()
+            }
+          }
+        }
+        stage ('Linux Java 12') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
+          agent {
+            docker {
+              label 'ubuntu'
+              image 'apachedirectory/maven-build:jdk-12'
+              args '-v $HOME/.m2:/home/hnelson/.m2'
+            }
+          }
+          steps {
+            sh 'mvn -V clean verify'
+          }
+          post {
+            always {
+              deleteDir()
+            }
+          }
+        }
+        stage ('Windows Java 8') {
+          options {
+            timeout(time: 2, unit: 'HOURS')
+          }
+          agent {
+            label 'Windows'
+          }
+          steps {
+            // TODO: need to investigate test failure on Windows
+            bat '''
+            set JAVA_HOME=F:\\jenkins\\tools\\java\\latest1.8
+            set MAVEN_OPTS="-Xmx512m"
+            F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V clean verify -DskipTests
+            '''
+          }
+          post {
+            always {
+              deleteDir()
+            }
+          }
+        }
+      }
+    }
+    stage ('Deploy') {
+      options {
+        timeout(time: 2, unit: 'HOURS')
+      }
+      agent {
+        label 'ubuntu'
+      }
+      // https://cwiki.apache.org/confluence/display/INFRA/JDK+Installation+Matrix
+      // https://cwiki.apache.org/confluence/display/INFRA/Maven+Installation+Matrix
+      // TODO: do not deploy before merged to master
+      steps {
+        sh '''
+        export JAVA_HOME=/home/jenkins/tools/java/latest1.8
+        export MAVEN_OPTS="-Xmx512m"
+        #/home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar deploy
+        /home/jenkins/tools/maven/latest3/bin/mvn -V clean install source:jar -DskipTests
+        '''
+      }
+      post {
+        always {
+          deleteDir()
+        }
+      }
+    }
     stage ('Build Installers') {
       options {
         timeout(time: 1, unit: 'HOURS')
