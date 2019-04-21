@@ -24,29 +24,21 @@ INSTALLERS_DIR="$TEST_SCRIPTS_DIR/../installers"
 
 # RPM package 64bit
 RPM64="${INSTALLERS_DIR}/apacheds-${project.version}-x86_64.rpm"
+DOCKER_CMD="docker run -i --rm -h myhostname -v ${RPM64}:/apacheds.rpm -v ${TEST_SCRIPTS_DIR}/rpm.test:/rpm.test"
 if [ -f ${RPM64} ]
 then
     echo
     echo
     echo "Testing rpm package (Centos 7, OpenJDK 8, 64bit)"
-    docker run -i --rm \
-      -v ${RPM64}:/apacheds.rpm \
-      -v ${TEST_SCRIPTS_DIR}/rpm.test:/rpm.test \
-      centos:7 bash /rpm.test
+    $DOCKER_CMD centos:7 bash /rpm.test
 
     echo
     echo
     echo "Testing rpm package (Fedora 29, OpenJDK 12, 64bit)"
-    docker run -i --rm \
-      -v ${RPM64}:/apacheds.rpm \
-      -v ${TEST_SCRIPTS_DIR}/rpm.test:/rpm.test \
-      fedora:29 bash /rpm.test
+    $DOCKER_CMD fedora:29 bash /rpm.test
 
     echo
     echo
     echo "Testing rpm package (Amazon Corretto 11, 64bit)"
-    docker run -i --rm \
-      -v ${RPM64}:/apacheds.rpm \
-      -v ${TEST_SCRIPTS_DIR}/rpm.test:/rpm.test \
-      amazoncorretto:11 bash /rpm.test
+    $DOCKER_CMD amazoncorretto:11 bash /rpm.test
 fi

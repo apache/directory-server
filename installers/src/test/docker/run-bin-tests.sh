@@ -29,7 +29,7 @@ then
     echo
     echo
     echo "Testing bin installer (Debian 9, OpenJDK 8, 64bit)"
-    docker run -i --rm \
+    docker run -i --rm -h myhostname \
       -v ${BIN64}:/apacheds.bin \
       -v ${TEST_SCRIPTS_DIR}/bin.test:/bin.test \
       openjdk:8 bash /bin.test
@@ -37,7 +37,7 @@ then
     echo
     echo
     echo "Testing bin installer (DIRSERVER-2173) (Debian 9, OpenJDK 8, 64bit)"
-    docker run -i --rm \
+    docker run -i --rm -h myhostname \
       -v ${BIN64}:/apacheds.bin \
       -v ${TEST_SCRIPTS_DIR}/bin-DIRSERVER-2173.test:/bin-DIRSERVER-2173.test \
       openjdk:8 bash /bin-DIRSERVER-2173.test

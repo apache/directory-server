@@ -24,29 +24,21 @@ INSTALLERS_DIR="$TEST_SCRIPTS_DIR/../installers"
 
 # Debian package 64bit
 DEB64="${INSTALLERS_DIR}/apacheds-${project.version}-amd64.deb"
+DOCKER_CMD="docker run -i --rm -h myhostname -v ${DEB64}:/apacheds.deb -v ${TEST_SCRIPTS_DIR}/deb.test:/deb.test"
 if [ -f ${DEB64} ]
 then
     echo
     echo
     echo "Testing deb package (Debian 9, OpenJDK 8, 64bit)"
-    docker run -i --rm \
-      -v ${DEB64}:/apacheds.deb \
-      -v ${TEST_SCRIPTS_DIR}/deb.test:/deb.test \
-      debian:9 bash /deb.test
+    $DOCKER_CMD debian:9 bash /deb.test
 
     echo
     echo
-    echo "Testing deb package (Ubuntu 18.04, OpenJDK 10, 64bit)"
-    docker run -i --rm \
-      -v ${DEB64}:/apacheds.deb \
-      -v ${TEST_SCRIPTS_DIR}/deb.test:/deb.test \
-      ubuntu:18.04 bash /deb.test
+    echo "Testing deb package (Ubuntu 18.04, OpenJDK 11, 64bit)"
+    $DOCKER_CMD ubuntu:18.04 bash /deb.test
 
     echo
     echo
     echo "Testing deb package (Ubuntu 18.04, OpenJ9 12, 64bit)"
-    docker run -i --rm \
-      -v ${DEB64}:/apacheds.deb \
-      -v ${TEST_SCRIPTS_DIR}/deb.test:/deb.test \
-      adoptopenjdk/openjdk12-openj9:slim bash -c "ln -s /opt/java/openjdk/bin/java /usr/bin/java; bash /deb.test"
+    $DOCKER_CMD adoptopenjdk/openjdk12-openj9:slim bash -c "ln -s /opt/java/openjdk/bin/java /usr/bin/java; bash /deb.test"
 fi

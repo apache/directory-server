@@ -29,7 +29,7 @@ then
     echo
     echo
     echo "Testing tar.gz archive (Debian 9, OpenJDK 8, 64bit)"
-    docker run -i --rm \
+    docker run -i --rm -h myhostname \
       -v ${TGZ}:/apacheds.tar.gz \
       -v ${TEST_SCRIPTS_DIR}/archive.test:/archive.test \
       openjdk:8 bash /archive.test
@@ -42,8 +42,8 @@ if [ -f ${ZIP} ]
 then
     echo
     echo
-    #echo "Testing zip archive (Debian 9, OpenJDK 11, 64bit)"
-    docker run -i --rm \
+    echo "Testing zip archive (Debian 9, OpenJDK 11, 64bit)"
+    docker run -i --rm -h myhostname \
       -v ${ZIP}:/apacheds.zip \
       -v ${TEST_SCRIPTS_DIR}/archive.test:/archive.test \
       openjdk:11 bash /archive.test
