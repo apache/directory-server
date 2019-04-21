@@ -25,10 +25,10 @@ NAME="apacheds-${project.version}"
 DIRNAME="${NAME}"
 
 wait_for_apacheds_up() {
-    timeout 30  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
+    timeout 60  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
 }
 wait_for_apacheds_down() {
-    timeout 30  sh -c "while nc -z localhost 10389; do sleep 1; done"
+    timeout 60  sh -c "while nc -z localhost 10389; do sleep 1; done"
 }
 
 # stop execution if any command fails (i.e. exits with status code > 0)

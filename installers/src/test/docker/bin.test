@@ -26,7 +26,7 @@ DIRNAME="${NAME}"
 SERVICE_NAME="${NAME}-default"
 
 wait_for_apacheds() {
-    timeout 30  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
+    timeout 60  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
 }
 
 # stop execution if any command fails (i.e. exits with status code > 0)
