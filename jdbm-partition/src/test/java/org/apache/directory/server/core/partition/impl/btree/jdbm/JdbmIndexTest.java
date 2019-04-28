@@ -117,6 +117,7 @@ public class JdbmIndexTest
     @After
     public void teardown() throws Exception
     {
+        recMan.close();
         destroyIndex();
     }
     
