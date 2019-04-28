@@ -21,7 +21,8 @@ package org.apache.directory.shared.client.api;
 
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,6 +31,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.List;
 
@@ -362,6 +364,42 @@ public void testLookup() throws Exception
             assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
             assertThat( e.getMessage(), containsString( "ERR_04110_CANNOT_CONNECT_TO_SERVER" ) );
             assertThat( e.getMessage(), containsString( "Connection refused" ) );
+            throw e;
+        }
+    }
+
+
+    /**
+     * Create a server socket with low backlog and doesn't accept any connection. The operating system
+     * only establishes a few TCP connections, then blocks TCP handshakes which should lead to client-side
+     * timeout.
+     * 
+     * TODO: verify if this test is reliable on all operating systems
+     */
+    @Test(expected = LdapException.class)
+    public void testConnectionTimeout() throws LdapException, IOException
+    {
+        try
+        {
+            try ( ServerSocket ss = new ServerSocket( 0, 1 ) )
+            {
+                int port = ss.getLocalPort();
+                for ( int i = 0; i < 100; i++ )
+                {
+                    try ( LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, port ) )
+                    {
+                        connection.setTimeOut( 1000L );
+                        connection.connect();
+                        assertTrue( connection.isConnected() );
+                    }
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            assertThat( e, is( instanceOf( LdapException.class ) ) );
+            assertThat( e.getMessage(), containsString( "ERR_04170_TIMEOUT_OCCURED" ) );
+            assertThat( e.getMessage(), containsString( "TimeOut occurred" ) );
             throw e;
         }
     }

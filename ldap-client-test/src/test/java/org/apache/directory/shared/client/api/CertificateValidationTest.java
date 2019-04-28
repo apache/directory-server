@@ -61,7 +61,6 @@ import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
