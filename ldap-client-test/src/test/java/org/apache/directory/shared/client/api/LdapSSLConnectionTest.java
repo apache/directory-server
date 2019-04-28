@@ -30,11 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.nio.channels.AsynchronousServerSocketChannel;
-import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
 import java.util.List;
 
 import javax.net.ssl.X509TrustManager;
@@ -64,7 +60,6 @@ import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5Mechani
 import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
-import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -398,7 +393,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         sslConfig.setLdapHost( "notexisting" );
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
         {
-            connection.setTimeOut( 1000L );
+            connection.setTimeOut( 10000L );
             connection.connect();
         }
         catch ( Exception e )
@@ -417,7 +412,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         tlsConfig.setLdapHost( "notexisting" );
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
         {
-            connection.setTimeOut( 1000L );
+            connection.setTimeOut( 10000L );
             connection.startTls();
         }
         catch ( Exception e )
@@ -436,7 +431,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         sslConfig.setLdapPort( 123 );
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
         {
-            connection.setTimeOut( 1000L );
+            connection.setTimeOut( 10000L );
             connection.connect();
         }
         catch ( Exception e )
@@ -455,7 +450,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         tlsConfig.setLdapPort( 123 );
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
         {
-            connection.setTimeOut( 1000L );
+            connection.setTimeOut( 10000L );
             connection.startTls();
         }
         catch ( Exception e )
@@ -474,7 +469,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         sslConfig.setLdapPort( getLdapServer().getPort() );
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
         {
-            connection.setTimeOut( 1000L );
+            connection.setTimeOut( 10000L );
             connection.connect();
         }
         catch ( Exception e )
@@ -493,7 +488,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
         tlsConfig.setLdapPort( getLdapServer().getPortSSL() );
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
         {
-            connection.setTimeOut( 1000L );
+            connection.setTimeOut( 10000L );
             connection.startTls();
         }
         catch ( Exception e )
@@ -519,7 +514,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
                 sslConfig.setLdapPort( port );
                 try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
                 {
-                    connection.setTimeOut( 1000L );
+                    connection.setTimeOut( 10000L );
                     connection.connect();
                 }
             }
@@ -549,7 +544,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
                 tlsConfig.setLdapPort( port );
                 try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
                 {
-                    connection.setTimeOut( 1000L );
+                    connection.setTimeOut( 10000L );
                     connection.startTls();
                 }
             }
