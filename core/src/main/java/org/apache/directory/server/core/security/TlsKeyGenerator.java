@@ -94,7 +94,7 @@ public final class TlsKeyGenerator
      * 
      *    http://www.apache.org/licenses/exports
      */
-    private static final int KEY_SIZE = 512;
+    private static final int KEY_SIZE = 1024;
     public static final long YEAR_MILLIS = 365L * 24L * 3600L * 1000L;
 
     static
@@ -307,7 +307,7 @@ public final class TlsKeyGenerator
         certGen.setNotAfter( expiryDate );
         certGen.setSubjectDN( subjectName );
         certGen.setPublicKey( publicKey );
-        certGen.setSignatureAlgorithm( "SHA1With" + keyAlgo );
+        certGen.setSignatureAlgorithm( "SHA256With" + keyAlgo );
         
 
         try
