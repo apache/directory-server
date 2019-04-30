@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.authn;
 
 
-import java.io.IOException;
 import java.net.SocketAddress;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
@@ -321,14 +320,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         }
         finally
         {
-            try
-            {
-                ldapConnection.close();
-            }
-            catch ( IOException ioe )
-            {
-                throw new LdapException( ioe.getMessage(), ioe );
-            }
+            ldapConnection.close();
         }
     }
 

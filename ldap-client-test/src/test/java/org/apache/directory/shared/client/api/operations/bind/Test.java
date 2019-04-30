@@ -26,7 +26,6 @@ package org.apache.directory.shared.client.api.operations.bind;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -52,7 +51,7 @@ public class Test
     public SaslGssApiRequest saslGssApiRequest;
 
 
-    public static void main( String[] args ) throws LdapException, CursorException, IOException,
+    public static void main( String[] args ) throws LdapException, CursorException,
         NoSuchAlgorithmException, CertificateException, KeyStoreException
     {
         String keystore = "C:\\bea\\jrockit_160_05\\jre\\lib\\security\\ETHIXNetAdmin.pfx";
@@ -144,11 +143,6 @@ public class Test
             ldapNetworkConnection.unBind();
             ldapNetworkConnection.close();
         }
-        catch ( IOException e )
-        {
-            e.printStackTrace();
-        }
-
         catch ( LdapException e )
         {
             e.printStackTrace();
