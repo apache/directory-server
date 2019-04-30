@@ -58,6 +58,7 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isAutonomous()
     {
         return true;
@@ -165,6 +166,7 @@ public class AutonomousAdministrativePoint extends AbstractAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "AAP : " + super.toString();

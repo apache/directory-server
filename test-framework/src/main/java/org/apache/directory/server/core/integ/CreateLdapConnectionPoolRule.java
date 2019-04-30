@@ -22,8 +22,8 @@ package org.apache.directory.server.core.integ;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import org.apache.commons.pool.PoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericObjectPool.Config;
+import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -34,6 +34,7 @@ import org.apache.directory.ldap.client.api.LdapConnectionValidator;
 import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.ldap.LdapServer;
+import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
     private LdapConnectionPool ldapConnectionPool;
     private LdapConnectionFactory ldapConnectionFactory;
     private LdapConnectionTemplate ldapConnectionTemplate;
-    private PoolableObjectFactory<LdapConnection> poolableLdapConnectionFactory;
+    private PooledObjectFactory<LdapConnection> poolableLdapConnectionFactory;
 
 
     public CreateLdapConnectionPoolRule()
@@ -96,7 +97,7 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
                         LdapConnectionPool oldLdapConnectionPool = ldapConnectionPool;
                         LdapConnectionTemplate oldLdapConnectionTemplate = ldapConnectionTemplate;
 
-                        Class<? extends PoolableObjectFactory<LdapConnection>> factoryClass =
+                        Class<? extends PooledObjectFactory<LdapConnection>> factoryClass =
                                 classCreateLdapConnectionPoolRule.createLdapConnectionPool.factoryClass();
                         Class<? extends LdapConnectionFactory> connectionFactoryClass =
                                 classCreateLdapConnectionPoolRule.createLdapConnectionPool.connectionFactoryClass();
@@ -134,7 +135,7 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
                 public void evaluate() throws Throwable
                 {
                     LOG.trace( "Creating ldap connection pool" );
-                    Class<? extends PoolableObjectFactory<LdapConnection>> factoryClass =
+                    Class<? extends PooledObjectFactory<LdapConnection>> factoryClass =
                             createLdapConnectionPool.factoryClass();
                     Class<? extends LdapConnectionFactory> connectionFactoryClass =
                             createLdapConnectionPool.connectionFactoryClass();
@@ -161,7 +162,7 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
 
 
     private LdapConnectionPool createLdapConnectionPool( LdapServer ldapServer, 
-            Class<? extends PoolableObjectFactory<LdapConnection>> factoryClass,
+            Class<? extends PooledObjectFactory<LdapConnection>> factoryClass,
             Class<? extends LdapConnectionFactory> connectionFactoryClass,
             Class<? extends LdapConnectionValidator> validatorClass )
     {
@@ -183,25 +184,25 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
             config.setBinaryAttributeDetector( binaryAttributeDetector );
         }
 
-        Config poolConfig = new Config();
-        poolConfig.lifo = createLdapConnectionPool.lifo();
-        poolConfig.maxActive = createLdapConnectionPool.maxActive();
-        poolConfig.maxIdle = createLdapConnectionPool.maxIdle();
-        poolConfig.maxWait = createLdapConnectionPool.maxWait();
-        poolConfig.minEvictableIdleTimeMillis = createLdapConnectionPool
-            .minEvictableIdleTimeMillis();
-        poolConfig.minIdle = createLdapConnectionPool.minIdle();
-        poolConfig.numTestsPerEvictionRun = createLdapConnectionPool
-            .numTestsPerEvictionRun();
-        poolConfig.softMinEvictableIdleTimeMillis = createLdapConnectionPool
-            .softMinEvictableIdleTimeMillis();
-        poolConfig.testOnBorrow = createLdapConnectionPool.testOnBorrow();
-        poolConfig.testOnReturn = createLdapConnectionPool.testOnReturn();
-        poolConfig.testWhileIdle = createLdapConnectionPool.testWhileIdle();
-        poolConfig.timeBetweenEvictionRunsMillis = createLdapConnectionPool
-            .timeBetweenEvictionRunsMillis();
-        poolConfig.whenExhaustedAction = createLdapConnectionPool
-            .whenExhaustedAction();
+        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+        poolConfig.setLifo( createLdapConnectionPool.lifo() );
+        poolConfig.setMaxTotal( createLdapConnectionPool.maxActive() );
+        poolConfig.setMaxIdle( createLdapConnectionPool.maxIdle() );
+        poolConfig.setMaxWaitMillis( createLdapConnectionPool.maxWait() );
+        poolConfig.setMinEvictableIdleTimeMillis( createLdapConnectionPool
+            .minEvictableIdleTimeMillis() );
+        poolConfig.setMinIdle( createLdapConnectionPool.minIdle() );
+        poolConfig.setNumTestsPerEvictionRun( createLdapConnectionPool
+            .numTestsPerEvictionRun() );
+        poolConfig.setSoftMinEvictableIdleTimeMillis( createLdapConnectionPool
+            .softMinEvictableIdleTimeMillis() );
+        poolConfig.setTestOnBorrow( createLdapConnectionPool.testOnBorrow() );
+        poolConfig.setTestOnReturn( createLdapConnectionPool.testOnReturn() );
+        poolConfig.setTestWhileIdle( createLdapConnectionPool.testWhileIdle() );
+        poolConfig.setTimeBetweenEvictionRunsMillis( createLdapConnectionPool
+            .timeBetweenEvictionRunsMillis() );
+        poolConfig.setBlockWhenExhausted( createLdapConnectionPool
+            .whenExhaustedAction() == 1 );
         
         try
         {
@@ -231,7 +232,7 @@ public class CreateLdapConnectionPoolRule extends CreateLdapServerRule
         
         try
         {
-            Constructor<? extends PoolableObjectFactory<LdapConnection>> constructor = 
+            Constructor<? extends PooledObjectFactory<LdapConnection>> constructor = 
                     factoryClass.getConstructor( LdapConnectionFactory.class );
             poolableLdapConnectionFactory = constructor.newInstance( ldapConnectionFactory );
         }

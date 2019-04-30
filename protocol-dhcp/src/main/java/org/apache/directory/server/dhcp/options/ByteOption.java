@@ -45,6 +45,7 @@ public abstract class ByteOption extends DhcpOption
     /*
      * @see org.apache.directory.server.dhcp.options.DhcpOption#setData(byte[])
      */
+    @Override
     public void setData( byte[] data )
     {
         byteValue = ( short ) ( data[0] & 0xff );
@@ -54,6 +55,7 @@ public abstract class ByteOption extends DhcpOption
     /*
      * @see org.apache.directory.server.dhcp.options.DhcpOption#getData()
      */
+    @Override
     public byte[] getData()
     {
         return new byte[]

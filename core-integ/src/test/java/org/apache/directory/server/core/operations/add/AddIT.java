@@ -22,6 +22,7 @@ package org.apache.directory.server.core.operations.add;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -32,10 +33,10 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,6 +49,8 @@ import org.junit.runner.RunWith;
 @RunWith(FrameworkRunner.class)
 @CreateDS(
     name = "AddITDS",
+        loadedSchemas =
+        { @LoadSchema(name = "nis", enabled = true) },
     partitions =
         {
             @CreatePartition(
@@ -157,7 +160,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         entry = connection.lookup( entry.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES );
         assertEquals( 1, entry.get( "cn" ).size() );
-        assertEquals( "#\\+, \"\u00F6\u00E9\"", entry.get( "cn" ).get().getValue() );
+        assertEquals( "#\\+, \"\u00F6\u00E9\"", entry.get( "cn" ).get().getString() );
     }
 
 
@@ -177,7 +180,29 @@ public class AddIT extends AbstractLdapTestUnit
 
         entry = connection.lookup( entry.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES );
         assertEquals( 1, entry.get( "cn" ).size() );
-        assertEquals( "a\\b", entry.get( "cn" ).get().getValue() );
+        assertEquals( "a\\b", entry.get( "cn" ).get().getString() );
     }
 
+
+    /**
+     * Test The addition of a nisMapName attributeType
+     */
+    @Test
+    public void testAddNisMapName() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        Dn dn = new Dn( "nisMapName=netgroup.byhost,ou=system" );
+        Entry entry = new DefaultEntry( dn,
+            "ObjectClass: top",
+            "ObjectClass: nisMap",
+            "nisMapName:  netgroup.byhost" );
+
+        connection.add( entry );
+        
+        Entry result = connection.lookup( dn );
+        
+        assertNotNull( result );
+        assertEquals( "netgroup.byhost", result.get( "nismapname" ).getString() );
+    }
 }

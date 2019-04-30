@@ -38,7 +38,7 @@ import org.apache.directory.server.i18n.I18n;
  */
 public class ReverseEnumMap<K, E extends Enum<E> & EnumConverter<K>>
 {
-    private Map<K, E> reverseMap = new HashMap<K, E>();
+    private Map<K, E> reverseMap = new HashMap<>();
 
 
     /**

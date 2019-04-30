@@ -36,7 +36,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * 
  * where:
  * 
- * CNAME           A <domain-name> which specifies the canonical or primary
+ * CNAME           A &lt;domain-name&gt; which specifies the canonical or primary
  *                 name for the owner.  The owner name is an alias.
  * 
  * CNAME RRs cause no additional section processing, but name servers may

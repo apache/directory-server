@@ -32,7 +32,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.RealmCallback;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Base class for all SASL {@link CallbackHandler}s.  Implementations of SASL mechanisms
  * selectively override the methods relevant to their mechanism.
- * 
+ *
  * @see javax.security.auth.callback.CallbackHandler
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -87,7 +87,8 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     /**
      * Creates a new instance of AbstractSaslCallbackHandler.
      *
-     * @param directoryService
+     * @param directoryService The DirectoryService instance
+     * @param bindRequest The Bind request
      */
     protected AbstractSaslCallbackHandler( DirectoryService directoryService, BindRequest bindRequest )
     {
@@ -100,6 +101,8 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * Implementors use this method to access the username resulting from a callback.
      * Callback default name will be username, eg 'hnelson', for CRAM-MD5 and DIGEST-MD5.
      * The {@link NameCallback} is not used by GSSAPI.
+     *
+     * @return The user name
      */
     protected String getUsername()
     {
@@ -111,6 +114,8 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * Implementors use this method to access the realm resulting from a callback.
      * Callback default text will be realm name, eg 'example.com', for DIGEST-MD5.
      * The {@link RealmCallback} is not used by GSSAPI nor by CRAM-MD5.
+     *
+     * @return The realm
      */
     protected String getRealm()
     {
@@ -136,11 +141,12 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     /**
      * Final check to authorize user.  Used by all SASL mechanisms.  This
      * is the only callback used by GSSAPI.
-     * 
+     *
      * Implementors use setAuthorizedID() to set the base Dn after canonicalization.
      * Implementors must setAuthorized() to <code>true</code> if authentication was successful.
-     * 
+     *
      * @param callback An {@link AuthorizeCallback}.
+     * @throws Exception If the authorization failed
      */
     protected abstract void authorize( AuthorizeCallback callback ) throws Exception;
 
@@ -148,9 +154,10 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     /**
      * SaslServer will use this method to call various callbacks, depending on the SASL
      * mechanism in use for a session.
-     * 
+     *
      * @param callbacks An array of one or more callbacks.
      */
+    @Override
     public void handle( Callback[] callbacks )
     {
         for ( int i = 0; i < callbacks.length; i++ )
@@ -159,7 +166,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "Processing callback {} of {}: {}" + callback.getClass(), ( i + 1 ), callbacks.length );
+                LOG.debug( "Processing callback {} of {}: {}", callback.getClass(), ( i + 1 ), callbacks.length );
             }
 
             if ( callback instanceof NameCallback )
@@ -225,7 +232,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     /**
      * Convenience method for acquiring an {@link LdapContext} for the client to use for the
      * duration of a session.
-     * 
+     *
      * @param session The current session.
      * @param bindRequest The current BindRequest.
      * @param env An environment to be used to acquire an {@link LdapContext}.
@@ -288,13 +295,13 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     /**
      * Convenience method for getting an environment suitable for acquiring
      * an {@link LdapContext} for the client.
-     * 
+     *
      * @param session The current session.
      * @return An environment suitable for acquiring an {@link LdapContext} for the client.
      */
     protected Hashtable<String, Object> getEnvironment( IoSession session )
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = new Hashtable<>();
         env.put( Context.PROVIDER_URL, session.getAttribute( "baseDn" ) );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );

@@ -243,7 +243,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
 
         try
         {
-            opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(),
+            opCtx.addRequestControls( JndiUtils.fromJndiRequestControls( getDirectoryService().getLdapCodecService(),
                 requestControls ) );
         }
         catch ( DecoderException e1 )
@@ -286,7 +286,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
 
         try
         {
-            opCtx.addRequestControls( JndiUtils.fromJndiControls( getDirectoryService().getLdapCodecService(),
+            opCtx.addRequestControls( JndiUtils.fromJndiRequestControls( getDirectoryService().getLdapCodecService(),
                 requestControls ) );
         }
         catch ( DecoderException e1 )

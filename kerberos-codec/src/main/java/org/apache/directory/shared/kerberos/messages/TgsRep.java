@@ -34,9 +34,9 @@ import org.apache.directory.shared.kerberos.flags.TicketFlags;
 
 /**
  * TGS-REP message. It's just a KDC-REP message with a message type set to 13.
- *  It will store the object described by the ASN.1 grammar :
+ * It will store the object described by the ASN.1 grammar :
  * <pre>
- * TGS-REP         ::= [APPLICATION 13] <KDC-REP>
+ * TGS-REP         ::= [APPLICATION 13] &lt;KDC-REP&gt;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -128,9 +128,10 @@ public class TgsRep extends KdcRep
      * 
      * 0x6D L1 TGS-REP message
      *  |
-     *  +-->  0x30 L2 KDC-REP sequence
+     *  +--&gt;  0x30 L2 KDC-REP sequence
      * </pre>
      */
+    @Override
     public int computeLength()
     {
         kdcRepLength = super.computeLength();
@@ -146,6 +147,7 @@ public class TgsRep extends KdcRep
      * @return The encoded component
      * @throws EncoderException If the encoding failed
      */
+    @Override
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         if ( buffer == null )

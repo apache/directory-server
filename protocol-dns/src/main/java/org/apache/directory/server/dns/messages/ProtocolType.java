@@ -159,7 +159,7 @@ public enum ProtocolType implements EnumConverter<Byte>
     /** WIDEBAND EXPAK */
     WB_EXPAK(79);
 
-    private static ReverseEnumMap<Byte, ProtocolType> map = new ReverseEnumMap<Byte, ProtocolType>( ProtocolType.class );
+    private static ReverseEnumMap<Byte, ProtocolType> map = new ReverseEnumMap<>( ProtocolType.class );
 
     private final byte value;
 

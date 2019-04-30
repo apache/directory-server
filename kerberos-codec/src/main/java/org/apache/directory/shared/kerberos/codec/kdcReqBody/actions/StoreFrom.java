@@ -66,10 +66,10 @@ public class StoreFrom extends GrammarAction<KdcReqBodyContainer>
         // The Length should not be null and should be 15
         if ( tlv.getLength() != 15 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         KdcReqBody kdcReqBody = kdcReqBodyContainer.getKdcReqBody();
@@ -90,10 +90,10 @@ public class StoreFrom extends GrammarAction<KdcReqBodyContainer>
         }
         catch ( IllegalArgumentException iae )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
     }
 }

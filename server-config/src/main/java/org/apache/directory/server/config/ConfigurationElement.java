@@ -93,6 +93,8 @@ public @interface ConfigurationElement
     /**
      * Returns the list of string values that are the 
      * default values when the element is multi-valued.
+     * 
+     * @return The default values
      */
     String[] defaultValues() default {};
 }

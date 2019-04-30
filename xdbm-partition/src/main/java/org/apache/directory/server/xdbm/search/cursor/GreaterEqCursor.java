@@ -28,10 +28,12 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.GreaterEqEvaluator;
 import org.slf4j.Logger;
@@ -76,12 +78,16 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
 
     /**
      * Creates a new instance of an GreaterEqCursor
+     * 
+     * @param partitionTxn The transaction to use
      * @param store The store
-     * @param equalityEvaluator The GreaterEqEvaluator
-     * @throws Exception If the creation failed
+     * @param greaterEqEvaluator The GreaterEqEvaluator
+     * @throws LdapException If the creation failed
+     * @throws IndexNotFoundException If the index was not found
      */
     @SuppressWarnings("unchecked")
-    public GreaterEqCursor( Store store, GreaterEqEvaluator<V> greaterEqEvaluator ) throws Exception
+    public GreaterEqCursor( PartitionTxn partitionTxn, Store store, GreaterEqEvaluator<V> greaterEqEvaluator ) 
+        throws LdapException, IndexNotFoundException
     {
         if ( IS_DEBUG )
         {
@@ -89,17 +95,18 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
         }
 
         this.greaterEqEvaluator = greaterEqEvaluator;
+        this.partitionTxn = partitionTxn;
 
         AttributeType attributeType = greaterEqEvaluator.getExpression().getAttributeType();
 
         if ( store.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, String> ) store.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, String> ) store.getIndex( attributeType ) ).forwardCursor( partitionTxn );
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = new AllEntriesCursor( store );
+            uuidIdxCursor = new AllEntriesCursor( partitionTxn, store );
             userIdxCursor = null;
         }
     }
@@ -117,9 +124,10 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void before( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -132,7 +140,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
              * underlying userIdx Cursor position the element.
              */
             if ( greaterEqEvaluator.getComparator().compare( element.getKey(),
-                greaterEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
+                greaterEqEvaluator.getExpression().getValue().getString() ) <= 0 )
             {
                 beforeFirst();
                 return;
@@ -151,14 +159,15 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void after( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
             int comparedValue = greaterEqEvaluator.getComparator().compare( element.getKey(),
-                greaterEqEvaluator.getExpression().getValue().getValue() );
+                greaterEqEvaluator.getExpression().getValue().getString() );
 
             /*
              * First we need to check and make sure this element is within
@@ -200,12 +209,12 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     @SuppressWarnings("unchecked")
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, String> advanceTo = new IndexEntry<V, String>();
-            String normalizedNode = greaterEqEvaluator.getNormalizer().normalize( greaterEqEvaluator.getExpression().getValue().getValue() );
+            IndexEntry<V, String> advanceTo = new IndexEntry<>();
+            String normalizedNode = greaterEqEvaluator.getNormalizer().normalize( greaterEqEvaluator.getExpression().getValue().getString() );
             advanceTo.setKey( ( V ) normalizedNode );
             userIdxCursor.before( advanceTo );
         }
@@ -224,7 +233,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -265,9 +274,10 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -277,11 +287,11 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
              */
             while ( userIdxCursor.previous() )
             {
-                checkNotClosed( "previous()" );
+                checkNotClosed();
                 IndexEntry<?, String> candidate = userIdxCursor.get();
 
                 if ( greaterEqEvaluator.getComparator().compare( candidate.getKey(),
-                    greaterEqEvaluator.getExpression().getValue().getValue() ) >= 0 )
+                    greaterEqEvaluator.getExpression().getValue().getString() ) >= 0 )
                 {
                     return setAvailable( true );
                 }
@@ -292,10 +302,10 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
 
         while ( uuidIdxCursor.previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             uuidCandidate = uuidIdxCursor.get();
 
-            if ( greaterEqEvaluator.evaluate( uuidCandidate ) )
+            if ( greaterEqEvaluator.evaluate( partitionTxn, uuidCandidate ) )
             {
                 return setAvailable( true );
             }
@@ -308,9 +318,10 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -323,10 +334,10 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
 
         while ( uuidIdxCursor.next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             uuidCandidate = uuidIdxCursor.get();
 
-            if ( greaterEqEvaluator.evaluate( uuidCandidate ) )
+            if ( greaterEqEvaluator.evaluate( partitionTxn, uuidCandidate ) )
             {
                 return setAvailable( true );
             }
@@ -341,7 +352,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
      */
     public IndexEntry<V, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -365,6 +376,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -389,6 +401,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -413,6 +426,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

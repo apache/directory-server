@@ -48,6 +48,7 @@ import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 
 
 /**
@@ -135,9 +136,13 @@ public class SchemaSubentryModifier
             SchemaConstants.OU_SCHEMA );
 
         Entry entry = getEntry( dn, comparatorDescription );
+        
+        Partition partition = modifyContext.getSession().getDirectoryService().getPartitionNexus().getPartition( dn );
 
         AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
         addContext.setCurrentInterceptor( position );
+        addContext.setPartition( partition );
+        addContext.setTransaction( modifyContext.getTransaction() );
 
         nextInterceptor.add( addContext );
     }
@@ -155,8 +160,12 @@ public class SchemaSubentryModifier
 
         Entry entry = getEntry( dn, normalizerDescription );
 
+        Partition partition = modifyContext.getSession().getDirectoryService().getPartitionNexus().getPartition( dn );
+
         AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
         addContext.setCurrentInterceptor( position );
+        addContext.setPartition( partition );
+        addContext.setTransaction( modifyContext.getTransaction() );
 
         nextInterceptor.add( addContext );
     }
@@ -174,8 +183,12 @@ public class SchemaSubentryModifier
 
         Entry entry = getEntry( dn, syntaxCheckerDescription );
 
+        Partition partition = modifyContext.getSession().getDirectoryService().getPartitionNexus().getPartition( dn );
+
         AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
         addContext.setCurrentInterceptor( position );
+        addContext.setPartition( partition );
+        addContext.setTransaction( modifyContext.getTransaction() );
 
         nextInterceptor.add( addContext );
     }
@@ -189,8 +202,12 @@ public class SchemaSubentryModifier
         Entry entry = factory.getAttributes( obj, schema, schemaManager );
         entry.setDn( dn );
 
+        Partition partition = modifyContext.getSession().getDirectoryService().getPartitionNexus().getPartition( dn );
+
         AddOperationContext addContext = new AddOperationContext( modifyContext.getSession(), entry );
         addContext.setCurrentInterceptor( position );
+        addContext.setPartition( partition );
+        addContext.setTransaction( modifyContext.getTransaction() );
 
         nextInterceptor.add( addContext );
     }
@@ -201,9 +218,13 @@ public class SchemaSubentryModifier
     {
         Dn dn = getDn( obj );
 
+        Partition partition = modifyContext.getSession().getDirectoryService().getPartitionNexus().getPartition( dn );
+
         DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
         deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
         deleteContext.setCurrentInterceptor( position );
+        deleteContext.setPartition( partition );
+        deleteContext.setTransaction( modifyContext.getTransaction() );
 
         nextInterceptor.delete( deleteContext );
     }
@@ -219,9 +240,13 @@ public class SchemaSubentryModifier
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
 
+        Partition partition = modifyContext.getSession().getDirectoryService().getPartitionNexus().getPartition( dn );
+
         DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
         deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
         deleteContext.setCurrentInterceptor( position );
+        deleteContext.setPartition( partition );
+        deleteContext.setTransaction( modifyContext.getTransaction() );
 
         nextInterceptor.delete( deleteContext );
     }
@@ -237,9 +262,13 @@ public class SchemaSubentryModifier
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
 
+        Partition partition = modifyContext.getSession().getDirectoryService().getPartitionNexus().getPartition( dn );
+
         DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
         deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
         deleteContext.setCurrentInterceptor( position );
+        deleteContext.setPartition( partition );
+        deleteContext.setTransaction( modifyContext.getTransaction() );
 
         nextInterceptor.delete( deleteContext );
     }
@@ -255,9 +284,13 @@ public class SchemaSubentryModifier
             "cn=" + schemaName,
             SchemaConstants.OU_SCHEMA );
 
+        Partition partition = modifyContext.getSession().getDirectoryService().getPartitionNexus().getPartition( dn );
+
         DeleteOperationContext deleteContext = new DeleteOperationContext( modifyContext.getSession(), dn );
         deleteContext.setEntry( modifyContext.getSession().lookup( dn ) );
         deleteContext.setCurrentInterceptor( position );
+        deleteContext.setPartition( partition );
+        deleteContext.setTransaction( modifyContext.getTransaction() );
 
         nextInterceptor.delete( deleteContext );
     }

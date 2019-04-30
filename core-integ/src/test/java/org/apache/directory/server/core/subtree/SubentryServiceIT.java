@@ -43,7 +43,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -56,6 +55,7 @@ import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.Subentries;
+import org.apache.directory.api.ldap.model.message.controls.SubentriesImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -1302,10 +1302,8 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         // except subentries disappear
         LdapApiService codec = LdapApiServiceFactory.getSingleton();
 
-        SubentriesDecorator decorator = new SubentriesDecorator( codec );
-        Subentries ctl = decorator.getDecorated();
+        Subentries ctl = new SubentriesImpl();
         ctl.setVisibility( true );
-        decorator.getValue();
         sysRoot.setRequestControls( JndiUtils.toJndiControls( codec, new Control[]
             { ctl } ) );
         list = sysRoot.search( "", "(objectClass=*)", searchControls );
@@ -1419,8 +1417,7 @@ public class SubentryServiceIT extends AbstractLdapTestUnit
         connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
 
         Entry result = connection.lookup( "cn=testsubentry,ou=system", new Control[]
-            {
-            new SubentriesDecorator( connection.getCodecService() ) }, "subtreeSpecification" );
+            { new SubentriesImpl() }, "subtreeSpecification" );
 
         assertNotNull( result );
         String ss = result.get( "SubtreeSpecification" ).getString();

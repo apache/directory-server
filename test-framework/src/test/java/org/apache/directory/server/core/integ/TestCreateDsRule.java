@@ -101,12 +101,12 @@ public class TestCreateDsRule
             Dn dn = new Dn( "cn=class,ou=system" );
             Entry entry = createDsRule.getDirectoryService().getAdminSession().lookup( dn );
             assertNotNull( entry );
-            assertEquals( "class", entry.get( "cn" ).get().getValue() );
+            assertEquals( "class", entry.get( "cn" ).get().getString() );
 
             dn = new Dn( "cn=classDsOnly,ou=system" );
             entry = createDsRule.getDirectoryService().getAdminSession().lookup( dn );
             assertNotNull( entry );
-            assertEquals( "classDsOnly", entry.get( "cn" ).get().getValue() );
+            assertEquals( "classDsOnly", entry.get( "cn" ).get().getString() );
         }
         catch ( LdapException e )
         {
@@ -133,7 +133,7 @@ public class TestCreateDsRule
             Dn dn = new Dn( "cn=classAndMethodDs,ou=system" );
             Entry entry = createDsRule.getDirectoryService().getAdminSession().lookup( dn );
             assertNotNull( entry );
-            assertEquals( "classAndMethodDs", entry.get( "cn" ).get().getValue() );
+            assertEquals( "classAndMethodDs", entry.get( "cn" ).get().getString() );
         }
         catch ( LdapException e )
         {
@@ -159,7 +159,7 @@ public class TestCreateDsRule
             Dn dn = new Dn( "cn=class,ou=system" );
             Entry entry = classCreateDsRule.getDirectoryService().getAdminSession().lookup( dn );
             assertNotNull( entry );
-            assertEquals( "class", entry.get( "cn" ).get().getValue() );
+            assertEquals( "class", entry.get( "cn" ).get().getString() );
         }
         catch ( LdapException e ) 
         {

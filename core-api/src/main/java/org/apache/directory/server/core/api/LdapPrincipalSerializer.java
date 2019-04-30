@@ -25,7 +25,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.slf4j.Logger;
@@ -84,7 +83,7 @@ public final class LdapPrincipalSerializer
      * @throws IOException If the stream can't be read
      */
     public static LdapPrincipal deserialize( SchemaManager schemaManager, ObjectInput in )
-        throws IOException, LdapInvalidDnException
+        throws IOException
     {
         // Read the authenyication level
         AuthenticationLevel authenticationLevel = AuthenticationLevel.getLevel( in.readInt() );
@@ -103,8 +102,6 @@ public final class LdapPrincipalSerializer
             throw ioe;
         }
 
-        LdapPrincipal principal = new LdapPrincipal( schemaManager, dn, authenticationLevel );
-
-        return principal;
+        return new LdapPrincipal( schemaManager, dn, authenticationLevel );
     }
 }

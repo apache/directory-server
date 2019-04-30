@@ -51,8 +51,6 @@ public class AdIfRelevantDecoderTest
     @Test
     public void testAdIfRelevant()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x24 );
 
         stream.put( new byte[]
@@ -100,7 +98,7 @@ public class AdIfRelevantDecoderTest
         // Decode the AdIfRelevant PDU
         try
         {
-            kerberosDecoder.decode( stream, adIfRelevantContainer );
+            Asn1Decoder.decode( stream, adIfRelevantContainer );
         }
         catch ( DecoderException de )
         {

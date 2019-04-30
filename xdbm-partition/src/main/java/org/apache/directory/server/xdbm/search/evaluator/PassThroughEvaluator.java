@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.evaluator;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.UndefinedNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -41,7 +42,8 @@ public class PassThroughEvaluator implements Evaluator<UndefinedNode>
 
     /**
      * Create a new instance of the PassThroughEvaluator
-     * @throws Exception
+     * 
+     * @param db The Store instance
      */
     public PassThroughEvaluator( Store db )
     {
@@ -52,14 +54,14 @@ public class PassThroughEvaluator implements Evaluator<UndefinedNode>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = db.fetch( indexEntry.getId() );
+            entry = db.fetch( partitionTxn, indexEntry.getId() );
 
             if ( null == entry )
             {
@@ -77,7 +79,7 @@ public class PassThroughEvaluator implements Evaluator<UndefinedNode>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         return true;
     }

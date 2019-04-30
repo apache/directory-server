@@ -20,6 +20,10 @@
 package org.apache.directory.shared.client.api;
 
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -35,7 +39,6 @@ import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttribut
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
@@ -332,23 +335,39 @@ public void testLookup() throws Exception
     @Test(expected = InvalidConnectionException.class)
     public void testConnectionWrongHost() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( "notexisting", 1234 );
-        connection.connect();
-
-        connection.close();
+        try ( LdapConnection connection = new LdapNetworkConnection( "notexisting", 1234 ) )
+        {
+            connection.setTimeOut( 1000L );
+            connection.connect();
+        }
+        catch ( Exception e )
+        {
+            assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
+            assertThat( e.getMessage(), containsString( "ERR_04121_CANNOT_RESOLVE_HOSTNAME" ) );
+            assertThat( e.getMessage(), containsString( "notexisting" ) );
+            throw e;
+        }
     }
 
 
     @Test(expected = InvalidConnectionException.class)
     public void testConnectionWrongPort() throws LdapException, IOException
     {
-        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 123 );
-        connection.connect();
-
-        connection.close();
+        try ( LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 123 ) )
+        {
+            connection.setTimeOut( 1000L );
+            connection.connect();
+        }
+        catch ( Exception e )
+        {
+            assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
+            assertThat( e.getMessage(), containsString( "ERR_04110_CANNOT_CONNECT_TO_SERVER" ) );
+            assertThat( e.getMessage(), containsString( "Connection refused" ) );
+            throw e;
+        }
     }
-    
-    
+
+
     @Test
     public void testConfigSetting() throws LdapException, IOException
     {

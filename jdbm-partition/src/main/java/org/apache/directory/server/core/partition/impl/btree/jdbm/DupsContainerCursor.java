@@ -56,9 +56,9 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     private final JdbmTable<K, V> table;
 
     /** A container to pass to the underlying JDBM to get back a tuple */
-    private jdbm.helper.Tuple<K, V> jdbmTuple = new jdbm.helper.Tuple<K, V>();
+    private jdbm.helper.Tuple<K, V> jdbmTuple = new jdbm.helper.Tuple<>();
 
-    private Tuple<K, DupsContainer<V>> returnedTuple = new Tuple<K, DupsContainer<V>>();
+    private Tuple<K, DupsContainer<V>> returnedTuple = new Tuple<>();
 
     /** A browser over the JDBM Table */
     private TupleBrowser<K, V> browser;
@@ -74,8 +74,6 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * Creates a Cursor over the tuples of a JDBM table.
      *
      * @param table the JDBM Table to build a Cursor over
-     * @throws java.io.IOException of there are problems accessing the BTree or if this table
-     * does not allow duplicate values
      */
     public DupsContainerCursor( JdbmTable<K, V> table )
     {
@@ -119,9 +117,9 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void beforeKey( K key ) throws LdapException, CursorException
+    public void beforeKey( K key ) throws CursorException
     {
-        checkNotClosed( "beforeKey()" );
+        checkNotClosed();
         try
         {
             browser = ( ( BTree<K, V> ) table.getBTree() ).browse( key );
@@ -139,9 +137,9 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public void afterKey( K key ) throws LdapException, CursorException
+    public void afterKey( K key ) throws CursorException
     {
-        checkNotClosed( "afterKey()" );
+        checkNotClosed();
 
         try
         {
@@ -157,7 +155,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
              */
             while ( browser.getNext( jdbmTuple ) )
             {
-                checkNotClosed( "afterKey()" );
+                checkNotClosed();
                 K next = jdbmTuple.getKey();
 
                 int nextCompared = table.getKeyComparator().compare( next, key );
@@ -208,7 +206,8 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      * Positions this Cursor before the key of the supplied tuple.
      *
      * @param element the tuple who's key is used to position this Cursor
-     * @throws IOException if there are failures to position the Cursor
+     * @throws LdapException if there are failures to position the Cursor
+     * @throws CursorException if there are failures to position the Cursor
      */
     public void before( Tuple<K, DupsContainer<V>> element ) throws LdapException, CursorException
     {
@@ -219,7 +218,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     /**
      * {@inheritDoc}
      */
-    public void after( Tuple<K, DupsContainer<V>> element ) throws LdapException, CursorException
+    public void after( Tuple<K, DupsContainer<V>> element ) throws CursorException
     {
         afterKey( element.getKey() );
     }
@@ -231,7 +230,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     @SuppressWarnings("unchecked")
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         try
         {
             browser = table.getBTree().browse();
@@ -251,7 +250,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
     @SuppressWarnings("unchecked")
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         try
         {
             browser = table.getBTree().browse( null );
@@ -292,7 +291,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         if ( browser == null )
         {
@@ -350,7 +349,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         if ( browser == null )
         {
@@ -413,7 +412,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      */
     public Tuple<K, DupsContainer<V>> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( valueAvailable )
         {

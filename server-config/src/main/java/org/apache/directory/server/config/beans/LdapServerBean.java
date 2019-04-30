@@ -60,7 +60,7 @@ public class LdapServerBean extends DSBasedServerBean
 
     /** The SASL realms */
     @ConfigurationElement(attributeType = "ads-saslRealms")
-    private List<String> saslRealms = new ArrayList<String>();
+    private List<String> saslRealms = new ArrayList<>();
 
     /** The keystore file */
     @ConfigurationElement(attributeType = "ads-keystoreFile", isOptional = true)
@@ -80,15 +80,15 @@ public class LdapServerBean extends DSBasedServerBean
 
     /** The replication consumer Bean */
     @ConfigurationElement(objectClass = "ads-replConsumer", container = "replConsumers", isOptional = true)
-    private List<ReplConsumerBean> replConsumers = new ArrayList<ReplConsumerBean>();
+    private List<ReplConsumerBean> replConsumers = new ArrayList<>();
 
     /** The list of supported mechanisms */
     @ConfigurationElement(objectClass = "ads-saslMechHandler", container = "saslMechHandlers", isOptional = true)
-    private List<SaslMechHandlerBean> saslMechHandlers = new ArrayList<SaslMechHandlerBean>();
+    private List<SaslMechHandlerBean> saslMechHandlers = new ArrayList<>();
 
     /** The list of supported extended operation handlers */
     @ConfigurationElement(objectClass = "ads-extendedOpHandler", container = "extendedOpHandlers", isOptional = true)
-    private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<ExtendedOpHandlerBean>();
+    private List<ExtendedOpHandlerBean> extendedOpHandlers = new ArrayList<>();
 
     /** the time interval between subsequent pings to each replication provider */
     @ConfigurationElement(attributeType = "ads-replPingerSleep")
@@ -392,6 +392,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -409,7 +410,7 @@ public class LdapServerBean extends DSBasedServerBean
         sb.append( toString( tabs, "  enable replication provider", replReqHandler ) );
         sb.append( toString( tabs, "  Pinger thread sleep time(in sec.)", replPingerSleep ) );
 
-        if ( ( extendedOpHandlers != null ) && ( extendedOpHandlers.size() > 0 ) )
+        if ( ( extendedOpHandlers != null ) && !extendedOpHandlers.isEmpty() )
         {
             sb.append( tabs ).append( "  extended operation handlers :\n" );
 
@@ -429,7 +430,7 @@ public class LdapServerBean extends DSBasedServerBean
             }
         }
 
-        if ( ( saslRealms != null ) && ( saslRealms.size() > 0 ) )
+        if ( ( saslRealms != null ) && !saslRealms.isEmpty() )
         {
             sb.append( tabs ).append( "  SASL realms :\n" );
 
@@ -439,7 +440,7 @@ public class LdapServerBean extends DSBasedServerBean
             }
         }
 
-        if ( ( replConsumers != null ) && ( replConsumers.size() > 0 ) )
+        if ( ( replConsumers != null ) && !replConsumers.isEmpty() )
         {
             sb.append( tabs ).append( "  replication consumers :\n" );
 
@@ -487,6 +488,7 @@ public class LdapServerBean extends DSBasedServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

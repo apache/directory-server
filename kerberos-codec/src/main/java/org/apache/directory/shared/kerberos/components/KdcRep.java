@@ -45,9 +45,9 @@ import org.apache.directory.shared.kerberos.messages.Ticket;
  *         padata          [2] SEQUENCE OF PA-DATA OPTIONAL
  *                                 -- NOTE: not empty --,
  *         crealm          [3] Realm,
- *         cname           [4] <PrincipalName>,
- *         ticket          [5] <Ticket>,
- *         enc-part        [6] <EncryptedData>
+ *         cname           [4] &lt;PrincipalName&gt;,
+ *         ticket          [5] &lt;Ticket@gt;,
+ *         enc-part        [6] &lt;EncryptedData&gt;
  *                                 -- EncASRepPart or EncTGSRepPart,
  *                                 -- as appropriate
  * }
@@ -97,7 +97,7 @@ public class KdcRep extends KerberosMessage
     public KdcRep( KerberosMessageType msgType )
     {
         super( msgType );
-        paData = new ArrayList<PaData>();
+        paData = new ArrayList<>();
     }
 
 
@@ -245,38 +245,38 @@ public class KdcRep extends KerberosMessage
      * 
      * 0x30 L1 KDC-REP sequence
      *  |
-     *  +--> 0xA0 0x03 pvno tag
+     *  +--&gt; 0xA0 0x03 pvno tag
      *  |     |
-     *  |     +--> 0x02 0x01 0x05 pvno (5)
+     *  |     +--&gt; 0x02 0x01 0x05 pvno (5)
      *  |
-     *  +--> 0xA1 0x03 msg-type tag
+     *  +--&gt; 0xA1 0x03 msg-type tag
      *  |     |
-     *  |     +--> 0x02 0x01 0x0B/0x0D msg-type : either AS-REP (0x0B) or TGS-REP (0x0D)
+     *  |     +--&gt; 0x02 0x01 0x0B/0x0D msg-type : either AS-REP (0x0B) or TGS-REP (0x0D)
      *  |     
-     *  +--> 0xA2 L2 pa-data tag
+     *  +--&gt; 0xA2 L2 pa-data tag
      *  |     |
-     *  |     +--> 0x30 L2-1 pa-data SEQ
+     *  |     +--&gt; 0x30 L2-1 pa-data SEQ
      *  |           |
-     *  |           +--> 0x30 L2-1-1 pa-data
+     *  |           +--&gt; 0x30 L2-1-1 pa-data
      *  |           |
-     *  |           +--> 0x30 L2-1-2 pa-data
+     *  |           +--&gt; 0x30 L2-1-2 pa-data
      *  |           :
      *  |     
-     *  +--> 0xA3 L3 crealm tag
+     *  +--&gt; 0xA3 L3 crealm tag
      *  |     |
-     *  |     +--> 0x1B L3-1 crealm
+     *  |     +--&gt; 0x1B L3-1 crealm
      *  |
-     *  +--> 0xA4 L4 cname tag
+     *  +--&gt; 0xA4 L4 cname tag
      *  |     |
-     *  |     +--> 0x30 L4-1 cname
+     *  |     +--&gt; 0x30 L4-1 cname
      *  |
-     *  +--> 0xA5 L5 ticket tag
+     *  +--&gt; 0xA5 L5 ticket tag
      *  |     |
-     *  |     +--> 0x61 L5-1 ticket
+     *  |     +--&gt; 0x61 L5-1 ticket
      *  |
-     *  +--> 0xA6 L6 enc-part tag
+     *  +--&gt; 0xA6 L6 enc-part tag
      *        |
-     *        +--> 0x30 L6-1 enc-part
+     *        +--&gt; 0x30 L6-1 enc-part
      *  
      * </pre>       
      */
@@ -291,7 +291,7 @@ public class KdcRep extends KerberosMessage
         kdcRepSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
 
         // Compute the pa-data length.
-        if ( paData.size() != 0 )
+        if ( !paData.isEmpty() )
         {
             paDataLengths = new int[paData.size()];
             int pos = 0;
@@ -367,7 +367,7 @@ public class KdcRep extends KerberosMessage
         BerValue.encode( buffer, getMessageType().getValue() );
 
         // The PD-DATA if any -------------------------------------------------
-        if ( paData.size() != 0 )
+        if ( !paData.isEmpty() )
         {
             // The tag
             buffer.put( ( byte ) KerberosConstants.KDC_REP_PA_DATA_TAG );

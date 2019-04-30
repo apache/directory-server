@@ -28,6 +28,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,7 +60,6 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -68,17 +69,21 @@ import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jdbm.recman.BaseRecordManager;
 
 
 /**
@@ -91,8 +96,7 @@ public class JdbmStoreTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreTest.class );
 
-    File wkdir;
-    JdbmPartition store;
+    JdbmPartition partition;
     CoreSession session;
 
     private static SchemaManager schemaManager = null;
@@ -112,23 +116,22 @@ public class JdbmStoreTest
     /** The SN AttributeType instance */
     private static AttributeType SN_AT;
 
-    private static CacheService cacheService;
-
+    private PartitionTxn partitionTxn;
+    
+    /** The recordManager used */
+    private BaseRecordManager recMan;
+    
+    /** The temporary directory the files will be created in */
+    private static Path tempDir;
+    
 
     @BeforeClass
     public static void setup() throws Exception
     {
-        String workingDirectory = System.getProperty( "workingDirectory" );
+        tempDir = Files.createTempDirectory( JdbmIndexTest.class.getSimpleName() );
 
-        if ( workingDirectory == null )
-        {
-            String path = JdbmStoreTest.class.getResource( "" ).getPath();
-            int targetPos = path.indexOf( "target" );
-            workingDirectory = path.substring( 0, targetPos + 6 );
-        }
-
-        File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        File schemaRepository = new File( tempDir.toFile(), "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( tempDir.toFile() );
         extractor.extractOrCopy( true );
         loader = new LdifSchemaLoader( schemaRepository );
         schemaManager = new DefaultSchemaManager( loader );
@@ -147,9 +150,7 @@ public class JdbmStoreTest
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
     }
 
 
@@ -157,38 +158,35 @@ public class JdbmStoreTest
     public void createStore() throws Exception
     {
         // setup the working directory for the store
-        wkdir = File.createTempFile( getClass().getSimpleName(), "db" );
-        wkdir.delete();
-        wkdir = new File( wkdir.getParentFile(), getClass().getSimpleName() );
-
         StoreUtils.createdExtraAttributes( schemaManager );
         
         // initialize the store
-        store = new JdbmPartition( schemaManager, dnFactory );
-        store.setId( "example" );
-        store.setCacheSize( 10 );
-        store.setPartitionPath( wkdir.toURI() );
-        store.setSyncOnWrite( false );
+        partition = new JdbmPartition( schemaManager, dnFactory );
+        partition.setId( "example" );
+        partition.setCacheSize( 10 );
+        partition.setPartitionPath( tempDir.toUri() );
+        partition.setSyncOnWrite( false );
 
         JdbmIndex ouIndex = new JdbmIndex( SchemaConstants.OU_AT_OID, false );
-        ouIndex.setWkDirPath( wkdir.toURI() );
-        store.addIndex( ouIndex );
+        ouIndex.setWkDirPath( tempDir.toUri() );
+        partition.addIndex( ouIndex );
 
         JdbmIndex uidIndex = new JdbmIndex( SchemaConstants.UID_AT_OID, false );
-        uidIndex.setWkDirPath( wkdir.toURI() );
-        store.addIndex( uidIndex );
+        uidIndex.setWkDirPath( tempDir.toUri() );
+        partition.addIndex( uidIndex );
 
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
-        store.setSuffixDn( suffixDn );
+        partition.setSuffixDn( suffixDn );
 
-        store.setCacheService( cacheService );
-        store.initialize();
+        partition.initialize();
 
-        StoreUtils.loadExampleData( store, schemaManager );
+        StoreUtils.loadExampleData( partition, schemaManager );
 
         DirectoryService directoryService = new MockDirectoryService();
         directoryService.setSchemaManager( schemaManager );
         session = new MockCoreSession( new LdapPrincipal(), directoryService );
+        
+        partitionTxn = partition.beginReadTransaction();
 
         LOG.debug( "Created new store" );
     }
@@ -197,20 +195,30 @@ public class JdbmStoreTest
     @After
     public void destroyStore() throws Exception
     {
-        if ( store != null )
+        if ( partition != null )
         {
             // make sure all files are closed so that they can be deleted on Windows.
-            store.destroy();
+            partition.destroy( partitionTxn );
         }
-
-        store = null;
-
-        if ( wkdir != null )
+        
+        File[] files = tempDir.toFile().listFiles();
+        
+        for ( File file : files )
         {
-            FileUtils.deleteDirectory( wkdir );
+            if ( !file.isDirectory() )
+            {
+                file.delete();
+            }
         }
 
-        wkdir = null;
+        partition = null;
+    }
+    
+    
+    @AfterClass
+    public static void cleanup() throws Exception
+    {
+        FileUtils.deleteDirectory( tempDir.toFile() );
     }
 
 
@@ -223,20 +231,17 @@ public class JdbmStoreTest
     public void testTwoComponentSuffix() throws Exception
     {
         // setup the working directory for the 2nd store
-        File wkdir2 = File.createTempFile( getClass().getSimpleName(), "db2" );
-        wkdir2.delete();
-        wkdir2 = new File( wkdir2.getParentFile(), getClass().getSimpleName() );
+        Path wkdir2 = Files.createTempDirectory( JdbmIndexTest.class.getSimpleName() + "_db2" );
 
-        // initialize the 2nd store
+        // initialize the 2nd partition
         JdbmPartition store2 = new JdbmPartition( schemaManager, dnFactory );
         store2.setId( "example2" );
         store2.setCacheSize( 10 );
-        store2.setPartitionPath( wkdir2.toURI() );
+        store2.setPartitionPath( wkdir2.toFile().toURI() );
         store2.setSyncOnWrite( false );
         store2.addIndex( new JdbmIndex( SchemaConstants.OU_AT_OID, false ) );
         store2.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID, false ) );
         store2.setSuffixDn( EXAMPLE_COM );
-        store2.setCacheService( cacheService );
         store2.initialize();
 
         // inject context entry
@@ -247,16 +252,20 @@ public class JdbmStoreTest
             "dc: example",
             SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString(),
             SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-        store2.add( new AddOperationContext( null, entry ) );
+        
+        AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setPartition( store2 );
+        addContext.setTransaction( store2.beginWriteTransaction() );
+        
+        store2.add( addContext );
 
         // lookup the context entry
-        String id = store2.getEntryId( suffixDn );
-        Entry lookup = store2.fetch( id, suffixDn );
+        String id = store2.getEntryId( partitionTxn, suffixDn );
+        Entry lookup = store2.fetch( partitionTxn, id, suffixDn );
         assertEquals( 2, lookup.getDn().size() );
 
         // make sure all files are closed so that they can be deleted on Windows.
-        store2.destroy();
+        store2.destroy( partitionTxn );
     }
 
 
@@ -318,93 +327,93 @@ public class JdbmStoreTest
 
         jdbmPartition.sync();
         // make sure all files are closed so that they can be deleted on Windows.
-        jdbmPartition.destroy();
+        jdbmPartition.destroy( partitionTxn );
     }
 
 
     @Test
     public void testSimplePropertiesLocked() throws Exception
     {
-        assertNotNull( store.getAliasIndex() );
+        assertNotNull( partition.getAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
+            partition.addIndex( new JdbmIndex<Dn>( ApacheSchemaConstants.APACHE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertEquals( 10, store.getCacheSize() );
+        assertEquals( 10, partition.getCacheSize() );
         try
         {
-            store.setCacheSize( 24 );
+            partition.setCacheSize( 24 );
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getPresenceIndex() );
+        assertNotNull( partition.getPresenceIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
+            partition.addIndex( new JdbmIndex<String>( ApacheSchemaConstants.APACHE_PRESENCE_AT_OID, false ) );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getId() );
+        assertNotNull( partition.getId() );
         try
         {
-            store.setId( "foo" );
+            partition.setId( "foo" );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getRdnIndex() );
+        assertNotNull( partition.getRdnIndex() );
         try
         {
-            store.addIndex( new JdbmRdnIndex() );
+            partition.addIndex( new JdbmRdnIndex() );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getOneAliasIndex() );
+        assertNotNull( partition.getOneAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
+            partition.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_ONE_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getSubAliasIndex() );
+        assertNotNull( partition.getSubAliasIndex() );
         try
         {
-            store.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
+            partition.addIndex( new JdbmIndex<Long>( ApacheSchemaConstants.APACHE_SUB_ALIAS_AT_OID, true ) );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertNotNull( store.getSuffixDn() );
+        assertNotNull( partition.getSuffixDn() );
         try
         {
-            store.setSuffixDn( EXAMPLE_COM );
+            partition.setSuffixDn( EXAMPLE_COM );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        Iterator<String> systemIndices = store.getSystemIndices();
+        Iterator<String> systemIndices = partition.getSystemIndices();
 
         for ( int i = 0; i < 8; i++ )
         {
@@ -413,11 +422,11 @@ public class JdbmStoreTest
         }
 
         assertFalse( systemIndices.hasNext() );
-        assertNotNull( store.getSystemIndex( APACHE_ALIAS_AT ) );
+        assertNotNull( partition.getSystemIndex( APACHE_ALIAS_AT ) );
 
         try
         {
-            store.getSystemIndex( SN_AT );
+            partition.getSystemIndex( SN_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -425,16 +434,16 @@ public class JdbmStoreTest
         }
         try
         {
-            store.getSystemIndex( DC_AT );
+            partition.getSystemIndex( DC_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
         {
         }
 
-        assertNotNull( store.getSuffixDn() );
+        assertNotNull( partition.getSuffixDn() );
 
-        Iterator<String> userIndices = store.getUserIndices();
+        Iterator<String> userIndices = partition.getUserIndices();
         int count = 0;
 
         while ( userIndices.hasNext() )
@@ -444,20 +453,20 @@ public class JdbmStoreTest
         }
 
         assertEquals( 2, count );
-        assertFalse( store.hasUserIndexOn( DC_AT ) );
-        assertTrue( store.hasUserIndexOn( OU_AT ) );
-        assertTrue( store.hasSystemIndexOn( APACHE_ALIAS_AT ) );
-        userIndices = store.getUserIndices();
+        assertFalse( partition.hasUserIndexOn( DC_AT ) );
+        assertTrue( partition.hasUserIndexOn( OU_AT ) );
+        assertTrue( partition.hasSystemIndexOn( APACHE_ALIAS_AT ) );
+        userIndices = partition.getUserIndices();
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertTrue( userIndices.hasNext() );
         assertNotNull( userIndices.next() );
         assertFalse( userIndices.hasNext() );
-        assertNotNull( store.getUserIndex( OU_AT ) );
+        assertNotNull( partition.getUserIndex( OU_AT ) );
 
         try
         {
-            store.getUserIndex( SN_AT );
+            partition.getUserIndex( SN_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
@@ -465,27 +474,27 @@ public class JdbmStoreTest
         }
         try
         {
-            store.getUserIndex( DC_AT );
+            partition.getUserIndex( DC_AT );
             fail();
         }
         catch ( IndexNotFoundException e )
         {
         }
 
-        assertNotNull( store.getPartitionPath() );
+        assertNotNull( partition.getPartitionPath() );
         try
         {
-            store.setPartitionPath( new File( "." ).toURI() );
+            partition.setPartitionPath( new File( "." ).toURI() );
             fail();
         }
         catch ( IllegalStateException e )
         {
         }
 
-        assertTrue( store.isInitialized() );
-        assertFalse( store.isSyncOnWrite() );
+        assertTrue( partition.isInitialized() );
+        assertFalse( partition.isSyncOnWrite() );
 
-        store.sync();
+        partition.sync();
     }
 
 
@@ -493,18 +502,18 @@ public class JdbmStoreTest
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );
-        assertEquals( Strings.getUUID( 1L ), store.getEntryId( dn ) );
-        assertEquals( 11, store.count() );
-        assertEquals( "o=Good Times Co.", store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
-        assertEquals( dn.getName(), store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
-        assertEquals( dn.getName(), store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
+        assertEquals( Strings.getUUID( 1L ), partition.getEntryId( partitionTxn, dn ) );
+        assertEquals( 11, partition.count( partitionTxn ) );
+        assertEquals( "o=Good Times Co.", partition.getEntryDn( partitionTxn, Strings.getUUID( 1L ) ).getName() );
+        assertEquals( dn.getName(), partition.getEntryDn( partitionTxn, Strings.getUUID( 1L ) ).getName() );
+        assertEquals( dn.getName(), partition.getEntryDn( partitionTxn, Strings.getUUID( 1L ) ).getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( Strings.getUUID( 0L ), store.getParentId( store.getEntryId( dn ) ) );
-        assertNull( store.getParentId( Strings.getUUID( 0L ) ) );
+        assertEquals( Strings.getUUID( 0L ), partition.getParentId( partitionTxn, partition.getEntryId( partitionTxn, dn ) ) );
+        assertNull( partition.getParentId( partitionTxn, Strings.getUUID( 0L ) ) );
 
         // should NOW be allowed
-        store.delete( Strings.getUUID( 1L ) );
+        partition.delete( partitionTxn, Strings.getUUID( 1L ) );
     }
 
 
@@ -546,7 +555,21 @@ public class JdbmStoreTest
             "entryUUID", Strings.getUUID( 12L ).toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
+        addContext.setPartition( store2 );
+        PartitionTxn partitionTxn = null;
+        
+        try
+        {
+            partitionTxn = store2.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+        
+            store2.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( Exception e )
+        {
+            partitionTxn.abort();
+        }
 
         store.delete( Strings.getUUID( 12L ) ); // drops the alias indices
     }
@@ -562,8 +585,24 @@ public class JdbmStoreTest
             "objectClass: organizationalPerson",
             "ou: Not Present",
             "cn: Martin King" );
+        
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
+        addContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+        
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+        
+            partition.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( Exception e )
+        {
+            partitionTxn.abort();
+            throw e;
+        }
     }
 
 
@@ -575,7 +614,22 @@ public class JdbmStoreTest
             "ou: Sales",
             "cn: Martin King" );
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
+        addContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+        
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+        
+            partition.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( Exception e )
+        {
+            partitionTxn.abort();
+            throw e;
+        }
     }
 
 
@@ -589,7 +643,7 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        store.modify( dn, add );
+        partition.modify( partitionTxn, dn, add );
     }
 
 
@@ -607,16 +661,38 @@ public class JdbmStoreTest
             "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
+        addContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+        
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+        
+            partition.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( Exception e )
+        {
+            partitionTxn.abort();
+        }
 
         Rdn rdn = new Rdn( schemaManager, "sn=James" );
 
-        store.rename( dn, rdn, true, null );
+        partition.rename( partitionTxn, dn, rdn, true, null );
 
         dn = new Dn( schemaManager, "sn=James,ou=Engineering,o=Good Times Co." );
-        Entry renamed = store.lookup( new LookupOperationContext( session, dn ) );
-        assertNotNull( renamed );
-        assertEquals( "James", renamed.getDn().getRdn().getValue() );
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        lookupContext.setPartition( partition );
+        
+        try ( PartitionTxn partitionTxn2 = partition.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn2 );
+        
+            Entry renamed = partition.lookup( lookupContext );
+            assertNotNull( renamed );
+            assertEquals( "James", renamed.getDn().getRdn().getValue() );
+        }
     }
 
 
@@ -634,16 +710,30 @@ public class JdbmStoreTest
             "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
+        addContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+        
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+        
+            partition.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( Exception e )
+        {
+            partitionTxn.abort();
+        }
 
         Rdn rdn = new Rdn( schemaManager, "sn=Ja\\+es" );
 
-        store.rename( dn, rdn, true, null );
+        partition.rename( partitionTxn, dn, rdn, true, null );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        String id = store.getEntryId( dn2 );
+        String id = partition.getEntryId( partitionTxn, dn2 );
         assertNotNull( id );
-        Entry entry2 = store.fetch( id, dn2 );
+        Entry entry2 = partition.fetch( partitionTxn, id, dn2 );
         assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
     }
 
@@ -662,7 +752,21 @@ public class JdbmStoreTest
             "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
-        store.add( addContext );
+        addContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+        
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+        
+            partition.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( Exception e )
+        {
+            partitionTxn.abort();
+        }
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
 
@@ -676,20 +780,20 @@ public class JdbmStoreTest
         modAvas.add( new ModDnAva( ModDnAva.ModDnType.DELETE, childDn.getRdn().getAva()) );
         modDnAvas.put( SchemaConstants.CN_AT_OID, modAvas );
 
-        store.moveAndRename( childDn, parentDn, rdn, modDnAvas, childEntry );
+        partition.moveAndRename( partitionTxn, childDn, parentDn, rdn, modDnAvas, childEntry );
 
         // to drop the alias indices
         childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
 
         parentDn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
 
-        assertEquals( 3, store.getSubAliasIndex().count() );
+        assertEquals( 3, partition.getSubAliasIndex().count( partitionTxn ) );
 
         Dn newDn = parentDn.add( childDn.getRdn() );
 
-        store.move( childDn, parentDn, newDn, null );
+        partition.move( partitionTxn, childDn, parentDn, newDn, null );
 
-        assertEquals( 3, store.getSubAliasIndex().count() );
+        assertEquals( 3, partition.getSubAliasIndex().count( partitionTxn ) );
     }
 
 
@@ -705,9 +809,9 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
+        Entry lookedup = partition.fetch( partitionTxn, partition.getEntryId(partitionTxn,  dn ), dn );
 
-        store.modify( dn, add );
+        partition.modify( partitionTxn, dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
     }
 
@@ -724,18 +828,18 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
+        Entry lookedup = partition.fetch( partitionTxn, partition.getEntryId( partitionTxn, dn ), dn );
 
-        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getValue() ); // before replacing
+        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
-        lookedup = store.modify( dn, add );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().getValue() );
+        lookedup = partition.modify( partitionTxn, dn, add );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
         // testing the store.modify( dn, mod, entry ) API
         Modification replace = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" );
 
-        lookedup = store.modify( dn, replace );
-        assertEquals( "JWalker", lookedup.get( "sn" ).get().getValue() );
+        lookedup = partition.modify( partitionTxn, dn, replace );
+        assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
         assertEquals( 1, lookedup.get( "sn" ).size() );
     }
 
@@ -749,20 +853,20 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
+        Entry lookedup = partition.fetch( partitionTxn, partition.getEntryId( partitionTxn, dn ), dn );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( partitionTxn, dn, add );
         assertNull( lookedup.get( "sn" ) );
 
         // add an entry for the sake of testing the remove operation
         add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" );
-        lookedup = store.modify( dn, add );
+        lookedup = partition.modify( partitionTxn, dn, add );
         assertNotNull( lookedup.get( "sn" ) );
 
         Modification remove = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT );
-        lookedup = store.modify( dn, remove );
+        lookedup = partition.modify( partitionTxn, dn, remove );
         assertNull( lookedup.get( "sn" ) );
     }
 
@@ -780,7 +884,21 @@ public class JdbmStoreTest
             "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
-        store.add( addContext );
+        addContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+        
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+        
+            partition.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( Exception e )
+        {
+            partitionTxn.abort();
+        }
 
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
 
@@ -789,48 +907,11 @@ public class JdbmStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
+        Entry lookedup = partition.fetch( partitionTxn, partition.getEntryId( partitionTxn, dn ), dn );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
-        lookedup = store.modify( dn, add );
-        assertEquals( attribVal, lookedup.get( "ou" ).get().getValue() );
-    }
-
-
-    @Test
-    public void testDeleteUnusedIndexFiles() throws Exception
-    {
-        File ouIndexDbFile = new File( wkdir, SchemaConstants.OU_AT_OID + ".db" );
-        File ouIndexTxtFile = new File( wkdir, SchemaConstants.OU_AT_OID + "-ou.txt" );
-        File uuidIndexDbFile = new File( wkdir, SchemaConstants.ENTRY_UUID_AT_OID + ".db" );
-
-        assertTrue( ouIndexDbFile.exists() );
-        assertTrue( ouIndexTxtFile.exists() );
-
-        // destroy the store to manually start the init phase
-        // by keeping the same work dir
-        store.destroy();
-
-        // just assert again that ou files exist even after destroying the store
-        assertTrue( ouIndexDbFile.exists() );
-        assertTrue( ouIndexTxtFile.exists() );
-
-        store = new JdbmPartition( schemaManager, dnFactory );
-        store.setId( "example" );
-        store.setCacheSize( 10 );
-        store.setPartitionPath( wkdir.toURI() );
-        store.setSyncOnWrite( false );
-        // do not add ou index this time
-        store.addIndex( new JdbmIndex( SchemaConstants.UID_AT_OID, false ) );
-
-        Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
-        store.setSuffixDn( suffixDn );
-        // init the store to call deleteUnusedIndexFiles() method
-        store.setCacheService( cacheService );
-        store.initialize();
-
-        assertFalse( ouIndexDbFile.exists() );
-        assertFalse( ouIndexTxtFile.exists() );
+        lookedup = partition.modify( partitionTxn, dn, add );
+        assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 }

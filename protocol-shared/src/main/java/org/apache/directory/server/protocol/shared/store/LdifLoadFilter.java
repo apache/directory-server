@@ -43,7 +43,7 @@ public interface LdifLoadFilter
      * @param entry the entry attributes within the LDIF file
      * @param coreSession session to be used for loading the entry into the DIT
      * @return true if the entry will be created in the DIT, false if it is to be skipped
-     * @throws LdapException
+     * @throws LdapException If the filtering failed
      */
     boolean filter( File file, Dn dn, Entry entry, CoreSession coreSession ) throws LdapException;
 }

@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,7 +48,7 @@ public class KerberosKeyFactory
 
     static
     {
-        Map<EncryptionType, String> map = new HashMap<EncryptionType, String>();
+        EnumMap<EncryptionType, String> map = new EnumMap<>( EncryptionType.class );
 
         map.put( EncryptionType.DES_CBC_MD5, "DES" );
         map.put( EncryptionType.DES3_CBC_SHA1_KD, "DESede" );
@@ -87,7 +87,7 @@ public class KerberosKeyFactory
     public static Map<EncryptionType, EncryptionKey> getKerberosKeys( String principalName, String passPhrase,
         Set<EncryptionType> ciphers )
     {
-        Map<EncryptionType, EncryptionKey> kerberosKeys = new HashMap<EncryptionType, EncryptionKey>();
+        EnumMap<EncryptionType, EncryptionKey> kerberosKeys = new EnumMap<>( EncryptionType.class );
 
         for ( EncryptionType encryptionType : ciphers )
         {
@@ -112,9 +112,7 @@ public class KerberosKeyFactory
         KerberosPrincipal principal = new KerberosPrincipal( principalName );
         KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(),
             KerberosUtils.getAlgoNameFromEncType( encryptionType ) );
-        EncryptionKey encryptionKey = new EncryptionKey( encryptionType, kerberosKey.getEncoded(), kerberosKey
-            .getVersionNumber() );
 
-        return encryptionKey;
+        return new EncryptionKey( encryptionType, kerberosKey.getEncoded(), kerberosKey.getVersionNumber() );
     }
 }

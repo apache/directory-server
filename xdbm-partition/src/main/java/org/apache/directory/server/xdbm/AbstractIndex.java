@@ -32,7 +32,7 @@ import org.apache.directory.server.i18n.I18n;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public abstract class AbstractIndex<K, ID> implements Index<K, ID>
+public abstract class AbstractIndex<K, E> implements Index<K, E>
 {
     /** The attribute identifier for this index */
     protected String attributeId;
@@ -55,8 +55,6 @@ public abstract class AbstractIndex<K, ID> implements Index<K, ID>
 
     /**
      * Creates a new instance of AbstractIndex.
-     * 
-     * @param attributeId the attribute ID
      */
     protected AbstractIndex()
     {
@@ -67,7 +65,7 @@ public abstract class AbstractIndex<K, ID> implements Index<K, ID>
     /**
      * Creates a new instance of AbstractIndex.
      * 
-     * @param attributeId the attribute ID
+     * @param withReverse If we should create a reverse index
      */
     protected AbstractIndex( boolean withReverse )
     {
@@ -79,6 +77,7 @@ public abstract class AbstractIndex<K, ID> implements Index<K, ID>
      * Creates a new instance of AbstractIndex.
      * 
      * @param attributeId the attribute ID
+     * @param withReverse If we should create a reverse index
      */
     protected AbstractIndex( String attributeId, boolean withReverse )
     {

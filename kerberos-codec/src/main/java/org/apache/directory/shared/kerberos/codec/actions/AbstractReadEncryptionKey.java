@@ -74,32 +74,23 @@ public abstract class AbstractReadEncryptionKey<E extends Asn1Container> extends
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the EncryptionKey
-        Asn1Decoder encryptionKeyDecoder = new Asn1Decoder();
-
         EncryptionKeyContainer encryptionKeyContainer = new EncryptionKeyContainer();
 
         // Decode the EncryptionKey PDU
-        try
-        {
-            encryptionKeyDecoder.decode( container.getStream(), encryptionKeyContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( container.getStream(), encryptionKeyContainer );
 
         EncryptionKey encryptionKey = encryptionKeyContainer.getEncryptionKey();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncryptionKey : " + encryptionKey );
+            LOG.debug( "EncryptionKey : {}", encryptionKey );
         }
 
         setEncryptionKey( encryptionKey, container );

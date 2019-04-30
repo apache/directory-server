@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Serialize and deserialize a ServerEntry. There is a big difference with the standard
  * Entry serialization : we don't serialize the entry's Dn, we just serialize it's Rdn.
- * </br></br>
+ * <br><br>
  * <b>This class must *not* be used outside of the server.</b>
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -175,12 +175,10 @@ public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialize " + entry );
+                LOG.debug( "Serialize {}", entry );
             }
 
-            byte[] bytes = baos.toByteArray();
-
-            return bytes;
+            return baos.toByteArray();
         }
         catch ( Exception e )
         {
@@ -192,7 +190,7 @@ public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
     /**
      *  Deserialize a Entry.
      *  
-     *  @param bytes the byte array containing the serialized entry
+     *  @param buffer The buffer containing the serialized entry
      *  @return An instance of a Entry object 
      *  @throws IOException if we can't deserialize the Entry
      */

@@ -40,9 +40,9 @@ interface SearchStrategy
     /**
      * Returns a set of {@link ResourceRecord}s, given a DNS {@link QuestionRecord}.
      *
-     * @param question
+     * @param question The DNS question
      * @return The set of {@link ResourceRecord}s.
-     * @throws Exception
+     * @throws DnsException If the records can't be found
      */
     Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException;
 }

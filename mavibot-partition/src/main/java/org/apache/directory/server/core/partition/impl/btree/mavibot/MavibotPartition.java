@@ -30,9 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
@@ -40,6 +37,7 @@ import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.exception.MultiException;
@@ -54,6 +52,9 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -65,10 +66,12 @@ import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 
 /**
- * 
- * TODO MavibotPartition.
+ * A Mavibot partition
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -92,7 +95,7 @@ public class MavibotPartition extends AbstractBTreePartition
     private RecordManager recordMan;
 
     /** the entry cache */
-    private Cache entryCache;
+    private Cache< String, Entry > entryCache;
 
 
     public MavibotPartition( SchemaManager schemaManager, DnFactory dnFactory )
@@ -118,7 +121,7 @@ public class MavibotPartition extends AbstractBTreePartition
      * {@inheritDoc}
      */
     @Override
-    protected void doRepair() throws Exception
+    protected void doRepair() throws LdapException
     {
         // Nothing to do
     }
@@ -128,7 +131,7 @@ public class MavibotPartition extends AbstractBTreePartition
      * {@inheritDoc}
      */
     @Override
-    protected void doInit() throws Exception
+    protected void doInit() throws LdapException
     {
         if ( !initialized )
         {
@@ -139,7 +142,7 @@ public class MavibotPartition extends AbstractBTreePartition
             }
             else
             {
-                setOptimizer( new DefaultOptimizer<Entry>( this ) );
+                setOptimizer( new DefaultOptimizer( this ) );
             }
 
             EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
@@ -152,7 +155,7 @@ public class MavibotPartition extends AbstractBTreePartition
 
             if ( !partitionDir.exists() && !partitionDir.mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionDir ) );
+                throw new LdapOtherException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, partitionDir ) );
             }
 
             if ( cacheSize < 0 )
@@ -172,9 +175,14 @@ public class MavibotPartition extends AbstractBTreePartition
 
             // First, check if the file storing the data exists
 
-            // Create the master table (the table containing all the entries)
-            Cache masterTableCache = cacheService.getCache( suffixDn.getName() );
-            master = new MavibotMasterTable( recordMan, schemaManager, "master", masterTableCache.getCacheConfiguration().getMaxElementsInMemory() );
+            try
+            {
+                master = new MavibotMasterTable( recordMan, schemaManager, "master", cacheSize );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
 
             // get all index db files first
             File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
@@ -183,14 +191,14 @@ public class MavibotPartition extends AbstractBTreePartition
             List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
 
             // then add all index objects to a list
-            List<String> allIndices = new ArrayList<String>();
+            List<String> allIndices = new ArrayList<>();
 
             for ( Index<?, String> index : systemIndices.values() )
             {
                 allIndices.add( index.getAttribute().getOid() );
             }
 
-            List<Index<?, String>> indexToBuild = new ArrayList<Index<?, String>>();
+            List<Index<?, String>> indexToBuild = new ArrayList<>();
 
             // this loop is used for two purposes
             // one for collecting all user indices
@@ -221,17 +229,7 @@ public class MavibotPartition extends AbstractBTreePartition
                         deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
             */
 
-            if ( cacheService != null )
-            {
-                entryCache = cacheService.getCache( getId() );
-                
-                int cacheSizeConfig = entryCache.getCacheConfiguration().getMaxElementsInMemory();
-
-                if ( cacheSizeConfig < cacheSize )
-                {
-                    entryCache.getCacheConfiguration().setMaxElementsInMemory( cacheSize );
-                }
-            }
+            entryCache = Caffeine.newBuilder().maximumSize( cacheSize ).build();
 
             // We are done !
             initialized = true;
@@ -240,7 +238,7 @@ public class MavibotPartition extends AbstractBTreePartition
 
 
     @Override
-    protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
+    protected Index<?, String> convertAndInit( Index<?, String> index ) throws LdapException
     {
         MavibotIndex<?> mavibotIndex;
 
@@ -272,7 +270,14 @@ public class MavibotPartition extends AbstractBTreePartition
 
         mavibotIndex.setRecordManager( recordMan );
 
-        mavibotIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
+        try
+        {
+            mavibotIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         return mavibotIndex;
     }
@@ -281,7 +286,8 @@ public class MavibotPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
-    protected synchronized void doDestroy() throws Exception
+    @Override
+    protected synchronized void doDestroy( PartitionTxn partitionTxn ) throws LdapException
     {
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
@@ -292,7 +298,7 @@ public class MavibotPartition extends AbstractBTreePartition
 
         try
         {
-            super.doDestroy();
+            super.doDestroy( partitionTxn );
         }
         catch ( Exception e )
         {
@@ -314,19 +320,19 @@ public class MavibotPartition extends AbstractBTreePartition
         {
             if ( entryCache != null )
             {
-                entryCache.removeAll();
+                entryCache.invalidateAll();
             }
         }
 
         if ( errors.size() > 0 )
         {
-            throw errors;
+            throw new LdapOtherException( errors.getMessage(), errors );
         }
     }
 
 
     @Override
-    protected Index createSystemIndex( String indexOid, URI path, boolean withReverse ) throws Exception
+    protected Index createSystemIndex( String indexOid, URI path, boolean withReverse ) throws LdapException
     {
         LOG.debug( "Supplied index {} is not a MavibotIndex.  "
             + "Will create new MavibotIndex using copied configuration parameters." );
@@ -353,30 +359,6 @@ public class MavibotPartition extends AbstractBTreePartition
     }
 
 
-    @Override
-    public void sync() throws Exception
-    {
-        if ( !initialized )
-        {
-            return;
-        }
-
-        // Sync all system indices
-        for ( Index<?, String> idx : systemIndices.values() )
-        {
-            idx.sync();
-        }
-
-        // Sync all user defined userIndices
-        for ( Index<?, String> idx : userIndices.values() )
-        {
-            idx.sync();
-        }
-
-        ( ( MavibotMasterTable ) master ).sync();
-    }
-
-
     /**jdbm
      * removes any unused/removed attribute index files present under the partition's
      * working directory
@@ -393,7 +375,7 @@ public class MavibotPartition extends AbstractBTreePartition
      * @param userIndexes then user defined indexes to create
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( List<Index<?, String>> userIndexes ) throws Exception
+    private void buildUserIndex( PartitionTxn partitionTxn, List<Index<?, String>> userIndexes ) throws Exception
     {
         Cursor<Tuple<String, Entry>> cursor = master.cursor();
         cursor.beforeFirst();
@@ -419,11 +401,11 @@ public class MavibotPartition extends AbstractBTreePartition
                 {
                     for ( Value value : entryAttr )
                     {
-                        index.add( value.getValue(), id );
+                        index.add( partitionTxn, value.getString(), id );
                     }
 
                     // Adds only those attributes that are indexed
-                    presenceIdx.add( attributeOid, id );
+                    presenceIdx.add( partitionTxn, attributeOid, id );
                 }
             }
         }
@@ -456,21 +438,13 @@ public class MavibotPartition extends AbstractBTreePartition
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Entry lookupCache( String id )
     {
-        if ( entryCache == null )
-        {
-            return null;
-        }
-
-        Element el = entryCache.get( id );
-
-        if ( el != null )
-        {
-            return ( Entry ) el.getValue();
-        }
-
-        return null;
+        return ( entryCache != null ) ? entryCache.getIfPresent( id ) : null;
     }
 
 
@@ -487,7 +461,7 @@ public class MavibotPartition extends AbstractBTreePartition
             entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
         }
 
-        entryCache.put( new Element( id, entry ) );
+        entryCache.put( id, entry );
     }
 
 
@@ -513,19 +487,19 @@ public class MavibotPartition extends AbstractBTreePartition
                     entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
                 }
 
-                entryCache.replace( new Element( id, entry ) );
+                entryCache.put( id, entry );
             }
             else if ( ( opCtx instanceof MoveOperationContext ) || ( opCtx instanceof MoveAndRenameOperationContext )
                 || ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
-                entryCache.removeAll();
+                entryCache.invalidateAll();
             }
             else if ( opCtx instanceof DeleteOperationContext )
             {
                 // delete the entry
                 DeleteOperationContext delCtx = ( DeleteOperationContext ) opCtx;
-                entryCache.remove( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
+                entryCache.invalidate( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
             }
         }
         catch ( LdapException e )
@@ -540,10 +514,23 @@ public class MavibotPartition extends AbstractBTreePartition
      */
     public Set<Index<?, String>> getAllIndices()
     {
-        Set<Index<?, String>> all = new HashSet<Index<?, String>>( systemIndices.values() );
+        Set<Index<?, String>> all = new HashSet<>( systemIndices.values() );
         all.addAll( userIndices.values() );
         
         return all;
     }
 
+
+    @Override
+    public PartitionReadTxn beginReadTransaction()
+    {
+        return new PartitionReadTxn();
+    }
+
+
+    @Override
+    public PartitionWriteTxn beginWriteTransaction()
+    {
+        return new PartitionWriteTxn();
+    }
 }

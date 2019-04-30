@@ -22,12 +22,14 @@ package org.apache.directory.server.core.partition.impl.avl;
 
 import java.net.URI;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -80,7 +82,7 @@ public class AvlPartition extends AbstractBTreePartition
      * {@inheritDoc}
      */
     @Override
-    protected void doRepair() throws Exception
+    protected void doRepair() throws LdapException
     {
         // Nothing to do
     }
@@ -90,7 +92,7 @@ public class AvlPartition extends AbstractBTreePartition
      * {@inheritDoc}
      */
     @Override
-    protected void doInit() throws Exception
+    protected void doInit() throws LdapException
     {
         if ( !initialized )
         {
@@ -104,7 +106,7 @@ public class AvlPartition extends AbstractBTreePartition
             }
             else
             {
-                setOptimizer( new DefaultOptimizer<Entry>( this ) );
+                setOptimizer( new DefaultOptimizer( this ) );
             }
 
             setSearchEngine( new DefaultSearchEngine( this, cursorBuilder, evaluatorBuilder, getOptimizer() ) );
@@ -141,15 +143,6 @@ public class AvlPartition extends AbstractBTreePartition
 
 
     /**
-     * {@inheritDoc}
-     */
-    public void sync() throws Exception
-    {
-        // Nothing to do
-    }
-
-
-    /**
      * always returns false, cause this is a in-memory store
      */
     @Override
@@ -170,7 +163,7 @@ public class AvlPartition extends AbstractBTreePartition
 
 
     @Override
-    protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
+    protected Index<?, String> convertAndInit( Index<?, String> index ) throws LdapException
     {
         AvlIndex<?> avlIndex;
 
@@ -198,7 +191,7 @@ public class AvlPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
-    protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws Exception
+    protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws LdapException
     {
         LOG.debug( "Supplied index {} is not a JdbmIndex.  "
             + "Will create new JdbmIndex using copied configuration parameters." );
@@ -223,9 +216,24 @@ public class AvlPartition extends AbstractBTreePartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public URI getPartitionPath()
     {
         // It's a in-memory partition, return null
         return null;
+    }
+
+
+    @Override
+    public PartitionReadTxn beginReadTransaction()
+    {
+        return new PartitionReadTxn();
+    }
+
+
+    @Override
+    public PartitionWriteTxn beginWriteTransaction()
+    {
+        return new PartitionWriteTxn();
     }
 }

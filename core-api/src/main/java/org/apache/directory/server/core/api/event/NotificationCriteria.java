@@ -59,6 +59,8 @@ public class NotificationCriteria
 
     /**
      * Create a new instance of a NotiticationCriteria
+     * 
+     * @param schemaManager The SchemaManager instance
      */
     public NotificationCriteria( SchemaManager schemaManager )
     {
@@ -68,6 +70,9 @@ public class NotificationCriteria
 
     /**
      * Create a new instance of a NotiticationCriteria initialized with a search request
+     * 
+     * @param schemaManager The SchemaManager instance
+     * @param req The SearchRequest
      */
     public NotificationCriteria( SchemaManager schemaManager, SearchRequest req )
     {
@@ -143,7 +148,10 @@ public class NotificationCriteria
 
 
     /**
+     * Set the filter
+     * 
      * @param filter the filter to set
+     * @throws Exception If the filter is invalid
      */
     public void setFilter( String filter ) throws Exception
     {

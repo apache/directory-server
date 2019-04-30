@@ -44,7 +44,6 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.SchemaUtils;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -60,6 +59,9 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.api.partition.AbstractPartition;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.api.partition.Subordinates;
 import org.apache.directory.server.core.api.schema.registries.synchronizers.RegistrySynchronizerAdaptor;
 import org.apache.directory.server.i18n.I18n;
@@ -98,12 +100,12 @@ import org.slf4j.LoggerFactory;
  *       Registries on initialization for the server.  That's one of it's core
  *       responsibilities.
  *   </li>
+ * </ol>
  * 
  * So by containing another Partition, we abstract the storage mechanism away
  * from the management responsibilities while decoupling the server from a
  * specific partition implementation and removing complexity in the Schema
  * interceptor service which before managed synchronization.
- * </ol>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -181,6 +183,7 @@ public final class SchemaPartition extends AbstractPartition
      * Has no affect: the id is fixed at {@link SchemaPartition#SCHEMA_ID}: 'schema'.
      * A warning is logged.
      */
+    @Override
     public void setId( String id )
     {
         LOG.warn( "This partition's ID is fixed: {}", SCHEMA_ID );
@@ -194,7 +197,8 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * {@inheritDoc}
      */
-    public void sync() throws Exception
+    @Override
+    public void sync() throws LdapException
     {
         wrapped.sync();
     }
@@ -204,7 +208,7 @@ public final class SchemaPartition extends AbstractPartition
      * {@inheritDoc}
      */
     @Override
-    protected void doRepair() throws Exception
+    protected void doRepair() throws LdapException
     {
         // Nothing to do
     }
@@ -214,7 +218,7 @@ public final class SchemaPartition extends AbstractPartition
      * {@inheritDoc}
      */
     @Override
-    protected void doInit() throws Exception
+    protected void doInit() throws LdapException
     {
         if ( !initialized )
         {
@@ -247,11 +251,11 @@ public final class SchemaPartition extends AbstractPartition
      * {@inheritDoc}
      */
     @Override
-    protected void doDestroy()
+    protected void doDestroy( PartitionTxn partitionTxn )
     {
         try
         {
-            wrapped.destroy();
+            wrapped.destroy( partitionTxn );
         }
         catch ( Exception e )
         {
@@ -311,6 +315,8 @@ public final class SchemaPartition extends AbstractPartition
 
             SearchOperationContext searchContext = new SearchOperationContext( deleteContext.getSession(),
                 searchRequest );
+            searchContext.setPartition( this );
+            searchContext.setTransaction( deleteContext.getTransaction() );
 
             EntryFilteringCursor cursor = wrapped.search( searchContext );
 
@@ -389,6 +395,8 @@ public final class SchemaPartition extends AbstractPartition
         {
             LookupOperationContext lookupCtx = new LookupOperationContext( modifyContext.getSession(),
                 modifyContext.getDn() );
+            lookupCtx.setPartition( this );
+            lookupCtx.setTransaction( modifyContext.getTransaction() );
             entry = wrapped.lookup( lookupCtx );
             modifyContext.setEntry( entry );
         }
@@ -421,6 +429,9 @@ public final class SchemaPartition extends AbstractPartition
         CoreSession session = moveContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, moveContext.getDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( this );
+        lookupContext.setTransaction( moveContext.getTransaction() );
+
         Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         synchronizer.move( moveContext, entry, cascade );
         wrapped.move( moveContext );
@@ -437,6 +448,9 @@ public final class SchemaPartition extends AbstractPartition
         CoreSession session = moveAndRenameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, moveAndRenameContext.getDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( this );
+        lookupContext.setTransaction( moveAndRenameContext.getTransaction() );
+
         Entry entry = session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
         synchronizer.moveAndRename( moveAndRenameContext, entry, cascade );
         wrapped.moveAndRename( moveAndRenameContext );
@@ -505,7 +519,7 @@ public final class SchemaPartition extends AbstractPartition
         String modifiersName = opContext.getSession().getEffectivePrincipal().getName();
         String modifyTimestamp = DateUtils.getGeneralizedTime();
 
-        List<Modification> mods = new ArrayList<Modification>( 2 );
+        List<Modification> mods = new ArrayList<>( 2 );
 
         mods.add( new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, new DefaultAttribute(
             ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, schemaManager
@@ -520,29 +534,24 @@ public final class SchemaPartition extends AbstractPartition
         // without using a a bypass list
         CoreSession session = opContext.getSession();
         ModifyOperationContext modifyContext = new ModifyOperationContext( session, schemaModificationDN, mods );
+        modifyContext.setPartition( this );
+        modifyContext.setTransaction( opContext.getTransaction() );
+        
         session.getDirectoryService().getPartitionNexus().modify( modifyContext );
     }
 
 
     @Override
-    public String getContextCsn()
+    public String getContextCsn( PartitionTxn partitionTxn )
     {
-        return wrapped.getContextCsn();
+        return wrapped.getContextCsn( partitionTxn );
     }
 
 
     @Override
-    public void saveContextCsn() throws Exception
+    public void saveContextCsn( PartitionTxn partitionTxn ) throws LdapException
     {
-        wrapped.saveContextCsn();
-    }
-
-
-    @Override
-    public void setCacheService( CacheService cacheService )
-    {
-        super.setCacheService( cacheService );
-        wrapped.setCacheService( cacheService );
+        wrapped.saveContextCsn( partitionTxn );
     }
 
 
@@ -558,14 +567,27 @@ public final class SchemaPartition extends AbstractPartition
     /**
      * Return the number of children and subordinates for a given entry
      *
-     * @param dn The entry's DN
+     * @param partitionTxn The transaction
+     * @param entry The entry we want the subordinates for
      * @return The Subordinate instance that contains the values.
      * @throws LdapException If we had an issue while processing the request
      */
-    public Subordinates getSubordinates( Entry entry ) throws LdapException
+    public Subordinates getSubordinates( PartitionTxn partitionTxn, Entry entry ) throws LdapException
     {
-        Subordinates subordinates = new Subordinates();
-        
-        return subordinates;
+        return new Subordinates();
+    }
+
+
+    @Override
+    public PartitionReadTxn beginReadTransaction()
+    {
+        return new PartitionReadTxn();
+    }
+
+
+    @Override
+    public PartitionWriteTxn beginWriteTransaction()
+    {
+        return new PartitionWriteTxn();
     }
 }

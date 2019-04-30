@@ -28,7 +28,7 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 
 
 /**
- * An anntation for the DirectoryService builder
+ * An annotation for the DirectoryService builder
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -37,42 +37,42 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateDS
 {
-    /** The Factory to use to create a DirectoryService */
+    /** @return The Factory to use to create a DirectoryService */
     Class<?> factory() default DefaultDirectoryServiceFactory.class;
 
-
-    /** The DS name */
+    
+    /** @return The DS name */
     String name() default "defaultDS";
 
 
-    /** flag to enable/disable access control, default is false */
+    /** @return flag to enable/disable access control, default is false */
     boolean enableAccessControl() default false;
+    
 
-
-    /** flag to enable/disable anonymous access, default is false */
+    /** @return flag to enable/disable anonymous access, default is false */
     boolean allowAnonAccess() default false;
 
 
-    /** flag to enable/disable changelog, default is true */
+    /** @return flag to enable/disable changelog, default is true */
     boolean enableChangeLog() default true;
 
 
-    /** The list of partitions to create */
+    /** @return The list of partitions to create */
     CreatePartition[] partitions() default
         {};
 
 
-    /** additional interceptors */
+    /** @return additional interceptors */
     Class<?>[] additionalInterceptors() default
         {};
 
 
-    /** authenticators, when empty the default authenticators are used, else this must contain the complete list */
+    /** @return authenticators, when empty the default authenticators are used, else this must contain the complete list */
     CreateAuthenticator[] authenticators() default
         {};
 
 
-    /** The loaded schemas */
+    /** @return The loaded schemas */
     LoadSchema[] loadedSchemas() default
         {};
 }

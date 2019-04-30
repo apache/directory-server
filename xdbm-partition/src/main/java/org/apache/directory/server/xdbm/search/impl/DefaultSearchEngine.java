@@ -23,11 +23,12 @@ package org.apache.directory.server.xdbm.search.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.ehcache.Element;
-
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
@@ -38,6 +39,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -113,8 +115,8 @@ public class DefaultSearchEngine implements SearchEngine
      * {@inheritDoc}
      */
     @Override
-    public PartitionSearchResult computeResult( SchemaManager schemaManager, SearchOperationContext searchContext )
-        throws Exception
+    public PartitionSearchResult computeResult( PartitionTxn partitionTxn, SchemaManager schemaManager, 
+        SearchOperationContext searchContext ) throws LdapException
     {
         SearchScope scope = searchContext.getScope();
         Dn baseDn = searchContext.getDn();
@@ -122,7 +124,7 @@ public class DefaultSearchEngine implements SearchEngine
         ExprNode filter = searchContext.getFilter();
 
         // Compute the UUID of the baseDN entry
-        String baseId = db.getEntryId( baseDn );
+        String baseId = db.getEntryId( partitionTxn, baseDn );
 
         // Prepare the instance containing the search result
         PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
@@ -153,16 +155,11 @@ public class DefaultSearchEngine implements SearchEngine
 
         if ( db.getAliasCache() != null )
         {
-            Element aliasBaseElement = db.getAliasCache().get( baseId );
-
-            if ( aliasBaseElement != null )
-            {
-                aliasedBase = ( Dn ) ( aliasBaseElement ).getObjectValue();
-            }
+            aliasedBase = db.getAliasCache().getIfPresent( baseId );
         }
         else
         {
-            aliasedBase = db.getAliasIndex().reverseLookup( baseId );
+            aliasedBase = db.getAliasIndex().reverseLookup( partitionTxn, baseId );
         }
 
         Dn effectiveBase = baseDn;
@@ -184,7 +181,7 @@ public class DefaultSearchEngine implements SearchEngine
                 effectiveBase = aliasedBase;
             }
             
-            effectiveBaseId = db.getEntryId( effectiveBase );
+            effectiveBaseId = db.getEntryId( partitionTxn, effectiveBase );
         }
 
         // --------------------------------------------------------------------
@@ -196,7 +193,7 @@ public class DefaultSearchEngine implements SearchEngine
             indexEntry.setId( effectiveBaseId );
 
             // Fetch the entry, as we have only one
-            Entry entry = db.fetch( indexEntry.getId(), effectiveBase );
+            Entry entry = db.fetch( partitionTxn, indexEntry.getId(), effectiveBase );
 
             Evaluator<? extends ExprNode> evaluator;
 
@@ -207,8 +204,8 @@ public class DefaultSearchEngine implements SearchEngine
             }
             else
             {
-                optimizer.annotate( filter );
-                evaluator = evaluatorBuilder.build( filter );
+                optimizer.annotate( partitionTxn, filter );
+                evaluator = evaluatorBuilder.build( partitionTxn, filter );
 
                 // Special case if the filter selects no candidate
                 if ( evaluator == null )
@@ -245,14 +242,14 @@ public class DefaultSearchEngine implements SearchEngine
         }
 
         // Annotate the node with the optimizer and return search enumeration.
-        optimizer.annotate( root );
-        Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( root );
+        optimizer.annotate( partitionTxn, root );
+        Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( partitionTxn, root );
 
         Set<String> uuidSet = new HashSet<>();
         searchResult.setAliasDerefMode( aliasDerefMode );
         searchResult.setCandidateSet( uuidSet );
 
-        long nbResults = cursorBuilder.build( root, searchResult );
+        long nbResults = cursorBuilder.build( partitionTxn, root, searchResult );
 
         LOG.debug( "Nb results : {} for filter : {}", nbResults, root );
 
@@ -268,19 +265,26 @@ public class DefaultSearchEngine implements SearchEngine
         else
         {
             // Full scan : use the MasterTable
-            Cursor<IndexEntry<String, String>> cursor = new IndexCursorAdaptor( db.getMasterTable().cursor(), true );
+            Cursor<IndexEntry<String, String>> cursor = new IndexCursorAdaptor( partitionTxn, db.getMasterTable().cursor(), true );
 
-            while ( cursor.next() )
+            try
             {
-                IndexEntry<String, String> indexEntry = cursor.get();
-
-                // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID>
-                IndexEntry<String, String> forwardIndexEntry = new IndexEntry<>();
-                forwardIndexEntry.setKey( indexEntry.getKey() );
-                forwardIndexEntry.setId( indexEntry.getKey() );
-                forwardIndexEntry.setEntry( null );
-
-                resultSet.add( forwardIndexEntry );
+                while ( cursor.next() )
+                {
+                    IndexEntry<String, String> indexEntry = cursor.get();
+    
+                    // Here, the indexEntry contains a <UUID, Entry> tuple. Convert it to <UUID, UUID>
+                    IndexEntry<String, String> forwardIndexEntry = new IndexEntry<>();
+                    forwardIndexEntry.setKey( indexEntry.getKey() );
+                    forwardIndexEntry.setId( indexEntry.getKey() );
+                    forwardIndexEntry.setEntry( null );
+    
+                    resultSet.add( forwardIndexEntry );
+                }
+            }
+            catch ( CursorException ce )
+            {
+                throw new LdapOtherException( ce.getMessage(), ce );
             }
         }
 
@@ -292,11 +296,11 @@ public class DefaultSearchEngine implements SearchEngine
 
 
     /**
-     * @see SearchEngine#evaluator(ExprNode)
+     * {@inheritDoc}
      */
     @Override
-    public Evaluator<? extends ExprNode> evaluator( ExprNode filter ) throws Exception
+    public Evaluator<? extends ExprNode> evaluator( PartitionTxn partitionTxn, ExprNode filter ) throws LdapException
     {
-        return evaluatorBuilder.build( filter );
+        return evaluatorBuilder.build( partitionTxn, filter );
     }
 }

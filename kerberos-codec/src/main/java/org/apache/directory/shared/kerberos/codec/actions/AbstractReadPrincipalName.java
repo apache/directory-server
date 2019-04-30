@@ -74,32 +74,23 @@ public abstract class AbstractReadPrincipalName<E extends Asn1Container> extends
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the PrincipalName
-        Asn1Decoder principalNameDecoder = new Asn1Decoder();
-
         PrincipalNameContainer principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        try
-        {
-            principalNameDecoder.decode( container.getStream(), principalNameContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( container.getStream(), principalNameContainer );
 
         PrincipalName principalName = principalNameContainer.getPrincipalName();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "PrincipalName : " + principalName );
+            LOG.debug( "PrincipalName : {}", principalName );
         }
 
         setPrincipalName( principalName, container );

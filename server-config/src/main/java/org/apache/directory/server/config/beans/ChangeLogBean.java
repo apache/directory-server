@@ -80,7 +80,7 @@ public class ChangeLogBean extends AdsBaseBean
 
 
     /**
-     * @param exposed Set the exposed flag
+     * @param changeLogExposed Set the exposed flag
      */
     public void setChangeLogExposed( boolean changeLogExposed )
     {
@@ -91,6 +91,7 @@ public class ChangeLogBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -106,6 +107,7 @@ public class ChangeLogBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

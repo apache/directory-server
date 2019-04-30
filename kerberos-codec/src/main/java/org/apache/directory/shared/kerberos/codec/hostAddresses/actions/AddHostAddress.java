@@ -65,15 +65,13 @@ public class AddHostAddress extends GrammarAction<HostAddressesContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the HostAddress
-        Asn1Decoder hostAddressDecoder = new Asn1Decoder();
-
         HostAddressContainer hostAddressContainer = new HostAddressContainer();
         hostAddressContainer.setStream( hostAddressesContainer.getStream() );
 
@@ -82,14 +80,7 @@ public class AddHostAddress extends GrammarAction<HostAddressesContainer>
         hostAddressesContainer.rewind();
 
         // Decode the HostAddress PDU
-        try
-        {
-            hostAddressDecoder.decode( hostAddressesContainer.getStream(), hostAddressContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( hostAddressesContainer.getStream(), hostAddressContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

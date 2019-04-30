@@ -41,9 +41,9 @@ import org.apache.directory.shared.kerberos.messages.KerberosMessage;
  *      -- NOTE: first tag is [1], not [0]
  *      pvno            [1] INTEGER (5) ,
  *      msg-type        [2] INTEGER (10 -- AS -- | 12 -- TGS --),
- *      padata          [3] SEQUENCE OF <PA-DATA> OPTIONAL
+ *      padata          [3] SEQUENCE OF &lt;PA-DATA&gt; OPTIONAL
                             -- NOTE: not empty --,
- *      req-body        [4] <KDC-REQ-BODY>
+ *      req-body        [4] &lt;KDC-REQ-BODY&gt;
  * }
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -73,7 +73,7 @@ public abstract class KdcReq extends KerberosMessage
     public KdcReq( KerberosMessageType msgType )
     {
         super( msgType );
-        paData = new ArrayList<PaData>();
+        paData = new ArrayList<>();
     }
 
 
@@ -138,26 +138,26 @@ public abstract class KdcReq extends KerberosMessage
      * 
      * 0x30 L1 KDC-REQ sequence
      *  |
-     *  +--> 0xA1 0x03 pvno tag
+     *  +--&gt; 0xA1 0x03 pvno tag
      *  |     |
-     *  |     +--> 0x02 0x01 0x05 pvno (5)
+     *  |     +--&gt; 0x02 0x01 0x05 pvno (5)
      *  |
-     *  +--> 0xA2 0x03 msg-type tag
+     *  +--&gt; 0xA2 0x03 msg-type tag
      *  |     |
-     *  |     +--> 0x02 0x01 0x0A/0x0C msg-type : either AS-REQ (0x0A) or TGS-REQ (0x0C)
+     *  |     +--&gt; 0x02 0x01 0x0A/0x0C msg-type : either AS-REQ (0x0A) or TGS-REQ (0x0C)
      *  |     
-     *  +--> 0xA3 L2 pa-data tag
+     *  +--&gt; 0xA3 L2 pa-data tag
      *  |     |
-     *  |     +--> 0x30 L2-1 pa-data SEQ
+     *  |     +--&gt; 0x30 L2-1 pa-data SEQ
      *  |           |
-     *  |           +--> 0x30 L2-1-1 pa-data
+     *  |           +--&gt; 0x30 L2-1-1 pa-data
      *  |           |
-     *  |           +--> 0x30 L2-1-2 pa-data
+     *  |           +--&gt; 0x30 L2-1-2 pa-data
      *  |           :
      *  |     
-     *  +--> 0xA4 L3 req-body tag
+     *  +--&gt; 0xA4 L3 req-body tag
      *  |     |
-     *  |     +--> 0x30 L3-1 req-body (KDC-REQ-BODY)
+     *  |     +--&gt; 0x30 L3-1 req-body (KDC-REQ-BODY)
      * </pre>       
      */
     public int computeLength()
@@ -171,7 +171,7 @@ public abstract class KdcReq extends KerberosMessage
         kdcReqSeqLength += 1 + TLV.getNbBytes( msgTypeLength ) + msgTypeLength;
 
         // Compute the pa-data length.
-        if ( paData.size() > 0 )
+        if ( !paData.isEmpty() )
         {
             paDataLengths = new int[paData.size()];
             int pos = 0;
@@ -234,7 +234,7 @@ public abstract class KdcReq extends KerberosMessage
         BerValue.encode( buffer, getMessageType().getValue() );
 
         // The PD-DATA if any -------------------------------------------------
-        if ( paData.size() > 0 )
+        if ( !paData.isEmpty() )
         {
             // The tag
             buffer.put( ( byte ) KerberosConstants.KDC_REQ_PA_DATA_TAG );

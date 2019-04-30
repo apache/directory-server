@@ -35,7 +35,7 @@ import org.apache.mina.core.buffer.IoBuffer;
  * 
  * where:
  * 
- * PTRDNAME        A <domain-name> which points to some location in the
+ * PTRDNAME        A &lt;domain-name&gt; which points to some location in the
  *                 domain name space.
  * 
  * PTR records cause no additional section processing.  These RRs are used

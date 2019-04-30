@@ -20,29 +20,30 @@
 package org.apache.directory.server.xdbm;
 
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
  * An index used to retrieve elements into the master table. Each stored element that is
  * indexed has a unique identifier (ID). We may have more than one element associated with
- * a value (K). We may cache the retrieved element (O). <br/>
+ * a value (K). We may cache the retrieved element (O). <br>
  * Cursors over indices can also be gotten to traverse the
  * values of the index.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @param <K> The Indexed value type, used to retrieve an element
- * @param <ID> The unique identifier type in the master table
+ * @param <E> The unique identifier type in the master table
  */
-public interface Index<K, ID>
+public interface Index<K, E>
 {
     /** The default cache size (ie, the number of elements we stored in the cache) */
     int DEFAULT_INDEX_CACHE_SIZE = 100;
-
 
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
@@ -115,53 +116,88 @@ public interface Index<K, ID>
     /**
      * Gets the total scan count for this index.
      *
+     * @param partitionTxn The transaction to use
      * @return the number of key/value pairs in this index
-     * @throws Exception on failure to access index db files
+     * @throws LdapException on failure to access index db files
      */
-    long count() throws Exception;
+    long count( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
      * Gets the scan count for the occurrence of a specific attribute value
      * within the index.
      *
+     * @param partitionTxn The transaction to use
      * @param attrVal the value of the attribute to get a scan count for
      * @return the number of key/value pairs in this index with the value value
-     * @throws Exception on failure to access index db files
+     * @throws LdapException on failure to access index db files
      */
-    long count( K attrVal ) throws Exception;
-
-
-    long greaterThanCount( K attrVal ) throws Exception;
-
-
-    long lessThanCount( K attrVal ) throws Exception;
-
-
-    ID forwardLookup( K attrVal ) throws Exception;
-
-
-    K reverseLookup( ID id ) throws LdapException;
+    long count( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
     /**
-     * Add an entry into the index, associated with the element ID. The added
+     * Find the number of element in a tree above a given key
+     * 
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key
+     * @return The number of element above the key
+     * @throws LdapException If the operation failed
+     */
+    long greaterThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
+
+
+    /**
+     * Find the number of element in a tree below a given key
+     * 
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key
+     * @return The number of element below the key
+     * @throws LdapException If the operation failed
+     */
+    long lessThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
+
+
+    /**
+     * Search for a value using the Forward table
+     * 
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key to retrieve
+     * @return The found value
+     * @throws LdapException If the operation failed
+     */
+    E forwardLookup( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
+
+
+    /**
+     * Search for a value using the Reverse table
+     * 
+     * @param partitionTxn The transaction to use
+     * @param element The key to retrieve
+     * @return The found value
+     * @throws LdapException If the operation failed
+     */
+    K reverseLookup( PartitionTxn partitionTxn, E element ) throws LdapException;
+
+
+    /**
+     * Add an entry into the index, associated with the element E. The added
      * value is the key to retrieve the element having the given ID.
      * 
+     * @param partitionTxn The transaction to use
      * @param attrVal The added value
-     * @param id The element ID pointed by the added value
-     * @throws Exception If the addition can't be done
+     * @param entryId The entry ID pointed by the added value
+     * @throws LdapException If the addition can't be done
      */
-    void add( K attrVal, ID id ) throws Exception;
+    void add( PartitionTxn partitionTxn, K attrVal, E entryId ) throws LdapException;
 
 
     /**
      * Remove all the reference to an entry from the index.
-     * <br/>
+     * <br>
      * As an entry might be referenced more than once in the forward index,
      * depending on which index we are dealing with, we need to iterate
      * over all the values contained into the reverse index for this entryId.
-     * <br/>
+     * <br>
      * For instance, considering the ObjectClass index for an entry having
      * three ObjectClasses (top, person, inetOrgPerson), then the reverse
      * index will contain :
@@ -179,56 +215,121 @@ public interface Index<K, ID>
      * iterate through all those values to remove entryId from the associated
      * list of entryIds.
      * 
-     * @param entryId The master table entry ID to remove
-     * @throws Exception
+     * @param partitionTxn The transaction to use
+     * @param entryId The master table entryId to remove
+     * @throws LdapException if we can't drop the element from the index
      */
-    void drop( ID entryId ) throws Exception;
+    void drop( PartitionTxn partitionTxn, E entryId ) throws LdapException;
 
 
     /**
-     * Remove the pair <K,ID> from the index for the given value and id.
+     * Remove the pair &lt;K,ID&gt; from the index for the given value and id.
      * 
+     * @param partitionTxn The transaction to use
      * @param attrVal The value we want to remove from the index
-     * @param id The associated ID
-     * @throws Exception If the removal can't be done
+     * @param entryId The associated ID
+     * @throws LdapException If the removal can't be done
      */
-    void drop( K attrVal, ID id ) throws Exception;
+    void drop( PartitionTxn partitionTxn, K attrVal, E entryId ) throws LdapException;
 
 
-    Cursor<IndexEntry<K, ID>> reverseCursor() throws Exception;
+    /**
+     * Builds a Cursor on the Forward index
+     * 
+     * @param partitionTxn The transaction to use
+     * @return The created Cursor
+     * @throws LdapException If the cursor can't be created
+     */
+    Cursor<IndexEntry<K, E>> forwardCursor( PartitionTxn partitionTxn ) throws LdapException;
 
 
-    Cursor<IndexEntry<K, ID>> forwardCursor() throws LdapException;
+    /**
+     * Builds a Cursor on the Forward index, starting at a specific key
+     * 
+     * @param partitionTxn The transaction to use
+     * @param key The key to start from
+     * @return The created Cursor
+     * @throws LdapException If the cursor can't be created
+     */
+    Cursor<IndexEntry<K, E>> forwardCursor( PartitionTxn partitionTxn, K key ) throws LdapException;
 
 
-    Cursor<IndexEntry<K, ID>> reverseCursor( ID id ) throws Exception;
+    /**
+     * Builds a Cursor on the Reverse index, starting at a specific entry Id
+     * 
+     * @param partitionTxn The transaction to use
+     * @param entryId The entry ID to start from
+     * @return The created Cursor
+     * @throws LdapException If the cursor can't be created
+     */
+    Cursor<K> reverseValueCursor( PartitionTxn partitionTxn, E entryId ) throws LdapException;
 
 
-    Cursor<IndexEntry<K, ID>> forwardCursor( K key ) throws Exception;
+    /**
+     * Builds a Cursor on the Forward index, starting at a specific key
+     * 
+     * @param partitionTxn The transaction to use
+     * @param key The key to start from
+     * @return The created Cursor
+     * @throws LdapException If the cursor can't be created
+     */
+    Cursor<E> forwardValueCursor( PartitionTxn partitionTxn, K key ) throws LdapException;
 
 
-    Cursor<K> reverseValueCursor( ID id ) throws Exception;
+    /**
+     * Try to move forward in the index
+     *  
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key we want to start with
+     * @return <tt>true</tt> if we can move forward
+     * @throws LdapException If we had an issue moving forward
+     */
+    boolean forward( PartitionTxn partitionTxn, K attrVal ) throws LdapException;
 
 
-    Cursor<ID> forwardValueCursor( K key ) throws Exception;
+    /**
+     * Try to move forward in the index
+     *  
+     * @param partitionTxn The transaction to use
+     * @param attrVal The key we want to start with
+     * @param entryId The entry ID to start from
+     * @return <tt>true</tt> if we can move forward
+     * @throws LdapException If we had an issue moving forward
+     */
+    boolean forward( PartitionTxn partitionTxn, K attrVal, E entryId ) throws LdapException;
 
 
-    boolean forward( K attrVal ) throws Exception;
+    /**
+     * Try to move backward in the index
+     *  
+     * @param partitionTxn The transaction to use
+     * @param entryId The entry we want to start with
+     * @return <tt>true</tt> if we can move backward
+     * @throws LdapException If we had an issue moving backward
+     */
+    boolean reverse( PartitionTxn partitionTxn, E entryId ) throws LdapException;
 
 
-    boolean forward( K attrVal, ID id ) throws LdapException;
+    /**
+     * Try to move backward in the index
+     *  
+     * @param partitionTxn The transaction to use
+     * @param entryId The entry ID to start from
+     * @param attrVal The key we want to start with
+     * @return <tt>true</tt> if we can move backward
+     * @throws LdapException If we had an issue moving backward
+     */
+    boolean reverse( PartitionTxn partitionTxn, E entryId, K attrVal ) throws LdapException;
 
 
-    boolean reverse( ID id ) throws Exception;
-
-
-    boolean reverse( ID id, K attrVal ) throws Exception;
-
-
-    void close() throws Exception;
-
-
-    void sync() throws Exception;
+    /**
+     * Close and index
+     * 
+     * @param partitionTxn The transaction to use
+     * @throws LdapException If we weren't able to close the index
+     * @throws IOException If we had an issue with the index file
+     */
+    void close( PartitionTxn partitionTxn ) throws LdapException, IOException;
 
 
     /**

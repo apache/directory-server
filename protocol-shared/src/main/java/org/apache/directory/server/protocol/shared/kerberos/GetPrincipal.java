@@ -69,6 +69,11 @@ public class GetPrincipal
     /**
      * Note that the base is a relative path from the existing context.
      * It is not a Dn.
+     * 
+     * @param session The Session
+     * @param base The principal's Dn
+     * @return The found entry
+     * @throws Exception If the execution failed
      */
     public Object execute( CoreSession session, Dn base ) throws Exception
     {

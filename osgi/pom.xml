@@ -32,7 +32,7 @@
 
   <properties>
     <apache.directory.version>${project.version}</apache.directory.version>
-    <commons-collections.version>3.2.1</commons-collections.version>
+    <commons-collections.version>4.2</commons-collections.version>
   </properties>
   
   <dependencies>

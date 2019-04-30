@@ -113,25 +113,14 @@ public abstract class AbstractMojoCommand<T extends Target>
         this.target = target;
 
         log = mojo.getLog();
-
-        /*
-        this.initializeFilterProperties();
-
-        Properties properties = mojo.getProject().getProperties();
-
-        for ( Object key : properties.keySet() )
-        {
-            log.info( "Using property [" + key + ", " + properties.getProperty( ( String ) key ) + "]" );
-        }
-        */
     }
 
 
     /**
      * Executes the command.
      *
-     * @throws MojoExecutionException
-     * @throws MojoFailureException
+     * @throws MojoExecutionException If the execution failed
+     * @throws MojoFailureException If the execution failed
      */
     public abstract void execute() throws MojoExecutionException, MojoFailureException;
 
@@ -186,8 +175,8 @@ public abstract class AbstractMojoCommand<T extends Target>
     /**
      * Creates both installation and instance layouts.
      * 
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoFailureException If the InstanceLayout cannot be created
+     * @throws IOException If the InstanceLayout cannot be created
      */
     public void createLayouts() throws MojoFailureException, IOException
     {
@@ -202,8 +191,8 @@ public abstract class AbstractMojoCommand<T extends Target>
      *      <code>true</code> if wrapper dependencies are included,
      *      <code>false</code> if wrapper dependencies are excluded
      *      
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoFailureException If the InstanceLayout cannot be created
+     * @throws IOException If the InstanceLayout cannot be created
      */
     public void createLayouts( boolean includeWrapperDependencies ) throws MojoFailureException, IOException
     {
@@ -218,11 +207,10 @@ public abstract class AbstractMojoCommand<T extends Target>
     /**
      * Creates the installation layout.
      *      
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoFailureException If the InstanceLayout cannot be created
+     * @throws IOException If the InstanceLayout cannot be created
      */
-    protected void createInstallationLayout() throws MojoFailureException,
-        IOException
+    protected void createInstallationLayout() throws MojoFailureException, IOException
     {
         createInstallationLayout( true );
     }
@@ -235,32 +223,14 @@ public abstract class AbstractMojoCommand<T extends Target>
      *      <code>true</code> if wrapper dependencies are included,
      *      <code>false</code> if wrapper dependencies are excluded
      *      
-     * @throws MojoFailureException
-     * @throws IOException
+     * @throws MojoFailureException If the creation failed
+     * @throws IOException If the layout cannot be created
      */
     protected void createInstallationLayout( boolean includeWrapperDependencies ) throws MojoFailureException,
         IOException
     {
         // Getting the installation layout and creating directories
         InstallationLayout installationLayout = getInstallationLayout();
-
-        /*
-        log.info( "Create installation layout directories : " );
-
-        for ( File file : installationLayout.getRequiredDirectories() )
-        {
-            log.info( "    File " + file.getAbsolutePath() );
-        }
-
-        log.info( "Filter properties : " );
-
-        Properties properties = filterProperties;
-
-        for ( Object key : properties.keySet() )
-        {
-            log.info( "    property : [ " + key + ", '" + properties.get( ( String ) key ) + "']" );
-        }
-        */
 
         // Create the installation layout directories
         installationLayout.mkdirs();
@@ -305,30 +275,12 @@ public abstract class AbstractMojoCommand<T extends Target>
     /**
      * Creates the instance layout.
      *
-     * @throws IOException
+     * @throws IOException If the InatsnaceLayout cannot be created
      */
     protected void createInstanceLayout() throws IOException
     {
         // Getting the instance layout and creating directories
         InstanceLayout instanceLayout = getInstanceLayout();
-
-        /*
-        log.info( "Create instance layout directories : " );
-
-        for ( File file : instanceLayout.getRequiredDirectories() )
-        {
-            log.info( "    File " + file.getAbsolutePath() );
-        }
-
-        log.info( "Filter properties : " );
-
-        Properties properties = filterProperties;
-
-        for ( Object key : properties.keySet() )
-        {
-            log.info( "    property : [ " + key + "," + properties.get( ( String ) key ) + "]" );
-        }
-        */
 
         instanceLayout.mkdirs();
 

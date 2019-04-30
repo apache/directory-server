@@ -53,6 +53,9 @@ public abstract class DirectoryBackedService extends AbstractProtocolService
 
 
     /**
+     * Set the DirectoryService
+     * 
+     * @param directoryService The DirectoryService instance
      */
     public void setDirectoryService( DirectoryService directoryService )
     {

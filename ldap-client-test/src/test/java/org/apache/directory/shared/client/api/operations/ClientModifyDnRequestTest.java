@@ -47,7 +47,6 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -138,7 +137,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         assertNotNull( entry );
 
         Rdn oldRdn = oldDn.getRdn();
-        assertTrue( entry.contains( oldRdn.getType(), oldRdn.getAva().getValue().getValue() ) );
+        assertTrue( entry.contains( oldRdn.getType(), oldRdn.getAva().getValue().getString() ) );
     }
 
 
@@ -202,7 +201,6 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     }
 
 
-    @Ignore
     @Test
     public void testMoveAndRenameShouldDeleteOldRdn() throws Exception
     {
@@ -210,23 +208,27 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         connection.moveAndRename( new Dn( DN ), newDn );
 
         assertTrue( session.exists( newDn ) );
-        Entry entry = session.lookup( newDn, "*" );
+        Entry entry = session.lookup( newDn, "*", "+" );
         assertTrue( entry.contains( "cn", "modifiedDn" ) );
         assertFalse( entry.contains( "cn", "modDn" ) );
+        assertTrue( entry.containsAttribute( SchemaConstants.MODIFY_TIMESTAMP_AT ) );
+        assertTrue( entry.containsAttribute( SchemaConstants.MODIFIERS_NAME_AT ) );
     }
 
 
-    @Ignore
     @Test
     public void testMoveAndRenameWithDeleteOldRdnShouldDeleteOldRdn() throws Exception
     {
         Dn newDn = new Dn( "cn=modifiedDn", DN_CONTAINER );
         connection.moveAndRename( new Dn( DN ), newDn, true );
 
-        assertTrue( session.exists( newDn ) );
-        Entry entry = session.lookup( newDn, "*" );
+        assertTrue( connection.exists( newDn ) );
+        assertFalse( connection.exists( DN ) );
+        Entry entry = connection.lookup( newDn, "*", "+" );
         assertTrue( entry.contains( "cn", "modifiedDn" ) );
         assertFalse( entry.contains( "cn", "modDn" ) );
+        assertTrue( entry.containsAttribute( SchemaConstants.MODIFIERS_NAME_AT ) );
+        assertTrue( entry.containsAttribute( SchemaConstants.MODIFY_TIMESTAMP_AT ) );
     }
 
 

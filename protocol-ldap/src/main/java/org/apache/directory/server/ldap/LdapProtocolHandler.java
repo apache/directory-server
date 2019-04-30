@@ -20,14 +20,11 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
-import org.apache.directory.api.ldap.codec.api.MessageDecorator;
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.exception.ResponseCarryingMessageException;
 import org.apache.directory.api.ldap.model.message.Control;
-import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.Message;
 import org.apache.directory.api.ldap.model.message.Request;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
@@ -36,7 +33,8 @@ import org.apache.directory.api.ldap.model.message.ResultResponseRequest;
 import org.apache.directory.api.ldap.model.message.extended.NoticeOfDisconnect;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.ssl.SslFilter;
+import org.apache.mina.filter.FilterEvent;
+import org.apache.mina.filter.ssl.SslEvent;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +75,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
      * 
      * @param session the newly created session
      */
+    @Override
     public void sessionCreated( IoSession session ) throws Exception
     {
         // First, create a new LdapSession and store it i the manager
@@ -87,8 +86,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
         session.setAttribute( LdapDecoder.MAX_PDU_SIZE_ATTR, ldapServer.getDirectoryService().getMaxPDUSize() );
 
         // Last, store the message container
-        LdapMessageContainer<? extends MessageDecorator<Message>> ldapMessageContainer =
-            new LdapMessageContainer<MessageDecorator<Message>>(
+        LdapMessageContainer<Message> ldapMessageContainer =
+            new LdapMessageContainer<>(
                 ldapServer.getDirectoryService().getLdapCodecService(),
                 new SchemaBinaryAttributeDetector(
                     ldapServer.getDirectoryService().getSchemaManager() ) );
@@ -103,6 +102,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
      * 
      * @param session the closing session
      */
+    @Override
     public void sessionClosed( IoSession session )
     {
         // Get the associated LdapSession
@@ -136,7 +136,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
         {
             try
             {
-                ldapSession.getIoSession().close( true );
+                ldapSession.getIoSession().closeNow();
             }
             catch ( Throwable t )
             {
@@ -149,6 +149,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageSent( IoSession session, Object message ) throws Exception
     {
         // Do nothing : we have to ignore this message, otherwise we get an exception,
@@ -162,10 +163,33 @@ class LdapProtocolHandler extends DemuxingIoHandler
         super.messageSent( session, message );
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void event( IoSession session, FilterEvent event ) throws Exception 
+    {
+        if ( event instanceof SslEvent )
+        {
+            if ( ( ( SslEvent ) event ) == SslEvent.SECURED ) 
+            {
+                LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
+                LOG.debug( "Session {} secured", ldapSession ); 
+            }
+            else
+            {
+                LdapSession ldapSession = ldapServer.getLdapSessionManager().getLdapSession( session );
+                LOG.debug( "Session {} not secured", ldapSession ); 
+            }
+        }
+    }
+
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageReceived( IoSession session, Object message ) throws Exception
     {
         // Translate SSLFilter messages into LDAP extended request
@@ -178,22 +202,6 @@ class LdapProtocolHandler extends DemuxingIoHandler
         // handler should react to only SESSION_UNSECURED message
         // and degrade authentication level to 'anonymous' as specified
         // in the RFC, and this is no threat.
-
-        if ( message == SslFilter.SESSION_SECURED )
-        {
-            ExtendedRequest req =
-                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
-                    "SECURED".getBytes( "ISO-8859-1" ) );
-            message = req;
-        }
-        else if ( message == SslFilter.SESSION_UNSECURED )
-        {
-            ExtendedRequest req =
-                LdapApiServiceFactory.getSingleton().newExtendedRequest( "1.3.6.1.4.1.1466.20037",
-                    "SECURED".getBytes( "ISO-8859-1" ) );
-            message = req;
-        }
-
         if ( ( ( Request ) message ).getControls().size() > 0
             && message instanceof ResultResponseRequest )
         {
@@ -220,6 +228,7 @@ class LdapProtocolHandler extends DemuxingIoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         if ( cause.getCause() instanceof ResponseCarryingMessageException )
@@ -236,8 +245,8 @@ class LdapProtocolHandler extends DemuxingIoHandler
         LOG.warn( "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
 
         session.write( NoticeOfDisconnect.PROTOCOLERROR );
-        LdapSession ldapSession = this.ldapServer.getLdapSessionManager().removeLdapSession( session );
-        cleanUpSession( ldapSession );
-        session.close( true );
+        session.closeOnFlush();
+        //LdapSession ldapSession = this.ldapServer.getLdapSessionManager().removeLdapSession( session );
+        //cleanUpSession( ldapSession );
     }
 }

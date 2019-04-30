@@ -47,7 +47,7 @@ public class MapAdapter implements Map<Object, Object>
     /**
      * Creates a new instance of MapAdapter.
      *
-     * @param dictionary
+     * @param dictionary The dictionary to store
      */
     public MapAdapter( Dictionary<Object, Object> dictionary )
     {
@@ -60,7 +60,7 @@ public class MapAdapter implements Map<Object, Object>
      */
     public void clear()
     {
-        dictionary = new Hashtable<Object, Object>();
+        dictionary = new Hashtable<>();
     }
 
 
@@ -87,7 +87,7 @@ public class MapAdapter implements Map<Object, Object>
      */
     public Set<Map.Entry<Object, Object>> entrySet()
     {
-        Map<Object, Object> map = new HashMap<Object, Object>();
+        Map<Object, Object> map = new HashMap<>();
 
         Enumeration<Object> e = dictionary.keys();
 
@@ -125,7 +125,7 @@ public class MapAdapter implements Map<Object, Object>
      */
     public Set<Object> keySet()
     {
-        return new HashSet<Object>( Collections.list( dictionary.keys() ) );
+        return new HashSet<>( Collections.list( dictionary.keys() ) );
     }
 
 

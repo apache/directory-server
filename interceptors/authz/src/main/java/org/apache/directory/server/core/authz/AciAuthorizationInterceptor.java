@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.authz;
 
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +45,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
@@ -73,7 +75,9 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.api.subtree.SubentryUtils;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.authz.support.AciContext;
@@ -192,27 +196,37 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         CoreSession adminSession = directoryService.getAdminSession();
 
-        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
-            controls );
+        SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter, controls );
 
         searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
-
-        EntryFilteringCursor results = nexus.search( searchOperationContext );
-
-        try
+        Partition partition = nexus.getPartition( Dn.ROOT_DSE );
+        searchOperationContext.setPartition( partition );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            while ( results.next() )
+            searchOperationContext.setTransaction( partitionTxn );
+
+            EntryFilteringCursor results = nexus.search( searchOperationContext );
+    
+            try
             {
-                Entry entry = results.get();
-
-                tupleCache.subentryAdded( entry.getDn(), entry );
+                while ( results.next() )
+                {
+                    Entry entry = results.get();
+    
+                    tupleCache.subentryAdded( entry.getDn(), entry );
+                }
+    
+                results.close();
             }
-
-            results.close();
+            catch ( Exception e )
+            {
+                throw new LdapOperationException( e.getMessage(), e );
+            }
         }
-        catch ( Exception e )
+        catch ( IOException ioe )
         {
-            throw new LdapOperationException( e.getMessage(), e );
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
     }
 
@@ -235,7 +249,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
                 new EqualityNode<String>( ocAt, new Value( ocAt, SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC ) ) );
 
         CoreSession adminSession = directoryService.getAdminSession();
-
+        
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, Dn.ROOT_DSE, filter,
             controls );
 
@@ -266,7 +280,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
      * the tuple and group membership caches, the ACIItem parser and the ACDF engine.
      *
      * @param directoryService the directory service core
-     * @throws Exception if there are problems during initialization
+     * @throws LdapException if there are problems during initialization
      */
     @Override
     public void init( DirectoryService directoryService ) throws LdapException
@@ -290,7 +304,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // stuff for dealing with subentries (garbage for now)
         Value subschemaSubentry = directoryService.getPartitionNexus().getRootDseValue(
             directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
 
         // Init the caches now
         initTupleCache();
@@ -366,6 +380,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             CoreSession session = opContext.getSession();
             LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn,
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( opContext.getPartition() );
+            lookupContext.setTransaction( opContext.getTransaction() );
 
             originalEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         }
@@ -379,7 +395,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value value : subentries )
         {
-            String subentryDnStr = value.getValue();
+            String subentryDnStr = value.getString();
             Dn subentryDn = dnFactory.create( subentryDnStr );
             tuples.addAll( tupleCache.getACITuples( subentryDn.getNormName() ) );
         }
@@ -405,7 +421,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value value : entryAci )
         {
-            String aciString = value.getValue();
+            String aciString = value.getString();
             ACIItem item;
 
             try
@@ -450,6 +466,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         CoreSession session = opContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn,
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( opContext.getPartition() );
+        lookupContext.setTransaction( opContext.getTransaction() );
 
         Entry administrativeEntry = ( ( ClonedServerEntry ) directoryService.getPartitionNexus().lookup( lookupContext ) )
             .getOriginalEntry();
@@ -463,7 +481,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value value : subentryAci )
         {
-            String aciString = value.getValue();
+            String aciString = value.getString();
             ACIItem item;
 
             try
@@ -745,6 +763,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         LookupOperationContext lookupContext = new LookupOperationContext( session, dn,
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( hasEntryContext.getPartition() );
+        lookupContext.setTransaction( hasEntryContext.getTransaction() );
+
         Entry entry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         Set<String> userGroups = groupCache.getGroups( principalDn.getNormName() );
@@ -1013,6 +1034,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         // but after this service.
         LookupOperationContext lookupContext = new LookupOperationContext( session, oriChildName,
             SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( moveContext.getPartition() );
+        lookupContext.setTransaction( moveContext.getTransaction() );
+
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // As the target entry does not exist yet and so
@@ -1110,6 +1134,9 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         LookupOperationContext lookupContext = new LookupOperationContext( session, oldDn,
             SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( moveAndRenameContext.getPartition() );
+        lookupContext.setTransaction( moveAndRenameContext.getTransaction() );
+
         Entry importedEntry = directoryService.getPartitionNexus().lookup( lookupContext );
 
         // As the target entry does not exist yet and so
@@ -1154,7 +1181,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         Dn oldName = renameContext.getDn();
-        Entry originalEntry = null;
+        Entry originalEntry = renameContext.getOriginalEntry();
 
         if ( renameContext.getEntry() != null )
         {
@@ -1310,7 +1337,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
-    public void cacheNewGroup( String name, Entry entry ) throws Exception
+    public void cacheNewGroup( String name, Entry entry ) throws LdapException
     {
         groupCache.groupAdded( name, entry );
     }

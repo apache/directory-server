@@ -166,12 +166,12 @@ public class SchemaSubentryManager
     /**
      * Find the next interceptor in an operation's list of interceptors, assuming that
      * we are already processing an operation, and we have stopped in a specific
-     * interceptor.<br/>
-     * For instance, if the list of all the interceptors is : <br/>
-     * [A, B, C, D, E, F]<br/>
-     * and we ave two operations op1 and op2 with the following interceptors list : <br/>
-     * op1 -> [A, D, F]<br/>
-     * op2 -> [B, C, E]<br/>
+     * interceptor.<br>
+     * For instance, if the list of all the interceptors is : <br>
+     * [A, B, C, D, E, F]<br>
+     * and we ave two operations op1 and op2 with the following interceptors list : <br>
+     * op1 -> [A, D, F]<br>
+     * op2 -> [B, C, E]<br>
      * then assuming that we have stopped at D, then op1.next -> F and op2.next -> E.
      */
     private Interceptor findNextInterceptor( OperationEnum operation, DirectoryService directoryService )
@@ -238,6 +238,10 @@ public class SchemaSubentryManager
 
     /**
      * Update the SubschemaSubentry with all the modifications
+     * 
+     * @param modifyContext The Modification context
+     * @param doCascadeModify If we should recursively apply the modification
+     * @throws LdapException If the schema modification failed
      */
     public void modifySchemaSubentry( ModifyOperationContext modifyContext, boolean doCascadeModify )
         throws LdapException

@@ -189,7 +189,7 @@ public enum RecordType implements EnumConverter<Short>
     /** Request for all records */
     ANY(255);
 
-    private static ReverseEnumMap<Short, RecordType> map = new ReverseEnumMap<Short, RecordType>( RecordType.class );
+    private static ReverseEnumMap<Short, RecordType> map = new ReverseEnumMap<>( RecordType.class );
 
     private final short value;
 

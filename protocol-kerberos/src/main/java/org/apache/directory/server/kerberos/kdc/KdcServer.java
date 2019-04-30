@@ -22,8 +22,6 @@ package org.apache.directory.server.kerberos.kdc;
 
 import java.io.IOException;
 
-import net.sf.ehcache.Cache;
-
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.kerberos.KerberosConfig;
@@ -111,8 +109,7 @@ public class KdcServer extends DirectoryBackedService
 
         LOG.debug( "initializing the kerberos replay cache" );
 
-        Cache cache = getDirectoryService().getCacheService().getCache( "kdcReplayCache" );
-        replayCache = new ReplayCacheImpl( cache, config.getAllowableClockSkew() );
+        replayCache = new ReplayCacheImpl( config.getAllowableClockSkew() );
 
         // Kerberos can use UDP or TCP
         for ( Transport transport : transports )

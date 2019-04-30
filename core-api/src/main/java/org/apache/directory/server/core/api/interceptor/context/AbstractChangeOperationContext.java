@@ -63,7 +63,7 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
      * 
      * Creates a new instance of AbstractChangeOperationContext.
      *
-     * @param session
+     * @param session The session to use
      */
     public AbstractChangeOperationContext( CoreSession session )
     {
@@ -75,7 +75,8 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
      * 
      * Creates a new instance of AbstractChangeOperationContext.
      *
-     * @param session
+     * @param session The session to use
+     * @param dn The Dn for the entry on which the change is applied
      */
     public AbstractChangeOperationContext( CoreSession session, Dn dn )
     {
@@ -166,7 +167,8 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
 
     /**
      * sets the replica ID received from a consumer
-     * @param rid 
+     * 
+     * @param rid The replica ID 
      */
     public void setRid( int rid )
     {
@@ -187,8 +189,8 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /**
      * sets whether or not to generate replication event messages by after an operation
      * using this operation context completes
-     * 
-     * @param generateNoReplEvt
+     *  
+     * @param generateNoReplEvt <tt>true</tt> if replication events are to be generated 
      */
     public void setGenerateNoReplEvt( boolean generateNoReplEvt )
     {
@@ -208,10 +210,10 @@ public abstract class AbstractChangeOperationContext extends AbstractOperationCo
     /**
      * sets if this context needs to be pushed to the event interceptor from nexus
      * 
-     * @param pushToEvtInterceptor
+     * @param pushToEvtIntercptor <tt>true</tt> if the context needs to be pushed to the event Interceptor
      */
-    public void setPushToEvtInterceptor( boolean pushToEvtIntrcptor )
+    public void setPushToEvtInterceptor( boolean pushToEvtIntercptor )
     {
-        this.pushToEvtInterceptor = pushToEvtIntrcptor;
+        this.pushToEvtInterceptor = pushToEvtIntercptor;
     }
 }

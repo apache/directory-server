@@ -49,6 +49,7 @@ public class ChangePasswordServerBean extends DSBasedServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "ChangePasswordServer";

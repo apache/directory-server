@@ -209,7 +209,7 @@ public class EncryptionKey implements Asn1Object
             return true;
         }
 
-        if ( ( o == null ) || !( o instanceof EncryptionKey ) )
+        if ( !( o instanceof EncryptionKey ) )
         {
             return false;
         }
@@ -226,13 +226,13 @@ public class EncryptionKey implements Asn1Object
      * 
      * 0x30 L1 EncryptionKey
      *  |
-     *  +--> 0xA0 L2 keyType tag
+     *  +--&gt; 0xA0 L2 keyType tag
      *  |     |
-     *  |     +--> 0x02 L2-1 keyType (int)
+     *  |     +--&gt; 0x02 L2-1 keyType (int)
      *  |
-     *  +--> 0xA1 L3 keyValue tag
+     *  +--&gt; 0xA1 L3 keyValue tag
      *        |
-     *        +--> 0x04 L3-1 keyValue (OCTET STRING)
+     *        +--&gt; 0x04 L3-1 keyValue (OCTET STRING)
      *        
      *  where L1 = L2 + lenght(0xA0) + length(L2) +
      *             L3 + lenght(0xA1) + length(L3) 
@@ -260,10 +260,7 @@ public class EncryptionKey implements Asn1Object
         encryptionKeyLength += 1 + TLV.getNbBytes( keyValueLength ) + keyValueLength;
 
         // Compute the whole sequence length
-        int encryptionKeySeqLength = 1 + BerValue.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
-
-        return encryptionKeySeqLength;
-
+        return 1 + BerValue.getNbBytes( encryptionKeyLength ) + encryptionKeyLength;
     }
 
 
@@ -315,7 +312,7 @@ public class EncryptionKey implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "EncryptionKey encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "EncryptionKey initial value : {}", toString() );
+            log.debug( "EncryptionKey initial value : {}", this );
         }
 
         return buffer;

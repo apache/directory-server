@@ -74,32 +74,23 @@ public abstract class AbstractReadAuthorizationData<E extends Asn1Container> ext
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the AuthorizationData
-        Asn1Decoder authorizationDataDecoder = new Asn1Decoder();
-
         AuthorizationDataContainer authorizationDataContainer = new AuthorizationDataContainer();
 
         // Decode the AuthorizationData PDU
-        try
-        {
-            authorizationDataDecoder.decode( container.getStream(), authorizationDataContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( container.getStream(), authorizationDataContainer );
 
         AuthorizationData authorizationData = authorizationDataContainer.getAuthorizationData();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "AuthorizationData : " + authorizationData );
+            LOG.debug( "AuthorizationData : {}", authorizationData );
         }
 
         setAuthorizationData( authorizationData, container );

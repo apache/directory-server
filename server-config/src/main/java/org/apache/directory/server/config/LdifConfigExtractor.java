@@ -74,6 +74,7 @@ public final class LdifConfigExtractor
     /**
      * Extracts the LDIF files from a Jar file or copies exploded LDIF resources.
      *
+     * @param outputDirectory The directory where to extract the configuration
      * @param overwrite over write extracted structure if true, false otherwise
      * @throws IOException if schema already extracted and on IO errors
      */
@@ -84,7 +85,7 @@ public final class LdifConfigExtractor
             LOG.debug( "creating non existing output directory {}", outputDirectory.getAbsolutePath() );
             if ( !outputDirectory.mkdir() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, outputDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, outputDirectory ) );
             }
         }
 
@@ -95,7 +96,7 @@ public final class LdifConfigExtractor
             LOG.debug( "creating non existing config directory {}", configDirectory.getAbsolutePath() );
             if ( !configDirectory.mkdir() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, configDirectory ) );
             }
         }
         else if ( !overwrite )
@@ -134,12 +135,9 @@ public final class LdifConfigExtractor
     {
         LOG.debug( "copyFile(): source = {}, destination = {}", source, destination );
 
-        if ( !destination.getParentFile().exists() )
+        if ( !destination.getParentFile().exists() && !destination.getParentFile().mkdirs() )
         {
-            if ( !destination.getParentFile().mkdirs() )
-            {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, destination.getParentFile() ) );
-            }
+            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, destination.getParentFile() ) );
         }
 
         if ( !source.getParentFile().exists() )
@@ -147,17 +145,20 @@ public final class LdifConfigExtractor
             throw new FileNotFoundException( I18n.err( I18n.ERR_509, source.getAbsolutePath() ) );
         }
 
-        FileWriter out = new FileWriter( destination );
-        BufferedReader in = new BufferedReader( new FileReader( source ) );
-        String line;
-        while ( null != ( line = in.readLine() ) )
+        try ( FileWriter out = new FileWriter( destination ) )
         {
-            out.write( line + "\n" );
+            try ( BufferedReader in = new BufferedReader( new FileReader( source ) ) )
+            {
+                String line;
+                
+                while ( null != ( line = in.readLine() ) )
+                {
+                    out.write( line + "\n" );
+                }
+            }
+        
+            out.flush();
         }
-
-        in.close();
-        out.flush();
-        out.close();
     }
 
 
@@ -184,13 +185,10 @@ public final class LdifConfigExtractor
                 return;
             }
 
-            if ( !destination.getParentFile().exists() )
+            if ( !destination.getParentFile().exists() && !destination.getParentFile().mkdirs() )
             {
-                if ( !destination.getParentFile().mkdirs() )
-                {
-                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
-                        destination.getParentFile() ) );
-                }
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+                    destination.getParentFile() ) );
             }
 
             try ( OutputStream out = Files.newOutputStream( destination.toPath() ) )
@@ -215,7 +213,7 @@ public final class LdifConfigExtractor
     private static File getDestinationFile( File outputDirectory, File resource )
     {
         File parent = resource.getParentFile();
-        Stack<String> fileComponentStack = new Stack<String>();
+        Stack<String> fileComponentStack = new Stack<>();
         fileComponentStack.push( resource.getName() );
 
         while ( parent != null )
@@ -268,6 +266,7 @@ public final class LdifConfigExtractor
      * extracts or overwrites the configuration LDIF file and returns the absolute path of this file
      *
      * @param configDir the directory where the config file should be extracted to
+     * @param file The file containing the configuration
      * @param overwrite flag to indicate to overwrite the config file if already present in the given config directory
      * @return complete path of the config file on disk
      */
@@ -286,7 +285,7 @@ public final class LdifConfigExtractor
             if ( !configDir.mkdir() )
             {
                 throw new RuntimeException(
-                    new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, configDir ) ) );
+                    new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, configDir ) ) );
             }
         }
         else

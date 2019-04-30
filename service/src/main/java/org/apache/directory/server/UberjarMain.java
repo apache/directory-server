@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +55,8 @@ public class UberjarMain
      * Takes a single argument, the path to the installation home, which
      * contains the configuration to load with server startup settings.
      *
-     * @param args
-     *            the arguments
+     * @param args the arguments
+     * @throws Exception If the startup failed
      */
     public static void main( String[] args ) throws Exception
     {
@@ -118,17 +119,15 @@ public class UberjarMain
     
     private static int readShutdownPort( InstanceLayout layout ) throws IOException 
     {
-        return Integer.parseInt( new String( Files.readAllBytes( 
-                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.port" ) ),
-                Charset.forName( "utf-8" ) ) );
+        return Integer.parseInt( Strings.asciiBytesToString( 
+                Files.readAllBytes( Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.port" ) ) ) );
     }
     
 
     private static String readShutdownPassword( InstanceLayout layout ) throws IOException 
     {
-        return new String( Files.readAllBytes( 
-                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.pwd" ) ),
-                Charset.forName( "utf-8" ) );
+        return Strings.asciiBytesToString(  Files.readAllBytes( 
+                Paths.get( layout.getRunDirectory().getAbsolutePath(), ".shutdown.pwd" ) ) );
     }
 
     

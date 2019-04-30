@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A name normalization service.  This service makes sure all relative and distinguished
  * names are normalized before calls are made against the respective interface methods
- * on {@link DefaultPartitionNexus}.
+ * on DefaultPartitionNexus.
  *
  * The Filters are also normalized.
  *
@@ -577,7 +577,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         for ( Ava ava : rdn )
         {
             Value value = ava.getValue();
-            String upValue = ava.getValue().getValue();
+            String upValue = ava.getValue().getString();
             String upId = ava.getType();
 
             // Check that the entry contains this Ava

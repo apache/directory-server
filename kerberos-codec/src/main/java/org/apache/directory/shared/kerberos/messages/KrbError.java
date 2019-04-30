@@ -342,59 +342,59 @@ public class KrbError extends KerberosMessage
      * 
      * 0x7E L1 KRB-ERROR APPLICATION[30]
      *  |
-     *  +--> 0x30 L2 KRB-ERROR sequence
+     *  +--&gt; 0x30 L2 KRB-ERROR sequence
      *        |
-     *        +--> 0xA0 0x03 pvno tag
+     *        +--&gt; 0xA0 0x03 pvno tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x05 pvno (5)
+     *        |     +--&gt; 0x02 0x01 0x05 pvno (5)
      *        |
-     *        +--> 0xA1 0x03 msg-type tag
+     *        +--&gt; 0xA1 0x03 msg-type tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x1E msg-type (30)
+     *        |     +--&gt; 0x02 0x01 0x1E msg-type (30)
      *        |     
-     *        +--> 0xA2 0x11 ctime tag
+     *        +--&gt; 0xA2 0x11 ctime tag
      *        |     |
-     *        |     +--> 0x18 0x0F ttt ctime (KerberosTime)
+     *        |     +--&gt; 0x18 0x0F ttt ctime (KerberosTime)
      *        |     
-     *        +--> 0xA3 L3 cusec tag
+     *        +--&gt; 0xA3 L3 cusec tag
      *        |     |
-     *        |     +--> 0x02 L3-1 cusec
+     *        |     +--&gt; 0x02 L3-1 cusec
      *        |     
-     *        +--> 0xA4 0x11 stime tag
+     *        +--&gt; 0xA4 0x11 stime tag
      *        |     |
-     *        |     +--> 0x18 0x0F ttt stime (KerberosTime)
+     *        |     +--&gt; 0x18 0x0F ttt stime (KerberosTime)
      *        |     
-     *        +--> 0xA5 L4 susec tag
+     *        +--&gt; 0xA5 L4 susec tag
      *        |     |
-     *        |     +--> 0x02 L4-1 susec (KerberosTime)
+     *        |     +--&gt; 0x02 L4-1 susec (KerberosTime)
      *        |     
-     *        +--> 0xA6 L5 error-code tag
+     *        +--&gt; 0xA6 L5 error-code tag
      *        |     |
-     *        |     +--> 0x02 L5-1 nnn error-code
+     *        |     +--&gt; 0x02 L5-1 nnn error-code
      *        |     
-     *        +--> 0xA7 L6 crealm tag
+     *        +--&gt; 0xA7 L6 crealm tag
      *        |     |
-     *        |     +--> 0x1B L6-1 crealm (KerberosString)
+     *        |     +--&gt; 0x1B L6-1 crealm (KerberosString)
      *        |     
-     *        +--> 0xA8 L7 cname tag
+     *        +--&gt; 0xA8 L7 cname tag
      *        |     |
-     *        |     +--> 0x30 L7-1 cname (PrincipalName)
+     *        |     +--&gt; 0x30 L7-1 cname (PrincipalName)
      *        |
-     *        +--> 0xA9 L8 realm tag
+     *        +--&gt; 0xA9 L8 realm tag
      *        |     |
-     *        |     +--> 0x1B L8-1 realm (KerberosString)
+     *        |     +--&gt; 0x1B L8-1 realm (KerberosString)
      *        |     
-     *        +--> 0xAA L9 sname tag
+     *        +--&gt; 0xAA L9 sname tag
      *        |     |
-     *        |     +--> 0x30 L9-1 sname (PrincipalName)
+     *        |     +--&gt; 0x30 L9-1 sname (PrincipalName)
      *        |     
-     *        +--> 0xAB L10 e-text tag
+     *        +--&gt; 0xAB L10 e-text tag
      *        |     |
-     *        |     +--> 0x1B L10-1 e-text (KerberosString)
+     *        |     +--&gt; 0x1B L10-1 e-text (KerberosString)
      *        |
-     *        +--> 0xAC L11 e-data
+     *        +--&gt; 0xAC L11 e-data
      *              |
-     *              +--> 0x04 L11-1 e-data (Octet String)
+     *              +--&gt; 0x04 L11-1 e-data (Octet String)
      * </pre>       
      */
     public int computeLength()
@@ -648,7 +648,7 @@ public class KrbError extends KerberosMessage
         if ( IS_DEBUG )
         {
             log.debug( "KrbError encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbError initial value : {}", toString() );
+            log.debug( "KrbError initial value : {}", this );
         }
 
         return buffer;

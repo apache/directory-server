@@ -90,9 +90,9 @@ public class LdifFileLoader
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param coreSession
-     * @param ldif
-     * @param filters
+     * @param coreSession The CoreSession instance
+     * @param ldif The ldif file to load
+     * @param filters The search filter to use
      */
     public LdifFileLoader( CoreSession coreSession, File ldif, List<? extends LdifLoadFilter> filters )
     {
@@ -103,10 +103,10 @@ public class LdifFileLoader
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param coreSession
-     * @param ldif
-     * @param filters
-     * @param loader
+     * @param coreSession The CoreSession instance
+     * @param ldif The ldif file to load
+     * @param filters The search filter to use
+     * @param loader The LdifLoader to use
      */
     public LdifFileLoader( CoreSession coreSession, File ldif, List<? extends LdifLoadFilter> filters,
         ClassLoader loader )
@@ -129,7 +129,7 @@ public class LdifFileLoader
     /**
      * Applies filters making sure failures in one filter do not effect another.
      *
-     * @param dn    the Dn of the entry
+     * @param dn the Dn of the entry
      * @param entry the attributes of the entry
      * @return true if all filters passed the entry, false otherwise
      */
@@ -171,77 +171,56 @@ public class LdifFileLoader
      */
     public int execute()
     {
-        InputStream in = null;
-
-        try
+        try ( InputStream in = getLdifStream() )
         {
-            in = getLdifStream();
+            for ( LdifEntry ldifEntry : new LdifReader( in ) )
+            {
+                Dn dn = ldifEntry.getDn();
 
-            try
-            {
-                for ( LdifEntry ldifEntry : new LdifReader( in ) )
+                if ( ldifEntry.isEntry() )
                 {
-                    Dn dn = ldifEntry.getDn();
-    
-                    if ( ldifEntry.isEntry() )
+                    Entry entry = ldifEntry.getEntry();
+                    boolean filterAccepted = applyFilters( dn, entry );
+
+                    if ( !filterAccepted )
                     {
-                        Entry entry = ldifEntry.getEntry();
-                        boolean filterAccepted = applyFilters( dn, entry );
-    
-                        if ( !filterAccepted )
-                        {
-                            continue;
-                        }
-    
-                        try
-                        {
-                            coreSession.lookup( dn );
-                            LOG.info( "Found {}, will not create.", dn );
-                        }
-                        catch ( Exception e )
-                        {
-                            try
-                            {
-                                coreSession.add(
-                                    new DefaultEntry(
-                                        coreSession.getDirectoryService().getSchemaManager(), entry ) );
-                                count++;
-                                LOG.info( "Created {}.", dn );
-                            }
-                            catch ( LdapException e1 )
-                            {
-                                LOG.info( "Could not create entry " + entry, e1 );
-                            }
-                        }
+                        continue;
                     }
-                    else
-                    {
-                        //modify
-                        List<Modification> items = ldifEntry.getModifications();
-    
-                        try
-                        {
-                            coreSession.modify( dn, items );
-                            LOG.info( "Modified: " + dn + " with modificationItems: " + items );
-                        }
-                        catch ( LdapException e )
-                        {
-                            LOG.info( "Could not modify: " + dn + " with modificationItems: " + items, e );
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                if ( in != null )
-                {
+
                     try
                     {
-                        in.close();
+                        coreSession.lookup( dn );
+                        LOG.info( "Found {}, will not create.", dn );
                     }
                     catch ( Exception e )
                     {
-                        LOG.error( I18n.err( I18n.ERR_175 ), e );
+                        try
+                        {
+                            coreSession.add(
+                                new DefaultEntry(
+                                    coreSession.getDirectoryService().getSchemaManager(), entry ) );
+                            count++;
+                            LOG.info( "Created {}.", dn );
+                        }
+                        catch ( LdapException e1 )
+                        {
+                            LOG.info( "Could not create entry " + entry, e1 );
+                        }
+                    }
+                }
+                else
+                {
+                    //modify
+                    List<Modification> items = ldifEntry.getModifications();
+
+                    try
+                    {
+                        coreSession.modify( dn, items );
+                        LOG.info( "Modified: {} with modificationItems: {}", dn, items );
+                    }
+                    catch ( LdapException e )
+                    {
+                        LOG.info( "Could not modify: {} with modificationItems: {}", dn, items, e );
                     }
                 }
             }
@@ -265,7 +244,7 @@ public class LdifFileLoader
      * @return the input stream to the ldif file.
      * @throws FileNotFoundException if the file cannot be found.
      */
-    private InputStream getLdifStream() throws FileNotFoundException, IOException
+    private InputStream getLdifStream() throws IOException
     {
         if ( ldif.exists() )
         {

@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 
-import net.sf.ehcache.Cache;
-
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
@@ -41,6 +39,9 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+
+import com.github.benmanes.caffeine.cache.Cache;
 
 
 /**
@@ -114,7 +115,7 @@ public interface Store
     /**
      * Sets the partition path (working directory) for the store.
      * 
-     * @param partitionDir the new partition path
+     * @param partitionPath the new partition path
      */
     void setPartitionPath( URI partitionPath );
 
@@ -196,8 +197,12 @@ public interface Store
 
     /**
      * Retrieve the SuffixID
+     * 
+     * @param partitionTxn The transaction to use
+     * @return The suddix ID
+     * @throws LdapException If we can't get the suffix ID
      */
-    String getSuffixId() throws Exception;
+    String getSuffixId( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
@@ -219,35 +224,37 @@ public interface Store
 
 
     /**
-     * An iterator build on top of the User's index
+     * @return An iterator build on top of the User's index
      */
     Iterator<String> getUserIndices();
 
 
     /**
-     * An iterator build on top of the System's index
+     * @return An iterator build on top of the System's index
      */
     Iterator<String> getSystemIndices();
 
 
     /**
      * Tells if an index is already present in the User's <strong>or</strong> System's index list
-     * @param id The index we are looking for
+     * 
+     * @param attributeType The attributeType we are looking for
      * @return <code>true</code> if the index is already present in the
      * User's <strong>or</strong> System's index list
-     * @throws Exception If something went wrong
+     * @throws LdapException If something went wrong
      */
-    boolean hasIndexOn( AttributeType attributeType ) throws Exception;
+    boolean hasIndexOn( AttributeType attributeType ) throws LdapException;
 
 
     /**
      * Tells if an index is already present in the User's index list
+     * 
      * @param attributeType The attributeType index we are looking for
      * @return <code>true</code> if the index is already present in the
      * User's index list
-     * @throws Exception If something went wrong
+     * @throws LdapException If something went wrong
      */
-    boolean hasUserIndexOn( AttributeType attributeType ) throws Exception;
+    boolean hasUserIndexOn( AttributeType attributeType ) throws LdapException;
 
 
     /**
@@ -255,7 +262,7 @@ public interface Store
      * @param attributeType The index we are looking for
      * @return <code>true</code> if the index is already present in the
      * System's index list
-     * @throws Exception If something went wrong
+     * @throws LdapException If something went wrong
      */
     boolean hasSystemIndexOn( AttributeType attributeType ) throws LdapException;
 
@@ -291,91 +298,103 @@ public interface Store
     /**
      * Gets the entry's id. Returns <code>null</code> if the Dn doesn't exist in this store.
      * Note that the Dn must be normalized!
+     * 
+     * @param partitionTxn The transaction to use
      * @param dn the normalized entry Dn
      * @return the entry's id, or <code>null</code> if the Dn doesn't exists
+     * @throws LdapException If we can't get the entry ID
      */
-    String getEntryId( Dn dn ) throws Exception;
+    String getEntryId( PartitionTxn partitionTxn, Dn dn ) throws LdapException;
 
 
     /**
      * Gets the Entry's Dn identified by the given id.
      * 
+     * @param partitionTxn The transaction to use
      * @param id the entry's id
      * @return the entry's Dn
+     * @throws LdapException If we can't get the entry Dn
      */
-    Dn getEntryDn( String id ) throws Exception;
+    Dn getEntryDn( PartitionTxn partitionTxn, String id ) throws LdapException;
 
 
     /**
      * Gets the UUID of an entry's parent using the child entry's UUID.
      * Note that the suffix entry returns 0, which does not map to any entry.
      *
+     * @param partitionTxn The transaction to use
      * @param childId the UUID of the entry
      * @return the id of the parent entry or zero if the suffix entry UUID is used
-     * @throws Exception on failures to access the underlying store
+     * @throws LdapException on failures to access the underlying store
      */
-    String getParentId( String childId ) throws Exception;
+    String getParentId( PartitionTxn partitionTxn, String childId ) throws LdapException;
 
 
     /**
      * Gets the total count of entries within this store.
      *
+     * @param partitionTxn The transaction to use
      * @return the total count of entries within this store
-     * @throws Exception on failures to access the underlying store
+     * @throws LdapException on failures to access the underlying store
      */
-    long count() throws Exception;
+    long count( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
      * Delete an entry from the store
      *
+     * @param partitionTxn The transaction to use
      * @param id The Entry UUID we want to delete
      * @return the deleted entry if found
-     * @throws Exception If the deletion failed for any reason
+     * @throws LdapException If the deletion failed for any reason
      */
-    Entry delete( String id ) throws LdapException;
+    Entry delete( PartitionTxn partitionTxn, String id ) throws LdapException;
 
 
     /**
      * Get back an entry knowing its UUID
      *
+     * @param partitionTxn The transaction to use
      * @param id The Entry UUID we want to get back
      * @return The found Entry, or null if not found
-     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     * @throws LdapException If the lookup failed for any reason (except a not found entry)
      */
-    Entry fetch( String id ) throws LdapException;
+    Entry fetch( PartitionTxn partitionTxn, String id ) throws LdapException;
 
 
     /**
      * Get back an entry knowing its UUID
      *
+     * @param partitionTxn The transaction to use
      * @param id The Entry UUID we want to get back
      * @param dn The entry DN when we have it
      * @return The found Entry, or null if not found
-     * @throws Exception If the lookup failed for any reason (except a not found entry)
+     * @throws LdapException If the lookup failed for any reason (except a not found entry)
      */
-    Entry fetch( String id, Dn dn ) throws LdapException;
+    Entry fetch( PartitionTxn partitionTxn, String id, Dn dn ) throws LdapException;
 
 
     /**
      * Gets the count of immediate children of the given entry UUID.
      *
+     * @param partitionTxn The transaction to use
      * @param id the entry UUID
      * @return the child count
-     * @throws Exception on failures to access the underlying store
+     * @throws LdapException on failures to access the underlying store
      */
-    long getChildCount( String id ) throws Exception;
+    long getChildCount( PartitionTxn partitionTxn, String id ) throws LdapException;
 
 
     /**
      * Modify an entry applying the given list of modifications.
      *
+     * @param partitionTxn The transaction to use
      * @param dn The Entry's Dn
      * @param mods The list of modifications
      * @return The modified entry
-     * @throws Exception If the modification failed
+     * @throws LdapException If the modification failed
      */
-    Entry modify( Dn dn, Modification... mods ) throws Exception;
+    Entry modify( PartitionTxn partitionTxn, Dn dn, Modification... mods ) throws LdapException;
 
 
     /**
@@ -389,29 +408,30 @@ public interface Store
      * changed. The change propagates down the subtree rooted at the
      * distinguished name specified.
      *
+     * @param partitionTxn The transaction to use
      * @param dn the normalized distinguished name of the entry to alter
      * @param newRdn the new Rdn to set
      * @param deleteOldRdn whether or not to remove the old Rdn attr/val
      * @param entry the modified entry
-     * @throws Exception if there are any errors propagating the name changes
+     * @throws LdapException if there are any errors propagating the name changes
      */
-    void rename( Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws Exception;
+    void rename( PartitionTxn partitionTxn, Dn dn, Rdn newRdn, boolean deleteOldRdn, Entry entry ) throws LdapException;
 
 
     /**
      * Move and Rename operation. The entry is moved from one part of the DIT to another part of 
      * the DIT. Its RDN is also changed in the process.
      * 
+     * @param partitionTxn The transaction to use
      * @param oldDn The previous DN
      * @param newSuperiorDn The previous parent's DN
-     * @param newDn The new DN
+     * @param newRdn The new DN
      * @param modAvas The changed Attributes caused by the renaming (added and removed attributes)
-     * @param entry the entry to move
-     * @throws Exception If the modification failed
+     * @param modifiedEntry the entry to move
+     * @throws LdapException If the modification failed
      */
-    void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Map<String, List<ModDnAva>> modAvas, 
-        Entry modifiedEntry ) throws Exception;
-    //void moveAndRename( Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Entry entry, boolean deleteOldRdn ) throws Exception;
+    void moveAndRename( PartitionTxn partitionTxn, Dn oldDn, Dn newSuperiorDn, Rdn newRdn, Map<String, List<ModDnAva>> modAvas, 
+        Entry modifiedEntry ) throws LdapException;
 
 
     /**
@@ -438,13 +458,14 @@ public interface Store
      * <li>The moved entry must not inherit from a referral (already checked)
      * </ul>
      *
+     * @param partitionTxn The transaction to use
      * @param oldDn The previous entry Dn
      * @param newSuperior The new superior Dn
      * @param newDn The new Dn
      * @param entry The entry to move
-     * @throws Exception If the move failed
+     * @throws LdapException If the move failed
      */
-    void move( Dn oldDn, Dn newSuperior, Dn newDn, Entry entry ) throws Exception;
+    void move( PartitionTxn partitionTxn, Dn oldDn, Dn newSuperior, Dn newDn, Entry entry ) throws LdapException;
 
 
     /**
@@ -462,7 +483,7 @@ public interface Store
     
     /**
      * @return the Alias cache
-     * @return
+     * @return The cache
      */
-    Cache getAliasCache();
+    Cache< String, Dn > getAliasCache();
 }

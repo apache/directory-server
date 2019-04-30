@@ -39,6 +39,8 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
 {
     /**
      * Creates a new instance of DeleteOperationContext.
+     * 
+     * @param session The session to use
      */
     public DeleteOperationContext( CoreSession session )
     {
@@ -54,6 +56,7 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
     /**
      * Creates a new instance of DeleteOperationContext.
      *
+     * @param session The session to use
      * @param deleteDn The entry Dn to delete
      */
     public DeleteOperationContext( CoreSession session, Dn deleteDn )
@@ -67,6 +70,12 @@ public class DeleteOperationContext extends AbstractChangeOperationContext
     }
 
 
+    /**
+     * Creates a new instance of DeleteOperationContext.
+     * 
+     * @param session The session to use
+     * @param deleteRequest The Delete operation to process
+     */
     public DeleteOperationContext( CoreSession session, DeleteRequest deleteRequest )
     {
         super( session, deleteRequest.getName() );

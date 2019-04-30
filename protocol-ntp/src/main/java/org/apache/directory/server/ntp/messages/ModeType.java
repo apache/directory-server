@@ -132,6 +132,10 @@ public enum ModeType
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString()
     {
         return name;

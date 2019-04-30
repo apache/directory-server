@@ -42,7 +42,7 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ChangePasswordProtocolHandler implements IoHandler
+public class ChangePasswordProtocolHandler extends IoHandlerAdapter
 {
     private static final Logger LOG = LoggerFactory.getLogger( ChangePasswordProtocolHandler.class );
 
@@ -65,8 +65,8 @@ public class ChangePasswordProtocolHandler implements IoHandler
     /**
      * Creates a new instance of ChangePasswordProtocolHandler.
      *
-     * @param config
-     * @param store
+     * @param config The ChangePassword server configuration
+     * @param store The Principal store
      */
     public ChangePasswordProtocolHandler( ChangePasswordServer config, PrincipalStore store )
     {
@@ -75,6 +75,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     }
 
 
+    @Override
     public void sessionCreated( IoSession session ) throws Exception
     {
         if ( LOG.isDebugEnabled() )
@@ -87,31 +88,36 @@ public class ChangePasswordProtocolHandler implements IoHandler
     }
 
 
+    @Override
     public void sessionOpened( IoSession session )
     {
         LOG.debug( "{} OPENED", session.getRemoteAddress() );
     }
 
 
+    @Override
     public void sessionClosed( IoSession session )
     {
         LOG.debug( "{} CLOSED", session.getRemoteAddress() );
     }
 
 
+    @Override
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         LOG.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
     }
 
 
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.debug( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close( true );
+        session.closeNow();
     }
 
 
+    @Override
     public void messageReceived( IoSession session, Object message )
     {
         LOG.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
@@ -159,6 +165,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     }
 
 
+    @Override
     public void messageSent( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )
@@ -225,6 +232,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     }
 
     
+    @Override
     public void inputClosed( IoSession session )
     {
     }

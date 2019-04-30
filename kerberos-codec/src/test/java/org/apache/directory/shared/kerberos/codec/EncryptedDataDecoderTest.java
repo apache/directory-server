@@ -58,7 +58,6 @@ public class EncryptedDataDecoderTest
     @Test
     public void testEncryptedData()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x16 );
 
@@ -95,7 +94,7 @@ public class EncryptedDataDecoderTest
         // Decode the EncryptedData PDU
         try
         {
-            kerberosDecoder.decode( stream, encryptedDataContainer );
+            Asn1Decoder.decode( stream, encryptedDataContainer );
         }
         catch ( DecoderException de )
         {
@@ -136,7 +135,6 @@ public class EncryptedDataDecoderTest
     @Test
     public void testEncryptedDataNoKvno()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
@@ -168,7 +166,7 @@ public class EncryptedDataDecoderTest
         // Decode the EncryptedData PDU
         try
         {
-            kerberosDecoder.decode( stream, encryptedDataContainer );
+            Asn1Decoder.decode( stream, encryptedDataContainer );
         }
         catch ( DecoderException de )
         {
@@ -209,7 +207,6 @@ public class EncryptedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncryptedDataEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -222,7 +219,7 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        kerberosDecoder.decode( stream, encryptedDataContainer );
+        Asn1Decoder.decode( stream, encryptedDataContainer );
         fail();
     }
 
@@ -233,7 +230,6 @@ public class EncryptedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncryptedDataNoEType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -248,7 +244,7 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        kerberosDecoder.decode( stream, encryptedDataContainer );
+        Asn1Decoder.decode( stream, encryptedDataContainer );
         fail();
     }
 
@@ -259,7 +255,6 @@ public class EncryptedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncryptedDataMissingEType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
@@ -288,7 +283,7 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        kerberosDecoder.decode( stream, encryptedDataContainer );
+        Asn1Decoder.decode( stream, encryptedDataContainer );
         fail();
     }
 
@@ -299,7 +294,6 @@ public class EncryptedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncryptedDataEmptyType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
@@ -316,7 +310,7 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        kerberosDecoder.decode( stream, encryptedDataContainer );
+        Asn1Decoder.decode( stream, encryptedDataContainer );
         fail();
     }
 
@@ -327,7 +321,6 @@ public class EncryptedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncryptedDataEmptyKvno() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
@@ -347,7 +340,7 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        kerberosDecoder.decode( stream, encryptedDataContainer );
+        Asn1Decoder.decode( stream, encryptedDataContainer );
         fail();
     }
 
@@ -358,7 +351,6 @@ public class EncryptedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncryptedDataNoCipher() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0C );
 
@@ -381,7 +373,7 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        kerberosDecoder.decode( stream, encryptedDataContainer );
+        Asn1Decoder.decode( stream, encryptedDataContainer );
         fail();
     }
 
@@ -392,7 +384,6 @@ public class EncryptedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncryptedDataEmptyCipher() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0E );
 
@@ -417,7 +408,7 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        kerberosDecoder.decode( stream, encryptedDataContainer );
+        Asn1Decoder.decode( stream, encryptedDataContainer );
         fail();
     }
 
@@ -428,7 +419,6 @@ public class EncryptedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncryptedDataNullCipher() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x10 );
 
@@ -455,6 +445,6 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        kerberosDecoder.decode( stream, encryptedDataContainer );
+        Asn1Decoder.decode( stream, encryptedDataContainer );
     }
 }

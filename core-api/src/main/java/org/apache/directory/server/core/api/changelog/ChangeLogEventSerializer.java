@@ -57,7 +57,7 @@ public final class ChangeLogEventSerializer
     /**
      * Serializes a ChangeLogEvent instance.
      * 
-     * @param principal The ChangeLogEvent instance to serialize
+     * @param event The ChangeLogEvent instance to serialize
      * @param out The stream into which we will write the serialized instance
      * @throws IOException If the stream can't be written
      */
@@ -94,10 +94,11 @@ public final class ChangeLogEventSerializer
      * @param schemaManager The SchemaManager (can be null)
      * @param in The input stream from which the ChengaLogEvent is read
      * @return a deserialized ChangeLogEvent
-     * @throws IOException If the stream can't be read
+     * @throws IOException If we had an issue processing the stream
+     * @throws LdapInvalidDnException If the deserialization failed
      */
     public static ChangeLogEvent deserialize( SchemaManager schemaManager, ObjectInput in )
-        throws IOException, LdapInvalidDnException
+        throws IOException
     {
         // The date the change has been created, "yyyyMMddHHmmss'Z'" 
         String zuluTime = in.readUTF();
@@ -125,7 +126,7 @@ public final class ChangeLogEventSerializer
         // The reverse LDIFs number
         int nbReverses = in.readInt();
 
-        List<LdifEntry> reverses = new ArrayList<LdifEntry>( nbReverses );
+        List<LdifEntry> reverses = new ArrayList<>( nbReverses );
 
         for ( int i = 0; i < nbReverses; i++ )
         {
@@ -145,9 +146,6 @@ public final class ChangeLogEventSerializer
             reverses.add( reverseEntry );
         }
 
-        ChangeLogEvent changeLogEvent = new ChangeLogEvent( revision, zuluTime, committerPrincipal, forwardEntry,
-            reverses );
-
-        return changeLogEvent;
+        return new ChangeLogEvent( revision, zuluTime, committerPrincipal, forwardEntry, reverses );
     }
 }

@@ -6,21 +6,21 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
@@ -66,6 +66,8 @@ public class BindOperationContext extends AbstractOperationContext
 
     /**
      * Creates a new instance of BindOperationContext.
+     *
+     * @param session The session to use
      */
     public BindOperationContext( CoreSession session )
     {
@@ -80,11 +82,14 @@ public class BindOperationContext extends AbstractOperationContext
 
     /**
      * @return The authentication level. One of :
+     * <ul>
      * <li>ANONYMOUS</li>
      * <li>SIMPLE</li>
      * <li>STRONG (sasl)</li>
      * <li>UNAUTHENT</li>
      * <li>INVALID</li>
+     * </ul>
+     * @throws LdapAuthenticationException If we can't get the AuthenticationLevel
      */
     public AuthenticationLevel getAuthenticationLevel() throws LdapAuthenticationException
     {
@@ -177,6 +182,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * @return the operation name
      */
+    @Override
     public String getName()
     {
         return MessageTypeEnum.BIND_REQUEST.name();
@@ -186,6 +192,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return "BindContext for Dn '" + getDn().getName() + "', credentials <"
@@ -198,6 +205,8 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * Tells if the current operation is considered a side effect of the
      * current context
+     *
+     * @return <tt>true</tt> if there is no collateral operation
      */
     public boolean isCollateralOperation()
     {
@@ -226,6 +235,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public void throwReferral()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_320 ) );
@@ -235,6 +245,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isReferralThrown()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_321 ) );
@@ -244,6 +255,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public void ignoreReferral()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_322 ) );
@@ -253,6 +265,7 @@ public class BindOperationContext extends AbstractOperationContext
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isReferralIgnored()
     {
         throw new NotImplementedException( I18n.err( I18n.ERR_323 ) );

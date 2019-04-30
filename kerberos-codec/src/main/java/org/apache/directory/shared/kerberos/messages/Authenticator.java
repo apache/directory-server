@@ -47,13 +47,13 @@ import org.slf4j.LoggerFactory;
  * Authenticator   ::= [APPLICATION 2] SEQUENCE  {
  *         authenticator-vno       [0] INTEGER (5),
  *         crealm                  [1] Realm,
- *         cname                   [2] <PrincipalName>,
- *         cksum                   [3] <Checksum> OPTIONAL,
+ *         cname                   [2] &lt;PrincipalName&gt;,
+ *         cksum                   [3] &lt;Checksum&gt; OPTIONAL,
  *         cusec                   [4] Microseconds,
  *         ctime                   [5] KerberosTime,
- *         subkey                  [6] <EncryptionKey> OPTIONAL,
+ *         subkey                  [6] &lt;EncryptionKey&gt; OPTIONAL,
  *         seq-number              [7] UInt32 OPTIONAL,
- *         authorization-data      [8] <AuthorizationData> OPTIONAL
+ *         authorization-data      [8] &lt;AuthorizationData&gt; OPTIONAL
  * }
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -291,35 +291,35 @@ public class Authenticator extends KerberosMessage
      * 
      * 0x62 L1 Authenticator [APPLICATION 2]
      *  |
-     *  +--> 0x30 L2 Authenticator SEQUENCE
+     *  +--&gt; 0x30 L2 Authenticator SEQUENCE
      *        |
-     *        +--> 0xA0 03 authenticator-vno tag
+     *        +--&gt; 0xA0 03 authenticator-vno tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x05 authenticator-vno (int, 5)
+     *        |     +--&gt; 0x02 0x01 0x05 authenticator-vno (int, 5)
      *        |
-     *        +--> 0xA1 L3 crealm tag
+     *        +--&gt; 0xA1 L3 crealm tag
      *        |     |
-     *        |     +--> 0x1B L3-1 crealm (KerberosString)
+     *        |     +--&gt; 0x1B L3-1 crealm (KerberosString)
      *        |
-     *        +--> 0xA2 L4 cname (PrincipalName)
+     *        +--&gt; 0xA2 L4 cname (PrincipalName)
      *        |
-     *        +--> 0xA3 L5 cksum (CheckSum)
+     *        +--&gt; 0xA3 L5 cksum (CheckSum)
      *        |
-     *        +--> 0xA4 L6 cusec tag
+     *        +--&gt; 0xA4 L6 cusec tag
      *        |     |
-     *        |     +--> 0x02 L6-1 nnn cusec value (Integer)
+     *        |     +--&gt; 0x02 L6-1 nnn cusec value (Integer)
      *        |
-     *        +--> 0xA5 0x11 ctime tag
+     *        +--&gt; 0xA5 0x11 ctime tag
      *        |     |
-     *        |     +--> 0x18 0x0F ttt ctime (KerberosTime)
+     *        |     +--&gt; 0x18 0x0F ttt ctime (KerberosTime)
      *        |
-     *        +--> 0xA6 L7 subkey (EncryptionKey)
+     *        +--&gt; 0xA6 L7 subkey (EncryptionKey)
      *        |
-     *        +--> 0xA7 L8 seq-number tag
+     *        +--&gt; 0xA7 L8 seq-number tag
      *        |     |
-     *        |     +--> 0x02 L8-1 nnn seq-number (Integer)
+     *        |     +--&gt; 0x02 L8-1 nnn seq-number (Integer)
      *        |
-     *        +--> 0xA8 L9 authorization-data (AuthorizationData)
+     *        +--&gt; 0xA8 L9 authorization-data (AuthorizationData)
      * </pre>
      */
     @Override
@@ -527,7 +527,7 @@ public class Authenticator extends KerberosMessage
         if ( IS_DEBUG )
         {
             LOG.debug( "Authenticator encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "Authenticator initial value : {}", toString() );
+            LOG.debug( "Authenticator initial value : {}", this );
         }
 
         return buffer;

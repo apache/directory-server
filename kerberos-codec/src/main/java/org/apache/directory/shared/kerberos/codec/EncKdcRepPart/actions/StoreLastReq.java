@@ -65,32 +65,23 @@ public class StoreLastReq extends GrammarAction<EncKdcRepPartContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the LastReq
-        Asn1Decoder lastReqDecoder = new Asn1Decoder();
-
         LastReqContainer lastReqContainer = new LastReqContainer();
 
         // Decode the LastReq PDU
-        try
-        {
-            lastReqDecoder.decode( encKdcRepPartContainer.getStream(), lastReqContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( encKdcRepPartContainer.getStream(), lastReqContainer );
 
         LastReq lastReq = lastReqContainer.getLastReq();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "LastReq : " + lastReq );
+            LOG.debug( "LastReq : {}", lastReq );
         }
 
         encKdcRepPartContainer.getEncKdcRepPart().setLastReq( lastReq );

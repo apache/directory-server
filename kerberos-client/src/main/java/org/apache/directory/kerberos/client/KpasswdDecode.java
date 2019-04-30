@@ -19,9 +19,9 @@
  */
 package org.apache.directory.kerberos.client;
 
+
 import java.nio.ByteBuffer;
 
-import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.server.kerberos.changepwd.io.ChangePasswordDecoder;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordReply;
 import org.apache.directory.server.kerberos.changepwd.messages.ChangePasswordRequest;
@@ -40,65 +40,74 @@ import org.apache.directory.shared.kerberos.messages.Authenticator;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
 
+
 public abstract class KpasswdDecode
 {
     private CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
     private EncryptionKey clientKey;
-    
+
     private EncryptionKey sessionKey;
-    
+
     private EncryptionKey subSessionKey;
-    
+
+
     public KpasswdDecode( String principal, String password, EncryptionType eType )
     {
         clientKey = KerberosKeyFactory.string2Key( principal, password, eType );
     }
-    
+
+
     public void decodeAsRep( byte[] asReppkt ) throws Exception
     {
         ByteBuffer repData = ByteBuffer.wrap( asReppkt );
-        
+
         KerberosMessageContainer kerberosMessageContainer = new KerberosMessageContainer();
         kerberosMessageContainer.setStream( repData );
         kerberosMessageContainer.setGathering( true );
         kerberosMessageContainer.setTCP( false );
 
-        AsRep asReply = ( AsRep ) KerberosDecoder.decode( kerberosMessageContainer, new Asn1Decoder() );
+        AsRep asReply = ( AsRep ) KerberosDecoder.decode( kerberosMessageContainer );
 
         System.out.println( asReply );
-        byte[] decryptedEncAsRepPart = cipherTextHandler.decrypt( clientKey, asReply.getEncPart(), KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
+        byte[] decryptedEncAsRepPart = cipherTextHandler.decrypt( clientKey, asReply.getEncPart(),
+            KeyUsage.AS_REP_ENC_PART_WITH_CKEY );
         byte[] tmp = new byte[182];
         System.arraycopy( decryptedEncAsRepPart, 0, tmp, 0, 182 );
         EncAsRepPart encAsRepPart = KerberosDecoder.decodeEncAsRepPart( tmp );
         sessionKey = encAsRepPart.getEncKdcRepPart().getKey();
     }
-    
-    
+
+
     public void decodeApReq( byte[] kpasswdApReqpkt ) throws Exception
     {
         ByteBuffer chngpwdReqData = ByteBuffer.wrap( kpasswdApReqpkt );
-        
-        ChangePasswordRequest chngPwdReq = ( ChangePasswordRequest ) ChangePasswordDecoder.decode( chngpwdReqData, false );
+
+        ChangePasswordRequest chngPwdReq = ( ChangePasswordRequest ) ChangePasswordDecoder.decode( chngpwdReqData,
+            false );
 
         ApReq apReq = chngPwdReq.getAuthHeader();
-        byte[] decryptedAuthenticator = cipherTextHandler.decrypt( sessionKey, apReq.getAuthenticator(), KeyUsage.AP_REQ_AUTHNT_SESS_KEY );
+        byte[] decryptedAuthenticator = cipherTextHandler.decrypt( sessionKey, apReq.getAuthenticator(),
+            KeyUsage.AP_REQ_AUTHNT_SESS_KEY );
         Authenticator authenticator = KerberosDecoder.decodeAuthenticator( decryptedAuthenticator );
         subSessionKey = authenticator.getSubKey();
     }
 
+
     public void decodeApRep( byte[] kpasswdReplypkt ) throws Exception
     {
         ByteBuffer chngpwdReplyData = ByteBuffer.wrap( kpasswdReplypkt );
-        
-        ChangePasswordReply chngPwdReply = ( ChangePasswordReply ) ChangePasswordDecoder.decode( chngpwdReplyData, false );
+
+        ChangePasswordReply chngPwdReply = ( ChangePasswordReply ) ChangePasswordDecoder.decode( chngpwdReplyData,
+            false );
 
         ApRep apRep = chngPwdReply.getApplicationReply();
-        
+
         KrbPriv krbPriv = chngPwdReply.getPrivateMessage();
-        byte[] decryptedKrbPrivPart = cipherTextHandler.decrypt( subSessionKey, krbPriv.getEncPart(), KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
+        byte[] decryptedKrbPrivPart = cipherTextHandler.decrypt( subSessionKey, krbPriv.getEncPart(),
+            KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
         EncKrbPrivPart krbPrivPart = KerberosDecoder.decodeEncKrbPrivPart( decryptedKrbPrivPart );
         System.out.println( krbPrivPart );
     }
-    
+
 }

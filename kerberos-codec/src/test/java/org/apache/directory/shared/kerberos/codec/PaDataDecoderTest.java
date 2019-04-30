@@ -48,7 +48,6 @@ public class PaDataDecoderTest
     @Test
     public void testDecodePaData()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
@@ -78,7 +77,7 @@ public class PaDataDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException de )
         {
@@ -115,7 +114,6 @@ public class PaDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodePaDataWithoutType() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xC );
 
@@ -137,7 +135,7 @@ public class PaDataDecoderTest
 
         PaDataContainer chkContainer = new PaDataContainer();
 
-        krbDecoder.decode( stream, chkContainer );
+        Asn1Decoder.decode( stream, chkContainer );
         fail();
     }
 
@@ -145,7 +143,6 @@ public class PaDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeChecksumWithoutPaDataValue() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
@@ -162,7 +159,7 @@ public class PaDataDecoderTest
 
         PaDataContainer container = new PaDataContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -170,7 +167,6 @@ public class PaDataDecoderTest
     @Test
     public void testDecodePaDataWithEmptySeq() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x11 );
 
@@ -191,7 +187,7 @@ public class PaDataDecoderTest
 
         PaDataContainer container = new PaDataContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
     }
 
 }

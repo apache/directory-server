@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
@@ -47,6 +48,12 @@ public class OrEvaluator implements Evaluator<OrNode>
     private final OrNode node;
 
 
+    /**
+     * Creates a new OrEvaluator
+     * 
+     * @param node The OrNode
+     * @param evaluators The inner evaluators
+     */
     public OrEvaluator( OrNode node, List<Evaluator<? extends ExprNode>> evaluators )
     {
         this.node = node;
@@ -68,7 +75,7 @@ public class OrEvaluator implements Evaluator<OrNode>
     private List<Evaluator<? extends ExprNode>> optimize(
         List<Evaluator<? extends ExprNode>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
+        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
@@ -78,11 +85,15 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {
-            if ( evaluator.evaluate( indexEntry ) )
+            if ( evaluator.evaluate( partitionTxn, indexEntry ) )
             {
                 return true;
             }
@@ -92,7 +103,11 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
-    public boolean evaluate( Entry entry ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {
@@ -106,6 +121,10 @@ public class OrEvaluator implements Evaluator<OrNode>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public OrNode getExpression()
     {
         return node;
@@ -137,7 +156,7 @@ public class OrEvaluator implements Evaluator<OrNode>
 
         sb.append( tabs ).append( "OrEvaluator : " ).append( node ).append( "\n" );
 
-        if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
+        if ( ( evaluators != null ) && !evaluators.isEmpty() )
         {
             sb.append( dumpEvaluators( tabs ) );
         }

@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-server-annotations</artifactId>
@@ -137,7 +137,7 @@
                 org.apache.directory.server.factory;version=${project.version}
             </Export-Package>
             <Import-Package>
-                org.apache.commons.pool;version=${commons.pool.version},
+                org.apache.commons.pool2;version=${commons.pool.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},
@@ -145,6 +145,7 @@
                 org.apache.directory.server.constants;version=${project.version},
                 org.apache.directory.server.core.annotations;version=${project.version},
                 org.apache.directory.server.core.api;version=${project.version},
+                org.apache.directory.server.core.security;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.kerberos;version=${project.version},
                 org.apache.directory.server.kerberos.changepwd;version=${project.version},

@@ -131,8 +131,8 @@ public class KdcReqBody implements Asn1Object
      */
     public KdcReqBody()
     {
-        additionalTickets = new ArrayList<Ticket>();
-        eType = new LinkedHashSet<EncryptionType>();
+        additionalTickets = new ArrayList<>();
+        eType = new LinkedHashSet<>();
     }
 
 
@@ -160,7 +160,7 @@ public class KdcReqBody implements Asn1Object
 
     /**
      * Add a new Ticket to the list of additional tickets
-     * @param additionalTickets the additionalTickets to set
+     * @param additionalTicket the additionalTicket to set
      */
     public void addAdditionalTicket( Ticket additionalTicket )
     {
@@ -400,63 +400,63 @@ public class KdcReqBody implements Asn1Object
      *
      * 0x30 L1 KdcReqBody sequence
      *  |
-     *  +--> 0xA0 L2 kdc-options tag
+     *  +--&gt; 0xA0 L2 kdc-options tag
      *  |     |
-     *  |     +--> 0x03 L2-1 kdc-options (BitString)
+     *  |     +--&gt; 0x03 L2-1 kdc-options (BitString)
      *  |
-     *  +--> 0xA1 L3 cname tag
+     *  +--&gt; 0xA1 L3 cname tag
      *  |     |
-     *  |     +--> 0x30 L3-1 cname (PrincipalName)
+     *  |     +--&gt; 0x30 L3-1 cname (PrincipalName)
      *  |
-     *  +--> 0xA2 L4 realm tag
+     *  +--&gt; 0xA2 L4 realm tag
      *  |     |
-     *  |     +--> 0x1B L4-1 realm (Realm, KerberosString)
+     *  |     +--&gt; 0x1B L4-1 realm (Realm, KerberosString)
      *  |
-     *  +--> 0xA3 L5 sname tag
+     *  +--&gt; 0xA3 L5 sname tag
      *  |     |
-     *  |     +--> 0x30 L5-1 sname (PrincipalName)
+     *  |     +--&gt; 0x30 L5-1 sname (PrincipalName)
      *  |
-     *  +--> 0xA4 L6 from tag
+     *  +--&gt; 0xA4 L6 from tag
      *  |     |
-     *  |     +--> 0x18 L6-1 from (KerberosTime)
+     *  |     +--&gt; 0x18 L6-1 from (KerberosTime)
      *  |
-     *  +--> 0xA5 L7 till tag
+     *  +--&gt; 0xA5 L7 till tag
      *  |     |
-     *  |     +--> 0x18 L7-1 till (KerberosTime)
+     *  |     +--&gt; 0x18 L7-1 till (KerberosTime)
      *  |
-     *  +--> 0xA6 L8 rtime tag
+     *  +--&gt; 0xA6 L8 rtime tag
      *  |     |
-     *  |     +--> 0x18 L8-1 rtime (KerberosTime)
+     *  |     +--&gt; 0x18 L8-1 rtime (KerberosTime)
      *  |
-     *  +--> 0xA7 L9 nonce tag
+     *  +--&gt; 0xA7 L9 nonce tag
      *  |     |
-     *  |     +--> 0x02 L9-1 nonce (Int)
+     *  |     +--&gt; 0x02 L9-1 nonce (Int)
      *  |
-     *  +--> 0xA8 L10 etype tag
+     *  +--&gt; 0xA8 L10 etype tag
      *  |     |
-     *  |     +--> 0x30 L10-1 SEQ
+     *  |     +--&gt; 0x30 L10-1 SEQ
      *  |           |
-     *  |           +--> 0x02 L10-1-1 etype
+     *  |           +--&gt; 0x02 L10-1-1 etype
      *  |           |
-     *  |           +--> 0x02 L10-1-2 etype
+     *  |           +--&gt; 0x02 L10-1-2 etype
      *  |           |
      *  |           :
      *  |
-     *  +--> 0xA9 L11 addresses tag
+     *  +--&gt; 0xA9 L11 addresses tag
      *  |     |
-     *  |     +--> 0x30 L11-1 addresses (HostAddresses)
+     *  |     +--&gt; 0x30 L11-1 addresses (HostAddresses)
      *  |
-     *  +--> 0xAA L12 enc-authorization-data tag
+     *  +--&gt; 0xAA L12 enc-authorization-data tag
      *  |     |
-     *  |     +--> 0x30 L12-1 enc-authorization-data
+     *  |     +--&gt; 0x30 L12-1 enc-authorization-data
      *  |
-     *  +--> 0xAB L13 additional-tickets tag
+     *  +--&gt; 0xAB L13 additional-tickets tag
      *        |
-     *        +--> 0x30 L13-1 additional-tickets
+     *        +--&gt; 0x30 L13-1 additional-tickets
      *              |
-     *              +--> 0x61 L13-1-1 Ticket
+     *              +--&gt; 0x61 L13-1-1 Ticket
      *              |
-     *              +--> 0x61 L13-1-2 Ticket
+     *              +--&gt; 0x61 L13-1-2 Ticket
      *              |
      *              :
      * </pre>
@@ -541,7 +541,7 @@ public class KdcReqBody implements Asn1Object
         }
 
         // The additionalTickets length
-        if ( additionalTickets.size() != 0 )
+        if ( !additionalTickets.isEmpty() )
         {
             additionalTicketsLengths = new int[additionalTickets.size()];
             additionalTicketSeqLength = 0;
@@ -706,7 +706,7 @@ public class KdcReqBody implements Asn1Object
         }
 
         // The additional-tickets, if any -------------------------------------
-        if ( additionalTickets.size() != 0 )
+        if ( !additionalTickets.isEmpty() )
         {
             // The tag
             buffer.put( ( byte ) KerberosConstants.KDC_REQ_BODY_ADDITIONAL_TICKETS_TAG );
@@ -836,7 +836,7 @@ public class KdcReqBody implements Asn1Object
             sb.append( tabs ).append( "enc-authorization-data" ).append( encAuthorizationData );
         }
 
-        if ( additionalTickets.size() != 0 )
+        if ( !additionalTickets.isEmpty() )
         {
             sb.append( '\n' );
             sb.append( tabs ).append( "Tickets : " );

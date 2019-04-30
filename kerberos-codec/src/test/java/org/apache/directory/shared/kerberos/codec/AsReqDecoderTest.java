@@ -53,7 +53,6 @@ public class AsReqDecoderTest
     @Test
     public void testDecodeFullAsReq() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x193 );
 
@@ -195,7 +194,7 @@ public class AsReqDecoderTest
         // Decode the AsReq PDU
         try
         {
-            kerberosDecoder.decode( stream, asReqContainer );
+            Asn1Decoder.decode( stream, asReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -235,7 +234,6 @@ public class AsReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeFullAsReqBadMsgType() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x193 );
 
@@ -375,7 +373,7 @@ public class AsReqDecoderTest
         AsReqContainer asReqContainer = new AsReqContainer( stream );
 
         // Decode the AsReq PDU
-        kerberosDecoder.decode( stream, asReqContainer );
+        Asn1Decoder.decode( stream, asReqContainer );
         fail();
     }
 
@@ -386,7 +384,6 @@ public class AsReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testAsReqEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -399,7 +396,7 @@ public class AsReqDecoderTest
         Asn1Container asReqContainer = new AsReqContainer( stream );
 
         // Decode the AS-REQ PDU
-        kerberosDecoder.decode( stream, asReqContainer );
+        Asn1Decoder.decode( stream, asReqContainer );
         fail();
     }
 
@@ -410,7 +407,6 @@ public class AsReqDecoderTest
     @Test
     public void testDecodeAsReqNoPaData() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x171 );
 
@@ -539,7 +535,7 @@ public class AsReqDecoderTest
         // Decode the AsReq PDU
         try
         {
-            kerberosDecoder.decode( stream, asReqContainer );
+            Asn1Decoder.decode( stream, asReqContainer );
         }
         catch ( DecoderException de )
         {

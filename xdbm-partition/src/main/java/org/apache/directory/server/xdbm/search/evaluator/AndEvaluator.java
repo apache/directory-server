@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.impl.ScanCountComparator;
@@ -101,7 +102,7 @@ public class AndEvaluator implements Evaluator<AndNode>
                 return unoptimized;
 
             default :
-                List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
+                List<Evaluator<? extends ExprNode>> optimized = new ArrayList<>(
                     unoptimized.size() );
                 optimized.addAll( unoptimized );
 
@@ -148,7 +149,7 @@ public class AndEvaluator implements Evaluator<AndNode>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {
@@ -165,11 +166,11 @@ public class AndEvaluator implements Evaluator<AndNode>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {
-            if ( !evaluator.evaluate( indexEntry ) )
+            if ( !evaluator.evaluate( partitionTxn, indexEntry ) )
             {
                 return false;
             }
@@ -213,7 +214,7 @@ public class AndEvaluator implements Evaluator<AndNode>
 
         sb.append( tabs ).append( "AndEvaluator : " ).append( node ).append( "\n" );
 
-        if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
+        if ( ( evaluators != null ) && !evaluators.isEmpty() )
         {
             sb.append( dumpEvaluators( tabs + "  " ) ).append( "\n" );
         }

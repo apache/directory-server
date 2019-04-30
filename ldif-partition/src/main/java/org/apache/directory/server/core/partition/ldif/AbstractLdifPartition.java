@@ -85,6 +85,7 @@ public abstract class AbstractLdifPartition extends AvlPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getDefaultId()
     {
         return Partition.DEFAULT_ID;
@@ -94,6 +95,7 @@ public abstract class AbstractLdifPartition extends AvlPartition
     /**
      * {@inheritDoc}
      */
+    @Override
     public URI getPartitionPath()
     {
         return partitionPath;

@@ -19,6 +19,7 @@
  */
 package org.apache.directory.kerberos.credentials.cache;
 
+
 import java.text.ParseException;
 
 import org.apache.directory.kerberos.client.AbstractTicket;
@@ -32,6 +33,7 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
 import org.apache.directory.shared.kerberos.messages.Ticket;
+
 
 /**
  * Looks like KrbCredInfo can be used here, however it's not enough for this
@@ -56,32 +58,33 @@ public class Credentials
     private TicketFlags flags;
     private Ticket ticket;
     private Ticket secondTicket;
-    
-    public Credentials(
-            PrincipalName cname,
-            PrincipalName sname,
-            EncryptionKey ekey,
-            KerberosTime authtime,
-            KerberosTime starttime,
-            KerberosTime endtime,
-            KerberosTime renewTill,
-            boolean isEncInSKey,
-            TicketFlags flags,
-            HostAddresses caddr,
-            AuthorizationData authData,
-            Ticket ticket,
-            Ticket secondTicket)
-    {
-        this.clientName = (PrincipalName) cname;
 
-        if (cname.getRealm() != null)
+
+    public Credentials(
+        PrincipalName cname,
+        PrincipalName sname,
+        EncryptionKey ekey,
+        KerberosTime authtime,
+        KerberosTime starttime,
+        KerberosTime endtime,
+        KerberosTime renewTill,
+        boolean isEncInSKey,
+        TicketFlags flags,
+        HostAddresses caddr,
+        AuthorizationData authData,
+        Ticket ticket,
+        Ticket secondTicket )
+    {
+        this.clientName = ( PrincipalName ) cname;
+
+        if ( cname.getRealm() != null )
         {
             clientRealm = cname.getRealm();
         }
 
-        this.serverName = (PrincipalName) sname;
+        this.serverName = ( PrincipalName ) sname;
 
-        if (sname.getRealm() != null)
+        if ( sname.getRealm() != null )
         {
             serverRealm = sname.getRealm();
         }
@@ -100,36 +103,42 @@ public class Credentials
         this.secondTicket = secondTicket;
     }
 
+
     public Credentials( TgTicket tgt )
     {
-    	PrincipalName clientPrincipal = null;
-    	try {
-			clientPrincipal = new PrincipalName( tgt.getClientName(), 
-					PrincipalNameType.KRB_NT_PRINCIPAL );
-		} catch (ParseException e) {
-			throw new RuntimeException( "Invalid tgt with bad client name" );
-		}
-    	
-    	clientPrincipal.setRealm( tgt.getRealm() );
-    	
-    	init( tgt, clientPrincipal );
+        PrincipalName clientPrincipal = null;
+        try
+        {
+            clientPrincipal = new PrincipalName( tgt.getClientName(),
+                PrincipalNameType.KRB_NT_PRINCIPAL );
+        }
+        catch ( ParseException e )
+        {
+            throw new RuntimeException( "Invalid tgt with bad client name" );
+        }
+
+        clientPrincipal.setRealm( tgt.getRealm() );
+
+        init( tgt, clientPrincipal );
     }
-    
-    public Credentials( AbstractTicket tkt, PrincipalName clientPrincipal ) 
+
+
+    public Credentials( AbstractTicket tkt, PrincipalName clientPrincipal )
     {
-    	init( tkt, clientPrincipal );
+        init( tkt, clientPrincipal );
     }
-    
+
+
     private void init( AbstractTicket tkt, PrincipalName clientPrincipal )
     {
-    	EncKdcRepPart kdcRepPart = tkt.getEncKdcRepPart();
-    	
+        EncKdcRepPart kdcRepPart = tkt.getEncKdcRepPart();
+
         this.serverName = kdcRepPart.getSName();
         this.serverRealm = kdcRepPart.getSRealm();
-        this.serverName.setRealm(serverRealm);
+        this.serverName.setRealm( serverRealm );
 
         this.clientName = clientPrincipal;
-        
+
         this.key = kdcRepPart.getKey();
         this.authTime = kdcRepPart.getAuthTime();
         this.startTime = kdcRepPart.getStartTime();
@@ -141,94 +150,111 @@ public class Credentials
         this.clientAddresses = kdcRepPart.getClientAddresses();
 
         this.ticket = tkt.getTicket();
-        
+
         this.isEncInSKey = false;
-        
+
         this.secondTicket = null;
     }
+
 
     public PrincipalName getServicePrincipal()
     {
         return serverName;
     }
 
+
     public KerberosTime getAuthTime()
     {
         return authTime;
     }
+
 
     public KerberosTime getEndTime()
     {
         return endTime;
     }
 
+
     public TicketFlags getTicketFlags()
     {
         return flags;
     }
+
 
     public int getEType()
     {
         return key.getKeyType().getValue();
     }
 
-	public PrincipalName getClientName()
-	{
-		return clientName;
-	}
 
-	public PrincipalName getServerName()
-	{
-		return serverName;
-	}
-	
-	public String getClientRealm()
-	{
-		return clientRealm;
-	}
+    public PrincipalName getClientName()
+    {
+        return clientName;
+    }
 
-	public EncryptionKey getKey()
-	{
-		return key;
-	}
 
-	public KerberosTime getStartTime()
-	{
-		return startTime;
-	}
+    public PrincipalName getServerName()
+    {
+        return serverName;
+    }
 
-	public KerberosTime getRenewTill()
-	{
-		return renewTill;
-	}
 
-	public HostAddresses getClientAddresses()
-	{
-		return clientAddresses;
-	}
+    public String getClientRealm()
+    {
+        return clientRealm;
+    }
 
-	public AuthorizationData getAuthzData()
-	{
-		return authzData;
-	}
 
-	public boolean isEncInSKey()
-	{
-		return isEncInSKey;
-	}
+    public EncryptionKey getKey()
+    {
+        return key;
+    }
 
-	public TicketFlags getFlags()
-	{
-		return flags;
-	}
 
-	public Ticket getTicket()
-	{
-		return ticket;
-	}
-	
-	public Ticket getSecondTicket()
-	{
-		return secondTicket;
-	}
+    public KerberosTime getStartTime()
+    {
+        return startTime;
+    }
+
+
+    public KerberosTime getRenewTill()
+    {
+        return renewTill;
+    }
+
+
+    public HostAddresses getClientAddresses()
+    {
+        return clientAddresses;
+    }
+
+
+    public AuthorizationData getAuthzData()
+    {
+        return authzData;
+    }
+
+
+    public boolean isEncInSKey()
+    {
+        return isEncInSKey;
+    }
+
+
+    public TicketFlags getFlags()
+    {
+        return flags;
+    }
+
+
+    public Ticket getTicket()
+    {
+        return ticket;
+    }
+
+
+    public Ticket getSecondTicket()
+    {
+        return secondTicket;
+    }
 }

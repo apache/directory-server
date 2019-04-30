@@ -31,6 +31,7 @@ import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.LdapPrincipal;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
@@ -78,10 +79,15 @@ public abstract class AbstractOperationContext implements OperationContext
     
     /** The transaction this operation is ran into */
     protected PartitionTxn transaction;
+    
+    /** The partition this operation will be applied on */
+    protected Partition partition;
 
 
     /**
      * Creates a new instance of AbstractOperationContext.
+     * 
+     * @param session The session to use
      */
     public AbstractOperationContext( CoreSession session )
     {
@@ -93,6 +99,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * Creates a new instance of AbstractOperationContext.
      *
+     * @param session The session to use
      * @param dn The associated Dn
      */
     public AbstractOperationContext( CoreSession session, Dn dn )
@@ -281,13 +288,6 @@ public abstract class AbstractOperationContext implements OperationContext
     {
         this.requestControls = requestControls;
     }
-
-
-    /**
-     * @return the operation name
-     */
-    @Override
-    public abstract String getName();
 
 
     /**
@@ -481,6 +481,7 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @return the transaction
      */
+    @Override
     public PartitionTxn getTransaction()
     {
         return transaction;
@@ -490,8 +491,29 @@ public abstract class AbstractOperationContext implements OperationContext
     /**
      * @param transaction the transaction to set
      */
+    @Override
     public void setTransaction( PartitionTxn transaction )
     {
         this.transaction = transaction;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Partition getPartition()
+    {
+        return partition;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPartition( Partition partition )
+    {
+        this.partition = partition;
     }
 }

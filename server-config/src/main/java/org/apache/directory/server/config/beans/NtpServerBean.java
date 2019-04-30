@@ -42,6 +42,7 @@ public class NtpServerBean extends ServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -56,6 +57,7 @@ public class NtpServerBean extends ServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

@@ -53,6 +53,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -128,9 +129,12 @@ public class TriggerSpecCache
 
             CoreSession adminSession = directoryService.getAdminSession();
 
+            Partition partition = nexus.getPartition( baseDn ); 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, baseDn,
                 filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+            searchOperationContext.setPartition( partition );
+            searchOperationContext.setTransaction( partition.beginReadTransaction() );
 
             EntryFilteringCursor results = nexus.search( searchOperationContext );
 
@@ -144,8 +148,7 @@ public class TriggerSpecCache
 
                     if ( triggerSpec == null )
                     {
-                        LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any "
-                            + PRESCRIPTIVE_TRIGGER_ATTR );
+                        LOG.warn( "Found triggerExecutionSubentry '{}' without any {}", subentryDn, PRESCRIPTIVE_TRIGGER_ATTR );
                         continue;
                     }
 
@@ -169,7 +172,7 @@ public class TriggerSpecCache
     }
 
 
-    private boolean hasPrescriptiveTrigger( Entry entry ) throws LdapException
+    private boolean hasPrescriptiveTrigger( Entry entry )
     {
         // only do something if the entry contains prescriptiveTrigger
         Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -178,7 +181,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryAdded( Dn normName, Entry entry ) throws LdapException
+    public void subentryAdded( Dn normName, Entry entry )
     {
         // only do something if the entry contains prescriptiveTrigger
         Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
@@ -196,7 +199,7 @@ public class TriggerSpecCache
 
             try
             {
-                item = triggerSpecParser.parse( value.getValue() );
+                item = triggerSpecParser.parse( value.getString() );
                 subentryTriggerSpecs.add( item );
             }
             catch ( ParseException e )
@@ -211,7 +214,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( Dn normName, Entry entry ) throws LdapException
+    public void subentryDeleted( Dn normName, Entry entry )
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -222,7 +225,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( ModifyOperationContext opContext, Entry entry ) throws LdapException
+    public void subentryModified( ModifyOperationContext opContext, Entry entry )
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {

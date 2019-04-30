@@ -68,7 +68,7 @@ public class KeytabEncoder
      */
     public ByteBuffer write( byte[] keytabVersion, List<KeytabEntry> entries )
     {
-        List<ByteBuffer> keytabEntryBuffers = new ArrayList<ByteBuffer>();;
+        List<ByteBuffer> keytabEntryBuffers = new ArrayList<>();
         short version = getKeytabVersion( keytabVersion );
 
         int buffersSize = encodeKeytabEntries( keytabEntryBuffers, version, entries );
@@ -188,7 +188,7 @@ public class KeytabEncoder
         String[] nameComponents = nameComponentPart.split( "/" );
 
         // Compute the size of the buffer
-        List<byte[]> strings = new ArrayList<byte[]>();
+        List<byte[]> strings = new ArrayList<>();
 
         // Initialize the size with the number of components' size
         int size = 2;

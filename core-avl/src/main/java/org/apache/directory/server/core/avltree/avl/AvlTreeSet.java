@@ -37,7 +37,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
 
     private final boolean useFreeList;
 
-    private Stack<AvlNode<T>> freeList = new Stack<AvlNode<T>>();
+    private Stack<AvlNode<T>> freeList = new Stack<>();
 
 
     public AvlTreeSet()
@@ -66,7 +66,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
 
     public final Iterator<T> iterator()
     {
-        return new AvlTreeIterator<T>( tree );
+        return new AvlTreeIterator<>( tree );
     }
 
 
@@ -135,7 +135,7 @@ public class AvlTreeSet<T extends Comparable<T>> implements Iterable<T>
     {
         if ( !useFreeList || freeList.isEmpty() )
         {
-            return new AvlNode<T>( parent, value );
+            return new AvlNode<>( parent, value );
         }
         else
         {

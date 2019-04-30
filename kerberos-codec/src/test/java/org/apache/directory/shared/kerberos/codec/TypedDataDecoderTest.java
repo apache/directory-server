@@ -49,8 +49,6 @@ public class TypedDataDecoderTest
     @Test
     public void testTypedData()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x21 );
 
         stream.put( new byte[]
@@ -95,7 +93,7 @@ public class TypedDataDecoderTest
         // Decode the TypedData PDU
         try
         {
-            kerberosDecoder.decode( stream, typedDataContainer );
+            Asn1Decoder.decode( stream, typedDataContainer );
         }
         catch ( DecoderException de )
         {
@@ -141,8 +139,6 @@ public class TypedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testTypedDataWithoutType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
         stream.put( new byte[]
@@ -158,7 +154,7 @@ public class TypedDataDecoderTest
 
         TypedDataContainer typedDataContainer = new TypedDataContainer();
 
-        kerberosDecoder.decode( stream, typedDataContainer );
+        Asn1Decoder.decode( stream, typedDataContainer );
         fail();
     }
 
@@ -166,8 +162,6 @@ public class TypedDataDecoderTest
     @Test
     public void testTypedDataWithoutData() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
         stream.put( new byte[]
@@ -183,7 +177,7 @@ public class TypedDataDecoderTest
 
         TypedDataContainer typedDataContainer = new TypedDataContainer();
 
-        kerberosDecoder.decode( stream, typedDataContainer );
+        Asn1Decoder.decode( stream, typedDataContainer );
 
         TypedData typedData = typedDataContainer.getTypedData();
 
@@ -196,8 +190,6 @@ public class TypedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testTypedDataWithIncorrectPdu() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
         stream.put( new byte[]
@@ -210,7 +202,7 @@ public class TypedDataDecoderTest
 
         TypedDataContainer typedDataContainer = new TypedDataContainer();
 
-        kerberosDecoder.decode( stream, typedDataContainer );
+        Asn1Decoder.decode( stream, typedDataContainer );
         fail();
     }
 
@@ -218,8 +210,6 @@ public class TypedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testTypedDataWithEmptyData() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0xD );
 
         stream.put( new byte[]
@@ -240,7 +230,7 @@ public class TypedDataDecoderTest
 
         TypedDataContainer typedDataContainer = new TypedDataContainer();
 
-        kerberosDecoder.decode( stream, typedDataContainer );
+        Asn1Decoder.decode( stream, typedDataContainer );
         fail();
     }
 
@@ -248,8 +238,6 @@ public class TypedDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testTypedDataWithEmptyType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0xD );
 
         stream.put( new byte[]
@@ -270,7 +258,7 @@ public class TypedDataDecoderTest
 
         TypedDataContainer typedDataContainer = new TypedDataContainer();
 
-        kerberosDecoder.decode( stream, typedDataContainer );
+        Asn1Decoder.decode( stream, typedDataContainer );
         fail();
     }
 }

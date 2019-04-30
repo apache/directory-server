@@ -66,25 +66,16 @@ public class StoreTransited extends GrammarAction<EncTicketPartContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         TransitedEncodingContainer transitedContainer = new TransitedEncodingContainer();
 
         // Now, let's decode the TransitedEncoding
-        Asn1Decoder transitedEncodingDecoder = new Asn1Decoder();
-
-        try
-        {
-            transitedEncodingDecoder.decode( encTicketPartContainer.getStream(), transitedContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( encTicketPartContainer.getStream(), transitedContainer );
 
         TransitedEncoding te = transitedContainer.getTransitedEncoding();
 

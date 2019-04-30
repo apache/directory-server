@@ -35,6 +35,8 @@ public class GetRootDseOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of GetRootDseOperationContext.
+     * 
+     * @param session The session to use
      */
     public GetRootDseOperationContext( CoreSession session )
     {
@@ -50,6 +52,7 @@ public class GetRootDseOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of GetRootDseOperationContext.
      *
+     * @param session The session to use
      * @param dn The entry Dn used to get the rootDse
      */
     public GetRootDseOperationContext( CoreSession session, Dn dn )

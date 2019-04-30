@@ -161,12 +161,7 @@ public class Subnet extends DhcpConfigElement
             return false;
         }
 
-        if ( null != rangeMin && arrayComp( masked, rangeMax.getAddress() ) > 0 )
-        {
-            return false;
-        }
-
-        return true;
+        return ( null == rangeMin || arrayComp( masked, rangeMax.getAddress() ) <= 0 );
     }
 
 

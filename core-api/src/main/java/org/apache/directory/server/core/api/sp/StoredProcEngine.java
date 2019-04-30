@@ -34,17 +34,17 @@ public interface StoredProcEngine
 {
 
     /**
-     * Returns the unique identifier of the supported stored procedure language.
-     * 
+     * @return the unique identifier of the supported stored procedure language.
      */
     String getSPLangId();
 
 
     /**
-     * Registers an entry found to be contaning a stored procedure unit which this engine can operate on.
+     * Registers an entry found to be containing a stored procedure unit which this engine can operate on.
      *
-     * <p>
      * This method should be called before an attempt to invoke a stored procedure via this Engine.
+     * 
+     * @param spUnit The Stored Procedure unit to set
      */
     void setSPUnitEntry( Entry spUnit );
 
@@ -52,6 +52,7 @@ public interface StoredProcEngine
     /**
      * Invokes the stored procedure handled by the engine.
      * 
+     * @param session The CoreSession it's acting on
      * @param fullSPName A fully qualified name of the stored procedure including its unit name.
      * @param spArgs A list or arguments to be passed to the stored procedure. It should be an empty array if there aren't any parameters defined.
      * @return The value obtained from invoked procedure. The client should know what will return exactly so that it can downcast to the appropriate type.

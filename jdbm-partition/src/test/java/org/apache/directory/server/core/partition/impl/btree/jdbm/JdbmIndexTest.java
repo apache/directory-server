@@ -28,8 +28,9 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -38,14 +39,21 @@ import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import jdbm.recman.BaseRecordManager;
+import jdbm.recman.TransactionManager;
 
 
 /**
@@ -55,25 +63,30 @@ import org.junit.Test;
  */
 public class JdbmIndexTest
 {
-    private static File dbFileDir;
-    Index<String, String> idx;
+    private Index<String, String> idx;
     private static SchemaManager schemaManager;
+    private PartitionTxn partitionTxn;
+    
+    /** The recordManager used */
+    private BaseRecordManager recMan;
+    
+    /** The temporary directory the files will be created in */
+    private static Path tempDir;
+    
+    /** The temporary index file */  
+    private File tmpIndexFile;
+    
+    /** A temporary file */
+    private Path tempFile;
 
 
     @BeforeClass
     public static void init() throws Exception
     {
-        String workingDirectory = System.getProperty( "workingDirectory" );
+        tempDir = Files.createTempDirectory( JdbmIndexTest.class.getSimpleName() );
 
-        if ( workingDirectory == null )
-        {
-            String path = JdbmIndexTest.class.getResource( "" ).getPath();
-            int targetPos = path.indexOf( "target" );
-            workingDirectory = path.substring( 0, targetPos + 6 );
-        }
-
-        File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        File schemaRepository = new File( tempDir.toFile(), "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( tempDir.toFile() );
         extractor.extractOrCopy( true );
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         schemaManager = new DefaultSchemaManager( loader );
@@ -90,24 +103,29 @@ public class JdbmIndexTest
     @Before
     public void setup() throws IOException
     {
+        tempFile = Files.createTempFile( tempDir, "data", null );
 
-        File tmpIndexFile = File.createTempFile( JdbmIndexTest.class.getSimpleName(), "db" );
-        tmpIndexFile.deleteOnExit();
-        dbFileDir = new File( tmpIndexFile.getParentFile(), JdbmIndexTest.class.getSimpleName() );
-
-        dbFileDir.mkdirs();
+        tmpIndexFile = tempFile.toFile();
+        partitionTxn = new MockPartitionReadTxn();
+        
+        recMan = new BaseRecordManager( tmpIndexFile.getPath() );
+        TransactionManager transactionManager = recMan.getTransactionManager();
+        transactionManager.setMaximumTransactionsInLog( 2000 );
     }
 
 
     @After
     public void teardown() throws Exception
     {
+        recMan.close();
         destroyIndex();
-
-        if ( ( dbFileDir != null ) && dbFileDir.exists() )
-        {
-            FileUtils.deleteDirectory( dbFileDir );
-        }
+    }
+    
+    
+    @AfterClass
+    public static void cleanup() throws Exception
+    {
+        FileUtils.deleteDirectory( tempDir.toFile() );
     }
 
 
@@ -115,20 +133,7 @@ public class JdbmIndexTest
     {
         if ( idx != null )
         {
-            idx.sync();
-            idx.close();
-
-            // created by this test
-            File dbFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".db" );
-            assertTrue( dbFile.delete() );
-
-            // created by TransactionManager, if transactions are not disabled
-            File logFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".lg" );
-
-            if ( logFile.exists() )
-            {
-                assertTrue( logFile.delete() );
-            }
+            idx.close( partitionTxn );
         }
 
         idx = null;
@@ -139,7 +144,7 @@ public class JdbmIndexTest
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( SchemaConstants.OU_AT );
         JdbmIndex<String> index = new JdbmIndex<String>( attributeType.getName(), false );
-        index.setWkDirPath( dbFileDir.toURI() );
+        index.setWkDirPath( tmpIndexFile.toURI() );
         initIndex( index );
     }
 
@@ -153,7 +158,7 @@ public class JdbmIndexTest
             jdbmIdx = new JdbmIndex<String>( attributeType.getName(), false );
         }
 
-        jdbmIdx.init( schemaManager, attributeType );
+        jdbmIdx.init( recMan, schemaManager, attributeType );
         this.idx = jdbmIdx;
     }
 
@@ -188,7 +193,7 @@ public class JdbmIndexTest
 
         destroyIndex();
         JdbmIndex<String> index = new JdbmIndex<String>( "foo", false );
-        index.setWkDirPath( dbFileDir.toURI() );
+        index.setWkDirPath( tmpIndexFile.toURI() );
         initIndex( index );
         assertEquals( "foo", idx.getAttributeId() );
     }
@@ -220,7 +225,7 @@ public class JdbmIndexTest
     @Test
     public void testWkDirPath() throws Exception
     {
-        File wkdir = new File( dbFileDir, "foo" );
+        File wkdir = new File( tmpIndexFile, "foo" );
 
         // uninitialized index
         JdbmIndex<String> jdbmIndex = new JdbmIndex<String>( "foo", false );
@@ -239,7 +244,7 @@ public class JdbmIndexTest
         {
         }
 
-        assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
+        assertEquals( tmpIndexFile.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
         jdbmIndex = new JdbmIndex<String>( "ou", false );
@@ -294,16 +299,16 @@ public class JdbmIndexTest
     public void testCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( partitionTxn ) );
 
-        idx.add( "foo", Strings.getUUID( 1234L ) );
-        assertEquals( 1, idx.count() );
+        idx.add( partitionTxn, "foo", Strings.getUUID( 1234L ) );
+        assertEquals( 1, idx.count( partitionTxn ) );
 
-        idx.add( "foo", Strings.getUUID( 333L ) );
-        assertEquals( 2, idx.count() );
+        idx.add( partitionTxn, "foo", Strings.getUUID( 333L ) );
+        assertEquals( 2, idx.count( partitionTxn ) );
 
-        idx.add( "bar", Strings.getUUID( 555L ) );
-        assertEquals( 3, idx.count() );
+        idx.add( partitionTxn, "bar", Strings.getUUID( 555L ) );
+        assertEquals( 3, idx.count( partitionTxn ) );
     }
 
 
@@ -311,16 +316,16 @@ public class JdbmIndexTest
     public void testCountOneArg() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count( " foo " ) );
+        assertEquals( 0, idx.count( partitionTxn, " foo " ) );
 
-        idx.add( "bar", Strings.getUUID( 1234L ) );
-        assertEquals( 0, idx.count( " foo " ) );
+        idx.add( partitionTxn, "bar", Strings.getUUID( 1234L ) );
+        assertEquals( 0, idx.count( partitionTxn, " foo " ) );
 
-        idx.add( " foo ", Strings.getUUID( 1234L ) );
-        assertEquals( 1, idx.count( " foo " ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 1234L ) );
+        assertEquals( 1, idx.count( partitionTxn, " foo " ) );
 
-        idx.add( " foo ", Strings.getUUID( 333L ) );
-        assertEquals( 2, idx.count( " foo " ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 333L ) );
+        assertEquals( 2, idx.count( partitionTxn, " foo " ) );
     }
 
 
@@ -328,15 +333,15 @@ public class JdbmIndexTest
     public void testGreaterThanCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.greaterThanCount( "a" ) );
+        assertEquals( 0, idx.greaterThanCount( partitionTxn, "a" ) );
 
         for ( char ch = 'a'; ch <= 'z'; ch++ )
         {
-            idx.add( String.valueOf( ch ), Strings.getUUID( ch ) );
+            idx.add( partitionTxn, String.valueOf( ch ), Strings.getUUID( ch ) );
         }
 
         // We should not go above the magic limit of 10
-        assertEquals( 10, idx.greaterThanCount( "a" ) );
+        assertEquals( 10, idx.greaterThanCount( partitionTxn, "a" ) );
     }
 
 
@@ -344,15 +349,15 @@ public class JdbmIndexTest
     public void testLessThanCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.lessThanCount( "z" ) );
+        assertEquals( 0, idx.lessThanCount( partitionTxn, "z" ) );
 
         for ( char ch = 'a'; ch <= 'z'; ch++ )
         {
-            idx.add( String.valueOf( ch ), Strings.getUUID( ch ) );
+            idx.add( partitionTxn, String.valueOf( ch ), Strings.getUUID( ch ) );
         }
 
         // We should not go above the magic limit of 10
-        assertEquals( 10, idx.lessThanCount( "z" ) );
+        assertEquals( 10, idx.lessThanCount( partitionTxn, "z" ) );
     }
 
 
@@ -365,21 +370,21 @@ public class JdbmIndexTest
     {
         AttributeType attributeType = schemaManager.lookupAttributeTypeRegistry( "seeAlso" );
         JdbmIndex<String> index = new JdbmIndex<String>( attributeType.getName(), false );
-        index.setWkDirPath( dbFileDir.toURI() );
-        index.init( schemaManager, attributeType );
+        index.setWkDirPath( tmpIndexFile.toURI() );
+        index.init( recMan, schemaManager, attributeType );
         this.idx = index;
 
         String foobarDn = "uid=foo,ou=bar";
         String bazbarDn = "uid=baz,ou=bar";
 
-        assertNull( idx.forwardLookup( foobarDn ) );
-        assertNull( idx.forwardLookup( bazbarDn ) );
-        idx.add( foobarDn, Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( foobarDn ) );
-        assertNull( idx.forwardLookup( bazbarDn ) );
-        idx.add( bazbarDn, Strings.getUUID( 24L ) );
-        assertEquals( Strings.getUUID( 24L ), idx.forwardLookup( bazbarDn ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( foobarDn ) );
+        assertNull( idx.forwardLookup( partitionTxn, foobarDn ) );
+        assertNull( idx.forwardLookup( partitionTxn, bazbarDn ) );
+        idx.add( partitionTxn, foobarDn, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, foobarDn ) );
+        assertNull( idx.forwardLookup( partitionTxn, bazbarDn ) );
+        idx.add( partitionTxn, bazbarDn, Strings.getUUID( 24L ) );
+        assertEquals( Strings.getUUID( 24L ), idx.forwardLookup( partitionTxn, bazbarDn ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, foobarDn ) );
     }
 
 
@@ -387,23 +392,23 @@ public class JdbmIndexTest
     public void testLookups() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( " foo " ) );
-        assertNull( idx.forwardLookup( " bar " ) );
+        assertNull( idx.forwardLookup( partitionTxn, " foo " ) );
+        assertNull( idx.forwardLookup( partitionTxn, " bar " ) );
 
-        idx.add( " foo ", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
-        assertTrue( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " foo " ) );
+        assertTrue( idx.forward( partitionTxn, " foo ", Strings.getUUID( 0L ) ) );
 
-        idx.add( " foo ", Strings.getUUID( 1L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
-        assertTrue( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( " foo ", Strings.getUUID( 1L ) ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 1L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " foo " ) );
+        assertTrue( idx.forward( partitionTxn, " foo ", Strings.getUUID( 0L ) ) );
+        assertTrue( idx.forward( partitionTxn, " foo ", Strings.getUUID( 1L ) ) );
 
-        idx.add( "bar", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " bar " ) );
-        assertTrue( idx.forward( " bar ", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
-        assertTrue( idx.forward( " foo ", Strings.getUUID( 1L ) ) );
+        idx.add( partitionTxn, "bar", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " bar " ) );
+        assertTrue( idx.forward( partitionTxn, " bar ", Strings.getUUID( 0L ) ) );
+        assertTrue( idx.forward( partitionTxn, " foo ", Strings.getUUID( 0L ) ) );
+        assertTrue( idx.forward( partitionTxn, " foo ", Strings.getUUID( 1L ) ) );
     }
 
 
@@ -411,33 +416,33 @@ public class JdbmIndexTest
     public void testAddDropById() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( " foo " ) );
-        assertNull( idx.forwardLookup( " bar " ) );
+        assertNull( idx.forwardLookup( partitionTxn, " foo " ) );
+        assertNull( idx.forwardLookup( partitionTxn, " bar " ) );
 
         // test add/drop without adding any duplicates
-        idx.add( " foo ", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " foo " ) );
 
-        idx.drop( " foo ", Strings.getUUID( 0L ) );
-        assertNull( idx.forwardLookup( " foo " ) );
+        idx.drop( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        assertNull( idx.forwardLookup( partitionTxn, " foo " ) );
 
         // test add/drop with duplicates in bulk
-        idx.add( " foo ", Strings.getUUID( 0L ) );
-        idx.add( " foo ", Strings.getUUID( 1L ) );
-        idx.add( " bar ", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " bar " ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 1L ) );
+        idx.add( partitionTxn, " bar ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " foo " ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " bar " ) );
 
-        idx.drop( " foo ", Strings.getUUID( 0L ) );
-        idx.drop( " bar ", Strings.getUUID( 0L ) );
-        assertFalse( idx.forward( " bar ", Strings.getUUID( 0L ) ) );
-        assertFalse( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
+        idx.drop( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        idx.drop( partitionTxn, " bar ", Strings.getUUID( 0L ) );
+        assertFalse( idx.forward( partitionTxn, " bar ", Strings.getUUID( 0L ) ) );
+        assertFalse( idx.forward( partitionTxn, " foo ", Strings.getUUID( 0L ) ) );
 
-        idx.drop( " bar ", Strings.getUUID( 1L ) );
-        idx.drop( " foo ", Strings.getUUID( 1L ) );
-        assertNull( idx.forwardLookup( " foo " ) );
-        assertNull( idx.forwardLookup( " bar " ) );
-        assertEquals( 0, idx.count() );
+        idx.drop( partitionTxn, " bar ", Strings.getUUID( 1L ) );
+        idx.drop( partitionTxn, " foo ", Strings.getUUID( 1L ) );
+        assertNull( idx.forwardLookup( partitionTxn, " foo " ) );
+        assertNull( idx.forwardLookup( partitionTxn, " bar " ) );
+        assertEquals( 0, idx.count( partitionTxn ) );
     }
 
 
@@ -445,35 +450,35 @@ public class JdbmIndexTest
     public void testAddDropOneByOne() throws Exception
     {
         initIndex();
-        assertNull( idx.forwardLookup( " foo " ) );
-        assertNull( idx.forwardLookup( " bar " ) );
+        assertNull( idx.forwardLookup( partitionTxn, " foo " ) );
+        assertNull( idx.forwardLookup( partitionTxn, " bar " ) );
 
         // test add/drop without adding any duplicates
-        idx.add( " foo ", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " foo " ) );
 
-        idx.drop( " foo ", Strings.getUUID( 0L ) );
-        assertNull( idx.forwardLookup( " foo " ) );
+        idx.drop( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        assertNull( idx.forwardLookup( partitionTxn, " foo " ) );
 
         // test add/drop with duplicates but one at a time
-        idx.add( " foo ", Strings.getUUID( 0L ) );
-        idx.add( " foo ", Strings.getUUID( 1L ) );
-        idx.add( " bar ", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " bar " ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 1L ) );
+        idx.add( partitionTxn, " bar ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " foo " ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " bar " ) );
 
-        idx.drop( " bar ", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( " foo " ) );
-        assertFalse( idx.forward( " bar ", Strings.getUUID( 0L ) ) );
+        idx.drop( partitionTxn, " bar ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, " foo " ) );
+        assertFalse( idx.forward( partitionTxn, " bar ", Strings.getUUID( 0L ) ) );
 
-        idx.drop( " foo ", Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 1L ), idx.forwardLookup( " foo " ) );
-        assertFalse( idx.forward( " foo ", Strings.getUUID( 0L ) ) );
+        idx.drop( partitionTxn, " foo ", Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 1L ), idx.forwardLookup( partitionTxn, " foo " ) );
+        assertFalse( idx.forward( partitionTxn, " foo ", Strings.getUUID( 0L ) ) );
 
-        idx.drop( " foo ", Strings.getUUID( 1L ) );
-        assertNull( idx.forwardLookup( " foo " ) );
-        assertNull( idx.forwardLookup( " bar " ) );
-        assertEquals( 0, idx.count() );
+        idx.drop( partitionTxn, " foo ", Strings.getUUID( 1L ) );
+        assertNull( idx.forwardLookup( partitionTxn, " foo " ) );
+        assertNull( idx.forwardLookup( partitionTxn, " bar " ) );
+        assertEquals( 0, idx.count( partitionTxn ) );
     }
 
 
@@ -485,22 +490,22 @@ public class JdbmIndexTest
     public void testCursors() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( partitionTxn ) );
 
-        idx.add( " foo ", Strings.getUUID( 1234L ) );
-        assertEquals( 1, idx.count() );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 1234L ) );
+        assertEquals( 1, idx.count( partitionTxn ) );
 
-        idx.add( " foo ", Strings.getUUID( 333L ) );
-        assertEquals( 2, idx.count() );
+        idx.add( partitionTxn, " foo ", Strings.getUUID( 333L ) );
+        assertEquals( 2, idx.count( partitionTxn ) );
 
-        idx.add( "bar", Strings.getUUID( 555L ) );
-        assertEquals( 3, idx.count() );
+        idx.add( partitionTxn, "bar", Strings.getUUID( 555L ) );
+        assertEquals( 3, idx.count( partitionTxn ) );
 
         // use forward index's cursor
-        Cursor<IndexEntry<String, String>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<String, String>> cursor = idx.forwardCursor( partitionTxn );
         cursor.beforeFirst();
 
-        assertEquals( 3, idx.count() );
+        assertEquals( 3, idx.count( partitionTxn ) );
 
         cursor.next();
         IndexEntry<String, String> e1 = cursor.get();
@@ -529,8 +534,8 @@ public class JdbmIndexTest
         try
         {
             AttributeType noEqMatchAttribute = new AttributeType( "1.1" );
-            jdbmIndex.setWkDirPath( dbFileDir.toURI() );
-            jdbmIndex.init( schemaManager, noEqMatchAttribute );
+            jdbmIndex.setWkDirPath( tmpIndexFile.toURI() );
+            jdbmIndex.init( recMan, schemaManager, noEqMatchAttribute );
             fail( "should not get here" );
         }
         catch ( IOException e )
@@ -547,8 +552,8 @@ public class JdbmIndexTest
     public void testSingleValuedAttribute() throws Exception
     {
         JdbmIndex<Object> jdbmIndex = new JdbmIndex<Object>( SchemaConstants.CREATORS_NAME_AT, false );
-        jdbmIndex.setWkDirPath( dbFileDir.toURI() );
-        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
-        jdbmIndex.close();
+        jdbmIndex.setWkDirPath( tmpIndexFile.toURI() );
+        jdbmIndex.init( recMan, schemaManager, schemaManager.lookupAttributeTypeRegistry( SchemaConstants.CREATORS_NAME_AT ) );
+        jdbmIndex.close( partitionTxn );
     }
 }

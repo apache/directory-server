@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.codec.Charsets;
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -96,8 +96,8 @@ import org.slf4j.LoggerFactory;
 /**
  * An {@link org.apache.directory.server.core.api.interceptor.Interceptor} that manages and enforces schemas.
  *
- * @todo Better interceptor description required.
-
+ * TODO Better interceptor description required.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SchemaInterceptor extends BaseInterceptor
@@ -152,7 +152,7 @@ public class SchemaInterceptor extends BaseInterceptor
      * Initialize the Schema Service
      *
      * @param directoryService the directory service core
-     * @throws Exception if there are problems during initialization
+     * @throws LdapException if there are problems during initialization
      */
     @Override
     public void init( DirectoryService directoryService ) throws LdapException
@@ -172,7 +172,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         // stuff for dealing with subentries (garbage for now)
         Value subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
 
         computeSuperiors();
 
@@ -192,9 +192,8 @@ public class SchemaInterceptor extends BaseInterceptor
      *
      * @param atSeen ???
      * @param objectClass the object class to gather MUST attributes for
-     * @throws Exception if there are problems resolving schema entitites
      */
-    private void computeMustAttributes( ObjectClass objectClass, Set<String> atSeen ) throws LdapException
+    private void computeMustAttributes( ObjectClass objectClass, Set<String> atSeen )
     {
         List<ObjectClass> parents = superiors.get( objectClass.getOid() );
 
@@ -236,9 +235,8 @@ public class SchemaInterceptor extends BaseInterceptor
      *
      * @param atSeen ???
      * @param objectClass the object class to get all the MAY attributes for
-     * @throws Exception with problems accessing registries
      */
-    private void computeMayAttributes( ObjectClass objectClass, Set<String> atSeen ) throws LdapException
+    private void computeMayAttributes( ObjectClass objectClass, Set<String> atSeen )
     {
         List<ObjectClass> parents = superiors.get( objectClass.getOid() );
 
@@ -359,16 +357,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             if ( !value.isHumanReadable() )
             {
-                try
-                {
-                    return new Value( attributeType, new String( value.getBytes(), "UTF-8" ) );
-                }
-                catch ( UnsupportedEncodingException uee )
-                {
-                    String message = I18n.err( I18n.ERR_47 );
-                    LOG.error( message );
-                    throw new LdapException( message );
-                }
+                return new Value( attributeType, new String( value.getBytes(), Charsets.UTF_8 ) );
             }
         }
         else
@@ -502,7 +491,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         for ( Value objectClass : objectClasses )
         {
-            String objectClassName = objectClass.getValue();
+            String objectClassName = objectClass.getString();
 
             if ( SchemaConstants.TOP_OC.equals( objectClassName ) )
             {
@@ -538,7 +527,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on all objectclasses
         for ( Value value : objectClasses )
         {
-            String ocName = value.getValue();
+            String ocName = value.getString();
             ObjectClass oc = schemaManager.lookupObjectClassRegistry( ocName );
 
             List<AttributeType> types = oc.getMustAttributeTypes();
@@ -567,7 +556,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on all objectclasses
         for ( Value objectClass : objectClasses )
         {
-            String ocName = objectClass.getValue();
+            String ocName = objectClass.getString();
             ObjectClass oc = schemaManager.lookupObjectClassRegistry( ocName );
 
             List<AttributeType> types = oc.getMayAttributeTypes();
@@ -609,7 +598,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Construct the new list of ObjectClasses
         for ( Value ocValue : objectClassAttr )
         {
-            String ocName = ocValue.getValue();
+            String ocName = ocValue.getString();
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
@@ -824,6 +813,49 @@ public class SchemaInterceptor extends BaseInterceptor
                     }
 
                     break;
+                    
+                case INCREMENT_ATTRIBUTE:
+                    // The incremented attribute might not exist
+                    if ( !tempEntry.containsAttribute( attributeType ) )
+                    {
+                        throw new IllegalArgumentException( "Increment operation on a non existing attribute"
+                            + attributeType );
+                    }
+                    else if ( !SchemaConstants.INTEGER_SYNTAX.equals( attributeType.getSyntax().getOid() ) )
+                    {
+                        throw new IllegalArgumentException( "Increment operation on a non integer attribute"
+                            + attributeType );
+                    }
+                    else
+                    {
+                        Attribute modified = tempEntry.get( attributeType );
+                        Value[] newValues = new Value[ modified.size() ];
+                        int increment = 1;
+                        int i = 0;
+                        
+                        if ( mod.getAttribute().size() != 0 )
+                        {
+                            increment = Integer.parseInt( mod.getAttribute().getString() );
+                        }
+                        
+                        for ( Value value : modified )
+                        {
+                            int intValue = Integer.parseInt( value.getNormalized() );
+                            
+                            if ( intValue >= Integer.MAX_VALUE - increment )
+                            {
+                                throw new IllegalArgumentException( "Increment operation overflow for attribute" 
+                                    + attributeType );
+                            }
+                            
+                            newValues[i++] = new Value( Integer.toString( intValue + increment ) );
+                            modified.remove( value );
+                        }
+                        
+                        modified.add( newValues );
+                    }
+                    
+                    break;
 
                 default:
                     throw new IllegalArgumentException( "Unexpected modify operation " + mod.getOperation() );
@@ -988,7 +1020,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 try
                 {
-                    String supName = sup.getValue();
+                    String supName = sup.getString();
 
                     ObjectClass superior = schemaManager.lookupObjectClassRegistry( supName );
 
@@ -1491,7 +1523,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 SimpleNode node = ( SimpleNode ) filter;
                 String objectClass;
 
-                objectClass = node.getValue().getValue();
+                objectClass = node.getValue().getString();
 
                 String objectClassOid;
 
@@ -1740,9 +1772,9 @@ public class SchemaInterceptor extends BaseInterceptor
                     continue;
                 }
 
-                if ( !syntaxChecker.isValidSyntax( value.getValue() ) )
+                if ( !syntaxChecker.isValidSyntax( value.getString() ) )
                 {
-                    String message = I18n.err( I18n.ERR_280, value.getValue(), attribute.getUpId() );
+                    String message = I18n.err( I18n.ERR_280, value.getString(), attribute.getUpId() );
                     LOG.info( message );
                     throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }
@@ -1779,25 +1811,14 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on each values
         for ( Value value : attribute )
         {
-            if ( value.isHumanReadable() )
-            {
-                continue;
-            }
-            else
+            if ( !value.isHumanReadable() )
             {
                 // we have a byte[] value. It should be a String UTF-8 encoded
                 // Let's transform it
-                try
-                {
-                    String valStr = new String( value.getBytes(), "UTF-8" );
-                    attribute.remove( value );
-                    attribute.add( valStr );
-                    isModified = true;
-                }
-                catch ( UnsupportedEncodingException uee )
-                {
-                    throw new LdapException( I18n.err( I18n.ERR_281 ) );
-                }
+                String valStr = new String( value.getBytes(), Charsets.UTF_8 );
+                attribute.remove( value );
+                attribute.add( valStr );
+                isModified = true;
             }
         }
 
@@ -1817,11 +1838,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Loop on each values
         for ( Value value : attribute )
         {
-            if ( !value.isHumanReadable() )
-            {
-                continue;
-            }
-            else
+            if ( value.isHumanReadable() )
             {
                 // We have a String value. It should be a byte[]
                 // Let's transform it

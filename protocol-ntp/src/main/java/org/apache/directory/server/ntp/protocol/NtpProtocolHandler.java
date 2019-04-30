@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The NTP protocol handler. It implements the {@link org.apache.mina.core.service.IoHandler#messageReceived} method,
  * which returns the NTP reply. The {@link org.apache.mina.core.service.IoHandler#exceptionCaught} is also implemented,
- * all the other methods are handled by the {@link IoHandlerAdapter} class.<br/>
+ * all the other methods are handled by the {@link IoHandlerAdapter} class.<br>
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -49,16 +49,18 @@ public class NtpProtocolHandler extends IoHandlerAdapter
     /**
      * {@inheritDoc}
      */
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.error( session.getRemoteAddress() + " EXCEPTION", cause );
-        session.close( true );
+        session.closeNow();
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageReceived( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )

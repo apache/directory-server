@@ -40,7 +40,7 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class KerberosProtocolHandler implements IoHandler
+public class KerberosProtocolHandler extends IoHandlerAdapter
 {
     /** The loggers for this class */
     private static final Logger LOG = LoggerFactory.getLogger( KerberosProtocolHandler.class );
@@ -71,8 +71,8 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * Creates a new instance of KerberosProtocolHandler.
      *
-     * @param kdcServer
-     * @param store
+     * @param kdcServer The KdcServer instance
+     * @param store The Principal store
      */
     public KerberosProtocolHandler( KdcServer kdcServer, PrincipalStore store )
     {
@@ -84,6 +84,7 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sessionCreated( IoSession session ) throws Exception
     {
         if ( LOG.isDebugEnabled() )
@@ -101,6 +102,7 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sessionOpened( IoSession session )
     {
         if ( LOG.isDebugEnabled() )
@@ -118,6 +120,7 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sessionClosed( IoSession session )
     {
         if ( LOG.isDebugEnabled() )
@@ -135,6 +138,7 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sessionIdle( IoSession session, IdleStatus status )
     {
         if ( LOG.isDebugEnabled() )
@@ -152,17 +156,19 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.error( "{} EXCEPTION", session.getRemoteAddress(), cause );
         LOG_KRB.error( "{} EXCEPTION", session.getRemoteAddress(), cause );
-        session.close( true );
+        session.closeNow();
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageReceived( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )
@@ -266,6 +272,7 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * {@inheritDoc}
      */
+    @Override
     public void messageSent( IoSession session, Object message )
     {
         if ( LOG.isDebugEnabled() )
@@ -308,7 +315,8 @@ public class KerberosProtocolHandler implements IoHandler
     /**
      * Creates an explicit error message
      * The error we've get 
-     * @param error
+     * 
+     * @param error The Kerberos error to log
      */
     protected void logErrorMessage( KrbError error )
     {
@@ -338,7 +346,9 @@ public class KerberosProtocolHandler implements IoHandler
     }
 
     
+    @Override
     public void inputClosed( IoSession session )
     {
+        session.closeNow();
     }
 }

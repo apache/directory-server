@@ -40,6 +40,7 @@ import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.junit.After;
 import org.junit.Before;
@@ -58,6 +59,7 @@ public class AvlRdnIndexTest
     private static File dbFileDir;
     Index<ParentIdAndRdn, String> idx;
     private static SchemaManager schemaManager;
+    private MockPartitionReadTxn mockTxn;
 
 
     @BeforeClass
@@ -96,6 +98,7 @@ public class AvlRdnIndexTest
         dbFileDir = new File( tmpIndexFile.getParentFile(), AvlRdnIndexTest.class.getSimpleName() );
 
         dbFileDir.mkdirs();
+        mockTxn = new MockPartitionReadTxn();
     }
 
 
@@ -115,8 +118,7 @@ public class AvlRdnIndexTest
     {
         if ( idx != null )
         {
-            idx.sync();
-            idx.close();
+            idx.close( mockTxn );
         }
 
         idx = null;
@@ -185,26 +187,26 @@ public class AvlRdnIndexTest
     public void testCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( mockTxn ) );
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count() );
+        idx.add( mockTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( mockTxn ) );
 
         // setting a different parentId should make this key a different key
         key = new ParentIdAndRdn( Strings.getUUID( 1L ), new Rdn( "cn=key" ) );
 
-        idx.add( key, Strings.getUUID( 1L ) );
-        assertEquals( 2, idx.count() );
+        idx.add( mockTxn, key, Strings.getUUID( 1L ) );
+        assertEquals( 2, idx.count( mockTxn ) );
 
         //count shouldn't get affected cause of inserting the same key
-        idx.add( key, Strings.getUUID( 2L ) );
-        assertEquals( 2, idx.count() );
+        idx.add( mockTxn, key, Strings.getUUID( 2L ) );
+        assertEquals( 2, idx.count( mockTxn ) );
 
         key = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( "cn=key" ) );
-        idx.add( key, Strings.getUUID( 3L ) );
-        assertEquals( 3, idx.count() );
+        idx.add( mockTxn, key, Strings.getUUID( 3L ) );
+        assertEquals( 3, idx.count( mockTxn ) );
     }
 
 
@@ -215,10 +217,10 @@ public class AvlRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertEquals( 0, idx.count( key ) );
+        assertEquals( 0, idx.count( mockTxn, key ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count( key ) );
+        idx.add( mockTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( mockTxn, key ) );
     }
 
 
@@ -233,11 +235,11 @@ public class AvlRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertNull( idx.forwardLookup( key ) );
+        assertNull( idx.forwardLookup( mockTxn, key ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( Strings.getUUID( 0L ) ) );
+        idx.add( mockTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( mockTxn, key ) );
+        assertEquals( key, idx.reverseLookup( mockTxn, Strings.getUUID( 0L ) ) );
     }
 
 
@@ -248,15 +250,15 @@ public class AvlRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertNull( idx.forwardLookup( key ) );
+        assertNull( idx.forwardLookup( mockTxn, key ) );
 
         // test add/drop without adding any duplicates
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( key ) );
+        idx.add( mockTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( mockTxn, key ) );
 
-        idx.drop( key, Strings.getUUID( 0L ) );
-        assertNull( idx.forwardLookup( key ) );
-        assertNull( idx.reverseLookup( Strings.getUUID( 0L ) ) );
+        idx.drop( mockTxn, key, Strings.getUUID( 0L ) );
+        assertNull( idx.forwardLookup( mockTxn, key ) );
+        assertNull( idx.reverseLookup( mockTxn, Strings.getUUID( 0L ) ) );
     }
 
 
@@ -271,22 +273,22 @@ public class AvlRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( mockTxn ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count() );
+        idx.add( mockTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( mockTxn ) );
 
         for ( long i = 1; i < 5; i++ )
         {
             key = new ParentIdAndRdn( Strings.getUUID( i ), new Rdn( "cn=key" + i ) );
 
-            idx.add( key, Strings.getUUID( i ) );
+            idx.add( mockTxn, key, Strings.getUUID( i ) );
         }
 
-        assertEquals( 5, idx.count() );
+        assertEquals( 5, idx.count( mockTxn ) );
 
         // use forward index's cursor
-        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = idx.forwardCursor( mockTxn );
         cursor.beforeFirst();
 
         cursor.next();

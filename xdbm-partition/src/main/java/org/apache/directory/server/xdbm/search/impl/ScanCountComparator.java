@@ -29,8 +29,6 @@ import org.apache.directory.server.xdbm.search.Evaluator;
  * A helper class used to compare scan counts.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- *
- * @param <ID> The type of element
  */
 public class ScanCountComparator implements Comparator<Evaluator<?>>
 {
@@ -39,19 +37,19 @@ public class ScanCountComparator implements Comparator<Evaluator<?>>
      */
     public int compare( Evaluator<?> e1, Evaluator<?> e2 )
     {
-        Object count1 = e1.getExpression().get( "count" );
-        Object count2 = e2.getExpression().get( "count" );
+        Object count1 = e1.getExpression().get( DefaultOptimizer.COUNT_ANNOTATION );
+        Object count2 = e2.getExpression().get( DefaultOptimizer.COUNT_ANNOTATION );
         long scanCount1 = Long.MAX_VALUE;
         long scanCount2 = Long.MAX_VALUE;
 
         if ( count1 != null )
         {
-            scanCount1 = ( Long ) e1.getExpression().get( "count" );
+            scanCount1 = ( Long ) e1.getExpression().get( DefaultOptimizer.COUNT_ANNOTATION );
         }
 
         if ( count2 != null )
         {
-            scanCount2 = ( Long ) e2.getExpression().get( "count" );
+            scanCount2 = ( Long ) e2.getExpression().get( DefaultOptimizer.COUNT_ANNOTATION );
         }
 
         if ( scanCount1 == scanCount2 )

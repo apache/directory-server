@@ -29,10 +29,12 @@ import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.EqualityEvaluator;
 import org.slf4j.Logger;
@@ -71,12 +73,16 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
     /**
      * Creates a new instance of an EqualityCursor
+     * 
+     * @param partitionTxn The transaction to use
      * @param store The store
      * @param equalityEvaluator The EqualityEvaluator
-     * @throws Exception If the creation failed
+     * @throws LdapException If the creation failed
+     * @throws IndexNotFoundException If the index was not found
      */
     @SuppressWarnings("unchecked")
-    public EqualityCursor( Store store, EqualityEvaluator<V> equalityEvaluator ) throws Exception
+    public EqualityCursor( PartitionTxn partitionTxn, Store store, EqualityEvaluator<V> equalityEvaluator ) 
+        throws LdapException, IndexNotFoundException
     {
         if ( IS_DEBUG )
         {
@@ -84,6 +90,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         }
 
         this.equalityEvaluator = equalityEvaluator;
+        this.partitionTxn = partitionTxn;
 
         AttributeType attributeType = equalityEvaluator.getExpression().getAttributeType();
         Value value = equalityEvaluator.getExpression().getValue();
@@ -91,13 +98,13 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
         if ( store.hasIndexOn( attributeType ) )
         {
             Index<V, String> userIndex = ( Index<V, String> ) store.getIndex( attributeType );
-            String normalizedValue = attributeType.getEquality().getNormalizer().normalize( value.getValue() );
-            userIdxCursor = userIndex.forwardCursor( ( V ) normalizedValue );
+            String normalizedValue = attributeType.getEquality().getNormalizer().normalize( value.getString() );
+            userIdxCursor = userIndex.forwardCursor( partitionTxn, ( V ) normalizedValue );
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = new AllEntriesCursor( store );
+            uuidIdxCursor = new AllEntriesCursor( partitionTxn, store );
             userIdxCursor = null;
         }
     }
@@ -115,6 +122,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean available()
     {
         if ( userIdxCursor != null )
@@ -129,9 +137,10 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void before( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -147,9 +156,10 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void after( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -167,7 +177,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -187,7 +197,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -227,6 +237,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         if ( userIdxCursor != null )
@@ -236,10 +247,10 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
         while ( uuidIdxCursor.previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             IndexEntry<?, String> candidate = uuidIdxCursor.get();
 
-            if ( equalityEvaluator.evaluate( candidate ) )
+            if ( equalityEvaluator.evaluate( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -252,6 +263,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         if ( userIdxCursor != null )
@@ -261,10 +273,10 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
 
         while ( uuidIdxCursor.next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             IndexEntry<?, String> candidate = uuidIdxCursor.get();
 
-            if ( equalityEvaluator.evaluate( candidate ) )
+            if ( equalityEvaluator.evaluate( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -280,7 +292,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     @SuppressWarnings("unchecked")
     public IndexEntry<V, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -299,6 +311,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -322,6 +335,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -345,6 +359,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

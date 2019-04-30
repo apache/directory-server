@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-service</artifactId>
@@ -110,8 +110,8 @@
                 <filter>
                   <artifact>org.bouncycastle:bcprov-jdk15on</artifact>
                   <excludes>
-                    <exclude>META-INF/BCKEY.SF</exclude>
-                    <exclude>META-INF/BCKEY.DSA</exclude>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
                   </excludes>
                 </filter>
               </filters>

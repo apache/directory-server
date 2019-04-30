@@ -92,7 +92,7 @@ public class AddOperationContext extends AbstractChangeOperationContext
 
 
     /**
-     * Creates a new instance of ModifyOperationContext.
+     * Creates a new instance of AddOperationContext.
      *
      * @param session the current Session
      * @param dn the name of the entry being added
@@ -111,6 +111,13 @@ public class AddOperationContext extends AbstractChangeOperationContext
     }
 
 
+    /**
+     * Creates a new instance of AddOperationContext.
+     * 
+     * @param session The session to use
+     * @param addRequest The Add operation to process
+     * @throws LdapException If the Add operation failed
+     */
     public AddOperationContext( CoreSession session, AddRequest addRequest ) throws LdapException
     {
         super( session );

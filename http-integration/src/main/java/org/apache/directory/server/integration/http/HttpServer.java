@@ -106,7 +106,8 @@ public class HttpServer
     /**
      * starts the jetty http server
      * 
-     * @throws Exception
+     * @param dirService The DirectoryService instance
+     * @throws Exception If Jetty can't be started
      */
     public void start( DirectoryService dirService ) throws Exception
     {
@@ -214,13 +215,13 @@ public class HttpServer
                 }
 
                 SslContextFactory sslContextFactory = new SslContextFactory();
-                sslContextFactory.setKeyStoreType( "JKS" );
+                sslContextFactory.setKeyStoreType( KeyStore.getDefaultType() );
                 sslContextFactory.setKeyStorePath( ksFile.getAbsolutePath() );
                 sslContextFactory.setKeyStorePassword( password );
                 sslContextFactory.setKeyManagerPassword( password );
 
                 HttpConfiguration httpsConfiguration = new HttpConfiguration();
-                httpsConfiguration.setSecureScheme( "https" );
+                httpsConfiguration.setSecureScheme( HTTPS_TRANSPORT_ID );
                 httpsConfiguration.setSecurePort( httpsTransport.getPort() );
                 httpsConfiguration.addCustomizer( new SecureRequestCustomizer() );
 
@@ -290,8 +291,8 @@ public class HttpServer
 
     /**
      * stops the jetty http server
-     * 
-     * @throws Exception
+     *  
+     * @throws Exception If Jetty can't be stopped
      */
     public void stop() throws Exception
     {

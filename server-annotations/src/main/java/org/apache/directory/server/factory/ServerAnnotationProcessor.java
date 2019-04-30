@@ -19,6 +19,7 @@
 package org.apache.directory.server.factory;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -38,6 +39,7 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.annotations.AnnotationUtils;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.security.CertificateUtil;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.ChangePasswordConfig;
 import org.apache.directory.server.kerberos.KerberosConfig;
@@ -117,6 +119,10 @@ public final class ServerAnnotationProcessor
      * Just gives an instance of {@link LdapServer} without starting it.
      * For getting a running LdapServer instance see {@link #createLdapServer(CreateLdapServer, DirectoryService)}
      * @see #createLdapServer(CreateLdapServer, DirectoryService)
+     * 
+     * @param createLdapServer The LdapServer to create
+     * @param directoryService the directory service
+     * @return The created LdapServer
      */
     public static LdapServer instantiateLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
     {
@@ -143,6 +149,20 @@ public final class ServerAnnotationProcessor
             {
                 ldapServer.setKeystoreFile( createLdapServer.keyStore() );
                 ldapServer.setCertificatePassword( createLdapServer.certificatePassword() );
+            }
+            else
+            {
+                try
+                {
+                    // Create a temporary keystore, be sure to remove it when exiting the test
+                    File keyStoreFile = CertificateUtil.createTempKeyStore( "testStore" );
+                    ldapServer.setKeystoreFile( keyStoreFile.getAbsolutePath() );
+                    ldapServer.setCertificatePassword( "secret" );
+                }
+                catch ( Exception e )
+                {
+                    
+                }
             }
 
             for ( Class<?> extOpClass : createLdapServer.extendedOpHandlers() )
@@ -192,7 +212,7 @@ public final class ServerAnnotationProcessor
                 }
             }
 
-            List<String> realms = new ArrayList<String>();
+            List<String> realms = new ArrayList<>();
             for ( String s : createLdapServer.saslRealms() )
             {
                 realms.add( s );
@@ -213,7 +233,9 @@ public final class ServerAnnotationProcessor
      * Returns an LdapServer instance and starts it before returning the instance, infering
      * the configuration from the Stack trace
      *  
+     * @param directoryService the directory service
      * @return a running LdapServer instance
+     * @throws ClassNotFoundException If the CreateLdapServer class cannot be loaded
      */
     public static LdapServer getLdapServer( DirectoryService directoryService ) throws ClassNotFoundException
     {
@@ -266,6 +288,7 @@ public final class ServerAnnotationProcessor
      * the configuration from the Stack trace
      *  
      * @return a running LdapServer instance
+     * @throws ClassNotFoundException If the CreateConsumer class cannot be loaded
      */
     public static ReplicationConsumer createConsumer() throws ClassNotFoundException
     {
@@ -318,12 +341,9 @@ public final class ServerAnnotationProcessor
      *
      * @param description A description for the created LdapServer
      * @param directoryService The associated DirectoryService
-     * @param startPort The port used by the server
      * @return An LdapServer instance 
-     * @throws Exception If the server cannot be started
      */
     public static LdapServer createLdapServer( Description description, DirectoryService directoryService )
-        throws Exception
     {
         CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
 
@@ -371,6 +391,7 @@ public final class ServerAnnotationProcessor
     public static KdcServer getKdcServer( DirectoryService directoryService, int startPort ) throws Exception
     {
         CreateKdcServer createKdcServer = ( CreateKdcServer ) getAnnotation( CreateKdcServer.class );
+        
         return createKdcServer( createKdcServer, directoryService );
     }
 
@@ -506,7 +527,7 @@ public final class ServerAnnotationProcessor
         else if ( protocol.equalsIgnoreCase( "KRB" ) || protocol.equalsIgnoreCase( "CPW" ) )
         {
             Transport tcp = new TcpTransport( address, port, nbThreads, backlog );
-            List< Transport > transports = new ArrayList< Transport >();
+            List< Transport > transports = new ArrayList<>();
             transports.add( tcp );
             
             Transport udp = new UdpTransport( address, port );
@@ -517,6 +538,7 @@ public final class ServerAnnotationProcessor
         throw new IllegalArgumentException( I18n.err( I18n.ERR_689, protocol ) );
     }
 
+
     private static int getFreePort() throws IOException
     {
         ServerSocket ss = new ServerSocket( 0 );
@@ -526,12 +548,11 @@ public final class ServerAnnotationProcessor
         return port;
     }
 
+
     public static KdcServer getKdcServer( Description description, DirectoryService directoryService, int startPort )
-        throws Exception
     {
         CreateKdcServer createLdapServer = description.getAnnotation( CreateKdcServer.class );
 
         return createKdcServer( createLdapServer, directoryService );
     }
-
 }

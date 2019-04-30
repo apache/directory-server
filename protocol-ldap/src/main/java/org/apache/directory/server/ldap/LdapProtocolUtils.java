@@ -20,7 +20,7 @@
 package org.apache.directory.server.ldap;
 
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.ldap.model.csn.Csn;
 import org.apache.directory.api.ldap.model.message.Request;
 import org.apache.directory.api.ldap.model.message.Response;
@@ -44,7 +44,7 @@ public final class LdapProtocolUtils
     public static final String REPLICA_ID_PREFIX = "rid=";
 
     public static final int REPLICA_ID_PREFIX_LEN = REPLICA_ID_PREFIX.length();
-    
+
     /** the prefix for Csn value */
     public static final String CSN_PREFIX = "csn=";
 
@@ -61,11 +61,11 @@ public final class LdapProtocolUtils
     /**
      * Extracts request controls from a request to populate into an
      * OperationContext.
-     *  
+     *
      * @param opContext the context to populate with request controls
      * @param request the request to extract controls from
      */
-    public static void setRequestControls( OperationContext opContext, Request request ) throws Exception
+    public static void setRequestControls( OperationContext opContext, Request request )
     {
         if ( request.getControls() != null )
         {
@@ -76,13 +76,13 @@ public final class LdapProtocolUtils
 
 
     /**
-     * Extracts response controls from a an OperationContext to populate into 
+     * Extracts response controls from a an OperationContext to populate into
      * a Response object.
-     *  
+     *
      * @param opContext the context to extract controls from
      * @param response the response to populate with response controls
      */
-    public static void setResponseControls( OperationContext opContext, Response response ) throws Exception
+    public static void setResponseControls( OperationContext opContext, Response response )
     {
         response.addAllControls( opContext.getResponseControls() );
     }
@@ -100,6 +100,9 @@ public final class LdapProtocolUtils
     /**
      * Check the cookie syntax. A cookie must have the following syntax :
      * { rid={replicaId},csn={CSN} }
+     *
+     * @param cookieString The cookie
+     * @return <tt>true</tt> if the cookie is valid
      */
     public static boolean isValidCookie( String cookieString )
     {
@@ -142,9 +145,9 @@ public final class LdapProtocolUtils
 
     /**
      * returns the CSN present in cookie
-     * 
+     *
      * @param cookieString the cookie
-     * @return
+     * @return The CSN
      */
     public static String getCsn( String cookieString )
     {
@@ -155,9 +158,9 @@ public final class LdapProtocolUtils
 
     /**
      * returns the replica id present in cookie
-     * 
+     *
      * @param cookieString  the cookie
-     * @return
+     * @return The replica Id
      */
     public static int getReplicaId( String cookieString )
     {

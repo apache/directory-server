@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.api;
 
 
+import org.apache.directory.api.ldap.model.schema.ObjectClass;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 
 

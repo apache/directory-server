@@ -42,6 +42,8 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -65,6 +67,7 @@ public class DupsContainerCursorTest
     private static SchemaManager schemaManager;
     RecordManager recman;
     private static final int SIZE = 15;
+    private PartitionTxn partitionTxn;
 
 
     @BeforeClass
@@ -114,6 +117,7 @@ public class DupsContainerCursorTest
         comparator.setSchemaManager( schemaManager );
         table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
             comparator, comparator, null, new DefaultSerializer() );
+        partitionTxn = new MockPartitionReadTxn();
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -121,7 +125,7 @@ public class DupsContainerCursorTest
     @After
     public void destroyTable() throws Exception
     {
-        table.close();
+        table.close( partitionTxn );
         table = null;
         recman.close();
         recman = null;
@@ -187,7 +191,7 @@ public class DupsContainerCursorTest
     @Test
     public void testOnTableWithSingleEntry() throws Exception
     {
-        table.put( "1", "1" );
+        table.put( partitionTxn, "1", "1" );
         Cursor<Tuple<String, DupsContainer<String>>> cursor =
             new DupsContainerCursor<String, String>( table );
         assertTrue( cursor.first() );
@@ -209,7 +213,7 @@ public class DupsContainerCursorTest
         for ( int i = 1; i < 10; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn, istr, istr );
         }
 
         Cursor<Tuple<String, DupsContainer<String>>> cursor =

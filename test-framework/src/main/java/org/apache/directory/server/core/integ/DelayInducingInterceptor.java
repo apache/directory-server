@@ -26,6 +26,7 @@ import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 
 
@@ -46,6 +47,7 @@ public class DelayInducingInterceptor extends BaseInterceptor
     }
 
 
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = next( searchContext );

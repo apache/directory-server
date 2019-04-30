@@ -772,6 +772,22 @@ objectclass: ads-base
 objectclass: top
 ads-enabled: TRUE
 
+dn: ads-extendedOpId=startTransactionHandler,ou=extendedOpHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-extendedOpId: startTransactionHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.StartTransactionHandler
+objectclass: ads-extendedOpHandler
+objectclass: ads-base
+objectclass: top
+ads-enabled: TRUE
+
+dn: ads-extendedOpId=endTransactionHandler,ou=extendedOpHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-extendedOpId: endTransactionHandler
+ads-extendedOpHandlerclass: org.apache.directory.server.ldap.handlers.extended.EndTransactionHandler
+objectclass: ads-extendedOpHandler
+objectclass: ads-base
+objectclass: top
+ads-enabled: TRUE
+
 dn: ou=saslMechHandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 ou: saslMechHandlers
 objectclass: organizationalUnit

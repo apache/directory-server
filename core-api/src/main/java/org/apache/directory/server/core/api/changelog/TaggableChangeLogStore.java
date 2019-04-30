@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.api.changelog;
 
 
-import org.apache.directory.api.ldap.model.exception.LdapException;
-
-
 /**
  * A ChangeLogStore which allows tagging for tracking server state snapshots.
  * At most one tag per revision can be created.  There is no point to creating
@@ -37,19 +34,16 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      *
      * @param revision the revision to tag the snapshot
      * @return the Tag associated with the revision
-     * @throws Exception if there is a problem taking a tag, or if
-     * the revision does not exist
      */
-    Tag tag( long revision ) throws Exception;
+    Tag tag( long revision );
 
 
     /**
      * Creates a snapshot of the server at the current revision.
      *
      * @return the revision at which the tag is created
-     * @throws Exception if there is a problem taking a tag
      */
-    Tag tag() throws Exception;
+    Tag tag();
 
 
     /**
@@ -58,9 +52,8 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      *
      * @param description a description of the state associate with the tag
      * @return the revision at which the tag is created
-     * @throws Exception if there is a problem taking a tag
      */
-    Tag tag( String description ) throws Exception;
+    Tag tag( String description );
 
 
     /**
@@ -68,9 +61,8 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      *
      * @return the last tag to have been created (youngest), or null if no
      * tags have been created
-     * @throws Exception on failures to access the tag store
      */
-    Tag getLatest() throws LdapException;
+    Tag getLatest();
 
 
     /**
@@ -78,9 +70,8 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      *
      * @param revision the revision number that was tagged
      * @return the removed tag, null if there is no Tag present with the given revision
-     * @throws Exception on failures to access the tag store
      */
-    Tag removeTag( long revision ) throws Exception;
+    Tag removeTag( long revision );
 
 
     /**
@@ -90,7 +81,6 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * @param revision the revision number that was tagged
      * @param descrition a description of the state associate with the tag
      * @return the Tag associated with the revision
-     * @throws Exception on failures to access the tag store
      */
-    Tag tag( long revision, String descrition ) throws Exception;
+    Tag tag( long revision, String descrition );
 }

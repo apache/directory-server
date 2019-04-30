@@ -75,9 +75,7 @@ public class KrbCredDecoderTest
 
         KrbCredContainer container = new KrbCredContainer( stream );
 
-        Asn1Decoder decoder = new Asn1Decoder();
-
-        decoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
 
         KrbCred actual = container.getKrbCred();
 

@@ -151,8 +151,8 @@ public class KerberosKeyFactoryTest
         int keyLength = kerberosKey.getKeyValue().length;
         byte[] keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
-        assertEquals( keyLength, 8 );
+        assertEquals( EncryptionType.DES_CBC_MD5, keyType );
+        assertEquals( 8, keyLength );
         byte[] expectedBytes = new byte[]
             { ( byte ) 0xF4, ( byte ) 0xA7, ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE,
                 ( byte ) 0x5B };
@@ -188,8 +188,8 @@ public class KerberosKeyFactoryTest
         int keyLength = kerberosKey.getKeyValue().length;
         byte[] keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, EncryptionType.DES3_CBC_SHA1_KD );
-        assertEquals( keyLength, 24 );
+        assertEquals( EncryptionType.DES3_CBC_SHA1_KD, keyType );
+        assertEquals( 24, keyLength );
         byte[] expectedBytes = new byte[]
             { ( byte ) 0x57, ( byte ) 0x07, ( byte ) 0xCE, ( byte ) 0x29, ( byte ) 0x52, ( byte ) 0x92, ( byte ) 0x2C,
                 ( byte ) 0x1C, ( byte ) 0x8C, ( byte ) 0xBF, ( byte ) 0x43, ( byte ) 0xC2, ( byte ) 0x3D,
@@ -227,8 +227,8 @@ public class KerberosKeyFactoryTest
         int keyLength = kerberosKey.getKeyValue().length;
         byte[] keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, EncryptionType.RC4_HMAC );
-        assertEquals( keyLength, 16 );
+        assertEquals( EncryptionType.RC4_HMAC, keyType );
+        assertEquals( 16, keyLength );
         byte[] expectedBytes = new byte[]
             { ( byte ) 0x87, ( byte ) 0x8D, ( byte ) 0x80, ( byte ) 0x14, ( byte ) 0x60, ( byte ) 0x6C, ( byte ) 0xDA,
                 ( byte ) 0x29, ( byte ) 0x67, ( byte ) 0x7A, ( byte ) 0x44, ( byte ) 0xEF, ( byte ) 0xA1,
@@ -265,8 +265,8 @@ public class KerberosKeyFactoryTest
         int keyLength = kerberosKey.getKeyValue().length;
         byte[] keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        assertEquals( keyLength, 16 );
+        assertEquals( EncryptionType.AES128_CTS_HMAC_SHA1_96, keyType );
+        assertEquals( 16, keyLength );
         byte[] expectedBytes = new byte[]
             { ( byte ) 0xAD, ( byte ) 0x21, ( byte ) 0x4B, ( byte ) 0x38, ( byte ) 0xB6, ( byte ) 0x9D, ( byte ) 0xFC,
                 ( byte ) 0xCA, ( byte ) 0xAC, ( byte ) 0xF1, ( byte ) 0x5F, ( byte ) 0x34, ( byte ) 0x6D,
@@ -306,8 +306,8 @@ public class KerberosKeyFactoryTest
             int keyLength = kerberosKey.getKeyValue().length;
             byte[] keyBytes = kerberosKey.getKeyValue();
 
-            assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-            assertEquals( keyLength, 32 );
+            assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, keyType );
+            assertEquals( 32, keyLength );
             byte[] expectedBytes = new byte[]
                 { ( byte ) 0x3D, ( byte ) 0x33, ( byte ) 0x31, ( byte ) 0x8F, ( byte ) 0xBE, ( byte ) 0x47,
                     ( byte ) 0xE5, ( byte ) 0x2A, ( byte ) 0x21, ( byte ) 0x50, ( byte ) 0x77, ( byte ) 0xA4,
@@ -342,8 +342,8 @@ public class KerberosKeyFactoryTest
         int keyLength = kerberosKey.getKeyValue().length;
         byte[] keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
-        assertEquals( keyLength, 8 );
+        assertEquals( EncryptionType.DES_CBC_MD5 , keyType);
+        assertEquals( 8, keyLength );
         byte[] expectedBytes = new byte[]
             { ( byte ) 0xF4, ( byte ) 0xA7, ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE,
                 ( byte ) 0x5B };
@@ -354,8 +354,8 @@ public class KerberosKeyFactoryTest
         keyLength = kerberosKey.getKeyValue().length;
         keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, EncryptionType.DES3_CBC_SHA1_KD );
-        assertEquals( keyLength, 24 );
+        assertEquals( EncryptionType.DES3_CBC_SHA1_KD, keyType );
+        assertEquals( 24, keyLength );
         expectedBytes = new byte[]
             { ( byte ) 0x57, ( byte ) 0x07, ( byte ) 0xCE, ( byte ) 0x29, ( byte ) 0x52, ( byte ) 0x92, ( byte ) 0x2C,
                 ( byte ) 0x1C, ( byte ) 0x8C, ( byte ) 0xBF, ( byte ) 0x43, ( byte ) 0xC2, ( byte ) 0x3D,
@@ -368,8 +368,8 @@ public class KerberosKeyFactoryTest
         keyLength = kerberosKey.getKeyValue().length;
         keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, EncryptionType.RC4_HMAC );
-        assertEquals( keyLength, 16 );
+        assertEquals( EncryptionType.RC4_HMAC, keyType );
+        assertEquals( 16, keyLength );
         expectedBytes = new byte[]
             { ( byte ) 0x87, ( byte ) 0x8D, ( byte ) 0x80, ( byte ) 0x14, ( byte ) 0x60, ( byte ) 0x6C, ( byte ) 0xDA,
                 ( byte ) 0x29, ( byte ) 0x67, ( byte ) 0x7A, ( byte ) 0x44, ( byte ) 0xEF, ( byte ) 0xA1,
@@ -381,8 +381,8 @@ public class KerberosKeyFactoryTest
         keyLength = kerberosKey.getKeyValue().length;
         keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, EncryptionType.AES128_CTS_HMAC_SHA1_96 );
-        assertEquals( keyLength, 16 );
+        assertEquals( EncryptionType.AES128_CTS_HMAC_SHA1_96, keyType );
+        assertEquals( 16, keyLength );
         expectedBytes = new byte[]
             { ( byte ) 0xAD, ( byte ) 0x21, ( byte ) 0x4B, ( byte ) 0x38, ( byte ) 0xB6, ( byte ) 0x9D, ( byte ) 0xFC,
                 ( byte ) 0xCA, ( byte ) 0xAC, ( byte ) 0xF1, ( byte ) 0x5F, ( byte ) 0x34, ( byte ) 0x6D,
@@ -397,8 +397,8 @@ public class KerberosKeyFactoryTest
             keyLength = kerberosKey.getKeyValue().length;
             keyBytes = kerberosKey.getKeyValue();
 
-            assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-            assertEquals( keyLength, 32 );
+            assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, keyType );
+            assertEquals( 32, keyLength );
             expectedBytes = new byte[]
                 { ( byte ) 0x3D, ( byte ) 0x33, ( byte ) 0x31, ( byte ) 0x8F, ( byte ) 0xBE, ( byte ) 0x47,
                     ( byte ) 0xE5, ( byte ) 0x2A, ( byte ) 0x21, ( byte ) 0x50, ( byte ) 0x77, ( byte ) 0xA4,

@@ -31,15 +31,13 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.directory.api.ldap.codec.api.ExtendedResponseDecorator;
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsRequest;
+import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsResponse;
 import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsResponseImpl;
 import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
@@ -83,7 +81,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
     static
     {
-        Set<String> set = new HashSet<String>( 3 );
+        Set<String> set = new HashSet<>( 3 );
         set.add( EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
@@ -101,7 +99,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
         if ( sslFilter == null )
         {
-            sslFilter = new SslFilter( sslContext );
+            sslFilter = new SslFilter( sslContext, false );
 
             // Set the cipher suite
             if ( ( cipherSuite != null ) && !cipherSuite.isEmpty() )
@@ -116,9 +114,8 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             }
             else
             {
-                // Default to a lost without SSLV3
-                sslFilter.setEnabledProtocols( new String[]
-                    { "TLSv1", "TLSv1.1", "TLSv1.2" } );
+                // default to TLS only
+                sslFilter.setEnabledProtocols( new String[]{ "TLSv1", "TLSv1.1", "TLSv1.2" } );
             }
 
             // Set the remaining SSL flags
@@ -135,12 +132,10 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             sslFilter.startSsl( session.getIoSession() );
         }
 
-        ExtendedResponseDecorator<ExtendedResponse> res = new ExtendedResponseDecorator<ExtendedResponse>(
-            LdapApiServiceFactory.getSingleton(), new StartTlsResponseImpl( req.getMessageId() ) );
+        StartTlsResponse res = new StartTlsResponseImpl( req.getMessageId() );
         LdapResult result = res.getLdapResult();
         result.setResultCode( ResultCodeEnum.SUCCESS );
         res.setResponseName( EXTENSION_OID );
-        res.setResponseValue( Strings.EMPTY_BYTES );
 
         // Send a response.
         session.getIoSession().setAttribute( SslFilter.DISABLE_ENCRYPTION_ONCE );

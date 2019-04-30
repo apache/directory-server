@@ -40,7 +40,7 @@ public interface DnsOperation
      * 
      * @param ctx The context to execute the command with
      * @param baseDn The base Dn for working with the context
-     * @return Set<ResourceRecord> The result returned by the command
+     * @return The result returned by the command
      * @throws Exception The exception thrown by the command
      */
     Set<ResourceRecord> execute( DirContext ctx, Name baseDn ) throws Exception;

@@ -47,7 +47,7 @@ package org.apache.directory.server.dns.io.encoder;
  *        /                                               /
  *        +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
  * 
- *    <character-string> and <domain-name> as used here are defined in RFC
+ *    &lt;character-string&gt; and &lt;domain-name&gt; as used here are defined in RFC
  *    1035 [7].
  * 
  *    ORDER
@@ -87,7 +87,7 @@ package org.apache.directory.server.dns.io.encoder;
  *       records should be utilized to accomplish load balancing.
  * 
  *    FLAGS
- *       A <character-string> containing flags to control aspects of the
+ *       A &lt;character-string&gt; containing flags to control aspects of the
  *       rewriting and interpretation of the fields in the record.  Flags
  *       are single characters from the set A-Z and 0-9.  The case of the
  *       alphabetic characters is not significant.  The field can be empty.
@@ -97,13 +97,13 @@ package org.apache.directory.server.dns.io.encoder;
  *       ones are terminal and which ones are not.
  * 
  *    SERVICES
- *       A <character-string> that specifies the Service Parameters
+ *       A &lt;character-string&gt; that specifies the Service Parameters
  *       applicable to this this delegation path.  It is up to the
  *       Application Specification to specify the values found in this
  *       field.
  * 
  *    REGEXP
- *       A <character-string> containing a substitution expression that is
+ *       A &lt;character-string&gt; containing a substitution expression that is
  *       applied to the original string held by the client in order to
  *       construct the next domain name to lookup.  See the DDDS Algorithm
  *       specification for the syntax of this field.
@@ -117,7 +117,7 @@ package org.apache.directory.server.dns.io.encoder;
  *       difficult to debug.
  * 
  *    REPLACEMENT
- *       A <domain-name> which is the next domain-name to query for
+ *       A &lt;domain-name&gt; which is the next domain-name to query for
  *       depending on the potential values found in the flags field.  This
  *       field is used when the regular expression is a simple replacement
  *       operation.  Any value in this field MUST be a fully qualified

@@ -66,6 +66,7 @@ public class CollectiveAttributeSAP extends CollectiveAttributeAdministrativePoi
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "CollectiveAttribute SAP : " + super.toString();

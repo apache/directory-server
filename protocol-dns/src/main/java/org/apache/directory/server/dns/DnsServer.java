@@ -75,7 +75,7 @@ public class DnsServer extends DirectoryBackedService
     {
         RecordStore store = new JndiRecordStoreImpl( getSearchBaseDn(), getSearchBaseDn(), getDirectoryService() );
 
-        if ( ( transports == null ) || ( transports.size() == 0 ) )
+        if ( ( transports == null ) || transports.isEmpty() )
         {
             // Default to UDP with port 53
             // We have to create a DatagramAcceptor
@@ -88,7 +88,7 @@ public class DnsServer extends DirectoryBackedService
             acceptor.setHandler( new DnsProtocolHandler( this, store ) );
 
             // Allow the port to be reused even if the socket is in TIME_WAIT state
-            ( ( DatagramSessionConfig ) acceptor.getSessionConfig() ).setReuseAddress( true );
+             acceptor.getSessionConfig().setReuseAddress( true );
 
             // Start the listener
             acceptor.bind();

@@ -29,6 +29,10 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.util.FileUtils;
+import org.apache.directory.api.ldap.codec.api.LdapApiService;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory;
+import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
@@ -36,6 +40,7 @@ import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -57,6 +62,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 
 
@@ -67,6 +73,9 @@ import org.junit.Test;
  */
 public class StaleEventLogDetectionIT
 {
+    @Rule
+    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
+
     private static LdapServer providerServer;
 
     private static SchemaManager schemaManager;
@@ -161,6 +170,12 @@ public class StaleEventLogDetectionIT
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
 
         providerServer = ServerAnnotationProcessor.getLdapServer( provDirService );
+
+        // Load the replication controls
+        LdapApiService codec = provDirService.getLdapCodecService();
+        codec.registerRequestControl( new SyncRequestValueFactory( codec ) );
+        codec.registerResponseControl( new SyncDoneValueFactory( codec ) );
+        codec.registerResponseControl( new SyncStateValueFactory( codec ) );
 
         providerServer.setReplicationReqHandler( new SyncReplRequestHandler() );
         providerServer.startReplicationProducer();

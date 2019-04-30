@@ -44,6 +44,6 @@ public @interface ApplyLdifFiles
     String[] value();
 
 
-    /** Class which class loader is used to read LDIF files. Required in OSGi environment. */
+    /** @return Class which class loader is used to read LDIF files. Required in OSGi environment. */
     Class<?> clazz() default ApplyLdifFiles.class;
 }

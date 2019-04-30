@@ -40,7 +40,7 @@ public class DnsContext
     private DnsServer config;
     private RecordStore store;
     private DnsMessage reply;
-    private List<ResourceRecord> records = new ArrayList<ResourceRecord>();
+    private List<ResourceRecord> records = new ArrayList<>();
 
 
     /**

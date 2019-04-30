@@ -74,13 +74,12 @@ public enum EventType
      * NOTE: When the changeTypes mask includes a modDN(8) we include both the 
      * RENAME and MOVE EventType objects in the array.
      * 
-     * @see PersistentSearchDecorator
      * @param psearchChangeTypes the value of the changeTypes parameter
      * @return array of EventType objects
      */
     public static EventType[] getEventTypes( int psearchChangeTypes )
     {
-        ArrayList<EventType> types = new ArrayList<EventType>();
+        ArrayList<EventType> types = new ArrayList<>();
 
         if ( isAdd( psearchChangeTypes ) )
         {
@@ -109,6 +108,9 @@ public enum EventType
 
     /**
      * Tells if the EventType is an ADD
+     * 
+     * @param mask The EventType to check
+     * @return <tt>true</tt> if the EventType is a ADD
      */
     public static boolean isAdd( int mask )
     {
@@ -118,6 +120,9 @@ public enum EventType
 
     /**
      * Tells if the EventType is a DELETE
+     * 
+     * @param mask The EventType to check
+     * @return <tt>true</tt> if the EventType is a DELETE
      */
     public static boolean isDelete( int mask )
     {
@@ -127,6 +132,9 @@ public enum EventType
 
     /**
      * Tells if the EventType is a MODIFY
+     * 
+     * @param mask The EventType to check
+     * @return <tt>true</tt> if the EventType is a MODIFY
      */
     public static boolean isModify( int mask )
     {
@@ -136,6 +144,9 @@ public enum EventType
 
     /**
      * Tells if the EventType is a MOVE
+     * 
+     * @param mask The EventType to check
+     * @return <tt>true</tt> if the EventType is a MOVE
      */
     public static boolean isMove( int mask )
     {
@@ -145,6 +156,9 @@ public enum EventType
 
     /**
      * Tells if the EventType is a RENAME
+     * 
+     * @param mask The EventType to check
+     * @return <tt>true</tt> if the EventType is a RENAME
      */
     public static boolean isRename( int mask )
     {
@@ -154,6 +168,9 @@ public enum EventType
 
     /**
      * Tells if the EventType is a MOVE and RENAME
+     * 
+     * @param mask The EventType to check
+     * @return <tt>true</tt> if the EventType is a MOVE_AND_RENAME
      */
     public static boolean isMoveAndRename( int mask )
     {

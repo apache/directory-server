@@ -41,7 +41,6 @@ public class ChangePasswdDataDecoderTest
     @Test
     public void testDecodeChangePasswdData() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         ByteBuffer buf = ByteBuffer.allocate( 0x30 );
         buf.put( new byte[]
@@ -100,7 +99,7 @@ public class ChangePasswdDataDecoderTest
 
         ChangePasswdDataContainer container = new ChangePasswdDataContainer( buf );
 
-        decoder.decode( buf, container );
+        Asn1Decoder.decode( buf, container );
 
         ChangePasswdData chngPwdData = container.getChngPwdData();
 
@@ -116,7 +115,6 @@ public class ChangePasswdDataDecoderTest
     @Test
     public void testDecodeChangePasswdDataWithoutTargName() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         ByteBuffer buf = ByteBuffer.allocate( 0x1B );
         buf.put( new byte[]
@@ -154,7 +152,7 @@ public class ChangePasswdDataDecoderTest
 
         ChangePasswdDataContainer container = new ChangePasswdDataContainer( buf );
 
-        decoder.decode( buf, container );
+        Asn1Decoder.decode( buf, container );
 
         ChangePasswdData chngPwdData = container.getChngPwdData();
 
@@ -169,7 +167,6 @@ public class ChangePasswdDataDecoderTest
     @Test
     public void testDecodeChangePasswdDataWithoutTargRealm() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         ByteBuffer buf = ByteBuffer.allocate( 0x21 );
         buf.put( new byte[]
@@ -212,7 +209,7 @@ public class ChangePasswdDataDecoderTest
 
         ChangePasswdDataContainer container = new ChangePasswdDataContainer( buf );
 
-        decoder.decode( buf, container );
+        Asn1Decoder.decode( buf, container );
 
         ChangePasswdData chngPwdData = container.getChngPwdData();
 
@@ -227,7 +224,6 @@ public class ChangePasswdDataDecoderTest
     @Test
     public void testDecodeChangePasswdDataWithoutTargNameAndRealm() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         ByteBuffer buf = ByteBuffer.allocate( 0x0C );
         buf.put( new byte[]
@@ -249,7 +245,7 @@ public class ChangePasswdDataDecoderTest
 
         ChangePasswdDataContainer container = new ChangePasswdDataContainer( buf );
 
-        decoder.decode( buf, container );
+        Asn1Decoder.decode( buf, container );
 
         ChangePasswdData chngPwdData = container.getChngPwdData();
 

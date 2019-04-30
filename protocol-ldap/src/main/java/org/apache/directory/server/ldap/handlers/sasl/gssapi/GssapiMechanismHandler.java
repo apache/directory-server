@@ -60,8 +60,6 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
 
         if ( ss == null )
         {
-            //Subject subject = ( Subject ) ldapSession.getIoSession().getAttribute( "saslSubject" );
-
             Subject subject = getSubject( ldapSession.getLdapServer() );
             final String saslHost = ( String ) ldapSession.getSaslProperty( SaslConstants.SASL_HOST );
             final Map<String, String> saslProps = ( Map<String, String> ) ldapSession
@@ -71,7 +69,7 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
 
             final CallbackHandler callbackHandler = new GssapiCallbackHandler( ldapSession, adminSession, bindRequest );
 
-            ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction<SaslServer>()
+            ss = Subject.doAs( subject, new PrivilegedExceptionAction<SaslServer>()
             {
                 public SaslServer run() throws Exception
                 {
@@ -96,9 +94,8 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
         String saslHost = ldapSession.getLdapServer().getSaslHost();
         ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
 
-        Map<String, String> saslProps = new HashMap<String, String>();
+        Map<String, String> saslProps = new HashMap<>();
         saslProps.put( Sasl.QOP, ldapSession.getLdapServer().getSaslQopString() );
-        //saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapSession.getLdapServer() ) );
         ldapSession.putSaslProperty( SaslConstants.SASL_PROPS, saslProps );
     }
 

@@ -53,9 +53,9 @@ public class ChangePasswordReply extends AbstractPasswordMessage
     /**
      * Creates a new instance of ChangePasswordReply.
      *
-     * @param versionNumber
-     * @param applicationReply
-     * @param privateMessage
+     * @param versionNumber The version number
+     * @param applicationReply The application reply
+     * @param privateMessage The private part
      */
     public ChangePasswordReply( short versionNumber, ApRep applicationReply, KrbPriv privateMessage )
     {
@@ -67,9 +67,9 @@ public class ChangePasswordReply extends AbstractPasswordMessage
 
 
     /**
-     * Returns the {@link ApplicationReply}.
+     * Returns the {@link ApRep} instance.
      *
-     * @return The {@link ApplicationReply}.
+     * @return The {@link ApRep} instance.
      */
     public ApRep getApplicationReply()
     {
@@ -78,9 +78,9 @@ public class ChangePasswordReply extends AbstractPasswordMessage
 
 
     /**
-     * Returns the {@link PrivateMessage}.
+     * Returns the {@link KrbPriv} instance.
      *
-     * @return The {@link PrivateMessage}.
+     * @return The {@link KrbPriv} instance.
      */
     public KrbPriv getPrivateMessage()
     {
@@ -119,7 +119,7 @@ public class ChangePasswordReply extends AbstractPasswordMessage
      *
      * @param buf
      * @return The {@link ChangePasswordReply}.
-     * @throws KerberosException
+     * @throws ChangePasswordException If teh decoding failed
      */
     public static ChangePasswordReply decode( ByteBuffer buf ) throws ChangePasswordException
     {

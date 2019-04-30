@@ -53,7 +53,6 @@ public class KdcReqDecoderTest
     @Test
     public void testDecodeFullKdcReq() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x18F );
 
@@ -195,7 +194,7 @@ public class KdcReqDecoderTest
         // Decode the KdcReq PDU
         try
         {
-            kerberosDecoder.decode( stream, kdcReqContainer );
+            Asn1Decoder.decode( stream, kdcReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -233,7 +232,6 @@ public class KdcReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testKdcReqEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -246,7 +244,7 @@ public class KdcReqDecoderTest
         Asn1Container kdcReqContainer = new KdcReqContainer( stream );
 
         // Decode the KDC-REQ PDU
-        kerberosDecoder.decode( stream, kdcReqContainer );
+        Asn1Decoder.decode( stream, kdcReqContainer );
         fail();
     }
 
@@ -257,7 +255,6 @@ public class KdcReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testKdcReqEmptyPvnoTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -273,7 +270,7 @@ public class KdcReqDecoderTest
         Asn1Container kdcReqContainer = new KdcReqContainer( stream );
 
         // Decode the KDC-REQ PDU
-        kerberosDecoder.decode( stream, kdcReqContainer );
+        Asn1Decoder.decode( stream, kdcReqContainer );
         fail();
     }
 
@@ -284,7 +281,6 @@ public class KdcReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testKdcReqEmptyPvnoValue() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -301,7 +297,7 @@ public class KdcReqDecoderTest
         Asn1Container kdcReqContainer = new KdcReqContainer( stream );
 
         // Decode the KDC-REQ PDU
-        kerberosDecoder.decode( stream, kdcReqContainer );
+        Asn1Decoder.decode( stream, kdcReqContainer );
         fail();
     }
 }

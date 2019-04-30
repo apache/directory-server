@@ -26,12 +26,15 @@ import java.net.SocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -62,7 +65,7 @@ import org.apache.directory.api.ldap.model.message.UnbindRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
 import org.apache.directory.api.ldap.model.message.controls.SortRequest;
 import org.apache.directory.api.ldap.model.message.controls.SortResponse;
-import org.apache.directory.api.ldap.model.message.controls.SortResponseControlImpl;
+import org.apache.directory.api.ldap.model.message.controls.SortResponseImpl;
 import org.apache.directory.api.ldap.model.message.controls.SortResultCode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
@@ -89,6 +92,8 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
@@ -128,6 +133,15 @@ public class DefaultCoreSession implements CoreSession
 
     /** flag to indicate if the password must be changed */
     private boolean pwdMustChange;
+
+    /** A flag set when the startTransaction extended operation has been received */
+    private boolean hasSessionTransaction;
+    
+    /** The Map containing the transactions associated with each partition */
+    private Map<String, PartitionTxn> transactionMap = new HashMap<>();
+    
+    /** The transaction ID */
+    private AtomicLong transactionId = new AtomicLong( 0 );
 
     /**
      * Creates a new instance of a DefaultCoreSession
@@ -255,6 +269,7 @@ public class DefaultCoreSession implements CoreSession
         addContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+        
         try
         {
             operationManager.add( addContext );
@@ -264,6 +279,7 @@ public class DefaultCoreSession implements CoreSession
             addRequest.getResultResponse().addAllControls( addContext.getResponseControls() );
             throw e;
         }
+        
         addRequest.getResultResponse().addAllControls( addContext.getResponseControls() );
     }
 
@@ -652,6 +668,7 @@ public class DefaultCoreSession implements CoreSession
         modifyContext.setLogChange( log );
 
         OperationManager operationManager = directoryService.getOperationManager();
+        
         operationManager.modify( modifyContext );
     }
 
@@ -1217,9 +1234,13 @@ public class DefaultCoreSession implements CoreSession
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             done.addAllControls( searchContext.getResponseControls() );
             throw new LdapException( e );
+        }
+        finally
+        {
+            // Don't close the transaction !!!
+            LOG.debug( "Search done, the transaction is still opened" );
         }
 
         if ( sortRespCtrl != null )
@@ -1269,7 +1290,7 @@ public class DefaultCoreSession implements CoreSession
      */
     private SortResponse canSort( SortRequest sortControl, LdapResult ldapResult, SchemaManager schemaManager )
     {
-        SortResponse resp = new SortResponseControlImpl();
+        SortResponse resp = new SortResponseImpl();
 
         List<SortKey> keys = sortControl.getSortKeys();
 
@@ -1450,5 +1471,75 @@ public class DefaultCoreSession implements CoreSession
     public void setPwdMustChange( boolean pwdMustChange ) 
     {
         this.pwdMustChange = pwdMustChange;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasSessionTransaction()
+    {
+        return hasSessionTransaction;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long beginSessionTransaction()
+    {
+        hasSessionTransaction = true;
+        
+        return transactionId.getAndIncrement();
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void endSessionTransaction( boolean commit ) throws IOException
+    {
+        if ( commit )
+        {
+            for ( Map.Entry<String, PartitionTxn> partitionTxn : transactionMap.entrySet() )
+            {
+                partitionTxn.getValue().commit();
+            }
+        }
+        else
+        {
+            for ( Map.Entry<String, PartitionTxn> partitionTxn : transactionMap.entrySet() )
+            {
+                partitionTxn.getValue().abort();
+            }
+        }
+        
+        hasSessionTransaction = false;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PartitionTxn getTransaction( Partition partition ) 
+    {
+        return transactionMap.get( partition.getId() );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addTransaction( Partition partition, PartitionTxn transaction )
+    {
+        if ( !transactionMap.containsKey( partition.getId() ) )
+        {
+            transactionMap.put( partition.getId(), transaction );
+        }
     }
 }

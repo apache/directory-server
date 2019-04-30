@@ -17,71 +17,6 @@
  *  under the License. 
  *  
  */
-//package org.apache.directory.server.kerberos.shared.messages.value;
-
-/**
- * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- *
-public class PrincipalName
-{
-    private String nameComponent;
-    private int nameType;
-
-
-    /**
-     * Creates a new instance of PrincipalName.
-     *
-     * @param nameComponent
-     * @param nameType
-     *
-    public PrincipalName( String nameComponent, int nameType )
-    {
-        this.nameComponent = nameComponent;
-        this.nameType = nameType;
-    }
-
-
-    /**
-     * Returns the type of the {@link PrincipalName}.
-     *
-     * @return The type of the {@link PrincipalName}.
-     *
-    public int getNameType()
-    {
-        return nameType;
-    }
-
-
-    /**
-     * Returns the name component.
-     *
-     * @return The name component.
-     *
-    public String getNameComponent()
-    {
-        return nameComponent;
-    }
-}*/
-
-/*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *  
- *    http://www.apache.org/licenses/LICENSE-2.0
- *  
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License. 
- *  
- */
 package org.apache.directory.shared.kerberos.components;
 
 
@@ -128,7 +63,7 @@ public class PrincipalName implements Asn1Object
     private PrincipalNameType nameType;
 
     /** The principal name - we may have more than one - */
-    private List<String> nameString = new ArrayList<String>();
+    private List<String> nameString = new ArrayList<>();
 
     /** The realm part */
     private String realm;
@@ -204,14 +139,14 @@ public class PrincipalName implements Asn1Object
             throw new IllegalArgumentException( "Empty name parts" );
         }
 
-        List<String> nameComponents = new ArrayList<String>();
+        List<String> nameComponents = new ArrayList<>();
         for ( String np : nameParts )
         {
             nameComponents.add( np );
         }
 
         this.nameString = nameComponents;
-        this.nameType = PrincipalNameType.getTypeByValue( nameType );;
+        this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
 
 
@@ -303,7 +238,7 @@ public class PrincipalName implements Asn1Object
      */
     public String getNameString()
     {
-        if ( ( nameString == null ) || ( nameString.size() == 0 ) )
+        if ( ( nameString == null ) || nameString.isEmpty() )
         {
             return "";
         }
@@ -339,7 +274,7 @@ public class PrincipalName implements Asn1Object
     {
         if ( nameString == null )
         {
-            nameString = new ArrayList<String>();
+            nameString = new ArrayList<>();
         }
 
         nameString.add( name );
@@ -353,21 +288,21 @@ public class PrincipalName implements Asn1Object
      * 
      * 0x30 L1 PrincipalName sequence
      *  |
-     *  +--> 0xA1 L2 name-type tag
+     *  +--&gt; 0xA1 L2 name-type tag
      *  |     |
-     *  |     +--> 0x02 L2-1 addressType (int)
+     *  |     +--&gt; 0x02 L2-1 addressType (int)
      *  |
-     *  +--> 0xA2 L3 name-string tag
+     *  +--&gt; 0xA2 L3 name-string tag
      *        |
-     *        +--> 0x30 L3-1 name-string (SEQUENCE OF KerberosString)
+     *        +--&gt; 0x30 L3-1 name-string (SEQUENCE OF KerberosString)
      *              |
-     *              +--> 0x1B L4[1] value (KerberosString)
+     *              +--&gt; 0x1B L4[1] value (KerberosString)
      *              |
-     *              +--> 0x1B L4[2] value (KerberosString)
+     *              +--&gt; 0x1B L4[2] value (KerberosString)
      *              |
      *              ...
      *              |
-     *              +--> 0x1B L4[n] value (KerberosString)
+     *              +--&gt; 0x1B L4[n] value (KerberosString)
      * </pre>
      */
     public int computeLength()
@@ -379,14 +314,14 @@ public class PrincipalName implements Asn1Object
         principalNameSeqLength = 1 + TLV.getNbBytes( principalTypeTagLength ) + principalTypeTagLength;
 
         // Compute the keyValue
-        if ( ( nameString == null ) || ( nameString.size() == 0 ) )
+        if ( ( nameString == null ) || nameString.isEmpty() )
         {
             principalStringsSeqLength = 0;
         }
         else
         {
             principalStringsSeqLength = 0;
-            nameBytes = new ArrayList<byte[]>( nameString.size() );
+            nameBytes = new ArrayList<>( nameString.size() );
 
             for ( String name : nameString )
             {
@@ -456,7 +391,7 @@ public class PrincipalName implements Asn1Object
             // The name-string sequence
             buffer.put( UniversalTag.SEQUENCE.getValue() );
 
-            if ( ( nameString == null ) || ( nameString.size() == 0 ) )
+            if ( ( nameString == null ) || nameString.isEmpty() )
             {
                 buffer.put( ( byte ) 0x00 );
             }
@@ -491,7 +426,7 @@ public class PrincipalName implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "PrinipalName encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "PrinipalName initial value : {}", toString() );
+            LOG.debug( "PrinipalName initial value : {}", this );
         }
 
         return buffer;
@@ -509,7 +444,7 @@ public class PrincipalName implements Asn1Object
 
         sb.append( "name-type: " ).append( nameType.name() );
 
-        if ( ( nameString != null ) && ( nameString.size() != 0 ) )
+        if ( ( nameString != null ) && !nameString.isEmpty() )
         {
             sb.append( ", name-string : <" );
             boolean isFirst = true;
@@ -557,6 +492,9 @@ public class PrincipalName implements Asn1Object
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals( Object obj )
     {
@@ -565,7 +503,7 @@ public class PrincipalName implements Asn1Object
             return true;
         }
 
-        if ( obj == null )
+        if ( !( obj instanceof PrincipalName ) )
         {
             return false;
         }
@@ -584,12 +522,7 @@ public class PrincipalName implements Asn1Object
             return false;
         }
 
-        if ( nameType != other.nameType )
-        {
-            return false;
-        }
-
-        return true;
+        return nameType == other.nameType;
     }
 
 }

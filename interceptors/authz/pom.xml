@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-interceptors</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-interceptors-authz</artifactId>
@@ -72,10 +72,6 @@
       <artifactId>api-ldap-schema-data</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -98,7 +94,7 @@
             <id>attach-sources</id>
             <phase>verify</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
@@ -130,7 +126,6 @@
             </Export-Package>
             <Import-Package>
                 javax.naming.directory,
-                net.sf.ehcache;version=${ehcache.version},
                 org.apache.directory.api.ldap.aci;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.aci.protectedItem;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},

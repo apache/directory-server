@@ -41,7 +41,6 @@ import javax.naming.ldap.PagedResultsResponseControl;
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
-import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.Control;
@@ -51,6 +50,7 @@ import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.PagedResults;
+import org.apache.directory.api.ldap.model.message.controls.PagedResultsImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.api.util.Network;
@@ -220,7 +220,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setCountLimit( sizeLimit );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        PagedResultsDecorator pagedSearchControl = new PagedResultsDecorator( codec );
+        PagedResults pagedSearchControl = new PagedResultsImpl();
         pagedSearchControl.setSize( pagedSize );
 
         ( ( LdapContext ) ctx ).setRequestControls( JndiUtils.toJndiControls( codec, new Control[]
@@ -237,7 +237,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
     private void createNextSearchControls( DirContext ctx, byte[] cookie, int pagedSize )
         throws NamingException, EncoderException
     {
-        PagedResultsDecorator pagedSearchControl = new PagedResultsDecorator( codec );
+        PagedResults pagedSearchControl = new PagedResultsImpl();
         pagedSearchControl.setCookie( cookie );
         pagedSearchControl.setSize( pagedSize );
         ( ( LdapContext ) ctx ).setRequestControls( JndiUtils.toJndiControls( codec, new Control[]
@@ -1040,7 +1040,7 @@ public class PagedSearchIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setCountLimit( ( int ) LdapServer.NO_SIZE_LIMIT );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        PagedResults pagedSearchControl = new PagedResultsDecorator( codec );
+        PagedResults pagedSearchControl = new PagedResultsImpl();
         pagedSearchControl.setSize( 3 );
 
         // Loop over all the elements
@@ -1174,5 +1174,8 @@ public class PagedSearchIT extends AbstractLdapTestUnit
 
         assertEquals( 4, loop );
         checkResults( results, 10 );
+
+        // And close the connection
+        closeConnection( ctx );
     }
 }

@@ -28,10 +28,12 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator;
 import org.slf4j.Logger;
@@ -74,8 +76,18 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     private IndexEntry<String, String> uuidCandidate;
 
 
+    /**
+     * Creates a new instance of an LessEqCursor
+     * 
+     * @param partitionTxn The transaction to use
+     * @param store The store
+     * @param lessEqEvaluator The LessEqEvaluator
+     * @throws LdapException If the creation failed
+     * @throws IndexNotFoundException If the index was not found
+     */
     @SuppressWarnings("unchecked")
-    public LessEqCursor( Store store, LessEqEvaluator<V> lessEqEvaluator ) throws Exception
+    public LessEqCursor( PartitionTxn partitionTxn, Store store, LessEqEvaluator<V> lessEqEvaluator ) 
+        throws LdapException, IndexNotFoundException
     {
         if ( IS_DEBUG )
         {
@@ -83,17 +95,18 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
         }
 
         this.lessEqEvaluator = lessEqEvaluator;
+        this.partitionTxn = partitionTxn;
 
         AttributeType attributeType = lessEqEvaluator.getExpression().getAttributeType();
 
         if ( store.hasIndexOn( attributeType ) )
         {
-            userIdxCursor = ( ( Index<V, String> ) store.getIndex( attributeType ) ).forwardCursor();
+            userIdxCursor = ( ( Index<V, String> ) store.getIndex( attributeType ) ).forwardCursor( partitionTxn );
             uuidIdxCursor = null;
         }
         else
         {
-            uuidIdxCursor = new AllEntriesCursor( store );
+            uuidIdxCursor = new AllEntriesCursor( partitionTxn, store );
             userIdxCursor = null;
         }
     }
@@ -111,9 +124,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void before( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -131,7 +145,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
              * before() method of the userIdxCursor.
              */
             int compareValue = lessEqEvaluator.getComparator().compare( element.getKey(),
-                lessEqEvaluator.getExpression().getValue().getValue() );
+                lessEqEvaluator.getExpression().getValue().getString() );
 
             if ( compareValue > 0 )
             {
@@ -159,14 +173,15 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void after( IndexEntry<V, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
             int comparedValue = lessEqEvaluator.getComparator().compare( element.getKey(),
-                lessEqEvaluator.getExpression().getValue().getValue() );
+                lessEqEvaluator.getExpression().getValue().getString() );
 
             /*
              * First we need to check and make sure this element is within
@@ -201,7 +216,8 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
+        
         if ( userIdxCursor != null )
         {
             userIdxCursor.beforeFirst();
@@ -221,14 +237,14 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         
         if ( userIdxCursor != null )
         {
-            IndexEntry<V, String> advanceTo = new IndexEntry<V, String>();
+            IndexEntry<V, String> advanceTo = new IndexEntry<>();
             //noinspection unchecked
             String normalizedKey = lessEqEvaluator.getAttributeType().getEquality().getNormalizer().normalize( 
-                lessEqEvaluator.getExpression().getValue().getValue() );
+                lessEqEvaluator.getExpression().getValue().getString() );
             
             advanceTo.setKey( ( V ) normalizedKey );
             userIdxCursor.after( advanceTo );
@@ -267,9 +283,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -283,10 +300,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
         while ( uuidIdxCursor.previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             uuidCandidate = uuidIdxCursor.get();
 
-            if ( lessEqEvaluator.evaluate( uuidCandidate ) )
+            if ( lessEqEvaluator.evaluate( partitionTxn, uuidCandidate ) )
             {
                 return setAvailable( true );
             }
@@ -303,9 +320,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -317,11 +335,11 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
              */
             while ( userIdxCursor.next() )
             {
-                checkNotClosed( "next()" );
+                checkNotClosed();
                 IndexEntry<?, String> candidate = userIdxCursor.get();
 
                 if ( lessEqEvaluator.getComparator().compare( candidate.getKey(),
-                    lessEqEvaluator.getExpression().getValue().getValue() ) <= 0 )
+                    lessEqEvaluator.getExpression().getValue().getString() ) <= 0 )
                 {
                     return setAvailable( true );
                 }
@@ -332,10 +350,10 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
 
         while ( uuidIdxCursor.next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             uuidCandidate = uuidIdxCursor.get();
 
-            if ( lessEqEvaluator.evaluate( uuidCandidate ) )
+            if ( lessEqEvaluator.evaluate( partitionTxn, uuidCandidate ) )
             {
                 return setAvailable( true );
             }
@@ -354,7 +372,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
      */
     public IndexEntry<V, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( userIdxCursor != null )
         {
@@ -378,6 +396,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -402,6 +421,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         LOG_CURSOR.debug( "Closing LessEqCursor {}", this );
@@ -422,6 +442,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

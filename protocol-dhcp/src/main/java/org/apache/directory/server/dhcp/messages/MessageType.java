@@ -77,9 +77,9 @@ public enum MessageType
     }
 
 
+    @Override
     public String toString()
     {
         return name;
     }
-
 }

@@ -74,32 +74,23 @@ public abstract class AbstractReadCheckSum<E extends Asn1Container> extends Gram
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the Checksum
-        Asn1Decoder checksumDecoder = new Asn1Decoder();
-
         ChecksumContainer checksumContainer = new ChecksumContainer();
 
         // Decode the Checksum PDU
-        try
-        {
-            checksumDecoder.decode( container.getStream(), checksumContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( container.getStream(), checksumContainer );
 
         Checksum checksum = checksumContainer.getChecksum();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "Checksum : " + checksum );
+            LOG.debug( "Checksum : {}", checksum );
         }
 
         setChecksum( checksum, container );

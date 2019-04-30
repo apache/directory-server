@@ -73,10 +73,10 @@ public abstract class AbstractReadRealm<E extends Asn1Container> extends Grammar
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // The value is the realm
@@ -85,7 +85,7 @@ public abstract class AbstractReadRealm<E extends Asn1Container> extends Grammar
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "read realm value : " + realm );
+            LOG.debug( "read realm value : {}", realm );
         }
 
         setRealm( realm, container );

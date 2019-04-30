@@ -54,7 +54,6 @@ public class ApReqDecoderTest
     @Test
     public void testDecodeFullApReq() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x6C );
 
@@ -175,7 +174,7 @@ public class ApReqDecoderTest
         // Decode the ApReq PDU
         try
         {
-            kerberosDecoder.decode( stream, apReqContainer );
+            Asn1Decoder.decode( stream, apReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -215,7 +214,6 @@ public class ApReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeFullApReqBadMsgType() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x193 );
 
@@ -334,7 +332,7 @@ public class ApReqDecoderTest
         ApReqContainer apReqContainer = new ApReqContainer( stream );
 
         // Decode the ApReq PDU
-        kerberosDecoder.decode( stream, apReqContainer );
+        Asn1Decoder.decode( stream, apReqContainer );
         fail();
     }
 
@@ -345,7 +343,6 @@ public class ApReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testApReqEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -358,7 +355,7 @@ public class ApReqDecoderTest
         Asn1Container apReqContainer = new ApReqContainer( stream );
 
         // Decode the AP-REQ PDU
-        kerberosDecoder.decode( stream, apReqContainer );
+        Asn1Decoder.decode( stream, apReqContainer );
         fail();
     }
 
@@ -482,14 +479,13 @@ public class ApReqDecoderTest
 
         // Allocate a ApReq Container
         //ApReqContainer apReqContainer = new ApReqContainer( stream );
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
         ApReqContainer apReqContainer = new ApReqContainer( stream );
 
         long start = System.currentTimeMillis();
 
         for ( int i = 0; i < 10000000; ++i )
         {
-            kerberosDecoder.decode( stream, apReqContainer );
+            Asn1Decoder.decode( stream, apReqContainer );
             //String serverName = apreqContainer.getApReq().getTicket().getSName().toString();
             stream.rewind();
             apReqContainer.clean();

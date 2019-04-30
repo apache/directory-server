@@ -26,7 +26,7 @@ import org.apache.directory.shared.kerberos.codec.types.SamType;
 /**
  * Base class for all SAM subsystem errors.
  *
- * @warning this should extend from KerberosException in o.a.k.exception.
+ * TODO this should extend from KerberosException in o.a.k.exception.
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SamException extends Exception

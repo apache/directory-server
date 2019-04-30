@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * This class handle modifications made on a global schema. Modifications made
  * on SchemaObjects are handled by the specific shcemaObject synchronizers.
  *
- * @todo poorly implemented - revisit the SchemaChangeHandler for this puppy
+ * TODO poorly implemented - revisit the SchemaChangeHandler for this puppy
  * and do it right.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -152,8 +152,8 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     /**
      * Handles the addition of a metaSchema object to the schema partition.
      *
-     * @param name the dn of the new metaSchema object
      * @param entry the attributes of the new metaSchema object
+     * @throws LdapException If the add failed
      */
     @Override
     public void add( Entry entry ) throws LdapException
@@ -222,8 +222,9 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * simply removes the schema from the loaded schema map of the global
      * registries.
      *
-     * @param name the dn of the metaSchema object being deleted
      * @param entry the attributes of the metaSchema object
+     * @param cascade If we have to process recursively
+     * @throws LdapException If the delete failed
      */
     @Override
     public void delete( Entry entry, boolean cascade ) throws LdapException
@@ -255,9 +256,10 @@ public class SchemaSynchronizer implements RegistrySynchronizer
      * changed.  Changes all the schema entities associated with the
      * renamed schema so they now map to a new schema name.
      *
-     * @param name the dn of the metaSchema object renamed
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
+     * @param cascade If we have to process recursively
+     * @throws LdapException If the rename failed
      */
     @Override
     public void rename( Entry entry, Rdn newRdn, boolean cascade ) throws LdapException
@@ -341,8 +343,16 @@ public class SchemaSynchronizer implements RegistrySynchronizer
     /**
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
+     * 
+     * @param oriChildName The original child name
+     * @param newParentName The new parent name
+     * @param newRdn the new commonName of the metaSchema object
+     * @param deleteOldRdn If we need to delete the old Rdn 
+     * @param entry the entry of the metaSchema object before the rename
+     * @param cascade If we have to process recursively
+     * @throws LdapUnwillingToPerformException If the rename failed
      */
-    public void moveAndRename( Dn oriChildName, Dn newParentName, String newRn, boolean deleteOldRn,
+    public void moveAndRename( Dn oriChildName, Dn newParentName, String newRdn, boolean deleteOldRdn,
         Entry entry, boolean cascade ) throws LdapUnwillingToPerformException
     {
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
@@ -446,7 +456,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                     }
                     else
                     {
-                        isNewStateDisabled = "TRUE".equalsIgnoreCase( val.getValue() );
+                        isNewStateDisabled = "TRUE".equalsIgnoreCase( val.getString() );
                     }
                 }
 
@@ -536,7 +546,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
             for ( Value value : dependencies )
             {
-                String dependency = value.getValue();
+                String dependency = value.getString();
 
                 if ( !loaded.containsKey( dependency ) )
                 {
@@ -551,7 +561,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         {
             for ( Value value : dependencies )
             {
-                String dependency = value.getValue();
+                String dependency = value.getString();
 
                 if ( schemaManager.getLoadedSchema( Strings.toLowerCaseAscii( dependency ) ) == null )
                 {

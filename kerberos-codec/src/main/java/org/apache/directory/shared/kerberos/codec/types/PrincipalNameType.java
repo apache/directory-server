@@ -132,6 +132,7 @@ public enum PrincipalNameType
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         switch ( this )

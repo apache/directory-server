@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.shared;
 
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -30,6 +31,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
@@ -41,7 +43,9 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.ReferralManager;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -69,7 +73,7 @@ public class ReferralManagerImpl implements ReferralManager
      * Creates a new instance of ReferralManagerImpl.
      *
      * @param directoryService The directory service
-     * @throws Exception If we can't initialize the manager
+     * @throws LdapException If we can't initialize the manager
      */
     public ReferralManagerImpl( DirectoryService directoryService ) throws LdapException
     {
@@ -139,8 +143,6 @@ public class ReferralManagerImpl implements ReferralManager
     /**
      * {@inheritDoc}
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     @Override
     public void addReferral( Entry entry )
     {
@@ -179,38 +181,50 @@ public class ReferralManagerImpl implements ReferralManager
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn,
                 referralFilter, searchControl );
-            searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-            EntryFilteringCursor cursor = nexus.search( searchOperationContext );
-
-            try
+            
+            Partition partition = nexus.getPartition( suffixDn );
+            
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
             {
-                // Move to the first entry in the cursor
-                cursor.beforeFirst();
-
-                while ( cursor.next() )
+                searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+                searchOperationContext.setTransaction( partitionTxn );
+                searchOperationContext.setPartition( partition );
+                EntryFilteringCursor cursor = nexus.search( searchOperationContext );
+    
+                try
                 {
-                    Entry entry = cursor.get();
-
-                    // Lock the referralManager
-                    lockWrite();
-
-                    try
+                    // Move to the first entry in the cursor
+                    cursor.beforeFirst();
+    
+                    while ( cursor.next() )
                     {
-                        // Add it at the right place
-                        addReferral( entry );
+                        Entry entry = cursor.get();
+    
+                        // Lock the referralManager
+                        lockWrite();
+    
+                        try
+                        {
+                            // Add it at the right place
+                            addReferral( entry );
+                        }
+                        finally
+                        { 
+                            // Unlock the referralManager
+                            unlock();
+                        }
                     }
-                    finally
-                    { 
-                        // Unlock the referralManager
-                        unlock();
-                    }
+    
+                    cursor.close();
                 }
-
-                cursor.close();
+                catch ( Exception e )
+                {
+                    throw new LdapOperationException( e.getMessage(), e );
+                }
             }
-            catch ( Exception e )
+            catch ( IOException ioe )
             {
-                throw new LdapOperationException( e.getMessage(), e );
+                throw new LdapOtherException( ioe.getMessage(), ioe );
             }
         }
     }
@@ -236,19 +250,26 @@ public class ReferralManagerImpl implements ReferralManager
         // We will store each entry's Dn into the Referral tree
         SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffix,
             referralFilter, searchControl );
+        Partition partition = nexus.getPartition( suffix ); 
+        searchOperationContext.setPartition( partition );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
-        EntryFilteringCursor cursor = nexus.search( searchOperationContext );
-
-        // Move to the first entry in the cursor
-        cursor.beforeFirst();
-
-        while ( cursor.next() )
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            Entry entry = cursor.get();
-
-            // Add it at the right place
-            removeReferral( entry );
-        }
+            searchOperationContext.setTransaction( partitionTxn );
+            EntryFilteringCursor cursor = nexus.search( searchOperationContext );
+    
+            // Move to the first entry in the cursor
+            cursor.beforeFirst();
+    
+            while ( cursor.next() )
+            {
+                Entry entry = cursor.get();
+    
+                // Add it at the right place
+                removeReferral( entry );
+            }
+        } 
     }
 
 

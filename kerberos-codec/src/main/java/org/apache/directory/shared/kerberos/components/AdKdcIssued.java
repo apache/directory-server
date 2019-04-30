@@ -162,21 +162,21 @@ public class AdKdcIssued implements Asn1Object
      * <pre>
      * 0x30 L1 AD-KDCIssued sequence
      *  |
-     *  +--> 0xA1 L2 ad-checksum tag
+     *  +--&gt; 0xA1 L2 ad-checksum tag
      *  |     |
-     *  |     +--> 0x30 L2-1 ad-checksum value ( Checksum )
+     *  |     +--&gt; 0x30 L2-1 ad-checksum value ( Checksum )
      *  |
-     *  +--> 0xA2 L3 i-realm tag
+     *  +--&gt; 0xA2 L3 i-realm tag
      *  |     |
-     *  |     +--> 0x1B L3-1 i-realm value ( KerberosString )
+     *  |     +--&gt; 0x1B L3-1 i-realm value ( KerberosString )
      *  |
-     *  +--> 0xA3 L4 i-sname tag
+     *  +--&gt; 0xA3 L4 i-sname tag
      *  |     |
-     *  |     +--> 0x30 L4-1 i-sname value ( PrincipalName )
+     *  |     +--&gt; 0x30 L4-1 i-sname value ( PrincipalName )
      *  |
-     *  +--> 0xA4 L5 elements tag
+     *  +--&gt; 0xA4 L5 elements tag
      *        |
-     *        +--> 0x30 L5-1 elements (AuthorizationData)
+     *        +--&gt; 0x30 L5-1 elements (AuthorizationData)
      * </pre>
      */
     @Override
@@ -269,7 +269,7 @@ public class AdKdcIssued implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "AD-KDCIssued encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "AD-KDCIssued initial value : {}", toString() );
+            LOG.debug( "AD-KDCIssued initial value : {}", this );
         }
 
         return buffer;

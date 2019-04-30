@@ -27,7 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.commons.pool.PoolableObjectFactory;
+import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.directory.ldap.client.api.DefaultLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.DefaultLdapConnectionValidator;
 import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
@@ -54,77 +54,77 @@ import org.apache.directory.ldap.client.api.LdapConnectionValidator;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateLdapConnectionPool
 {
-    /** Attributes names to be added to the list of default binary attributes */
+    /** @return Attributes names to be added to the list of default binary attributes */
     String[] additionalBinaryAttributes() default {};
     
     
-    /** LdapConnection factory implementation class */
+    /** @return LdapConnection factory implementation class */
     Class<? extends LdapConnectionFactory> connectionFactoryClass() default 
             DefaultLdapConnectionFactory.class;
     
     
-    /** LdapConnection pool factory implementation class */
-    Class<? extends PoolableObjectFactory<LdapConnection>> factoryClass() default 
+    /** @return LdapConnection pool factory implementation class */
+    Class<? extends PooledObjectFactory<LdapConnection>> factoryClass() default 
             DefaultPoolableLdapConnectionFactory.class;
     
     
-    /** Connections borrowed in LIFO order, default true */
+    /** @return Connections borrowed in LIFO order, default true */
     boolean lifo() default true;
     
     
-    /** The maximum number of active connections, default 8 */
+    /** @return The maximum number of active connections, default 8 */
     int maxActive() default 8;
     
     
-    /** The maximum number of idle connections, default 8 */
+    /** @return The maximum number of idle connections, default 8 */
     int maxIdle() default 8;
     
     
-    /** The maximum amount of time to wait for a connection to be returned in millis, default -1 */
+    /** @return The maximum amount of time to wait for a connection to be returned in millis, default -1 */
     long maxWait() default -1L;
     
     
-    /** The minimum idle time before evicting a connection in millis, default 1000*60*30 */
+    /** @return The minimum idle time before evicting a connection in millis, default 1000*60*30 */
     long minEvictableIdleTimeMillis() default 1000L * 60L * 30L;
     
     
-    /** The minumum number of idle instances before evictor spawns new object, default 0 */
+    /** @return The minumum number of idle instances before evictor spawns new object, default 0 */
     int minIdle() default 0;
     
     
-    /** The number of objects to test per eviction run, default 3 */
+    /** @return The number of objects to test per eviction run, default 3 */
     int numTestsPerEvictionRun() default 3;
 
     
-    /** Same as minEvictableIdleTimeMillis with extra condition that minIdle objects remain in pool, default -1 */
+    /** @return Same as minEvictableIdleTimeMillis with extra condition that minIdle objects remain in pool, default -1 */
     long softMinEvictableIdleTimeMillis() default -1L;
     
     
-    /** If true, connection will be tested on borrow, default false */
+    /** @return If true, connection will be tested on borrow, default false */
     boolean testOnBorrow() default false;
     
     
-    /** If true, connection will be tested on return, default false */
+    /** @return If true, connection will be tested on return, default false */
     boolean testOnReturn() default false;
     
     
-    /** If true, connection will be tested on while idle, default false */
+    /** @return If true, connection will be tested on while idle, default false */
     boolean testWhileIdle() default false;
     
     
-    /** The time, in millis, between eviction runs, default -1 (forever) */
+    /** @return The time, in millis, between eviction runs, default -1 (forever) */
     long timeBetweenEvictionRunsMillis() default -1L;
     
     
-    /** The connection timeout in millis, default 30000 */
+    /** @return The connection timeout in millis, default 30000 */
     long timeout() default 30000L;
     
     
-    /** The class to use for validation */
+    /** @return The class to use for validation */
     Class<? extends LdapConnectionValidator> validatorClass() default 
         DefaultLdapConnectionValidator.class;
 
 
-    /** The default action when connections are exhausted, default 1 (block) */
+    /** @return The default action when connections are exhausted, default 1 (block) */
     byte whenExhaustedAction() default 1;
 }

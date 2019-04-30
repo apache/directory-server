@@ -157,7 +157,7 @@ public class TransportBean extends AdsBaseBean
     /**
      * Sets the number of thread to use to process incoming requests
      * 
-     * @param The number of threads
+     * @param transportNbThreads The number of threads
      */
     public void setTransportNbThreads( int transportNbThreads )
     {
@@ -177,7 +177,7 @@ public class TransportBean extends AdsBaseBean
     /**
      * Sets the size of the incoming requests waiting queue
      * 
-     * @param The size of waiting request queue
+     * @param transportBacklog The size of waiting request queue
      */
     public void setTransportBackLog( int transportBacklog )
     {
@@ -264,7 +264,7 @@ public class TransportBean extends AdsBaseBean
     {
         if ( this.enabledCiphers == null )
         {
-            this.enabledCiphers = new ArrayList<String>();
+            this.enabledCiphers = new ArrayList<>();
         }
 
         for ( String enabledCipher : enabledCiphers )
@@ -299,7 +299,7 @@ public class TransportBean extends AdsBaseBean
     {
         if ( this.enabledProtocols == null )
         {
-            this.enabledProtocols = new ArrayList<String>();
+            this.enabledProtocols = new ArrayList<>();
         }
 
         for ( String enabledProtocol : enabledProtocols )
@@ -312,6 +312,7 @@ public class TransportBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -335,7 +336,7 @@ public class TransportBean extends AdsBaseBean
         sb.append( toString( tabs, "Need Client Auth", needClientAuth ) );
         sb.append( toString( tabs, "Want Client Auth", wantClientAuth ) );
 
-        if ( ( enabledCiphers != null ) && ( enabledCiphers.size() > 0 ) )
+        if ( ( enabledCiphers != null ) && !enabledCiphers.isEmpty() )
         {
             sb.append( tabs ).append( "Enabled Ciphers :\n" );
 
@@ -345,7 +346,7 @@ public class TransportBean extends AdsBaseBean
             }
         }
 
-        if ( ( enabledProtocols != null ) && ( enabledProtocols.size() > 0 ) )
+        if ( ( enabledProtocols != null ) && !enabledProtocols.isEmpty() )
         {
             sb.append( tabs ).append( "  Enabled Protocols :\n" );
 
@@ -362,6 +363,7 @@ public class TransportBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

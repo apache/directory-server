@@ -107,7 +107,14 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
 
             cursor.close();
 
-            return entry.get( SchemaConstants.USER_PASSWORD_AT );
+            if ( entry != null )
+            {
+                return entry.get( SchemaConstants.USER_PASSWORD_AT );
+            }
+            else
+            {
+                return null;
+            }
         }
         catch ( Exception e )
         {
@@ -120,7 +127,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
     {
         if ( LOG.isDebugEnabled() )
         {
-            LOG.debug( "Converted username " + getUsername() + " to Dn " + bindDn );
+            LOG.debug( "Converted username {} to Dn {}", getUsername(), bindDn );
         }
 
         ldapSession.putSaslProperty( Context.SECURITY_PRINCIPAL, bindDn );

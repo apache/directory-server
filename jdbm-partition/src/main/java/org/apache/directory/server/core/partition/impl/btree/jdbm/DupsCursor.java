@@ -68,7 +68,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     /**
      * The current Tuple returned from the wrappedCursor DupsContainerCursor.
      */
-    private final Tuple<K, DupsContainer<V>> containerTuple = new Tuple<K, DupsContainer<V>>();
+    private final Tuple<K, DupsContainer<V>> containerTuple = new Tuple<>();
 
     /**
      * A Cursor over a set of value objects for the current key held in the
@@ -84,7 +84,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      * same Tuple instance will be returned every time.  At different
      * positions it may return different values for the same key.
      */
-    private final Tuple<K, V> returnedTuple = new Tuple<K, V>();
+    private final Tuple<K, V> returnedTuple = new Tuple<>();
 
     /**
      * Whether or not a value is available when get() is called.
@@ -100,7 +100,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         }
 
         this.table = table;
-        this.containerCursor = new DupsContainerCursor<K, V>( table );
+        this.containerCursor = new DupsContainerCursor<>( table );
         LOG.debug( "Created on table {}", table );
     }
 
@@ -119,7 +119,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void beforeValue( K key, V value ) throws LdapException, CursorException
     {
-        checkNotClosed( "beforeValue()" );
+        checkNotClosed();
         containerCursor.before( new Tuple<K, DupsContainer<V>>( key, null ) );
 
         if ( containerCursor.next() )
@@ -130,14 +130,14 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             if ( values.isArrayTree() )
             {
                 ArrayTree<V> set = values.getArrayTree();
-                dupsCursor = new ArrayTreeCursor<V>( set );
+                dupsCursor = new ArrayTreeCursor<>( set );
             }
             else
             {
                 try
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
-                    dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
+                    dupsCursor = new KeyBTreeCursor<>( tree, table.getValueComparator() );
                 }
                 catch ( IOException e )
                 {
@@ -173,7 +173,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void afterValue( K key, V value ) throws LdapException, CursorException
     {
-        checkNotClosed( "afterValue()" );
+        checkNotClosed();
         /*
          * There is a subtle difference between after and before handling
          * with duplicate key values.  Say we have the following tuples:
@@ -212,14 +212,14 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             if ( values.isArrayTree() )
             {
                 ArrayTree<V> set = values.getArrayTree();
-                dupsCursor = new ArrayTreeCursor<V>( set );
+                dupsCursor = new ArrayTreeCursor<>( set );
             }
             else
             {
                 try
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
-                    dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
+                    dupsCursor = new KeyBTreeCursor<>( tree, table.getValueComparator() );
                 }
                 catch ( IOException e )
                 {
@@ -270,7 +270,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         clearValue();
         containerCursor.beforeFirst();
         containerTuple.setKey( null );
@@ -284,7 +284,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         clearValue();
         containerCursor.afterLast();
         containerTuple.setKey( null );
@@ -298,7 +298,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean first() throws LdapException, CursorException
     {
-        checkNotClosed( "first()" );
+        checkNotClosed();
         clearValue();
         dupsCursor = null;
 
@@ -309,14 +309,14 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
             if ( containerTuple.getValue().isArrayTree() )
             {
-                dupsCursor = new ArrayTreeCursor<V>( values.getArrayTree() );
+                dupsCursor = new ArrayTreeCursor<>( values.getArrayTree() );
             }
             else
             {
                 try
                 {
                     BTree bt = table.getBTree( values.getBTreeRedirect() );
-                    dupsCursor = new KeyBTreeCursor<V>( bt, table.getValueComparator() );
+                    dupsCursor = new KeyBTreeCursor<>( bt, table.getValueComparator() );
                 }
                 catch ( IOException e )
                 {
@@ -346,7 +346,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean last() throws LdapException, CursorException
     {
-        checkNotClosed( "last()" );
+        checkNotClosed();
         clearValue();
         dupsCursor = null;
 
@@ -358,14 +358,14 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
             if ( values.isArrayTree() )
             {
                 ArrayTree<V> set = values.getArrayTree();
-                dupsCursor = new ArrayTreeCursor<V>( set );
+                dupsCursor = new ArrayTreeCursor<>( set );
             }
             else
             {
                 try
                 {
                     BTree tree = table.getBTree( values.getBTreeRedirect() );
-                    dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
+                    dupsCursor = new KeyBTreeCursor<>( tree, table.getValueComparator() );
                 }
                 catch ( IOException e )
                 {
@@ -403,7 +403,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
         /*
          * If the iterator over the values of the current key is null or is
          * extinguished then we need to advance to the previous key.
@@ -435,14 +435,14 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
                 if ( values.isArrayTree() )
                 {
                     ArrayTree<V> set = values.getArrayTree();
-                    dupsCursor = new ArrayTreeCursor<V>( set );
+                    dupsCursor = new ArrayTreeCursor<>( set );
                 }
                 else
                 {
                     try
                     {
                         BTree tree = table.getBTree( values.getBTreeRedirect() );
-                        dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
+                        dupsCursor = new KeyBTreeCursor<>( tree, table.getValueComparator() );
                     }
                     catch ( IOException e )
                     {
@@ -479,7 +479,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
         /*
          * If the iterator over the values of the current key is null or is
          * extinguished then we need to advance to the next key.
@@ -510,14 +510,14 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
                 if ( values.isArrayTree() )
                 {
                     ArrayTree<V> set = values.getArrayTree();
-                    dupsCursor = new ArrayTreeCursor<V>( set );
+                    dupsCursor = new ArrayTreeCursor<>( set );
                 }
                 else
                 {
                     try
                     {
                         BTree tree = table.getBTree( values.getBTreeRedirect() );
-                        dupsCursor = new KeyBTreeCursor<V>( tree, table.getValueComparator() );
+                        dupsCursor = new KeyBTreeCursor<>( tree, table.getValueComparator() );
                     }
                     catch ( IOException e )
                     {
@@ -561,7 +561,7 @@ class DupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public Tuple<K, V> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( !valueAvailable )
         {

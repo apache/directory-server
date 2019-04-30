@@ -25,6 +25,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -249,11 +251,13 @@ public class GetRootDseIT extends AbstractLdapTestUnit
     {
         DirectoryService service = getService();
         service.setAccessControlEnabled( false );
-        LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service );
-
-        Entry rootDse = connection.getRootDse();
-
-        assertNotNull( rootDse );
+        
+        try ( LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service ) )
+        {
+            Entry rootDse = connection.getRootDse();
+    
+            assertNotNull( rootDse );
+        }
     }
 
 
@@ -266,10 +270,40 @@ public class GetRootDseIT extends AbstractLdapTestUnit
     {
         DirectoryService service = getService();
         service.setAccessControlEnabled( true );
-        LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service );
+        
+        try ( LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service ) )
+        {
+            Entry rootDse = connection.getRootDse();
+    
+            assertNotNull( rootDse );
+        }
+    }
 
-        Entry rootDse = connection.getRootDse();
 
-        assertNotNull( rootDse );
+    /**
+     * Check the supportedFeatures attribute
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testGetSupportedFeatures() throws Exception
+    {
+        DirectoryService service = getService();
+        service.setAccessControlEnabled( true );
+        
+        try ( LdapCoreSessionConnection connection = new LdapCoreSessionConnection( service ) )
+        {
+            Entry rootDse = connection.getRootDse( SchemaConstants.SUPPORTED_FEATURES_AT );
+            
+            assertNotNull( rootDse );
+            assertTrue( rootDse.containsAttribute( SchemaConstants.SUPPORTED_FEATURES_AT ) );
+            
+            Attribute supportedFeatures = rootDse.get( SchemaConstants.SUPPORTED_FEATURES_AT );
+            
+            assertEquals( 2, supportedFeatures.size() );
+            assertTrue( supportedFeatures.contains( 
+                SchemaConstants.FEATURE_ALL_OPERATIONAL_ATTRIBUTES, 
+                SchemaConstants.FEATURE_MODIFY_INCREMENT ) );
+        }
     }
 }

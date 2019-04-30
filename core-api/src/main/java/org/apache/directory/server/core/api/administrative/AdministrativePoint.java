@@ -27,12 +27,12 @@ import org.apache.directory.api.ldap.model.subtree.AdministrativeRole;
 /**
  * An interface used to describe an AdministrativePoint. An AdministrativePoint 
  * holds some elements useful to navigate through the administrative model :
- * <li>
- * <ul>The Dn : the AP position in the DIT</ul>
- * <ul>The UUID : The AP unique identifier used when an entry point to the AP it depends on</ul>
- * <ul>The role : the AP role</ul>
- * <ul>The parent : the AP this AP is the direct descendant of</ul>
- * </li>
+ * <ul>
+ * <li>The Dn : the AP position in the DIT</li>
+ * <li>The UUID : The AP unique identifier used when an entry point to the AP it depends on</li>
+ * <li>The role : the AP role</li>
+ * <li>The parent : the AP this AP is the direct descendant of</li>
+ * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public interface AdministrativePoint

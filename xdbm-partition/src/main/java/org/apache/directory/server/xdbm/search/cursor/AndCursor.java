@@ -31,6 +31,7 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -67,10 +68,11 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
      * Creates an instance of a AndCursor. It wraps an index cursor and the list
      * of evaluators associated with all the elements connected by the And.
      * 
+     * @param partitionTxn The transaction to use
      * @param wrapped The encapsulated IndexCursor
-     * @param evaluators The list of evaluators associated wth the elements
+     * @param evaluators The list of evaluators associated with the elements
      */
-    public AndCursor( Cursor<IndexEntry<V, String>> wrapped,
+    public AndCursor( PartitionTxn partitionTxn, Cursor<IndexEntry<V, String>> wrapped,
         List<Evaluator<? extends ExprNode>> evaluators )
     {
         if ( IS_DEBUG )
@@ -80,6 +82,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
 
         this.wrapped = wrapped;
         this.evaluators = optimize( evaluators );
+        this.partitionTxn = partitionTxn;
     }
 
 
@@ -97,7 +100,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         wrapped.beforeFirst();
         setAvailable( false );
     }
@@ -108,7 +111,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         wrapped.afterLast();
         setAvailable( false );
     }
@@ -139,15 +142,15 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean previous() throws LdapException, CursorException
+    public boolean previous( PartitionTxn partitionTxn ) throws LdapException, CursorException
     {
         while ( wrapped.previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
 
             IndexEntry<V, String> candidate = wrapped.get();
 
-            if ( matches( candidate ) )
+            if ( matches( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -160,14 +163,14 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
-    public boolean next() throws LdapException, CursorException
+    public boolean next( PartitionTxn partitionTxn ) throws LdapException, CursorException
     {
         while ( wrapped.next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             IndexEntry<V, String> candidate = wrapped.get();
 
-            if ( matches( candidate ) )
+            if ( matches( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -182,7 +185,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
      */
     public IndexEntry<V, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( available() )
         {
@@ -196,6 +199,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -211,6 +215,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -237,7 +242,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     private List<Evaluator<? extends ExprNode>> optimize(
         List<Evaluator<? extends ExprNode>> unoptimized )
     {
-        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<Evaluator<? extends ExprNode>>(
+        List<Evaluator<? extends ExprNode>> optimized = new ArrayList<>(
             unoptimized.size() );
         optimized.addAll( unoptimized );
 
@@ -250,11 +255,11 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * Checks if the entry is a valid candidate by using the evaluators.
      */
-    private boolean matches( IndexEntry<V, String> indexEntry ) throws LdapException
+    private boolean matches( PartitionTxn partitionTxn, IndexEntry<V, String> indexEntry ) throws LdapException
     {
         for ( Evaluator<?> evaluator : evaluators )
         {
-            if ( !evaluator.evaluate( indexEntry ) )
+            if ( !evaluator.evaluate( partitionTxn, indexEntry ) )
             {
                 return false;
             }
@@ -283,6 +288,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -298,7 +304,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
             sb.append( "absent) :\n" );
         }
 
-        if ( ( evaluators != null ) && ( evaluators.size() > 0 ) )
+        if ( ( evaluators != null ) && !evaluators.isEmpty() )
         {
             sb.append( dumpEvaluators( tabs ) );
         }

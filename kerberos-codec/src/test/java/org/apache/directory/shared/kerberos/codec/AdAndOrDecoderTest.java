@@ -45,8 +45,6 @@ public class AdAndOrDecoderTest
     @Test
     public void testDecodeFullAdAndOr()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x2D );
 
         stream.put( new byte[]
@@ -104,7 +102,7 @@ public class AdAndOrDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, adAndOrContainer );
+            Asn1Decoder.decode( stream, adAndOrContainer );
         }
         catch ( DecoderException de )
         {
@@ -138,8 +136,6 @@ public class AdAndOrDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrWithEmptySeq() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 2 );
 
         stream.put( new byte[]
@@ -152,7 +148,7 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        krbDecoder.decode( stream, adAndOrContainer );
+        Asn1Decoder.decode( stream, adAndOrContainer );
         fail();
     }
 
@@ -160,8 +156,6 @@ public class AdAndOrDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrEmptyConditionCount() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 4 );
 
         stream.put( new byte[]
@@ -175,7 +169,7 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        krbDecoder.decode( stream, adAndOrContainer );
+        Asn1Decoder.decode( stream, adAndOrContainer );
         fail();
     }
 
@@ -183,8 +177,6 @@ public class AdAndOrDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrNullConditionCount() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 6 );
 
         stream.put( new byte[]
@@ -199,7 +191,7 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        krbDecoder.decode( stream, adAndOrContainer );
+        Asn1Decoder.decode( stream, adAndOrContainer );
         fail();
     }
 
@@ -207,8 +199,6 @@ public class AdAndOrDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrNoConditionCount() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x28 );
 
         stream.put( new byte[]
@@ -258,7 +248,7 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        krbDecoder.decode( stream, adAndOrContainer );
+        Asn1Decoder.decode( stream, adAndOrContainer );
         fail();
     }
 
@@ -266,8 +256,6 @@ public class AdAndOrDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrNoElements() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
         stream.put( new byte[]
@@ -284,7 +272,7 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        krbDecoder.decode( stream, adAndOrContainer );
+        Asn1Decoder.decode( stream, adAndOrContainer );
         fail();
     }
 
@@ -292,8 +280,6 @@ public class AdAndOrDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrEmptyElements() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
         stream.put( new byte[]
@@ -311,7 +297,7 @@ public class AdAndOrDecoderTest
 
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
 
-        krbDecoder.decode( stream, adAndOrContainer );
+        Asn1Decoder.decode( stream, adAndOrContainer );
         fail();
     }
 
@@ -319,8 +305,6 @@ public class AdAndOrDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeAdAndOrNullElements() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
         stream.put( new byte[]
@@ -341,7 +325,7 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        krbDecoder.decode( stream, adAndOrContainer );
+        Asn1Decoder.decode( stream, adAndOrContainer );
         fail();
     }
 }

@@ -69,7 +69,7 @@ public class ArchiveTarget extends Target
     /**
      * Sets the archive type.
      *
-     * @param archiveType
+     * @param archiveType The Archive type
      */
     public void setArchiveType( String archiveType )
     {

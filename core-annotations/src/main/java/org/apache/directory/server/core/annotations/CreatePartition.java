@@ -31,19 +31,19 @@ import org.apache.directory.server.core.api.partition.Partition;
  * An annotation for the Partition creation. A partition is defined by
  * a name and a suffix, plus some other characteristics. Here is an example :
  * <pre>
- * @CreatePartition(
+ * &#64;CreatePartition(
  *     name = "example",
  *     suffix = "dc=example, dc=com",
- *     @ContextEntry( 
+ *     &#64;ContextEntry( 
  *         {
  *             "dn: dc=example, dc=com",
  *             "objectclass: top",
  *             "objectclass: domain",
  *             "dc: example", 
  *         }),
- *     @Indexes( {
- *         @CreateIndex( attribute = "cn" ),
- *         @CreateIndex( attribute = "sn' )
+ *     &#64;Indexes( {
+ *         &#64;CreateIndex( attribute = "cn" ),
+ *         &#64;CreateIndex( attribute = "sn' )
  *     })
  * )
  * </pre>
@@ -55,27 +55,27 @@ import org.apache.directory.server.core.api.partition.Partition;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreatePartition
 {
-    /** The partition implementation class */
+    /** @return The partition implementation class */
     Class<? extends Partition> type() default Partition.class;
 
 
-    /** The partition name */
+    /** @return The partition name */
     String name();
 
 
-    /** The partition suffix */
+    /** @return The partition suffix */
     String suffix();
 
 
-    /** The context entry */
+    /** @return The context entry */
     ContextEntry contextEntry() default @ContextEntry(entryLdif = "");
 
 
-    /** The associated indexes */
+    /** @return The associated indexes */
     CreateIndex[] indexes() default
         {};
 
 
-    /** The cache size */
+    /** @return The cache size */
     int cacheSize() default 1000;
 }

@@ -150,13 +150,13 @@ public class PaData implements Asn1Object
      * 
      * 0x30 L1 PreAuthenticationData sequence
      *  |
-     *  +--> 0xA0 L2 padata-type tag
+     *  +--&gt; 0xA0 L2 padata-type tag
      *  |     |
-     *  |     +--> 0x02 L2-1 padata-type (int)
+     *  |     +--&gt; 0x02 L2-1 padata-type (int)
      *  |
-     *  +--> 0xA1 L3 padata-value tag
+     *  +--&gt; 0xA1 L3 padata-value tag
      *        |
-     *        +--> 0x04 L3-1 padata-value (OCTET STRING)
+     *        +--&gt; 0x04 L3-1 padata-value (OCTET STRING)
      *        
      *  where L1 = L2 + lenght(0xA0) + length(L2) +
      *             L3 + lenght(0xA1) + length(L3) 
@@ -238,7 +238,7 @@ public class PaData implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "PreAuthenticationData encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "PreAuthenticationData initial value : {}", toString() );
+            log.debug( "PreAuthenticationData initial value : {}", this );
         }
 
         return buffer;

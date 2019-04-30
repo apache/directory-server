@@ -240,12 +240,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                syntaxCheckerDescription = SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER
-                    .parseSyntaxCheckerDescription( desc );
+                syntaxCheckerDescription = SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER.parse( desc );
                 break;
             }
         }
@@ -403,11 +402,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                comparatorDescription = comparatorDescriptionSchemaParser.parseComparatorDescription( desc );
+                comparatorDescription = comparatorDescriptionSchemaParser.parse( desc );
                 break;
             }
         }
@@ -549,11 +548,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                normalizerDescription = normalizerDescriptionSchemaParser.parseNormalizerDescription( desc );
+                normalizerDescription = normalizerDescriptionSchemaParser.parse( desc );
                 break;
             }
         }
@@ -697,11 +696,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                ldapSyntax = ldapSyntaxDescriptionSchemaParser.parseLdapSyntaxDescription( desc );
+                ldapSyntax = ldapSyntaxDescriptionSchemaParser.parse( desc );
                 break;
             }
         }
@@ -859,11 +858,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                matchingRule = matchingRuleDescriptionSchemaParser.parseMatchingRuleDescription( desc );
+                matchingRule = matchingRuleDescriptionSchemaParser.parse( desc );
                 break;
             }
         }
@@ -1061,11 +1060,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parse( desc );
                 break;
             }
         }
@@ -1329,7 +1328,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         disableSchema( "nis" );
         Dn dn = new Dn( subschemaSubentryDn );
         String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) "
-            + "DESC 'bogus description' SUP name SYNTAX '1.3.6.1.4.1.1466.115.121.1.15' SINGLE-VALUE X-SCHEMA 'nis' )";
+            + "DESC 'bogus description' SUP name SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE X-SCHEMA 'nis' )";
         Modification mod = new DefaultModification(
             ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "attributeTypes", substrate ) );
 
@@ -1340,11 +1339,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attributeTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
-                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parse( desc );
                 break;
             }
         }
@@ -1392,11 +1391,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attributeTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
-                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parse( desc );
                 break;
             }
         }
@@ -1473,11 +1472,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attributeTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
-                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
+                attributeType = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parse( desc );
                 break;
             }
         }
@@ -1529,11 +1528,11 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
 
         for ( Value value : attrTypes )
         {
-            String desc = value.getValue();
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
-                objectClass = objectClassDescriptionSchemaParser.parseObjectClassDescription( desc );
+                objectClass = objectClassDescriptionSchemaParser.parse( desc );
                 break;
             }
         }

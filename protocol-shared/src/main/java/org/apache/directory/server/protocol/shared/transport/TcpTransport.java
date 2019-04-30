@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * @todo : missing javadoc
+ * The Transport instance for TCP based protocols.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -111,7 +111,6 @@ public class TcpTransport extends AbstractTransport
      * @param nbThreads The number of threads to create in the acceptor
      * @param backLog The queue size for incoming messages, waiting for the
      * acceptor to be ready
-     * @throws UnknownHostException 
      */
     public TcpTransport( int tcpPort, int nbThreads, int backLog )
     {
@@ -262,7 +261,7 @@ public class TcpTransport extends AbstractTransport
     /**
      * Set the list of enabled ciphers
      *
-     * @param enabledCiphers The list of enabled ciphers
+     * @param cipherSuite The list of enabled ciphers
      */
     public void setEnabledCiphers( List<String> cipherSuite )
     {
@@ -273,6 +272,7 @@ public class TcpTransport extends AbstractTransport
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return "TcpTransport" + super.toString();

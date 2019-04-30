@@ -72,12 +72,12 @@ public class ForwardIndexComparator<K> implements TupleComparator<K, Long>
 
     /**
      * Compares key Object to determine their sorting order returning a
-     * value = to, < or > than 0.
+     * value = to, &lt; or &gt; than 0.
      *
      * @param key1 the first key to compare
      * @param key2 the other key to compare to the first
      * @return 0 if both are equal, a negative value less than 0 if the first
-     * is less than the second, or a postive value if the first is greater than
+     * is less than the second, or a poistive value if the first is greater than
      * the second byte array.
      */
     public int compareKey( K key1, K key2 )
@@ -88,12 +88,12 @@ public class ForwardIndexComparator<K> implements TupleComparator<K, Long>
 
     /**
      * Comparse value Objects to determine their sorting order returning a
-     * value = to, < or > than 0.
+     * value = to, &lt; or &gt; than 0.
      *
      * @param l1 the first Long value to compare
      * @param l2 the other Long value to compare to the first
      * @return 0 if both are equal, a negative value less than 0 if the first
-     * is less than the second, or a postive value if the first is greater than
+     * is less than the second, or a positive value if the first is greater than
      * the second Object.
      */
     public int compareValue( Long l1, Long l2 )

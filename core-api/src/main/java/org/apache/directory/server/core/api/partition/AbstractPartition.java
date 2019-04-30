@@ -32,7 +32,6 @@ import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.i18n.I18n;
 
@@ -63,9 +62,6 @@ public abstract class AbstractPartition implements Partition
 
     /** The root Dn for this partition */
     protected Dn suffixDn;
-
-    /** the cache service */
-    protected CacheService cacheService;
 
     /** the value of last successful add/update operation's CSN */
     private String contextCsn;
@@ -100,7 +96,7 @@ public abstract class AbstractPartition implements Partition
             {
                 try
                 {
-                    destroy();
+                    destroy( null );
                 }
                 catch ( Exception e )
                 {
@@ -115,7 +111,7 @@ public abstract class AbstractPartition implements Partition
      * {@inheritDoc}
      */
     @Override
-    public void repair() throws Exception
+    public void repair() throws LdapException
     {
         // Do nothing. It will be handled by the implementation classes
     }
@@ -123,37 +119,41 @@ public abstract class AbstractPartition implements Partition
 
     /**
      * Override this method to put your initialization code.
+     * 
+     * @param partitionTxn The transaction to use
+     * @throws LdapException If the destroy call failed
      */
-    protected abstract void doDestroy() throws Exception;
+    protected abstract void doDestroy( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
      * Override this method to put your initialization code.
      * 
-     * @throws Exception If teh init failed
+     * @throws LdapException If the initialization failed
+     * @throws InvalidNameException If the initialization failed
      */
-    protected abstract void doInit() throws InvalidNameException, Exception;
+    protected abstract void doInit() throws InvalidNameException, LdapException;
 
 
     /**
      * Override this method to implement a repair method
      * 
-     * @throws Exception If the repair failed
+     * @throws LdapException If the repair failed
      */
-    protected abstract void doRepair() throws InvalidNameException, Exception;
+    protected abstract void doRepair() throws LdapException;
 
 
     /**
-     * Calls {@link #doDestroy()} where you have to put your destroy code in,
-     * and clears default properties.  Once this method is invoked, {@link #isInitialized()}
+     * Calls <code>doDestroy()</code> where you have to put your destroy code in,
+     * and clears default properties.  Once this method is invoked, <code>isInitialized()</code>
      * will return <tt>false</tt>.
      */
     @Override
-    public final void destroy() throws Exception
+    public final void destroy( PartitionTxn partitionTxn ) throws LdapException
     {
         try
         {
-            doDestroy();
+            doDestroy( partitionTxn );
         }
         finally
         {
@@ -246,7 +246,7 @@ public abstract class AbstractPartition implements Partition
      * {@inheritDoc}
      */
     @Override
-    public void dumpIndex( OutputStream stream, String name ) throws IOException
+    public void dumpIndex( PartitionTxn partitionTxn, OutputStream stream, String name ) throws IOException
     {
         stream.write( Strings.getBytesUtf8( "Nothing to dump for index " + name ) );
     }
@@ -254,7 +254,8 @@ public abstract class AbstractPartition implements Partition
 
     /**
      * Check that the operation is done on an initialized store
-     * @param property
+     * 
+     * @param property The property that was initialized
      */
     protected void checkInitialized( String property )
     {
@@ -287,17 +288,7 @@ public abstract class AbstractPartition implements Partition
      * {@inheritDoc}
      */
     @Override
-    public void setCacheService( CacheService cacheService )
-    {
-        this.cacheService = cacheService;
-    }
-
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getContextCsn()
+    public String getContextCsn( PartitionTxn partitionTxn )
     {
         return contextCsn;
     }
@@ -316,5 +307,15 @@ public abstract class AbstractPartition implements Partition
             contextCsn = csn;
             ctxCsnChanged = true;
         }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sync() throws LdapException
+    {
+        // Do nothing by default
     }
 }

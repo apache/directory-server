@@ -50,6 +50,8 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance.
+     * 
+     * @param baseDn The base Dn
      */
     public AnonymousAuthenticator( Dn baseDn )
     {

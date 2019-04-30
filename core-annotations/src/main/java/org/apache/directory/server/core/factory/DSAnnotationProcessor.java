@@ -79,14 +79,21 @@ public final class DSAnnotationProcessor
 
     /**
      * Create the DirectoryService
+     * 
+     * @param dsBuilder The DirectoryService builder
+     * @return an instance of DirectoryService
+     * @throws Exception If the DirectoryService cannot be created
      */
     public static DirectoryService createDS( CreateDS dsBuilder )
         throws Exception
     {
-        LOG.debug( "Starting DS {}...", dsBuilder.name() );
+        if ( LOG.isDebugEnabled() )
+        {
+            LOG.debug( "Starting DS {}...", dsBuilder.name() );
+        }
+        
         Class<?> factory = dsBuilder.factory();
-        DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory
-            .newInstance();
+        DirectoryServiceFactory dsf = ( DirectoryServiceFactory ) factory.newInstance();
 
         DirectoryService service = dsf.getDirectoryService();
         service.setAccessControlEnabled( dsBuilder.enableAccessControl() );
@@ -121,7 +128,7 @@ public final class DSAnnotationProcessor
                     "authentication interceptor not found" );
             }
 
-            Set<Authenticator> authenticators = new HashSet<Authenticator>();
+            Set<Authenticator> authenticators = new HashSet<>();
 
             for ( CreateAuthenticator createAuthenticator : dsBuilder
                 .authenticators() )
@@ -191,7 +198,7 @@ public final class DSAnnotationProcessor
 
                     if ( schemaManager.isDisabled( schemaName ) )
                     {
-                        LOG.error( "Cannot enable " + schemaName );
+                        LOG.error( "Cannot enable {}", schemaName );
                     }
                 }
                 else
@@ -200,7 +207,7 @@ public final class DSAnnotationProcessor
 
                     if ( schemaManager.isEnabled( schemaName ) )
                     {
-                        LOG.error( "Cannot disable " + schemaName );
+                        LOG.error( "Cannot disable {}", schemaName );
                     }
                 }
             }
@@ -228,8 +235,6 @@ public final class DSAnnotationProcessor
                     createPartition.cacheSize(),
                     new File( service.getInstanceLayout().getPartitionsDirectory(), createPartition.name() ) );
 
-                partition.setCacheService( service.getCacheService() );
-
                 CreateIndex[] indexes = createPartition.indexes();
 
                 for ( CreateIndex createIndex : indexes )
@@ -247,15 +252,13 @@ public final class DSAnnotationProcessor
                 Class<?>[] partypes = new Class[]
                     { SchemaManager.class, DnFactory.class };
                 Constructor<?> constructor = createPartition.type().getConstructor( partypes );
-                partition = ( Partition ) constructor.newInstance( new Object[]
-                    { schemaManager, service.getDnFactory() } );
+                partition = ( Partition ) constructor.newInstance( schemaManager, service.getDnFactory() );
                 partition.setId( createPartition.name() );
                 partition.setSuffixDn( new Dn( schemaManager, createPartition.suffix() ) );
 
                 if ( partition instanceof AbstractBTreePartition )
                 {
                     AbstractBTreePartition btreePartition = ( AbstractBTreePartition ) partition;
-                    btreePartition.setCacheService( service.getCacheService() );
                     btreePartition.setCacheSize( createPartition.cacheSize() );
                     btreePartition.setPartitionPath( new File( service
                         .getInstanceLayout().getPartitionsDirectory(),
@@ -266,14 +269,7 @@ public final class DSAnnotationProcessor
 
                     for ( CreateIndex createIndex : indexes )
                     {
-                        if ( createIndex.type() == JdbmIndex.class )
-                        {
-                            // JDBM index
-                            JdbmIndex index = new JdbmIndex( createIndex.attribute(), false );
-
-                            btreePartition.addIndexedAttributes( index );
-                        }
-                        else if ( createIndex.type() == MavibotIndex.class )
+                        if ( createIndex.type() == MavibotIndex.class )
                         {
                             // Mavibot index
                             MavibotIndex index = new MavibotIndex( createIndex.attribute(), false );
@@ -316,7 +312,8 @@ public final class DSAnnotationProcessor
      * 
      * @param description The annotations containing the info from which we will create
      *  the DS
-     * @return A valid DS
+     * @return A valid DirectoryService
+     * @throws Exception If the DirectoryService instance can't be returned
      */
     public static DirectoryService getDirectoryService( Description description )
         throws Exception
@@ -342,6 +339,7 @@ public final class DSAnnotationProcessor
      * none, then we try at the class level.
      * 
      * @return A valid DS
+     * @throws Exception If the DirectoryService instance can't be returned
      */
     public static DirectoryService getDirectoryService() throws Exception
     {
@@ -363,11 +361,9 @@ public final class DSAnnotationProcessor
     /**
      * injects an LDIF entry in the given DirectoryService
      * 
-     * @param entry
-     *            the LdifEntry to be injected
-     * @param service
-     *            the DirectoryService
-     * @throws Exception
+     * @param entry the LdifEntry to be injected
+     * @param service the DirectoryService
+     * @throws Exception If the entry cannot be injected
      */
     private static void injectEntry( LdifEntry entry, DirectoryService service )
         throws LdapException
@@ -394,11 +390,10 @@ public final class DSAnnotationProcessor
     /**
      * injects the LDIF entries present in a LDIF file
      * 
-     * @param service
-     *            the DirectoryService
-     * @param ldifFiles
-     *            the array of LDIF file names (only )
-     * @throws Exception
+     * @param clazz The class which classLoaded will be use to retrieve the resources
+     * @param service the DirectoryService
+     * @param ldifFiles array of LDIF file names (only )
+     * @throws Exception If we weren't able to inject LdifFiles
      */
     public static void injectLdifFiles( Class<?> clazz,
         DirectoryService service, String[] ldifFiles ) throws Exception
@@ -433,31 +428,30 @@ public final class DSAnnotationProcessor
     /**
      * Inject an ldif String into the server. Dn must be relative to the root.
      * 
-     * @param service
-     *            the directory service to use
-     * @param ldif
-     *            the ldif containing entries to add to the server.
-     * @throws Exception
-     *             if there is a problem adding the entries from the LDIF
+     * @param service the directory service to use
+     * @param ldif the ldif containing entries to add to the server.
+     * @throws Exception if there is a problem adding the entries from the LDIF
      */
     public static void injectEntries( DirectoryService service, String ldif )
         throws Exception
     {
-        LdifReader reader = new LdifReader();
-        List<LdifEntry> entries = reader.parseLdif( ldif );
-
-        for ( LdifEntry entry : entries )
+        try ( LdifReader reader = new LdifReader() )
         {
-            injectEntry( entry, service );
+            List<LdifEntry> entries = reader.parseLdif( ldif );
+    
+            for ( LdifEntry entry : entries )
+            {
+                injectEntry( entry, service );
+            }
         }
-
-        // And close the reader
-        reader.close();
     }
 
 
     /**
      * Load the schemas, and enable/disable them.
+     * 
+     * @param desc The description
+     * @param service The DirectoryService instance
      */
     public static void loadSchemas( Description desc, DirectoryService service )
     {
@@ -466,10 +460,6 @@ public final class DSAnnotationProcessor
             return;
         }
 
-        /*for ( Class<?> loadSchema : dsBuilder.additionalInterceptors() )
-        {
-            service.addLast( ( Interceptor ) interceptorClass.newInstance() );
-        }*/
         LoadSchema loadSchema = desc
             .getAnnotation( LoadSchema.class );
 
@@ -482,6 +472,10 @@ public final class DSAnnotationProcessor
 
     /**
      * Apply the LDIF entries to the given service
+     * 
+     * @param desc The description
+     * @param service The DirectoryService instance
+     * @throws Exception If we can't apply the ldifs
      */
     public static void applyLdifs( Description desc, DirectoryService service )
         throws Exception

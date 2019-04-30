@@ -39,6 +39,7 @@ import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.mavibot.btree.serializer.ByteArraySerializer;
 import org.apache.directory.mavibot.btree.serializer.ElementSerializer;
 import org.apache.directory.mavibot.btree.serializer.StringSerializer;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
@@ -312,11 +313,11 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public K reverseLookup( String id ) throws LdapException
+    public K reverseLookup( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.get( id );
+            return reverse.get( partitionTxn, id );
         }
         else
         {
@@ -413,7 +414,6 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     }
 
 
-    @SuppressWarnings("unchecked")
     public Cursor<IndexEntry<K, String>> forwardCursor() throws LdapException
     {
         return new IndexCursorAdaptor<K>( ( Cursor ) forward.cursor(), true );
@@ -434,10 +434,9 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     }
 
 
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor( K key ) throws Exception
+    public Cursor<IndexEntry<K, String>> forwardCursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
-        return new IndexCursorAdaptor<>( ( Cursor ) forward.cursor( key ), true );
+        return new IndexCursorAdaptor<>( ( Cursor ) forward.cursor( partitionTxn, key ), true );
     }
 
 
@@ -475,20 +474,20 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal, String id ) throws LdapException
+    public boolean forward( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
-        return forward.has( attrVal, id );
+        return forward.has( partitionTxn, attrVal, id );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id ) throws LdapException
+    public boolean reverse( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.has( id );
+            return reverse.has( partitionTxn, id );
         }
         else
         {
@@ -500,9 +499,9 @@ public class MavibotIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id, K attrVal ) throws LdapException
+    public boolean reverse( PartitionTxn partitionTxn, String id, K attrVal ) throws LdapException
     {
-        return forward.has( attrVal, id );
+        return forward.has( partitionTxn, attrVal, id );
     }
 
 

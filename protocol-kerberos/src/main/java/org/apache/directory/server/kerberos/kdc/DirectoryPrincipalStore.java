@@ -67,6 +67,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
      * Creates a new instance of DirectoryPrincipalStore.
      *
      * @param directoryService backing store for this PrincipalStore
+     * @param searchBaseDn The Search Base DN
      */
     public DirectoryPrincipalStore( DirectoryService directoryService, Dn searchBaseDn )
     {

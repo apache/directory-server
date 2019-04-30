@@ -66,15 +66,13 @@ public class StoreKdcReq extends GrammarAction<TgsReqContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the KDC-REQ
-        Asn1Decoder kdcReqDecoder = new Asn1Decoder();
-
         KdcReqContainer kdcReqContainer = new KdcReqContainer( tgsReqContainer.getStream() );
 
         // Store the created TGS-REQ object into the KDC-REQ container
@@ -82,14 +80,7 @@ public class StoreKdcReq extends GrammarAction<TgsReqContainer>
         kdcReqContainer.setKdcReq( tgsReq );
 
         // Decode the KDC_REQ PDU
-        try
-        {
-            kdcReqDecoder.decode( tgsReqContainer.getStream(), kdcReqContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( tgsReqContainer.getStream(), kdcReqContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

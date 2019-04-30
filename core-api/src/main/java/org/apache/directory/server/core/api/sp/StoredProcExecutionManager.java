@@ -127,13 +127,7 @@ public class StoredProcExecutionManager
                 {
                     engine = engineType.newInstance();
                 }
-                catch ( InstantiationException e )
-                {
-                    LdapException ne = new LdapException( e.getMessage(), e );
-                    ne.initCause( e );
-                    throw ne;
-                }
-                catch ( IllegalAccessException e )
+                catch ( InstantiationException | IllegalAccessException e )
                 {
                     LdapException ne = new LdapException( e.getMessage(), e );
                     ne.initCause( e );

@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-interceptors</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-interceptors-subtree</artifactId>
@@ -77,10 +77,6 @@
       <artifactId>api-util</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -103,7 +99,7 @@
             <id>attach-sources</id>
             <phase>verify</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
@@ -134,6 +130,7 @@
             </Export-Package>
             <Import-Package>
                 javax.naming.directory,
+                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.ldap.codec.controls.search.subentries;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},

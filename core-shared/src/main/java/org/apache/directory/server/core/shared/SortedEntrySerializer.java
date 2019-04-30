@@ -161,6 +161,9 @@ public class SortedEntrySerializer implements Serializer
      *     </ul>
      *   </li>
      * </ul>
+     * 
+     * @param entry The entry to serialize
+     * @return The byte[] containing the serialized entry
      */
     public byte[] serialize( Entry entry )
     {
@@ -205,7 +208,7 @@ public class SortedEntrySerializer implements Serializer
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialize " + entry );
+                LOG.debug( "Serialize {}", entry );
             }
 
             return baos.toByteArray();

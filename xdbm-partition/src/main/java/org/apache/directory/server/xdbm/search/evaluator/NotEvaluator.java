@@ -24,6 +24,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.NotNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 
@@ -42,6 +43,12 @@ public class NotEvaluator implements Evaluator<NotNode>
     private final Evaluator<? extends ExprNode> childEvaluator;
 
 
+    /**
+     * Creates a new NotEvaluator
+     * 
+     * @param node The NotNode
+     * @param childEvaluator The included evaluator
+     */
     public NotEvaluator( NotNode node, Evaluator<? extends ExprNode> childEvaluator )
     {
         this.node = node;
@@ -49,18 +56,30 @@ public class NotEvaluator implements Evaluator<NotNode>
     }
 
 
-    public boolean evaluate( Entry entry ) throws Exception
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         return !childEvaluator.evaluate( entry );
     }
 
 
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
-        return !childEvaluator.evaluate( indexEntry );
+        return !childEvaluator.evaluate( partitionTxn, indexEntry );
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public NotNode getExpression()
     {
         return node;

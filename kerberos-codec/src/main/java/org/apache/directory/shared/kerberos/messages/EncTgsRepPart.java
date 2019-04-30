@@ -80,7 +80,7 @@ public class EncTgsRepPart extends KerberosMessage
      * 
      * 0x7A L1 EncTgsRepPart message
      *  |
-     *  +-->  0x30 L2 EncKdcRepPart sequence
+     *  +--&gt;  0x30 L2 EncKdcRepPart sequence
      * </pre>
      */
     public int computeLength()

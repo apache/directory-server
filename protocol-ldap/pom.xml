@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-protocol-ldap</artifactId>
@@ -75,8 +75,8 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
     
     <dependency>
@@ -156,7 +156,7 @@
             <id>attach-sources</id>
             <phase>verify</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
@@ -210,9 +210,9 @@
                 jdbm,
                 jdbm.helper,
                 jdbm.recman,
-                org.apache.commons.collections.map;version=${commons.collections.version},
-                org.apache.commons.lang;version=${commons.lang.version},
-                org.apache.commons.lang.exception;version=${commons.lang.version},
+                org.apache.commons.collections4.map;version=${commons.collections.version},
+                org.apache.commons.lang3;version=${commons.lang.version},
+                org.apache.commons.lang3.exception;version=${commons.lang.version},
                 org.apache.directory.api.asn1.ber.tlv;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.codec.controls.manageDsaIT;version=${org.apache.directory.api.version},
@@ -220,7 +220,7 @@
                 org.apache.directory.api.ldap.extras.controls;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.ppolicy;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone;version=${org.apache.directory.api.version},
-                org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.syncrepl.syncState;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.syncrepl_impl;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.extended.certGeneration;version=${org.apache.directory.api.version},
@@ -230,6 +230,8 @@
                 org.apache.directory.api.ldap.extras.extended.startTls;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.extended.storedProcedure;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.extended.whoAmI;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.intermediate.syncrepl;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.intermediate.syncrepl_impl;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},

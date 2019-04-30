@@ -24,12 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -52,13 +46,10 @@ import javax.naming.ldap.StartTlsResponse;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
-import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
@@ -94,12 +85,8 @@ import org.slf4j.LoggerFactory;
 public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
 {
     private static final Logger LOG = LoggerFactory.getLogger( StartTlsConfidentialityIT.class );
-    private static final String[] CERT_IDS = new String[]
-        { "userCertificate" };
-    private File ksFile;
 
     boolean oldConfidentialityRequiredValue;
-
 
     /**
      * Sets up the key store and installs the self signed certificate for the 
@@ -114,29 +101,13 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
     @Before
     public void installKeyStoreWithCertificate() throws Exception
     {
-        if ( ksFile != null && ksFile.exists() )
-        {
-            ksFile.delete();
-        }
-
-        ksFile = File.createTempFile( "testStore", "ks" );
-        CoreSession session = getLdapServer().getDirectoryService().getAdminSession();
-        Entry entry = session.lookup( new Dn( "uid=admin,ou=system" ), CERT_IDS );
-        byte[] userCertificate = entry.get( CERT_IDS[0] ).getBytes();
-        assertNotNull( userCertificate );
-
-        try ( ByteArrayInputStream in = new ByteArrayInputStream( userCertificate ) )
-        {
-            CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
-            Certificate cert = factory.generateCertificate( in );
-            KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
-            ks.load( null, null );
-            ks.setCertificateEntry( "apacheds", cert );
-            ks.store( new FileOutputStream( ksFile ), "changeit".toCharArray() );
-            LOG.debug( "Keystore file installed: {}", ksFile.getAbsolutePath() );
-        }
-
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
+
+        System.setProperty( "javax.net.ssl.trustStore", ldapServer.getKeystoreFile() );
+        System.setProperty( "javax.net.ssl.trustStorePassword", "secret" );
+        System.setProperty( "javax.net.ssl.keyStore", ldapServer.getKeystoreFile() );
+        System.setProperty( "javax.net.ssl.keyStorePassword", "secret" );
+
     }
 
 
@@ -146,21 +117,17 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
     @After
     public void deleteKeyStore() throws Exception
     {
-        if ( ksFile != null && ksFile.exists() )
-        {
-            ksFile.delete();
-        }
-
-        LOG.debug( "Keystore file deleted: {}", ksFile.getAbsolutePath() );
         getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );
+
+        System.clearProperty( "javax.net.ssl.trustStore" );
+        System.clearProperty( "javax.net.ssl.trustStorePassword" );
+        System.clearProperty( "javax.net.ssl.keyStore" );
+        System.clearProperty( "javax.net.ssl.keyStorePassword" );
     }
 
 
     private LdapContext getSecuredContext() throws Exception
     {
-        System.setProperty( "javax.net.ssl.trustStore", ksFile.getAbsolutePath() );
-        System.setProperty( "javax.net.ssl.keyStore", ksFile.getAbsolutePath() );
-        System.setProperty( "javax.net.ssl.keyStorePassword", "changeit" );
         LOG.debug( "testStartTls() test starting ... " );
 
         // Set up environment for creating initial context
@@ -226,7 +193,18 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         ctx.addToEnvironment( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         ctx.addToEnvironment( Context.SECURITY_CREDENTIALS, "secret" );
         ctx.addToEnvironment( Context.SECURITY_AUTHENTICATION, "simple" );
-        ctx.reconnect( null );
+
+        /*
+         * Since Java 9 behavior of LdapContext.reconnect() changed. It no longer uses the existing
+         * physical connection but always creates a new one, hence previous StartTLS is not established.
+         * 
+         * However calling reconnect explicitly is not mandatory, addToEnvironment causes bind
+         * with the next operation.
+         * 
+         * Issue: https://bugs.openjdk.java.net/browse/JDK-8059009
+         * Commit: http://hg.openjdk.java.net/jdk9/jdk9/jdk/rev/021b47694183
+         */
+        //ctx.reconnect( null );
 
         // -------------------------------------------------------------------
         // do a search and confirm

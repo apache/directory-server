@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Serialize and deserialize a ParentidAndRdn.
- * </br></br>
+ * <br><br>
  * <b>This class must *not* be used outside of the server.</b>
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -73,10 +73,11 @@ public class ParentIdAndRdnSerializer implements Serializer
 
 
     /**
-     * <p>
-     * 
      * This is the place where we serialize ParentIdAndRdn
-     * <p>
+     * 
+     * @param object The element to serialize
+     * @return the byte] containing the serialized element
+     * @throws IOException If the serialization failed
      */
     public byte[] serialize( Object object ) throws IOException
     {
@@ -118,7 +119,7 @@ public class ParentIdAndRdnSerializer implements Serializer
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialize " + parentIdAndRdn );
+                LOG.debug( "Serialize {}", parentIdAndRdn );
             }
 
             return baos.toByteArray();

@@ -114,19 +114,6 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             out.flush();
             data = byteStream.toByteArray();
 
-            // Try to deserialize, just to see
-            /*
-            try
-            {
-                deserialize( data );
-            }
-            catch ( NullPointerException npe )
-            {
-                System.out.println( I18n.err( I18n.ERR_438, Strings.dumpBytes( data ) ) );
-                throw npe;
-            }
-            */
-
             out.close();
         }
         catch ( IOException e )
@@ -145,8 +132,6 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
      */
     public ArrayTree<E> deserialize( byte[] data ) throws IOException
     {
-        //LOG.debug( "Deserializing the tree, called by {}", Reflection.getCallerClass( 2 ).getSimpleName() );
-
         try
         {
             if ( ( data == null ) || ( data.length == 0 ) )
@@ -158,8 +143,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
             {
                 E[] array = ( E[] ) new Object[]
                     {};
-                ArrayTree<E> tree = new ArrayTree<E>( comparator, array );
-                return tree;
+                return new ArrayTree<>( comparator, array );
             }
 
             ByteArrayInputStream bin = new ByteArrayInputStream( data );
@@ -190,9 +174,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
                 }
             }
 
-            ArrayTree<E> arrayTree = new ArrayTree<E>( comparator, nodes );
-
-            return arrayTree;
+            return new ArrayTree<>( comparator, nodes );
         }
         catch ( NullPointerException npe )
         {

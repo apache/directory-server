@@ -39,6 +39,8 @@ import java.io.File;
  *    |    +-- wrapper.conf
  *    |    |
  *    |    +-- log4j.properties
+ *    |    |
+ *    |    +-- &lt;keystore file&gt;
  *    |
  *    +-- partitions/
  *    |    |
@@ -92,6 +94,7 @@ public class InstanceLayout extends AbstractLayout
     private static final String LOG4J_PROPERTIES = "log4j.properties";
     private static final String WRAPPER_CONF = "wrapper.conf";
     private static final String CONFIG_LDIF = "config.ldif";
+    private static final String KEYSTORE_FILE = "apacheds.ks";
 
     /** The Log directory */
     private File logDir;
@@ -350,6 +353,17 @@ public class InstanceLayout extends AbstractLayout
     public File getApacheDsConfigurationLdifFile()
     {
         return new File( getConfDirectory(), CONFIG_LDIF );
+    }
+
+
+    /**
+     * Gets the apacheds KeyStore file (<em>'&lt;instance&gt;/conf/apacheds.ks'</em>).
+     *
+     * @return the apacheds KeyWStore file
+     */
+    public File getKeyStoreFile()
+    {
+        return new File( getConfDirectory(), KEYSTORE_FILE );
     }
 
 

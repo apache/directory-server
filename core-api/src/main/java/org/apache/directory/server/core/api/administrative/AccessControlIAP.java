@@ -66,6 +66,7 @@ public class AccessControlIAP extends AccessControlAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "AccessControl IAP : " + super.toString();

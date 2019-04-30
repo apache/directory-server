@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.exception;
 
 
-import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.collections4.map.LRUMap;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -37,6 +37,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.HasEntryOperationContext;
@@ -46,12 +47,13 @@ import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOpe
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 
 
 /**
- * An {@link org.apache.directory.server.core.api.interceptor.Interceptor} that detects any operations that breaks integrity
+ * An {@link Interceptor} that detects any operations that breaks integrity
  * of {@link Partition} and terminates the current invocation chain by
  * throwing a {@link Exception}. Those operations include when an entry
  * already exists at a Dn and is added once again to the same Dn.
@@ -105,13 +107,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         super.init( directoryService );
         nexus = directoryService.getPartitionNexus();
         Value attr = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemSubentryDn = dnFactory.create( attr.getValue() );
-    }
-
-
-    @Override
-    public void destroy()
-    {
+        subschemSubentryDn = dnFactory.create( attr.getString() );
     }
 
 
@@ -159,14 +155,14 @@ public class ExceptionInterceptor extends BaseInterceptor
                 CoreSession session = addContext.getSession();
                 LookupOperationContext lookupContext = new LookupOperationContext( session, parentDn,
                     SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+                lookupContext.setPartition( addContext.getPartition() );
+                lookupContext.setTransaction( addContext.getTransaction() );
 
                 attrs = directoryService.getPartitionNexus().lookup( lookupContext );
             }
             catch ( Exception e )
             {
-                LdapNoSuchObjectException e2 = new LdapNoSuchObjectException(
-                    I18n.err( I18n.ERR_251_PARENT_NOT_FOUND, parentDn.getName() ) );
-                throw e2;
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_251_PARENT_NOT_FOUND, parentDn.getName() ) );
             }
 
             Attribute objectClass = ( ( ClonedServerEntry ) attrs ).getOriginalEntry().get(
@@ -175,9 +171,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
                 String msg = I18n.err( I18n.ERR_252_ALIAS_WITH_CHILD_NOT_ALLOWED, name.getName(), parentDn.getName() );
-                LdapAliasException e = new LdapAliasException( msg );
-                //e.setResolvedName( DNFactory.create( parentDn.getName() ) );
-                throw e;
+                throw new LdapAliasException( msg );
             }
             else
             {
@@ -330,17 +324,18 @@ public class ExceptionInterceptor extends BaseInterceptor
         // check to see if target entry exists
         Dn newDn = renameContext.getNewDn();
 
-        if ( nexus.hasEntry( new HasEntryOperationContext( renameContext.getSession(), newDn ) ) )
+        HasEntryOperationContext hasEntryContext = new HasEntryOperationContext( renameContext.getSession(), newDn );
+        hasEntryContext.setPartition( renameContext.getPartition() );
+        hasEntryContext.setTransaction( renameContext.getTransaction() );
+
+        if ( nexus.hasEntry( hasEntryContext ) )
         {
             // Ok, the target entry already exists.
             // If the target entry has the same name than the modified entry, it's a rename on itself,
             // we want to allow this.
             if ( !newDn.equals( dn ) )
             {
-                LdapEntryAlreadyExistsException e;
-                e = new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
-                //e.setResolvedName( DNFactory.create( newDn.getName() ) );
-                throw e;
+                throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
             }
         }
 

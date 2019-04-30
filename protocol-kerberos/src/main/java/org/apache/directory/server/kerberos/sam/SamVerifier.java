@@ -50,7 +50,7 @@ public interface SamVerifier
     /**
      * Starts one of many pluggable SAM type subsystem.
      * 
-     * @throws SamException
+     * @throws SamException If the SamVerifier instance cannot be started
      */
     void startup() throws SamException;
 
@@ -80,7 +80,7 @@ public interface SamVerifier
      * @param principal The kerberos principal to use.
      * @param sad Single-use authentication data (encrypted generalized timestamp).
      * @return The {@link KerberosKey}.
-     * @throws SamException 
+     * @throws SamException If the verification failed
      */
     KerberosKey verify( KerberosPrincipal principal, byte[] sad ) throws SamException;
 
@@ -96,7 +96,7 @@ public interface SamVerifier
     /**
      * Sets the user context where users are stored for the primary realm.
      *  
-     * @param userContext
+     * @param userContext The User context
      */
     void setUserContext( DirContext userContext );
 }

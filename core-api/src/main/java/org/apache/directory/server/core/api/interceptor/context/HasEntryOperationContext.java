@@ -36,6 +36,8 @@ public class HasEntryOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of HasEntryOperationContext.
+     * 
+     * @param session The session to use
      */
     public HasEntryOperationContext( CoreSession session )
     {
@@ -51,7 +53,8 @@ public class HasEntryOperationContext extends AbstractOperationContext
     /**
      * Creates a new instance of HasEntryOperationContext.
      *
-     * @param entryDn The Entry Dn to unbind
+     * @param session The session to use
+     * @param entryDn The Entry Dn we want to know if it exists
      */
     public HasEntryOperationContext( CoreSession session, Dn entryDn )
     {

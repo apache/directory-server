@@ -109,6 +109,10 @@ public enum LeapIndicatorType
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString()
     {
         return name;

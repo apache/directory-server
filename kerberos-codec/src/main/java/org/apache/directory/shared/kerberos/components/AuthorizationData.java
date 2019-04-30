@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 public class AuthorizationData implements Asn1Object
 {
     /** The list of AuthorizationData elements */
-    private List<AuthorizationDataEntry> authorizationData = new ArrayList<AuthorizationDataEntry>();
+    private List<AuthorizationDataEntry> authorizationData = new ArrayList<>();
 
     /** The current AD being processed */
     private AuthorizationDataEntry currentAD;
@@ -86,13 +86,13 @@ public class AuthorizationData implements Asn1Object
      *  |
      *  +-- 0x30 L2 The AD sequence
      *       |
-     *       +--> 0xA0 L3 adType tag
+     *       +--&gt; 0xA0 L3 adType tag
      *       |     |
-     *       |     +--> 0x02 L3-1 adType (int)
+     *       |     +--&gt; 0x02 L3-1 adType (int)
      *       |
-     *       +--> 0xA1 L4 adData tag
+     *       +--&gt; 0xA1 L4 adData tag
      *             |
-     *             +--> 0x04 L<4-1 adData (OCTET STRING)
+     *             +--&gt; 0x04 L4-1 adData (OCTET STRING)
      * </pre>
      */
     @Override
@@ -172,7 +172,7 @@ public class AuthorizationData implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "AuthorizationData encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "AuthorizationData initial value : {}", toString() );
+            LOG.debug( "AuthorizationData initial value : {}", this );
         }
 
         return buffer;
@@ -272,7 +272,12 @@ public class AuthorizationData implements Asn1Object
     @Override
     public boolean equals( Object obj )
     {
-        if ( obj == null )
+        if ( this == obj )
+        {
+            return true;
+        }
+
+        if ( !( obj instanceof AuthorizationData ) )
         {
             return false;
         }

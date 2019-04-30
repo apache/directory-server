@@ -205,9 +205,6 @@ import org.junit.runner.RunWith;
 public class SearchIT extends AbstractLdapTestUnit
 {
     private static final String BASE = "ou=system";
-
-    //public static LdapServer getLdapServer();
-
     private static final String RDN = "cn=Tori Amos";
     private static final String RDN2 = "cn=Rolling-Stones";
     private static final String HEATHER_RDN = "cn=Heather Nova";
@@ -236,7 +233,6 @@ public class SearchIT extends AbstractLdapTestUnit
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, ( byte ) 0xff, ( byte ) 0xda, 0x00, 0x0c, 0x03,
             0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00, 0x3f, 0x00, ( byte ) 0x8a, 0x00, ( byte ) 0xb5, ( byte ) 0xe3,
             ( byte ) 0xff, ( byte ) 0xd9, };
-
 
     /**
      * Creation of required attributes of a person entry.
@@ -287,6 +283,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( sr );
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush", sr.getName() );
+        enm.close();
 
         enm = ctx.search( "", "(&(cn=Kate Bush)(userCertificate={0}))", new Object[]
             { certData }, controls );
@@ -295,6 +292,7 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( sr );
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush", sr.getName() );
+        enm.close();
 
         enm = ctx.search( "", "(userCertificate=\\34\\56\\4E\\5F)", controls );
         assertTrue( enm.hasMore() );
@@ -318,6 +316,9 @@ public class SearchIT extends AbstractLdapTestUnit
         assertEquals( 4, count );
         assertFalse( enm.hasMore() );
         assertEquals( 0, expected.size() );
+        
+        enm.close();
+        ctx.close();
     }
 
 
@@ -357,6 +358,9 @@ public class SearchIT extends AbstractLdapTestUnit
             NamingEnumeration<SearchResult> result = ctx.search( "ou=system", "(objectClass=*)", controls );
 
             assertTrue( result.hasMore() );
+            
+            result.close();
+            ctx.close();
         }
         catch ( InvalidNameException ine )
         {
@@ -395,6 +399,8 @@ public class SearchIT extends AbstractLdapTestUnit
             assertEquals( "cn=Janis Joplin,ou=system", entry.getName() );
 
             assertFalse( result.hasMore() );
+            result.close();
+            ctx.close();
         }
         catch ( InvalidNameException ine )
         {
@@ -418,15 +424,18 @@ public class SearchIT extends AbstractLdapTestUnit
         LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration<SearchResult> ii = ctx.search( "", filter, controls );
+        NamingEnumeration<SearchResult> searchResults = ctx.search( "", filter, controls );
 
         // collect all results
         HashSet<String> results = new HashSet<String>();
-        while ( ii.hasMore() )
+        while ( searchResults.hasMore() )
         {
-            SearchResult result = ii.next();
+            SearchResult result = searchResults.next();
             results.add( result.getName() );
         }
+        
+        searchResults.close();
+        ctx.close();
 
         return results;
     }
@@ -494,6 +503,9 @@ public class SearchIT extends AbstractLdapTestUnit
                 assertNotNull( sn );
                 assertTrue( sn.contains( "Ferry" ) );
             }
+            
+            enm.close();
+            ctx.close();
         }
         catch ( Exception e )
         {
@@ -524,72 +536,93 @@ public class SearchIT extends AbstractLdapTestUnit
 
         results = ctx.search( RDN2, "(cn=*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         // Search for all entries ending by Amos
         results = ctx.search( RDN, "(cn=*Amos)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=*Amos)", ctls );
         assertFalse( results.hasMore() );
+        results.close();
 
         // Search for all entries ending by amos
         results = ctx.search( RDN, "(cn=*amos)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=*amos)", ctls );
         assertFalse( results.hasMore() );
+        results.close();
 
         // Search for all entries starting by Tori
         results = ctx.search( RDN, "(cn=Tori*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=Tori*)", ctls );
         assertFalse( results.hasMore() );
+        results.close();
 
         // Search for all entries starting by tori
         results = ctx.search( RDN, "(cn=tori*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=tori*)", ctls );
         assertFalse( results.hasMore() );
+        results.close();
 
         // Search for all entries containing ori
         results = ctx.search( RDN, "(cn=*ori*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=*ori*)", ctls );
         assertFalse( results.hasMore() );
+        results.close();
 
         // Search for all entries containing o and i
         results = ctx.search( RDN, "(cn=*o*i*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=*o*i*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         // Search for all entries containing o, space and o
         results = ctx.search( RDN, "(cn=*o* *o*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=*o* *o*)", ctls );
         assertFalse( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=*o*-*o*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         // Search for all entries starting by To and containing A
         results = ctx.search( RDN, "(cn=To*A*)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=To*A*)", ctls );
         assertFalse( results.hasMore() );
+        results.close();
 
         // Search for all entries ending by os and containing ri
         results = ctx.search( RDN, "(cn=*ri*os)", ctls );
         assertTrue( results.hasMore() );
+        results.close();
 
         results = ctx.search( RDN2, "(cn=*ri*os)", ctls );
         assertFalse( results.hasMore() );
+        results.close();
+        ctx.close();
     }
 
 
@@ -658,6 +691,7 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchResult result = results.next();
         assertNotNull( result );
         assertFalse( results.hasMore() );
+        results.close();
 
         NamingEnumeration<? extends Attribute> attrs = result.getAttributes().getAll();
 
@@ -670,6 +704,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         assertNotNull( result.getAttributes().get( "objectClasses" ) );
         assertEquals( 1, result.getAttributes().size() );
+        attrs.close();
+        ctx.close();
     }
 
 
@@ -743,7 +779,9 @@ public class SearchIT extends AbstractLdapTestUnit
             fail( "entry " + rdn + " not found" );
         }
 
+        result.close();
         ctx.destroySubcontext( rdn );
+        ctx.close();
     }
 
 
@@ -779,8 +817,10 @@ public class SearchIT extends AbstractLdapTestUnit
         {
             fail( "entry " + rdn + " not found" );
         }
-
+        
+        result.close();
         ctx.destroySubcontext( rdn );
+        ctx.close();
     }
 
 
@@ -818,6 +858,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         assertEquals( "expected results size of", 1, results.size() );
         assertTrue( results.contains( "cn=anyBodyAdd" ) );
+        enm.close();
+        ctx.close();
     }
 
 
@@ -852,7 +894,9 @@ public class SearchIT extends AbstractLdapTestUnit
             assertTrue( sn.contains( "Bush" ) );
         }
 
+        enm.close();
         ctx.destroySubcontext( rdn );
+        ctx.close();
     }
 
 
@@ -906,7 +950,9 @@ public class SearchIT extends AbstractLdapTestUnit
             fail( "Entry not found:" + nameInNamespace );
         }
 
+        enm.close();
         ctx.destroySubcontext( rdn );
+        ctx.close();
     }
 
 
@@ -940,6 +986,9 @@ public class SearchIT extends AbstractLdapTestUnit
                 }
             }
         }
+        
+        res.close();
+        ctx.close();
     }
 
 
@@ -967,6 +1016,9 @@ public class SearchIT extends AbstractLdapTestUnit
 
         // ensure that no other value was found
         assertFalse( res.hasMore() );
+        
+        res.close();
+        ctx.close();
     }
 
 
@@ -996,6 +1048,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "cn" ) );
         assertEquals( 1, attrs.get( "cn" ).size() );
         assertEquals( "Tori Amos", attrs.get( "cn" ).get() );
+        res.close();
+        ctx.close();
     }
 
 
@@ -1028,6 +1082,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "sn" ) );
         assertEquals( 1, attrs.get( "sn" ).size() );
         assertEquals( "Amos", attrs.get( "sn" ).get() );
+        res.close();
+        ctx.close();
     }
 
 
@@ -1062,6 +1118,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "cn" ) );
         assertEquals( 1, attrs.get( "cn" ).size() );
         assertEquals( "Tori Amos", attrs.get( "cn" ).get() );
+        res.close();
+        ctx.close();
     }
 
 
@@ -1096,6 +1154,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "cn" ) );
         assertEquals( 1, attrs.get( "cn" ).size() );
         assertEquals( "Tori Amos", attrs.get( "cn" ).get() );
+        res.close();
+        ctx.close();
     }
 
 
@@ -1153,6 +1213,9 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "c-l" ) );
         assertEquals( 1, attrs.get( "c-l" ).size() );
         assertEquals( "Munich", attrs.get( "c-l" ).get() );
+        
+        res.close();
+        ctx.close();
     }
 
 
@@ -1187,6 +1250,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "userCertificate" ) );
         assertNull( attrs.get( "createtimestamp" ) );
         assertNull( attrs.get( "creatorsname" ) );
+        res.close();
+        ctx.close();
     }
 
 
@@ -1227,6 +1292,9 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "subschemaSubentry" ) );
         assertNotNull( attrs.get( "nbChildren" ) );
         assertNotNull( attrs.get( "nbSubordinates" ) );
+        
+        res.close();
+        ctx.close();
     }
 
 
@@ -1256,6 +1324,9 @@ public class SearchIT extends AbstractLdapTestUnit
         assertEquals( 1, attrs.size() );
         assertNotNull( attrs.get( "nbChildren" ) );
         assertNull( attrs.get( "nbSubordinates" ) );
+        
+        res.close();
+        ctx.close();
     }
 
 
@@ -1285,6 +1356,9 @@ public class SearchIT extends AbstractLdapTestUnit
         assertEquals( 1, attrs.size() );
         assertNotNull( attrs.get( "nbSubordinates" ) );
         assertNull( attrs.get( "nbChildren" ) );
+        
+        res.close();
+        ctx.close();
     }
 
 
@@ -1338,6 +1412,7 @@ public class SearchIT extends AbstractLdapTestUnit
         long t001 = System.currentTimeMillis();
         
         System.out.println( "Delta without children(2) = " + ( t001 - t000 ) );
+        ctx.close();
     }
 
 
@@ -1378,6 +1453,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertNotNull( attrs.get( "subschemaSubentry" ) );
         assertNotNull( attrs.get( "nbChildren" ) );
         assertNotNull( attrs.get( "nbSubordinates" ) );
+        res.close();
+        ctx.close();
     }
 
 
@@ -1396,6 +1473,8 @@ public class SearchIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
+        
+        ctx.close();
     }
 
 
@@ -1416,6 +1495,8 @@ public class SearchIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
+        
+        ctx.close();
     }
 
 
@@ -1449,6 +1530,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         result.close();
+        ctx.close();
     }
 
 
@@ -1482,6 +1564,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         result.close();
+        ctx.close();
     }
 
 
@@ -1500,6 +1583,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
         result.close();
+        ctx.close();
     }
 
 
@@ -1518,6 +1602,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
         result.close();
+        ctx.close();
     }
 
 
@@ -1535,6 +1620,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         NamingEnumeration<SearchResult> result = ctx.search( HEATHER_RDN, FILTER, ctls );
         result.close();
+        ctx.close();
     }
 
 
@@ -1597,6 +1683,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         result.close();
+        ctx.close();
     }
 
 
@@ -1633,7 +1720,10 @@ public class SearchIT extends AbstractLdapTestUnit
             assertEquals( 1, attrs.get( "cn" ).size() );
             assertEquals( "jimbean", attrs.get( "cn" ).get() );
             assertFalse( res.hasMore() );
+            res.close();
         }
+        
+        ctx.close();
     }
 
 
@@ -1665,6 +1755,8 @@ public class SearchIT extends AbstractLdapTestUnit
         {
             assertTrue( true );
         }
+        
+        ctx.close();
     }
 
 
@@ -1698,6 +1790,8 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( res.hasMore() );
         assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
+        res.close();
+        ctx.close();
     }
 
 
@@ -1741,24 +1835,29 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( res.hasMore() );
         assertEquals( "groupOfNames", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
+        res.close();
 
         // search with escaped filter value
         res = ctx.search( "", "(member=uid=r\\c3\\a9dacteur1,ou=system)", controls );
         assertTrue( res.hasMore() );
         assertEquals( "groupOfNames", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
+        res.close();
 
         // search with unicode filter value
         res = ctx.search( "", "(uniqueMember=uid=r\u00e9dacteur1,ou=system)", controls );
         assertTrue( res.hasMore() );
         assertEquals( "groupOfUniqueNames", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
+        res.close();
 
         // search with escaped filter value
         res = ctx.search( "", "(uniqueMember=uid=r\\c3\\a9dacteur1,ou=system)", controls );
         assertTrue( res.hasMore() );
         assertEquals( "groupOfUniqueNames", res.next().getAttributes().get( "cn" ).get() );
         assertFalse( res.hasMore() );
+        res.close();
+        ctx.close();
     }
 
 
@@ -1788,6 +1887,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         result.close();
+        ctx.close();
     }
 
 
@@ -1867,6 +1967,8 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchResult entry = result.next();
 
         assertEquals( "Kim Wilde", entry.getAttributes().get( "cn" ).get() );
+        result.close();
+        ctx.close();
     }
 
 
@@ -1927,6 +2029,7 @@ public class SearchIT extends AbstractLdapTestUnit
         }
 
         assertTrue( newCount < count );
+        cursor.close();
         connection.close();
     }
 
@@ -1946,6 +2049,7 @@ public class SearchIT extends AbstractLdapTestUnit
         SearchResult sr = result.next();
         assertNotNull( sr );
         assertEquals( "Kim Wilde", sr.getAttributes().get( "cn" ).get() );
+        result.close();
 
         // Now check with another version of the filter
         result = ctx.search( "cn=Kim Wilde,ou=system",
@@ -1955,6 +2059,8 @@ public class SearchIT extends AbstractLdapTestUnit
         sr = result.next();
         assertNotNull( sr );
         assertEquals( "Kim Wilde", sr.getAttributes().get( "cn" ).get() );
+        result.close();
+        ctx.close();
     }
 
     

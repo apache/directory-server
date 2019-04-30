@@ -53,7 +53,6 @@ public class EncApRepPartDecoderTest
     @Test
     public void testDecodeFullEncApRepPart() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x33 );
 
@@ -118,7 +117,7 @@ public class EncApRepPartDecoderTest
         // Decode the EncApRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encApRepPartContainer );
+            Asn1Decoder.decode( stream, encApRepPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -157,7 +156,6 @@ public class EncApRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testAuthenticatorEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -170,7 +168,7 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        kerberosDecoder.decode( stream, encApRepPartContainer );
+        Asn1Decoder.decode( stream, encApRepPartContainer );
         fail();
     }
 
@@ -181,7 +179,6 @@ public class EncApRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncApRepPartEmptySequence() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -197,7 +194,7 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        kerberosDecoder.decode( stream, encApRepPartContainer );
+        Asn1Decoder.decode( stream, encApRepPartContainer );
         fail();
     }
 
@@ -208,7 +205,6 @@ public class EncApRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncApRepPartEmptyCTimeg() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -225,7 +221,7 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        kerberosDecoder.decode( stream, encApRepPartContainer );
+        Asn1Decoder.decode( stream, encApRepPartContainer );
         fail();
     }
 
@@ -236,7 +232,6 @@ public class EncApRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncApRepPartNoCtime() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x20 );
 
@@ -279,7 +274,7 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        kerberosDecoder.decode( stream, encApRepPartContainer );
+        Asn1Decoder.decode( stream, encApRepPartContainer );
         fail();
     }
 
@@ -290,7 +285,6 @@ public class EncApRepPartDecoderTest
     @Test(expected = DecoderException.class)
     public void testEncApRepPartNoCusec() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x2F );
 
@@ -347,7 +341,7 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        kerberosDecoder.decode( stream, encApRepPartContainer );
+        Asn1Decoder.decode( stream, encApRepPartContainer );
         fail();
     }
 
@@ -358,7 +352,6 @@ public class EncApRepPartDecoderTest
     @Test
     public void testDecodeEncApRepPartNoSubKey() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x22 );
 
@@ -406,7 +399,7 @@ public class EncApRepPartDecoderTest
         // Decode the EncApRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encApRepPartContainer );
+            Asn1Decoder.decode( stream, encApRepPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -445,7 +438,6 @@ public class EncApRepPartDecoderTest
     @Test
     public void testDecodeEncApRepPartNoSeqNumber() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x2D );
 
@@ -504,7 +496,7 @@ public class EncApRepPartDecoderTest
         // Decode the EncApRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encApRepPartContainer );
+            Asn1Decoder.decode( stream, encApRepPartContainer );
         }
         catch ( DecoderException de )
         {
@@ -543,7 +535,6 @@ public class EncApRepPartDecoderTest
     @Test
     public void testDecodeEncApRepPartNoSubKeyNoSeqNumber() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x1C );
 
@@ -585,7 +576,7 @@ public class EncApRepPartDecoderTest
         // Decode the EncApRepPart PDU
         try
         {
-            kerberosDecoder.decode( stream, encApRepPartContainer );
+            Asn1Decoder.decode( stream, encApRepPartContainer );
         }
         catch ( DecoderException de )
         {

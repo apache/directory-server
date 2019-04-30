@@ -52,7 +52,7 @@ public class SingletonIndexCursorTest
         indexEntry.setId( Partition.DEFAULT_ID );
         indexEntry.setEntry( new DefaultEntry() );
         indexEntry.setKey( "test" );
-        indexCursor = new SingletonIndexCursor<String>( indexEntry );
+        indexCursor = new SingletonIndexCursor<String>( new MockPartitionReadTxn(), indexEntry );
     }
 
 
@@ -66,7 +66,7 @@ public class SingletonIndexCursorTest
     @Test
     public void testConstructor() throws Exception
     {
-        Cursor<IndexEntry<String, String>> cursor = new SingletonIndexCursor<String>( indexEntry );
+        Cursor<IndexEntry<String, String>> cursor = new SingletonIndexCursor<String>( new MockPartitionReadTxn(), indexEntry );
 
         cursor.close();
     }

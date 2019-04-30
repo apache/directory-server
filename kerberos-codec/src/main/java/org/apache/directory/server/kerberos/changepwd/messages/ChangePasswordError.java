@@ -51,7 +51,7 @@ public class ChangePasswordError extends AbstractPasswordMessage
     /**
      * Creates a new instance of ChangePasswordError.
      *
-     * @param versionNumber
+     * @param versionNumber The version number 
      * @param krbError The KRB-ERROR
      */
     public ChangePasswordError( short versionNumber, KrbError krbError )
@@ -99,9 +99,9 @@ public class ChangePasswordError extends AbstractPasswordMessage
     /**
      * Decodes a {@link ByteBuffer} into a {@link ChangePasswordError}.
      *
-     * @param buf
+     * @param buf The buffer containing the ChangePasswordError to decode
      * @return The {@link ChangePasswordError}.
-     * @throws ChangePasswordException
+     * @throws ChangePasswordException If the decoding failed
      */
     public static ChangePasswordError decode( ByteBuffer buf ) throws ChangePasswordException
     {
@@ -120,11 +120,10 @@ public class ChangePasswordError extends AbstractPasswordMessage
         ByteBuffer errorBuffer = ByteBuffer.wrap( errorBytes );
 
         KrbErrorContainer container = new KrbErrorContainer( errorBuffer );
-        Asn1Decoder decoder = new Asn1Decoder();
 
         try
         {
-            decoder.decode( errorBuffer, container );
+            Asn1Decoder.decode( errorBuffer, container );
         }
         catch( DecoderException e )
         {

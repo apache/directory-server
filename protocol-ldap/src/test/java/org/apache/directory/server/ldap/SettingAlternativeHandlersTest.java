@@ -71,7 +71,7 @@ public class SettingAlternativeHandlersTest
     public void testDefaultOperation()
     {
         LdapServer ldapServer = new LdapServer();
-        assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
+        assertEquals( LdapServer.SERVICE_NAME, ldapServer.getName() );
     }
 
 
@@ -126,7 +126,7 @@ public class SettingAlternativeHandlersTest
         
         assertEquals( ldapServer.getUnbindRequestHandler().getClass(), BogusUnbindRequestHandler.class );
         
-        assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
+        assertEquals( LdapServer.SERVICE_NAME, ldapServer.getName() );
     }
 
     public static class BogusAbandonHandler extends AbandonRequestHandler

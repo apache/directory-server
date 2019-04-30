@@ -24,7 +24,7 @@ package org.apache.directory.server.dns.io.decoder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class DnsMessageDecoder
 
     static
     {
-        Map<RecordType, RecordDecoder> map = new HashMap<RecordType, RecordDecoder>();
+        EnumMap<RecordType, RecordDecoder> map = new EnumMap<>( RecordType.class );
 
         map.put( RecordType.A, new AddressRecordDecoder() );
         map.put( RecordType.NS, new NameServerRecordDecoder() );
@@ -122,7 +122,7 @@ public class DnsMessageDecoder
 
     private List<ResourceRecord> getRecords( IoBuffer byteBuffer, short recordCount ) throws IOException
     {
-        List<ResourceRecord> records = new ArrayList<ResourceRecord>( recordCount );
+        List<ResourceRecord> records = new ArrayList<>( recordCount );
 
         for ( int ii = 0; ii < recordCount; ii++ )
         {
@@ -156,7 +156,7 @@ public class DnsMessageDecoder
 
     private List<QuestionRecord> getQuestions( IoBuffer byteBuffer, short questionCount )
     {
-        List<QuestionRecord> questions = new ArrayList<QuestionRecord>( questionCount );
+        List<QuestionRecord> questions = new ArrayList<>( questionCount );
 
         for ( int ii = 0; ii < questionCount; ii++ )
         {
@@ -174,14 +174,14 @@ public class DnsMessageDecoder
 
     static String getDomainName( IoBuffer byteBuffer )
     {
-        StringBuffer domainName = new StringBuffer();
+        StringBuilder domainName = new StringBuilder();
         recurseDomainName( byteBuffer, domainName );
 
         return domainName.toString();
     }
 
 
-    static void recurseDomainName( IoBuffer byteBuffer, StringBuffer domainName )
+    static void recurseDomainName( IoBuffer byteBuffer, StringBuilder domainName )
     {
         int length = byteBuffer.getUnsigned();
 
@@ -217,7 +217,7 @@ public class DnsMessageDecoder
     }
 
 
-    static void getLabel( IoBuffer byteBuffer, StringBuffer domainName, int labelLength )
+    static void getLabel( IoBuffer byteBuffer, StringBuilder domainName, int labelLength )
     {
         for ( int jj = 0; jj < labelLength; jj++ )
         {
@@ -258,7 +258,7 @@ public class DnsMessageDecoder
 
     private boolean decodeRecursionDesired( byte header )
     {
-        return ( ( header & 0x01 ) ) == 1;
+        return ( header & 0x01 ) == 1;
     }
 
 

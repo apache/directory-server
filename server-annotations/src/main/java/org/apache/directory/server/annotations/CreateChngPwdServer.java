@@ -25,11 +25,19 @@ package org.apache.directory.server.annotations;
  */
 public @interface CreateChngPwdServer
 {
-    /** The default kdc service principal */
+    /** 
+     * The default kdc service principal
+     * 
+     *  @return The server Principal
+     */
     String srvPrincipal() default "kadmin/changepw@EXAMPLE.COM";
 
 
-    /** The transports to use, default none */
+    /** 
+     * The transports to use, default none
+     * 
+     *  @return The Transports
+     */
     CreateTransport[] transports() default
         {};
 }

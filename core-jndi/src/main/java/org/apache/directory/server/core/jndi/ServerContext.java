@@ -47,25 +47,12 @@ import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.api.asn1.DecoderException;
-import org.apache.directory.api.ldap.codec.api.CodecControl;
-import org.apache.directory.api.ldap.codec.controls.cascade.CascadeDecorator;
-import org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyDecorator;
+import org.apache.directory.api.ldap.codec.api.ControlFactory;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
 import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -83,10 +70,8 @@ import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.Cascade;
-import org.apache.directory.api.ldap.model.message.controls.CascadeImpl;
 import org.apache.directory.api.ldap.model.message.controls.EntryChange;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
-import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.message.controls.PagedResults;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
 import org.apache.directory.api.ldap.model.message.controls.Subentries;
@@ -154,7 +139,7 @@ public abstract class ServerContext implements EventContext
 
     /** The set of registered NamingListeners */
     private final Map<NamingListener, DirectoryListener> listeners =
-        new HashMap<NamingListener, DirectoryListener>();
+        new HashMap<>();
 
     /** The request controls to set on operations before performing them */
     protected Control[] requestControls = EMPTY_CONTROLS;
@@ -168,7 +153,7 @@ public abstract class ServerContext implements EventContext
     /** The session */
     private final CoreSession session;
 
-    private static final Map<String, ControlEnum> ADS_CONTROLS = new HashMap<String, ControlEnum>();
+    private static final Map<String, ControlEnum> ADS_CONTROLS = new HashMap<>();
 
     static
     {
@@ -176,7 +161,7 @@ public abstract class ServerContext implements EventContext
         ADS_CONTROLS.put( EntryChange.OID, ControlEnum.ENTRY_CHANGE_CONTROL );
         ADS_CONTROLS.put( ManageDsaIT.OID, ControlEnum.MANAGE_DSA_IT_CONTROL );
         ADS_CONTROLS.put( PagedResults.OID, ControlEnum.PAGED_RESULTS_CONTROL );
-        ADS_CONTROLS.put( PasswordPolicy.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
+        ADS_CONTROLS.put( PasswordPolicyRequest.OID, ControlEnum.PASSWORD_POLICY_REQUEST_CONTROL );
         ADS_CONTROLS.put( PersistentSearch.OID, ControlEnum.PERSISTENT_SEARCH_CONTROL );
         ADS_CONTROLS.put( Subentries.OID, ControlEnum.SUBENTRIES_CONTROL );
         ADS_CONTROLS.put( SyncDoneValue.OID, ControlEnum.SYNC_DONE_VALUE_CONTROL );
@@ -250,7 +235,7 @@ public abstract class ServerContext implements EventContext
         this.service = service;
         this.dn = JndiUtils.fromName( name );
 
-        this.env = new Hashtable<String, Object>();
+        this.env = new Hashtable<>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         session = new DefaultCoreSession( principal, service );
@@ -274,7 +259,7 @@ public abstract class ServerContext implements EventContext
     {
         this.service = service;
         this.dn = JndiUtils.fromName( name );
-        this.env = new Hashtable<String, Object>();
+        this.env = new Hashtable<>();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.session = session;
@@ -297,6 +282,8 @@ public abstract class ServerContext implements EventContext
     /**
      * Set the referral handling flag into the operation context using
      * the JNDI value stored into the environment.
+     * 
+     * @param opCtx The operation context
      */
     protected void injectReferralControl( OperationContext opCtx )
     {
@@ -328,8 +315,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after add operations.
-     * @param entry
-     * @param target
+     * 
+     * @param target The entry's Dn to add
+     * @param entry The entry to add
+     * @throws Exception If the add failed
      */
     protected void doAddOperation( Dn target, Entry entry ) throws Exception
     {
@@ -354,7 +343,9 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after delete operations.
-     * @param target
+     * 
+     * @param target The entry's Dn we want to delete
+     * @throws Exception If we can't delete the entry
      */
     protected void doDeleteOperation( Dn target ) throws Exception
     {
@@ -380,92 +371,30 @@ public abstract class ServerContext implements EventContext
     private org.apache.directory.api.ldap.model.message.Control convertControl( boolean isRequest,
         Control jndiControl ) throws DecoderException
     {
-        String controlIDStr = jndiControl.getID();
-        CodecControl<? extends org.apache.directory.api.ldap.model.message.Control> control = null;
-
-        ControlEnum controlId = ADS_CONTROLS.get( controlIDStr );
-
-        switch ( controlId )
+        String controlIdStr = jndiControl.getID();
+        
+        ControlFactory<?> controlFactory;
+        
+        if ( isRequest )
         {
-            case CASCADE_CONTROL:
-                control = new CascadeDecorator( getDirectoryService().getLdapCodecService(), new CascadeImpl() );
-
-                break;
-
-            case ENTRY_CHANGE_CONTROL:
-                control = new EntryChangeDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case MANAGE_DSA_IT_CONTROL:
-                control = new ManageDsaITDecorator( getDirectoryService().getLdapCodecService(), new ManageDsaITImpl() );
-
-                break;
-
-            case PAGED_RESULTS_CONTROL:
-                control = new PagedResultsDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case PASSWORD_POLICY_REQUEST_CONTROL:
-                if ( isRequest )
-                {
-                    control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(),
-                        new PasswordPolicyImpl() );
-                }
-                else
-                {
-                    control = new PasswordPolicyDecorator( getDirectoryService().getLdapCodecService(),
-                        new PasswordPolicyImpl( new PasswordPolicyResponseImpl() ) );
-                }
-
-                break;
-
-            case PERSISTENT_SEARCH_CONTROL:
-                control = new PersistentSearchDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SUBENTRIES_CONTROL:
-                control = new SubentriesDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SYNC_DONE_VALUE_CONTROL:
-                control = new SyncDoneValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SYNC_INFO_VALUE_CONTROL:
-                control = new SyncInfoValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SYNC_REQUEST_VALUE_CONTROL:
-                control = new SyncRequestValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            case SYNC_STATE_VALUE_CONTROL:
-                control = new SyncStateValueDecorator( getDirectoryService().getLdapCodecService() );
-
-                break;
-
-            default:
-                throw new IllegalArgumentException( "Unsupported control " + controlIDStr );
+             controlFactory = service.getLdapCodecService().getRequestControlFactories().get( controlIdStr );
+        }
+        else
+        {
+            controlFactory = service.getLdapCodecService().getResponseControlFactories().get( controlIdStr );
         }
 
-        control.setCritical( jndiControl.isCritical() );
-        control.setValue( jndiControl.getEncodedValue() );
-
-        byte[] value = jndiControl.getEncodedValue();
-
-        if ( !Strings.isEmpty( value ) )
+        if ( controlFactory == null )
         {
-            control.decode( value );
+            throw new IllegalArgumentException( "Unsupported control " + controlIdStr );
         }
 
-        return control;
+        org.apache.directory.api.ldap.model.message.Control apiControl = controlFactory.newControl();
+        
+        apiControl.setCritical( jndiControl.isCritical() );
+        controlFactory.decodeValue( apiControl, jndiControl.getEncodedValue() );
+
+        return apiControl;
     }
 
 
@@ -499,11 +428,13 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
-     * @param dn
-     * @param aliasDerefMode
-     * @param filter
-     * @param searchControls
-     * @return NamingEnumeration
+     * 
+     * @param dn The base search Dn
+     * @param aliasDerefMode The AliasDeref mode
+     * @param filter The search filter
+     * @param searchControls The controls
+     * @return A cursor on the found entries
+     * @throws Exception If the search failed 
      */
     protected EntryFilteringCursor doSearchOperation( Dn dn, AliasDerefMode aliasDerefMode,
         ExprNode filter, SearchControls searchControls ) throws Exception
@@ -540,8 +471,7 @@ public abstract class ServerContext implements EventContext
             boolean result = operationManager.compare( compareContext );
 
             // setup the op context and populate with request controls
-            searchContext = new SearchOperationContext( session, dn, filter,
-                searchControls );
+            searchContext = new SearchOperationContext( session, dn, filter, searchControls );
             searchContext.setAliasDerefMode( aliasDerefMode );
             searchContext.addRequestControls( convertControls( true, requestControls ) );
 
@@ -586,6 +516,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
+     * 
+     * @param target The search Dn
+     * @return A cursor on the found entries
+     * @throws Exception If we can't process the search
      */
     protected EntryFilteringCursor doListOperation( Dn target ) throws Exception
     {
@@ -607,6 +541,13 @@ public abstract class ServerContext implements EventContext
     }
 
 
+    /**
+     * Fetch the rootDSE entry
+     * 
+     * @param target Should be empty
+     * @return The RootDSE entry
+     * @throws Exception If we can't fetch the RootDSE entry
+     */
     protected Entry doGetRootDseOperation( Dn target ) throws Exception
     {
         GetRootDseOperationContext getRootDseContext = new GetRootDseOperationContext( session, target );
@@ -622,6 +563,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
+     * 
+     * @param target The Dn we are looking for
+     * @return The found entry
+     * @throws Exception If the lookup failed
      */
     protected Entry doLookupOperation( Dn target ) throws Exception
     {
@@ -630,18 +575,25 @@ public abstract class ServerContext implements EventContext
         LookupOperationContext lookupContext = new LookupOperationContext( session, target );
         lookupContext.addRequestControls( convertControls( true, requestControls ) );
         OperationManager operationManager = service.getOperationManager();
+        
         Entry serverEntry = operationManager.lookup( lookupContext );
 
         // clear the request controls and set the response controls
         requestControls = EMPTY_CONTROLS;
         responseControls = JndiUtils.toJndiControls( getDirectoryService().getLdapCodecService(),
             lookupContext.getResponseControls() );
+        
         return serverEntry;
     }
 
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after lookup operations.
+     * 
+     * @param target The Dn we are looking for
+     * @param attrIds The attributes to return
+     * @return The found entry
+     * @throws Exception If the lookup failed
      */
     protected Entry doLookupOperation( Dn target, String[] attrIds ) throws Exception
     {
@@ -660,7 +612,7 @@ public abstract class ServerContext implements EventContext
 
         // Now remove the ObjectClass attribute if it has not been requested
         if ( ( lookupContext.getReturningAttributes() != null )
-            && ( lookupContext.getReturningAttributes().size() != 0 )
+            && !lookupContext.getReturningAttributes().isEmpty()
             && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
             && ( serverEntry.get( SchemaConstants.OBJECT_CLASS_AT ).size() == 0 ) )
         {
@@ -673,13 +625,19 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after bind operations.
+     * 
+     * @param bindDn The user's Dn
+     * @param credentials The credentials
+     * @param saslMechanism The SASL mechanism to use
+     * @param saslAuthId The SASL authorization ID
+     * @return A BindOperationContext instance
+     * @throws Exception If the Bind failed
      */
     protected BindOperationContext doBindOperation( Dn bindDn, byte[] credentials, String saslMechanism,
         String saslAuthId ) throws Exception
     {
         // setup the op context and populate with request controls
         BindOperationContext bindContext = new BindOperationContext( null );
-        bindContext.setTransaction( getDirectoryService().getPartitionNexus().beginReadTransaction() );
         bindContext.setDn( bindDn );
         bindContext.setCredentials( credentials );
         bindContext.setSaslMechanism( saslMechanism );
@@ -701,13 +659,19 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
+     * 
+     * @param oldDn The old Dn
+     * @param parent The new parent
+     * @param newRdn The new Rdn
+     * @param delOldRdn If we shoud delete the old Rdn
+     * @throws Exception If the move and rename failed
      */
-    protected void doMoveAndRenameOperation( Dn oldDn, Dn parent, Rdn newRdn, boolean delOldDn )
+    protected void doMoveAndRenameOperation( Dn oldDn, Dn parent, Rdn newRdn, boolean delOldRdn )
         throws Exception
     {
         // setup the op context and populate with request controls
         MoveAndRenameOperationContext moveAndRenameContext = new MoveAndRenameOperationContext( session, oldDn, parent,
-            newRdn, delOldDn );
+            newRdn, delOldRdn );
         moveAndRenameContext.addRequestControls( convertControls( true, requestControls ) );
 
         // Inject the referral handling into the operation context
@@ -726,6 +690,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after modify operations.
+     * 
+     * @param dn The modified entry's dn
+     * @param modifications The list of modifications to apply
+     * @throws Exception If the modify failed
      */
     protected void doModifyOperation( Dn dn, List<Modification> modifications ) throws Exception
     {
@@ -749,6 +717,10 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after moveAndRename operations.
+     * 
+     * @param oldDn The old Dn
+     * @param target The target
+     * @throws Exception If the move failed
      */
     protected void doMove( Dn oldDn, Dn target ) throws Exception
     {
@@ -772,6 +744,11 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Used to encapsulate [de]marshalling of controls before and after rename operations.
+     * 
+     * @param oldDn The old Dn
+     * @param newRdn The new Rdn
+     * @param delOldRdn If we should delete the old Rdn
+     * @throws Exception If the rename failed
      */
     protected void doRename( Dn oldDn, Rdn newRdn, boolean delOldRdn ) throws Exception
     {
@@ -1034,7 +1011,7 @@ public abstract class ServerContext implements EventContext
     }
 
 
-    private void injectRdnAttributeValues( Dn target, Entry serverEntry ) throws NamingException
+    private void injectRdnAttributeValues( Dn target, Entry serverEntry )
     {
         // Add all the Rdn attributes and their values to this entry
         Rdn rdn = target.getRdn();

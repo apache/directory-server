@@ -31,11 +31,11 @@ import org.apache.directory.server.xdbm.Index;
  * An annotation for the Index creation. It's used when we need to inject an
  * indexed attribute into a given partition. Here is an exemple :
  * <pre>
- * @CreatePartition(
+ * &#64;CreatePartition(
  *     name = "example",
- *     @Indexes( {
- *         @CreateIndex( attribute = "cn" ),
- *         @CreateIndex( attribute = "sn' )
+ *     &#64;Indexes( {
+ *         &#64;CreateIndex( attribute = "cn" ),
+ *         &#64;CreateIndex( attribute = "sn' )
  *     })
  * )
  * </pre>
@@ -49,14 +49,14 @@ import org.apache.directory.server.xdbm.Index;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateIndex
 {
-    /** The index implementation class */
+    /** @return The index implementation class */
     Class<? extends Index> type() default Index.class;
 
 
-    /** The cache size */
+    /** @return The cache size */
     int cacheSize() default 1000;
 
 
-    /** The indexed attribute */
+    /** @return The indexed attribute */
     String attribute();
 }

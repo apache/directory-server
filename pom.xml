@@ -24,13 +24,13 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>41</version>
+    <version>44</version>
     <relativePath />
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>2.0.0.AM25-SNAPSHOT</version>
+  <version>2.0.0.AM26-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ApacheDS</name>
@@ -43,31 +43,32 @@
   <properties>
     <projectName>Apache Directory Server</projectName>
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
-    <additionalparam>-Xdoclint:none</additionalparam>
+    <!--additionalparam>-Xdoclint:none</additionalparam-->
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>2.0.0.AM1-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.0.0.AM3-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
-    <org.apache.directory.checkstyle-configuration.version>0.3</org.apache.directory.checkstyle-configuration.version>
-    <org.apache.directory.junit.junit-addons.version>0.1</org.apache.directory.junit.junit-addons.version>
+    <org.apache.directory.checkstyle-configuration.version>2.0.1-SNAPSHOT</org.apache.directory.checkstyle-configuration.version>
+    <org.apache.directory.junit.junit-addons.version>2.0.0</org.apache.directory.junit.junit-addons.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
     <skin.version>1.0.3</skin.version>
     
     <!-- Set versions for depending jars -->
     <ant.version>1.10.1</ant.version>
-    <bcprov.version>1.56</bcprov.version>
+    <bcprov.version>1.60</bcprov.version>
     <commons.cli.version>1.4</commons.cli.version>
-    <commons.collections.version>3.2.2</commons.collections.version>
+    <commons.codec.version>1.12</commons.codec.version>
+    <commons.collections.version>4.3</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
-    <commons.lang.version>2.6</commons.lang.version>
+    <commons.lang.version>3.8.1</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
-    <commons.pool.version>1.6</commons.pool.version>
+    <commons.pool.version>2.6.1</commons.pool.version>
     <dnsjava.version>2.1.8</dnsjava.version>
-    <ehcache.version>2.10.4</ehcache.version>
+    <caffeine.version>2.7.0</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
-    <jetty.version>9.4.5.v20170502</jetty.version>
+    <jetty.version>9.4.14.v20181114</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
-    <jetty.bundle.version>9.4.5</jetty.bundle.version>
+    <jetty.bundle.version>9.4.14</jetty.bundle.version>
     <junit.version>4.12</junit.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
@@ -76,14 +77,14 @@
     <maven.artifact.version>3.3.9</maven.artifact.version>
     <maven.plugin.api.version>3.3.9</maven.plugin.api.version>
     <maven.project.version>3.0-alpha-2</maven.project.version>
-    <mina.core.version>2.0.16</mina.core.version>
-    <org.apache.felix.version>5.6.4</org.apache.felix.version>
+    <mina.core.version>2.1.2</mina.core.version>
+    <org.apache.felix.version>6.0.0</org.apache.felix.version>
     <pax-exam.version>4.11.0</pax-exam.version>
-    <pax-url.version>2.5.2</pax-url.version>
+    <pax-url.version>2.5.4</pax-url.version>
     <plexus.utils.version>3.0.24</plexus.utils.version>
-    <slf4j.api.version>1.7.25</slf4j.api.version>
+    <slf4j.api.version>1.7.26</slf4j.api.version>
     <slf4j.api.bundleversion>"$«range;[==,=+)»"</slf4j.api.bundleversion>
-    <slf4j.log4j12.version>1.7.25</slf4j.log4j12.version>
+    <slf4j.log4j12.version>1.7.26</slf4j.log4j12.version>
     <wrapper.version>3.2.3</wrapper.version>
   </properties>
 
@@ -106,6 +107,7 @@
     <module>all</module>
     <module>jdbm-partition</module>
     <module>mavibot-partition</module>
+    <!--module>lmdb-partition</module-->
     <!--module>mavibotv2-partition</module-->
     <module>xdbm-partition</module>
     <module>core-shared</module>
@@ -152,6 +154,163 @@
     <module>osgi-integ</module>
   </modules>
 
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <minmemory>512m</minmemory>
+          <maxmemory>1g</maxmemory>
+          <linksource>true</linksource>
+                <additionalOptions>
+            <additionalOptions>-Xmaxwarns 1000</additionalOptions>
+            <additionalOptions>-Xmaxerrs 1000</additionalOptions>
+          </additionalOptions>
+          <!--additionalparam>-Xdoclint:none</additionalparam-->
+          <tags>
+            <tag>
+              <name>org.apache.xbean.XBean</name>
+              <placement>a</placement>
+              <head>XBean</head>
+            </tag>
+            <tag>
+              <name>org.apache.xbean.Property</name>
+              <placement>a</placement>
+              <head>XBean Property</head>
+            </tag>
+            <tag>
+              <name>org.apache.xbean.DestroyMethod</name>
+              <placement>a</placement>
+              <head>XBean DestroyMethod</head>
+            </tag>
+            <tag>
+              <name>note</name>
+              <placement>a</placement>
+              <head>NOTE</head>
+            </tag>
+            <tag>
+              <name>todo</name>
+              <placement>a</placement>
+              <head>TODO</head>
+            </tag>
+            <tag>
+              <name>warning</name>
+              <placement>a</placement>
+              <head>WARNING</head>
+            </tag>
+          </tags>
+          <source>1.8</source>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate</report>
+              <!--report>test-aggregate</report-->
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <configuration>
+          <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
+          <xrefTestLocation>${project.reporting.outputDirectory}/../xref-test</xrefTestLocation>
+          <!-- required by dashboard plugin and hudson -->
+          <xmlOutput>true</xmlOutput>
+          <effort>Max</effort>
+          <findbugsXmlOutput>true</findbugsXmlOutput>
+          <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <configuration>
+          <instrumentation>
+            <excludes>
+              <exclude>org/apache/directory/server/**/*Constants.class</exclude>
+            </excludes>
+          </instrumentation>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javancss-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <configuration>
+          <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
+          <aggregate>true</aggregate>
+          <forkedProcessTimeoutInSeconds>3600</forkedProcessTimeoutInSeconds>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+        <configuration>
+          <tags>
+            <tag>TODO</tag>
+            <tag>@todo</tag>
+            <tag>@deprecated</tag>
+            <tag>FIXME</tag>
+          </tags>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-changes-plugin</artifactId>
+        <configuration>
+          <onlyCurrentVersion>true</onlyCurrentVersion>
+          <resolutionIds>Fixed</resolutionIds>
+          <statusIds>Resolved,Closed</statusIds>
+          <columnNames>Type,Key,Summary,Status,Resolution,Fix Version</columnNames>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>jira-report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>dashboard-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <build>
     <pluginManagement>
       <plugins>
@@ -159,24 +318,30 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
           <configuration>
+            <preparationGoals>clean install</preparationGoals>
+            <goals>clean deploy</goals>
             <tagNameFormat>@{project.version}</tagNameFormat>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
+            <source>1.8</source>
+            <target>1.8</target>
             <optimize>true</optimize>
             <showDeprecations>true</showDeprecations>
             <encoding>ISO-8859-1</encoding>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
         </plugin>
+
         <plugin>
           <groupId>org.apache.rat</groupId>
           <artifactId>apache-rat-plugin</artifactId>
@@ -221,6 +386,7 @@
             </excludes>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
@@ -238,6 +404,7 @@
             </execution>
           </executions>
         </plugin>
+
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
@@ -278,6 +445,7 @@
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
@@ -294,6 +462,22 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <minmemory>512m</minmemory>
+          <maxmemory>1g</maxmemory>
+          <linksource>true</linksource>
+          <additionalOptions>
+            <additionalOptions>-Xmaxwarns 1000</additionalOptions>
+            <additionalOptions>-Xmaxerrs 1000</additionalOptions>
+          </additionalOptions>
+        </configuration>
+      </plugin>
+
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
@@ -321,207 +505,30 @@
         </executions>
         <configuration>
           <reportPlugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-surefire-report-plugin</artifactId>
-              <configuration>
-                <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
-                <aggregate>true</aggregate>
-                <forkedProcessTimeoutInSeconds>3600</forkedProcessTimeoutInSeconds>
-              </configuration>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-jxr-plugin</artifactId>
-              <configuration>
-                <aggregate>true</aggregate>
-              </configuration>
-            </plugin>
-       
-            <!-- plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-pmd-plugin</artifactId>
-              <configuration>
-                <linkXref>true</linkXref>
-                <sourceEncoding>utf-8</sourceEncoding>
-                <minimumTokens>100</minimumTokens>
-                <targetJdk>1.7</targetJdk>
-                <aggregate>true</aggregate>
-              </configuration>
-            </plugin -->
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-project-info-reports-plugin</artifactId>
-              <reportSets>
-                <reportSet>
+            <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                  <reportSet>
                     <reports>
-                    <report>project-team</report>
-                    <report>mailing-list</report>
-                    <report>license</report>
-                    <report>dependencies</report>
-                    <report>issue-tracking</report>
-                    <report>index</report>
-                    <report>scm</report>
-                    <report>cim</report>
-                    <report>plugin-management</report>
-                    <report>dependency-management</report>
-                    <report>summary</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-            </plugin>
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>versions-maven-plugin</artifactId>
-              <reportSets>
-                <reportSet>
-                  <reports>
-                    <report>dependency-updates-report</report>
-                    <report>plugin-updates-report</report>
-                    <report>property-updates-report</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-            </plugin>
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>taglist-maven-plugin</artifactId>
-              <configuration>
-                <tags>
-                  <tag>TODO</tag>
-                  <tag>@todo</tag>
-                  <tag>@deprecated</tag>
-                  <tag>FIXME</tag>
-                </tags>
-              </configuration>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <configuration>
-                <minmemory>512m</minmemory>
-                <maxmemory>1g</maxmemory>
-                <linksource>true</linksource>
-                <additionalparam>-Xdoclint:none</additionalparam>
-                <tags>
-                  <tag>
-                    <name>org.apache.xbean.XBean</name>
-                    <placement>a</placement>
-                    <head>XBean</head>
-                  </tag>
-                  <tag>
-                    <name>org.apache.xbean.Property</name>
-                    <placement>a</placement>
-                    <head>XBean Property</head>
-                  </tag>
-                  <tag>
-                    <name>org.apache.xbean.DestroyMethod</name>
-                    <placement>a</placement>
-                    <head>XBean DestroyMethod</head>
-                  </tag>
-                  <tag>
-                    <name>note</name>
-                    <placement>a</placement>
-                    <head>NOTE</head>
-                  </tag>
-                  <tag>
-                    <name>todo</name>
-                    <placement>a</placement>
-                    <head>TODO</head>
-                  </tag>
-                  <tag>
-                    <name>warning</name>
-                    <placement>a</placement>
-                    <head>WARNING</head>
-                  </tag>
-                </tags>
-                <source>1.7</source>
-              </configuration>
-              <reportSets>
-                <reportSet>
-                  <reports>
-                    <report>aggregate</report>
-                    <report>test-aggregate</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>findbugs-maven-plugin</artifactId>
-              <configuration>
-                <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
-                <xrefTestLocation>${project.reporting.outputDirectory}/../xref-test</xrefTestLocation>
-                <!-- required by dashboard plugin and hudson -->
-                <xmlOutput>true</xmlOutput>
-                <effort>Max</effort>
-                <findbugsXmlOutput>true</findbugsXmlOutput>
-                <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-              </configuration>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>cobertura-maven-plugin</artifactId>
-              <configuration>
-                <instrumentation>
-                  <excludes>
-                    <exclude>org/apache/directory/server/**/*Constants.class</exclude>
-                  </excludes>
-                </instrumentation>
-              </configuration>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>versions-maven-plugin</artifactId>
-              <reportSets>
-                <reportSet>
-                  <reports>
-                    <report>dependency-updates-report</report>
-                    <report>plugin-updates-report</report>
-                    <report>property-updates-report</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>javancss-maven-plugin</artifactId>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>jdepend-maven-plugin</artifactId>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-changes-plugin</artifactId>
-              <configuration>
-                <onlyCurrentVersion>true</onlyCurrentVersion>
-                <resolutionIds>Fixed</resolutionIds>
-                <statusIds>Resolved,Closed</statusIds>
-                <columnNames>Type,Key,Summary,Status,Resolution,Fix Version</columnNames>
-              </configuration>
-              <reportSets>
-                <reportSet>
-                  <reports>
-                    <report>jira-report</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-            </plugin>
-      
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>dashboard-maven-plugin</artifactId>
-            </plugin>
-          </reportPlugins>       
+                      <report>project-team</report>
+                      <report>mailing-list</report>
+                      <report>license</report>
+                      <report>dependencies</report>
+                      <report>issue-tracking</report>
+                      <report>index</report>
+                      <report>scm</report>
+                      <report>cim</report>
+                      <report>plugin-management</report>
+                      <report>dependency-management</report>
+                      <report>summary</report>
+                    </reports>
+                  </reportSet>
+                </reportSets>
+              </plugin>
+            </plugins>
+          </reportPlugins>
         </configuration>
       </plugin>
     </plugins>
@@ -1047,10 +1054,16 @@
       </dependency>
 
       <!-- Commons dependencies -->
+            
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons.codec.version}</version>
+      </dependency>
       
       <dependency>
-        <groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
         <version>${commons.collections.version}</version>
       </dependency>
 
@@ -1061,8 +1074,8 @@
       </dependency>
 
       <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
         <version>${commons.lang.version}</version>
       </dependency>
 
@@ -1079,8 +1092,8 @@
       </dependency>
 
       <dependency>
-        <groupId>commons-pool</groupId>
-        <artifactId>commons-pool</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-pool2</artifactId>
         <version>${commons.pool.version}</version>
       </dependency>
 
@@ -1229,9 +1242,19 @@
       </dependency>
       
       <dependency>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache</artifactId>
-        <version>${ehcache.version}</version>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>${caffeine.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+           </exclusion>
+         </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -1265,9 +1288,10 @@
   </dependencies>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/directory/apacheds/trunk</url>
+    <connection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</connection>
+    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</developerConnection>
+    <url>https://gitbox.apache.org/repos/asf?p=directory-server.git;a=tag;h=refs/tags/${project.scm.tag}</url>
+    <tag>HEAD</tag>
   </scm>
 
   <repositories>

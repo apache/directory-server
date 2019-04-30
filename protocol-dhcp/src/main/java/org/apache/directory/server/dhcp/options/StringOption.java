@@ -46,6 +46,7 @@ public abstract class StringOption extends DhcpOption
     /*
      * @see org.apache.directory.server.dhcp.options.DhcpOption#setData(byte[])
      */
+    @Override
     public void setData( byte[] data )
     {
         try
@@ -63,6 +64,7 @@ public abstract class StringOption extends DhcpOption
     /*
      * @see org.apache.directory.server.dhcp.options.DhcpOption#getData()
      */
+    @Override
     public byte[] getData()
     {
         if ( null == string )

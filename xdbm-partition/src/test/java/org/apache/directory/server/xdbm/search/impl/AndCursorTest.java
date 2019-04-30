@@ -42,11 +42,11 @@ import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
@@ -69,7 +69,6 @@ public class AndCursorTest extends AbstractCursorTest
     private static final Logger LOG = LoggerFactory.getLogger( AndCursorTest.class );
 
     File wkdir;
-    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -104,14 +103,6 @@ public class AndCursorTest extends AbstractCursorTest
         {
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
-
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-    }
-
-
-    public AndCursorTest() throws Exception
-    {
     }
 
 
@@ -138,7 +129,6 @@ public class AndCursorTest extends AbstractCursorTest
         store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
@@ -157,7 +147,7 @@ public class AndCursorTest extends AbstractCursorTest
     {
         if ( store != null )
         {
-            ( ( Partition ) store ).destroy();
+            ( ( Partition ) store ).destroy( null );
         }
 
         store = null;
@@ -176,13 +166,14 @@ public class AndCursorTest extends AbstractCursorTest
         String filter = "(&(cn=J*)(sn=*))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
 
         Set<String> expectedUuid = new HashSet<String>();
         expectedUuid.add( Strings.getUUID( 5 ) );
         expectedUuid.add( Strings.getUUID( 6 ) );
         expectedUuid.add( Strings.getUUID( 8 ) );
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         cursor.beforeFirst();
 
@@ -219,6 +210,7 @@ public class AndCursorTest extends AbstractCursorTest
     public void testAndCursorWithManualFilter() throws Exception
     {
         ExprNode exprNode = FilterParser.parse( schemaManager, "(&(cn=J*)(sn=*))" );
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
 
         Set<String> expectedUuid = new HashSet<String>();
         expectedUuid.add( Strings.getUUID( 5 ) );
@@ -227,7 +219,7 @@ public class AndCursorTest extends AbstractCursorTest
 
         Set<String> foundUuid = new HashSet<String>();
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         cursor.beforeFirst();
 

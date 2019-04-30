@@ -40,7 +40,7 @@ public class RecordStoreStub implements RecordStore
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException
     {
-        Set<ResourceRecord> set = new HashSet<ResourceRecord>();
+        Set<ResourceRecord> set = new HashSet<>();
 
         ResourceRecordModifier rm = new ResourceRecordModifier();
         rm.setDnsClass( RecordClass.IN );

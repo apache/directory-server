@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-xdbm-partition</artifactId>
@@ -62,11 +62,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-i18n</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
     </dependency>
     
     <dependency>
@@ -126,10 +121,7 @@
             </Export-Package>
             <Import-Package>
                 javax.naming,
-                net.sf.ehcache;version=${ehcache.version},
-                net.sf.ehcache.config;version=${ehcache.version},
-                net.sf.ehcache.store;version=${ehcache.version},
-                org.apache.commons.collections;version=${commons.collections.version},
+                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.i18n;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},

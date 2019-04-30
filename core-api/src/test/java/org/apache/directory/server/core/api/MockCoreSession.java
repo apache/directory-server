@@ -73,6 +73,8 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 
 
@@ -480,7 +482,10 @@ public class MockCoreSession implements CoreSession
     public Entry lookup( Dn dn, String... attrIds ) throws LdapException
     {
         OperationManager operationManager = directoryService.getOperationManager();
-        return operationManager.lookup( new LookupOperationContext( this, dn, attrIds ) );
+        
+        LookupOperationContext lookupContext = new LookupOperationContext( this, dn, attrIds );
+
+        return operationManager.lookup( lookupContext );
     }
 
 
@@ -981,4 +986,55 @@ public class MockCoreSession implements CoreSession
         this.pwdMustChange = pwdMustChange;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasSessionTransaction()
+    {
+        return false;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long beginSessionTransaction()
+    {
+        // Nothing to do
+        return 0L;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void endSessionTransaction( boolean commit )
+    {
+        // Nothing to do
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PartitionTxn getTransaction( Partition partition ) 
+    {
+        // We don't manage transactions in the MockOperationManager
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addTransaction( Partition partition, PartitionTxn transaction )
+    {
+        // Nothing to do
+    }
 }

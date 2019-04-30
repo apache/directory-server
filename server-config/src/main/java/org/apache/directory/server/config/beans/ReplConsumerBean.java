@@ -56,7 +56,7 @@ public class ReplConsumerBean extends AdsBaseBean
 
     /** The replication provider attribute */
     @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_ATTRIBUTES)
-    private List<String> replAttributes = new ArrayList<String>();
+    private List<String> replAttributes = new ArrayList<>();
 
     /** The refresh interval */
     @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_REFRESH_INTERVAL)
@@ -147,7 +147,7 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @param searchBaseDN the searchBaseDn to set
+     * @param searchBaseDn the searchBaseDn to set
      */
     public void setSearchBaseDn( String searchBaseDn )
     {
@@ -458,6 +458,7 @@ public class ReplConsumerBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -492,6 +493,7 @@ public class ReplConsumerBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

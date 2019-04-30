@@ -82,6 +82,7 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -101,6 +102,7 @@ public class DelegatingAuthenticatorBean extends AuthenticatorBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

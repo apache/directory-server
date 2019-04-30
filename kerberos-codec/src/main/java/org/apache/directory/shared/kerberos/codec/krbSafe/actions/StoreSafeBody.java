@@ -65,29 +65,20 @@ public class StoreSafeBody extends GrammarAction<KrbSafeContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the HostAddress
-        Asn1Decoder krbSafeBodyDecoder = new Asn1Decoder();
-
         KrbSafeBodyContainer krbSafeBodyContainer = new KrbSafeBodyContainer();
 
         // Passes the Stream to the decoder
         krbSafeBodyContainer.setStream( krbSafeContainer.getStream() );
 
         // Decode the KrbSafeBody PDU
-        try
-        {
-            krbSafeBodyDecoder.decode( krbSafeContainer.getStream(), krbSafeBodyContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( krbSafeContainer.getStream(), krbSafeBodyContainer );
 
         // Store the KrbSafeBody in the container
         KrbSafeBody krbSafeBody = krbSafeBodyContainer.getKrbSafeBody();

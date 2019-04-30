@@ -320,6 +320,8 @@ public class EventInterceptor extends BaseInterceptor
         CoreSession session = modifyContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, modifyContext.getDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( modifyContext.getPartition() );
+        lookupContext.setTransaction( modifyContext.getTransaction() );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         modifyContext.setAlteredEntry( alteredEntry );
@@ -408,6 +410,8 @@ public class EventInterceptor extends BaseInterceptor
         CoreSession session = renameContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, renameContext.getNewDn(),
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( renameContext.getPartition() );
+        lookupContext.setTransaction( renameContext.getTransaction() );
 
         Entry alteredEntry = directoryService.getPartitionNexus().lookup( lookupContext );
         renameContext.setModifiedEntry( alteredEntry );
@@ -445,21 +449,11 @@ public class EventInterceptor extends BaseInterceptor
 
             SearchScope scope = criteria.getScope();
             
-            boolean inscope = false;
-            
             // fix for DIRSERVER-1502
-            if ( ( scope == OBJECT ) && name.equals( base ) )
-            {
-                inscope = true;
-            }
-            else if ( ( scope == ONELEVEL ) && name.getParent().equals( base ) )
-            {
-                inscope = true;
-            }
-            else if ( ( scope == SUBTREE ) && ( name.isDescendantOf( base ) || name.equals( base ) ) )
-            {
-                inscope = true;
-            } 
+            boolean inscope =
+                    ( ( ( scope == OBJECT ) && name.equals( base ) )
+                    || ( ( scope == ONELEVEL ) && name.getParent().equals( base ) )
+                    || ( ( scope == SUBTREE ) && ( name.isDescendantOf( base ) || name.equals( base ) ) ) );
             
             if ( inscope && evaluator.evaluate( criteria.getFilter(), base, entry ) )
             {

@@ -69,7 +69,7 @@ public class SchemaAwareLdifReader extends LdifReader
      */
     public LdifEntry parseLdifEntry( String ldif ) throws LdapLdifException
     {
-        LOG.debug( "Starts parsing ldif buffer" );
+        LOG.debug( I18n.msg( I18n.MSG_13407_STARTS_PARSING_LDIF ) );
 
         if ( Strings.isEmpty( ldif ) )
         {
@@ -104,7 +104,7 @@ public class SchemaAwareLdifReader extends LdifReader
             }
             catch ( IOException ioe )
             {
-                throw new LdapLdifException( I18n.err( I18n.ERR_12024_CANNOT_CLOSE_FILE ), ioe );
+                throw new LdapLdifException( I18n.err( I18n.ERR_13450_CANNOT_CLOSE_FILE ), ioe );
             }
 
         }

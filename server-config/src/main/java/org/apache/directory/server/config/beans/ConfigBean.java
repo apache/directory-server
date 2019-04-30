@@ -70,7 +70,7 @@ public class ConfigBean
      */
     public DirectoryServiceBean getDirectoryServiceBean()
     {
-        if ( ( directoryServiceBeans == null ) || ( directoryServiceBeans.size() == 0 ) )
+        if ( ( directoryServiceBeans == null ) || directoryServiceBeans.isEmpty() )
         {
             return null;
         }
@@ -88,24 +88,22 @@ public class ConfigBean
 
 
     /**
-     * @param The DirectoryService ID we want to get
+     * @param directoryServiceId The DirectoryService ID we want to get
      * @return the found directoryServiceBean
      */
     public DirectoryServiceBean getDirectoryServiceBean( String directoryServiceId )
     {
-        if ( ( directoryServiceBeans == null ) || ( directoryServiceBeans.size() == 0 ) )
+        if ( ( directoryServiceBeans == null ) || directoryServiceBeans.isEmpty() )
         {
             return null;
         }
 
         for ( AdsBaseBean bean : directoryServiceBeans )
         {
-            if ( bean instanceof DirectoryServiceBean )
+            if ( ( bean instanceof DirectoryServiceBean )
+                && ( ( DirectoryServiceBean ) bean ).getDirectoryServiceId().equals( directoryServiceId ) )
             {
-                if ( ( ( DirectoryServiceBean ) bean ).getDirectoryServiceId().equals( directoryServiceId ) )
-                {
-                    return ( DirectoryServiceBean ) bean;
-                }
+                return ( DirectoryServiceBean ) bean;
             }
         }
 

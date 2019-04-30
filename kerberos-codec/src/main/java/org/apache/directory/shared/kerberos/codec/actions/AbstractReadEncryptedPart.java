@@ -75,33 +75,24 @@ public abstract class AbstractReadEncryptedPart<E extends Asn1Container> extends
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the PrincipalName
-        Asn1Decoder encryptedDataDecoder = new Asn1Decoder();
-
         EncryptedDataContainer encryptedDataContainer = new EncryptedDataContainer();
         encryptedDataContainer.setStream( container.getStream() );
 
         // Decode the Ticket PDU
-        try
-        {
-            encryptedDataDecoder.decode( container.getStream(), encryptedDataContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( container.getStream(), encryptedDataContainer );
 
         EncryptedData encryptedData = encryptedDataContainer.getEncryptedData();
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "EncryptedData : " + encryptedData );
+            LOG.debug( "EncryptedData : {}", encryptedData );
         }
 
         setEncryptedData( encryptedData, container );

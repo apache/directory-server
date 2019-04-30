@@ -63,6 +63,7 @@ public class ArrayTree<K>
      * Creates a new instance of AVLTree.
      *
      * @param comparator the comparator to be used for comparing keys
+     * @param array The array of keys
      */
     public ArrayTree( Comparator<K> comparator, K[] array )
     {
@@ -214,7 +215,7 @@ public class ArrayTree<K>
      */
     public List<K> getKeys()
     {
-        List<K> list = new ArrayList<K>( size );
+        List<K> list = new ArrayList<>( size );
 
         for ( int i = 0; i < size; i++ )
         {
@@ -236,7 +237,7 @@ public class ArrayTree<K>
             return;
         }
 
-        boolean isFirst = false;
+        boolean isFirst = true;
 
         for ( K key : array )
         {
@@ -258,9 +259,8 @@ public class ArrayTree<K>
      * Get the element at a given position
      * @param position The position in the tree
      * @return The found key, or null if the position is out of scope
-     * @throws ArrayIndexOutOfBoundsException If the position is not within the array boundaries
      */
-    public K get( int position ) throws ArrayIndexOutOfBoundsException
+    public K get( int position )
     {
         if ( ( position < 0 ) || ( position >= size ) )
         {
@@ -312,7 +312,7 @@ public class ArrayTree<K>
      * element.
      *
      * @param key the key to find
-     * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
+     * @return the LinkedAvlNode whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
     public K findGreater( K key )

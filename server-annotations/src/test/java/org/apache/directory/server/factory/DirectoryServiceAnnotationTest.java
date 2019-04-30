@@ -23,7 +23,6 @@ package org.apache.directory.server.factory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -174,6 +173,7 @@ public class DirectoryServiceAnnotationTest
     @Test
     @CreateDS(
         name = "MethodDSWithPartitionAndServer",
+        
         partitions =
             {
                 @CreatePartition(
@@ -193,6 +193,7 @@ public class DirectoryServiceAnnotationTest
                     })
         })
     @CreateLdapServer(
+        keyStore = "",
         transports =
             {
                 @CreateTransport(protocol = "LDAP"),

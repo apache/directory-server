@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * EncAPRepPart    ::= [APPLICATION 27] SEQUENCE {
  *         ctime           [0] KerberosTime,
  *         cusec           [1] Microseconds,
- *         subkey          [2] <EncryptionKey> OPTIONAL,
+ *         subkey          [2] &lt;EncryptionKey&gt; OPTIONAL,
  *         seq-number      [3] UInt32 OPTIONAL
  * }
  * </pre>
@@ -169,21 +169,21 @@ public class EncApRepPart extends KerberosMessage
      * 
      * 0x7B L1 EncApRepPart [APPLICATION 27]
      *  |
-     *  +--> 0x30 L2 SEQ
+     *  +--&gt; 0x30 L2 SEQ
      *        |
-     *        +--> 0xA0 11 ctime tag
+     *        +--&gt; 0xA0 11 ctime tag
      *        |     |
-     *        |     +--> 0x18 0x0F ttt ctime (KerberosTime)
+     *        |     +--&gt; 0x18 0x0F ttt ctime (KerberosTime)
      *        |
-     *        +--> 0xA1 L3 cusec tag
+     *        +--&gt; 0xA1 L3 cusec tag
      *        |     |
-     *        |     +--> 0x02 L3-1 cusec (INTEGER)
+     *        |     +--&gt; 0x02 L3-1 cusec (INTEGER)
      *        |
-     *        +--> 0xA2 L4 subkey (EncryptionKey)
+     *        +--&gt; 0xA2 L4 subkey (EncryptionKey)
      *        |
-     *        +--> 0xA3 L5 seq-number tag
+     *        +--&gt; 0xA3 L5 seq-number tag
      *              |
-     *              +--> 0x02 L5-1 NN seq-number (INTEGER)
+     *              +--&gt; 0x02 L5-1 NN seq-number (INTEGER)
      * </pre>
      */
     @Override
@@ -304,7 +304,7 @@ public class EncApRepPart extends KerberosMessage
         if ( IS_DEBUG )
         {
             LOG.debug( "EncApRepPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "EncApRepPart initial value : {}", toString() );
+            LOG.debug( "EncApRepPart initial value : {}", this );
         }
 
         return buffer;

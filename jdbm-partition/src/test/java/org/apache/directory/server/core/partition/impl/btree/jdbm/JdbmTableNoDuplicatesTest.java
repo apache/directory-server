@@ -39,6 +39,8 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.Table;
 import org.junit.After;
 import org.junit.Before;
@@ -62,6 +64,7 @@ public class JdbmTableNoDuplicatesTest
     File dbFile;
     RecordManager recman;
     private static SchemaManager schemaManager;
+    private PartitionTxn partitionTxn;
 
 
     @BeforeClass
@@ -110,6 +113,8 @@ public class JdbmTableNoDuplicatesTest
         comparator.setSchemaManager( schemaManager );
         table = new JdbmTable<String, String>( schemaManager, "test", recman, comparator, null, null );
         LOG.debug( "Created new table and populated it with data" );
+        
+        partitionTxn = new MockPartitionReadTxn();
     }
 
 
@@ -118,7 +123,7 @@ public class JdbmTableNoDuplicatesTest
     {
         if ( table != null )
         {
-            table.close();
+            table.close( partitionTxn );
         }
 
         table = null;
@@ -146,13 +151,13 @@ public class JdbmTableNoDuplicatesTest
     @Test
     public void testCloseReopen() throws Exception
     {
-        table.put( "1", "2" );
-        table.close();
+        table.put( partitionTxn, "1", "2" );
+        table.close( partitionTxn );
         SerializableComparator<String> comparator = new SerializableComparator<String>(
             SchemaConstants.INTEGER_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
         table = new JdbmTable<String, String>( schemaManager, "test", recman, comparator, null, null );
-        assertEquals( "2", table.get( "1" ) );
+        assertEquals( "2", table.get( partitionTxn, "1" ) );
     }
 
 
@@ -169,25 +174,25 @@ public class JdbmTableNoDuplicatesTest
     public void testWhenEmpty() throws Exception
     {
         // Test the count methods
-        assertEquals( 0, table.count() );
-        assertEquals( 0, table.count( "1" ) );
+        assertEquals( 0, table.count( partitionTxn ) );
+        assertEquals( 0, table.count( partitionTxn, "1" ) );
 
         // Test get method
-        assertNull( table.get( "0" ) );
+        assertNull( table.get( partitionTxn, "0" ) );
 
         // Test remove methods
-        table.remove( "1" );
-        assertNull( table.get( "1" ) );
+        table.remove( partitionTxn, "1" );
+        assertNull( table.get( partitionTxn, "1" ) );
 
         // Test has operations
-        assertFalse( table.has( "1" ) );
-        assertFalse( table.has( "1", "0" ) );
-        assertFalse( table.hasGreaterOrEqual( "1" ) );
-        assertFalse( table.hasLessOrEqual( "1" ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn,"1" ) );
+        assertFalse( table.has( partitionTxn,"1", "0" ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn,"1" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn,"1" ) );
 
         try
         {
-            assertFalse( table.hasGreaterOrEqual( "1", "0" ) );
+            assertFalse( table.hasGreaterOrEqual( partitionTxn,"1", "0" ) );
             fail( "Should never get here." );
         }
         catch ( UnsupportedOperationException e )
@@ -196,7 +201,7 @@ public class JdbmTableNoDuplicatesTest
 
         try
         {
-            assertFalse( table.hasLessOrEqual( "1", "0" ) );
+            assertFalse( table.hasLessOrEqual( partitionTxn, "1", "0" ) );
             fail( "Should never get here." );
         }
         catch ( UnsupportedOperationException e )
@@ -212,11 +217,11 @@ public class JdbmTableNoDuplicatesTest
         for ( int i = 0; i < 10; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn,istr, istr );
         }
 
-        assertEquals( 10, table.count() );
-        assertEquals( 1, table.count( "0" ) );
+        assertEquals( 10, table.count( partitionTxn ) );
+        assertEquals( 1, table.count( partitionTxn,"0" ) );
 
         /*
          * If counts are exact then we can test for exact values.  Again this 
@@ -224,8 +229,8 @@ public class JdbmTableNoDuplicatesTest
          * case guesses are allowed.
          */
 
-        assertEquals( 10, table.lessThanCount( "5" ) );
-        assertEquals( 10, table.greaterThanCount( "5" ) );
+        assertEquals( 10, table.lessThanCount( partitionTxn, "5" ) );
+        assertEquals( 10, table.greaterThanCount( partitionTxn, "5" ) );
     }
 
 
@@ -236,11 +241,11 @@ public class JdbmTableNoDuplicatesTest
     @Test
     public void testNullOrEmptyKeyValue() throws Exception
     {
-        assertEquals( 0, table.count() );
+        assertEquals( 0, table.count( partitionTxn ) );
 
         try
         {
-            table.put( "1", null );
+            table.put( partitionTxn, "1", null );
             fail( "should never get here due to IllegalArgumentException" );
         }
         catch ( IllegalArgumentException e )
@@ -250,7 +255,7 @@ public class JdbmTableNoDuplicatesTest
 
         try
         {
-            table.put( null, "2" );
+            table.put( partitionTxn,null, "2" );
             fail( "should never get here due to IllegalArgumentException" );
         }
         catch ( IllegalArgumentException e )
@@ -258,33 +263,33 @@ public class JdbmTableNoDuplicatesTest
             assertNotNull( e );
         }
 
-        assertEquals( 0, table.count() );
-        assertEquals( null, table.get( "1" ) );
+        assertEquals( 0, table.count( partitionTxn ) );
+        assertEquals( null, table.get( partitionTxn, "1" ) );
 
         // Let's add the key with a valid value and remove just the value
-        assertEquals( 0, table.count( "1" ) );
-        table.remove( "1" );
-        assertEquals( 0, table.count( "1" ) );
-        table.put( "1", "1" );
-        assertEquals( 1, table.count( "1" ) );
-        table.remove( "1", "1" );
-        assertEquals( 0, table.count( "1" ) );
-        assertNull( table.get( "1" ) );
-        assertFalse( table.has( "1" ) );
+        assertEquals( 0, table.count( partitionTxn,"1" ) );
+        table.remove( partitionTxn,"1" );
+        assertEquals( 0, table.count( partitionTxn,"1" ) );
+        table.put( partitionTxn,"1", "1" );
+        assertEquals( 1, table.count( partitionTxn,"1" ) );
+        table.remove( partitionTxn,"1", "1" );
+        assertEquals( 0, table.count( partitionTxn,"1" ) );
+        assertNull( table.get( partitionTxn, "1" ) );
+        assertFalse( table.has( partitionTxn,"1" ) );
     }
 
 
     @Test
     public void testRemove() throws Exception
     {
-        table.put( "1", "1" );
-        table.remove( "1" );
-        assertNull( table.get( "1" ) );
+        table.put( partitionTxn,"1", "1" );
+        table.remove( partitionTxn,"1" );
+        assertNull( table.get( partitionTxn, "1" ) );
 
-        table.put( "10", "10" );
+        table.put( partitionTxn,"10", "10" );
 
-        table.remove( "10", "11" );
-        assertFalse( table.has( "10", "11" ) );
+        table.remove( partitionTxn,"10", "11" );
+        assertFalse( table.has( partitionTxn,"10", "11" ) );
 
         //        assertNull( table.remove( null ) );
         //        assertNull( table.remove( null, null ) );
@@ -299,51 +304,51 @@ public class JdbmTableNoDuplicatesTest
         for ( int i = 0; i < SIZE; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn,istr, istr );
         }
 
-        assertEquals( SIZE, table.count() );
-        table.put( "0", "0" );
-        assertTrue( table.has( "0", "0" ) );
+        assertEquals( SIZE, table.count( partitionTxn ) );
+        table.put( partitionTxn,"0", "0" );
+        assertTrue( table.has( partitionTxn,"0", "0" ) );
     }
 
 
     @Test
     public void testHas() throws Exception
     {
-        assertFalse( table.has( "1" ) );
+        assertFalse( table.has( partitionTxn,"1" ) );
         final int SIZE = 15;
 
         for ( int i = 0; i < SIZE; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn,istr, istr );
         }
 
-        assertEquals( SIZE, table.count() );
+        assertEquals( SIZE, table.count( partitionTxn ) );
 
-        assertFalse( table.has( "-1" ) );
-        assertTrue( table.hasGreaterOrEqual( "-1" ) );
-        assertFalse( table.hasLessOrEqual( "-1" ) );
+        assertFalse( table.has( partitionTxn,"-1" ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn,"-1" ) );
+        assertFalse( table.hasLessOrEqual( partitionTxn,"-1" ) );
 
-        assertTrue( table.has( "0" ) );
-        assertTrue( table.hasGreaterOrEqual( "0" ) );
-        assertTrue( table.hasLessOrEqual( "0" ) );
+        assertTrue( table.has( partitionTxn,"0" ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn,"0" ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn,"0" ) );
 
-        assertTrue( table.has( Integer.toString( SIZE - 1 ) ) );
-        assertTrue( table.hasGreaterOrEqual( Integer.toString( SIZE - 1 ) ) );
-        assertTrue( table.hasLessOrEqual( Integer.toString( SIZE - 1 ) ) );
+        assertTrue( table.has( partitionTxn,Integer.toString( SIZE - 1 ) ) );
+        assertTrue( table.hasGreaterOrEqual( partitionTxn,Integer.toString( SIZE - 1 ) ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn,Integer.toString( SIZE - 1 ) ) );
 
-        assertFalse( table.has( Integer.toString( SIZE ) ) );
-        assertFalse( table.hasGreaterOrEqual( Integer.toString( SIZE ) ) );
-        assertTrue( table.hasLessOrEqual( Integer.toString( SIZE ) ) );
-        table.remove( "10" );
-        table.remove( "11" );
-        assertTrue( table.hasLessOrEqual( "11" ) );
+        assertFalse( table.has( partitionTxn,Integer.toString( SIZE ) ) );
+        assertFalse( table.hasGreaterOrEqual( partitionTxn,Integer.toString( SIZE ) ) );
+        assertTrue( table.hasLessOrEqual( partitionTxn,Integer.toString( SIZE ) ) );
+        table.remove( partitionTxn,"10" );
+        table.remove( partitionTxn,"11" );
+        assertTrue( table.hasLessOrEqual( partitionTxn,"11" ) );
 
         try
         {
-            assertFalse( table.hasGreaterOrEqual( "1", "1" ) );
+            assertFalse( table.hasGreaterOrEqual( partitionTxn,"1", "1" ) );
             fail( "Should never get here." );
         }
         catch ( UnsupportedOperationException e )
@@ -352,7 +357,7 @@ public class JdbmTableNoDuplicatesTest
 
         try
         {
-            assertFalse( table.hasLessOrEqual( "1", "1" ) );
+            assertFalse( table.hasLessOrEqual( partitionTxn,"1", "1" ) );
             fail( "Should never get here." );
         }
         catch ( UnsupportedOperationException e )
@@ -361,7 +366,7 @@ public class JdbmTableNoDuplicatesTest
 
         try
         {
-            assertTrue( table.hasLessOrEqual( "1", "2" ) );
+            assertTrue( table.hasLessOrEqual( partitionTxn,"1", "2" ) );
             fail( "Should never get here since no dups tables " +
                 "freak when they cannot find a value comparator" );
         }

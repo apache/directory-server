@@ -29,8 +29,6 @@ import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
@@ -43,7 +41,6 @@ import org.apache.directory.api.ldap.model.schema.comparators.SerializableCompar
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.SynchronizedLRUMap;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
-import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.avltree.ArrayMarshaller;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.core.avltree.ArrayTreeCursor;
@@ -64,9 +61,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 {
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( JdbmTable.class );
-
-    /** the key to store and retreive the count information */
-    private static final String SZSUFFIX = "_btree_sz";
 
     /** the JDBM record manager for the file this table is managed in */
     private final RecordManager recMan;
@@ -125,21 +119,18 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( valueSerializer != null )
         {
-            marshaller = new ArrayMarshaller<V>( valueComparator,
+            marshaller = new ArrayMarshaller<>( valueComparator,
                 new MarshallerSerializerBridge<V>( valueSerializer ) );
         }
         else
         {
-            marshaller = new ArrayMarshaller<V>( valueComparator );
+            marshaller = new ArrayMarshaller<>( valueComparator );
         }
 
         this.numDupLimit = numDupLimit;
         this.recMan = manager;
-
         this.valueSerializer = valueSerializer;
-
         this.allowsDuplicates = true;
-
         long recId = recMan.getNamedObject( name );
 
         if ( recId == 0 ) // Create new main BTree
@@ -149,28 +140,17 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             // explicitly managed by this code.  Value serialization is delegated to these
             // marshallers.
 
-            bt = new BTree<K, V>( recMan, keyComparator, keySerializer, null );
+            bt = new BTree<>( recMan, keyComparator, keySerializer, null );
             recId = bt.getRecordId();
             recMan.setNamedObject( name, recId );
-            recId = recMan.insert( 0 );
-            recMan.setNamedObject( name + SZSUFFIX, recId );
         }
         else
         // Load existing BTree
         {
             bt = new BTree<K, V>().load( recMan, recId );
             ( ( SerializableComparator<K> ) bt.getComparator() ).setSchemaManager( schemaManager );
-            recId = recMan.getNamedObject( name + SZSUFFIX );
-            Object value = recMan.fetch( recId );
-
-            if ( value instanceof Integer )
-            {
-                count = ( ( Integer ) value ).longValue();
-            }
-            else
-            {
-                count = ( Long ) value;
-            }
+            
+            count = bt.size();
         }
     }
 
@@ -210,26 +190,14 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             bt = new BTree<K, V>().load( recMan, recId );
             ( ( SerializableComparator<K> ) bt.getComparator() ).setSchemaManager( schemaManager );
             bt.setValueSerializer( valueSerializer );
-            recId = recMan.getNamedObject( name + SZSUFFIX );
-
-            Object value = recMan.fetch( recId );
-
-            if ( value instanceof Integer )
-            {
-                count = ( ( Integer ) value ).longValue();
-            }
-            else
-            {
-                count = ( Long ) value;
-            }
+            
+            count = bt.size();
         }
         else
         {
             bt = new BTree<>( recMan, keyComparator, keySerializer, valueSerializer );
             recId = bt.getRecordId();
             recMan.setNamedObject( name, recId );
-            recId = recMan.insert( 0 );
-            recMan.setNamedObject( name + SZSUFFIX, recId );
         }
     }
 
@@ -238,7 +206,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     // Count Overloads
     // ------------------------------------------------------------------------
     /**
-     * @see org.apache.directory.server.xdbm.Table#count(java.lang.Object)
+     * {@inheritDoc}
      */
     @Override
     public long count( PartitionTxn transaction, K key ) throws LdapException
@@ -552,7 +520,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
      */
     @Override
     @SuppressWarnings("unchecked")
-    public synchronized void put( PartitionWriteTxn transaction, K key, V value ) throws LdapException
+    public synchronized void put( PartitionTxn transaction, K key, V value ) throws LdapException
     {
         try
         {
@@ -581,8 +549,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 {
                     LOG.debug( "<--- Add ONE {} = {}", name, key );
                 }
-
-                commit( recMan );
 
                 return;
             }
@@ -621,7 +587,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 }
 
                 count++;
-                commit( recMan );
 
                 return;
             }
@@ -638,8 +603,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
             {
                 LOG.debug( "<--- Add BTREE {} = {}", name, key );
             }
-
-            commit( recMan );
         }
         catch ( IOException | CursorException | LdapException e )
         {
@@ -654,20 +617,20 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
      */
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized void remove( PartitionWriteTxn transaction, K key, V value ) throws LdapException
+    public synchronized void remove( PartitionTxn transaction, K key, V value ) throws LdapException
     {
         try
         {
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( "---> Remove " + name + " = " + key + ", " + value );
+                LOG.debug( "---> Remove {} = {}, {}", name, key, value );
             }
 
             if ( key == null )
             {
                 if ( LOG.isDebugEnabled() )
                 {
-                    LOG.debug( "<--- Remove NULL key " + name );
+                    LOG.debug( "<--- Remove NULL key {}", name );
                 }
 
                 return;
@@ -685,12 +648,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
                     if ( LOG.isDebugEnabled() )
                     {
-                        LOG.debug( "<--- Remove ONE " + name + " = " + key + ", " + value );
+                        LOG.debug( "<--- Remove ONE {} = {}, {}", name, key, value );
                     }
-
-                    commit( recMan );
-
-                    return;
                 }
 
                 return;
@@ -718,12 +677,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
                     if ( LOG.isDebugEnabled() )
                     {
-                        LOG.debug( "<--- Remove AVL " + name + " = " + key + ", " + value );
+                        LOG.debug( "<--- Remove AVL {} = {}, {}", name, key, value );
                     }
-
-                    commit( recMan );
-
-                    return;
                 }
 
                 return;
@@ -749,12 +704,8 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
                 if ( LOG.isDebugEnabled() )
                 {
-                    LOG.debug( "<--- Remove BTREE " + name + " = " + key + ", " + value );
+                    LOG.debug( "<--- Remove BTREE {} = {}, {}", name, key, value );
                 }
-
-                commit( recMan );
-
-                return;
             }
         }
         catch ( Exception e )
@@ -768,7 +719,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public synchronized void remove( PartitionWriteTxn transaction, K key ) throws LdapException
+    public synchronized void remove( PartitionTxn transaction, K key ) throws LdapException
     {
         try
         {
@@ -803,8 +754,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                     LOG.debug( "<--- Remove ONE {} = {}", name, key );
                 }
 
-                commit( recMan );
-
                 return;
             }
 
@@ -822,10 +771,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
                 recMan.delete( tree.getRecordId() );
                 duplicateBtrees.remove( tree.getRecordId() );
-
-                commit( recMan );
-
-                return;
             }
             else
             {
@@ -836,10 +781,6 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
                 {
                     LOG.debug( "<--- Remove AVL {} = {}", name, key );
                 }
-
-                commit( recMan );
-
-                return;
             }
         }
         catch ( Exception e )
@@ -853,7 +794,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor( PartitionTxn transaction ) throws LdapException
+    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor()
     {
         if ( allowsDuplicates )
         {
@@ -868,8 +809,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor( PartitionTxn transaction, K key ) throws LdapException
+    public Cursor<org.apache.directory.api.ldap.model.cursor.Tuple<K, V>> cursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
         if ( key == null )
         {
@@ -956,53 +896,13 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     // ------------------------------------------------------------------------
     // Maintenance Operations 
     // ------------------------------------------------------------------------
-
     /**
-     * @see Table#close()
+     * {@inheritDoc}
      */
     @Override
     public synchronized void close( PartitionTxn transaction ) throws LdapException
     {
-        try
-        {
-            sync();
-        }
-        catch  ( IOException ioe )
-        {
-            throw new LdapOtherException( ioe.getMessage() );
-        }
-    }
-
-
-    /**
-     * Synchronizes the buffers with disk.
-     *
-     * @throws IOException if errors are encountered on the flush
-     */
-    public synchronized void sync() throws IOException
-    {
-        long recId = recMan.getNamedObject( name + SZSUFFIX );
-        recMan.update( recId, count );
-
-        // Commit
-        recMan.commit();
-
-        // And flush the journal
-        if ( ( commitNumber.get() % 2000 ) == 0 )
-        {
-            BaseRecordManager baseRecordManager = null;
-
-            if ( recMan instanceof CacheRecordManager )
-            {
-                baseRecordManager = ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() );
-            }
-            else
-            {
-                baseRecordManager = ( ( BaseRecordManager ) recMan );
-            }
-
-            baseRecordManager.getTransactionManager().synchronizeLog();
-        }
+        // Nothing to do
     }
 
 
@@ -1034,12 +934,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         DupsContainer<V> values = getDupsContainer( ( byte[] ) bt.find( key ) );
 
-        if ( values.isBTreeRedirect() )
-        {
-            return true;
-        }
-
-        return false;
+        return values.isBTreeRedirect();
     }
 
 
@@ -1047,14 +942,14 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     {
         if ( serialized == null )
         {
-            return new DupsContainer<V>( new ArrayTree<V>( valueComparator ) );
+            return new DupsContainer<>( new ArrayTree<V>( valueComparator ) );
         }
 
         if ( BTreeRedirectMarshaller.isRedirect( serialized ) )
         {
             try
             {
-                return new DupsContainer<V>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
+                return new DupsContainer<>( BTreeRedirectMarshaller.INSTANCE.deserialize( serialized ) );
             }
             catch ( IOException ioe )
             {
@@ -1065,7 +960,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         try
         {
-            return new DupsContainer<V>( marshaller.deserialize( serialized ) );
+            return new DupsContainer<>( marshaller.deserialize( serialized ) );
         }
         catch ( IOException ioe )
         {
@@ -1142,7 +1037,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
     @SuppressWarnings("unchecked")
     private ArrayTree<V> convertToArrayTree( BTree bTree ) throws IOException
     {
-        ArrayTree<V> avlTree = new ArrayTree<V>( valueComparator );
+        ArrayTree<V> avlTree = new ArrayTree<>( valueComparator );
         TupleBrowser browser = bTree.browse();
         jdbm.helper.Tuple tuple = new jdbm.helper.Tuple();
 
@@ -1161,37 +1056,23 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( valueSerializer != null )
         {
-            bTree = new BTree<V, K>( recMan, valueComparator, valueSerializer, null );
+            bTree = new BTree<>( recMan, valueComparator, valueSerializer, null );
         }
         else
         {
-            bTree = new BTree<V, K>( recMan, valueComparator );
+            bTree = new BTree<>( recMan, valueComparator );
         }
 
-        Cursor<V> keys = new ArrayTreeCursor<V>( arrayTree );
-        keys.beforeFirst();
-
-        while ( keys.next() )
+        try ( Cursor<V> keys = new ArrayTreeCursor<>( arrayTree ) )
         {
-            bTree.insert( keys.get(), ( K ) Strings.EMPTY_BYTES, true );
+            keys.beforeFirst();
+    
+            while ( keys.next() )
+            {
+                bTree.insert( keys.get(), ( K ) Strings.EMPTY_BYTES, true );
+            }
         }
-
-        keys.close();
 
         return bTree;
-    }
-
-
-    /**
-     * Commit the modification on disk
-     * 
-     * @param recordManager The recordManager used for the commit
-     */
-    private void commit( RecordManager recordManager ) throws IOException
-    {
-        if ( commitNumber.incrementAndGet() % 2000 == 0 )
-        {
-            sync();
-        }
     }
 }

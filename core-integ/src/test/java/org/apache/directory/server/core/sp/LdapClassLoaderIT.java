@@ -86,7 +86,7 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
         Class<?> clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully
-        assertEquals( clazz.getName(), "HelloWorld" );
+        assertEquals( "HelloWorld", clazz.getName() );
     }
 
 
@@ -136,6 +136,6 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
         Class<?> clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully
-        assertEquals( clazz.getName(), "HelloWorld" );
+        assertEquals( "HelloWorld", clazz.getName() );
     }
 }

@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Serialize and deserialize a Dn.
- * </br></br>
+ * <br><br>
  * <b>This class must *not* be used outside of the server.</b>
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -72,8 +72,6 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
 
     /**
      * Creates a new instance of DnSerializer.
-     * 
-     * @param schemaManager The reference to the global schemaManager
      */
     public DnSerializer()
     {
@@ -82,10 +80,10 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
 
 
     /**
-     * <p>
-     * 
      * This is the place where we serialize Dn
-     * <p>
+     * 
+     * @param dn The Dn to serialize
+     * @return The byte[] containing the serialized Dn
      */
     public byte[] serialize( Dn dn )
     {
@@ -102,7 +100,7 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialized " + dn );
+                LOG.debug( "Serialized {}", dn );
             }
 
             return baos.toByteArray();
@@ -117,7 +115,7 @@ public class DnSerializer extends AbstractElementSerializer<Dn>
     /**
      *  Deserialize a Dn.
      *  
-     *  @param bytes the byte array containing the serialized Dn
+     *  @param buffer the buffer containing the serialized Dn
      *  @return An instance of a Dn object 
      *  @throws IOException if we can't deserialize the Dn
      */

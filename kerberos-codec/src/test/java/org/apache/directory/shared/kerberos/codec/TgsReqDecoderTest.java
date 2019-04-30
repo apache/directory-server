@@ -53,7 +53,6 @@ public class TgsReqDecoderTest
     @Test
     public void testDecodeFullTgsReq() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x193 );
 
@@ -195,7 +194,7 @@ public class TgsReqDecoderTest
         // Decode the TgsReq PDU
         try
         {
-            kerberosDecoder.decode( stream, tgsReqContainer );
+            Asn1Decoder.decode( stream, tgsReqContainer );
         }
         catch ( DecoderException de )
         {
@@ -235,7 +234,6 @@ public class TgsReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeFullTgsReqBadMsgType() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x193 );
 
@@ -375,7 +373,7 @@ public class TgsReqDecoderTest
         TgsReqContainer tgsReqContainer = new TgsReqContainer( stream );
 
         // Decode the TgsReq PDU
-        kerberosDecoder.decode( stream, tgsReqContainer );
+        Asn1Decoder.decode( stream, tgsReqContainer );
         fail();
     }
 
@@ -386,7 +384,6 @@ public class TgsReqDecoderTest
     @Test(expected = DecoderException.class)
     public void testTgsReqEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -399,7 +396,7 @@ public class TgsReqDecoderTest
         Asn1Container tgsReqContainer = new TgsReqContainer( stream );
 
         // Decode the TGS-REQ PDU
-        kerberosDecoder.decode( stream, tgsReqContainer );
+        Asn1Decoder.decode( stream, tgsReqContainer );
         fail();
     }
 }

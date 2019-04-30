@@ -53,7 +53,7 @@ public class CramMd5MechanismHandler extends AbstractMechanismHandler
             String userBaseDn = ldapSession.getLdapServer().getSearchBaseDn();
             ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
             ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
-            Map<String, String> saslProps = new HashMap<String, String>();
+            Map<String, String> saslProps = new HashMap<>();
 
             CoreSession adminSession = ldapSession.getLdapServer().getDirectoryService().getAdminSession();
 

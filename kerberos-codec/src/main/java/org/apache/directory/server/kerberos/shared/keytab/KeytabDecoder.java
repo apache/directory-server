@@ -60,7 +60,7 @@ class KeytabDecoder
      */
     List<KeytabEntry> getKeytabEntries( ByteBuffer buffer ) throws IOException
     {
-        List<KeytabEntry> entries = new ArrayList<KeytabEntry>();
+        List<KeytabEntry> entries = new ArrayList<>();
 
         while ( buffer.remaining() > 0 )
         {
@@ -115,15 +115,15 @@ class KeytabDecoder
         // decrement for v1
         String realm = getCountedString( buffer );
 
-        StringBuffer principalNameBuffer = new StringBuffer();
+        StringBuilder principalNameBuffer = new StringBuilder();
 
-        for ( int ii = 0; ii < count; ii++ )
+        for ( int i = 0; i < count; i++ )
         {
             String nameComponent = getCountedString( buffer );
 
             principalNameBuffer.append( nameComponent );
 
-            if ( ii < count - 1 )
+            if ( i < count - 1 )
             {
                 principalNameBuffer.append( "/" );
             }
@@ -144,9 +144,8 @@ class KeytabDecoder
         byte[] keyblock = getCountedBytes( buffer );
 
         EncryptionType encryptionType = EncryptionType.getTypeByValue( type );
-        EncryptionKey key = new EncryptionKey( encryptionType, keyblock );
 
-        return key;
+        return new EncryptionKey( encryptionType, keyblock );
     }
 
 

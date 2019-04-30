@@ -48,7 +48,7 @@ public abstract class AbstractProtocolService implements ProtocolService
     private String serviceName;
 
     /** The service transports. We may have more than one */
-    protected Set<Transport> transports = new HashSet<Transport>();
+    protected Set<Transport> transports = new HashSet<>();
 
 
     /**

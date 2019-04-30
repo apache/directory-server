@@ -56,7 +56,7 @@ public enum ChangePasswordResultCode
 
     /** initial flag required */
     KRB5_KPASSWD_INITIAL_FLAG_NEEDED(7),
-    
+
     /** 0xFFFF(65535) is returned if the request fails for some other reason */
     OTHER(0xFFFF);
 
@@ -79,25 +79,35 @@ public enum ChangePasswordResultCode
     {
         switch ( code )
         {
-            case 0: return KRB5_KPASSWD_SUCCESS;
-            
-            case 1: return KRB5_KPASSWD_MALFORMED;
-            
-            case 2: return KRB5_KPASSWD_HARDERROR;
-            
-            case 3: return KRB5_KPASSWD_AUTHERROR;
-            
-            case 4: return KRB5_KPASSWD_SOFTERROR;
-            
-            case 5: return KRB5_KPASSWD_ACCESSDENIED;
-            
-            case 6: return KRB5_KPASSWD_BAD_VERSION;
-            
-            case 7: return KRB5_KPASSWD_INITIAL_FLAG_NEEDED;
-            
-            case 0xFFFF: return OTHER;
-            
-            default: throw new IllegalArgumentException( "Unknown result code " + code );
+            case 0:
+                return KRB5_KPASSWD_SUCCESS;
+
+            case 1:
+                return KRB5_KPASSWD_MALFORMED;
+
+            case 2:
+                return KRB5_KPASSWD_HARDERROR;
+
+            case 3:
+                return KRB5_KPASSWD_AUTHERROR;
+
+            case 4:
+                return KRB5_KPASSWD_SOFTERROR;
+
+            case 5:
+                return KRB5_KPASSWD_ACCESSDENIED;
+
+            case 6:
+                return KRB5_KPASSWD_BAD_VERSION;
+
+            case 7:
+                return KRB5_KPASSWD_INITIAL_FLAG_NEEDED;
+
+            case 0xFFFF:
+                return OTHER;
+
+            default:
+                throw new IllegalArgumentException( "Unknown result code " + code );
         }
     }
 
@@ -105,7 +115,7 @@ public enum ChangePasswordResultCode
     @Override
     public String toString()
     {
-        return super.toString() + "(" + getVal() +  ")";
+        return super.toString() + "(" + getVal() + ")";
     }
-    
+
 }

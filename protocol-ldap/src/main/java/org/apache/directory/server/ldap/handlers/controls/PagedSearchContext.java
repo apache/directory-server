@@ -64,6 +64,8 @@ public class PagedSearchContext
 
     /**
      * Creates a new instance of this class, storing the SearchRequest into it.
+     * 
+     * @param searchRequest The SearchRequest
      */
     public PagedSearchContext( SearchRequest searchRequest )
     {
@@ -118,7 +120,7 @@ public class PagedSearchContext
     private Set<String> buildAttributeSet( SearchRequest request,
         SchemaManager schemaManager )
     {
-        Set<String> requestSet = new HashSet<String>();
+        Set<String> requestSet = new HashSet<>();
 
         // Build the set of attributeType from the attributes
         for ( String attribute : request.getAttributes() )
@@ -151,6 +153,7 @@ public class PagedSearchContext
      * true if they are equal. We compare every field but the MessageID.
      *
      * @param request The new SearchRequest
+     * @param session The LdapSession in use
      * @return true if both request are equal.
      */
     public boolean hasSameRequest( SearchRequest request, LdapSession session )

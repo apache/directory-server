@@ -106,40 +106,40 @@ public interface AvlTree<K>
 
 
     /**
-     * Finds a LinkedAvlNode<K> whose key is higher than the given key.
+     * Finds a LinkedAvlNode whose key is higher than the given key.
      *
      * @param key the key
-     * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
+     * @return the LinkedAvlNode whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
     LinkedAvlNode<K> findGreater( K key );
 
 
     /**
-     * Finds a LinkedAvlNode<K> whose key is higher than the given key.
+     * Finds a LinkedAvlNode whose key is higher than the given key.
      *
      * @param key the key
-     * @return the LinkedAvlNode<K> whose key is greater than the given key ,<br>
+     * @return the LinkedAvlNode whose key is greater than the given key ,<br>
      *         null if there is no node with a higher key than the given key.
      */
     LinkedAvlNode<K> findGreaterOrEqual( K key );
 
 
     /**
-     * Finds a LinkedAvlNode<K> whose key is lower than the given key.
+     * Finds a LinkedAvlNode whose key is lower than the given key.
      *
      * @param key the key
-     * @return the LinkedAvlNode<K> whose key is lower than the given key ,<br>
+     * @return the LinkedAvlNode whose key is lower than the given key ,<br>
      *         null if there is no node with a lower key than the given key.
      */
     LinkedAvlNode<K> findLess( K key );
 
 
     /**
-     * Finds a LinkedAvlNode<K> whose key is lower than the given key.
+     * Finds a LinkedAvlNode whose key is lower than the given key.
      *
      * @param key the key
-     * @return the LinkedAvlNode<K> whose key is lower than the given key ,<br>
+     * @return the LinkedAvlNode whose key is lower than the given key ,<br>
      *         null if there is no node with a lower key than the given key.
      */
     LinkedAvlNode<K> findLessOrEqual( K key );

@@ -45,9 +45,11 @@ public interface TaggableSearchableChangeLogStore extends TaggableChangeLogStore
      * Note: This partition allows add/delete operation on the tags container
      *       The revisions container is read-only.<br><br>  
      * The default containers of the partition are
-     *    <li>ou=changelog</li>
-     *    <li>ou=tags,ou=changelog</li>
-     *    <li>ou=revisions,ou=changelog</li> 
+     * <ul>
+     *   <li>ou=changelog</li>
+     *   <li>ou=tags,ou=changelog</li>
+     *   <li>ou=revisions,ou=changelog</li>
+     *  </ul> 
      * 
      * @param partitionSuffix the suffix of the partition e.x ou=chnagelog
      * @param revContainerName the container's name for holding the revisions ex. ou=revisions

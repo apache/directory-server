@@ -107,7 +107,7 @@ public class DigestMd5MechanismHandler extends AbstractMechanismHandler
         ldapSession.putSaslProperty( SaslConstants.SASL_HOST, saslHost );
         ldapSession.putSaslProperty( SaslConstants.SASL_USER_BASE_DN, userBaseDn );
 
-        Map<String, String> saslProps = new HashMap<String, String>();
+        Map<String, String> saslProps = new HashMap<>();
         saslProps.put( Sasl.QOP, ldapSession.getLdapServer().getSaslQopString() );
         saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapSession.getLdapServer() ) );
         ldapSession.putSaslProperty( SaslConstants.SASL_PROPS, saslProps );

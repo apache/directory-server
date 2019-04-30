@@ -22,6 +22,7 @@ package org.apache.directory.server.ldap.handlers.request;
 
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ModifyResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.ldap.LdapSession;
@@ -44,26 +45,29 @@ public class ModifyRequestHandler extends LdapRequestHandler<ModifyRequest>
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, ModifyRequest req )
+    public void handle( LdapSession session, ModifyRequest modifyRequest )
     {
-        LOG.debug( "Handling request : {}", req );
-        LdapResult result = req.getResultResponse().getLdapResult();
+        LOG.debug( "Handling request : {}", modifyRequest );
+        
+        ModifyResponse modifyResponse = ( ModifyResponse ) modifyRequest.getResultResponse();
+        
+        LdapResult result = modifyResponse.getLdapResult();
 
         try
         {
             // Call the underlying layer to delete the entry
             CoreSession coreSession = session.getCoreSession();
-            coreSession.modify( req );
+            coreSession.modify( modifyRequest );
 
             // If success, here now, otherwise, we would have an exception.
             result.setResultCode( ResultCodeEnum.SUCCESS );
 
             // Write the DeleteResponse message
-            session.getIoSession().write( req.getResultResponse() );
+            session.getIoSession().write( modifyResponse );
         }
         catch ( Exception e )
         {
-            handleException( session, req, e );
+            handleException( session, modifyRequest, modifyResponse, e );
         }
     }
 }

@@ -123,49 +123,49 @@ public class KrbCredInfo implements Asn1Object
      * 0x30 L1 KrbCredInfo SEQ tag
      *  |
      *  |
-     *  +--> 0xA0 L2 key tag
+     *  +--&gt; 0xA0 L2 key tag
      *  |     |
-     *  |     +--> 0x30 L2-2 key
+     *  |     +--&gt; 0x30 L2-2 key
      *  |
-     *  +--> [0xA1 L3 prealm tag
+     *  +--&gt; [0xA1 L3 prealm tag
      *  |      |
-     *  |      +--> 0x1B L3-2 prealm]
+     *  |      +--&gt; 0x1B L3-2 prealm]
      *  |
-     *  +--> [0xA2 L4 pname tag
+     *  +--&gt; [0xA2 L4 pname tag
      *  |      |
-     *  |      +--> 0x30 L4-2 pname]
+     *  |      +--&gt; 0x30 L4-2 pname]
      *  |
-     *  +--> [0xA3 L5 flags tag
+     *  +--&gt; [0xA3 L5 flags tag
      *  |      |
-     *  |      +--> 0x02 L5-2 flags]
+     *  |      +--&gt; 0x02 L5-2 flags]
      *  |
-     *  +--> [0xA4 0x11 authtime tag
+     *  +--&gt; [0xA4 0x11 authtime tag
      *  |      |
-     *  |      +--> 0x18 0x1F authtime]
+     *  |      +--&gt; 0x18 0x1F authtime]
      *  |
-     *  +--> [0xA5 0x11 starttime tag
+     *  +--&gt; [0xA5 0x11 starttime tag
      *  |      |
-     *  |      +--> 0x18 0x1F starttime]
+     *  |      +--&gt; 0x18 0x1F starttime]
      *  |
-     *  +--> [0xA6 0x11 endtime tag
+     *  +--&gt; [0xA6 0x11 endtime tag
      *  |      |
-     *  |      +--> 0x18 0x1F endtime]
+     *  |      +--&gt; 0x18 0x1F endtime]
      *  |
-     *  +--> [0xA7 0x11 renew-till tag
+     *  +--&gt; [0xA7 0x11 renew-till tag
      *  |      |
-     *  |      +--> 0x18 0x1F renew-till]
+     *  |      +--&gt; 0x18 0x1F renew-till]
      *  |
-     *  +--> [0xA8 L6 srealm tag
+     *  +--&gt; [0xA8 L6 srealm tag
      *  |      |
-     *  |      +--> 0x1B L6-2 srealm]
+     *  |      +--&gt; 0x1B L6-2 srealm]
      *  |
-     *  +--> [0xA9 L7 sname tag
+     *  +--&gt; [0xA9 L7 sname tag
      *  |      |
-     *  |      +--> 0x30 L7-2 sname]
+     *  |      +--&gt; 0x30 L7-2 sname]
      *  |
-     *  +--> [0xAA L8 caddr tag
+     *  +--&gt; [0xAA L8 caddr tag
      *         |
-     *         +--> 0x30 L8-2 caddr 
+     *         +--&gt; 0x30 L8-2 caddr 
      * </pre>
      */
     @Override
@@ -374,7 +374,7 @@ public class KrbCredInfo implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "KrbCredInfo encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbCredInfo initial value : {}", toString() );
+            log.debug( "KrbCredInfo initial value : {}", this );
         }
 
         return buffer;

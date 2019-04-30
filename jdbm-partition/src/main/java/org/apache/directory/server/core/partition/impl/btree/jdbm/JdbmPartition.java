@@ -29,23 +29,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import jdbm.RecordManager;
-import jdbm.helper.MRU;
-import jdbm.recman.BaseRecordManager;
-import jdbm.recman.CacheRecordManager;
-import jdbm.recman.TransactionManager;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -64,6 +58,9 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.core.api.partition.PartitionWriteTxn;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.Index;
@@ -75,6 +72,15 @@ import org.apache.directory.server.xdbm.search.impl.EvaluatorBuilder;
 import org.apache.directory.server.xdbm.search.impl.NoOpOptimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
+import jdbm.RecordManager;
+import jdbm.helper.MRU;
+import jdbm.recman.BaseRecordManager;
+import jdbm.recman.CacheRecordManager;
+import jdbm.recman.TransactionManager;
 
 
 /**
@@ -104,11 +110,14 @@ public class JdbmPartition extends AbstractBTreePartition
     private RecordManager recMan;
 
     /** the entry cache */
-    private Cache entryCache;
+    private Cache< String, Entry > entryCache;
 
 
     /**
      * Creates a store based on JDBM B+Trees.
+     * 
+     * @param schemaManager The SchemaManager instance
+     * @param dnFactory The DN factory instance
      */
     public JdbmPartition( SchemaManager schemaManager, DnFactory dnFactory )
     {
@@ -130,7 +139,7 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * Rebuild the indexes 
      */
-    private int rebuildIndexes() throws Exception
+    private int rebuildIndexes( PartitionTxn partitionTxn ) throws LdapException, IOException
     {
         Cursor<Tuple<String, Entry>> cursor = getMasterTable().cursor();
 
@@ -172,7 +181,7 @@ public class JdbmPartition extends AbstractBTreePartition
                 }
 
                 // Inject the parentIdAndRdn in the rdnIndex
-                rdnIdx.add( parentIdAndRdn, id );
+                rdnIdx.add( partitionTxn, parentIdAndRdn, id );
                 
                 // Process the ObjectClass index
                 // Update the ObjectClass index
@@ -187,21 +196,21 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 for ( Value value : objectClass )
                 {
-                    String valueStr = value.getValue();
+                    String valueStr = value.getString();
 
                     if ( valueStr.equals( SchemaConstants.TOP_OC ) )
                     {
                         continue;
                     }
 
-                    objectClassIdx.add( valueStr, id );
+                    objectClassIdx.add( partitionTxn, valueStr, id );
                 }
                 
                 // The Alias indexes
                 if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
                 {
                     Attribute aliasAttr = entry.get( aliasedObjectNameAT );
-                    addAliasIndices( id, dn, new Dn( schemaManager, aliasAttr.getString() ) );
+                    addAliasIndices( partitionTxn, id, dn, new Dn( schemaManager, aliasAttr.getString() ) );
                 }
                 
                 // The entryCSN index
@@ -214,7 +223,7 @@ public class JdbmPartition extends AbstractBTreePartition
                     throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
                 }
 
-                entryCsnIdx.add( entryCsn.getString(), id );
+                entryCsnIdx.add( partitionTxn, entryCsn.getString(), id );
 
                 // The AdministrativeRole index
                 // Update the AdministrativeRole index, if needed
@@ -225,11 +234,11 @@ public class JdbmPartition extends AbstractBTreePartition
 
                     for ( Value value : adminRoles )
                     {
-                        adminRoleIdx.add( value.getValue(), id );
+                        adminRoleIdx.add( partitionTxn, value.getString(), id );
                     }
 
                     // Adds only those attributes that are indexed
-                    presenceIdx.add( administrativeRoleAT.getOid(), id );
+                    presenceIdx.add( partitionTxn, administrativeRoleAT.getOid(), id );
                 }
 
                 // And the user indexess
@@ -248,11 +257,11 @@ public class JdbmPartition extends AbstractBTreePartition
 
                         for ( Value value : attribute )
                         {
-                            idx.add( value.getValue(), id );
+                            idx.add( partitionTxn, value.getString(), id );
                         }
 
                         // Adds only those attributes that are indexed
-                        presenceIdx.add( attributeOid, id );
+                        presenceIdx.add( partitionTxn, attributeOid, id );
                     }
                 }
             }
@@ -260,9 +269,8 @@ public class JdbmPartition extends AbstractBTreePartition
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             System.out.println( "Exiting after fetching entries " + repaired );
-            throw e;
+            throw new LdapOtherException( e.getMessage(), e );
         }
         finally
         {
@@ -276,7 +284,7 @@ public class JdbmPartition extends AbstractBTreePartition
     /**
      * Update the children and descendant counters in the RDN index
      */
-    private void updateRdnIndexCounters() throws Exception
+    private void updateRdnIndexCounters( PartitionTxn partitionTxn ) throws LdapException, IOException
     {
         Cursor<Tuple<String, Entry>> cursor = getMasterTable().cursor();
 
@@ -296,15 +304,14 @@ public class JdbmPartition extends AbstractBTreePartition
                 
                 if ( parentId != Partition.ROOT_ID )
                 {
-                    updateRdnIdx( parentId, ADD_CHILD, 0 );
+                    updateRdnIdx( partitionTxn, parentId, ADD_CHILD, 0 );
                 }
             }
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
             System.out.println( "Exiting, wasn't able to update the RDN index counters" );
-            throw e;
+            throw new LdapOtherException( e.getMessage(), e );
         }
         finally
         {
@@ -317,8 +324,21 @@ public class JdbmPartition extends AbstractBTreePartition
      * {@inheritDoc}
      */
     @Override
-    protected void doRepair() throws Exception
+    protected void doRepair() throws LdapException
     {
+        BaseRecordManager base;
+
+        try
+        {
+            base = new BaseRecordManager( getPartitionPath().getPath() );
+            TransactionManager transactionManager = base.getTransactionManager();
+            transactionManager.setMaximumTransactionsInLog( 2000 );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
+
         // Find the underlying directories
         File partitionDir = new File( getPartitionPath() );
         
@@ -328,51 +348,59 @@ public class JdbmPartition extends AbstractBTreePartition
         // then add all index objects to a list
         List<String> allIndices = new ArrayList<>();
 
-        // Iterate on the declared indexes, deleting the old ones
-        for ( Index<?, String> index : getIndexedAttributes() )
+        try
         {
-            // Index won't be initialized at this time, so lookup AT registry to get the OID
-            AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
-            String oid = indexAT.getOid();
-            allIndices.add( oid );
-            
-            // take the part after removing .db from the
-            String name = oid + JDBM_DB_FILE_EXTN;
-            
-            // if the name doesn't exist in the list of index DB files
-            // this is a new index and we need to build it
-            if ( indexDbFileNameList.contains( name ) )
+            // Iterate on the declared indexes, deleting the old ones
+            for ( Index<?, String> index : getIndexedAttributes() )
             {
-                ( ( JdbmIndex<?> ) index ).close();
+                // Index won't be initialized at this time, so lookup AT registry to get the OID
+                AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
+                String oid = indexAT.getOid();
+                allIndices.add( oid );
                 
-                File indexFile = new File( partitionDir, name );
-                indexFile.delete();
+                // take the part after removing .db from the
+                String name = oid + JDBM_DB_FILE_EXTN;
                 
-                // Recreate the index
-                ( ( JdbmIndex<?> ) index ).init( schemaManager, indexAT );
+                // if the name doesn't exist in the list of index DB files
+                // this is a new index and we need to build it
+                if ( indexDbFileNameList.contains( name ) )
+                {
+                    ( ( JdbmIndex<?> ) index ).close( null );
+                    
+                    File indexFile = new File( partitionDir, name );
+                    indexFile.delete();
+                    
+                    // Recreate the index
+                    ( ( JdbmIndex<?> ) index ).init( base, schemaManager, indexAT );
+                }
             }
+            // Ok, now, rebuild the indexes.
+            int masterTableCount = rebuildIndexes( null );
+            
+            // Now that the RdnIndex has been rebuilt, we have to update the nbChildren and nbDescendants values
+            // We loop again on the MasterTable 
+            updateRdnIndexCounters( null );
+
+            // Flush the indexes on disk
+            sync();
+
+            System.out.println( "Total entries present in the partition " + masterTableCount );
+            System.out.println( "Repair complete" );
         }
-
-        // Ok, now, rebuild the indexes.
-        int masterTableCount = rebuildIndexes();
-        
-        // Now that the RdnIndex has been rebuilt, we have to update the nbChildren and nbDescendants values
-        // We loop again on the MasterTable 
-        updateRdnIndexCounters();
-        
-        // Flush the indexes on disk
-        sync();
-
-        System.out.println( "Total entries present in the partition " + masterTableCount );
-        System.out.println( "Repair complete" );
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
     }
 
 
     @Override
-    protected void doInit() throws Exception
+    protected void doInit() throws LdapException
     {
         if ( !initialized )
         {
+            BaseRecordManager base;
+
             // setup optimizer and registries for parent
             if ( !optimizerEnabled )
             {
@@ -380,7 +408,7 @@ public class JdbmPartition extends AbstractBTreePartition
             }
             else
             {
-                setOptimizer( new DefaultOptimizer<Entry>( this ) );
+                setOptimizer( new DefaultOptimizer( this ) );
             }
 
             EvaluatorBuilder evaluatorBuilder = new EvaluatorBuilder( this, schemaManager );
@@ -390,11 +418,65 @@ public class JdbmPartition extends AbstractBTreePartition
 
             // Create the underlying directories (only if needed)
             File partitionDir = new File( getPartitionPath() );
+            
             if ( !partitionDir.exists() && !partitionDir.mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, partitionDir ) );
+                throw new LdapOtherException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, partitionDir ) );
             }
 
+            // First, check if the file storing the data exists
+            String path = partitionDir.getPath() + File.separator + id;
+
+            try
+            {
+                base = new BaseRecordManager( path );
+                TransactionManager transactionManager = base.getTransactionManager();
+                transactionManager.setMaximumTransactionsInLog( 2000 );
+                
+                // prevent the OOM when more than 50k users are loaded at a stretch
+                // adding this system property to make it configurable till JDBM gets replaced by Mavibot
+                String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "100" );
+                
+                int recCacheSize = Integer.parseInt( cacheSizeVal );
+                
+                LOG.info( "Setting CacheRecondManager's cache size to {}", recCacheSize );
+                
+                recMan = new CacheRecordManager( base, new MRU( recCacheSize ) );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+
+            // Iterate on the declared indexes
+            List<String> allIndices = new ArrayList<>();
+            List<Index<?, String>> indexToBuild = new ArrayList<>();
+
+            for ( Index<?, String> index : getIndexedAttributes() )
+            {
+                String oid = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ).getOid();
+                allIndices.add( oid );
+                
+                // if the name doesn't exist in the database
+                // this is a new index and we need to build it
+                try
+                {
+                    // Check the forward index only (we suppose we never will add a reverse index later on)
+                    String forwardIndex = oid + "_forward";
+                    
+                    if ( recMan.getNamedObject( forwardIndex ) == 0 )
+                    {
+                        // The index does not exist in the database, we need to build it
+                        indexToBuild.add( index );
+                    }
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
+            }
+
+            /*
             // get all index db files first
             File[] allIndexDbFiles = partitionDir.listFiles( DB_FILTER );
 
@@ -423,16 +505,10 @@ public class JdbmPartition extends AbstractBTreePartition
                     indexToBuild.add( index );
                 }
             }
+            */
 
             // Initialize the indexes
             super.doInit();
-
-            // First, check if the file storing the data exists
-            String path = partitionDir.getPath() + File.separator + "master";
-
-            BaseRecordManager base = new BaseRecordManager( path );
-            TransactionManager transactionManager = base.getTransactionManager();
-            transactionManager.setMaximumTransactionsInLog( 2000 );
 
             if ( cacheSize < 0 )
             {
@@ -444,37 +520,22 @@ public class JdbmPartition extends AbstractBTreePartition
                 LOG.debug( "Using the custom configured cache size of {} for {} partition", cacheSize, id );
             }
 
-            // prevent the OOM when more than 50k users are loaded at a stretch
-            // adding this system property to make it configurable till JDBM gets replaced by Mavibot
-            String cacheSizeVal = System.getProperty( "jdbm.recman.cache.size", "100" );
-            
-            int recCacheSize = Integer.parseInt( cacheSizeVal );
-            
-            LOG.info( "Setting CacheRecondManager's cache size to {}", recCacheSize );
-            
-            recMan = new CacheRecordManager( base, new MRU( recCacheSize ) );
-
             // Create the master table (the table containing all the entries)
-            master = new JdbmMasterTable( recMan, schemaManager );
+            try
+            {
+                master = new JdbmMasterTable( recMan, schemaManager );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
 
             if ( !indexToBuild.isEmpty() )
             {
-                buildUserIndex( indexToBuild );
+                buildUserIndex( beginReadTransaction(), indexToBuild );
             }
 
-            deleteUnusedIndexFiles( allIndices, allIndexDbFiles );
-
-            if ( cacheService != null )
-            {
-                entryCache = cacheService.getCache( getId() );
-
-                int cacheSizeConfig = ( int ) entryCache.getCacheConfiguration().getMaxEntriesLocalHeap();
-
-                if ( cacheSizeConfig < cacheSize )
-                {
-                    entryCache.getCacheConfiguration().setMaxEntriesLocalHeap( cacheSize );
-                }
-            }
+            entryCache = Caffeine.newBuilder().maximumSize( cacheSize ).build();
 
             // Initialization of the context entry
             if ( ( suffixDn != null ) && ( contextEntry != null ) )
@@ -491,7 +552,19 @@ public class JdbmPartition extends AbstractBTreePartition
                 if ( suffixDn.equals( contextEntryDn ) )
                 {
                     // Looking for the current context entry
-                    Entry suffixEntry = lookup( new LookupOperationContext( null, suffixDn ) );
+                    Entry suffixEntry;
+                    LookupOperationContext lookupContext = new LookupOperationContext( null, suffixDn );
+                    lookupContext.setPartition( this );
+                    
+                    try ( PartitionTxn partitionTxn = beginReadTransaction() )
+                    {
+                        lookupContext.setTransaction( partitionTxn );
+                        suffixEntry = lookup( lookupContext );
+                    }
+                    catch ( IOException ioe )
+                    {
+                        throw new LdapOtherException( ioe.getMessage(), ioe );
+                    }
 
                     // We're only adding the context entry if it doesn't already exist
                     if ( suffixEntry == null )
@@ -518,7 +591,46 @@ public class JdbmPartition extends AbstractBTreePartition
                         }
 
                         // And add this entry to the underlying partition
-                        add( new AddOperationContext( null, contextEntry ) );
+                        PartitionTxn partitionTxn = null;
+                        AddOperationContext addContext = new AddOperationContext( null, contextEntry );
+                        
+                        try
+                        {
+                            partitionTxn = beginWriteTransaction();
+                            addContext.setTransaction( partitionTxn );
+
+                            add( addContext );
+                            partitionTxn.commit();
+                        }
+                        catch ( LdapException le )
+                        {
+                            if ( partitionTxn != null )
+                            {
+                                try
+                                { 
+                                    partitionTxn.abort();
+                                }
+                                catch ( IOException ioe )
+                                {
+                                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                                }
+                            }
+                            
+                            throw le;
+                        }
+                        catch ( IOException ioe )
+                        {
+                            try
+                            { 
+                                partitionTxn.abort();
+                            }
+                            catch ( IOException ioe2 )
+                            {
+                                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+                            }
+
+                            throw new LdapOtherException( ioe.getMessage(), ioe );
+                        }
                     }
                 }
             }
@@ -551,30 +663,39 @@ public class JdbmPartition extends AbstractBTreePartition
      * This method is called when the synch thread is waking up, to write
      * the modified data.
      * 
-     * @throws Exception on failures to sync database files to disk
+     * @throws LdapException on failures to sync database files to disk
      */
     @Override
-    public synchronized void sync() throws Exception
+    public synchronized void sync() throws LdapException
     {
         if ( !initialized )
         {
             return;
         }
-
-        // Sync all system indices
-        for ( Index<?, String> idx : systemIndices.values() )
-        {
-            idx.sync();
-        }
-
-        // Sync all user defined userIndices
-        for ( Index<?, String> idx : userIndices.values() )
-        {
-            idx.sync();
-        }
         
-        // Sync the master table
-        ( ( JdbmMasterTable ) master ).sync();
+        try
+        {
+            // Commit
+            recMan.commit();
+    
+            // And flush the journal
+            BaseRecordManager baseRecordManager = null;
+    
+            if ( recMan instanceof CacheRecordManager )
+            {
+                baseRecordManager = ( ( BaseRecordManager ) ( ( CacheRecordManager ) recMan ).getRecordManager() );
+            }
+            else
+            {
+                baseRecordManager = ( ( BaseRecordManager ) recMan );
+            }
+    
+            baseRecordManager.getTransactionManager().synchronizeLog();
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
     }
 
 
@@ -588,48 +709,55 @@ public class JdbmPartition extends AbstractBTreePartition
      * @param indices then selected indexes that need to be built
      * @throws Exception in case of any problems while building the index
      */
-    private void buildUserIndex( List<Index<?, String>> indices ) throws Exception
+    private void buildUserIndex( PartitionTxn partitionTxn, List<Index<?, String>> indices ) throws LdapException
     {
-        Cursor<Tuple<String, Entry>> cursor = master.cursor();
-        cursor.beforeFirst();
-
-        while ( cursor.next() )
+        try
         {
-            for ( Index index : indices )
+            Cursor<Tuple<String, Entry>> cursor = master.cursor();
+            cursor.beforeFirst();
+    
+            while ( cursor.next() )
             {
-                AttributeType atType = index.getAttribute();
-
-                String attributeOid = index.getAttribute().getOid();
-
-                if ( systemIndices.get( attributeOid ) != null )
+                for ( Index index : indices )
                 {
-                    // skipping building of the system index
-                    continue;
-                }
-                
-                LOG.info( "building the index for attribute type {}", atType );
-
-                Tuple<String, Entry> tuple = cursor.get();
-
-                String id = tuple.getKey();
-                Entry entry = tuple.getValue();
-
-                Attribute entryAttr = entry.get( atType );
-
-                if ( entryAttr != null )
-                {
-                    for ( Value value : entryAttr )
+                    AttributeType atType = index.getAttribute();
+    
+                    String attributeOid = index.getAttribute().getOid();
+    
+                    if ( systemIndices.get( attributeOid ) != null )
                     {
-                        index.add( value.getValue(), id );
+                        // skipping building of the system index
+                        continue;
                     }
-
-                    // Adds only those attributes that are indexed
-                    presenceIdx.add( attributeOid, id );
+                    
+                    LOG.info( "building the index for attribute type {}", atType );
+    
+                    Tuple<String, Entry> tuple = cursor.get();
+    
+                    String id = tuple.getKey();
+                    Entry entry = tuple.getValue();
+    
+                    Attribute entryAttr = entry.get( atType );
+    
+                    if ( entryAttr != null )
+                    {
+                        for ( Value value : entryAttr )
+                        {
+                            index.add( partitionTxn, value.getString(), id );
+                        }
+    
+                        // Adds only those attributes that are indexed
+                        presenceIdx.add( partitionTxn, attributeOid, id );
+                    }
                 }
             }
+    
+            cursor.close();
         }
-
-        cursor.close();
+        catch ( CursorException | IOException e )
+        {
+            throw new LdapOtherException( e.getMessage(), e );
+        }
     }
 
 
@@ -659,24 +787,6 @@ public class JdbmPartition extends AbstractBTreePartition
                 if ( deleted )
                 {
                     LOG.info( "Deleted unused index file {}", file.getAbsolutePath() );
-
-                    try
-                    {
-                        String atName = schemaManager.lookupAttributeTypeRegistry( name ).getName();
-                        File txtFile = new File( file.getParent(), name + "-" + atName + ".txt" );
-
-                        deleted = txtFile.delete();
-
-                        if ( !deleted )
-                        {
-                            LOG.info( "couldn't delete the index name helper file {}", txtFile );
-                        }
-                    }
-                    catch ( Exception e )
-                    {
-                        LOG.warn( "couldn't find the attribute's name with oid {}", name );
-                        LOG.warn( "", e );
-                    }
                 }
                 else
                 {
@@ -691,7 +801,7 @@ public class JdbmPartition extends AbstractBTreePartition
      * {@inheritDoc}
      */
     @Override
-    protected Index<?, String> convertAndInit( Index<?, String> index ) throws Exception
+    protected Index<?, String> convertAndInit( Index<?, String> index ) throws LdapException
     {
         JdbmIndex<?> jdbmIndex;
 
@@ -706,11 +816,6 @@ public class JdbmPartition extends AbstractBTreePartition
         else if ( index instanceof JdbmIndex<?> )
         {
             jdbmIndex = ( JdbmIndex<?> ) index;
-
-            if ( jdbmIndex.getWkDirPath() == null )
-            {
-                jdbmIndex.setWkDirPath( partitionPath );
-            }
         }
         else
         {
@@ -719,10 +824,16 @@ public class JdbmPartition extends AbstractBTreePartition
             jdbmIndex = new JdbmIndex( index.getAttributeId(), true );
             jdbmIndex.setCacheSize( index.getCacheSize() );
             jdbmIndex.setNumDupLimit( JdbmIndex.DEFAULT_DUPLICATE_LIMIT );
-            jdbmIndex.setWkDirPath( index.getWkDirPath() );
         }
 
-        jdbmIndex.init( schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
+        try
+        {
+            jdbmIndex.init( recMan, schemaManager, schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ) );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         return jdbmIndex;
     }
@@ -732,7 +843,7 @@ public class JdbmPartition extends AbstractBTreePartition
      * {@inheritDoc}
      */
     @Override
-    protected synchronized void doDestroy() throws Exception
+    protected synchronized void doDestroy( PartitionTxn partitionTxn ) throws LdapException
     {
         MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
 
@@ -743,7 +854,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
         try
         {
-            super.doDestroy();
+            super.doDestroy( partitionTxn );
         }
         catch ( Exception e )
         {
@@ -765,13 +876,13 @@ public class JdbmPartition extends AbstractBTreePartition
         {
             if ( entryCache != null )
             {
-                entryCache.removeAll();
+                entryCache.invalidateAll();
             }
         }
 
         if ( errors.size() > 0 )
         {
-            throw errors;
+            throw new LdapOtherException( errors.getMessage(), errors );
         }
     }
 
@@ -780,7 +891,7 @@ public class JdbmPartition extends AbstractBTreePartition
      * {@inheritDoc}
      */
     @Override
-    protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws Exception
+    protected final Index createSystemIndex( String oid, URI path, boolean withReverse ) throws LdapException
     {
         LOG.debug( "Supplied index {} is not a JdbmIndex.  "
             + "Will create new JdbmIndex using copied configuration parameters." );
@@ -832,20 +943,20 @@ public class JdbmPartition extends AbstractBTreePartition
                     entry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
                 }
 
-                entryCache.replace( new Element( id, entry ) );
+                entryCache.put( id, entry );
             }
             else if ( ( opCtx instanceof MoveOperationContext )
                 || ( opCtx instanceof MoveAndRenameOperationContext )
                 || ( opCtx instanceof RenameOperationContext ) )
             {
                 // clear the cache it is not worth updating all the children
-                entryCache.removeAll();
+                entryCache.invalidateAll();
             }
             else if ( opCtx instanceof DeleteOperationContext )
             {
                 // delete the entry
                 DeleteOperationContext delCtx = ( DeleteOperationContext ) opCtx;
-                entryCache.remove( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
+                entryCache.invalidate( delCtx.getEntry().get( SchemaConstants.ENTRY_UUID_AT ).getString() );
             }
         }
         catch ( LdapException e )
@@ -858,19 +969,7 @@ public class JdbmPartition extends AbstractBTreePartition
     @Override
     public Entry lookupCache( String id )
     {
-        if ( entryCache == null )
-        {
-            return null;
-        }
-
-        Element el = entryCache.get( id );
-
-        if ( el != null )
-        {
-            return ( Entry ) el.getObjectValue();
-        }
-
-        return null;
+        return ( entryCache != null ) ? entryCache.getIfPresent( id ) : null;
     }
 
 
@@ -889,7 +988,20 @@ public class JdbmPartition extends AbstractBTreePartition
             addedEntry = ( ( ClonedServerEntry ) entry ).getOriginalEntry();
         }
 
-        entryCache.put( new Element( id, addedEntry ) );
+        entryCache.put( id, addedEntry );
     }
 
+
+    @Override
+    public PartitionReadTxn beginReadTransaction()
+    {
+        return new PartitionReadTxn();
+    }
+
+
+    @Override
+    public PartitionWriteTxn beginWriteTransaction()
+    {
+        return new JdbmPartitionWriteTxn( recMan, isSyncOnWrite() );
+    }
 }

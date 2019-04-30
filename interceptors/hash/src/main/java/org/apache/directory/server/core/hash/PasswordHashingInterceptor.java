@@ -58,6 +58,7 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
      * incoming non-hashed password using the given algorithm.
      * If the password is found already hashed then it will skip hashing it.
      * 
+     * @param name The instance's name
      * @param algorithm the name of the algorithm to be used
      */
     protected PasswordHashingInterceptor( String name, LdapSecurityConstants algorithm )
@@ -151,7 +152,7 @@ public abstract class PasswordHashingInterceptor extends BaseInterceptor
         // Special case : deal with a potential empty value. We may have more than one
         for ( Value userPassword : pwdAt )
         {
-            if ( Strings.isEmpty( userPassword.getValue() ) )
+            if ( Strings.isEmpty( userPassword.getString() ) )
             {
                 continue;
             }

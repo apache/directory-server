@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Serialize and deserialize a ParentidAndRdn.
- * </br></br>
+ * <br><br>
  * <b>This class must *not* be used outside of the server.</b>
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -83,7 +83,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
 
 
     /**
-     * This is the place where we serialize ParentIdAndRdn. The format is the following :<br/>
+     * This is the place where we serialize ParentIdAndRdn. The format is the following :<br>
      * <ul>
      * <li>length</li>
      * <li>the RDN</li>
@@ -114,14 +114,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
                     // First, the Dn
                     Rdn[] rdns;
 
-                    try
-                    {
-                        rdns = parentIdAndRdn.getRdns();
-                    }
-                    catch ( NullPointerException npe )
-                    {
-                        throw npe;
-                    }
+                    rdns = parentIdAndRdn.getRdns();
 
                     // Write the Rdn of the Dn
                     // The number of RDN (we may have more than one)
@@ -153,7 +146,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
                     if ( IS_DEBUG )
                     {
                         LOG.debug( ">------------------------------------------------" );
-                        LOG.debug( "Serialize " + parentIdAndRdn );
+                        LOG.debug( "Serialize {}", parentIdAndRdn );
                     }
 
 
@@ -183,7 +176,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
     /**
      *  Deserialize a ParentIdAndRdn.
      *  
-     *  @param bytes the byte array containing the serialized ParentIdAndRdn
+     *  @param bufferHandler The buffer containing the serialized ParentIdAndRdn
      *  @return An instance of a ParentIdAndRdn object 
      *  @throws IOException if we can't deserialize the ParentIdAndRdn
      */
@@ -196,9 +189,7 @@ public class MavibotParentIdAndRdnSerializer extends AbstractElementSerializer<P
     @Override
     public ParentIdAndRdn deserialize( ByteBuffer buffer ) throws IOException
     {
-        ParentIdAndRdn parentIdAndRdn = fromBytes( buffer.array(), buffer.position() );
-
-        return parentIdAndRdn;
+        return fromBytes( buffer.array(), buffer.position() );
     }
 
 

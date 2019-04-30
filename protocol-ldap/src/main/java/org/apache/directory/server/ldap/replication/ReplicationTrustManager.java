@@ -56,7 +56,7 @@ public final class ReplicationTrustManager implements X509TrustManager
     /** the internal trust manager used for verifying the certificates */
     private static X509TrustManager trustManager = null;
 
-    /** the in-memory keystore in JKS format */
+    /** the in-memory keystore */
     private static KeyStore ks;
 
     /** the X509 certificate parser */
@@ -65,6 +65,18 @@ public final class ReplicationTrustManager implements X509TrustManager
     /** the singleton instance of this trust manager */
     private static final ReplicationTrustManager INSTANCE = new ReplicationTrustManager();
 
+    static
+    {
+        try
+        {
+            ks = KeyStore.getInstance( KeyStore.getDefaultType() );
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "failed to initialize the keystore and X509 trustmanager", e );
+            throw new RuntimeException( e );
+        }
+    }
 
     /**
      * Creates a instance of ReplicationTrustManager
@@ -73,7 +85,6 @@ public final class ReplicationTrustManager implements X509TrustManager
     {
         try
         {
-            ks = KeyStore.getInstance( "JKS" );
             ks.load( null, null ); // initiate with null stream and password, this keystore resides in-memory only
 
             TrustManagerFactory tmFactory = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );

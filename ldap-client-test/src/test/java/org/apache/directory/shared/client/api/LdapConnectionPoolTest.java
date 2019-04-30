@@ -21,12 +21,13 @@ package org.apache.directory.shared.client.api;
 
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.pool.PoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -69,13 +70,11 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
      */
     private class ConnectionThread extends Thread
     {
-        int threadNumber;
         CountDownLatch counter;
 
 
-        public ConnectionThread( int threadNumber, CountDownLatch counter )
+        public ConnectionThread( CountDownLatch counter )
         {
-            this.threadNumber = threadNumber;
             this.counter = counter;
         }
 
@@ -98,7 +97,7 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
             }
             catch ( Exception e )
             {
-                // Do nothing
+                throw new RuntimeException( e );
             }
         }
     }
@@ -114,10 +113,10 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setLdapPort( port );
         config.setName( DEFAULT_ADMIN );
         config.setCredentials( DEFAULT_PASSWORD );
-        PoolableObjectFactory<LdapConnection> factory = new ValidatingPoolableLdapConnectionFactory( config );
+        PooledObjectFactory<LdapConnection> factory = new ValidatingPoolableLdapConnectionFactory( config );
         pool = new LdapConnectionPool( factory );
         pool.setTestOnBorrow( true );
-        pool.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_GROW );
+        pool.setBlockWhenExhausted( !GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
     }
 
 
@@ -132,24 +131,45 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
      * Test the creation of many connections
      */
     @Test
-    public void testManyConnections() throws Exception
+    public void testManyConnectionsUnlimited() throws Exception
     {
-        CountDownLatch counter = new CountDownLatch( 10000 );
+        pool.setMaxTotal( -1 );
+        pool.setBlockWhenExhausted( false );
 
-        long t0 = System.currentTimeMillis();
+        CountDownLatch counter = new CountDownLatch( 10000 );
 
         for ( int i = 0; i < 100; i++ )
         {
-            ConnectionThread thread = new ConnectionThread( i, counter );
+            ConnectionThread thread = new ConnectionThread( counter );
 
             thread.start();
         }
 
         boolean result = counter.await( 100, TimeUnit.SECONDS );
+        assertTrue( result );
+    }
 
-        long t1 = System.currentTimeMillis();
 
-//        System.out.println( "Time to create and use 10 000 connections = " + ( t1 - t0 ) );
+    /**
+     * Test the creation of many connections
+     */
+    @Test
+    public void testManyConnectionsBlocking() throws Exception
+    {
+        pool.setMaxTotal( 10 );
+        pool.setBlockWhenExhausted( true );
+
+        CountDownLatch counter = new CountDownLatch( 10000 );
+
+        for ( int i = 0; i < 100; i++ )
+        {
+            ConnectionThread thread = new ConnectionThread( counter );
+
+            thread.start();
+        }
+
+        boolean result = counter.await( 100, TimeUnit.SECONDS );
+        assertTrue( result );
     }
 
 
@@ -238,14 +258,16 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         config.setCredentials( DEFAULT_PASSWORD );
         ValidatingPoolableLdapConnectionFactory factory = new ValidatingPoolableLdapConnectionFactory( config );
         LdapConnectionPool pool = new LdapConnectionPool( factory );
-        pool.setMaxActive( 1 );
+        pool.setMaxTotal( 1 );
         pool.setTestOnBorrow( true );
-        pool.setWhenExhaustedAction( GenericObjectPool.WHEN_EXHAUSTED_FAIL );
+        pool.setBlockWhenExhausted( GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
 
         for ( int i = 0; i < 100; i++ )
         {
             LdapConnection connection = pool.getConnection();
             pool.releaseConnection( connection );
         }
+
+        pool.close();
     }
 }

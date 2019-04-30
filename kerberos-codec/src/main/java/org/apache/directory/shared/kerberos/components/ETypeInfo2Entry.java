@@ -140,7 +140,7 @@ public class ETypeInfo2Entry implements Asn1Object
 
 
     /**
-     * @param encryptionType the encryptionType to set
+     * @param etype the encryptionType to set
      */
     public void setEType( EncryptionType etype )
     {
@@ -155,17 +155,17 @@ public class ETypeInfo2Entry implements Asn1Object
      * 
      * 0x30 L1 ETYPE-INFO2-ENTRY sequence
      *  |
-     *  +--> 0xA0 L2 etype tag
+     *  +--&gt; 0xA0 L2 etype tag
      *  |     |
-     *  |     +--> 0x02 L2-1etype (int)
+     *  |     +--&gt; 0x02 L2-1etype (int)
      *  |
-     *  +--> 0xA1 L3 salt tag
+     *  +--&gt; 0xA1 L3 salt tag
      *  |     |
-     *  |     +--> 0x1B L3-1 salt (KerberosString)
+     *  |     +--&gt; 0x1B L3-1 salt (KerberosString)
      *  |
-     *  +--> 0xA2 L4 s2kparams tag
+     *  +--&gt; 0xA2 L4 s2kparams tag
      *        |
-     *        +--> 0x04 L4-1 salt (OCTET STRING)
+     *        +--&gt; 0x04 L4-1 salt (OCTET STRING)
      *        
      *  where L1 = L2 + length(0xA0) + length(L2) +
      *             L3 + length(0xA1) + length(L3) +
@@ -268,7 +268,7 @@ public class ETypeInfo2Entry implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "ETYPE-INFO2-ENTRY encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "ETYPE-INFO2-ENTRY initial value : {}", toString() );
+            LOG.debug( "ETYPE-INFO2-ENTRY initial value : {}", this );
         }
 
         return buffer;

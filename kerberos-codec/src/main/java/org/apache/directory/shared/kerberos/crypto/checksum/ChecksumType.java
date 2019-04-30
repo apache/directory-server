@@ -113,6 +113,16 @@ public enum ChecksumType implements Comparable<ChecksumType>
     HMAC_SHA1_96_AES256(16, "hmac-sha1-96-aes256"),
 
     /**
+     * The hmac-sha256-128-aes128 checksum type (RFC8009).
+     */
+    HMAC_SHA256_128_AES128(19, "hmac-sha256-128-aes128"),
+
+    /**
+     * The hmac-sha384-192-aes256 checksum type (RFC8009).
+     */
+    HMAC_SHA384_192_AES256(20, "hmac-sha384-192-aes256"),
+
+    /**
      * The hmac-md5 checksum type (RFC4757).
      */
     HMAC_MD5(-138, "hmac-md5");
@@ -182,6 +192,10 @@ public enum ChecksumType implements Comparable<ChecksumType>
                 return HMAC_SHA1_96_AES128;
             case 16:
                 return HMAC_SHA1_96_AES256;
+            case 19:
+                return HMAC_SHA256_128_AES128;
+            case 20:
+                return HMAC_SHA384_192_AES256;
             case -138:
                 return HMAC_MD5;
             default:
@@ -215,6 +229,7 @@ public enum ChecksumType implements Comparable<ChecksumType>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return getName() + " (" + value + ")";

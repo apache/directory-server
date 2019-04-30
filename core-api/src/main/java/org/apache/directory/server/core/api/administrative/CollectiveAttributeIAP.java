@@ -66,6 +66,7 @@ public class CollectiveAttributeIAP extends CollectiveAttributeAdministrativePoi
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "CollectiveAttribute IAP : " + super.toString();

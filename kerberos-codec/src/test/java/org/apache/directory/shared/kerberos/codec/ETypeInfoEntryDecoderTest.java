@@ -52,7 +52,6 @@ public class ETypeInfoEntryDecoderTest
     @Test
     public void testDecodeETypeInfoEntry()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0F );
 
@@ -80,7 +79,7 @@ public class ETypeInfoEntryDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException de )
         {
@@ -120,7 +119,6 @@ public class ETypeInfoEntryDecoderTest
     @Test
     public void testDecodeETypeInfoEntryNoSalt()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
@@ -140,7 +138,7 @@ public class ETypeInfoEntryDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException de )
         {
@@ -180,7 +178,6 @@ public class ETypeInfoEntryDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeETypeInfoEntryEmptySalt() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
@@ -199,7 +196,7 @@ public class ETypeInfoEntryDecoderTest
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -210,7 +207,6 @@ public class ETypeInfoEntryDecoderTest
     @Test
     public void testDecodeETypeInfoEntryNullSalt()
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
@@ -233,7 +229,7 @@ public class ETypeInfoEntryDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException de )
         {
@@ -287,7 +283,6 @@ public class ETypeInfoEntryDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEmptyETypeInforEntry() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -300,7 +295,7 @@ public class ETypeInfoEntryDecoderTest
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -312,7 +307,6 @@ public class ETypeInfoEntryDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEmptyETypeInfoEntryNoEType() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -327,7 +321,7 @@ public class ETypeInfoEntryDecoderTest
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -339,7 +333,6 @@ public class ETypeInfoEntryDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEmptyETypeInfoEntryEmptyEType() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -353,7 +346,7 @@ public class ETypeInfoEntryDecoderTest
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -365,7 +358,6 @@ public class ETypeInfoEntryDecoderTest
     @Test(expected = DecoderException.class)
     public void testDecodeEmptyETypeInfoEntryEmptyETypeTag() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -380,7 +372,7 @@ public class ETypeInfoEntryDecoderTest
 
         ETypeInfoEntryContainer container = new ETypeInfoEntryContainer();
 
-        krbDecoder.decode( stream, container );
+        Asn1Decoder.decode( stream, container );
         fail();
     }
 
@@ -392,7 +384,6 @@ public class ETypeInfoEntryDecoderTest
     @Test
     public void testDecodeEmptyETypeInfoEntryBadEType() throws DecoderException
     {
-        Asn1Decoder krbDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
 
@@ -409,7 +400,7 @@ public class ETypeInfoEntryDecoderTest
 
         try
         {
-            krbDecoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException de )
         {

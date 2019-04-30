@@ -146,8 +146,8 @@ class SortedEntryComparator implements Comparator<Entry>, Serializable
 
             if ( hr )
             {
-                o1 = v1.getValue();
-                o2 = v2.getValue();
+                o1 = v1.getString();
+                o2 = v2.getString();
             }
             else
             {

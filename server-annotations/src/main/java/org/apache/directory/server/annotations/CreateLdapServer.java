@@ -49,59 +49,61 @@ import org.apache.directory.server.factory.DefaultLdapServerFactory;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateLdapServer
 {
-    /** The instance name */
+    /** @return The instance name */
     String name() default "DefaultLdapServer";
 
 
-    /** The transports to use, default to LDAP */
+    /** @return The transports to use, default to LDAP */
     CreateTransport[] transports() default
         {};
 
 
-    /** The LdapServer factory */
+    /** @return The LdapServer factory */
     Class<?> factory() default DefaultLdapServerFactory.class;
 
 
-    /** The maximum size limit.*/
+    /** @return The maximum size limit.*/
     long maxSizeLimit() default 1000;
 
 
-    /** The maximum time limit. */
+    /** @return The maximum time limit. */
     int maxTimeLimit() default 1000;
 
 
-    /** Tells if anonymous access are allowed or not. */
+    /** @return Tells if anonymous access are allowed or not. */
     boolean allowAnonymousAccess() default false;
 
 
-    /** The external keyStore file to use, default to the empty string */
+    /** @return The external keyStore file to use, default to the empty string */
     String keyStore() default "";
 
 
-    /** The certificate password in base64, default to the empty string */
+    /** @return The certificate password in base64, default to the empty string */
     String certificatePassword() default "";
 
 
-    /** name of the classes implementing extended operations */
+    /** @return name of the classes implementing extended operations */
     Class<?>[] extendedOpHandlers() default
         {};
 
 
-    /** supported set of SASL mechanisms */
+    /** @return supported set of SASL mechanisms */
     SaslMechanism[] saslMechanisms() default
         {};
 
 
-    /** NTLM provider class, default value is a invalid class */
+    /** @return NTLM provider class, default value is a invalid class */
     Class<?> ntlmProvider() default Object.class;
 
 
-    /** The name of this host, validated during SASL negotiation. */
+    /** @return The name of this host, validated during SASL negotiation. */
     String saslHost() default "ldap.example.com";
     
-    /** The name of this host, validated during SASL negotiation. */
+    
+    /** @return The name of this host, validated during SASL negotiation. */
     String[] saslRealms() default {"example.com"};
     
-    /** The service principal, used by GSSAPI. */
+    
+    /** @return The service principal, used by GSSAPI. */
     String saslPrincipal() default "ldap/ldap.example.com@EXAMPLE.COM";
 }

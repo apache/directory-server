@@ -85,6 +85,7 @@ public abstract class IndexBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -100,6 +101,7 @@ public abstract class IndexBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

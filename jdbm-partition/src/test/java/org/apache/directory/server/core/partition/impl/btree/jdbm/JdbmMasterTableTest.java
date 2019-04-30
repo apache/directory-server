@@ -36,6 +36,8 @@ import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +59,7 @@ public class JdbmMasterTableTest
     File dbFile;
     RecordManager recman;
     SchemaManager schemaManager = null;
-
+    private PartitionTxn partitionTxn;
 
     public JdbmMasterTableTest() throws Exception
     {
@@ -103,7 +105,10 @@ public class JdbmMasterTableTest
         LOG.debug( "Created new table and populated it with data" );
 
         JdbmMasterTable t2 = new JdbmMasterTable( recman, schemaManager );
-        t2.close();
+        
+        partitionTxn = new MockPartitionReadTxn();
+        
+        t2.close( partitionTxn );
     }
 
 
@@ -112,7 +117,7 @@ public class JdbmMasterTableTest
     {
         if ( table != null )
         {
-            table.close();
+            table.close( partitionTxn );
         }
 
         table = null;
@@ -140,7 +145,7 @@ public class JdbmMasterTableTest
     @Test
     public void testAll() throws Exception
     {
-        assertNull( table.get( Strings.getUUID( 0L ) ) );
-        assertEquals( 0, table.count() );
+        assertNull( table.get( partitionTxn, Strings.getUUID( 0L ) ) );
+        assertEquals( 0, table.count( partitionTxn ) );
     }
 }

@@ -59,6 +59,8 @@ public class PartitionSearchResult
 
     /**
      * Create a PartitionSearchResult instance
+     * 
+     * @param schemaManager The SchemaManager instance
      */
     public PartitionSearchResult( SchemaManager schemaManager )
     {
@@ -76,11 +78,11 @@ public class PartitionSearchResult
 
 
     /**
-     * @param resultSet the resultSet to set
+     * @param set the resultSet to set
      */
     public void setResultSet( Set<IndexEntry<String, String>> set )
     {
-        resultSet = new SetCursor<IndexEntry<String, String>>( set );
+        resultSet = new SetCursor<>( set );
     }
 
 
@@ -94,7 +96,7 @@ public class PartitionSearchResult
 
 
     /**
-     * @param candidateSet the candidateSet to set
+     * @param set the candidateSet to set
      */
     public void setCandidateSet( Set<String> set )
     {

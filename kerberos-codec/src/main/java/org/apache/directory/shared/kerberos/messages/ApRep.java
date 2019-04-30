@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * AP-REP          ::= [APPLICATION 15] SEQUENCE {
  *         pvno            [0] INTEGER (5),
  *         msg-type        [1] INTEGER (15),
- *         enc-part        [2] <EncryptedData> -- EncAPRepPart
+ *         enc-part        [2] &lt;EncryptedData&gt; -- EncAPRepPart
  * }
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -105,19 +105,19 @@ public class ApRep extends KerberosMessage
      * 
      * 0x6F L1 AP-REP message
      *  |
-     *  +--> 0x30 L2 
+     *  +--&gt; 0x30 L2 
      *        |
-     *        +--> 0xA0 0x03 
+     *        +--&gt; 0xA0 0x03 
      *        |     |
-     *        |     +--> 0x02 0x01 0x05 pvno
+     *        |     +--&gt; 0x02 0x01 0x05 pvno
      *        |
-     *        +--> 0xA1 0x03
+     *        +--&gt; 0xA1 0x03
      *        |     |
-     *        |     +--> 0x02 0x01 0x0E msg-type
+     *        |     +--&gt; 0x02 0x01 0x0E msg-type
      *        |
-     *        +--> 0xA2 L3
+     *        +--&gt; 0xA2 L3
      *              |
-     *              +--> 0x30 L3-1 enc-part
+     *              +--&gt; 0x30 L3-1 enc-part
      *         
      * </pre>
      */
@@ -202,7 +202,7 @@ public class ApRep extends KerberosMessage
         if ( IS_DEBUG )
         {
             LOG.debug( "AP-REP encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "AP-REP initial value : {}", toString() );
+            LOG.debug( "AP-REP initial value : {}", this );
         }
 
         return buffer;

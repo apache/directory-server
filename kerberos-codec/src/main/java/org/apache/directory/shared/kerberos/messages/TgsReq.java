@@ -33,7 +33,7 @@ import org.apache.directory.shared.kerberos.components.KdcReq;
  * TGS-REQ message. It's just a KDC-REQ message with a message type set to 12.
  *  It will store the object described by the ASN.1 grammar :
  * <pre>
- * TGS-REQ         ::= [APPLICATION 12] <KDC-REQ>
+ * TGS-REQ         ::= [APPLICATION 12] &lt;KDC-REQ&gt;
  * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -60,9 +60,10 @@ public class TgsReq extends KdcReq
      * 
      * 0x6A L1 TGS-REQ message
      *  |
-     *  +-->  0x30 L2 KDC-REQ sequence
+     *  +--&gt;  0x30 L2 KDC-REQ sequence
      * </pre>
      */
+    @Override
     public int computeLength()
     {
         kdcReqLength = 0;
@@ -82,6 +83,7 @@ public class TgsReq extends KdcReq
      * @return The encoded component
      * @throws EncoderException If the encoding failed
      */
+    @Override
     public ByteBuffer encode( ByteBuffer buffer ) throws EncoderException
     {
         if ( buffer == null )

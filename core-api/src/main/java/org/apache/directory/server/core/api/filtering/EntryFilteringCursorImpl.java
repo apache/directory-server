@@ -86,8 +86,8 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
      * single filter initially: more can be added later after creation.
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
-     * @param searchControls the controls of search that created this Cursor
-     * @param invocation the search operation invocation creating this Cursor
+     * @param schemaManager The SchemaManager instance
+     * @param operationContext The OperationContext instance
      * @param filter a single filter to be used
      */
     public EntryFilteringCursorImpl( Cursor<Entry> wrapped,
@@ -102,9 +102,8 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
      * no filter initially: more can be added later after creation.
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
-     * @param searchControls the controls of search that created this Cursor
-     * @param invocation the search operation invocation creating this Cursor
-     * @param filter a single filter to be used
+     * @param operationContext The OperationContext instance
+     * @param schemaManager The SchemaManager instance
      */
     public EntryFilteringCursorImpl( Cursor<Entry> wrapped, SearchOperationContext operationContext,
         SchemaManager schemaManager )
@@ -116,7 +115,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
 
         this.wrapped = wrapped;
         this.operationContext = operationContext;
-        this.filters = new ArrayList<EntryFilter>();
+        this.filters = new ArrayList<>();
         this.schemaManager = schemaManager;
     }
 
@@ -127,7 +126,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
      * 
      * @param wrapped the underlying wrapped Cursor whose entries are filtered
      * @param operationContext the operation context that created this Cursor
-     * @param invocation the search operation invocation creating this Cursor
+     * @param schemaManager The SchemaManager instance
      * @param filters a list of filters to be used
      */
     public EntryFilteringCursorImpl( Cursor<Entry> wrapped,
@@ -142,7 +141,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
 
         this.wrapped = wrapped;
         this.operationContext = operationContext;
-        this.filters = new ArrayList<EntryFilter>();
+        this.filters = new ArrayList<>();
         this.filters.addAll( filters );
         this.schemaManager = schemaManager;
     }
@@ -578,7 +577,7 @@ public class EntryFilteringCursorImpl extends AbstractCursor<Entry> implements E
             sb.append( tabs ).append( "BaseEntryFilteringCursor, no wrapped\n" );
         }
 
-        if ( ( filters != null ) && ( filters.size() > 0 ) )
+        if ( ( filters != null ) && !filters.isEmpty() )
         {
             sb.append( tabs ).append( "Filters : \n" );
 

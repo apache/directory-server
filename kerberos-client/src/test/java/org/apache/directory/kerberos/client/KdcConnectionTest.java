@@ -221,7 +221,7 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
     public void testGetServiceTicket() throws Exception
     {
         ServiceTicket rep = conn.getServiceTicket( principalName, userPassword, serverPrincipal );
-        System.out.println( rep );
+        //System.out.println( rep );
         assertNotNull( rep );
     }
     
@@ -233,7 +233,7 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
     	kinit.setCredCacheFile( ccFile );
     	
     	kinit.kinit(principalName, userPassword);
-    	System.out.println( "Kinit generated file " + ccFile.getAbsolutePath() );
+    	//System.out.println( "Kinit generated file " + ccFile.getAbsolutePath() );
     	
     	CredentialsCache credCache = CredentialsCache.load( ccFile );    	
         assertNotNull( credCache );
@@ -259,7 +259,7 @@ public class KdcConnectionTest extends AbstractLdapTestUnit
         }
         catch( KerberosException e )
         {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         
         TgTicket tgt = conn.getTgt( principal, newPassword );

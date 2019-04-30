@@ -40,14 +40,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SynchronizationInfoEnum;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValueImpl;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueDecorator;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValueImpl;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValueImpl;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SynchronizationInfoEnum;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -65,8 +65,6 @@ import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
-import org.apache.directory.api.ldap.model.message.IntermediateResponse;
-import org.apache.directory.api.ldap.model.message.IntermediateResponseImpl;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ReferralImpl;
 import org.apache.directory.api.ldap.model.message.Response;
@@ -82,7 +80,7 @@ import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaIT;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
 import org.apache.directory.api.ldap.model.message.controls.SortRequest;
-import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.url.LdapUrl;
@@ -97,6 +95,7 @@ import org.apache.directory.server.core.api.interceptor.context.DeleteOperationC
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapProtocolUtils;
 import org.apache.directory.server.ldap.LdapServer;
@@ -133,7 +132,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /** The CSN AttributeType instance */
     private AttributeType csnAT;
 
-    private Map<Integer, ReplicaEventLog> replicaLogMap = new ConcurrentHashMap<Integer, ReplicaEventLog>();
+    private Map<Integer, ReplicaEventLog> replicaLogMap = new ConcurrentHashMap<>();
 
     private File syncReplData;
 
@@ -195,12 +194,9 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             // Get and create the replication directory if it does not exist
             syncReplData = dirService.getInstanceLayout().getReplDirectory();
 
-            if ( !syncReplData.exists() )
+            if ( !syncReplData.exists() && !syncReplData.mkdirs() )
             {
-                if ( !syncReplData.mkdirs() )
-                {
-                    throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, syncReplData ) );
-                }
+                throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, syncReplData ) );
             }
 
             // Create the replication manager
@@ -268,7 +264,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         {
             try
             {
-                PROVIDER_LOG.debug( "Stopping the logging for replica ", log.getId() );
+                PROVIDER_LOG.debug( "Stopping the logging for replica {}", log.getId() );
                 evtSrv.removeListener( log.getPersistentListener() );
                 log.stop();
             }
@@ -453,18 +449,14 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( refreshNPersist )
             {
-                IntermediateResponse intermResp = new IntermediateResponseImpl( req.getMessageId() );
-                intermResp.setResponseName( SyncInfoValue.OID );
-
-                SyncInfoValue syncInfo = new SyncInfoValueDecorator( ldapServer.getDirectoryService()
-                    .getLdapCodecService(),
-                    SynchronizationInfoEnum.NEW_COOKIE );
-                syncInfo.setCookie( cookie );
-                intermResp.setResponseValue( ( ( SyncInfoValueDecorator ) syncInfo ).getValue() );
+                SyncInfoValue syncInfoValue = new SyncInfoValueImpl();
+                syncInfoValue.setSyncInfoValueType( SynchronizationInfoEnum.NEW_COOKIE );
+                syncInfoValue.setMessageId( req.getMessageId() );
+                syncInfoValue.setCookie( cookie );
 
                 PROVIDER_LOG.debug( "Sent the intermediate response to the {} consumer, {}", replicaLog.getId(),
-                    intermResp );
-                session.getIoSession().write( intermResp );
+                    syncInfoValue );
+                session.getIoSession().write( syncInfoValue );
 
                 replicaLog.getPersistentListener().setPushInRealTime( refreshNPersist );
             }
@@ -472,8 +464,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             {
                 SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
                 searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-                SyncDoneValue syncDone = new SyncDoneValueDecorator(
-                    ldapServer.getDirectoryService().getLdapCodecService() );
+                SyncDoneValue syncDone = new SyncDoneValueImpl();
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
 
@@ -506,10 +497,10 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
             .debug( "Adding sort control to sort the entries by entryDn attribute to preserve order of insertion" );
         SortKey sk = new SortKey( SchemaConstants.ENTRY_DN_AT );
         // matchingrule for "entryDn"
-        sk.setMatchingRuleId( "2.5.13.1" );
+        sk.setMatchingRuleId( SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID );
         sk.setReverseOrder( true );
 
-        ctrl = new SortRequestControlImpl();
+        ctrl = new SortRequestImpl();
         ctrl.addSortKey( sk );
 
         request.addControl( ctrl );
@@ -521,13 +512,23 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         ExprNode modifiedFilter = modifyFilter( session, request );
 
         Partition partition = dirService.getPartitionNexus().getPartition( request.getBase() );
-        String contextCsn = partition.getContextCsn();
+        String contextCsn;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            contextCsn = partition.getContextCsn( partitionTxn );
+        }
 
         boolean refreshNPersist = isRefreshNPersist( request );
 
         // first register a ReplicaEventLog before starting the initial content refresh
         // this is to log all the operations happen on DIT during initial content refresh
-        ReplicaEventLog replicaLog = createReplicaEventLog( hostName, originalFilter );
+        ReplicaEventLog replicaLog = null;
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        {
+            replicaLog = createReplicaEventLog( partitionTxn, hostName, originalFilter );
+        }
 
         replicaLog.setRefreshNPersist( refreshNPersist );
         Value contexCsnValue = new Value( dirService.getAtProvider().getEntryCSN(), contextCsn );
@@ -586,17 +587,15 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
                 byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), replicaLog.getLastSentCsn() );
 
-                IntermediateResponse intermResp = new IntermediateResponseImpl( request.getMessageId() );
-                intermResp.setResponseName( SyncInfoValue.OID );
+                SyncInfoValue syncInfoValue = new SyncInfoValueImpl();
+                syncInfoValue.setSyncInfoValueType( SynchronizationInfoEnum.NEW_COOKIE );
+                syncInfoValue.setMessageId( request.getMessageId() );
+                syncInfoValue.setCookie( cookie );
 
-                SyncInfoValue syncInfo = new SyncInfoValueDecorator(
-                    ldapServer.getDirectoryService().getLdapCodecService(), SynchronizationInfoEnum.NEW_COOKIE );
-                syncInfo.setCookie( cookie );
-                intermResp.setResponseValue( ( ( SyncInfoValueDecorator ) syncInfo ).getValue() );
+                PROVIDER_LOG.info( "Sending the intermediate response to consumer {}, {}", 
+                    replicaLog, syncInfoValue );
 
-                PROVIDER_LOG.info( "Sending the intermediate response to consumer {}, {}", replicaLog, syncInfo );
-
-                session.getIoSession().write( intermResp );
+                session.getIoSession().write( syncInfoValue );
 
                 // switch the handler mode to realtime push
                 replicationListener.setPushInRealTime( refreshNPersist );
@@ -608,8 +607,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 byte[] cookie = LdapProtocolUtils.createCookie( replicaLog.getId(), contextCsn );
 
                 // no need to send from the log, that will be done in the next refreshOnly session
-                SyncDoneValue syncDone = new SyncDoneValueDecorator(
-                    ldapServer.getDirectoryService().getLdapCodecService() );
+                SyncDoneValue syncDone = new SyncDoneValueImpl();
                 syncDone.setCookie( cookie );
                 searchDoneResp.addControl( syncDone );
                 PROVIDER_LOG.info( "Sending the searchResultDone response to consumer {}, {}", replicaLog,
@@ -763,8 +761,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         Attribute uuid = entry.get( SchemaConstants.ENTRY_UUID_AT );
 
         // Create the SyncState control
-        SyncStateValue syncStateControl = new SyncStateValueDecorator(
-            ldapServer.getDirectoryService().getLdapCodecService() );
+        SyncStateValue syncStateControl = new SyncStateValueImpl();
         syncStateControl.setSyncStateType( syncStateType );
         syncStateControl.setEntryUUID( Strings.uuidToBytes( uuid.getString() ) );
 
@@ -800,7 +797,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             for ( Value val : ref )
             {
-                String url = val.getValue();
+                String url = val.getString();
 
                 if ( !url.startsWith( "ldap" ) )
                 {
@@ -981,10 +978,8 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
     private EqualityNode<String> newIsReferralEqualityNode( LdapSession session ) throws Exception
     {
-        EqualityNode<String> ocIsReferral = new EqualityNode<String>( SchemaConstants.OBJECT_CLASS_AT, 
-            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ).getValue() );
-
-        return ocIsReferral;
+        return new EqualityNode<>( SchemaConstants.OBJECT_CLASS_AT, 
+            new Value( objectClassAT, SchemaConstants.REFERRAL_OC ).getString() );
     }
 
 
@@ -1023,7 +1018,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
         try
         {
             List<ReplicaEventLog> eventLogs = replicaUtil.getReplicaEventLogs();
-            Set<String> eventLogNames = new HashSet<String>();
+            Set<String> eventLogNames = new HashSet<>();
 
             if ( !eventLogs.isEmpty() )
             {
@@ -1094,7 +1089,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
      */
     private Runnable createConsumerInfoUpdateTask( final CountDownLatch latch )
     {
-        Runnable task = new Runnable()
+        return new Runnable()
         {
             public void run()
             {
@@ -1115,15 +1110,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 }
             }
         };
-
-        return task;
     }
 
 
     /**
      * Get the Replica event log from the replica ID found in the cookie
      */
-    private ReplicaEventLog getReplicaEventLog( String cookieString ) throws Exception
+    private ReplicaEventLog getReplicaEventLog( String cookieString )
     {
         ReplicaEventLog replicaLog = null;
 
@@ -1140,13 +1133,13 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /**
      * Create a new ReplicaEventLog. Each replica will have a unique ID, created by the provider.
      */
-    private ReplicaEventLog createReplicaEventLog( String hostName, String filter ) throws Exception
+    private ReplicaEventLog createReplicaEventLog( PartitionTxn partitionTxn, String hostName, String filter ) throws Exception
     {
         int replicaId = replicaCount.incrementAndGet();
 
         PROVIDER_LOG.debug( "creating a new event log for the replica with id {}", replicaId );
 
-        ReplicaEventLog replicaLog = new ReplicaEventLog( dirService, replicaId );
+        ReplicaEventLog replicaLog = new ReplicaEventLog( partitionTxn, dirService, replicaId );
         replicaLog.setHostName( hostName );
         replicaLog.setSearchFilter( filter );
 
@@ -1157,12 +1150,11 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /**
      * Send an error response to he consue r: it has to send a SYNC_REFRESH request first.
      */
-    private void sendESyncRefreshRequired( LdapSession session, SearchRequest req ) throws Exception
+    private void sendESyncRefreshRequired( LdapSession session, SearchRequest req )
     {
         SearchResultDone searchDoneResp = ( SearchResultDone ) req.getResultResponse();
         searchDoneResp.getLdapResult().setResultCode( ResultCodeEnum.E_SYNC_REFRESH_REQUIRED );
-        SyncDoneValue syncDone = new SyncDoneValueDecorator(
-            ldapServer.getDirectoryService().getLdapCodecService() );
+        SyncDoneValue syncDone = new SyncDoneValueImpl();
         searchDoneResp.addControl( syncDone );
 
         session.getIoSession().write( searchDoneResp );

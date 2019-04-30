@@ -57,30 +57,21 @@ public class StoreTicketInfo extends GrammarAction<EncKrbCredPartContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // decoder for KrbCredInfo
-        Asn1Decoder decoder = new Asn1Decoder();
-
         // KrbCredInfo container
         KrbCredInfoContainer ticketInfoContainer = new KrbCredInfoContainer();
         ticketInfoContainer.setStream( encKrbCredPartContainer.getStream() );
 
         encKrbCredPartContainer.rewind();
 
-        try
-        {
-            // decode KrbCredInfo
-            decoder.decode( encKrbCredPartContainer.getStream(), ticketInfoContainer );
-        }
-        catch ( DecoderException e )
-        {
-            throw e;
-        }
+        // decode KrbCredInfo
+        Asn1Decoder.decode( encKrbCredPartContainer.getStream(), ticketInfoContainer );
 
         KrbCredInfo ticketInfo = ticketInfoContainer.getKrbCredInfo();
         // add KrbCredInfo to the list of ticket-info

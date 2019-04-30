@@ -50,7 +50,6 @@ public class EncKrbPrivPartDecoderTest
     @Test
     public void testDecodeEncKrbPrivPart() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x49;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -135,7 +134,7 @@ public class EncKrbPrivPartDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -178,7 +177,6 @@ public class EncKrbPrivPartDecoderTest
     @Test
     public void testDecodeEncKrbPrivPartWithoutTimestamp() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x36;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -245,7 +243,7 @@ public class EncKrbPrivPartDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -287,7 +285,6 @@ public class EncKrbPrivPartDecoderTest
     @Test
     public void testDecodeEncKrbPrivPartWithoutTimestampAndUsec() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x31;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -349,7 +346,7 @@ public class EncKrbPrivPartDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -391,7 +388,6 @@ public class EncKrbPrivPartDecoderTest
     @Test
     public void testDecodeEncKrbPrivPartWithoutTimestampUsecAndSeqNumber() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x2C;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -448,7 +444,7 @@ public class EncKrbPrivPartDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -491,7 +487,6 @@ public class EncKrbPrivPartDecoderTest
     @Test
     public void testDecodeEncKrbPrivPartWithoutSequenceNumber() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x44;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -572,7 +567,7 @@ public class EncKrbPrivPartDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -615,7 +610,6 @@ public class EncKrbPrivPartDecoderTest
     @Test
     public void testDecodeEncKrbPrivPartWithoutOptionalValues() throws Exception
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x1B;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -656,7 +650,7 @@ public class EncKrbPrivPartDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {

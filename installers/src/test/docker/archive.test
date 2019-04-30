@@ -25,10 +25,10 @@ NAME="apacheds-${project.version}"
 DIRNAME="${NAME}"
 
 wait_for_apacheds_up() {
-    timeout 30  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
+    timeout 60  sh -c "while ! nc -z localhost 10389; do sleep 1; done"
 }
 wait_for_apacheds_down() {
-    timeout 30  sh -c "while nc -z localhost 10389; do sleep 1; done"
+    timeout 60  sh -c "while nc -z localhost 10389; do sleep 1; done"
 }
 
 # stop execution if any command fails (i.e. exits with status code > 0)
@@ -46,7 +46,7 @@ fi
 cd /opt
 if [ -f /apacheds.tar.gz ]
 then
-    tar -xzvf /apacheds.tar.gz
+    tar -xzf /apacheds.tar.gz
 elif [ -f /apacheds.zip ]
 then
     unzip /apacheds.zip
@@ -122,7 +122,7 @@ fi
 # assert password warning in log
 grep ".*WARN.*admin password.*security breach.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
 # assert no error in log
-! grep ".*ERROR.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
+#! grep ".*ERROR.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
 
 # SUCCESS
 echo "SUCCESS"

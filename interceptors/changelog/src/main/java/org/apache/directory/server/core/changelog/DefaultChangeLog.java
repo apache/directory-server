@@ -339,7 +339,7 @@ public long getCurrentRevision() throws LdapException
      * Initialize the ChangeLog system. We will initialize the associated store.
      */
     @Override
-    public void init( DirectoryService service ) throws Exception
+    public void init( DirectoryService service ) throws LdapException
     {
         if ( enabled )
         {
@@ -373,7 +373,7 @@ public long getCurrentRevision() throws LdapException
      * {@inheritDoc}
      */
     @Override
-    public void sync() throws Exception
+    public void sync() throws LdapException
     {
         if ( enabled )
         {
@@ -386,7 +386,7 @@ public long getCurrentRevision() throws LdapException
      * {@inheritDoc}
      */
     @Override
-    public void destroy() throws Exception
+    public void destroy() throws LdapException
     {
         if ( enabled )
         {

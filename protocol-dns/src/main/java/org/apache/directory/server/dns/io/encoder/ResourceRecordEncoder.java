@@ -73,7 +73,7 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
 
 
     /**
-     * <domain-name> is a domain name represented as a series of labels, and
+     * &lt;domain-name&gt; is a domain name represented as a series of labels, and
      * terminated by a label with zero length.
      * 
      * @param byteBuffer the ByteBuffer to encode the domain name into
@@ -116,8 +116,8 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
 
 
     /**
-     * <character-string> is a single length octet followed by that number
-     * of characters.  <character-string> is treated as binary information,
+     * &lt;character-string&gt; is a single length octet followed by that number
+     * of characters.  &lt;character-string&gt; is treated as binary information,
      * and can be up to 256 characters in length (including the length octet).
      * 
      * @param byteBuffer The byte buffer to encode the character string into.

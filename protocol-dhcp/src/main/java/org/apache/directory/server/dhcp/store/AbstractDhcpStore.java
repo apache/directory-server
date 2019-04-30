@@ -55,7 +55,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
 
         if ( null == subnet )
         {
-            LOG.warn( "Don't know anything about the sbnet containing " + selectionBase );
+            LOG.warn( "Don't know anything about the sbnet containing {}", selectionBase );
             return null;
         }
 
@@ -78,7 +78,7 @@ public abstract class AbstractDhcpStore implements DhcpStore
             // possible to violate this condition, but we can't be sure.
             if ( !subnet.contains( host.getAddress() ) )
             {
-                LOG.warn( "Host " + host + " is not within the subnet for which an address is requested" );
+                LOG.warn( "Host {} is not within the subnet for which an address is requested", host );
             }
             else
             {
@@ -113,11 +113,6 @@ public abstract class AbstractDhcpStore implements DhcpStore
                 o.merge( host.getOptions() );
             }
         }
-
-        //if ( null == lease )
-        //{
-        // FIXME: use selection base to find a lease in a pool.
-        //}
 
         // update the lease state
         if ( null != lease && lease.getState() != Lease.STATE_ACTIVE )
@@ -162,19 +157,19 @@ public abstract class AbstractDhcpStore implements DhcpStore
 
         if ( null == subnet )
         {
-            LOG.warn( "No subnet found for existing lease " + lease );
+            LOG.warn( "No subnet found for existing lease {}", lease );
             return null;
         }
 
         if ( !subnet.contains( lease.getClientAddress() ) )
         {
-            LOG.warn( "Client with existing lease " + lease + " is on wrong subnet " + subnet );
+            LOG.warn( "Client with existing lease {} is on wrong subnet {}", lease, subnet );
             return null;
         }
 
         if ( !subnet.isInRange( lease.getClientAddress() ) )
         {
-            LOG.warn( "Client with existing lease " + lease + " is out of valid range for subnet " + subnet );
+            LOG.warn( "Client with existing lease {} is out of valid range for subnet {}", lease, subnet );
             return null;
         }
 

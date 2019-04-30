@@ -105,8 +105,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * Creates a new ServerDirContext with a distinguished name which is used to
      * set the PROVIDER_URL to the distinguished name for this context.
      *
+     * @param service The DirectoryService instance
      * @param principal the principal which is propagated
      * @param dn the distinguished name of this context
+     * @throws Exception If we weren't able to create the ServerDirContext instance
      */
     public ServerDirContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws Exception
     {
@@ -204,7 +206,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         if ( attrs != null )
         {
-            modItems = new ArrayList<ModificationItem>( attrs.size() );
+            modItems = new ArrayList<>( attrs.size() );
             NamingEnumeration<? extends javax.naming.directory.Attribute> e = attrs.getAll();
 
             while ( e.hasMore() )
@@ -283,6 +285,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     /**
      * @see javax.naming.directory.DirContext#modifyAttributes(
      * javax.naming.Name, javax.naming.directory.ModificationItem[])
+     * 
+     * @param name The entry to modify
+     * @param mods The modifications to apply
+     * @throws NamingException If the modify operation failed
      */
     public void modifyAttributes( Name name, List<ModificationItem> mods ) throws NamingException
     {
@@ -429,7 +435,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             // Serialize and add outAttrs
             Entry clone = serverEntry.clone();
 
-            if ( outServerEntry != null && outServerEntry.size() > 0 )
+            if ( outServerEntry.size() > 0 )
             {
                 for ( Attribute attribute : outServerEntry )
                 {
@@ -891,7 +897,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         int start;
         int index;
 
-        StringBuffer buf = new StringBuffer( filterExpr );
+        StringBuilder buf = new StringBuilder( filterExpr );
 
         // Scan until we hit the end of the string buffer
         for ( int ii = 0; ii < buf.length(); ii++ )
@@ -999,7 +1005,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         NamingListener namingListener ) throws NamingException
     {
         int start;
-        StringBuffer buf = new StringBuffer( filterExpr );
+        StringBuilder buf = new StringBuilder( filterExpr );
 
         // Scan until we hit the end of the string buffer
         for ( int ii = 0; ii < buf.length(); ii++ )

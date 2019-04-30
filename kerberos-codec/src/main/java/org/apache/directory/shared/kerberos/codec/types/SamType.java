@@ -75,6 +75,7 @@ public enum SamType
      *
      * @return the name of the SAM type
      */
+    @Override
     public String toString()
     {
         return name;

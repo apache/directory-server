@@ -26,15 +26,16 @@ import java.util.UUID;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +57,6 @@ public class ConfigPartitionInitializer
 
     private DnFactory dnFactory;
 
-    private CacheService cacheService;
-
 
     /**
      * Creates a new instance of ConfigPartitionHelper.
@@ -67,12 +66,11 @@ public class ConfigPartitionInitializer
      * @param cacheService the cache service
      * @param schemaManager the schema manager
      */
-    public ConfigPartitionInitializer( InstanceLayout instanceLayout, DnFactory dnFactory, CacheService cacheService,
+    public ConfigPartitionInitializer( InstanceLayout instanceLayout, DnFactory dnFactory,
         SchemaManager schemaManager )
     {
         this.instanceLayout = instanceLayout;
         this.dnFactory = dnFactory;
-        this.cacheService = cacheService;
         this.schemaManager = schemaManager;
     }
 
@@ -83,7 +81,7 @@ public class ConfigPartitionInitializer
      * to new multi-file LDIF partition. 
      *
      * @return the initialized configuration partition
-     * @throws Exception
+     * @throws Exception If we can't initialize the configuration partition
      */
     public LdifPartition initConfigPartition() throws Exception
     {
@@ -92,7 +90,6 @@ public class ConfigPartitionInitializer
         configPartition.setPartitionPath( instanceLayout.getConfDirectory().toURI() );
         configPartition.setSuffixDn( new Dn( schemaManager, "ou=config" ) );
         configPartition.setSchemaManager( schemaManager );
-        configPartition.setCacheService( cacheService );
 
         File newConfigDir = new File( instanceLayout.getConfDirectory(), configPartition.getSuffixDn().getName() );
 
@@ -178,7 +175,22 @@ public class ConfigPartitionInitializer
                 }
 
                 AddOperationContext addContext = new AddOperationContext( null, entry );
-                configPartition.add( addContext );
+                addContext.setPartition( configPartition );
+                PartitionTxn partitionTxn = null;
+                
+                try 
+                {
+                    partitionTxn = configPartition.beginWriteTransaction();
+                    addContext.setTransaction( partitionTxn );
+                    configPartition.add( addContext );
+                    partitionTxn.commit();
+                }
+                catch ( LdapException le )
+                {
+                    partitionTxn.abort();
+                    
+                    throw le;
+                }
             }
 
             reader.close();

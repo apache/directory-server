@@ -156,7 +156,7 @@ public class RegistrySynchronizerAdaptor
      * Add a new SchemaObject or a new Schema in the Schema partition.
      *
      * @param addContext The Add context, containing the entry to be added
-     * @throws Exception If the addition failed
+     * @throws LdapException If the addition failed
      */
     public void add( AddOperationContext addContext ) throws LdapException
     {
@@ -166,7 +166,7 @@ public class RegistrySynchronizerAdaptor
         for ( Value value : oc )
         {
 
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -233,7 +233,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -278,7 +278,8 @@ public class RegistrySynchronizerAdaptor
      * @param modifyContext The context
      * @param targetEntry The modified entry
      * @param doCascadeModify Not used
-     * @throws Exception If the modification failed
+     * @return <tt>true</tt> if the modify succeded
+     * @throws LdapException If the modification failed
      */
     public boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean doCascadeModify )
         throws LdapException
@@ -288,7 +289,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -319,7 +320,7 @@ public class RegistrySynchronizerAdaptor
      *
      * @param renameContext The contect contaoning the rename informations
      * @param doCascadeModify unused
-     * @throws Exception If the rename failed
+     * @throws LdapException If the rename failed
      */
     public void rename( RenameOperationContext renameContext, boolean doCascadeModify )
         throws LdapException
@@ -329,7 +330,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -358,7 +359,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {
@@ -388,7 +389,7 @@ public class RegistrySynchronizerAdaptor
 
         for ( Value value : oc )
         {
-            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getValue() );
+            String oid = schemaManager.getObjectClassRegistry().getOidByName( value.getString() );
 
             if ( objectClass2synchronizerMap.containsKey( oid ) )
             {

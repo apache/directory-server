@@ -157,7 +157,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
 
         if ( !targetDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, targetDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, targetDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -260,6 +260,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void initializeFilterProperties()
     {
         super.initializeFilterProperties();
@@ -293,7 +294,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
      */
     public File getInstanceDirectory()
     {
-        return new File( getTargetDirectory(), INSTANCES_FILES + "/" + DEFAULT );
+        return new File( getTargetDirectory(), INSTANCES_FILES + File.separator + DEFAULT );
     }
 
 

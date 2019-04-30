@@ -22,7 +22,9 @@ package org.apache.directory.server.core.authn;
 
 import java.net.SocketAddress;
 
-import org.apache.commons.collections.map.LRUMap;
+import javax.naming.Context;
+
+import org.apache.commons.collections4.map.LRUMap;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -94,6 +96,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /**
      * Creates a new instance.
      * @see AbstractAuthenticator
+     *
+     * @param baseDn The base Dn
      */
     public SimpleAuthenticator( Dn baseDn )
     {
@@ -116,7 +120,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Creates a new instance, with an initial cache size
+     *
      * @param cacheSize the size of the credential cache
+     * @param baseDn The base Dn
      */
     public SimpleAuthenticator( int cacheSize, Dn baseDn )
     {
@@ -216,7 +222,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         byte[][] storedPasswords = principal.getUserPasswords();
 
         PasswordPolicyException ppe = null;
-        try 
+        try
         {
             checkPwdPolicy( bindContext.getEntry() );
         }
@@ -230,7 +236,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             if ( PasswordUtil.compareCredentials( credentials, storedPassword ) )
             {
-                if ( ppe != null ) 
+                if ( ppe != null )
                 {
                     LOG.debug( "{} Authentication failed: {}", bindContext.getDn(), ppe.getMessage() );
                     throw ppe;
@@ -275,6 +281,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
              */
             LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
                 bindContext.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+
+            lookupContext.setPartition( bindContext.getPartition() );
+            lookupContext.setTransaction( bindContext.getTransaction() );
 
             userEntry = getDirectoryService().getPartitionNexus().lookup( lookupContext );
 

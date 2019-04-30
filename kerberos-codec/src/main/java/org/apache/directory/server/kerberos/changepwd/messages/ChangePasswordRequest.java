@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.changepwd.messages;
 
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.api.asn1.EncoderException;
@@ -54,9 +53,9 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
     /**
      * Creates a new instance of ChangePasswordRequest.
      *
-     * @param versionNumber
-     * @param authHeader
-     * @param privateMessage
+     * @param versionNumber The version number
+     * @param authHeader The authentication header
+     * @param privateMessage The private part
      */
     public ChangePasswordRequest( short versionNumber, ApReq authHeader, KrbPriv privateMessage )
     {
@@ -79,9 +78,9 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
 
 
     /**
-     * Returns the {@link PrivateMessage}.
+     * Returns the {@link KrbPriv}.
      *
-     * @return The {@link PrivateMessage}.
+     * @return The {@link KrbPriv}.
      */
     public KrbPriv getPrivateMessage()
     {
@@ -122,7 +121,7 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
      *
      * @param buf
      * @return The {@link ChangePasswordRequest}.
-     * @throws IOException
+     * @throws ChangePasswordException If the decoding failed
      */
     public static ChangePasswordRequest decode( ByteBuffer buf ) throws ChangePasswordException
     {

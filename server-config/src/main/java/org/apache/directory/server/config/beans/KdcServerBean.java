@@ -34,7 +34,7 @@ import org.apache.directory.server.config.ConfigurationElement;
 public class KdcServerBean extends DSBasedServerBean
 {
     /** The default allowable clockskew */
-    private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * 60000;
+    private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5L * 60000L;
 
     /** The default for allowing empty addresses */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
@@ -112,7 +112,7 @@ public class KdcServerBean extends DSBasedServerBean
 
     /** The encryption types. */
     @ConfigurationElement(attributeType = "ads-krbEncryptionTypes")
-    private List<String> krbEncryptionTypes = new ArrayList<String>();
+    private List<String> krbEncryptionTypes = new ArrayList<>();
 
 
     /**
@@ -359,6 +359,7 @@ public class KdcServerBean extends DSBasedServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -378,7 +379,7 @@ public class KdcServerBean extends DSBasedServerBean
         sb.append( toString( tabs, "  maximum ticket lifetime", krbMaximumTicketLifetime ) );
         sb.append( toString( tabs, "  primary realm", krbPrimaryRealm ) );
 
-        if ( ( krbEncryptionTypes != null ) && ( krbEncryptionTypes.size() > 0 ) )
+        if ( ( krbEncryptionTypes != null ) && !krbEncryptionTypes.isEmpty() )
         {
             sb.append( tabs ).append( "  encryption types :\n" );
 
@@ -395,6 +396,7 @@ public class KdcServerBean extends DSBasedServerBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

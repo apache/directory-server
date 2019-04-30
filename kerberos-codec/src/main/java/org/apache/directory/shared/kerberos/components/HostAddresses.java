@@ -69,7 +69,7 @@ public class HostAddresses implements Asn1Object
      */
     public HostAddresses()
     {
-        this.addresses = new ArrayList<HostAddress>();
+        this.addresses = new ArrayList<>();
     }
 
 
@@ -82,7 +82,7 @@ public class HostAddresses implements Asn1Object
     {
         if ( addresses == null )
         {
-            this.addresses = new ArrayList<HostAddress>();
+            this.addresses = new ArrayList<>();
         }
         else
         {
@@ -129,7 +129,7 @@ public class HostAddresses implements Asn1Object
         if ( addresses != null )
         {
             hash = hash * 17 + addresses.size();
-            hash = 17 + addresses.hashCode();
+            hash = hash * 17 + addresses.hashCode();
         }
 
         return hash;
@@ -139,13 +139,18 @@ public class HostAddresses implements Asn1Object
     /**
      * Returns true if two {@link HostAddresses} are equal.
      *
-     * @param that Th {@link HostAddresses} we want to compare with the current one
+     * @param obj The {@link HostAddresses} we want to compare with the current one
      * @return true if two {@link HostAddresses} are equal.
      */
     @Override
     public boolean equals( Object obj )
     {
-        if ( obj == null )
+        if ( this == obj )
+        {
+            return true;
+        }
+
+        if ( !( obj instanceof HostAddresses ) )
         {
             return false;
         }
@@ -188,13 +193,13 @@ public class HostAddresses implements Asn1Object
      * 
      * 0x30 L1 hostAddresses sequence of HostAddresses
      *  |
-     *  +--> 0x30 L2[1] Hostaddress[1]
+     *  +--&gt; 0x30 L2[1] Hostaddress[1]
      *  |
-     *  +--> 0x30 L2[2] Hostaddress[2]
+     *  +--&gt; 0x30 L2[2] Hostaddress[2]
      *  |
      *  ...
      *  |
-     *  +--> 0x30 L2[n] Hostaddress[n]
+     *  +--&gt; 0x30 L2[n] Hostaddress[n]
      *        
      *  where L1 = sum( L2[1], l2[2], ..., L2[n] )
      * </pre>
@@ -204,7 +209,7 @@ public class HostAddresses implements Asn1Object
         // Compute the addresses length.
         addressesLength = 0;
 
-        if ( ( addresses != null ) && ( addresses.size() != 0 ) )
+        if ( ( addresses != null ) && !addresses.isEmpty() )
         {
             for ( HostAddress hostAddress : addresses )
             {
@@ -246,7 +251,7 @@ public class HostAddresses implements Asn1Object
             buffer.put( TLV.getBytes( addressesLength ) );
 
             // The hostAddress list, if it's not empty
-            if ( ( addresses != null ) && ( addresses.size() != 0 ) )
+            if ( ( addresses != null ) && !addresses.isEmpty() )
             {
                 for ( HostAddress hostAddress : addresses )
                 {
@@ -264,7 +269,7 @@ public class HostAddresses implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "HostAddresses encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "HostAddresses initial value : {}", toString() );
+            LOG.debug( "HostAddresses initial value : {}", this );
         }
 
         return buffer;

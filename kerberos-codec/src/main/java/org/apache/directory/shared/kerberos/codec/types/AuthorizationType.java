@@ -193,6 +193,7 @@ public enum AuthorizationType
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         switch ( this )

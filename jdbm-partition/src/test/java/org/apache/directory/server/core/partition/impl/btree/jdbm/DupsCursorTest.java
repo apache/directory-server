@@ -41,6 +41,8 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.Table;
 import org.junit.After;
 import org.junit.Before;
@@ -66,6 +68,7 @@ public class DupsCursorTest
     File dbFile;
     RecordManager recman;
     private static SchemaManager schemaManager;
+    private PartitionTxn partitionTxn;
 
 
     @BeforeClass
@@ -114,6 +117,9 @@ public class DupsCursorTest
 
         table = new JdbmTable<String, String>( schemaManager, "test", SIZE, recman,
             comparator, comparator, null, new DefaultSerializer() );
+        
+        partitionTxn = new MockPartitionReadTxn();
+        
         LOG.debug( "Created new table and populated it with data" );
     }
 
@@ -121,7 +127,7 @@ public class DupsCursorTest
     @After
     public void destroyTable() throws Exception
     {
-        table.close();
+        table.close( partitionTxn );
         table = null;
         recman.close();
         recman = null;
@@ -162,7 +168,7 @@ public class DupsCursorTest
         for ( int i = 0; i < SIZE - 1; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn, istr, istr );
         }
 
         Cursor<Tuple<String, String>> cursor = table.cursor();
@@ -187,7 +193,7 @@ public class DupsCursorTest
         for ( int i = 0; i < SIZE - 1; i++ )
         {
             String istr = Integer.toString( i );
-            table.put( istr, istr );
+            table.put( partitionTxn, istr, istr );
         }
 
         Cursor<Tuple<String, String>> cursor = table.cursor();
@@ -215,11 +221,11 @@ public class DupsCursorTest
 
             if ( i > 12 && i < 17 + SIZE )
             {
-                table.put( "13", istr );
+                table.put( partitionTxn, "13", istr );
             }
             else
             {
-                table.put( istr, istr );
+                table.put( partitionTxn, istr, istr );
             }
         }
 
@@ -258,12 +264,12 @@ public class DupsCursorTest
 
             if ( i > 12 && i < 17 + SIZE )
             {
-                table.put( "13", Integer.toString( i ) );
+                table.put( partitionTxn, "13", Integer.toString( i ) );
             }
             else
             {
 
-                table.put( istr, istr );
+                table.put( partitionTxn, istr, istr );
             }
         }
 
@@ -303,11 +309,11 @@ public class DupsCursorTest
 
             if ( i > 12 && i < 17 )
             {
-                table.put( "13", istr );
+                table.put( partitionTxn, "13", istr );
             }
             else
             {
-                table.put( istr, istr );
+                table.put( partitionTxn, istr, istr );
             }
         }
 
@@ -435,12 +441,12 @@ public class DupsCursorTest
 
             if ( i < 2 + SIZE ) // keys with multiple values
             {
-                table.put( "0", istr );
+                table.put( partitionTxn, "0", istr );
             }
             else
             // keys with single values
             {
-                table.put( istr, istr );
+                table.put( partitionTxn, istr, istr );
             }
         }
 
@@ -570,12 +576,12 @@ public class DupsCursorTest
 
             if ( i < 2 + SIZE ) // keys with multiple values
             {
-                table.put( "0", istr );
+                table.put( partitionTxn, "0", istr );
             }
             else
             // keys with single values
             {
-                table.put( istr, istr );
+                table.put( partitionTxn, istr, istr );
             }
         }
 
@@ -702,12 +708,12 @@ public class DupsCursorTest
 
             if ( i > 2 + SIZE ) // keys with multiple values
             {
-                table.put( Integer.toString( 3 + SIZE ), istr );
+                table.put( partitionTxn, Integer.toString( 3 + SIZE ), istr );
             }
             else
             // keys with single values
             {
-                table.put( istr, istr );
+                table.put( partitionTxn, istr, istr );
             }
         }
 
@@ -845,16 +851,16 @@ public class DupsCursorTest
     @Test
     public void testOverDupLimit() throws Exception
     {
-        table.put( "5", "5" );
-        table.put( "6", "6" );
+        table.put( partitionTxn, "5", "5" );
+        table.put( partitionTxn, "6", "6" );
 
         for ( int i = 0; i < 20; i++ )
         {
-            table.put( "7", Integer.toString( i ) );
+            table.put( partitionTxn, "7", Integer.toString( i ) );
         }
 
-        table.put( "8", "8" );
-        table.put( "9", "9" );
+        table.put( partitionTxn, "8", "8" );
+        table.put( partitionTxn, "9", "9" );
 
         Cursor<Tuple<String, String>> cursor = table.cursor();
         assertNotNull( cursor );
@@ -870,16 +876,16 @@ public class DupsCursorTest
     @Test
     public void testUnderDupLimit() throws Exception
     {
-        table.put( "5", "5" );
-        table.put( "6", "6" );
+        table.put( partitionTxn, "5", "5" );
+        table.put( partitionTxn, "6", "6" );
 
         for ( int i = 0; i < 10; i++ )
         {
-            table.put( "7", Integer.toString( i ) );
+            table.put( partitionTxn, "7", Integer.toString( i ) );
         }
 
-        table.put( "8", "8" );
-        table.put( "9", "9" );
+        table.put( partitionTxn, "8", "8" );
+        table.put( partitionTxn, "9", "9" );
 
         Cursor<Tuple<String, String>> cursor = table.cursor();
         assertNotNull( cursor );
@@ -901,7 +907,7 @@ public class DupsCursorTest
 
             if ( i > 12 && i < 17 ) // keys with multiple values
             {
-                table.put( "13", Integer.toString( i ) );
+                table.put( partitionTxn, "13", Integer.toString( i ) );
             }
             else if ( i > 17 && i < 21 ) // adds hole with no keys for i
             {
@@ -909,7 +915,7 @@ public class DupsCursorTest
             else
             // keys with single values
             {
-                table.put( istr, istr );
+                table.put( partitionTxn, istr, istr );
             }
         }
 
@@ -922,7 +928,7 @@ public class DupsCursorTest
         {
             if ( i > 17 && i < 21 )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -954,7 +960,7 @@ public class DupsCursorTest
         {
             if ( i > 17 && i < 21 )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -985,7 +991,7 @@ public class DupsCursorTest
         {
             if ( i > 17 && i < 21 )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1023,7 +1029,7 @@ public class DupsCursorTest
         {
             if ( i > 17 && i < 21 )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has(partitionTxn,  Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1060,7 +1066,7 @@ public class DupsCursorTest
         {
             if ( i > 17 && i < 21 )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1095,7 +1101,7 @@ public class DupsCursorTest
         {
             if ( i > 17 && i < 21 )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1131,7 +1137,7 @@ public class DupsCursorTest
         {
             if ( i > 17 && i < 21 )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1168,7 +1174,7 @@ public class DupsCursorTest
         {
             if ( i > 17 && i < 21 )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1201,7 +1207,7 @@ public class DupsCursorTest
 
             if ( i > 12 && i < 17 + SIZE ) // keys with multiple values
             {
-                table.put( "13", Integer.toString( i ) );
+                table.put( partitionTxn, "13", Integer.toString( i ) );
             }
             else if ( i > 17 + SIZE && i < 21 + SIZE ) // adds hole with no keys for i
             {
@@ -1209,7 +1215,7 @@ public class DupsCursorTest
             else
             // keys with single values
             {
-                table.put( istr, istr );
+                table.put( partitionTxn, istr, istr );
             }
         }
 
@@ -1222,7 +1228,7 @@ public class DupsCursorTest
         {
             if ( i > 17 + SIZE && i < 21 + SIZE )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1254,7 +1260,7 @@ public class DupsCursorTest
         {
             if ( i > 17 + SIZE && i < 21 + SIZE )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1287,7 +1293,7 @@ public class DupsCursorTest
         {
             if ( i > 17 + SIZE && i < 21 + SIZE )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1325,7 +1331,7 @@ public class DupsCursorTest
         {
             if ( i > 17 + SIZE && i < 21 + SIZE )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1362,7 +1368,7 @@ public class DupsCursorTest
         {
             if ( i > 17 + SIZE && i < 21 + SIZE )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1399,7 +1405,7 @@ public class DupsCursorTest
         {
             if ( i > 17 + SIZE && i < 21 + SIZE )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1435,7 +1441,7 @@ public class DupsCursorTest
         {
             if ( i > 17 + SIZE && i < 21 + SIZE )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 
@@ -1470,7 +1476,7 @@ public class DupsCursorTest
         {
             if ( i > 17 + SIZE && i < 21 + SIZE )
             {
-                assertFalse( table.has( Integer.toString( i ) ) );
+                assertFalse( table.has( partitionTxn, Integer.toString( i ) ) );
                 continue;
             }
 

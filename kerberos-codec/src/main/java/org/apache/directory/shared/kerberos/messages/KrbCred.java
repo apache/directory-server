@@ -88,27 +88,28 @@ public class KrbCred extends KerberosMessage
      * 
      * 0x76 L1 KRB-CRED APPLICATION[22]
      *  |
-     *  +--> 0x30 L2 KRB-CRED sequence
+     *  +--&gt; 0x30 L2 KRB-CRED sequence
      *        |
-     *        +--> 0xA0 0x03 pvno tag
+     *        +--&gt; 0xA0 0x03 pvno tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x05 pvno (5)
+     *        |     +--&gt; 0x02 0x01 0x05 pvno (5)
      *        |
-     *        +--> 0xA1 0x03 msg-type tag
+     *        +--&gt; 0xA1 0x03 msg-type tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x16 msg-type (22)
+     *        |     +--&gt; 0x02 0x01 0x16 msg-type (22)
      *        |     
-     *        +--> 0xA2 L3 tickets tag
+     *        +--&gt; 0xA2 L3 tickets tag
      *        |     |
-     *        |     +--> 0x30 LL tickets seq tag
+     *        |     +--&gt; 0x30 LL tickets seq tag
      *        |           |
-     *        |           +--> 0x30 LL1 ticket (Ticket)
+     *        |           +--&gt; 0x30 LL1 ticket (Ticket)
      *        |           .         ...
-     *        |           +--> 0x30 LLn ticket (Ticket)
+     *        |           +--&gt; 0x30 LLn ticket (Ticket)
      *        |
-     *        +--> 0xA3 L4 enc-part tag
+     *        +--&gt; 0xA3 L4 enc-part tag
      *              |
-     *              +--> 0x30 L4-2 enc-part (EncryptedData)
+     *              +--&gt; 0x30 L4-2 enc-part (EncryptedData)
+     * </pre>
      */
     @Override
     public int computeLength()
@@ -191,7 +192,7 @@ public class KrbCred extends KerberosMessage
         if ( IS_DEBUG )
         {
             log.debug( "KrbCred encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbCred initial value : {}", toString() );
+            log.debug( "KrbCred initial value : {}", this );
         }
 
         return buffer;
@@ -248,7 +249,7 @@ public class KrbCred extends KerberosMessage
 
         if ( tickets == null )
         {
-            tickets = new ArrayList<Ticket>();
+            tickets = new ArrayList<>();
         }
 
         tickets.add( ticket );

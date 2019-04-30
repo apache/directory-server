@@ -20,22 +20,25 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.LdapComparator;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.UuidComparator;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndex;
-import org.apache.directory.server.xdbm.EmptyIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
 
 
@@ -69,7 +72,7 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws Exception
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws LdapException
     {
         this.attributeType = attributeType;
 
@@ -89,7 +92,7 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
 
         if ( normalizer == null )
         {
-            throw new Exception( I18n.err( I18n.ERR_212, attributeType ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_212, attributeType ) );
         }
 
         LdapComparator<K> comp = ( LdapComparator<K> ) mr.getLdapComparator();
@@ -99,7 +102,7 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new AvlTable<K, String>( attributeType.getName(), comp, UuidComparator.INSTANCE, true );
+        forward = new AvlTable<>( attributeType.getName(), comp, UuidComparator.INSTANCE, true );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -111,23 +114,23 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
         {
             if ( attributeType.isSingleValued() )
             {
-                reverse = new AvlTable<String, K>( attributeType.getName(), UuidComparator.INSTANCE, comp, false );
+                reverse = new AvlTable<>( attributeType.getName(), UuidComparator.INSTANCE, comp, false );
             }
             else
             {
-                reverse = new AvlTable<String, K>( attributeType.getName(), UuidComparator.INSTANCE, comp, true );
+                reverse = new AvlTable<>( attributeType.getName(), UuidComparator.INSTANCE, comp, true );
             }
         }
     }
 
 
-    public void add( K attrVal, String id ) throws Exception
+    public void add( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
-        forward.put( attrVal, id );
+        forward.put( partitionTxn, attrVal, id );
 
         if ( withReverse )
         {
-            reverse.put( id, attrVal );
+            reverse.put( partitionTxn, id, attrVal );
         }
     }
 
@@ -135,16 +138,17 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public void close() throws Exception
+    @Override
+    public void close( PartitionTxn partitionTxn ) throws LdapException, IOException
     {
         if ( forward != null )
         {
-            forward.close();
+            forward.close( partitionTxn );
         }
 
         if ( reverse != null )
         {
-            reverse.close();
+            reverse.close( partitionTxn );
         }
     }
 
@@ -152,48 +156,54 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public long count() throws Exception
+    public long count( PartitionTxn partitionTxn ) throws LdapException
     {
-        return forward.count();
+        return forward.count( partitionTxn );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public long count( K attrVal ) throws Exception
+    public long count( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.count( attrVal );
+        return forward.count( partitionTxn, attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public void drop( String id ) throws Exception
+    public void drop( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
             if ( isDupsEnabled() )
             {
-                Cursor<Tuple<String, K>> cursor = reverse.cursor( id );
+                Cursor<Tuple<String, K>> cursor = reverse.cursor( partitionTxn, id );
 
-                while ( cursor.next() )
+                try
                 {
-                    Tuple<String, K> tuple = cursor.get();
-                    forward.remove( tuple.getValue(), id );
+                    while ( cursor.next() )
+                    {
+                        Tuple<String, K> tuple = cursor.get();
+                        forward.remove( partitionTxn, tuple.getValue(), id );
+                    }
+    
+                    cursor.close();
                 }
-
-                cursor.close();
-
+                catch ( CursorException | IOException e )
+                {
+                    throw new LdapOtherException( e.getMessage(), e );
+                }
             }
             else
             {
-                K key = reverse.get( id );
-                forward.remove( key );
+                K key = reverse.get( partitionTxn, id );
+                forward.remove( partitionTxn, key );
             }
 
-            reverse.remove( id );
+            reverse.remove( partitionTxn, id );
         }
     }
 
@@ -201,13 +211,14 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public void drop( K attrVal, String id ) throws Exception
+    @Override
+    public void drop( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
-        forward.remove( attrVal, id );
+        forward.remove( partitionTxn, attrVal, id );
 
         if ( withReverse )
         {
-            reverse.remove( id, attrVal );
+            reverse.remove( partitionTxn, id, attrVal );
         }
     }
 
@@ -215,18 +226,28 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal ) throws Exception
+    public boolean forward( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.has( attrVal );
+        return forward.has( partitionTxn, attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public boolean forward( K attrVal, String id ) throws LdapException
+    public boolean forward( PartitionTxn partitionTxn, K attrVal, String id ) throws LdapException
     {
-        return forward.has( attrVal, id );
+        return forward.has( partitionTxn, attrVal, id );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cursor<IndexEntry<K, String>> forwardCursor( PartitionTxn partitionTxn ) throws LdapException
+    {
+        return new IndexCursorAdaptor( partitionTxn, forward.cursor(), true );
     }
 
 
@@ -234,66 +255,60 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor() throws LdapException
+    public Cursor<IndexEntry<K, String>> forwardCursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
-        return new IndexCursorAdaptor( forward.cursor(), true );
+        return new IndexCursorAdaptor( partitionTxn, forward.cursor( partitionTxn, key ), true );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> forwardCursor( K key ) throws Exception
+    public String forwardLookup( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return new IndexCursorAdaptor( forward.cursor( key ), true );
+        return forward.get( partitionTxn, attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public String forwardLookup( K attrVal ) throws Exception
+    @Override
+    public Cursor<String> forwardValueCursor( PartitionTxn partitionTxn, K key ) throws LdapException
     {
-        return forward.get( attrVal );
+        return forward.valueCursor( partitionTxn, key );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public Cursor<String> forwardValueCursor( K key ) throws Exception
+    @Override
+    public long greaterThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.valueCursor( key );
+        return forward.greaterThanCount( partitionTxn, attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public long greaterThanCount( K attrVal ) throws Exception
+    @Override
+    public long lessThanCount( PartitionTxn partitionTxn, K attrVal ) throws LdapException
     {
-        return forward.greaterThanCount( attrVal );
+        return forward.lessThanCount( partitionTxn,  attrVal );
     }
 
 
     /**
      * {@inheritDoc}
      */
-    public long lessThanCount( K attrVal ) throws Exception
-    {
-        return forward.lessThanCount( attrVal );
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean reverse( String id ) throws Exception
+    @Override
+    public boolean reverse( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.has( id );
+            return reverse.has( partitionTxn, id );
         }
         else
         {
@@ -305,11 +320,12 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public boolean reverse( String id, K attrVal ) throws Exception
+    @Override
+    public boolean reverse( PartitionTxn partitionTxn, String id, K attrVal ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.has( id, attrVal );
+            return reverse.has( partitionTxn, id, attrVal );
         }
         else
         {
@@ -321,45 +337,11 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> reverseCursor() throws Exception
+    public K reverseLookup( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return new IndexCursorAdaptor( reverse.cursor(), false );
-        }
-        else
-        {
-            return new EmptyIndexCursor<K>();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public Cursor<IndexEntry<K, String>> reverseCursor( String id ) throws Exception
-    {
-        if ( withReverse )
-        {
-            return new IndexCursorAdaptor( reverse.cursor( id ), false );
-        }
-        else
-        {
-            return new EmptyIndexCursor<K>();
-        }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public K reverseLookup( String id ) throws LdapException
-    {
-        if ( withReverse )
-        {
-            return reverse.get( id );
+            return reverse.get( partitionTxn, id );
         }
         else
         {
@@ -371,15 +353,16 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
-    public Cursor<K> reverseValueCursor( String id ) throws Exception
+    @Override
+    public Cursor<K> reverseValueCursor( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         if ( withReverse )
         {
-            return reverse.valueCursor( id );
+            return reverse.valueCursor( partitionTxn, id );
         }
         else
         {
-            return new EmptyCursor<K>();
+            return new EmptyCursor<>();
         }
     }
 
@@ -405,6 +388,7 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isDupsEnabled()
     {
         if ( withReverse )
@@ -415,13 +399,5 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
         {
             return false;
         }
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void sync() throws Exception
-    {
     }
 }

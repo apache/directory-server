@@ -19,12 +19,15 @@
 package org.apache.directory.server.core.shared;
 
 
+import java.io.IOException;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.DitContentRule;
@@ -47,6 +50,8 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -309,11 +314,23 @@ public final class SchemaService
             {
                 Dn schemaModificationAttributesDn = new Dn( directoryService.getSchemaManager(),
                     SchemaConstants.SCHEMA_MODIFICATIONS_DN );
+                
+                Partition partition = directoryService.getSchemaPartition();
+                
+                LookupOperationContext lookupContext = new LookupOperationContext( null, schemaModificationAttributesDn );
+                lookupContext.setPartition( partition );
 
-                generateSchemaSubentry(
-                    directoryService.getSchemaManager(),
-                    directoryService.getSchemaPartition().lookup(
-                        new LookupOperationContext( null, schemaModificationAttributesDn ) ) );
+                try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+                {
+                    lookupContext.setTransaction( partitionTxn );
+                    
+                    generateSchemaSubentry( directoryService.getSchemaManager(),
+                        directoryService.getSchemaPartition().lookup( lookupContext ) );
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
             }
 
             return schemaSubentry.clone();
@@ -331,10 +348,23 @@ public final class SchemaService
             Dn schemaModificationAttributesDn = new Dn( directoryService.getSchemaManager(),
                 SchemaConstants.SCHEMA_MODIFICATIONS_DN );
 
-            generateSchemaSubentry(
-                directoryService.getSchemaManager(),
-                directoryService.getSchemaPartition().lookup(
-                    new LookupOperationContext( null, schemaModificationAttributesDn ) ) );
+            Partition partition = directoryService.getSchemaPartition();
+            
+            LookupOperationContext lookupContext = new LookupOperationContext( null, schemaModificationAttributesDn );
+            lookupContext.setPartition( partition );
+
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                lookupContext.setTransaction( partitionTxn );
+                
+                generateSchemaSubentry(
+                    directoryService.getSchemaManager(),
+                    directoryService.getSchemaPartition().lookup( lookupContext ) );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
         }
 
         return schemaSubentry.clone();
@@ -359,42 +389,52 @@ public final class SchemaService
             Dn schemaModificationAttributesDn = new Dn( directoryService.getSchemaManager(),
                 SchemaConstants.SCHEMA_MODIFICATIONS_DN );
 
-            Entry mods =
-                directoryService.getSchemaPartition().lookup(
-                    new LookupOperationContext( null, schemaModificationAttributesDn,
-                        SchemaConstants.ALL_ATTRIBUTES_ARRAY ) );
+            Partition partition = directoryService.getSchemaPartition();
+            
+            LookupOperationContext lookupContext = new LookupOperationContext( null, schemaModificationAttributesDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( partition );
 
-            // @todo enable this optimization at some point but for now it
-            // is causing some problems so I will just turn it off
-            //          Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
-            //
-            //          Attribute modifyTimeMemory = null;
-            //
-            //            if ( schemaSubentry != null )
-            //            {
-            //                modifyTimeMemory = schemaSubentry.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
-            //                if ( modifyTimeDisk == null && modifyTimeMemory == null )
-            //                {
-            //                    // do nothing!
-            //                }
-            //                else if ( modifyTimeDisk != null && modifyTimeMemory != null )
-            //                {
-            //                    Date disk = DateUtils.getDate( ( String ) modifyTimeDisk.get() );
-            //                    Date mem = DateUtils.getDate( ( String ) modifyTimeMemory.get() );
-            //                    if ( disk.after( mem ) )
-            //                    {
-            //                        generateSchemaSubentry( mods );
-            //                    }
-            //                }
-            //                else
-            //                {
-            //                    generateSchemaSubentry( mods );
-            //                }
-            //            }
-            //            else
-            //            {
-            generateSchemaSubentry( schemaManager, mods );
-            //            }
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                lookupContext.setTransaction( partitionTxn );
+
+                Entry mods =
+                    directoryService.getSchemaPartition().lookup( lookupContext );
+                // TODO enable this optimization at some point but for now it
+                // is causing some problems so I will just turn it off
+                //          Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
+                //
+                //          Attribute modifyTimeMemory = null;
+                //
+                //            if ( schemaSubentry != null )
+                //            {
+                //                modifyTimeMemory = schemaSubentry.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
+                //                if ( modifyTimeDisk == null && modifyTimeMemory == null )
+                //                {
+                //                    // do nothing!
+                //                }
+                //                else if ( modifyTimeDisk != null && modifyTimeMemory != null )
+                //                {
+                //                    Date disk = DateUtils.getDate( ( String ) modifyTimeDisk.get() );
+                //                    Date mem = DateUtils.getDate( ( String ) modifyTimeMemory.get() );
+                //                    if ( disk.after( mem ) )
+                //                    {
+                //                        generateSchemaSubentry( mods );
+                //                    }
+                //                }
+                //                else
+                //                {
+                //                    generateSchemaSubentry( mods );
+                //                }
+                //            }
+                //            else
+                //            {
+                generateSchemaSubentry( schemaManager, mods );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
 
             // ---------------------------------------------------------------
             // Prep Work: Transform the attributes to their OID counterpart

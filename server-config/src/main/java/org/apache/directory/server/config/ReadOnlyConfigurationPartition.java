@@ -20,17 +20,17 @@
 package org.apache.directory.server.config;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.UUID;
-
-import javax.naming.InvalidNameException;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -41,6 +41,7 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.ldif.AbstractLdifPartition;
 
 
@@ -83,7 +84,8 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
     /**
      * {@inheritDoc}
      */
-    protected void doInit() throws InvalidNameException, Exception
+    @Override
+    protected void doInit() throws LdapException
     {
         if ( !initialized )
         {
@@ -101,51 +103,50 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      * 
      * @throws Exception
      */
-    private void loadLdifEntries() throws Exception
+    private void loadLdifEntries() throws LdapException
     {
         if ( inputStream != null )
         {
             // Initializing the reader and the entry iterator
-            LdifReader reader = new LdifReader( inputStream );
-            Iterator<LdifEntry> itr = reader.iterator();
-
-            // Exiting if there's no entry
-            if ( !itr.hasNext() )
+            try ( LdifReader reader = new LdifReader( inputStream ) )
             {
-                reader.close();
-
-                return;
+                Iterator<LdifEntry> itr = reader.iterator();
+    
+                // Exiting if there's no entry
+                if ( !itr.hasNext() )
+                {
+                    return;
+                }
+    
+                // Getting the context entry
+                LdifEntry ldifEntry = itr.next();
+                Entry contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
+    
+                // Checking the context entry
+                if ( suffixDn.equals( contextEntry.getDn() ) )
+                {
+                    addMandatoryOpAt( contextEntry );
+    
+                    super.add( new AddOperationContext( null, contextEntry ) );
+                }
+                else
+                {
+                    throw new LdapException( "The given LDIF file doesn't contain the context entry" );
+                }
+    
+                // Iterating on all entries
+                while ( itr.hasNext() )
+                {
+                    Entry entry = new DefaultEntry( schemaManager, itr.next().getEntry() );
+                    addMandatoryOpAt( entry );
+    
+                    super.add( new AddOperationContext( null, entry ) );
+                }
             }
-
-            // Getting the context entry
-            LdifEntry ldifEntry = itr.next();
-            Entry contextEntry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
-
-            // Checking the context entry
-            if ( suffixDn.equals( contextEntry.getDn() ) )
+            catch ( IOException ioe )
             {
-                addMandatoryOpAt( contextEntry );
-
-                super.add( new AddOperationContext( null, contextEntry ) );
+                throw new LdapOtherException( ioe.getMessage(), ioe );
             }
-            else
-            {
-                reader.close();
-
-                throw new LdapException( "The given LDIF file doesn't contain the context entry" );
-            }
-
-            // Iterating on all entries
-            while ( itr.hasNext() )
-            {
-                Entry entry = new DefaultEntry( schemaManager, itr.next().getEntry() );
-                addMandatoryOpAt( entry );
-
-                super.add( new AddOperationContext( null, entry ) );
-            }
-
-            // Closing the reader
-            reader.close();
         }
     }
 
@@ -187,7 +188,7 @@ public class ReadOnlyConfigurationPartition extends AbstractLdifPartition
      * {@inheritDoc}
      */
     @Override
-    public Entry delete( String id ) throws LdapException
+    public Entry delete( PartitionTxn partitionTxn, String id ) throws LdapException
     {
         // Does nothing (Read-Only)
         return null;

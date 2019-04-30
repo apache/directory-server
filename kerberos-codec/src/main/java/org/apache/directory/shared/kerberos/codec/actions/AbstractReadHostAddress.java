@@ -68,29 +68,20 @@ public abstract class AbstractReadHostAddress<E extends Asn1Container> extends G
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the HostAddress
-        Asn1Decoder hostAddressDecoder = new Asn1Decoder();
-
         HostAddressContainer hostAddressContainer = new HostAddressContainer();
 
         // Passes the Stream to the decoder
         hostAddressContainer.setStream( container.getStream() );
 
         // Decode the HostAddress PDU
-        try
-        {
-            hostAddressDecoder.decode( container.getStream(), hostAddressContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( container.getStream(), hostAddressContainer );
 
         // Store the HostAddress in the container
         HostAddress hostAddress = hostAddressContainer.getHostAddress();

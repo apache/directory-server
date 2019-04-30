@@ -99,7 +99,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) );
-        assertEquals( schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
         assertTrue( isOnDisk( dn ) );
@@ -188,9 +188,9 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) );
-        assertEquals( schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(), "org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer" );
+        assertEquals( "org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer", clazz.getName() );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -330,8 +330,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "normalizer OID should still be present",
             schemaManager.getNormalizerRegistry().contains( OID ) );
 
-        assertEquals( "normalizer schema should be set to apache not apachemeta",
-            schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apache" );
+        assertEquals( "normalizer schema should be set to apache not apachemeta", "apache",
+            schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
@@ -355,8 +355,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "new normalizer OID should be present",
             schemaManager.getNormalizerRegistry().contains( NEW_OID ) );
 
-        assertEquals( "normalizer with new oid should have schema set to apache NOT apachemeta",
-            schemaManager.getNormalizerRegistry().getSchemaName( NEW_OID ), "apache" );
+        assertEquals( "normalizer with new oid should have schema set to apache NOT apachemeta", "apache",
+            schemaManager.getNormalizerRegistry().getSchemaName( NEW_OID ) );
 
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
@@ -379,8 +379,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "normalizer OID should still be present",
             schemaManager.getNormalizerRegistry().contains( OID ) );
 
-        assertEquals( "normalizer schema should be set to apachemeta",
-            schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "normalizer schema should be set to apachemeta", "apachemeta",
+            schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, DeepTrimNormalizer.class );
@@ -402,8 +402,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "normalizer OID should still be present",
             schemaManager.getNormalizerRegistry().contains( OID ) );
 
-        assertEquals( "normalizer schema should be set to apachemeta",
-            schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "normalizer schema should be set to apachemeta", "apachemeta",
+            schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, DeepTrimNormalizer.class );
@@ -560,7 +560,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapInvalidDnException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
+            assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
         assertTrue( "normalizer should still be in the registry after move failure",
@@ -585,7 +585,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         }
         catch ( LdapInvalidDnException e )
         {
-            assertEquals( e.getResultCode(), ResultCodeEnum.NAMING_VIOLATION );
+            assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
         assertTrue( "normalizer should still be in the registry after move failure",
@@ -630,8 +630,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "normalizer OID should be present when moved to enabled schema",
             schemaManager.getNormalizerRegistry().contains( OID ) );
 
-        assertEquals( "normalizer should be in apachemeta schema after move",
-            schemaManager.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "normalizer should be in apachemeta schema after move", "apachemeta",
+            schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
     }
 
     class DummyMR extends MatchingRule

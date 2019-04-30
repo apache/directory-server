@@ -39,6 +39,7 @@ public interface NtlmProvider
      * @param session the MINA IoSession to store any state to be thread safe
      * @param type1reponse the Type 1 NTLM response from client
      * @return the NTLM Type 2 message with the challenge
+     * @throws Exception If the challenge cannot be generated
      */
     byte[] generateChallenge( IoSession session, byte[] type1reponse ) throws Exception;
 
@@ -49,6 +50,7 @@ public interface NtlmProvider
      * @param session the MINA IoSession to store any state to be thread safe
      * @param type3response the Type 3 NTLM response from the client
      * @return the result of the authentication from the server
+     * @throws Exception If the authentication failed
      */
     boolean authenticate( IoSession session, byte[] type3response ) throws Exception;
 }

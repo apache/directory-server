@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +27,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Value;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
@@ -276,12 +274,12 @@ public class PrincipalStoreEntryModifier
      *
      * @param krb5key
      * @return The map of encryption types to encryption keys.
-     * @throws LdapException
-     * @throws IOException
+     * @throws KerberosException If the key cannot be converted to a map
      */
-    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws KerberosException, LdapException
+    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) 
+            throws KerberosException
     {
-        Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
+        Map<EncryptionType, EncryptionKey> map = new HashMap<>();
 
         for ( Value val : krb5key )
         {

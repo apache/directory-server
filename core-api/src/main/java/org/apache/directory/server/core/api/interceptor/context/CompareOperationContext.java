@@ -50,9 +50,9 @@ public class CompareOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of CompareOperationContext.
      *
+     * @param session The session to use
      */
     public CompareOperationContext( CoreSession session )
     {
@@ -66,9 +66,10 @@ public class CompareOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of CompareOperationContext.
      *
+     * @param session The session to use
+     * @param dn The Dn of teh entry to compare with
      */
     public CompareOperationContext( CoreSession session, Dn dn )
     {
@@ -82,9 +83,10 @@ public class CompareOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param oid The entry's Oid
      */
     public CompareOperationContext( CoreSession session, String oid )
     {
@@ -99,9 +101,11 @@ public class CompareOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param dn The entry's Dn
+     * @param oid The entry's Oid
      */
     public CompareOperationContext( CoreSession session, Dn dn, String oid )
     {
@@ -116,9 +120,12 @@ public class CompareOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param dn The entry's Dn
+     * @param oid The entry's Oid
+     * @param value The value to compare
      */
     public CompareOperationContext( CoreSession session, Dn dn, String oid, Value value )
     {
@@ -133,6 +140,12 @@ public class CompareOperationContext extends AbstractOperationContext
     }
 
 
+    /**
+     * Creates a new instance of LookupOperationContext.
+     * 
+     * @param session The session to use
+     * @param compareRequest The Compare operation to process
+     */
     public CompareOperationContext( CoreSession session, CompareRequest compareRequest )
     {
         super( session, compareRequest.getName() );
@@ -233,7 +246,7 @@ public class CompareOperationContext extends AbstractOperationContext
             + ( ( value != null ) 
                 ? ", value :'"
                     + ( ( value.isHumanReadable() )
-                        ? value.getValue()
+                        ? value.getString()
                         : ( ( !value.isHumanReadable() )
                             ? Strings.dumpBytes( value.getBytes() )
                             : "unknown value type" ) )

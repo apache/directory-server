@@ -122,51 +122,51 @@ public class EncTicketPart implements Asn1Object
      * <pre>
      * 0x63 L1 EncTicketPart tag
      *  |
-     *  +--> 0x30 L1-2 EncTicketPart seq
+     *  +--&gt; 0x30 L1-2 EncTicketPart seq
      *        |
-     *        +--> 0xA0 L2 flags tag
+     *        +--&gt; 0xA0 L2 flags tag
      *        |     |
-     *        |     +--> 0x03 L2-2 flags (BitString)
+     *        |     +--&gt; 0x03 L2-2 flags (BitString)
      *        |
-     *        +--> 0xA1 L3 key tag
+     *        +--&gt; 0xA1 L3 key tag
      *        |     |
-     *        |     +--> 0x30 L3-2 key (EncryptionKey)
+     *        |     +--&gt; 0x30 L3-2 key (EncryptionKey)
      *        |
-     *        +--> 0xA2 L4 crealm tag
+     *        +--&gt; 0xA2 L4 crealm tag
      *        |     |
-     *        |     +--> 0x1B L4-2 crealm (Realm)
+     *        |     +--&gt; 0x1B L4-2 crealm (Realm)
      *        |
-     *        +--> 0xA3 L5 cname tag
+     *        +--&gt; 0xA3 L5 cname tag
      *        |     |
-     *        |     +--> 0x30 L5-2 cname (PrincipalName)
+     *        |     +--&gt; 0x30 L5-2 cname (PrincipalName)
      *        |
-     *        +--> 0xA4 L6 transited tag
+     *        +--&gt; 0xA4 L6 transited tag
      *        |     |
-     *        |     +--> 0x30 L6-2 transited (TransitedEncoding)
+     *        |     +--&gt; 0x30 L6-2 transited (TransitedEncoding)
      *        |
-     *        +--> 0xA5 0x11 authtime tag
+     *        +--&gt; 0xA5 0x11 authtime tag
      *        |     |
-     *        |     +--> 0x18 0x0F authtime (KerberosTime)
+     *        |     +--&gt; 0x18 0x0F authtime (KerberosTime)
      *        |
-     *        +--> [0xA6 0x11 starttime tag
+     *        +--&gt; [0xA6 0x11 starttime tag
      *        |     |
-     *        |     +--> 0x18 0x0F starttime (KerberosTime)]
+     *        |     +--&gt; 0x18 0x0F starttime (KerberosTime)]
      *        |
-     *        +--> 0xA7 0x11 endtime tag
+     *        +--&gt; 0xA7 0x11 endtime tag
      *        |     |
-     *        |     +--> 0x18 0x0F endtime (KerberosTime)
+     *        |     +--&gt; 0x18 0x0F endtime (KerberosTime)
      *        |
-     *        +--> [0xA8 0x11 renewtill tag
+     *        +--&gt; [0xA8 0x11 renewtill tag
      *        |     |
-     *        |     +--> 0x18 0x0F renewtill (KerberosTime)]
+     *        |     +--&gt; 0x18 0x0F renewtill (KerberosTime)]
      *        |
-     *        +--> [0xA9 L7 caddr tag
+     *        +--&gt; [0xA9 L7 caddr tag
      *        |     |
-     *        |     +--> 0x30 L7-2 caddre (HostAddresses)]
+     *        |     +--&gt; 0x30 L7-2 caddre (HostAddresses)]
      *        |
-     *        +--> [0xAA L8 authorization-data tag
+     *        +--&gt; [0xAA L8 authorization-data tag
      *              |
-     *              +--> 0x30 L8-2 authorization-data (AuthorizationData)]
+     *              +--&gt; 0x30 L8-2 authorization-data (AuthorizationData)]
      * </pre>
      * 
      */
@@ -334,7 +334,7 @@ public class EncTicketPart implements Asn1Object
         if ( IS_DEBUG )
         {
             log.debug( "EncTicketPart encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "EncTicketPart initial value : {}", toString() );
+            log.debug( "EncTicketPart initial value : {}", this );
         }
 
         return buffer;

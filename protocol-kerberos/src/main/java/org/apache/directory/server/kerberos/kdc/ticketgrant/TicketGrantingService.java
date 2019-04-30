@@ -65,7 +65,6 @@ import org.apache.directory.shared.kerberos.components.PaData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
-import org.apache.directory.shared.kerberos.exceptions.InvalidTicketException;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.messages.ApReq;
@@ -130,7 +129,7 @@ public final class TicketGrantingService
     }
 
 
-    private static void monitorRequest( KdcContext kdcContext ) throws Exception
+    private static void monitorRequest( KdcContext kdcContext )
     {
         KdcReq request = kdcContext.getRequest();
 
@@ -138,25 +137,28 @@ public final class TicketGrantingService
         {
             String clientAddress = kdcContext.getClientAddress().getHostAddress();
 
-            StringBuffer sb = new StringBuffer();
-
-            sb.append( "Received " + SERVICE_NAME + " request:" );
-            sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
-            sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
-            sb.append( "\n\t" + "clientAddress:         " + clientAddress );
-            sb.append( "\n\t" + "nonce:                 " + request.getKdcReqBody().getNonce() );
-            sb.append( "\n\t" + "kdcOptions:            " + request.getKdcReqBody().getKdcOptions() );
-            sb.append( "\n\t" + "clientPrincipal:       " + request.getKdcReqBody().getCName() );
-            sb.append( "\n\t" + "serverPrincipal:       " + request.getKdcReqBody().getSName() );
-            sb.append( "\n\t" + "encryptionType:        "
-                + KerberosUtils.getEncryptionTypesString( request.getKdcReqBody().getEType() ) );
-            sb.append( "\n\t" + "realm:                 " + request.getKdcReqBody().getRealm() );
-            sb.append( "\n\t" + "from time:             " + request.getKdcReqBody().getFrom() );
-            sb.append( "\n\t" + "till time:             " + request.getKdcReqBody().getTill() );
-            sb.append( "\n\t" + "renew-till time:       " + request.getKdcReqBody().getRTime() );
-            sb.append( "\n\t" + "hostAddresses:         " + request.getKdcReqBody().getAddresses() );
-
-            LOG_KRB.debug( sb.toString() );
+            if ( LOG_KRB.isDebugEnabled() )
+            {
+                StringBuilder sb = new StringBuilder();
+    
+                sb.append( "Received " ).append( SERVICE_NAME ).append( " request:" );
+                sb.append( "\n\tmessageType:           " ).append( request.getMessageType() );
+                sb.append( "\n\tprotocolVersionNumber: " ).append( request.getProtocolVersionNumber() );
+                sb.append( "\n\tclientAddress:         " ).append( clientAddress );
+                sb.append( "\n\tnonce:                 " ).append( request.getKdcReqBody().getNonce() );
+                sb.append( "\n\tkdcOptions:            " ).append( request.getKdcReqBody().getKdcOptions() );
+                sb.append( "\n\tclientPrincipal:       " ).append( request.getKdcReqBody().getCName() );
+                sb.append( "\n\tserverPrincipal:       " ).append( request.getKdcReqBody().getSName() );
+                sb.append( "\n\tencryptionType:        " ).append( 
+                        KerberosUtils.getEncryptionTypesString( request.getKdcReqBody().getEType() ) );
+                sb.append( "\n\trealm:                 " ).append( request.getKdcReqBody().getRealm() );
+                sb.append( "\n\tfrom time:             " ).append( request.getKdcReqBody().getFrom() );
+                sb.append( "\n\ttill time:             " ).append( request.getKdcReqBody().getTill() );
+                sb.append( "\n\trenew-till time:       " ).append( request.getKdcReqBody().getRTime() );
+                sb.append( "\n\thostAddresses:         " ).append( request.getKdcReqBody().getAddresses() );
+    
+                LOG_KRB.debug( sb.toString() );
+            }
         }
         catch ( Exception e )
         {
@@ -190,7 +192,7 @@ public final class TicketGrantingService
     {
         KdcReq request = tgsContext.getRequest();
 
-        if ( ( request.getPaData() == null ) || ( request.getPaData().size() < 1 ) )
+        if ( ( request.getPaData() == null ) || request.getPaData().isEmpty() )
         {
             throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
         }
@@ -346,8 +348,7 @@ public final class TicketGrantingService
     }
 
 
-    private static void generateTicket( TicketGrantingContext tgsContext ) throws KerberosException,
-        InvalidTicketException
+    private static void generateTicket( TicketGrantingContext tgsContext ) throws KerberosException
     {
         KdcReq request = tgsContext.getRequest();
         Ticket tgt = tgsContext.getTgt();
@@ -417,7 +418,6 @@ public final class TicketGrantingService
              * 
              * new_tkt.enc-part := encrypt OCTET STRING using etype_for_key(second-ticket.key), second-ticket.key;
              */
-            //throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
 
         EncryptedData encryptedData = cipherTextHandler.seal( serverKey, newTicketPart,
@@ -522,40 +522,43 @@ public final class TicketGrantingService
                     .contains( new HostAddress( clientAddress ) );
             }
 
-            StringBuffer sb = new StringBuffer();
+            if ( LOG_KRB.isDebugEnabled() )
+            {
+                StringBuilder sb = new StringBuilder();
+    
+                sb.append( "Monitoring " ).append( SERVICE_NAME ).append( " context:" );
+    
+                sb.append( "\n\tclockSkew              " ).append( clockSkew );
+                sb.append( "\n\tchecksumType           " ).append( checksumType );
+                sb.append( "\n\tclientAddress          " ).append( clientAddress );
+                sb.append( "\n\tclientAddresses        " ).append( clientAddresses );
+                sb.append( "\n\tcaddr contains sender  " ).append( caddrContainsSender );
+    
+                PrincipalName requestServerPrincipal = tgsContext.getRequest().getKdcReqBody().getSName();
+                PrincipalStoreEntry requestPrincipal = tgsContext.getRequestPrincipalEntry();
+    
+                sb.append( "\n\tprincipal              " ).append( requestServerPrincipal );
+                sb.append( "\n\tcn                     " ).append( requestPrincipal.getCommonName() );
+                sb.append( "\n\trealm                  " ).append( requestPrincipal.getRealmName() );
+                sb.append( "\n\tprincipal              " ).append( requestPrincipal.getPrincipal() );
+                sb.append( "\n\tSAM type               " ).append( requestPrincipal.getSamType() );
+    
+                PrincipalName ticketServerPrincipal = tgsContext.getTgt().getSName();
+                PrincipalStoreEntry ticketPrincipal = tgsContext.getTicketPrincipalEntry();
+    
+                sb.append( "\n\tprincipal              " ).append( ticketServerPrincipal );
+                sb.append( "\n\tcn                     " ).append( ticketPrincipal.getCommonName() );
+                sb.append( "\n\trealm                  " ).append( ticketPrincipal.getRealmName() );
+                sb.append( "\n\tprincipal              " ).append( ticketPrincipal.getPrincipal() );
+                sb.append( "\n\tSAM type               " ).append( ticketPrincipal.getSamType() );
+    
+                EncryptionType encryptionType = tgsContext.getTgt().getEncPart().getEType();
+                int keyVersion = ticketPrincipal.getKeyMap().get( encryptionType ).getKeyVersion();
+                sb.append( "\n\tTicket key type        " ).append( encryptionType );
+                sb.append( "\n\tService key version    " ).append( keyVersion );
 
-            sb.append( "Monitoring " + SERVICE_NAME + " context:" );
-
-            sb.append( "\n\t" + "clockSkew              " + clockSkew );
-            sb.append( "\n\t" + "checksumType           " + checksumType );
-            sb.append( "\n\t" + "clientAddress          " + clientAddress );
-            sb.append( "\n\t" + "clientAddresses        " + clientAddresses );
-            sb.append( "\n\t" + "caddr contains sender  " + caddrContainsSender );
-
-            PrincipalName requestServerPrincipal = tgsContext.getRequest().getKdcReqBody().getSName();
-            PrincipalStoreEntry requestPrincipal = tgsContext.getRequestPrincipalEntry();
-
-            sb.append( "\n\t" + "principal              " + requestServerPrincipal );
-            sb.append( "\n\t" + "cn                     " + requestPrincipal.getCommonName() );
-            sb.append( "\n\t" + "realm                  " + requestPrincipal.getRealmName() );
-            sb.append( "\n\t" + "principal              " + requestPrincipal.getPrincipal() );
-            sb.append( "\n\t" + "SAM type               " + requestPrincipal.getSamType() );
-
-            PrincipalName ticketServerPrincipal = tgsContext.getTgt().getSName();
-            PrincipalStoreEntry ticketPrincipal = tgsContext.getTicketPrincipalEntry();
-
-            sb.append( "\n\t" + "principal              " + ticketServerPrincipal );
-            sb.append( "\n\t" + "cn                     " + ticketPrincipal.getCommonName() );
-            sb.append( "\n\t" + "realm                  " + ticketPrincipal.getRealmName() );
-            sb.append( "\n\t" + "principal              " + ticketPrincipal.getPrincipal() );
-            sb.append( "\n\t" + "SAM type               " + ticketPrincipal.getSamType() );
-
-            EncryptionType encryptionType = tgsContext.getTgt().getEncPart().getEType();
-            int keyVersion = ticketPrincipal.getKeyMap().get( encryptionType ).getKeyVersion();
-            sb.append( "\n\t" + "Ticket key type        " + encryptionType );
-            sb.append( "\n\t" + "Service key version    " + keyVersion );
-
-            LOG_KRB.debug( sb.toString() );
+                LOG_KRB.debug( sb.toString() );
+            }
         }
         catch ( Exception e )
         {
@@ -567,30 +570,33 @@ public final class TicketGrantingService
 
     private static void monitorReply( TgsRep success, EncKdcRepPart part )
     {
-        try
+        if ( LOG_KRB.isDebugEnabled() )
         {
-            StringBuffer sb = new StringBuffer();
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+    
+                sb.append( "Responding with " ).append( SERVICE_NAME ).append( " reply:" );
+                sb.append( "\n\tmessageType:           " ).append( success.getMessageType() );
+                sb.append( "\n\tprotocolVersionNumber: " ).append( success.getProtocolVersionNumber() );
+                sb.append( "\n\tnonce:                 " ).append( part.getNonce() );
+                sb.append( "\n\tclientPrincipal:       " ).append( success.getCName() );
+                sb.append( "\n\tclient realm:          " ).append( success.getCRealm() );
+                sb.append( "\n\tserverPrincipal:       " ).append( part.getSName() );
+                sb.append( "\n\tserver realm:          " ).append( part.getSRealm() );
+                sb.append( "\n\tauth time:             " ).append( part.getAuthTime() );
+                sb.append( "\n\tstart time:            " ).append( part.getStartTime() );
+                sb.append( "\n\tend time:              " ).append( part.getEndTime() );
+                sb.append( "\n\trenew-till time:       " ).append( part.getRenewTill() );
+                sb.append( "\n\thostAddresses:         " ).append( part.getClientAddresses() );
 
-            sb.append( "Responding with " + SERVICE_NAME + " reply:" );
-            sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
-            sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
-            sb.append( "\n\t" + "nonce:                 " + part.getNonce() );
-            sb.append( "\n\t" + "clientPrincipal:       " + success.getCName() );
-            sb.append( "\n\t" + "client realm:          " + success.getCRealm() );
-            sb.append( "\n\t" + "serverPrincipal:       " + part.getSName() );
-            sb.append( "\n\t" + "server realm:          " + part.getSRealm() );
-            sb.append( "\n\t" + "auth time:             " + part.getAuthTime() );
-            sb.append( "\n\t" + "start time:            " + part.getStartTime() );
-            sb.append( "\n\t" + "end time:              " + part.getEndTime() );
-            sb.append( "\n\t" + "renew-till time:       " + part.getRenewTill() );
-            sb.append( "\n\t" + "hostAddresses:         " + part.getClientAddresses() );
-
-            LOG_KRB.debug( sb.toString() );
-        }
-        catch ( Exception e )
-        {
-            // This is a monitor.  No exceptions should bubble up.
-            LOG_KRB.error( I18n.err( I18n.ERR_155 ), e );
+                LOG_KRB.debug( sb.toString() );
+            }
+            catch ( Exception e )
+            {
+                // This is a monitor.  No exceptions should bubble up.
+                LOG_KRB.error( I18n.err( I18n.ERR_155 ), e );
+            }
         }
     }
 
@@ -882,7 +888,7 @@ public final class TicketGrantingService
              * the start time plus maximum lifetime as configured in policy or (c)
              * the end time of the TGT.
              */
-            List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
+            List<KerberosTime> minimizer = new ArrayList<>();
             minimizer.add( till );
             minimizer.add( new KerberosTime( startTime.getTime() + config.getMaximumTicketLifetime() ) );
             minimizer.add( tgt.getEncTicketPart().getEndTime() );
@@ -937,7 +943,7 @@ public final class TicketGrantingService
              * time or (b) the start time plus maximum renewable lifetime as
              * configured in policy or (c) the renew-till time of the TGT.
              */
-            List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
+            List<KerberosTime> minimizer = new ArrayList<>();
 
             /*
              * 'rtime' KerberosTime is OPTIONAL
@@ -1009,11 +1015,11 @@ public final class TicketGrantingService
      * Get a PrincipalStoreEntry given a principal.  The ErrorType is used to indicate
      * whether any resulting error pertains to a server or client.
      *
-     * @param principal
-     * @param store
-     * @param errorType
+     * @param principal The KerberosPrincipal instance
+     * @param store The Principal store
+     * @param errorType The type of error
      * @return The PrincipalStoreEntry
-     * @throws Exception
+     * @throws KerberosException If teh entry can't be retrieve
      */
     public static PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, ErrorType errorType )
         throws KerberosException

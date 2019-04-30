@@ -27,7 +27,6 @@ import java.util.Set;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesDecorator;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
@@ -75,6 +74,7 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.api.subtree.SubentryCache;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
@@ -225,10 +225,13 @@ public class SubentryInterceptor extends BaseInterceptor
             CoreSession adminSession = directoryService.getAdminSession();
 
             Dn suffixDn = dnFactory.create( suffix );
+            Partition partition = nexus.getPartition( suffixDn );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( adminSession, suffixDn, filter,
                 controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchOperationContext.setPartition( partition );
+            searchOperationContext.setTransaction( partition.beginReadTransaction() );
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
@@ -251,7 +254,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     }
                     catch ( Exception e )
                     {
-                        LOG.warn( "Failed while parsing subtreeSpecification for " + subentryDn );
+                        LOG.warn( "Failed while parsing subtreeSpecification for {}", subentryDn );
                         continue;
                     }
 
@@ -329,9 +332,8 @@ public class SubentryInterceptor extends BaseInterceptor
      *
      * @param opContext the invocation object to use for determining subentry visibility
      * @return true if subentries should be visible, false otherwise
-     * @throws Exception if there are problems accessing request controls
      */
-    private boolean isSubentryVisible( OperationContext opContext ) throws LdapException
+    private boolean isSubentryVisible( OperationContext opContext )
     {
         if ( !opContext.hasRequestControls() )
         {
@@ -341,9 +343,8 @@ public class SubentryInterceptor extends BaseInterceptor
         // found the subentry request control so we return its value
         if ( opContext.hasRequestControl( SUBENTRY_CONTROL ) )
         {
-            SubentriesDecorator subentriesDecorator = ( SubentriesDecorator ) opContext
-                .getRequestControl( SUBENTRY_CONTROL );
-            return subentriesDecorator.getDecorated().isVisible();
+            Subentries subentries = ( Subentries ) opContext.getRequestControl( SUBENTRY_CONTROL );
+            return subentries.isVisible();
         }
 
         return false;
@@ -353,8 +354,8 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * Update all the entries under an AP adding the
      */
-    private void updateEntries( OperationEnum operation, CoreSession session, Dn subentryDn, Dn apDn,
-        SubtreeSpecification ss, Dn baseDn, List<Attribute> operationalAttributes ) throws LdapException
+    private void updateEntries( OperationContext opContext, OperationEnum operation, 
+        Dn apDn, SubtreeSpecification ss, Dn baseDn, List<Attribute> operationalAttributes ) throws LdapException
     {
         ExprNode filter = ObjectClassNode.OBJECT_CLASS_NODE; // (objectClass=*)
         SearchControls controls = new SearchControls();
@@ -362,9 +363,11 @@ public class SubentryInterceptor extends BaseInterceptor
         controls.setReturningAttributes( new String[]
             { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
-        SearchOperationContext searchOperationContext = new SearchOperationContext( session,
+        SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(),
             baseDn, filter, controls );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+        searchOperationContext.setPartition( opContext.getPartition() );
+        searchOperationContext.setTransaction( opContext.getTransaction() );
 
         EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
@@ -386,7 +389,7 @@ public class SubentryInterceptor extends BaseInterceptor
                             break;
 
                         case REMOVE:
-                            modifications = getOperationalModsForRemove( subentryDn, candidate );
+                            modifications = getOperationalModsForRemove( opContext.getDn(), candidate );
                             break;
 
                         case REPLACE:
@@ -398,8 +401,12 @@ public class SubentryInterceptor extends BaseInterceptor
                             throw new IllegalArgumentException( "Unexpected operation " + operation );
                     }
 
-                    LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), subentryDn );
-                    nexus.modify( new ModifyOperationContext( session, candidateDn, modifications ) );
+                    LOG.debug( "The entry {} has been evaluated to true for subentry {}", candidate.getDn(), opContext.getDn() );
+                    ModifyOperationContext modifyContext = new ModifyOperationContext( opContext.getSession(), candidateDn, modifications );
+                    modifyContext.setPartition( opContext.getPartition() );
+                    modifyContext.setTransaction( opContext.getTransaction() );
+                    
+                    nexus.modify( modifyContext );
                 }
             }
 
@@ -442,6 +449,8 @@ public class SubentryInterceptor extends BaseInterceptor
         CoreSession session = opContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, apDn,
             SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( opContext.getPartition() );
+        lookupContext.setTransaction( opContext.getTransaction() );
 
         Entry administrationPoint = directoryService.getPartitionNexus().lookup( lookupContext );
 
@@ -499,6 +508,8 @@ public class SubentryInterceptor extends BaseInterceptor
         SearchOperationContext searchOperationContext = new SearchOperationContext( opContext.getSession(), name,
             filter, controls );
         searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+        searchOperationContext.setTransaction( opContext.getTransaction() );
+        searchOperationContext.setPartition( opContext.getPartition() );
 
         EntryFilteringCursor aps = nexus.search( searchOperationContext );
 
@@ -620,7 +631,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     case ADD_ATTRIBUTE:
                         for ( Value value : mod.getAttribute() )
                         {
-                            ocFinalState.add( value.getValue() );
+                            ocFinalState.add( value.getString() );
                         }
 
                         break;
@@ -628,7 +639,7 @@ public class SubentryInterceptor extends BaseInterceptor
                     case REMOVE_ATTRIBUTE:
                         for ( Value value : mod.getAttribute() )
                         {
-                            ocFinalState.remove( value.getValue() );
+                            ocFinalState.remove( value.getString() );
                         }
 
                         break;
@@ -683,7 +694,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * associated with the administrative roles.
      */
     private List<Modification> getOperationalModsForReplace( Dn oldDn, Dn newDn, Subentry subentry, Entry entry )
-        throws Exception
+        throws LdapException
     {
         List<Modification> modifications = new ArrayList<>();
 
@@ -958,7 +969,7 @@ public class SubentryInterceptor extends BaseInterceptor
             Dn baseDn = apDn;
             baseDn = baseDn.add( subentry.getSubtreeSpecification().getBase() );
 
-            updateEntries( OperationEnum.ADD, addContext.getSession(), dn, apDn, subentry.getSubtreeSpecification(),
+            updateEntries( addContext, OperationEnum.ADD, apDn, subentry.getSubtreeSpecification(),
                 baseDn, operationalAttributes );
 
             // Store the newly modified entry into the context for later use in interceptor
@@ -1053,7 +1064,7 @@ public class SubentryInterceptor extends BaseInterceptor
             baseDn = baseDn.add( removedSubentry.getSubtreeSpecification().getBase() );
 
             // Remove all the references to this removed subentry from all the selected entries
-            updateEntries( OperationEnum.REMOVE, deleteContext.getSession(), dn, apDn,
+            updateEntries( deleteContext, OperationEnum.REMOVE, apDn,
                 removedSubentry.getSubtreeSpecification(), baseDn, null );
 
             // Update the cache
@@ -1144,6 +1155,8 @@ public class SubentryInterceptor extends BaseInterceptor
             SearchOperationContext searchOperationContext = new SearchOperationContext( modifyContext.getSession(),
                 oldBaseDn, filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchOperationContext.setPartition( modifyContext.getPartition() );
+            searchOperationContext.setTransaction( modifyContext.getTransaction() );
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
@@ -1156,8 +1169,12 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( directoryService.getEvaluator().evaluate( ssOld, apName, candidateDn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
-                            getOperationalModsForRemove( dn, candidate ) ) );
+                        ModifyOperationContext newModifyContext = new ModifyOperationContext( modifyContext.getSession(), candidateDn,
+                            getOperationalModsForRemove( dn, candidate ) );
+                        newModifyContext.setPartition( modifyContext.getPartition() );
+                        newModifyContext.setTransaction( modifyContext.getTransaction() );
+                        
+                        nexus.modify( newModifyContext );
                     }
                 }
 
@@ -1188,6 +1205,8 @@ public class SubentryInterceptor extends BaseInterceptor
             searchOperationContext = new SearchOperationContext( modifyContext.getSession(), newBaseDn, filter,
                 controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchOperationContext.setPartition( modifyContext.getPartition() );
+            searchOperationContext.setTransaction( modifyContext.getTransaction() );
 
             subentries = nexus.search( searchOperationContext );
 
@@ -1234,7 +1253,10 @@ public class SubentryInterceptor extends BaseInterceptor
 
                 if ( !subentriesOpAttrMods.isEmpty() )
                 {
-                    nexus.modify( new ModifyOperationContext( modifyContext.getSession(), dn, subentriesOpAttrMods ) );
+                    ModifyOperationContext newModifyContext = new ModifyOperationContext( modifyContext.getSession(), dn, subentriesOpAttrMods );
+                    newModifyContext.setPartition( modifyContext.getPartition() );
+                    newModifyContext.setTransaction( modifyContext.getTransaction() );
+                    nexus.modify( newModifyContext );
                 }
             }
         }
@@ -1265,7 +1287,6 @@ public class SubentryInterceptor extends BaseInterceptor
      * <u>Case 3 :</u><br>
      *
      *
-     * @param next The next interceptor in the chain
      * @param moveContext The context containing all the needed informations to proceed
      * @throws LdapException If the move failed
      */
@@ -1317,6 +1338,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 baseDn,
                 filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchOperationContext.setPartition( moveContext.getPartition() );
+            searchOperationContext.setTransaction( moveContext.getTransaction() );
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
@@ -1335,9 +1358,11 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( moveContext.getSession(), dn,
-                            getOperationalModsForReplace(
-                                oldDn, newName, subentry, candidate ) ) );
+                        ModifyOperationContext newModifyContext = new ModifyOperationContext( moveContext.getSession(), dn,
+                            getOperationalModsForReplace( oldDn, newName, subentry, candidate ) );
+                        newModifyContext.setPartition( moveContext.getPartition() );
+                        newModifyContext.setTransaction( moveContext.getTransaction() );
+                        nexus.modify( newModifyContext );
                     }
                 }
             }
@@ -1383,7 +1408,10 @@ public class SubentryInterceptor extends BaseInterceptor
             // Update the entry operational attributes
             if ( !mods.isEmpty() )
             {
-                nexus.modify( new ModifyOperationContext( moveContext.getSession(), newDn, mods ) );
+                ModifyOperationContext newModifyContext = new ModifyOperationContext( moveContext.getSession(), newDn, mods );
+                newModifyContext.setPartition( moveContext.getPartition() );
+                newModifyContext.setTransaction( moveContext.getTransaction() );
+                nexus.modify( newModifyContext );
             }
         }
     }
@@ -1432,6 +1460,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 moveAndRenameContext.getSession(), baseDn,
                 filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchOperationContext.setPartition( moveAndRenameContext.getPartition() );
+            searchOperationContext.setTransaction( moveAndRenameContext.getTransaction() );
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
@@ -1449,9 +1479,11 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), dn,
-                            getOperationalModsForReplace(
-                                oldDn, newName, subentry, candidate ) ) );
+                        ModifyOperationContext newModifyContext = new ModifyOperationContext( moveAndRenameContext.getSession(), dn,
+                            getOperationalModsForReplace( oldDn, newName, subentry, candidate ) );
+                        newModifyContext.setPartition( moveAndRenameContext.getPartition() );
+                        newModifyContext.setTransaction( moveAndRenameContext.getTransaction() );
+                        nexus.modify( newModifyContext );
                     }
                 }
             }
@@ -1536,6 +1568,8 @@ public class SubentryInterceptor extends BaseInterceptor
                 baseDn,
                 filter, controls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchOperationContext.setPartition( renameContext.getPartition() );
+            searchOperationContext.setTransaction( renameContext.getTransaction() );
 
             EntryFilteringCursor subentries = nexus.search( searchOperationContext );
 
@@ -1594,7 +1628,10 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( !mods.isEmpty() )
             {
-                nexus.modify( new ModifyOperationContext( renameContext.getSession(), newName, mods ) );
+                ModifyOperationContext newModifyContext = new ModifyOperationContext( renameContext.getSession(), newName, mods );
+                newModifyContext.setPartition( renameContext.getPartition() );
+                newModifyContext.setTransaction( renameContext.getTransaction() );
+                nexus.modify( newModifyContext );
             }
         }
     }

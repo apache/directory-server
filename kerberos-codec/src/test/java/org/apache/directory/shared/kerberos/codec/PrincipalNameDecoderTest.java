@@ -55,7 +55,6 @@ public class PrincipalNameDecoderTest
     @Test
     public void testPrincipalName()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x29 );
 
@@ -110,7 +109,7 @@ public class PrincipalNameDecoderTest
         // Decode the PrincipalName PDU
         try
         {
-            kerberosDecoder.decode( stream, principalNameContainer );
+            Asn1Decoder.decode( stream, principalNameContainer );
         }
         catch ( DecoderException de )
         {
@@ -152,7 +151,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -165,7 +163,7 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
         fail();
     }
 
@@ -176,7 +174,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameNoType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -191,7 +188,7 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
         fail();
     }
 
@@ -202,7 +199,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameEmptyType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -219,7 +215,7 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
         fail();
     }
 
@@ -230,7 +226,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameBadType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
@@ -252,7 +247,7 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
         fail();
     }
 
@@ -263,7 +258,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameEmptyName() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
 
@@ -283,7 +277,7 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
         fail();
     }
 
@@ -294,7 +288,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameNoName() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
 
@@ -316,7 +309,7 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
         fail();
     }
 
@@ -327,7 +320,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameBadName() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x0D );
 
@@ -351,7 +343,7 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
         fail();
     }
 
@@ -362,7 +354,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameBadName2() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x29 );
 
@@ -414,7 +405,7 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
     }
 
 
@@ -424,7 +415,6 @@ public class PrincipalNameDecoderTest
     @Test(expected = DecoderException.class)
     public void testPrincipalNameNoNameType() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x24 );
 
@@ -471,6 +461,6 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        kerberosDecoder.decode( stream, principalNameContainer );
+        Asn1Decoder.decode( stream, principalNameContainer );
     }
 }

@@ -108,6 +108,7 @@ public enum ChangePasswdErrorType
      *
      * @return the message for this Change Password error.
      */
+    @Override
     public String toString()
     {
         return name;

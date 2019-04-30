@@ -71,7 +71,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     {
         public Object inject( OperationContext opContext, StoredProcedureParameter param ) throws LdapException
         {
-            List<Modification> newMods = new ArrayList<Modification>();
+            List<Modification> newMods = new ArrayList<>();
 
             for ( Modification mod : modifications )
             {
@@ -108,7 +108,9 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         CoreSession session = opContext.getSession();
         LookupOperationContext lookupContext = new LookupOperationContext( session, modifiedEntryName,
             SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
-
+        lookupContext.setPartition( opContext.getPartition() );
+        lookupContext.setTransaction( opContext.getTransaction() );
+        
         return session.getDirectoryService().getPartitionNexus().lookup( lookupContext );
     }
 }

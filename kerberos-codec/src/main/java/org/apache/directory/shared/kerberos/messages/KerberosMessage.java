@@ -62,9 +62,9 @@ public abstract class KerberosMessage implements Asn1Object
 
 
     /**
-     * Returns the {@link org.apache.directory.server.kerberos.shared.KerberosMessageType}.
+     * Returns the {@link KerberosMessageType}.
      *
-     * @return The {@link org.apache.directory.server.kerberos.shared.KerberosMessageType}.
+     * @return The {@link KerberosMessageType}.
      */
     public KerberosMessageType getMessageType()
     {
@@ -73,7 +73,7 @@ public abstract class KerberosMessage implements Asn1Object
 
 
     /**
-     * Sets the {@link org.apache.directory.server.kerberos.shared.KerberosMessageType}.
+     * Sets the {@link KerberosMessageType}.
      *
      * @param type
      */

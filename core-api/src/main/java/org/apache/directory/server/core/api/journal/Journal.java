@@ -67,7 +67,7 @@ public interface Journal
      * @param principal the authorized LDAP principal triggering the change
      * @param revision the operation revision
      * @param entry LDIF of the change going to the next state
-     * @throws Exception if there are problems logging the change
+     * @throws LdapException if there are problems logging the change
      */
     void log( LdapPrincipal principal, long revision, LdifEntry entry ) throws LdapException;
 
@@ -92,16 +92,16 @@ public interface Journal
      * Initialize the Journal.
      * 
      * @param service The associated DirectoryService
-     * @throws Exception If something went wrong 
+     * @throws LdapException If something went wrong 
      */
-    void init( DirectoryService service ) throws Exception;
+    void init( DirectoryService service ) throws LdapException;
 
 
     /**
      * Destroy the journal service
-     * @throws Exception If something went wrong
+     * @throws LdapException If something went wrong
      */
-    void destroy() throws Exception;
+    void destroy() throws LdapException;
 
 
     /**

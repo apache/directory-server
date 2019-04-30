@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.operations.bind;
 
@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -33,12 +34,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.net.SocketClient;
+import org.apache.directory.api.asn1.util.Asn1Buffer;
 import org.apache.directory.api.ldap.codec.api.LdapDecoder;
 import org.apache.directory.api.ldap.codec.api.LdapEncoder;
 import org.apache.directory.api.ldap.codec.api.LdapMessageContainer;
-import org.apache.directory.api.ldap.codec.api.MessageDecorator;
 import org.apache.directory.api.ldap.model.constants.SaslQoP;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
@@ -87,7 +87,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An {@link AbstractServerTest} testing SASL authentication.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
@@ -239,7 +239,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
     public void testSaslBindPLAIN() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         BindResponse resp = connection.bindSaslPlain( "hnelson", "secret" );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
@@ -297,7 +296,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         SaslCramMd5Request request = new SaslCramMd5Request();
         request.setUsername( userDn.getRdn().getValue() );
@@ -481,7 +479,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         kdcServer.getConfig().setPaEncTimestampRequired( false );
 
@@ -573,13 +570,13 @@ public class SaslBindIT extends AbstractLdapTestUnit
         BindResponse type2response = client.bindType1( "type1_test".getBytes() );
         assertEquals( 1, type2response.getMessageId() );
         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
-        assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
-        assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+        assertTrue( Objects.deepEquals( "type1_test".getBytes(), provider.getType1Response() ) );
+        assertTrue( Objects.deepEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
 
         BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
-        assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+        assertTrue( Objects.deepEquals( "type3_test".getBytes(), provider.getType3Response() ) );
     }
 
 
@@ -602,13 +599,13 @@ public class SaslBindIT extends AbstractLdapTestUnit
         BindResponse type2response = client.bindType1( "type1_test".getBytes() );
         assertEquals( 1, type2response.getMessageId() );
         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
-        assertTrue( ArrayUtils.isEquals( "type1_test".getBytes(), provider.getType1Response() ) );
-        assertTrue( ArrayUtils.isEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+        assertTrue( Objects.deepEquals( "type1_test".getBytes(), provider.getType1Response() ) );
+        assertTrue( Objects.deepEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
 
         BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
-        assertTrue( ArrayUtils.isEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+        assertTrue( Objects.deepEquals( "type3_test".getBytes(), provider.getType3Response() ) );
     }
 
 
@@ -713,8 +710,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            LdapEncoder encoder = new LdapEncoder( getLdapServer().getDirectoryService().getLdapCodecService() );
-            ByteBuffer bb = encoder.encodeMessage( request );
+            Asn1Buffer buffer = new Asn1Buffer();
+            ByteBuffer bb = LdapEncoder.encodeMessage( buffer, getService().getLdapCodecService(), request );
 
             bb.flip();
 
@@ -727,8 +724,9 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainer<MessageDecorator<? extends Message>> container = new LdapMessageContainer(
+            LdapMessageContainer<? extends Message> container = new LdapMessageContainer(
                 ldapServer.getDirectoryService().getLdapCodecService() );
+            
             return ( BindResponse ) decoder.decode( _input_, container );
         }
 
@@ -753,8 +751,8 @@ public class SaslBindIT extends AbstractLdapTestUnit
             LdapDecoder decoder = new LdapDecoder();
 
             // Send encoded request to server
-            LdapEncoder encoder = new LdapEncoder( getLdapServer().getDirectoryService().getLdapCodecService() );
-            ByteBuffer bb = encoder.encodeMessage( request );
+            Asn1Buffer buffer = new Asn1Buffer();
+            ByteBuffer bb = LdapEncoder.encodeMessage( buffer, getService().getLdapCodecService(), request );
             bb.flip();
 
             _output_.write( bb.array() );
@@ -766,8 +764,9 @@ public class SaslBindIT extends AbstractLdapTestUnit
             }
 
             // Retrieve the response back from server to my last request.
-            LdapMessageContainer<MessageDecorator<? extends Message>> container = new LdapMessageContainer(
+            LdapMessageContainer<? extends Message> container = new LdapMessageContainer(
                 ldapServer.getDirectoryService().getLdapCodecService() );
+            
             return ( BindResponse ) decoder.decode( _input_, container );
         }
     }

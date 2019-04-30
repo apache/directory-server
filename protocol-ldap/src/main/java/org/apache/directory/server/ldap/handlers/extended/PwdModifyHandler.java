@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicy;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRequest;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponse;
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponseImpl;
@@ -70,7 +70,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
 
     static
     {
-        Set<String> set = new HashSet<String>( 2 );
+        Set<String> set = new HashSet<>( 2 );
         set.add( PasswordModifyRequest.EXTENSION_OID );
         set.add( PasswordModifyResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
@@ -99,7 +99,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             
             if ( userEntry == null )
             {
-                LOG.error( "Cannot find an entry for DN " + userDn );
+                LOG.error( "Cannot find an entry for DN {}", userDn );
                 // We can't find the entry in the DIT
                 ioPipe.write( new PasswordModifyResponseImpl(
                     req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT, "Cannot find an entry for DN " + userDn ) );
@@ -125,7 +125,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
         }
         catch ( LdapException le )
         {
-            LOG.error( "Cannot find an entry for DN " + userDn + ", exception : " + le.getMessage() );
+            LOG.error( "Cannot find an entry for DN {}, exception : {}", userDn, le.getMessage() );
             // We can't find the entry in the DIT
             ioPipe.write(
                 new PasswordModifyResponseImpl(
@@ -138,7 +138,8 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
         ModifyRequest modifyRequest = new ModifyRequestImpl();
         modifyRequest.setName( userDn );
 
-        Control ppolicyControl = req.getControl( PasswordPolicy.OID );
+        Control ppolicyControl = req.getControl( PasswordPolicyRequest.OID );
+        
         if ( ppolicyControl != null )
         {
             modifyRequest.addControl( ppolicyControl );
@@ -173,7 +174,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
         {
             // In this case, we could either generate a new password, or return an error
             // Atm, we will return an unwillingToPerform error
-            LOG.error( "Cannot create a new password for user " + userDn + ", exception : " + userDn );
+            LOG.error( "Cannot create a new password for user {}, exception : null new password", userDn );
 
             // We can't modify the password
             ioPipe.write( new PasswordModifyResponseImpl(
@@ -190,13 +191,16 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
         {
             userSession.modify( modifyRequest );
 
-            LOG.debug( "Password modified for user " + userDn );
+            if ( LOG.isDebugEnabled() )
+            {
+                LOG.debug( "Password modified for user {}", userDn );
+            }
 
             // Ok, all done
             PasswordModifyResponseImpl pmrl = new PasswordModifyResponseImpl(
                 req.getMessageId(), ResultCodeEnum.SUCCESS );
 
-            ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicy.OID );
+            ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
 
             if ( ppolicyControl != null )
             {
@@ -220,12 +224,12 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
         }
 
         // We can't modify the password
-        LOG.error( "Cannot modify the password for user " + userDn + ", exception : " + errorMessage );
+        LOG.error( "Cannot modify the password for user {}, exception : {}", userDn, errorMessage );
         PasswordModifyResponseImpl errorPmrl = new PasswordModifyResponseImpl(
             req.getMessageId(), errorCode, "Cannot modify the password for user "
                 + userDn + ", exception : " + errorMessage );
 
-        ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicy.OID );
+        ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
 
         if ( ppolicyControl != null )
         {
@@ -257,7 +261,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             }
             catch ( LdapInvalidDnException lide )
             {
-                LOG.error( "The user DN is invalid : " + userDn );
+                LOG.error( "The user DN is invalid : {}", userDn );
                 // The userIdentity is not a DN : return with an error code.
                 requestor.getIoSession().write( new PasswordModifyResponseImpl(
                     req.getMessageId(), ResultCodeEnum.INVALID_DN_SYNTAX, "The user DN is invalid : " + userDn ) );
@@ -305,7 +309,6 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             // The user is not authenticated : we have to use the provided userIdentity
             // and the oldPassword to check if the user is present
             BindOperationContext bindContext = new BindOperationContext( adminSession );
-            bindContext.setTransaction( requestor.getCoreSession().getDirectoryService().getPartitionNexus().beginReadTransaction() );
             bindContext.setDn( userDn );
             bindContext.setCredentials( oldPassword );
 

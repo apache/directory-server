@@ -80,23 +80,6 @@ public class KerberosTcpITest extends AbstractKerberosITest
     // TODO: add tests for different options
 
     @Test
-    public void testObtainTickets_DES_CBC_MD5() throws Exception
-    {
-        if ( System.getProperty( "java.version" ).startsWith( "1.8" ) )
-        {
-            // Java 8 does not support anymore dec-cbc-md5
-            return;
-        }
-
-        // TODO: rsa-md5-des
-        // RFC3961, Section 6.2.1: des-cbc-md5 + rsa-md5-des
-        ObtainTicketParameters parameters = new ObtainTicketParameters( TcpTransport.class,
-            EncryptionType.DES_CBC_MD5, ChecksumType.RSA_MD5 );
-        testObtainTickets( parameters );
-    }
-
-
-    @Test
     public void testObtainTickets_DES3_CBC_SHA1_KD() throws Exception
     {
         // RFC3961, Section 6.3: des3-cbc-hmac-sha1-kd + hmac-sha1-des3-kd

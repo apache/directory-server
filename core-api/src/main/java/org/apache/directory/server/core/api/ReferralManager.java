@@ -91,7 +91,7 @@ public interface ReferralManager
     /**
      * Add a referral to the manager.
      *
-     * @param dn The referral to add
+     * @param entry The referral to add
      */
     void addReferral( Entry entry );
 
@@ -99,7 +99,8 @@ public interface ReferralManager
     /**
      * Remove a referral from the manager.
      *
-     * @param dn The referral to remove
+     * @param entry The referral to remove
+     * @throws LdapException If the referal can't be removed
      */
     void removeReferral( Entry entry ) throws LdapException;
 
@@ -110,7 +111,7 @@ public interface ReferralManager
      *
      * @param directoryService The associated LDAP service
      * @param suffixes The partition list
-     * @exception If the initialization failed
+     * @exception Exception If the initialization failed
      */
     void init( DirectoryService directoryService, String... suffixes ) throws Exception;
 
@@ -122,7 +123,7 @@ public interface ReferralManager
      *
      * @param directoryService The associated LDAP service
      * @param suffixes The partition Dn to remove
-     * @exception If the removal failed
+     * @exception Exception If the removal failed
      */
     void remove( DirectoryService directoryService, Dn suffixes ) throws Exception;
 }

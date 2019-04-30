@@ -79,10 +79,10 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
         // The Length should not be null and should be 1
         if ( tlv.getLength() != 1 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         BerValue value = tlv.getValue();
@@ -100,7 +100,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
                     return;
                 }
 
-                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ) );
+                String message = I18n.err( I18n.ERR_05102_INVALID_MESSAGE_ID, Strings.dumpBytes( value.getData() ) );
                 LOG.error( message );
 
                 // This will generate a PROTOCOL_ERROR
@@ -110,22 +110,18 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
             {
                 KerberosMessageType messageType = KerberosMessageType.getTypeByValue( msgTypeValue );
 
-                if ( container instanceof KdcReqContainer )
+                if ( ( container instanceof KdcReqContainer )
+                        &&  ( ( ( KdcReqContainer ) container ).getKdcReq().getMessageType() == messageType ) )
                 {
-                    if ( ( ( KdcReqContainer ) container ).getKdcReq().getMessageType() == messageType )
-                    {
-                        return;
-                    }
+                    return;
                 }
-                else if ( container instanceof KdcRepContainer )
+                else if ( ( container instanceof KdcRepContainer )
+                        && ( ( ( KdcRepContainer ) container ).getKdcRep().getMessageType() == messageType ) )
                 {
-                    if ( ( ( KdcRepContainer ) container ).getKdcRep().getMessageType() == messageType )
-                    {
-                        return;
-                    }
+                    return;
                 }
 
-                String message = I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ) );
+                String message = I18n.err( I18n.ERR_05102_INVALID_MESSAGE_ID, Strings.dumpBytes( value.getData() ) );
                 LOG.error( message );
 
                 // This will generate a PROTOCOL_ERROR
@@ -134,7 +130,7 @@ public abstract class AbstractReadMsgType<E extends Asn1Container> extends Gramm
         }
         catch ( IntegerDecoderException ide )
         {
-            LOG.error( I18n.err( I18n.ERR_04070, Strings.dumpBytes( value.getData() ), ide
+            LOG.error( I18n.err( I18n.ERR_05102_INVALID_MESSAGE_ID, Strings.dumpBytes( value.getData() ), ide
                 .getLocalizedMessage() ) );
 
             // This will generate a PROTOCOL_ERROR

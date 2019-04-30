@@ -98,7 +98,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>accessControlSubentries<code> {@link AttributeType}.
+     * @return the <code>accessControlSubentries</code> {@link AttributeType}.
      */
     public AttributeType getAccessControlSubentries()
     {
@@ -107,7 +107,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>administrativeRole<code> {@link AttributeType}.
+     * @return the <code>administrativeRole</code> {@link AttributeType}.
      */
     public AttributeType getAdministrativeRole()
     {
@@ -116,7 +116,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>collectiveAttributeSubentries<code> {@link AttributeType}.
+     * @return the <code>collectiveAttributeSubentries</code> {@link AttributeType}.
      */
     public AttributeType getCollectiveAttributeSubentries()
     {
@@ -125,7 +125,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>collectiveExclusions<code> {@link AttributeType}.
+     * @return the <code>collectiveExclusions</code> {@link AttributeType}.
      */
     public AttributeType getCollectiveExclusions()
     {
@@ -134,7 +134,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>creatorsName<code> {@link AttributeType}.
+     * @return the <code>creatorsName</code> {@link AttributeType}.
      */
     public AttributeType getCreatorsName()
     {
@@ -143,7 +143,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>createTimestamp<code> {@link AttributeType}.
+     * @return the <code>createTimestamp</code> {@link AttributeType}.
      */
     public AttributeType getCreateTimestamp()
     {
@@ -152,7 +152,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>entryACI<code> {@link AttributeType}.
+     * @return the <code>entryACI</code> {@link AttributeType}.
      */
     public AttributeType getEntryACI()
     {
@@ -161,7 +161,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>entryCSN<code> {@link AttributeType}.
+     * @return the <code>entryCSN</code> {@link AttributeType}.
      */
     public AttributeType getEntryCSN()
     {
@@ -170,7 +170,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>entryDN<code> {@link AttributeType}.
+     * @return the <code>entryDN</code> {@link AttributeType}.
      */
     public AttributeType getEntryDN()
     {
@@ -179,7 +179,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>entryUUID<code> {@link AttributeType}.
+     * @return the <code>entryUUID</code> {@link AttributeType}.
      */
     public AttributeType getEntryUUID()
     {
@@ -188,7 +188,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>member<code> {@link AttributeType}.
+     * @return the <code>member</code> {@link AttributeType}.
      */
     public AttributeType getMember()
     {
@@ -197,7 +197,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>modifiersName<code> {@link AttributeType}.
+     * @return the <code>modifiersName</code> {@link AttributeType}.
      */
     public AttributeType getModifiersName()
     {
@@ -206,7 +206,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>modifyTimestamp<code> {@link AttributeType}.
+     * @return the <code>modifyTimestamp</code> {@link AttributeType}.
      */
     public AttributeType getModifyTimestamp()
     {
@@ -215,7 +215,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>objectClass<code> {@link AttributeType}.
+     * @return the <code>objectClass</code> {@link AttributeType}.
      */
     public AttributeType getObjectClass()
     {
@@ -224,7 +224,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>prescriptiveACI<code> {@link AttributeType}.
+     * @return the <code>prescriptiveACI</code> {@link AttributeType}.
      */
     public AttributeType getPrescriptiveACI()
     {
@@ -233,7 +233,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>subentryACI<code> {@link AttributeType}.
+     * @return the <code>subentryACI</code> {@link AttributeType}.
      */
     public AttributeType getSubentryACI()
     {
@@ -242,7 +242,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>subschemaSubentry<code> {@link AttributeType}.
+     * @return the <code>subschemaSubentry</code> {@link AttributeType}.
      */
     public AttributeType getSubschemaSubentry()
     {
@@ -251,7 +251,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>subtreeSpecification<code> {@link AttributeType}.
+     * @return the <code>subtreeSpecification</code> {@link AttributeType}.
      */
     public AttributeType getSubtreeSpecification()
     {
@@ -260,7 +260,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>triggerExecutionSubentries<code> {@link AttributeType}.
+     * @return the <code>triggerExecutionSubentries</code> {@link AttributeType}.
      */
     public AttributeType getTriggerExecutionSubentries()
     {
@@ -269,7 +269,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>uniqueMember<code> {@link AttributeType}.
+     * @return the <code>uniqueMember</code> {@link AttributeType}.
      */
     public AttributeType getUniqueMember()
     {
@@ -296,7 +296,7 @@ public class AttributeTypeProvider
 
 
     /** 
-     * @return the <code>userPassword<code> {@link AttributeType}.
+     * @return the <code>userPassword</code> {@link AttributeType}.
      */
     public AttributeType getUserPassword()
     {

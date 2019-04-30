@@ -296,7 +296,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         assertNotNull( loadedEntry );
         assertTrue( loadedEntry.containsAttribute( "cn" ) );
 
-        String cn = loadedEntry.get( "cn" ).get().getValue();
+        String cn = loadedEntry.get( "cn" ).get().getString();
 
         assertEquals( "a+B", cn );
     }
@@ -322,7 +322,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         assertNotNull( loadedEntry );
         assertTrue( loadedEntry.containsAttribute( "cn" ) );
 
-        String cn = loadedEntry.get( "cn" ).get().getValue();
+        String cn = loadedEntry.get( "cn" ).get().getString();
 
         assertEquals( "a+b", cn );
     }
@@ -356,7 +356,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         for ( Value value : attribute )
         {
-            String val = value.getValue();
+            String val = value.getString();
 
             assertTrue( expected.contains( val ) );
             count++;
@@ -375,7 +375,6 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Test
     public void testPreserveRdnUpName() throws Exception
     {
-        connection.setTimeOut( 0L );
         Dn dn = new Dn( getService().getSchemaManager(), "cn=testadd,ou=system" );
         Entry entry = new DefaultEntry( dn,
             "ObjectClass: person",
@@ -397,7 +396,6 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
     @Test
     public void testAddNullValueSchemaAware() throws LdapException, IOException
     {
-        connection.setTimeOut( 0L );
         connection.loadSchema();
 
         // Use the client API

@@ -29,7 +29,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
@@ -58,6 +57,21 @@ public interface Partition
     /** Default id used for context entry if context entry doesn't exists */
     String DEFAULT_ID = new UUID( 0L, 1L ).toString();
 
+    /**
+     * Start a read transaction
+     * 
+     * @return a read transaction instance
+     */
+    PartitionReadTxn beginReadTransaction();
+
+    
+    /**
+     * Start a write transaction
+     * 
+     * @return A write transaction instance
+     */
+    PartitionWriteTxn beginWriteTransaction();
+    
 
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
@@ -90,7 +104,7 @@ public interface Partition
     /**
      * Sets the schema manager assigned to this Partition.
      *
-     * @param registries the manager to assign to this Partition.
+     * @param schemaManager The SchemaManager instance
      */
     void setSchemaManager( SchemaManager schemaManager );
 
@@ -100,9 +114,9 @@ public interface Partition
     // -----------------------------------------------------------------------
 
     /**
-     * Initializes this partition. {@link #isInitialized()} will return <tt>true</tt> if
-     * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
-     * as a clean-up process if {@link #doInit()} throws an exception.
+     * Initializes this partition. <code>isInitialized()</code> will return <tt>true</tt> if
+     * <code>doInit()</code> returns without any errors. <code>destroy()</code> is called automatically
+     * as a clean-up process if <code>doInit()</code> throws an exception.
      *
      * @throws LdapException if initialization fails in any way
      */
@@ -131,6 +145,7 @@ public interface Partition
      * Sets the suffix Dn, must be normalized.
      * 
      * @param suffixDn the new suffix Dn
+     * @throws LdapInvalidDnException If the Dn is invalid
      */
     void setSuffixDn( Dn suffixDn ) throws LdapInvalidDnException;
 
@@ -138,22 +153,27 @@ public interface Partition
     /**
      * Instructs this Partition to synchronize with it's persistent store, and
      * destroy all held resources, in preparation for a shutdown event.
+     * 
+     * @param partitionTxn The transaction to use
+     * @throws LdapException If we can't destroy the partition
      */
-    void destroy() throws Exception;
+    void destroy( PartitionTxn partitionTxn ) throws LdapException;
 
 
     /**
      * Checks to see if this partition is initialized or not.
-     * @return true if the partition is initialized, false otherwise
+     * 
+     * @return <tt>true</tt> if the partition is initialized, false otherwise
      */
     boolean isInitialized();
 
 
     /**
      * Flushes any changes made to this partition now.
-     * @throws Exception if buffers cannot be flushed to disk
+     * 
+     * @throws LdapException if buffers cannot be flushed to disk
      */
-    void sync() throws Exception;
+    void sync() throws LdapException;
 
 
     /**
@@ -163,7 +183,7 @@ public interface Partition
      * @param deleteContext the context of the entry to
      * delete from this ContextPartition.
      * @return The delete Entry, if found
-     * @throws Exception if there are any problems
+     * @throws LdapException if there are any problems
      */
     Entry delete( DeleteOperationContext deleteContext ) throws LdapException;
 
@@ -184,12 +204,7 @@ public interface Partition
      * to perform on the entry which is one of constants specified by the
      * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
-     * 
-     * @throws Exception if there are any problems
-     * @see javax.naming.directory.DirContext
-     * @see javax.naming.directory.DirContext#ADD_ATTRIBUTE
-     * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
-     * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
+     * @throws LdapException if there are any problems
      */
     void modify( ModifyOperationContext modifyContext ) throws LdapException;
 
@@ -203,8 +218,8 @@ public interface Partition
      * Controls.
      *
      * @param searchContext The context containing the information used by the operation
-     * @throws Exception if there are any problems
      * @return a NamingEnumeration containing objects of type
+     * @throws LdapException if there are any problems
      */
     EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException;
 
@@ -219,7 +234,7 @@ public interface Partition
      *
      * @param lookupContext The context containing the parameters
      * @return an Attributes object representing the entry
-     * @throws Exception if there are any problems
+     * @throws LdapException if there are any problems
      */
     Entry lookup( LookupOperationContext lookupContext ) throws LdapException;
 
@@ -229,7 +244,7 @@ public interface Partition
      *
      * @param hasEntryContext The context used to pass informations
      * @return true if the entry exists, false if it does not
-     * @throws Exception if there are any problems
+     * @throws LdapException if there are any problems
      */
     boolean hasEntry( HasEntryOperationContext hasEntryContext ) throws LdapException;
 
@@ -241,7 +256,7 @@ public interface Partition
      * if it is irrelevant.
      *
      * @param renameContext the modify Dn context
-     * @throws Exception if there are any problems
+     * @throws LdapException if there are any problems
      */
     void rename( RenameOperationContext renameContext ) throws LdapException;
 
@@ -251,7 +266,7 @@ public interface Partition
      * parent entry.
      *
      * @param moveContext The context containing the DNs to move
-     * @throws Exception if there are any problems
+     * @throws LdapException if there are any problems
      */
     void move( MoveOperationContext moveContext ) throws LdapException;
 
@@ -266,7 +281,7 @@ public interface Partition
      *
      * @param moveAndRenameContext The context contain all the information about
      * the modifyDN operation
-     * @throws Exception if there are any problems
+     * @throws LdapException if there are any problems
      */
     void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException;
 
@@ -277,46 +292,48 @@ public interface Partition
      * interested in implementing virtual directories with ApacheDS.
      * 
      * @param unbindContext the context used to unbind
-     * @throws Exception if something goes wrong
+     * @throws LdapException if something goes wrong
      */
     void unbind( UnbindOperationContext unbindContext ) throws LdapException;
 
 
     /**
      * Dump the requested index to a given stream
+     * 
+     * @param partitionTxn The transaction to use
+     * @param stream The Stream used to dump the index
      * @param name The index to dump to stdout
      * @throws IOException if we can't write the data
      */
-    void dumpIndex( OutputStream stream, String name ) throws IOException;
+    void dumpIndex( PartitionTxn partitionTxn, OutputStream stream, String name ) throws IOException;
 
-
-    /**
-     * set the Cache service 
-     *
-     * @param cacheService
-     */
-    void setCacheService( CacheService cacheService );
 
     
     /**
+     * Get the contextCSN
+     * 
+     * @param partitionTxn The transaction to use
      * @return the current highest committed CSN value
      */
-    String getContextCsn();
+    String getContextCsn( PartitionTxn partitionTxn );
 
     
     /**
-     * saves the context CSN value in the context entry of the partition
-     * @throws Exception
+     * Saves the context CSN value in the context entry of the partition
+     * 
+     * @param partitionTxn The transaction to use
+     * @throws LdapException If the context can't be saved
      */
-    void saveContextCsn() throws Exception;
+    void saveContextCsn( PartitionTxn partitionTxn ) throws LdapException;
     
     
     /**
      * Return the number of children and subordinates for a given entry
      *
+     * @param partitionTxn The transaction to use
      * @param entry The entry
      * @return The Subordinate instance that contains the values.
      * @throws LdapException If we had an issue while processing the request
      */
-    Subordinates getSubordinates( Entry entry ) throws LdapException;
+    Subordinates getSubordinates( PartitionTxn partitionTxn, Entry entry ) throws LdapException;
 }

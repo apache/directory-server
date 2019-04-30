@@ -41,11 +41,9 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
-import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -321,7 +319,7 @@ public class SearchPerfIT extends AbstractLdapTestUnit
             "ou: People" );
 
         connection.add( rootPeople );
-        int nbUsers = 10000;
+        int nbUsers = 1000;
         
         System.out.println( "Sleeping..." );
         //Thread.sleep( 10000 );
@@ -418,12 +416,13 @@ public class SearchPerfIT extends AbstractLdapTestUnit
 
             SearchCursor cursor = connection.search( searchRequest );
 
+            //System.out.println( cursor.getEntry() );
             boolean hasNext = firstNext( cursor );
             
             while ( hasNext )
             {
                 count++;
-                cursor.getEntry();
+                //System.out.println( cursor.getEntry() );
                 hasNext = innerNext( cursor );
             }
 

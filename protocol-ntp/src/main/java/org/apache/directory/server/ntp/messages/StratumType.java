@@ -103,6 +103,10 @@ public enum StratumType
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString()
     {
         return name;

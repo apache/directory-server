@@ -39,7 +39,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 /**
  * A ReplicaEventMessage serializer/deserializer.
  * 
- * A modification is serialized following this format : <br/>
+ * A modification is serialized following this format : <br>
  * <ul>
  * <li>byte : EventType</li>
  * <li>byte[] : the serialized DN</li>

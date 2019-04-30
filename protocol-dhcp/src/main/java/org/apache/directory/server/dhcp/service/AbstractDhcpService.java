@@ -133,7 +133,6 @@ public abstract class AbstractDhcpService implements DhcpService
      */
     protected DhcpMessage handleINFORM( InetSocketAddress localAddress,
         InetSocketAddress clientAddress, DhcpMessage request )
-        throws DhcpException
     {
         if ( LOGGER.isDebugEnabled() )
         {
@@ -154,8 +153,7 @@ public abstract class AbstractDhcpService implements DhcpService
      *         it.
      */
     protected DhcpMessage handleRELEASE( InetSocketAddress localAddress,
-        InetSocketAddress clientAddress, DhcpMessage request )
-        throws DhcpException
+        InetSocketAddress clientAddress, DhcpMessage request ) throws DhcpException
     {
         if ( LOGGER.isDebugEnabled() )
         {
@@ -175,8 +173,7 @@ public abstract class AbstractDhcpService implements DhcpService
      *         it.
      */
     protected DhcpMessage handleREQUEST( InetSocketAddress localAddress,
-        InetSocketAddress clientAddress, DhcpMessage request )
-        throws DhcpException
+        InetSocketAddress clientAddress, DhcpMessage request ) throws DhcpException
     {
         if ( LOGGER.isDebugEnabled() )
         {
@@ -198,8 +195,7 @@ public abstract class AbstractDhcpService implements DhcpService
      * @throws DhcpException
      */
     protected DhcpMessage handleDISCOVER( InetSocketAddress localAddress,
-        InetSocketAddress clientAddress, DhcpMessage request )
-        throws DhcpException
+        InetSocketAddress clientAddress, DhcpMessage request ) throws DhcpException
     {
         if ( LOGGER.isDebugEnabled() )
         {
@@ -222,7 +218,6 @@ public abstract class AbstractDhcpService implements DhcpService
      */
     protected DhcpMessage handleOFFER( InetSocketAddress localAddress,
         InetSocketAddress clientAddress, DhcpMessage request )
-        throws DhcpException
     {
         if ( LOGGER.isDebugEnabled() )
         {

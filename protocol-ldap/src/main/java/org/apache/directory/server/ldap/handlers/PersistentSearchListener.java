@@ -44,7 +44,6 @@ import org.apache.directory.server.core.api.interceptor.context.ModifyOperationC
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +90,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     }
 
 
-    public void abandon() throws LdapException
+    public void abandon()
     {
         // must abandon the operation 
         session.getCoreSession().getDirectoryService().getEventService().removeListener( this );
@@ -113,14 +112,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
 
     public void requestAbandoned( AbandonableRequest req )
     {
-        try
-        {
-            abandon();
-        }
-        catch ( LdapException e )
-        {
-            LOG.error( I18n.err( I18n.ERR_164 ), e );
-        }
+        abandon();
     }
 
 

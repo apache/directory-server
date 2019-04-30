@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.referral;
 
 
+import javax.naming.Context;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -50,8 +52,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * An service which is responsible referral handling behavoirs.  It manages
- * referral handling behavoir when the {@link Context#REFERRAL} is implicitly
+ * An service which is responsible referral handling behaviors.  It manages
+ * referral handling behavior when the {@link Context#REFERRAL} is implicitly
  * or explicitly set to "ignore", when set to "throw" and when set to "follow".
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -78,9 +80,9 @@ public class ReferralInterceptor extends BaseInterceptor
     }
 
 
-    private static void checkRefAttributeValue( Value value ) throws LdapException, LdapURLEncodingException
+    private static void checkRefAttributeValue( Value value ) throws LdapException
     {
-        String refVal = value.getValue();
+        String refVal = value.getString();
 
         LdapUrl ldapUrl = new LdapUrl( refVal );
 
@@ -152,15 +154,7 @@ public class ReferralInterceptor extends BaseInterceptor
             return false;
         }
 
-        Attribute oc = entry.get( directoryService.getAtProvider().getObjectClass() );
-
-        if ( oc == null )
-        {
-            LOG.warn( "could not find objectClass attribute in entry: " + entry );
-            return false;
-        }
-
-        if ( !oc.contains( SchemaConstants.REFERRAL_OC ) )
+        if ( !entry.contains( directoryService.getAtProvider().getObjectClass(), SchemaConstants.REFERRAL_OC ) )
         {
             return false;
         }
@@ -210,7 +204,7 @@ public class ReferralInterceptor extends BaseInterceptor
         directoryService.setReferralManager( referralManager );
 
         Value subschemaSubentry = nexus.getRootDseValue( directoryService.getAtProvider().getSubschemaSubentry() );
-        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getValue() );
+        subschemaSubentryDn = dnFactory.create( subschemaSubentry.getString() );
     }
 
 
@@ -332,6 +326,8 @@ public class ReferralInterceptor extends BaseInterceptor
         // on eferral tests...
         LookupOperationContext lookupContext =
             new LookupOperationContext( modifyContext.getSession(), dn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+        lookupContext.setPartition( modifyContext.getPartition() );
+        lookupContext.setTransaction( modifyContext.getTransaction() );
 
         Entry newEntry = nexus.lookup( lookupContext );
 
@@ -434,6 +430,8 @@ public class ReferralInterceptor extends BaseInterceptor
             // Update the referralManager
             LookupOperationContext lookupContext = new LookupOperationContext( renameContext.getSession(),
                 renameContext.getNewDn(), SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( renameContext.getPartition() );
+            lookupContext.setTransaction( renameContext.getTransaction() );
 
             Entry newEntry = nexus.lookup( lookupContext );
 

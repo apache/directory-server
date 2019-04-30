@@ -26,8 +26,6 @@ package org.apache.directory.shared.client.api.operations.bind;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -35,22 +33,8 @@ import java.security.cert.CertificateException;
 import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.login.Configuration;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
-import org.apache.directory.api.ldap.model.entry.DefaultEntry;
-import org.apache.directory.api.ldap.model.entry.DefaultModification;
-import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.Modification;
-import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.api.ldap.model.message.AddRequest;
-import org.apache.directory.api.ldap.model.message.AddRequestImpl;
-import org.apache.directory.api.ldap.model.message.AddResponse;
 import org.apache.directory.api.ldap.model.message.BindResponse;
-import org.apache.directory.api.ldap.model.message.DeleteRequest;
-import org.apache.directory.api.ldap.model.message.DeleteRequestImpl;
-import org.apache.directory.api.ldap.model.message.DeleteResponse;
-import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.SaslGssApiRequest;
@@ -67,7 +51,7 @@ public class Test
     public SaslGssApiRequest saslGssApiRequest;
 
 
-    public static void main( String[] args ) throws LdapException, CursorException, IOException,
+    public static void main( String[] args ) throws LdapException, CursorException,
         NoSuchAlgorithmException, CertificateException, KeyStoreException
     {
         String keystore = "C:\\bea\\jrockit_160_05\\jre\\lib\\security\\ETHIXNetAdmin.pfx";
@@ -159,11 +143,6 @@ public class Test
             ldapNetworkConnection.unBind();
             ldapNetworkConnection.close();
         }
-        catch ( IOException e )
-        {
-            e.printStackTrace();
-        }
-
         catch ( LdapException e )
         {
             e.printStackTrace();

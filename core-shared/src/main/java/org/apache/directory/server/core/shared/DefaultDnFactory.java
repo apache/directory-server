@@ -21,8 +21,7 @@
 package org.apache.directory.server.core.shared;
 
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
+import java.time.Duration;
 
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -30,6 +29,9 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.DnFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 
 /**
@@ -42,7 +44,7 @@ public class DefaultDnFactory implements DnFactory
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDnFactory.class );
 
     /** The cache for DNs */
-    private Cache dnCache;
+    private Cache<String, Dn> dnCache;
 
     /** The schema manager */
     private SchemaManager schemaManager;
@@ -58,12 +60,14 @@ public class DefaultDnFactory implements DnFactory
     /**
      * Instantiates a new default Dn factory.
      *
-     * @param directoryService the directory service
+     * @param schemaManager The SchemaManager instance
+     * @param cacheSize The cache size used to store DNs
      */
-    public DefaultDnFactory( SchemaManager schemaManager, Cache dnCache )
+    public DefaultDnFactory( SchemaManager schemaManager, int cacheSize )
     {
         this.schemaManager = schemaManager;
-        this.dnCache = dnCache;
+        this.dnCache = Caffeine.newBuilder().maximumSize( cacheSize ).expireAfterAccess( Duration.ofMinutes( 10L ) )
+            .build();
     }
 
 
@@ -89,12 +93,7 @@ public class DefaultDnFactory implements DnFactory
         // for the reason for performing this check
         if ( dnCache != null )
         {
-            Element dnCacheEntry = dnCache.get( dn );
-
-            if ( dnCacheEntry != null )
-            {
-                cachedDn = ( Dn ) dnCacheEntry.getObjectValue();
-            }
+            cachedDn = dnCache.getIfPresent( dn );
         }
 
         if ( cachedDn == null )
@@ -105,7 +104,7 @@ public class DefaultDnFactory implements DnFactory
 
             if ( dnCache != null )
             {
-                dnCache.put( new Element( dn, cachedDn ) );
+                dnCache.put( dn, cachedDn );
             }
 
             if ( enableStats )

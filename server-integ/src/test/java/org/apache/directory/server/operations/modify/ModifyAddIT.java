@@ -351,7 +351,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         // Check, whether attribute objectClass is unchanged
         Attributes attrs = ctx.getAttributes( RDN_TORI_AMOS );
         ocls = attrs.get( "objectClass" );
-        assertEquals( ocls.size(), 4 );
+        assertEquals( 4, ocls.size() );
         assertTrue( ocls.contains( "top" ) );
         assertTrue( ocls.contains( "person" ) );
     }
@@ -705,7 +705,6 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testModifyAddWithNullValues() throws LdapException, IOException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         // Use the client API
         connection.bind( "uid=admin,ou=system", "secret" );
@@ -747,7 +746,6 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     public void testModifyReplaceWithNullValues() throws LdapException, IOException
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
 
         // Use the client API
         connection.bind( "uid=admin,ou=system", "secret" );

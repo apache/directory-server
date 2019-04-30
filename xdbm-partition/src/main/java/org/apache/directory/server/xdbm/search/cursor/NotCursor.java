@@ -27,6 +27,7 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -54,9 +55,16 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     private final Evaluator<? extends ExprNode> childEvaluator;
 
 
-    @SuppressWarnings("unchecked")
-    public NotCursor( Store store, Evaluator<? extends ExprNode> childEvaluator )
-        throws Exception
+    /**
+     * Creates a new instance of an NotCursor
+     * 
+     * @param partitionTxn The transaction to use
+     * @param store The store
+     * @param childEvaluator The inner evaluator
+     * @throws LdapException If the creation failed
+     */
+    public NotCursor( PartitionTxn partitionTxn, Store store, Evaluator<? extends ExprNode> childEvaluator ) 
+            throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -64,7 +72,8 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
         }
 
         this.childEvaluator = childEvaluator;
-        this.uuidCursor = new AllEntriesCursor( store );
+        this.partitionTxn = partitionTxn;
+        this.uuidCursor = new AllEntriesCursor( partitionTxn, store );
 
     }
 
@@ -83,7 +92,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         uuidCursor.beforeFirst();
         setAvailable( false );
     }
@@ -94,7 +103,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         uuidCursor.afterLast();
         setAvailable( false );
     }
@@ -125,14 +134,15 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
         while ( uuidCursor.previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             IndexEntry<?, String> candidate = uuidCursor.get();
 
-            if ( !childEvaluator.evaluate( candidate ) )
+            if ( !childEvaluator.evaluate( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -145,14 +155,15 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
         while ( uuidCursor.next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             IndexEntry<?, String> candidate = uuidCursor.get();
 
-            if ( !childEvaluator.evaluate( candidate ) )
+            if ( !childEvaluator.evaluate( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -167,7 +178,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
      */
     public IndexEntry<V, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( available() )
         {
@@ -181,6 +192,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -196,6 +208,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -211,6 +224,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -239,6 +253,6 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
      */
     public String toString()
     {
-        return toString( "" );
+        return "";
     }
 }

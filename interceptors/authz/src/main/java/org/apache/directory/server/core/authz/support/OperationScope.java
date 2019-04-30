@@ -52,7 +52,7 @@ public final class OperationScope
 
 
     /**
-     * Return the name of this scope.
+     * @return the name of this scope.
      */
     public String getName()
     {

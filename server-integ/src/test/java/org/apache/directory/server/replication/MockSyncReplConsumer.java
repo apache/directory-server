@@ -32,17 +32,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.api.ldap.codec.api.LdapApiService;
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.extras.controls.SyncModifyDnType;
 import org.apache.directory.api.ldap.extras.controls.SynchronizationModeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncDone.SyncDoneValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncInfoValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl.syncInfoValue.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValue;
+import org.apache.directory.api.ldap.extras.controls.syncrepl.syncRequest.SyncRequestValueImpl;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateTypeEnum;
 import org.apache.directory.api.ldap.extras.controls.syncrepl.syncState.SyncStateValue;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueDecorator;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueDecorator;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl.SyncInfoValue;
+import org.apache.directory.api.ldap.extras.intermediate.syncrepl_impl.SyncInfoValueFactory;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -103,9 +101,6 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /** A dedicated logger for the consumer */
     private static final Logger CONSUMER_LOG = LoggerFactory.getLogger( Loggers.CONSUMER_LOG.getName() );
 
-    /** The codec */
-    private LdapApiService ldapCodecService = LdapApiServiceFactory.getSingleton();
-
     /** the syncrepl configuration */
     private SyncReplConfiguration config;
 
@@ -116,7 +111,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     private final Object mutex = new Object();
 
     /** the sync cookie sent by the server */
-    private byte[] syncCookie;
+    private volatile byte[] syncCookie;
 
     /** connection to the syncrepl provider */
     private LdapNetworkConnection connection;
@@ -222,7 +217,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             if ( connection == null )
             {
                 connection = new LdapNetworkConnection( providerHost, port );
-                connection.setTimeOut( -1L );
+                connection.setTimeOut( 10000L );
 
                 if ( config.isUseTls() )
                 {
@@ -401,21 +396,13 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     /**
      * {@inheritDoc}
      */
-    public void handleSyncInfo( IntermediateResponse syncInfoResp )
+    public void handleSyncInfo( SyncInfoValue syncInfoValue )
     {
         try
         {
             LOG.debug( "............... inside handleSyncInfo ..............." );
 
-            byte[] syncInfoBytes = syncInfoResp.getResponseValue();
-
-            if ( syncInfoBytes == null )
-            {
-                return;
-            }
-
-            SyncInfoValueDecorator decorator = new SyncInfoValueDecorator( ldapCodecService );
-            SyncInfoValue syncInfoValue = ( SyncInfoValue ) decorator.decode( syncInfoBytes );
+            LOG.debug( "received sync info: " + syncInfoValue );
 
             byte[] cookie = syncInfoValue.getCookie();
 
@@ -667,7 +654,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
      */
     private ReplicationStatusEnum doSyncSearch( SynchronizationModeEnum syncType, boolean reloadHint ) throws Exception
     {
-        SyncRequestValue syncReq = new SyncRequestValueDecorator( ldapCodecService );
+        SyncRequestValue syncReq = new SyncRequestValueImpl();
 
         syncReq.setMode( syncType );
         syncReq.setReloadHint( reloadHint );
@@ -697,7 +684,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             }
             else if ( resp instanceof IntermediateResponse )
             {
-                handleSyncInfo( ( IntermediateResponse ) resp );
+                handleSyncInfo( ( SyncInfoValue ) resp );
             }
 
             resp = sf.get();
@@ -762,9 +749,6 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
                 {
                     refreshThread.stopRefreshing();
                 }
-
-                connection.unBind();
-                LOG.info( "Unbound from the server {}", config.getRemoteHost() );
 
                 connection.close();
                 LOG.info( "Connection closed for the server {}", config.getRemoteHost() );
@@ -1265,4 +1249,11 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
     {
         nbAdded.getAndSet( 0 );
     }
+
+
+    public boolean hasSyncCookie()
+    {
+        return syncCookie != null;
+    }
+
 }

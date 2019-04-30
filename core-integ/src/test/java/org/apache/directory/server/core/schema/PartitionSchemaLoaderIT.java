@@ -108,106 +108,106 @@ public class PartitionSchemaLoaderIT
 
         Schema schema = schemaManager.getLoadedSchema( "mozilla" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "mozilla" );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "mozilla", schema.getSchemaName() );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "core" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "core" );
+        assertEquals( "core", schema.getSchemaName() );
         assertFalse( schema.isDisabled() );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "apachedns" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "apachedns" );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "apachedns", schema.getSchemaName() );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "autofs" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "autofs" );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "autofs", schema.getSchemaName() );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "apache" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "apache" );
+        assertEquals( "apache", schema.getSchemaName() );
         assertFalse( schema.isDisabled() );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "cosine" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "cosine" );
+        assertEquals( "cosine", schema.getSchemaName() );
         assertFalse( schema.isDisabled() );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "krb5kdc" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "krb5kdc" );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "krb5kdc", schema.getSchemaName() );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "samba" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "samba" );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "samba", schema.getSchemaName() );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "collective" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "collective" );
+        assertEquals( "collective", schema.getSchemaName() );
         assertFalse( schema.isDisabled() );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "java" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "java" );
+        assertEquals( "java", schema.getSchemaName() );
         assertFalse( schema.isDisabled() );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "dhcp" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "dhcp" );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "dhcp", schema.getSchemaName() );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "corba" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "corba" );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "corba", schema.getSchemaName() );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "nis" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "nis" );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "nis", schema.getSchemaName() );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "inetorgperson" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "inetorgperson" );
+        assertEquals( "inetorgperson", schema.getSchemaName() );
         assertFalse( schema.isDisabled() );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "system" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "system" );
+        assertEquals( "system", schema.getSchemaName() );
         assertFalse( schema.isDisabled() );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
 
         schema = schemaManager.getLoadedSchema( "apachemeta" );
         assertNotNull( schema );
-        assertEquals( schema.getSchemaName(), "apachemeta" );
+        assertEquals( "apachemeta", schema.getSchemaName() );
         assertFalse( schema.isDisabled() );
-        assertEquals( schema.getOwner(), "uid=admin,ou=system" );
+        assertEquals( "uid=admin,ou=system", schema.getOwner() );
         schema = null;
     }
 }

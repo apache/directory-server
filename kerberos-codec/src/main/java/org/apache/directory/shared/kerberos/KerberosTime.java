@@ -223,7 +223,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
             return true;
         }
 
-        if ( obj == null )
+        if ( !( obj instanceof KerberosTime ) )
         {
             return true;
         }

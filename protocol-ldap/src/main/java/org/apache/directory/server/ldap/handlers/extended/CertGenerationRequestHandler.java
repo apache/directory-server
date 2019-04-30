@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.directory.api.ldap.extras.extended.certGeneration.CertGenerationRequest;
 import org.apache.directory.api.ldap.extras.extended.certGeneration.CertGenerationResponse;
+import org.apache.directory.api.ldap.extras.extended.certGeneration.CertGenerationResponseImpl;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
@@ -47,7 +48,7 @@ public class CertGenerationRequestHandler
 
     static
     {
-        Set<String> set = new HashSet<String>( 2 );
+        Set<String> set = new HashSet<>( 2 );
         set.add( CertGenerationRequest.EXTENSION_OID );
         set.add( CertGenerationResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
@@ -87,6 +88,11 @@ public class CertGenerationRequestHandler
                 req.getSubjectDN(),
                 req.getKeyAlgorithm() );
         }
+
+        CertGenerationResponse certGenerationResponse = new CertGenerationResponseImpl( req.getMessageId() );
+
+        // write the response
+        session.getIoSession().write( certGenerationResponse );
     }
 
 

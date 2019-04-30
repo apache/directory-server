@@ -56,13 +56,13 @@ public enum TransitedEncodingType
      */
     public static TransitedEncodingType getTypeByOrdinal( int type )
     {
-        switch ( type )
+        if ( type == 1 )
         {
-            case 1:
-                return DOMAIN_X500_COMPRESS;
-
-            default:
-                return NULL;
+            return DOMAIN_X500_COMPRESS;
+        }
+        else
+        {
+            return NULL;
         }
     }
 
@@ -81,14 +81,15 @@ public enum TransitedEncodingType
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
-        switch ( this )
+        if ( this == DOMAIN_X500_COMPRESS )
         {
-            case DOMAIN_X500_COMPRESS:
-                return "Domain X500 compress (1)";
-
-            default:
+            return "Domain X500 compress (1)";
+        }
+        else
+        {
                 return "null (0)";
         }
     }

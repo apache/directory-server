@@ -58,7 +58,6 @@ public class MethodDataDecoderTest
     @Test
     public void testMethodData()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x24 );
 
@@ -109,7 +108,7 @@ public class MethodDataDecoderTest
         // Decode the MethodData PDU
         try
         {
-            kerberosDecoder.decode( stream, methodDataContainer );
+            Asn1Decoder.decode( stream, methodDataContainer );
         }
         catch ( DecoderException de )
         {
@@ -159,7 +158,6 @@ public class MethodDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testETypeInfoEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -172,7 +170,7 @@ public class MethodDataDecoderTest
         Asn1Container methodDataContainer = new MethodDataContainer();
 
         // Decode the METHOD-DATA PDU
-        kerberosDecoder.decode( stream, methodDataContainer );
+        Asn1Decoder.decode( stream, methodDataContainer );
         fail();
     }
 
@@ -183,7 +181,6 @@ public class MethodDataDecoderTest
     @Test(expected = DecoderException.class)
     public void testETypeInfoNoETypeInfoEntry() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -199,7 +196,7 @@ public class MethodDataDecoderTest
         Asn1Container methodDataContainer = new MethodDataContainer();
 
         // Decode the METHOD-DATA PDU
-        kerberosDecoder.decode( stream, methodDataContainer );
+        Asn1Decoder.decode( stream, methodDataContainer );
         fail();
         fail();
     }

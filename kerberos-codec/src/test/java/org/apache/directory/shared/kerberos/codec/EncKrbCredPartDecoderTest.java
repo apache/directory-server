@@ -147,12 +147,11 @@ public class EncKrbCredPartDecoderTest
             expected.encode( stream );
             stream.flip();
 
-            Asn1Decoder decoder = new Asn1Decoder();
             EncKrbCredPartContainer container = new EncKrbCredPartContainer( stream );
 
             try
             {
-                decoder.decode( stream, container );
+                Asn1Decoder.decode( stream, container );
             }
             catch ( DecoderException e )
             {
@@ -192,12 +191,11 @@ public class EncKrbCredPartDecoderTest
             expected.encode( stream );
             stream.flip();
 
-            Asn1Decoder decoder = new Asn1Decoder();
             EncKrbCredPartContainer container = new EncKrbCredPartContainer( stream );
 
             try
             {
-                decoder.decode( stream, container );
+                Asn1Decoder.decode( stream, container );
             }
             catch ( DecoderException e )
             {

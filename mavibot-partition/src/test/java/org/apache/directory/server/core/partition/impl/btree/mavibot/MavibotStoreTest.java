@@ -58,7 +58,6 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
@@ -68,9 +67,11 @@ import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModDnAva;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.junit.After;
@@ -119,7 +120,7 @@ public class MavibotStoreTest
 
     private RecordManager recordMan;
 
-    private static CacheService cacheService;
+    private PartitionTxn partitionTxn;
 
     @Rule
     public TemporaryFolder tmpDir = new TemporaryFolder();
@@ -157,9 +158,7 @@ public class MavibotStoreTest
         SN_AT = schemaManager.getAttributeType( SchemaConstants.SN_AT );
         APACHE_ALIAS_AT = schemaManager.getAttributeType( ApacheSchemaConstants.APACHE_ALIAS_AT );
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
-        dnFactory = new DefaultDnFactory( schemaManager, cacheService.getCache( "dnCache" ) );
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
     }
 
 
@@ -189,7 +188,6 @@ public class MavibotStoreTest
         Dn suffixDn = new Dn( schemaManager, "o=Good Times Co." );
         store.setSuffixDn( suffixDn );
 
-        store.setCacheService( cacheService );
         store.initialize();
 
         recordMan = store.getRecordMan();
@@ -199,6 +197,8 @@ public class MavibotStoreTest
         DirectoryService directoryService = new MockDirectoryService();
         directoryService.setSchemaManager( schemaManager );
         session = new MockCoreSession( new LdapPrincipal(), directoryService );
+        
+        partitionTxn = new MockPartitionReadTxn();
 
         LOG.debug( "Created new store" );
     }
@@ -238,7 +238,6 @@ public class MavibotStoreTest
         store2.addIndex( new MavibotIndex( SchemaConstants.OU_AT_OID, false ) );
         store2.addIndex( new MavibotIndex( SchemaConstants.UID_AT_OID, false ) );
         store2.setSuffixDn( EXAMPLE_COM );
-        store2.setCacheService( cacheService );
         store2.initialize();
 
         // inject context entry
@@ -250,11 +249,15 @@ public class MavibotStoreTest
             SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString(),
             SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
 
-        store2.add( new AddOperationContext( null, entry ) );
+        AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setPartition( store2 );
+        addContext.setTransaction( store2.beginWriteTransaction() );
+
+        store2.add( addContext );
 
         // lookup the context entry
-        String id = store2.getEntryId( suffixDn );
-        Entry lookup = store2.fetch( id, suffixDn );
+        String id = store2.getEntryId( partitionTxn, suffixDn );
+        Entry lookup = store2.fetch( partitionTxn, id, suffixDn );
         assertEquals( 2, lookup.getDn().size() );
 
         // make sure all files are closed so that they can be deleted on Windows.
@@ -322,7 +325,7 @@ public class MavibotStoreTest
 
         MavibotPartition.sync();
         // make sure all files are closed so that they can be deleted on Windows.
-        MavibotPartition.destroy();
+        MavibotPartition.destroy( partitionTxn );
     }
 
 
@@ -497,17 +500,17 @@ public class MavibotStoreTest
     public void testFreshStore() throws Exception
     {
         Dn dn = new Dn( schemaManager, "o=Good Times Co." );
-        assertEquals( Strings.getUUID( 1L ), store.getEntryId( dn ) );
-        assertEquals( 11, store.count() );
-        assertEquals( "o=Good Times Co.", store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
-        assertEquals( dn.getName(), store.getEntryDn( Strings.getUUID( 1L ) ).getName() );
+        assertEquals( Strings.getUUID( 1L ), store.getEntryId( partitionTxn, dn ) );
+        assertEquals( 11, store.count( partitionTxn ) );
+        assertEquals( "o=Good Times Co.", store.getEntryDn( partitionTxn, Strings.getUUID( 1L ) ).getName() );
+        assertEquals( dn.getName(), store.getEntryDn( partitionTxn, Strings.getUUID( 1L ) ).getName() );
 
         // note that the suffix entry returns 0 for it's parent which does not exist
-        assertEquals( Strings.getUUID( 0L ), store.getParentId( store.getEntryId( dn ) ) );
-        assertNull( store.getParentId( Strings.getUUID( 0L ) ) );
+        assertEquals( Strings.getUUID( 0L ), store.getParentId( partitionTxn, store.getEntryId( partitionTxn, dn ) ) );
+        assertNull( store.getParentId( partitionTxn, Strings.getUUID( 0L ) ) );
 
         // should NOW be allowed
-        store.delete( Strings.getUUID( 1L ) );
+        store.delete( partitionTxn, Strings.getUUID( 1L ) );
     }
 
 
@@ -534,7 +537,7 @@ public class MavibotStoreTest
 
         store.delete( Strings.getUUID( 2L ) );
         assertEquals( 2, store.getChildCount( Strings.getUUID( 1L ) ) );
-        assertEquals( 10, store.count() );
+        assertEquals( 10, store.count( partitionTxn ) );
 
         // add an alias and delete to test dropAliasIndices method
         Dn dn = new Dn( schemaManager, "commonName=Jack Daniels,ou=Apache,ou=Board of Directors,o=Good Times Co." );
@@ -566,6 +569,9 @@ public class MavibotStoreTest
             "ou: Not Present",
             "cn: Martin King" );
         AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setPartition( store );
+        addContext.setTransaction( store.beginWriteTransaction() );
+        
         store.add( addContext );
     }
 
@@ -578,6 +584,9 @@ public class MavibotStoreTest
             "ou: Sales",
             "cn: Martin King" );
         AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setPartition( store );
+        addContext.setTransaction( store.beginWriteTransaction() );
+        
         store.add( addContext );
     }
 
@@ -592,7 +601,7 @@ public class MavibotStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        store.modify( dn, add );
+        store.modify( partitionTxn, dn, add );
     }
 
 
@@ -610,14 +619,27 @@ public class MavibotStoreTest
             "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setPartition( store );
+        addContext.setTransaction( store.beginWriteTransaction() );
+        
         store.add( addContext );
 
         Rdn rdn = new Rdn( schemaManager, "sn=James" );
 
-        store.rename( dn, rdn, true, null );
+        store.rename( partitionTxn, dn, rdn, true, null );
 
         dn = new Dn( schemaManager, "sn=James,ou=Engineering,o=Good Times Co." );
-        Entry renamed = store.lookup( new LookupOperationContext( session, dn ) );
+        Entry renamed;
+        
+        LookupOperationContext lookupContext = new LookupOperationContext( session, dn );
+        lookupContext.setPartition( store );
+        
+        try ( PartitionTxn partitionTxn = store.beginReadTransaction() )
+        {
+            lookupContext.setTransaction( partitionTxn );
+            renamed = store.lookup( lookupContext );
+        }
+        
         assertNotNull( renamed );
         assertEquals( "James", renamed.getDn().getRdn().getValue() );
     }
@@ -637,16 +659,19 @@ public class MavibotStoreTest
             "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setPartition( store );
+        addContext.setTransaction( store.beginWriteTransaction() );
+        
         store.add( addContext );
 
         Rdn rdn = new Rdn( schemaManager, "sn=Ja\\+es" );
 
-        store.rename( dn, rdn, true, null );
+        store.rename( partitionTxn, dn, rdn, true, null );
 
         Dn dn2 = new Dn( schemaManager, "sn=Ja\\+es,ou=Engineering,o=Good Times Co." );
-        String id = store.getEntryId( dn2 );
+        String id = store.getEntryId( partitionTxn, dn2 );
         assertNotNull( id );
-        Entry entry2 = store.fetch( id, dn2 );
+        Entry entry2 = store.fetch( partitionTxn, id, dn2 );
         assertEquals( "Ja+es", entry2.get( "sn" ).getString() );
     }
 
@@ -664,12 +689,15 @@ public class MavibotStoreTest
             "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
             "entryUUID", UUID.randomUUID().toString() );
 
-        assertEquals( 3, store.getSubAliasIndex().count() );
+        assertEquals( 3, store.getSubAliasIndex().count( partitionTxn ) );
 
         AddOperationContext addContext = new AddOperationContext( null, childEntry );
+        addContext.setPartition( store );
+        addContext.setTransaction( store.beginWriteTransaction() );
+
         store.add( addContext );
 
-        assertEquals( 3, store.getSubAliasIndex().count() );
+        assertEquals( 3, store.getSubAliasIndex().count( partitionTxn ) );
 
         Dn parentDn = new Dn( schemaManager, "ou=Sales,o=Good Times Co." );
 
@@ -683,20 +711,20 @@ public class MavibotStoreTest
         modAvas.add( new ModDnAva( ModDnAva.ModDnType.DELETE, childDn.getRdn().getAva()) );
         modDnAvas.put( SchemaConstants.CN_AT_OID, modAvas );
 
-        store.moveAndRename( childDn, parentDn, rdn, modDnAvas, childEntry );
+        store.moveAndRename( partitionTxn, childDn, parentDn, rdn, modDnAvas, childEntry );
 
         // to drop the alias indices
         childDn = new Dn( schemaManager, "commonName=Jim Bean,ou=Apache,ou=Board of Directors,o=Good Times Co." );
 
         parentDn = new Dn( schemaManager, "ou=Engineering,o=Good Times Co." );
 
-        assertEquals( 3, store.getSubAliasIndex().count() );
+        assertEquals( 3, store.getSubAliasIndex().count( partitionTxn ) );
 
         Dn newDn = parentDn.add( childDn.getRdn() );
 
-        store.move( childDn, parentDn, newDn, null );
+        store.move( partitionTxn, childDn, parentDn, newDn, null );
 
-        assertEquals( 3, store.getSubAliasIndex().count() );
+        assertEquals( 3, store.getSubAliasIndex().count( partitionTxn ) );
     }
 
 
@@ -712,9 +740,9 @@ public class MavibotStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
+        Entry lookedup = store.fetch( partitionTxn, store.getEntryId( partitionTxn, dn ), dn );
 
-        lookedup = store.modify( dn, add );
+        lookedup = store.modify( partitionTxn, dn, add );
         assertTrue( lookedup.get( "sn" ).contains( attribVal ) );
     }
 
@@ -731,18 +759,18 @@ public class MavibotStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
+        Entry lookedup = store.fetch( partitionTxn, store.getEntryId( partitionTxn, dn ), dn );
 
-        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getValue() ); // before replacing
+        assertEquals( "WAlkeR", lookedup.get( "sn" ).get().getString() ); // before replacing
 
-        lookedup = store.modify( dn, add );
-        assertEquals( attribVal, lookedup.get( "sn" ).get().getValue() );
+        lookedup = store.modify( partitionTxn, dn, add );
+        assertEquals( attribVal, lookedup.get( "sn" ).get().getString() );
 
         // testing the store.modify( dn, mod, entry ) API
         Modification replace = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, SN_AT, "JWalker" );
 
-        lookedup = store.modify( dn, replace );
-        assertEquals( "JWalker", lookedup.get( "sn" ).get().getValue() );
+        lookedup = store.modify( partitionTxn, dn, replace );
+        assertEquals( "JWalker", lookedup.get( "sn" ).get().getString() );
         assertEquals( 1, lookedup.get( "sn" ).size() );
     }
 
@@ -756,20 +784,20 @@ public class MavibotStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
+        Entry lookedup = store.fetch( partitionTxn, store.getEntryId( partitionTxn, dn ), dn );
 
         assertNotNull( lookedup.get( "sn" ).get() );
 
-        lookedup = store.modify( dn, add );
+        lookedup = store.modify( partitionTxn, dn, add );
         assertNull( lookedup.get( "sn" ) );
 
         // add an entry for the sake of testing the remove operation
         add = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, SN_AT, "JWalker" );
-        lookedup = store.modify( dn, add );
+        lookedup = store.modify( partitionTxn, dn, add );
         assertNotNull( lookedup.get( "sn" ) );
 
         Modification remove = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, SN_AT );
-        lookedup = store.modify( dn, remove );
+        lookedup = store.modify( partitionTxn, dn, remove );
         assertNull( lookedup.get( "sn" ) );
     }
 
@@ -787,6 +815,9 @@ public class MavibotStoreTest
             "entryUUID", UUID.randomUUID().toString() );
 
         AddOperationContext addContext = new AddOperationContext( null, entry );
+        addContext.setPartition( store );
+        addContext.setTransaction( store.beginWriteTransaction() );
+        
         store.add( addContext );
 
         Attribute attrib = new DefaultAttribute( SchemaConstants.OU_AT, OU_AT );
@@ -796,12 +827,12 @@ public class MavibotStoreTest
 
         Modification add = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attrib );
 
-        Entry lookedup = store.fetch( store.getEntryId( dn ), dn );
+        Entry lookedup = store.fetch( partitionTxn, store.getEntryId( partitionTxn, dn ), dn );
 
         assertNull( lookedup.get( "ou" ) ); // before replacing
 
-        lookedup = store.modify( dn, add );
-        assertEquals( attribVal, lookedup.get( "ou" ).get().getValue() );
+        lookedup = store.modify( partitionTxn, dn, add );
+        assertEquals( attribVal, lookedup.get( "ou" ).get().getString() );
     }
 
 
@@ -818,7 +849,7 @@ public class MavibotStoreTest
 
         // destroy the store to manually start the init phase
         // by keeping the same work dir
-        store.destroy();
+        store.destroy( partitionTxn );
 
         // just assert again that ou files exist even after destroying the store
         assertTrue( ouIndexDbFile.exists() );

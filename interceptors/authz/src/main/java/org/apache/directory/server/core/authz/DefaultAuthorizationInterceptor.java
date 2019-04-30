@@ -20,14 +20,18 @@
 package org.apache.directory.server.core.authz;
 
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.naming.NoPermissionException;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
@@ -36,6 +40,7 @@ import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
@@ -44,7 +49,10 @@ import org.apache.directory.server.core.api.interceptor.context.MoveOperationCon
 import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.directory.server.core.shared.partition.DefaultPartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +120,10 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void init( DirectoryService directoryService ) throws LdapException
     {
         super.init( directoryService );
@@ -135,8 +147,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<>( 2 );
         CoreSession adminSession = directoryService.getAdminSession();
+        Partition partition = nexus.getPartition( adminGroupDn );
+        Entry adminGroup;
+        
+        LookupOperationContext lookupContext = new LookupOperationContext( adminSession, adminGroupDn );
+        lookupContext.setPartition( partition );
 
-        Entry adminGroup = nexus.lookup( new LookupOperationContext( adminSession, adminGroupDn ) );
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+        { 
+            lookupContext.setTransaction( partitionTxn );
+            adminGroup = nexus.lookup( lookupContext );
+        }
+        catch ( IOException ioe )
+        {
+            throw new LdapOtherException( ioe.getMessage(), ioe );
+        }
 
         if ( adminGroup == null )
         {
@@ -147,7 +172,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         for ( Value value : uniqueMember )
         {
-            Dn memberDn = dnFactory.create( value.getValue() );
+            Dn memberDn = dnFactory.create( value.getString() );
             newAdministrators.add( memberDn.getNormName() );
         }
 
@@ -161,6 +186,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( DeleteOperationContext deleteContext ) throws LdapException
     {
         if ( deleteContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -225,6 +251,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public Entry lookup( LookupOperationContext lookupContext ) throws LdapException
     {
         CoreSession session = lookupContext.getSession();
@@ -253,6 +280,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void modify( ModifyOperationContext modifyContext ) throws LdapException
     {
         if ( !modifyContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -278,6 +306,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void move( MoveOperationContext moveContext ) throws LdapException
     {
         if ( !moveContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -292,6 +321,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws LdapException
     {
         if ( !moveAndRenameContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -314,6 +344,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public void rename( RenameOperationContext renameContext ) throws LdapException
     {
         if ( !renameContext.getSession().getDirectoryService().isAccessControlEnabled() )
@@ -328,6 +359,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * {@inheritDoc}
      */
+    @Override
     public EntryFilteringCursor search( SearchOperationContext searchContext ) throws LdapException
     {
         EntryFilteringCursor cursor = next( searchContext );
@@ -509,7 +541,6 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
 
     // False positive, we want to keep the comment
-    @SuppressWarnings("PMD.CollapsibleIfStatements")
     private boolean isSearchable( OperationContext opContext, Entry entry ) throws LdapException
     {
         Dn principalDn = opContext.getSession().getEffectivePrincipal().getDn();

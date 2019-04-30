@@ -126,23 +126,23 @@ public class KrbSafe extends KerberosMessage
      * 
      * 0x74 L1 KRB-SAFE APPLICATION[20]
      *  |
-     *  +--> 0x30 L2 KRB-ERROR sequence
+     *  +--&gt; 0x30 L2 KRB-ERROR sequence
      *        |
-     *        +--> 0xA0 0x03 pvno tag
+     *        +--&gt; 0xA0 0x03 pvno tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x05 pvno (5)
+     *        |     +--&gt; 0x02 0x01 0x05 pvno (5)
      *        |
-     *        +--> 0xA1 0x03 msg-type tag
+     *        +--&gt; 0xA1 0x03 msg-type tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x14 msg-type (20)
+     *        |     +--&gt; 0x02 0x01 0x14 msg-type (20)
      *        |     
-     *        +--> 0xA2 L3 safe-body tag
+     *        +--&gt; 0xA2 L3 safe-body tag
      *        |     |
-     *        |     +--> 0x30 L3-1 safe-body (KRB-SAFE-BODY)
+     *        |     +--&gt; 0x30 L3-1 safe-body (KRB-SAFE-BODY)
      *        |
-     *        +--> 0xA3 L4 cksum tag
+     *        +--&gt; 0xA3 L4 cksum tag
      *              |
-     *              +--> 0x30 L4-1 cksum (CHECKSUM)
+     *              +--&gt; 0x30 L4-1 cksum (CHECKSUM)
      * </pre>
      */
     @Override
@@ -217,7 +217,7 @@ public class KrbSafe extends KerberosMessage
         if ( IS_DEBUG )
         {
             log.debug( "KrbSafe encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbSafe initial value : {}", toString() );
+            log.debug( "KrbSafe initial value : {}", this );
         }
 
         return buffer;

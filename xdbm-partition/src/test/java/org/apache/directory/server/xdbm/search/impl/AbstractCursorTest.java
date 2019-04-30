@@ -33,6 +33,8 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.EntryCursorAdaptor;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
@@ -64,9 +66,9 @@ public class AbstractCursorTest
      * @return The constructed cursor
      * @throws Exception If anything went wrong
      */
-    protected Cursor<Entry> buildCursor( ExprNode root ) throws Exception
+    protected Cursor<Entry> buildCursor( PartitionTxn partitionTxn, ExprNode root ) throws Exception
     {
-        Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( root );
+        Evaluator<? extends ExprNode> evaluator = evaluatorBuilder.build( partitionTxn, root );
 
         PartitionSearchResult searchResult = new PartitionSearchResult( schemaManager );
         Set<IndexEntry<String, String>> resultSet = new HashSet<IndexEntry<String, String>>();
@@ -74,7 +76,7 @@ public class AbstractCursorTest
         Set<String> uuids = new HashSet<String>();
         searchResult.setCandidateSet( uuids );
 
-        long candidates = cursorBuilder.build( root, searchResult );
+        long candidates = cursorBuilder.build( partitionTxn, root, searchResult );
 
         if ( candidates < Long.MAX_VALUE )
         {
@@ -88,7 +90,7 @@ public class AbstractCursorTest
         else
         {
             // Full scan : use the MasterTable
-            Cursor<IndexEntry<String, String>> cursor = new IndexCursorAdaptor( store.getMasterTable().cursor(), true );
+            Cursor<IndexEntry<String, String>> cursor = new IndexCursorAdaptor( partitionTxn, store.getMasterTable().cursor(), true );
 
             while ( cursor.next() )
             {
@@ -111,7 +113,7 @@ public class AbstractCursorTest
         SearchOperationContext operationContext = 
             new SearchOperationContext( session, Dn.ROOT_DSE, SearchScope.ONELEVEL, null, "*", "EntryUUID" );
         
-        return new EntryFilteringCursorImpl( new EntryCursorAdaptor( ( AbstractBTreePartition ) store, searchResult ),
+        return new EntryFilteringCursorImpl( new EntryCursorAdaptor( partitionTxn, ( AbstractBTreePartition ) store, searchResult ),
             operationContext, directoryService.getSchemaManager() );
     }
 }

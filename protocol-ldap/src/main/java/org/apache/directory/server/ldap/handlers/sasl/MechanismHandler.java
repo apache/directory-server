@@ -38,10 +38,10 @@ public interface MechanismHandler
      * Implementors will use the session and message to determine what kind of
      * {@link SaslServer} to create and what initialization parameters it will require.
      *
-     * @param session
-     * @param bindRequest
+     * @param session The LdapSession in use
+     * @param bindRequest The BindRequest
      * @return The {@link SaslServer} to use for the duration of the bound session.
-     * @throws Exception
+     * @throws Exception If we can't find the SASL Mechanism
      */
     SaslServer handleMechanism( LdapSession session, BindRequest bindRequest ) throws Exception;
 

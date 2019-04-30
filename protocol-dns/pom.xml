@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-protocol-dns</artifactId>
@@ -59,8 +59,8 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
 
     <dependency>
@@ -84,7 +84,7 @@
             <id>attach-sources</id>
             <phase>verify</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
@@ -126,7 +126,7 @@
                 javax.naming,
                 javax.naming.directory,
                 javax.naming.ldap,
-                org.apache.commons.lang.builder;version=${commons.lang.version},
+                org.apache.commons.lang3.builder;version=${commons.lang.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},

@@ -32,7 +32,7 @@ import javax.naming.spi.DirStateFactory;
  * to try all state factories to produce an object.  Our provider looks up
  * the most specific state factories based on additional information.  This
  * makes a huge difference when the number of StateFactories becomes large.
- * <br/>
+ * <br>
  * Eventually, it is highly feasible for generated schemas, to also include
  * state and object factories for various objectClasses.  This means the number
  * of factories will increase.  By associating object and state factories with

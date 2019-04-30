@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Serialize and deserialize a Dn.
- * </br></br>
+ * <br><br>
  * <b>This class must *not* be used outside of the server.</b>
  *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -72,10 +72,11 @@ public class DnSerializer implements Serializer
 
 
     /**
-     * <p>
-     * 
      * This is the place where we serialize Dn
-     * <p>
+     * 
+     * @param object The element to serialize
+     * @return a byte[] containing the serialized element
+     * @throws IOException If teh serialization failed
      */
     public byte[] serialize( Object object ) throws IOException
     {
@@ -93,7 +94,7 @@ public class DnSerializer implements Serializer
             if ( IS_DEBUG )
             {
                 LOG.debug( ">------------------------------------------------" );
-                LOG.debug( "Serialized " + dn );
+                LOG.debug( "Serialized {}", dn );
             }
 
             return baos.toByteArray();

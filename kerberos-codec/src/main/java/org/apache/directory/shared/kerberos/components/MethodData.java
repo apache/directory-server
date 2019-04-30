@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
  * 
  * The ASN.1 grammar is :
  * <pre>
- * METHOD-DATA     ::= SEQUENCE OF <PA-DATA>
- *</pre>
+ * METHOD-DATA     ::= SEQUENCE OF &lt;PA-DATA&gt;
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class MethodData implements Asn1Object
@@ -64,7 +64,7 @@ public class MethodData implements Asn1Object
      */
     public MethodData()
     {
-        this.paDatas = new ArrayList<PaData>();
+        this.paDatas = new ArrayList<>();
     }
 
 
@@ -81,7 +81,7 @@ public class MethodData implements Asn1Object
     /**
      * Returns true if this {@link PaData} contains a specified {@link PaData}.
      *
-     * @param address The paData we are looking for in the existing list
+     * @param paData The paData we are looking for in the existing list
      * @return true if this {@link PaData} contains a specified {@link PaData}.
      */
     public boolean contains( PaData paData )
@@ -166,13 +166,13 @@ public class MethodData implements Asn1Object
      * 
      * 0x30 L1 METHOD-DATA sequence of PA-DATA
      *  |
-     *  +--> 0x30 L2[1] PA-DATA[1]
+     *  +--&gt; 0x30 L2[1] PA-DATA[1]
      *  |
-     *  +--> 0x30 L2[2] PA-DATA[2]
+     *  +--&gt; 0x30 L2[2] PA-DATA[2]
      *  |
      *  ...
      *  |
-     *  +--> 0x30 L2[n] PA-DATA[n]
+     *  +--&gt; 0x30 L2[n] PA-DATA[n]
      *        
      *  where L1 = sum( L2[1], l2[2], ..., L2[n] )
      * </pre>
@@ -182,7 +182,7 @@ public class MethodData implements Asn1Object
         // Compute the PA-DATA length.
         methodDataLength = 0;
 
-        if ( ( paDatas != null ) && ( paDatas.size() != 0 ) )
+        if ( ( paDatas != null ) && !paDatas.isEmpty() )
         {
             for ( PaData paData : paDatas )
             {
@@ -224,7 +224,7 @@ public class MethodData implements Asn1Object
             buffer.put( TLV.getBytes( methodDataLength ) );
 
             // The PA-DATA list, if it's not empty
-            if ( ( paDatas != null ) && ( paDatas.size() != 0 ) )
+            if ( ( paDatas != null ) && !paDatas.isEmpty() )
             {
                 for ( PaData paData : paDatas )
                 {
@@ -242,7 +242,7 @@ public class MethodData implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "METHOD-DATA encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "METHOD-DATA initial value : {}", toString() );
+            LOG.debug( "METHOD-DATA initial value : {}", this );
         }
 
         return buffer;

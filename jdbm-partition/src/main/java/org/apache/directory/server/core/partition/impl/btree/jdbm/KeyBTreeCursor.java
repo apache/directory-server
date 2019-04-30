@@ -62,7 +62,6 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      *
      * @param btree the JDBM BTree to build a Cursor over
      * @param comparator the Comparator used to determine key ordering
-     * @throws Exception of there are problems accessing the BTree
      */
     public KeyBTreeCursor( BTree btree, Comparator<E> comparator )
     {
@@ -95,7 +94,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public void before( E element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
         try
         {
             browser = btree.browse( element );
@@ -127,7 +126,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
              */
             while ( browser.getNext( tuple ) )
             {
-                checkNotClosed( "after()" );
+                checkNotClosed();
                 E next = ( E ) tuple.getKey();
                 int nextCompared = comparator.compare( next, element );
 
@@ -160,7 +159,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
         try
         {
             browser = btree.browse();
@@ -178,7 +177,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
         try
         {
             browser = btree.browse( null );
@@ -215,7 +214,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         try
         {
@@ -247,7 +246,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         try
         {
@@ -280,7 +279,7 @@ public class KeyBTreeCursor<E> extends AbstractCursor<E>
      */
     public E get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( valueAvailable )
         {

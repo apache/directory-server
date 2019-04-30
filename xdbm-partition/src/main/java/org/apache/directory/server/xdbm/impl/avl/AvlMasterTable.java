@@ -45,7 +45,7 @@ public class AvlMasterTable extends AvlTable<String, Entry> implements MasterTab
     /**
      * {@inheritDoc}
      */
-    public String getNextId( Entry entry ) throws Exception
+    public String getNextId( Entry entry )
     {
         return UUID.randomUUID().toString();
     }

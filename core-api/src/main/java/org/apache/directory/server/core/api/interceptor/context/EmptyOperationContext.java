@@ -35,6 +35,8 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of EmptyOperationContext.
+     * 
+     * @param session The session to use
      */
     public EmptyOperationContext( CoreSession session )
     {
@@ -47,6 +49,7 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
      *
      * @param dn The Dn to set
      */
+    @Override
     public void setDn( Dn dn )
     {
         if ( dn.equals( Dn.EMPTY_DN ) )

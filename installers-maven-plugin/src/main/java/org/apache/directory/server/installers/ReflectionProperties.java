@@ -49,6 +49,7 @@ public class ReflectionProperties extends Properties
     }
 
 
+    @Override
     public Object get( Object key )
     {
         Object value = null;
@@ -56,12 +57,12 @@ public class ReflectionProperties extends Properties
         {
             value = ReflectionValueExtractor.evaluate( "" + key, project );
             if ( escapedBackslashesInFilePath && value != null
-                && "java.lang.String".equals( value.getClass().getName() ) )
+                && ( value instanceof String ) )
             {
                 String val = ( String ) value;
 
                 // Check if it's a windows path
-                if ( val.indexOf( ":\\" ) == 1 )
+                if ( val.indexOf( ":\\", 1 ) > -1 )
                 {
                     value = StringUtils.replace( ( String ) value, "\\", "\\\\" );
                     value = StringUtils.replace( ( String ) value, ":", "\\:" );

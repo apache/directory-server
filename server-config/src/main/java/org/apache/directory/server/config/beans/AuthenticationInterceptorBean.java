@@ -35,11 +35,11 @@ public class AuthenticationInterceptorBean extends InterceptorBean
 {
     /** The list of authenticators */
     @ConfigurationElement(objectClass = "ads-authenticator", container = "authenticators")
-    private List<AuthenticatorBean> authenticators = new ArrayList<AuthenticatorBean>();
+    private List<AuthenticatorBean> authenticators = new ArrayList<>();
 
     /** The reference to the Password Policy component */
     @ConfigurationElement(objectClass = "ads-passwordPolicy", container = "passwordPolicies")
-    private List<PasswordPolicyBean> passwordPolicies = new ArrayList<PasswordPolicyBean>();
+    private List<PasswordPolicyBean> passwordPolicies = new ArrayList<>();
 
 
     /**
@@ -126,6 +126,7 @@ public class AuthenticationInterceptorBean extends InterceptorBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -133,7 +134,7 @@ public class AuthenticationInterceptorBean extends InterceptorBean
         sb.append( tabs ).append( "AuthenticationInterceptor :\n" );
         sb.append( super.toString( tabs + "  " ) );
 
-        if ( ( authenticators != null ) && ( authenticators.size() > 0 ) )
+        if ( ( authenticators != null ) && !authenticators.isEmpty() )
         {
             sb.append( tabs ).append( "  authenticator :\n" );
 
@@ -143,7 +144,7 @@ public class AuthenticationInterceptorBean extends InterceptorBean
             }
         }
 
-        if ( ( passwordPolicies != null ) && ( passwordPolicies.size() > 0 ) )
+        if ( ( passwordPolicies != null ) && !passwordPolicies.isEmpty() )
         {
             for ( PasswordPolicyBean ppolicy : passwordPolicies )
             {

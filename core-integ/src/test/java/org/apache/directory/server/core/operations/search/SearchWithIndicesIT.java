@@ -34,7 +34,7 @@ import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.api.ldap.model.schema.MutableAttributeType;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.partition.Partition;
@@ -95,7 +95,7 @@ public class SearchWithIndicesIT extends AbstractLdapTestUnit
         getService().startup();
 
         // Add an AttributeType with an ORDERING MatchingRule
-        MutableAttributeType attributeType = new MutableAttributeType( TEST_INT_OID );
+        AttributeType attributeType = new AttributeType( TEST_INT_OID );
         attributeType.setSyntaxOid( "1.3.6.1.4.1.1466.115.121.1.27" );
         attributeType.setNames( "testInt" );
         attributeType.setEqualityOid( "2.5.13.14" );

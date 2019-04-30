@@ -30,12 +30,14 @@ import jdbm.recman.TransactionManager;
 
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.SerializableComparator;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.event.EventType;
 import org.apache.directory.server.core.api.event.NotificationCriteria;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.StringSerializer;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
@@ -55,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * <li>refreshNPersist : a flag indicating that the consumer is processing in Refresh and persist mode</li>
  * <li></li>
  * </ul>
- * A separate log is maintained for each syncrepl consumer.<br/>
+ * A separate log is maintained for each syncrepl consumer.<br>
  * We also associate a Queue with each structure, which will store the messages to send to the consumer.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -117,15 +119,20 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
     /** The max delay for an idle replication log with no activity, by default the logs have no idle time period */
     public static final int DEFAULT_MAX_IDLE_PERIOD = -1;
+    
+    /** The partition transaction */
+    private PartitionTxn partitionTxn;
 
 
     /**
      * Creates a new instance of EventLog for a replica
      * 
+     * @param partitionTxn The Transaction to use
      * @param directoryService The DirectoryService instance
      * @param replicaId The replica ID
+     * @throws IOException if we weren't able to log the event
      */
-    public ReplicaEventLog( DirectoryService directoryService, int replicaId ) throws IOException
+    public ReplicaEventLog( PartitionTxn partitionTxn, DirectoryService directoryService, int replicaId ) throws IOException
     {
         PROVIDER_LOG.debug( "Creating the replication queue for replica {}", replicaId );
         SchemaManager schemaManager = directoryService.getSchemaManager();
@@ -140,12 +147,14 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         TransactionManager transactionManager = ( ( BaseRecordManager ) recman ).getTransactionManager();
         transactionManager.setMaximumTransactionsInLog( 200 );
 
-        SerializableComparator<String> comparator = new SerializableComparator<String>(
+        SerializableComparator<String> comparator = new SerializableComparator<>(
             SchemaConstants.CSN_ORDERING_MATCH_MR_OID );
         comparator.setSchemaManager( schemaManager );
 
-        journal = new JdbmTable<String, ReplicaEventMessage>( schemaManager, journalFile.getName(), recman, comparator,
+        journal = new JdbmTable<>( schemaManager, journalFile.getName(), recman, comparator,
             StringSerializer.INSTANCE, new ReplicaEventMessageSerializer( schemaManager ) );
+        
+        this.partitionTxn = partitionTxn;
     }
 
 
@@ -164,8 +173,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
                 message.getChangeType() );
 
             String entryCsn = message.getEntry().get( SchemaConstants.ENTRY_CSN_AT ).getString();
-            journal.put( entryCsn, message );
-            journal.sync();
+            journal.put( partitionTxn, entryCsn, message );
         }
         catch ( Exception e )
         {
@@ -208,7 +216,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
         // Close the producer and session, DO NOT close connection 
         if ( journal != null )
         {
-            journal.close();
+            journal.close( partitionTxn );
         }
 
         journal = null;
@@ -235,12 +243,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
 
         ReplicaEventLog other = ( ReplicaEventLog ) obj;
 
-        if ( replicaId != other.getId() )
-        {
-            return false;
-        }
-
-        return true;
+        return replicaId == other.getId();
     }
 
 
@@ -438,7 +441,7 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
      */
     public ReplicaJournalCursor getCursor( String consumerCsn ) throws Exception
     {
-        return new ReplicaJournalCursor( journal, consumerCsn );
+        return new ReplicaJournalCursor( partitionTxn, journal, consumerCsn );
     }
 
 
@@ -458,9 +461,9 @@ public class ReplicaEventLog implements Comparable<ReplicaEventLog>
     {
         try
         {
-            return journal.count();
+            return journal.count( partitionTxn );
         }
-        catch ( IOException e )
+        catch ( LdapException e )
         {
             throw new RuntimeException( e );
         }

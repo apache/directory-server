@@ -54,6 +54,8 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
     /**
      * Creates a new instance of MoveOperationContext.
+     * 
+     * @param session The session to use
      */
     public MoveOperationContext( CoreSession session )
     {
@@ -68,6 +70,10 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
     /**
      * Creates a new instance of MoveOperationContext.
+     * 
+     * @param session The session to use
+     * @param oldDn the original source entry Dn to be moved and renamed
+     * @param newSuperior the new entry superior of the target after the move
      */
     public MoveOperationContext( CoreSession session, Dn oldDn, Dn newSuperior )
     {
@@ -92,6 +98,12 @@ public class MoveOperationContext extends AbstractChangeOperationContext
     }
 
 
+    /**
+     * Create a new instanc eof MoveOperationContext
+     *  
+     * @param session The session to use
+     * @param modifyDnRequest The ModDN operation to apply
+     */
     public MoveOperationContext( CoreSession session, ModifyDnRequest modifyDnRequest )
     {
         super( session, modifyDnRequest.getName() );

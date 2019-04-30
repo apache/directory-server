@@ -22,7 +22,6 @@ package org.apache.directory.server.operations.add;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -388,7 +387,6 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
     public void testAddRdnWithEscapedSpaces() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
-        connection.setTimeOut( -1 );
 
         Entry entry = new DefaultEntry(
             "cn=\\ User, ou=system",

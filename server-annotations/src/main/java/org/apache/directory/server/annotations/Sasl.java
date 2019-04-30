@@ -52,25 +52,25 @@ import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface Sasl
 {
-    /** The SASL host, default to "" */
+    /** @return The SASL host, default to "" */
     String host() default "";
 
 
-    /** The principal */
+    /** @return The principal */
     String principal();
 
 
-    /** The SASL QOP list */
+    /** @return The SASL QOP list */
     String[] qop() default
         { "auth", "auth-int", "auth-conf" };
 
 
-    /** The SASL realms */
+    /** @return The SASL realms */
     String[] realms() default
         {};
 
 
-    /** The mechanism handlers.*/
+    /** @return The mechanism handlers.*/
     Class<?>[] mechanismHandler() default
         {
             SimpleMechanismHandler.class,

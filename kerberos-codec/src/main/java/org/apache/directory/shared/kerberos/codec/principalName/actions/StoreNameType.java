@@ -64,7 +64,7 @@ public class StoreNameType extends AbstractReadInteger<PrincipalNameContainer>
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "name-type : {}" + principalNameType );
+            LOG.debug( "name-type : {}", principalNameType );
         }
     }
 }

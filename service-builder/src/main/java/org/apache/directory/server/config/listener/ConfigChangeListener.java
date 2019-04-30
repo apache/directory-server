@@ -57,9 +57,6 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
     /** the config parition reader */
     private ConfigPartitionReader cpReader;
 
-    /** the directory service */
-    private DirectoryService directoryService;
-
     /** container holding the current active password policy configurations */
     private PpolicyConfigContainer ppolicyConfigContainer;
 
@@ -81,13 +78,12 @@ public class ConfigChangeListener extends DirectoryListenerAdapter
      *
      * @param cpReader the configuration reader
      * @param directoryService the DirectoryService instance
-     * @throws LdapException
+     * @throws LdapException If the instance cannot be created
      */
     public ConfigChangeListener( ConfigPartitionReader cpReader, DirectoryService directoryService )
         throws LdapException
     {
         this.cpReader = cpReader;
-        this.directoryService = directoryService;
 
         SchemaManager schemaManager = directoryService.getSchemaManager();
 

@@ -75,7 +75,7 @@ public class JdbmIndexBean extends IndexBean
     /**
      * Sets the size of the index cache in terms of the number of index entries to be cached.
      *
-     * @param IndexCacheSize the size of the index cache
+     * @param indexCacheSize the size of the index cache
      */
     public void setIndexCacheSize( int indexCacheSize )
     {
@@ -146,6 +146,7 @@ public class JdbmIndexBean extends IndexBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -164,6 +165,7 @@ public class JdbmIndexBean extends IndexBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

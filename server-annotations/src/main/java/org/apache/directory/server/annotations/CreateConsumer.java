@@ -66,80 +66,153 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface CreateConsumer
 {
-    /** host name of the syncrepl remote server, default value is "" */
+    /** 
+     * Host name of the syncrepl remote server, default value is ""
+     * 
+     *  @return The remote host
+     */
     String remoteHost() default "";
 
 
-    /** port number of the syncrepl provider server, default is 389 */
+    /** 
+     * Port number of the syncrepl provider server, default is 389 
+     * 
+     * @return The remote port
+     */
     int remotePort() default 389;
 
 
-    /** replication user's Dn */
+    /** 
+     * Replication user's Dn 
+     * 
+     * @return the replication user's Dn
+     */
     String replUserDn();
 
 
-    /** password for binding with replication user dn */
+    /** 
+     * Password for binding with replication user dn 
+     * 
+     * @return the replication user credentials
+     */
     String replUserPassword();
 
 
-    /** flag to represent refresh and persist or refresh only mode, defaults to true */
+    /** 
+     * flag to represent refresh and persist or refresh only mode, defaults to true
+     *  
+     * @return <tt>true</tt> if replication is done with a refresh and persist
+     */
     boolean refreshNPersist() default true;
 
 
-    /** time interval for successive sync requests, default is 60 seconds */
+    /** 
+     * Time interval for successive sync requests, default is 60 seconds 
+     * 
+     * @return The refresh interval
+     */
     long refreshInterval() default 60 * 1000;
 
 
-    /** the base Dn whose content will be searched for replicating */
+    /** 
+     * The base Dn whose content will be searched for replicating
+     * 
+     * @return The replication Base DN 
+     */
     String baseDn();
 
 
-    /** the ldap filter for fetching the entries, default value is (objectClass=*) */
+    /** 
+     * The ldap filter for fetching the entries, default value is (objectClass=*)
+     * 
+     *  @return The filter
+     */
     String filter() default LdapConstants.OBJECT_CLASS_STAR;
 
 
-    /** names of attributes to be replicated, default value is all user attributes */
+    /** 
+     * Names of attributes to be replicated, default value is all user attributes
+     * 
+     * @return The replicated attributes
+     */
     String[] attributes() default "";
 
 
-    /** the maximum number of search results to be fetched
-     * default value is 0 (i.e no limit) */
+    /** 
+     * The maximum number of search results to be fetched
+     * default value is 0 (i.e no limit) 
+     * 
+     * @return The search size limit
+     */
     int searchSizeLimit() default 0;
 
 
-    /** the timeout value to be used while doing a search 
-     * default value is 0 (i.e no limit)*/
+    /** 
+     * The timeout value to be used while doing a search 
+     * default value is 0 (i.e no limit)
+     * 
+     * @return The search time limit
+     */
     int searchTimeout() default 0;
 
 
-    /** the search scope, default is sub tree level */
+    /** 
+     * The search scope, default is sub tree level 
+     * 
+     * @return the Search scope
+     */
     SearchScope searchScope() default SearchScope.SUBTREE;
 
 
-    /** alias dereferencing mode, default is set to 'never deref aliases' */
+    /** 
+     * Alias dereferencing mode, default is set to 'never deref aliases' 
+     * 
+     * @return the Deref Alias mode
+     */
     AliasDerefMode aliasDerefMode() default AliasDerefMode.NEVER_DEREF_ALIASES;
 
 
-    /** the replica's id */
+    /**
+     * @return The replica's id
+     */
     int replicaId();
 
 
-    /** The configuration entry DN */
+    /** 
+     * @return The configuration entry DN
+     */
     String configEntryDn() default "";
 
 
-    /** flag to indicate whether to chase referrals or not, default is false hence passes ManageDsaITControl with syncsearch request*/
+    /** 
+     * flag to indicate whether to chase referrals or not, default is false hence passes ManageDsaITControl 
+     * with syncsearch request
+     * 
+     * @return <tt>true</tt> if referals are chased
+     */
     boolean chaseReferrals() default false;
 
 
-    /** flag to indicate the use of TLS, default is true */
+    /** 
+     * flag to indicate the use of TLS, default is true
+     * 
+     * @return <tt>true</tt> if Tls is in use
+     */
     boolean useTls() default true;
 
 
-    /** flag to indicate the use of strict certificate verification, default is true */
+    /** 
+     * flag to indicate the use of strict certificate verification, default is true
+     *  
+     * @return <tt>true</tt> if a strict certificate validation is done
+     */
     boolean strictCertVerification() default true;
 
 
-    /** the X509 certificate trust manager used, default value set to {@link NoVerificationTrustManager} */
+    /** 
+     * The X509 certificate trust manager used, default value set to {@link NoVerificationTrustManager}
+     * 
+     *  @return The trust manager class
+     */
     Class<?> trustManager() default NoVerificationTrustManager.class;
 }

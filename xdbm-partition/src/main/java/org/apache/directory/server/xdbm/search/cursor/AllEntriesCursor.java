@@ -26,6 +26,7 @@ import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.btree.IndexCursorAdaptor;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -48,7 +49,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
     /** The index entry we use to return entries one by one.  */
-    private IndexEntry<String, String> indexEntry = new IndexEntry<String, String>();
+    private IndexEntry<String, String> indexEntry = new IndexEntry<>();
 
     /** The cursor on the MsterTable index */
     private final Cursor<IndexEntry<String, String>> wrapped;
@@ -65,27 +66,32 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
 
     /**
      * Creates a new instance of AllEntriesCursor
-     * @param store
-     * @throws Exception
+     * 
+     * @param partitionTxn The transaction to use
+     * @param store The Store instance
+     * @throws LdapException If we weren't able to create an instance of AllEntriesCursor
      */
-    public AllEntriesCursor( Store store ) throws Exception
+    public AllEntriesCursor( PartitionTxn partitionTxn, Store store ) throws LdapException
     {
         if ( IS_DEBUG )
         {
             LOG_CURSOR.debug( "Creating AllEntriesCursor {}", this );
         }
+        
+        this.partitionTxn = partitionTxn;
 
         // Uses the MasterTable 
-        wrapped = new IndexCursorAdaptor( store.getMasterTable().cursor(), true );
+        wrapped = new IndexCursorAdaptor( partitionTxn, store.getMasterTable().cursor(), true );
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void after( IndexEntry<String, String> indexEntry ) throws LdapException, CursorException
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
     }
 
 
@@ -94,7 +100,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
 
         wrapped.afterLast();
     }
@@ -103,6 +109,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean available()
     {
         return wrapped.available();
@@ -112,9 +119,10 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void before( IndexEntry<String, String> indexEntry ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
     }
 
 
@@ -123,7 +131,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
 
         wrapped.beforeFirst();
     }
@@ -134,7 +142,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      */
     public boolean first() throws LdapException, CursorException
     {
-        checkNotClosed( "first()" );
+        checkNotClosed();
 
         return wrapped.first();
     }
@@ -145,7 +153,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      */
     public IndexEntry<String, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         // Create the returned IndexEntry, copying what we get from the wrapped cursor
         // As we are using the MasterTable, we have to use the key as the 
@@ -164,7 +172,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
      */
     public boolean last() throws LdapException, CursorException
     {
-        checkNotClosed( "last()" );
+        checkNotClosed();
 
         return wrapped.last();
     }
@@ -173,9 +181,10 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         return wrapped.next();
     }
@@ -184,9 +193,10 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         return wrapped.previous();
     }
@@ -225,6 +235,7 @@ public class AllEntriesCursor extends AbstractIndexCursor<String>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

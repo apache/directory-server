@@ -27,13 +27,13 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation for the schema loading. One can list the schema to be loaded, 
- * and if they must be enabled or disabled.<br/>
+ * and if they must be enabled or disabled.<br>
  * We can only load new schemas, not unload existing ones.However, we 
  * can disable a schema that has been previously loaded : loading a 
  * schema that is already loaded will just apply the enabled flag on 
- * this schema<br/>
- * Note that a schema may be loaded and disabled.<br/>
- * Some schema are automatically loaded, and there is no way they can be disabled :<br/>
+ * this schema<br>
+ * Note that a schema may be loaded and disabled.<br>
+ * Some schema are automatically loaded, and there is no way they can be disabled :<br>
  * <ul>
  *   <li> core</li>
  *   <li>system</li>
@@ -41,9 +41,9 @@ import java.lang.annotation.Target;
  * 
  * Here is an exemple :
  * <pre>
- * @Schemas( {
- *     @LoadSchema( name = "nis", enabled="TRUE" ),
- *     @LoadSchema( name = "posix", enabled="FALSE" ),
+ * &#64;Schemas( {
+ *     &#64;LoadSchema( name = "nis", enabled="TRUE" ),
+ *     &#64;LoadSchema( name = "posix", enabled="FALSE" ),
  * })
  * )
  * </pre>
@@ -55,10 +55,10 @@ import java.lang.annotation.Target;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface LoadSchema
 {
-    /** The schema name */
+    /** @return The schema name */
     String name();
 
 
-    /** The flag indicating if the schema should be enabled or disabled */
+    /** @return The flag indicating if the schema should be enabled or disabled */
     boolean enabled() default true;
 }

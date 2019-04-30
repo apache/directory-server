@@ -85,7 +85,7 @@ public class NtpServer extends AbstractProtocolService
         DefaultIoFilterChainBuilder ntpChain = new DefaultIoFilterChainBuilder();
         ntpChain.addLast( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
 
-        if ( ( transports == null ) || ( transports.size() == 0 ) )
+        if ( ( transports == null ) || transports.isEmpty() )
         {
             // Default to UDP with port 123
             // We have to create a DatagramAcceptor
@@ -98,7 +98,7 @@ public class NtpServer extends AbstractProtocolService
             acceptor.setHandler( ntpProtocolHandler );
 
             // Allow the port to be reused even if the socket is in TIME_WAIT state
-            ( ( DatagramSessionConfig ) acceptor.getSessionConfig() ).setReuseAddress( true );
+            acceptor.getSessionConfig().setReuseAddress( true );
 
             // Inject the chain
             acceptor.setFilterChainBuilder( ntpChain );

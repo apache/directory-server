@@ -65,10 +65,10 @@ public class StoreEText extends GrammarAction<KrbErrorContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // The value is the realm
@@ -80,7 +80,7 @@ public class StoreEText extends GrammarAction<KrbErrorContainer>
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "eText: " + eText );
+            LOG.debug( "eText: {}", eText );
         }
 
         krbErrorContainer.setGrammarEndAllowed( true );

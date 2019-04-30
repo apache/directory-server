@@ -32,7 +32,8 @@ import static org.apache.directory.ldap.client.api.search.FilterBuilder.startsWi
 
 import java.util.List;
 
-import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AddResponse;
@@ -368,23 +369,22 @@ public class LdapConnectionTemplateTest
         config.setCredentials( "secret" );
 
         DefaultLdapConnectionFactory factory = new DefaultLdapConnectionFactory( config );
-        factory.setTimeOut( 30000 );
 
         // optional, values below are defaults
-        GenericObjectPool.Config poolConfig = new GenericObjectPool.Config();
-        poolConfig.lifo = true;
-        poolConfig.maxActive = 8;
-        poolConfig.maxIdle = 8;
-        poolConfig.maxWait = -1L;
-        poolConfig.minEvictableIdleTimeMillis = 1000L * 60L * 30L;
-        poolConfig.minIdle = 0;
-        poolConfig.numTestsPerEvictionRun = 3;
-        poolConfig.softMinEvictableIdleTimeMillis = -1L;
-        poolConfig.testOnBorrow = false;
-        poolConfig.testOnReturn = false;
-        poolConfig.testWhileIdle = false;
-        poolConfig.timeBetweenEvictionRunsMillis = -1L;
-        poolConfig.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
+        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+        poolConfig.setLifo( true );
+        poolConfig.setMaxTotal( 8 );
+        poolConfig.setMaxIdle( 8 );
+        poolConfig.setMaxWaitMillis( -1L );
+        poolConfig.setMinEvictableIdleTimeMillis( 1000L * 60L * 30L );
+        poolConfig.setMinIdle( 0 );
+        poolConfig.setNumTestsPerEvictionRun( 3 );
+        poolConfig.setSoftMinEvictableIdleTimeMillis( -1L );
+        poolConfig.setTestOnBorrow( false );
+        poolConfig.setTestOnReturn( false );
+        poolConfig.setTestWhileIdle( false );
+        poolConfig.setTimeBetweenEvictionRunsMillis( -1L );
+        poolConfig.setBlockWhenExhausted( GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
 
         LdapConnectionTemplate ldapConnectionTemplate = 
             new LdapConnectionTemplate( new LdapConnectionPool(

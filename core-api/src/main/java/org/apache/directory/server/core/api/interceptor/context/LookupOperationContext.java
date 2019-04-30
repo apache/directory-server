@@ -37,9 +37,9 @@ public class LookupOperationContext extends FilteringOperationContext
     private boolean syncreplLookup;
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
      */
     public LookupOperationContext( CoreSession session )
     {
@@ -53,9 +53,10 @@ public class LookupOperationContext extends FilteringOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param dn The Entry's Dn we are looking for
      */
     public LookupOperationContext( CoreSession session, Dn dn )
     {
@@ -69,9 +70,10 @@ public class LookupOperationContext extends FilteringOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param returningAttributes The attributes to return
      */
     public LookupOperationContext( CoreSession session, String... returningAttributes )
     {
@@ -85,9 +87,11 @@ public class LookupOperationContext extends FilteringOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param dn The Entry's Dn we are looking for
+     * @param returningAttributes The attributes to return
      */
     public LookupOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
@@ -121,7 +125,7 @@ public class LookupOperationContext extends FilteringOperationContext
     /**
      * sets the flag to indicate if this is a synrepl specific search or not
      * 
-     * @param syncreplLookup
+     * @param syncreplLookup <tt>true</tt> if it's a syncrepl search
      */
     public void setSyncreplLookup( boolean syncreplLookup )
     {

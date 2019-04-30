@@ -26,4 +26,5 @@
 <suppressions>
     <!-- Large files -->
     <suppress files="org.apache.directory.server.core.DefaultDirectoryService" checks="FileLength"/>
+    <suppress files="org.apache.directory.server.core.security.TlsKeyGenerator" checks="ParameterNumber"/>
 </suppressions>

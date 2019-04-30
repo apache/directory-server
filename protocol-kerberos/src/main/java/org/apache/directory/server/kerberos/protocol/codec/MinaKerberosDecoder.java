@@ -44,9 +44,6 @@ public class MinaKerberosDecoder extends CumulativeProtocolDecoder
     /** the key used while storing message container in the session */
     private static final String KERBEROS_MESSAGE_CONTAINER = "kerberosMessageContainer";
 
-    /** The ASN 1 decoder instance */
-    private Asn1Decoder asn1Decoder = new Asn1Decoder();
-
     private static final int DEFAULT_MAX_PDU_SIZE = 1024 * 7; // 7KB
     
     /** the maximum allowed PDU size for a Kerberos request */
@@ -144,13 +141,13 @@ public class MinaKerberosDecoder extends CumulativeProtocolDecoder
                 stream.flip();
             }
             
-            asn1Decoder.decode( stream, krbMsgContainer );
+            Asn1Decoder.decode( stream, krbMsgContainer );
             
             if ( krbMsgContainer.getState() == TLVStateEnum.PDU_DECODED )
             {
                 if ( IS_DEBUG )
                 {
-                    LOG_KRB.debug( "Decoded KerberosMessage : " + krbMsgContainer.getMessage() );
+                    LOG_KRB.debug( "Decoded KerberosMessage : {}", krbMsgContainer.getMessage() );
                     incomingBuf.mark();
                 }
                 

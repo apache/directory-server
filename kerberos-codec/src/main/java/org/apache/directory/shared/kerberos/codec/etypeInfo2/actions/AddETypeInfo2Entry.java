@@ -65,15 +65,13 @@ public class AddETypeInfo2Entry extends GrammarAction<ETypeInfo2Container>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the ETYPE-INFO2-ENTRY
-        Asn1Decoder etypeInfo2EntryDecoder = new Asn1Decoder();
-
         ETypeInfo2EntryContainer etypeInfo2EntryContainer = new ETypeInfo2EntryContainer();
         etypeInfo2EntryContainer.setStream( eTypeInfo2Container.getStream() );
 
@@ -82,14 +80,7 @@ public class AddETypeInfo2Entry extends GrammarAction<ETypeInfo2Container>
         eTypeInfo2Container.rewind();
 
         // Decode the ETypeInfo2Entry PDU
-        try
-        {
-            etypeInfo2EntryDecoder.decode( eTypeInfo2Container.getStream(), etypeInfo2EntryContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw de;
-        }
+        Asn1Decoder.decode( eTypeInfo2Container.getStream(), etypeInfo2EntryContainer );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

@@ -55,6 +55,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -126,10 +127,13 @@ public class TupleCache
                 { SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES } );
 
             Dn baseDn = dnFactory.create( suffix );
-
+            Partition partition = nexus.getPartition( baseDn );
+            
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.NEVER_DEREF_ALIASES );
+            searchOperationContext.setPartition( partition );
+            searchOperationContext.setTransaction( partition.beginReadTransaction() );
 
             EntryFilteringCursor results = nexus.search( searchOperationContext );
 
@@ -150,8 +154,7 @@ public class TupleCache
 
                     if ( aci == null )
                     {
-                        LOG.warn( "Found accessControlSubentry '" + subentryDn + "' without any "
-                            + SchemaConstants.PRESCRIPTIVE_ACI_AT );
+                        LOG.warn( "Found accessControlSubentry '{}' without any {}", subentryDn, SchemaConstants.PRESCRIPTIVE_ACI_AT );
                         continue;
                     }
 
@@ -213,7 +216,7 @@ public class TupleCache
         // store the associated tuples into the cache
         for ( Value value : prescriptiveAci )
         {
-            String aci = value.getValue();
+            String aci = value.getString();
             ACIItem item = null;
 
             try
@@ -242,7 +245,7 @@ public class TupleCache
             return;
         }
 
-        tuples.remove( dn.getNormName().toString() );
+        tuples.remove( dn.getNormName() );
     }
 
 
@@ -279,14 +282,13 @@ public class TupleCache
     }
 
 
-    @SuppressWarnings("unchecked")
     public List<ACITuple> getACITuples( String subentryDn )
     {
         List<ACITuple> aciTuples = tuples.get( subentryDn );
 
         if ( aciTuples == null )
         {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         return Collections.unmodifiableList( aciTuples );

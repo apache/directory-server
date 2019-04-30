@@ -37,6 +37,10 @@
 #
 #   ADS_EXTENDED_OPERATIONS
 #                   Extended operations to register.
+#
+#   ADS_INTERMEDIATE_RESPONSES
+#                   Intermediate responses to register.
+#
 #   ADS_SHUTDOWN_PORT
 #                   (Optional) If specified, it must be a valid port number
 #                   between 1024 and 65536 on which ApacheDS will listen for 
@@ -126,9 +130,11 @@ if $cygwin; then
     CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
-[ -z "$ADS_CONTROLS" ] && ADS_CONTROLS="-Dapacheds.controls=org.apache.directory.api.ldap.codec.controls.cascade.CascadeFactory,org.apache.directory.api.ldap.codec.controls.manageDsaIT.ManageDsaITFactory,org.apache.directory.api.ldap.codec.controls.proxiedauthz.ProxiedAuthzFactory,org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeFactory,org.apache.directory.api.ldap.codec.controls.search.pagedSearch.PagedResultsFactory,org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchFactory,org.apache.directory.api.ldap.codec.controls.search.subentries.SubentriesFactory,org.apache.directory.api.ldap.extras.controls.ppolicy_impl.PasswordPolicyFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncInfoValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory,org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory"
+[ -z "$ADS_CONTROLS" ] && ADS_CONTROLS="-Dapacheds.controls="
 
-[ -z "$ADS_EXTENDED_OPERATIONS" ] && ADS_EXTENDED_OPERATIONS="-Dapacheds.extendedOperations=org.apache.directory.api.ldap.extras.extended.ads_impl.cancel.CancelFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.certGeneration.CertGenerationFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulShutdown.GracefulShutdownFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory,org.apache.directory.api.ldap.extras.extended.ads_impl.gracefulDisconnect.GracefulDisconnectFactory"
+[ -z "$ADS_EXTENDED_OPERATIONS" ] && ADS_EXTENDED_OPERATIONS="-Dapacheds.extendedOperations="
+
+[ -z "$ADS_INTERMEDIATE_RESPONSES" ] && ADS_INTERMEDIATE_RESPONSES="-Dapacheds.intermediateResponses="
 
 if [ $HAVE_TTY -eq 1 ]; then
     echo "Using ADS_HOME:    $ADS_HOME"
@@ -149,7 +155,7 @@ if [ "$ADS_ACTION" = "start" ]; then
     fi
 
     # Launching ApacheDS
-    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS $ADS_INTERMEDIATE_RESPONSES \
         -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
         -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
@@ -170,7 +176,7 @@ elif [ "$ADS_ACTION" = "repair" ]; then
     fi
 
     # Repairing ApacheDS
-    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS $ADS_INTERMEDIATE_RESPONSES \
         -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
         -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
@@ -182,7 +188,7 @@ elif [ "$ADS_ACTION" = "repair" ]; then
     [ $HAVE_TTY -eq 1 ] && echo "Starting ApacheDS instance '$ADS_INSTANCE_NAME'..."
 
     # Launching ApacheDS
-    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS $ADS_INTERMEDIATE_RESPONSES \
         -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
         -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
@@ -195,7 +201,7 @@ elif [ "$ADS_ACTION" = "run" ]; then
     [ $HAVE_TTY -eq 1 ] && echo "Running ApacheDS instance '$ADS_INSTANCE_NAME'..."
 
     # Launching ApacheDS
-    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+    eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS $ADS_INTERMEDIATE_RESPONSES \
         -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
         -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
         -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \
@@ -220,7 +226,7 @@ elif [ "$ADS_ACTION" = "stop" ]; then
 
         # Terminate the process
         if [ $ADS_SHUTDOWN_PORT -ge 0 ]; then
-            eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS \
+            eval "\"$RUN_JAVA\"" $JAVA_OPTS $ADS_CONTROLS $ADS_EXTENDED_OPERATIONS $ADS_INTERMEDIATE_RESPONSES \
                 -Dlog4j.configuration="\"file:$ADS_INSTANCE/conf/log4j.properties\"" \
                 -Dapacheds.log.dir="\"$ADS_INSTANCE/log\"" \
                 -Dapacheds.shutdown.port="\"$ADS_SHUTDOWN_PORT\"" \

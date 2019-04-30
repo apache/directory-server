@@ -50,7 +50,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbError()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x8F;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -203,7 +202,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -249,7 +248,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutCtime()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x7A;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -386,7 +384,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -418,7 +416,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutCusec()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x8A;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -567,7 +564,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -599,7 +596,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutCtimeAndCusec()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x75;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -731,7 +727,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -764,7 +760,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutCrealm()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x84;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -908,7 +903,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -940,7 +935,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutCname()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x79;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -1074,7 +1068,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -1106,7 +1100,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutCrealmAndCname()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x6F;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -1230,7 +1223,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -1263,7 +1256,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutEtext()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x86;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -1408,7 +1400,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -1440,7 +1432,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutEdata()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x89;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -1587,7 +1578,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -1619,7 +1610,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutEtextAndEdata()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x7E;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -1758,7 +1748,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {
@@ -1791,7 +1781,6 @@ public class KrbErrorDecoderTest
     @Test
     public void testDecodeKrbErrorWithoutOptionalFields()
     {
-        Asn1Decoder decoder = new Asn1Decoder();
 
         int streamLen = 0x48;
         ByteBuffer stream = ByteBuffer.allocate( streamLen );
@@ -1875,7 +1864,7 @@ public class KrbErrorDecoderTest
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {

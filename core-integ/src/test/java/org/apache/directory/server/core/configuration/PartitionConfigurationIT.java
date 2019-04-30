@@ -23,6 +23,7 @@ package org.apache.directory.server.core.configuration;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import org.apache.directory.api.ldap.model.csn.CsnFactory;
@@ -33,6 +34,8 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionReadTxn;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
@@ -77,7 +80,21 @@ public class PartitionConfigurationIT extends AbstractLdapTestUnit
             "entryCSN", new CsnFactory( 1 ).newInstance().toString(),
             "entryUUID", UUID.randomUUID().toString() );
 
-        partition.add( new AddOperationContext( getService().getAdminSession(), ctxEntry ) );
+        AddOperationContext addContext = new AddOperationContext( getService().getAdminSession(), ctxEntry );
+        addContext.setPartition( partition );
+        PartitionTxn partitionTxn = null;
+        
+        try
+        {
+            partitionTxn = partition.beginWriteTransaction();
+            addContext.setTransaction( partitionTxn );
+            partition.add( addContext );
+            partitionTxn.commit();
+        }
+        catch ( IOException ioe )
+        {
+            partitionTxn.abort();
+        }
 
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 

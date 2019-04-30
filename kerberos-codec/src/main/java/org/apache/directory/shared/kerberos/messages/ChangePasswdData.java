@@ -73,17 +73,18 @@ public class ChangePasswdData implements Asn1Object
      *
      * 0x30 L1 ChangePasswdData sequence
      *  |
-     *  +--> 0xA0 L2 newPasswd tag
+     *  +--&gt; 0xA0 L2 newPasswd tag
      *  |     |
-     *  |     +--> 0x04 L2-1 newPasswd (Octet string)
+     *  |     +--&gt; 0x04 L2-1 newPasswd (Octet string)
      *  |
-     *  +--> 0xA1 L3 targName tag
+     *  +--&gt; 0xA1 L3 targName tag
      *  |     |
-     *  |     +--> 0x30 L3-1 targName (PrincipalName)
+     *  |     +--&gt; 0x30 L3-1 targName (PrincipalName)
      *  |
-     *  +--> 0xA2 L4 targRealm tag
+     *  +--&gt; 0xA2 L4 targRealm tag
      *        |
-     *        +--> 0x1B L4-1 targRealm (KerberosString)
+     *        +--&gt; 0x1B L4-1 targRealm (KerberosString)
+     * </pre>
      */
     @Override
     public int computeLength()

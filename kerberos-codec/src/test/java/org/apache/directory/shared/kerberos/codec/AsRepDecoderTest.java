@@ -52,7 +52,6 @@ public class AsRepDecoderTest
     @Test
     public void testDecodeFullAsRep() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0xAC );
 
@@ -235,7 +234,7 @@ public class AsRepDecoderTest
         // Decode the AsRep PDU
         try
         {
-            kerberosDecoder.decode( stream, asRepContainer );
+            Asn1Decoder.decode( stream, asRepContainer );
         }
         catch ( DecoderException de )
         {
@@ -273,7 +272,6 @@ public class AsRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testAsRepEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -286,7 +284,7 @@ public class AsRepDecoderTest
         Asn1Container asRepContainer = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
-        kerberosDecoder.decode( stream, asRepContainer );
+        Asn1Decoder.decode( stream, asRepContainer );
         fail();
     }
 
@@ -297,7 +295,6 @@ public class AsRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testAsRepEmptyPvnoTag() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -313,7 +310,7 @@ public class AsRepDecoderTest
         Asn1Container asRepContainer = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
-        kerberosDecoder.decode( stream, asRepContainer );
+        Asn1Decoder.decode( stream, asRepContainer );
         fail();
     }
 
@@ -324,7 +321,6 @@ public class AsRepDecoderTest
     @Test(expected = DecoderException.class)
     public void testAsRepEmptyPvnoValue() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
 
@@ -341,7 +337,7 @@ public class AsRepDecoderTest
         Asn1Container asRepContainer = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
-        kerberosDecoder.decode( stream, asRepContainer );
+        Asn1Decoder.decode( stream, asRepContainer );
         fail();
     }
 
@@ -352,7 +348,6 @@ public class AsRepDecoderTest
     @Test
     public void testDecodeFullAsRep2() throws Exception
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x239 );
 
@@ -937,7 +932,7 @@ public class AsRepDecoderTest
         // Decode the AsRep PDU
         try
         {
-            kerberosDecoder.decode( stream, asRepContainer );
+            Asn1Decoder.decode( stream, asRepContainer );
         }
         catch ( DecoderException de )
         {

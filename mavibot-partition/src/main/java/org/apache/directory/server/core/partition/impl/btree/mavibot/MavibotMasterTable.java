@@ -51,7 +51,7 @@ public class MavibotMasterTable extends MavibotTable<String, Entry> implements M
 
 
     @Override
-    public String getNextId( Entry entry ) throws Exception
+    public String getNextId( Entry entry )
     {
         return UUID.randomUUID().toString();
     }

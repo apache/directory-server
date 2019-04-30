@@ -71,7 +71,7 @@ public abstract class BaseInterceptor implements Interceptor
     protected DnFactory dnFactory;
 
     /** set of operational attribute types used for representing the password policy state of a user entry */
-    protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<AttributeType>();
+    protected static final Set<AttributeType> PWD_POLICY_STATE_ATTRIBUTE_TYPES = new HashSet<>();
 
     /**
      * The final interceptor which acts as a proxy in charge to dialog with the nexus partition.
@@ -263,7 +263,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * Creates a new instance with a given name.
      * 
-     * @param name the Interceptor name
+     * @param interceptor the Interceptor type
      */
     protected BaseInterceptor( InterceptorEnum interceptor )
     {
@@ -273,7 +273,9 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * This method does nothing by default.
-     * @throws Exception
+     * 
+     * @param directoryService The DirectoryService instance
+     * @throws LdapException If the initialization failed
      */
     public void init( DirectoryService directoryService ) throws LdapException
     {
@@ -310,9 +312,7 @@ public abstract class BaseInterceptor implements Interceptor
             return finalInterceptor;
         }
 
-        Interceptor interceptor = directoryService.getInterceptor( currentInterceptor );
-
-        return interceptor;
+        return directoryService.getInterceptor( currentInterceptor );
     }
 
 

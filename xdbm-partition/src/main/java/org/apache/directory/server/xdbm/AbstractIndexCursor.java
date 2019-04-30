@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 
 
 /**
@@ -34,6 +35,9 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
 {
     /** Tells if there are some element available in the cursor */
     private boolean available = false;
+    
+    /** A transaction associated with this cursor */
+    protected PartitionTxn partitionTxn;
 
     /** The message used for unsupported operations */
     protected static final String UNSUPPORTED_MSG = "Unsupported operation";
@@ -81,5 +85,20 @@ public abstract class AbstractIndexCursor<V> extends AbstractCursor<IndexEntry<V
     {
         this.available = available;
         return available;
+    }
+    
+
+
+    @Override
+    public boolean previous() throws LdapException, CursorException
+    {
+        return false;
+    }
+
+
+    @Override
+    public boolean next() throws LdapException, CursorException
+    {
+        return false;
     }
 }

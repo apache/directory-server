@@ -82,13 +82,11 @@ public class KrbPrivDecoderTest
 
         String decoded = Strings.dumpBytes( stream.array() );
 
-        Asn1Decoder decoder = new Asn1Decoder();
-
         KrbPrivContainer container = new KrbPrivContainer( stream );
 
         try
         {
-            decoder.decode( stream, container );
+            Asn1Decoder.decode( stream, container );
         }
         catch ( DecoderException e )
         {

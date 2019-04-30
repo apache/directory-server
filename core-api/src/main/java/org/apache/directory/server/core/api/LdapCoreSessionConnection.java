@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.directory.api.asn1.util.Oid;
 import org.apache.directory.api.ldap.codec.api.BinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
@@ -84,6 +83,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.ldap.client.api.AbstractLdapConnection;
 import org.apache.directory.ldap.client.api.EntryCursorImpl;
 import org.apache.directory.ldap.client.api.SaslRequest;
@@ -227,8 +227,8 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         processResponse( addResponse );
     }
-    
-    
+
+
     /**
      * Process the SASL Bind. It's a dialog with the server, we will send a first BindRequest, receive
      * a response and the, if this response is a challenge, continue by sending a new BindRequest with
@@ -238,6 +238,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      * @return A {@link BindResponse} containing the result
      * @throws LdapException if some error occurred
      */
+    @Override
     public BindResponse bind( SaslRequest saslRequest ) throws LdapException
     {
         throw new NotImplementedException();
@@ -342,7 +343,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         if ( value.isHumanReadable() )
         {
-            compareRequest.setAssertionValue( value.getValue() );
+            compareRequest.setAssertionValue( value.getString() );
         }
         else
         {
@@ -429,12 +430,13 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isRequestCompleted( int messageId )
     {
         return false;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -608,7 +610,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         {
             // Special case to deal with insufficient permissions
             LOG.info( lnpe.getMessage(), lnpe );
-            
+
             return false;
         }
         catch ( LdapException le )
@@ -798,14 +800,14 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
             String msg = "Modify Dn is not allowed on Root DSE.";
             result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             result.setDiagnosticMessage( msg );
-            
+
             return resp;
         }
 
         try
         {
             Rdn newRdn = modDnRequest.getNewRdn();
-            
+
             if ( ( newRdn != null ) && !newRdn.isSchemaAware() )
             {
                 modDnRequest.setNewRdn( new Rdn( schemaManager, newRdn ) );
@@ -819,7 +821,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
                 oldRdn = modDnRequest.getName().getRdn();
             }
 
-            boolean rdnChanged = modDnRequest.getNewRdn() != null 
+            boolean rdnChanged = modDnRequest.getNewRdn() != null
                 && !newRdn.getNormName().equals( oldRdn.getNormName() );
 
             if ( rdnChanged )
@@ -1122,6 +1124,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         SearchRequest searchRequest = new SearchRequestImpl();
 
         searchRequest.setBase( baseDn );
+
         searchRequest.setFilter( filter );
         searchRequest.setScope( scope );
         searchRequest.addAttributes( attributes );
@@ -1294,16 +1297,16 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
 
         int newId = messageId.incrementAndGet();
 
-        BindOperationContext bindContext = new BindOperationContext( directoryService, null );
+        BindOperationContext bindContext = new BindOperationContext( null );
         bindContext.setCredentials( bindRequest.getCredentials() );
 
         Dn bindDn =  bindRequest.getDn();
-        
+
         if ( !bindDn.isSchemaAware() )
         {
             bindDn = new Dn( directoryService.getSchemaManager(), bindDn );
         }
-        
+
         bindContext.setDn( bindDn );
         bindContext.setInterceptors( directoryService.getInterceptors( OperationEnum.BIND ) );
 
@@ -1393,5 +1396,14 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     public void setSchemaManager( SchemaManager schemaManager )
     {
         this.schemaManager = schemaManager;
+    }
+
+
+    /**
+     * @return The session, if we have some
+     */
+    public CoreSession getSession()
+    {
+        return session;
     }
 }

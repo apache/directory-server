@@ -47,13 +47,14 @@ import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.MockCoreSession;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Evaluator;
@@ -81,7 +82,6 @@ public class NotCursorTest extends AbstractCursorTest
 
     File wkdir;
     static SchemaManager schemaManager = null;
-    private static CacheService cacheService;
 
 
     @BeforeClass
@@ -117,8 +117,6 @@ public class NotCursorTest extends AbstractCursorTest
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
-        cacheService = new CacheService();
-        cacheService.initialize( null );
     }
 
 
@@ -145,7 +143,6 @@ public class NotCursorTest extends AbstractCursorTest
         store.addIndex( new AvlIndex<String>( SchemaConstants.OU_AT_OID ) );
         store.addIndex( new AvlIndex<String>( SchemaConstants.CN_AT_OID ) );
         ( ( Partition ) store ).setSuffixDn( new Dn( schemaManager, "o=Good Times Co." ) );
-        ( ( Partition ) store ).setCacheService( cacheService );
         ( ( Partition ) store ).initialize();
 
         StoreUtils.loadExampleData( store, schemaManager );
@@ -164,7 +161,7 @@ public class NotCursorTest extends AbstractCursorTest
     {
         if ( store != null )
         {
-            ( ( Partition ) store ).destroy();
+            ( ( Partition ) store ).destroy( null );
         }
 
         store = null;
@@ -184,8 +181,10 @@ public class NotCursorTest extends AbstractCursorTest
         String filter = "(!(cn=J*))";
 
         ExprNode exprNode = FilterParser.parse( schemaManager, filter );
+        
+        PartitionTxn txn = new MockPartitionReadTxn();
 
-        Cursor<Entry> cursor = buildCursor( exprNode );
+        Cursor<Entry> cursor = buildCursor( txn, exprNode );
 
         assertFalse( cursor.available() );
 
@@ -220,6 +219,7 @@ public class NotCursorTest extends AbstractCursorTest
     @Test
     public void testNotCursorWithManualFilter() throws Exception
     {
+        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
         NotNode notNode = new NotNode();
 
         ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
@@ -227,7 +227,7 @@ public class NotCursorTest extends AbstractCursorTest
             schemaManager );
         notNode.addNode( exprNode );
 
-        NotCursor<String> cursor = new NotCursor( store, eval ); //cursorBuilder.build( andNode );
+        NotCursor<String> cursor = new NotCursor( txn, store, eval ); //cursorBuilder.build( andNode );
         cursor.beforeFirst();
 
         Set<String> set = new HashSet<String>();

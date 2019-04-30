@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-core-integ</artifactId>
@@ -95,11 +95,6 @@
       <artifactId>apacheds-test-framework</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    
     <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-client-api</artifactId>

@@ -73,7 +73,7 @@ public class ApOptions extends Options
     @Override
     public String toString()
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         if ( get( MUTUAL_REQUIRED ) )
         {

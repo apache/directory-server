@@ -31,7 +31,7 @@ public interface Catalog
     /**
      * Returns the base Dn for searches, given a zone or realm name.
      *
-     * @param name
+     * @param name The realm name
      * @return The base Dn for searches.
      */
     String getBaseDn( String name );

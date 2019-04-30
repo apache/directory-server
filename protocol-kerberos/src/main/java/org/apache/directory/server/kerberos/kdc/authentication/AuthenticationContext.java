@@ -162,6 +162,7 @@ public class AuthenticationContext extends KdcContext
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

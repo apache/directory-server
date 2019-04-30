@@ -47,7 +47,6 @@ public class DefaultMarshaller implements Marshaller<Object>
             out.writeObject( object );
             out.flush();
             byte[] data = byteStream.toByteArray();
-            out.close();
 
             return data;
         }

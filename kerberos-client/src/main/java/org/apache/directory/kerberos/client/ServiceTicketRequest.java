@@ -36,7 +36,8 @@ public class ServiceTicketRequest
     private EncryptionKey subSessionKey;
 
     private KdcOptions kdcOptions = new KdcOptions();
-    
+
+
     public ServiceTicketRequest( TgTicket tgt, String serverPrincipal )
     {
         this.tgt = tgt;

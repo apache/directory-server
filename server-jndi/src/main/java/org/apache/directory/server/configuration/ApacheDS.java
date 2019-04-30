@@ -29,9 +29,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import javax.naming.NamingException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
@@ -76,7 +79,7 @@ public class ApacheDS
     /** Directory where are stored the LDIF files to be loaded at startup */
     private File ldifDirectory;
 
-    private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
+    private final List<LdifLoadFilter> ldifFilters = new ArrayList<>();
 
     /** The LDAP server protocol handler */
     private final LdapServer ldapServer;
@@ -87,10 +90,11 @@ public class ApacheDS
 
     /**
      * Creates a new instance of the ApacheDS server
-     * 
+     *
      * @param ldapServer The ldap server protocol handler
+     * @throws LdapException If we can't create teh ApacheDS instance
      */
-    public ApacheDS( LdapServer ldapServer ) throws Exception
+    public ApacheDS( LdapServer ldapServer ) throws LdapException
     {
         LOG.info( "Starting the Apache Directory Server" );
 
@@ -107,12 +111,13 @@ public class ApacheDS
 
     /**
      * Start the server :
+     * <ul>
      *  <li>initialize the DirectoryService</li>
      *  <li>start the LDAP server</li>
      *  <li>start the LDAPS server</li>
-     * 
-     * @throws NamingException If the server cannot be started
-     * @throws IOException If an IO error occurred while reading some file
+     * </ul>
+     *
+     * @throws Exception If the server cannot be started
      */
     public void startup() throws Exception
     {
@@ -227,7 +232,7 @@ public class ApacheDS
 
     /**
      * Get the directory where the LDIF files are stored
-     * 
+     *
      * @return The directory where the LDIF files are stored
      */
     public File getLdifDirectory()
@@ -252,12 +257,12 @@ public class ApacheDS
 
     /**
      * Check that the entry where are stored the loaded Ldif files is created.
-     * 
+     *
      * If not, create it.
-     * 
+     *
      * The files are stored in ou=loadedLdifFiles,ou=configuration,ou=system
      */
-    private void ensureLdifFileBase() throws Exception
+    private void ensureLdifFileBase() throws LdapException
     {
         Dn dn = new Dn( ServerDNConstants.LDIF_FILES_DN );
         Entry entry = null;
@@ -284,7 +289,7 @@ public class ApacheDS
 
     /**
      * Create a string containing a hex dump of the loaded ldif file name.
-     * 
+     *
      * It is associated with the attributeType wrt to the underlying system.
      */
     private Dn buildProtectedFileEntryDn( File ldif ) throws Exception
@@ -337,13 +342,11 @@ public class ApacheDS
 
     /**
      * Load a ldif into the directory.
-     * 
+     *
      * @param root The context in which we will inject the entries
      * @param ldifFile The ldif file to read
      * @throws NamingException If something went wrong while loading the entries
      */
-    // This will suppress PMD.EmptyCatchBlock warnings in this method
-    @SuppressWarnings("PMD.EmptyCatchBlock")
     private void loadLdif( File ldifFile ) throws Exception
     {
         Entry fileEntry = null;
@@ -361,14 +364,13 @@ public class ApacheDS
         {
             String time = ( ( ClonedServerEntry ) fileEntry ).getOriginalEntry()
                 .get( SchemaConstants.CREATE_TIMESTAMP_AT ).getString();
-            LOG.info( "Load of LDIF file '" + getCanonical( ldifFile )
-                + "' skipped.  It has already been loaded on " + time + "." );
+            LOG.info( "Load of LDIF file '{}' skipped.  It has already been loaded on {}.", getCanonical( ldifFile ), time );
         }
         else
         {
             LdifFileLoader loader = new LdifFileLoader( directoryService.getAdminSession(), ldifFile, ldifFilters );
             int count = loader.execute();
-            LOG.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFile ) + "'" );
+            LOG.info( "Loaded {} entries from LDIF file '{}", count, getCanonical( ldifFile ) );
             addFileEntry( ldifFile );
         }
     }
@@ -376,8 +378,10 @@ public class ApacheDS
 
     /**
      * Load the existing LDIF files in alphabetic order
+     *
+     * @throws LdapException If we can't load the ldifs
      */
-    public void loadLdifs() throws Exception
+    public void loadLdifs() throws LdapException
     {
         // LOG and bail if property not set
         if ( ldifDirectory == null )
@@ -414,7 +418,7 @@ public class ApacheDS
                 // If the file can't be read, log the error, and stop
                 // loading LDIFs.
                 LOG.error( I18n.err( I18n.ERR_180, ldifDirectory.getAbsolutePath(), ne.getLocalizedMessage() ) );
-                throw ne;
+                throw new LdapException( ne.getMessage(), ne );
             }
         }
         else
@@ -422,6 +426,7 @@ public class ApacheDS
             // get all the ldif files within the directory
             File[] ldifFiles = ldifDirectory.listFiles( new FileFilter()
             {
+                @Override
                 public boolean accept( File pathname )
                 {
                     boolean isLdif = Strings.toLowerCaseAscii( pathname.getName() ).endsWith( ".ldif" );
@@ -440,6 +445,7 @@ public class ApacheDS
             // Sort ldifFiles in alphabetic order
             Arrays.sort( ldifFiles, new Comparator<File>()
             {
+                @Override
                 public int compare( File f1, File f2 )
                 {
                     return f1.getName().compareTo( f2.getName() );
@@ -459,7 +465,7 @@ public class ApacheDS
                     // If the file can't be read, log the error, and stop
                     // loading LDIFs.
                     LOG.error( I18n.err( I18n.ERR_180, ldifFile.getAbsolutePath(), ne.getLocalizedMessage() ) );
-                    throw ne;
+                    throw new LdapException( ne.getMessage(), ne );
                 }
             }
         }
@@ -468,7 +474,7 @@ public class ApacheDS
 
     /**
      * initialize the schema partition by loading the schema LDIF files
-     * 
+     *
      * @throws Exception in case of any problems while extracting and writing the schema files
      */
     private void initSchema() throws Exception
@@ -508,7 +514,7 @@ public class ApacheDS
 
         List<Throwable> errors = schemaManager.getErrors();
 
-        if ( errors.size() != 0 )
+        if ( !errors.isEmpty() )
         {
             throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors( errors ) ) );
         }

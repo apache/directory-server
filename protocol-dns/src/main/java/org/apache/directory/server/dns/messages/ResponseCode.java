@@ -48,7 +48,7 @@ public enum ResponseCode implements EnumConverter<Byte>
     /** The name server refuses to perform the specified operation for policy reasons. */
     REFUSED(5);
 
-    private static ReverseEnumMap<Byte, ResponseCode> map = new ReverseEnumMap<Byte, ResponseCode>( ResponseCode.class );
+    private static ReverseEnumMap<Byte, ResponseCode> map = new ReverseEnumMap<>( ResponseCode.class );
 
     private final byte value;
 

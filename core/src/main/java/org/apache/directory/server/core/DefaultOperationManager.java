@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -34,6 +35,7 @@ import org.apache.directory.api.ldap.model.exception.LdapAffectMultipleDsaExcept
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapPartialResultException;
 import org.apache.directory.api.ldap.model.exception.LdapReferralException;
 import org.apache.directory.api.ldap.model.exception.LdapServiceUnavailableException;
@@ -63,6 +65,8 @@ import org.apache.directory.server.core.api.interceptor.context.OperationContext
 import org.apache.directory.server.core.api.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +98,6 @@ public class DefaultOperationManager implements OperationManager
 
     /** A lock used to protect against concurrent operations */
     private ReadWriteLock rwLock = new ReentrantReadWriteLock( true );
-
 
     public DefaultOperationManager( DirectoryService directoryService )
     {
@@ -168,6 +171,8 @@ public class DefaultOperationManager implements OperationManager
 
             LookupOperationContext lookupContext = new LookupOperationContext( adminSession, opContext.getDn(),
                 SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            lookupContext.setPartition( opContext.getPartition() );
+            lookupContext.setTransaction( opContext.getTransaction() );
             Entry foundEntry = opContext.getSession().getDirectoryService().getPartitionNexus().lookup( lookupContext );
 
             if ( foundEntry != null )
@@ -177,10 +182,7 @@ public class DefaultOperationManager implements OperationManager
             else
             {
                 // This is an error : we *must* have an entry if we want to be able to rename.
-                LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
-                    opContext.getDn() ) );
-
-                throw ldnfe;
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, opContext.getDn() ) );
             }
         }
     }
@@ -202,10 +204,8 @@ public class DefaultOperationManager implements OperationManager
         else
         {
             // This is an error : we *must* have an entry if we want to be able to rename.
-            LdapNoSuchObjectException ldnfe = new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
                 opContext.getDn() ) );
-
-            throw ldnfe;
         }
     }
 
@@ -215,7 +215,7 @@ public class DefaultOperationManager implements OperationManager
         // Get the Ref attributeType
         Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
 
-        List<String> urls = new ArrayList<String>();
+        List<String> urls = new ArrayList<>();
 
         try
         {
@@ -223,7 +223,7 @@ public class DefaultOperationManager implements OperationManager
             for ( Value url : refs )
             {
                 // we have to replace the parent by the referral
-                LdapUrl ldapUrl = new LdapUrl( url.getValue() );
+                LdapUrl ldapUrl = new LdapUrl( url.getString() );
 
                 // We have a problem with the Dn : we can't use the UpName,
                 // as we may have some spaces around the ',' and '+'.
@@ -257,7 +257,7 @@ public class DefaultOperationManager implements OperationManager
         // Get the Ref attributeType
         Attribute refs = parentEntry.get( SchemaConstants.REF_AT );
 
-        List<String> urls = new ArrayList<String>();
+        List<String> urls = new ArrayList<>();
 
         // manage each Referral, building the correct URL for each of them
         for ( Value url : refs )
@@ -265,7 +265,7 @@ public class DefaultOperationManager implements OperationManager
             // we have to replace the parent by the referral
             try
             {
-                LdapUrl ldapUrl = new LdapUrl( url.getValue() );
+                LdapUrl ldapUrl = new LdapUrl( url.getString() );
 
                 StringBuilder urlString = new StringBuilder();
 
@@ -310,7 +310,7 @@ public class DefaultOperationManager implements OperationManager
             catch ( LdapURLEncodingException luee )
             {
                 // The URL is not correct, returns it as is
-                urls.add( url.getValue() );
+                urls.add( url.getString() );
             }
         }
 
@@ -362,7 +362,11 @@ public class DefaultOperationManager implements OperationManager
             dn = new Dn( directoryService.getSchemaManager(), dn );
             addContext.setDn( dn );
         }
-
+        
+        // Find the working partition
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        addContext.setPartition( partition );
+        
         // We have to deal with the referral first
         directoryService.getReferralManager().lockRead();
 
@@ -377,13 +381,11 @@ public class DefaultOperationManager implements OperationManager
                 // a different exception.
                 if ( addContext.isReferralIgnored() )
                 {
-                    LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                    throw exception;
+                    throw buildLdapPartialResultException( childDn );
                 }
                 else
                 {
-                    LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                    throw exception;
+                    throw buildReferralException( parentEntry, childDn );
                 }
             }
         }
@@ -398,9 +400,58 @@ public class DefaultOperationManager implements OperationManager
 
         lockWrite();
 
+        // Start a Write transaction right away
+        PartitionTxn transaction = addContext.getSession().getTransaction( partition ); 
+        
         try
         {
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( addContext.getSession().hasSessionTransaction() )
+                {
+                    addContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+            
+            addContext.setTransaction( transaction );
+
             head.add( addContext );
+            
+            if ( !addContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                transaction.abort();
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -414,7 +465,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Add operation took " + ( System.nanoTime() - addStart ) + " ns" );
+            OPERATION_TIME.debug( "Add operation took {} ns", ( System.nanoTime() - addStart ) );
         }
     }
 
@@ -454,7 +505,19 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            head.bind( bindContext );
+            Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+            
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                bindContext.setPartition( partition );
+                bindContext.setTransaction( partitionTxn );
+                
+                head.bind( bindContext );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
         }
         finally
         {
@@ -468,7 +531,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Bind operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Bind operation took {} ns", ( System.nanoTime() - opStart )  );
         }
     }
 
@@ -521,8 +584,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !compareContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -531,13 +593,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( compareContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -560,7 +620,19 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            result = head.compare( compareContext );
+            Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+            
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                compareContext.setPartition( partition );
+                compareContext.setTransaction( partitionTxn );
+                
+                result = head.compare( compareContext );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
         }
         finally
         {
@@ -574,7 +646,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Compare operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Compare operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return result;
@@ -602,6 +674,8 @@ public class DefaultOperationManager implements OperationManager
 
         // Normalize the deleteContext Dn
         Dn dn = deleteContext.getDn();
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        deleteContext.setPartition( partition );
 
         if ( !dn.isSchemaAware() )
         {
@@ -628,8 +702,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !deleteContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -640,13 +713,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( deleteContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -660,14 +731,63 @@ public class DefaultOperationManager implements OperationManager
         // populate the context with the old entry
         lockWrite();
 
+        // Start a Write transaction right away
+        PartitionTxn transaction = deleteContext.getSession().getTransaction( partition ); 
+        
         try
         {
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( deleteContext.getSession().hasSessionTransaction() )
+                {
+                    deleteContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+            
+            deleteContext.setTransaction( transaction );
+
             eagerlyPopulateFields( deleteContext );
 
             // Call the Delete method
             Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
 
             head.delete( deleteContext );
+
+            if ( !deleteContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                transaction.abort();
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -681,7 +801,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Delete operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Delete operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -706,8 +826,30 @@ public class DefaultOperationManager implements OperationManager
         ensureStarted();
 
         Interceptor head = directoryService.getInterceptor( getRootDseContext.getNextInterceptor() );
+        Entry root;
 
-        Entry root = head.getRootDse( getRootDseContext );
+        try
+        {
+            lockRead();
+            
+            Partition partition = directoryService.getPartitionNexus().getPartition( Dn.ROOT_DSE );
+            
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                getRootDseContext.setPartition( partition );
+                getRootDseContext.setTransaction( partitionTxn );
+                
+                root = head.getRootDse( getRootDseContext );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        finally
+        {
+            unlockRead();
+        }
 
         if ( IS_DEBUG )
         {
@@ -716,7 +858,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "GetRootDSE operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "GetRootDSE operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return root;
@@ -759,7 +901,19 @@ public class DefaultOperationManager implements OperationManager
 
         try
         {
-            result = head.hasEntry( hasEntryContext );
+            Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+
+            try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
+            {
+                hasEntryContext.setPartition( partition );
+                hasEntryContext.setTransaction( partitionTxn );
+
+                result = head.hasEntry( hasEntryContext );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
         }
         finally
         {
@@ -773,7 +927,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "HasEntry operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "HasEntry operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return result;
@@ -811,16 +965,29 @@ public class DefaultOperationManager implements OperationManager
             dn = new Dn( directoryService.getSchemaManager(), dn );
             lookupContext.setDn( dn );
         }
-
-        lockRead();
-
-        try
+        
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        lookupContext.setPartition( partition );
+        
+        // Start a read transaction right away
+        try ( PartitionTxn transaction = partition.beginReadTransaction() )
         {
-            entry = head.lookup( lookupContext );
+            lookupContext.setTransaction( transaction );
+
+            lockRead();
+    
+            try
+            {
+                entry = head.lookup( lookupContext );
+            }
+            finally
+            {
+                unlockRead();
+            }
         }
-        finally
+        catch ( IOException ioe )
         {
-            unlockRead();
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
 
         if ( IS_DEBUG )
@@ -830,7 +997,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Lookup operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Lookup operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return entry;
@@ -887,8 +1054,7 @@ public class DefaultOperationManager implements OperationManager
                         // We have found a parent referral for the current Dn
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( referralManager.hasParentReferral( dn ) )
@@ -902,16 +1068,14 @@ public class DefaultOperationManager implements OperationManager
                         // We have found a parent referral for the current Dn
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
                         // We have found a parent referral for the current Dn
                         Dn childDn = dn.getDescendantOf( parentEntry.getDn() );
 
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -921,11 +1085,29 @@ public class DefaultOperationManager implements OperationManager
             // Unlock the ReferralManager
             referralManager.unlock();
         }
-
+        
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        modifyContext.setPartition( partition );
+        
         lockWrite();
+        
+        // Start a Write transaction right away
+        PartitionTxn transaction = modifyContext.getSession().getTransaction( partition ); 
 
         try
         {
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( modifyContext.getSession().hasSessionTransaction() )
+                {
+                    modifyContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+
+            modifyContext.setTransaction( transaction );
+
             // populate the context with the old entry
             eagerlyPopulateFields( modifyContext );
 
@@ -933,6 +1115,40 @@ public class DefaultOperationManager implements OperationManager
             Interceptor head = directoryService.getInterceptor( modifyContext.getNextInterceptor() );
 
             head.modify( modifyContext );
+            
+            if ( !modifyContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
+        }
+        catch ( LdapException le )
+        {
+            try 
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try 
+            {
+                transaction.abort();
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -946,7 +1162,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Modify operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Modify operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -1008,8 +1224,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !moveContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -1020,13 +1235,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( moveContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -1037,10 +1250,7 @@ public class DefaultOperationManager implements OperationManager
             if ( directoryService.getReferralManager().isReferral( newSuperiorDn )
                 || directoryService.getReferralManager().hasParentReferral( newSuperiorDn ) )
             {
-                LdapAffectMultipleDsaException exception = new LdapAffectMultipleDsaException();
-                //exception.setRemainingName( dn );
-
-                throw exception;
+                throw new LdapAffectMultipleDsaException();
             }
 
         }
@@ -1051,9 +1261,27 @@ public class DefaultOperationManager implements OperationManager
         }
 
         lockWrite();
+        
+        // Find the working partition
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        moveContext.setPartition( partition );
 
+        // Start a Write transaction right away
+        PartitionTxn transaction = moveContext.getSession().getTransaction( partition ); 
+        
         try
         {
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( moveContext.getSession().hasSessionTransaction() )
+                {
+                    moveContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+        
+            moveContext.setTransaction( transaction );
             Entry originalEntry = getOriginalEntry( moveContext );
 
             moveContext.setOriginalEntry( originalEntry );
@@ -1062,6 +1290,43 @@ public class DefaultOperationManager implements OperationManager
             Interceptor head = directoryService.getInterceptor( moveContext.getNextInterceptor() );
 
             head.move( moveContext );
+            
+            if ( !moveContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -1075,7 +1340,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Move operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Move operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -1128,8 +1393,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !moveAndRenameContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -1140,13 +1404,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( moveAndRenameContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -1168,10 +1430,7 @@ public class DefaultOperationManager implements OperationManager
             {
                 // The parent Dn is a referral, we have to issue a AffectMultipleDsas result
                 // as stated by RFC 3296 Section 5.6.2
-                LdapAffectMultipleDsaException exception = new LdapAffectMultipleDsaException();
-                //exception.setRemainingName( dn );
-
-                throw exception;
+                throw new LdapAffectMultipleDsaException();
             }
         }
         finally
@@ -1180,17 +1439,69 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().unlock();
         }
 
-        lockWrite();
+        // Find the working partition
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        moveAndRenameContext.setPartition( partition );
 
+        lockWrite();
+        
+        // Start a Write transaction right away
+        PartitionTxn transaction = moveAndRenameContext.getSession().getTransaction( partition ); 
+        
         try
         {
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( moveAndRenameContext.getSession().hasSessionTransaction() )
+                {
+                    moveAndRenameContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+
             moveAndRenameContext.setOriginalEntry( getOriginalEntry( moveAndRenameContext ) );
             moveAndRenameContext.setModifiedEntry( moveAndRenameContext.getOriginalEntry().clone() );
+            moveAndRenameContext.setTransaction( transaction );
 
             // Call the MoveAndRename method
             Interceptor head = directoryService.getInterceptor( moveAndRenameContext.getNextInterceptor() );
 
             head.moveAndRename( moveAndRenameContext );
+
+            if ( !moveAndRenameContext.getSession().hasSessionTransaction() )
+            {
+                transaction.commit();
+            }
+        }
+        catch ( LdapException le )
+        {
+            try
+            {
+                if ( transaction != null )
+                {
+                    transaction.abort();
+                }
+                
+                throw le;
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+        }
+        catch ( IOException ioe )
+        {
+            try
+            {
+                transaction.abort();
+                
+                throw new LdapOtherException( ioe.getMessage(), ioe );
+            }
+            catch ( IOException ioe2 )
+            {
+                throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+            }
         }
         finally
         {
@@ -1204,7 +1515,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "MoveAndRename operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "MoveAndRename operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -1274,8 +1585,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !renameContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -1286,13 +1596,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( renameContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralException( parentEntry, childDn );
-                        throw exception;
+                        throw buildReferralException( parentEntry, childDn );
                     }
                 }
             }
@@ -1303,22 +1611,117 @@ public class DefaultOperationManager implements OperationManager
             directoryService.getReferralManager().unlock();
         }
 
-        // Call the rename method
-        // populate the context with the old entry
-
         lockWrite();
 
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+
+        // Start a Write transaction right away
+        PartitionTxn transaction = renameContext.getSession().getTransaction( partition ); 
+        
+        // Call the rename method
         try
         {
-            eagerlyPopulateFields( renameContext );
+            if ( transaction == null )
+            {
+                transaction = partition.beginWriteTransaction();
+                
+                if ( renameContext.getSession().hasSessionTransaction() )
+                {
+                    renameContext.getSession().addTransaction( partition, transaction );
+                }
+            }
+
+            renameContext.setPartition( partition );
+
+            // populate the context with the old entry
+            PartitionTxn partitionTxn = null;
+            
+            try
+            {
+                partitionTxn = partition.beginReadTransaction();
+                
+                renameContext.setTransaction( partitionTxn );
+                
+                eagerlyPopulateFields( renameContext );
+            }
+            finally
+            {
+                try
+                {
+                    // Nothing to do
+                    if ( partitionTxn != null )
+                    {
+                        partitionTxn.close();
+                    }
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
+            }
+
             Entry originalEntry = getOriginalEntry( renameContext );
             renameContext.setOriginalEntry( originalEntry );
             renameContext.setModifiedEntry( originalEntry.clone() );
-
-            // Call the Rename method
             Interceptor head = directoryService.getInterceptor( renameContext.getNextInterceptor() );
 
-            head.rename( renameContext );
+            // Start a Write transaction right away
+            transaction = renameContext.getSession().getTransaction( partition ); 
+            
+            // Call the Rename method
+            try
+            {
+                if ( transaction == null )
+                {
+                    transaction = partition.beginWriteTransaction();
+                    
+                    if ( renameContext.getSession().hasSessionTransaction() )
+                    {
+                        renameContext.getSession().addTransaction( partition, transaction );
+                    }
+                }
+
+                renameContext.setTransaction( transaction );
+
+                head.rename( renameContext );
+                
+                if ( !renameContext.getSession().hasSessionTransaction() )
+                {
+                    transaction.commit();
+                }
+            }
+            catch ( LdapException le )
+            {
+                try
+                {
+                    if ( transaction != null )
+                    {
+                        transaction.abort();
+                    }
+                    
+                    throw le;
+                }
+                catch ( IOException ioe )
+                {
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
+            }
+            catch ( IOException ioe )
+            {
+                try
+                {
+                    if ( transaction != null )
+                    {
+                        transaction.abort();
+                    }
+                    
+                    throw new LdapOtherException( ioe.getMessage(), ioe );
+                }
+                catch ( IOException ioe2 )
+                {
+                    throw new LdapOtherException( ioe2.getMessage(), ioe2 );
+                }
+            }
         }
         finally
         {
@@ -1332,7 +1735,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Rename operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Rename operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 
@@ -1385,9 +1788,7 @@ public class DefaultOperationManager implements OperationManager
                     if ( !searchContext.isReferralIgnored() )
                     {
                         // Throw a Referral Exception
-                        LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
-                            searchContext.getScope() );
-                        throw exception;
+                        throw buildReferralExceptionForSearch( parentEntry, childDn, searchContext.getScope() );
                     }
                 }
                 else if ( directoryService.getReferralManager().hasParentReferral( dn ) )
@@ -1398,14 +1799,11 @@ public class DefaultOperationManager implements OperationManager
                     // a different exception.
                     if ( searchContext.isReferralIgnored() )
                     {
-                        LdapPartialResultException exception = buildLdapPartialResultException( childDn );
-                        throw exception;
+                        throw buildLdapPartialResultException( childDn );
                     }
                     else
                     {
-                        LdapReferralException exception = buildReferralExceptionForSearch( parentEntry, childDn,
-                            searchContext.getScope() );
-                        throw exception;
+                        throw buildReferralExceptionForSearch( parentEntry, childDn, searchContext.getScope() );
                     }
                 }
             }
@@ -1420,16 +1818,26 @@ public class DefaultOperationManager implements OperationManager
         Interceptor head = directoryService.getInterceptor( searchContext.getNextInterceptor() );
 
         EntryFilteringCursor cursor = null;
-
-        lockRead();
-
-        try
+        Partition partition = directoryService.getPartitionNexus().getPartition( dn );
+        
+        try ( PartitionTxn partitionTxn = partition.beginReadTransaction() )
         {
-            cursor = head.search( searchContext );
+            searchContext.setPartition( partition );
+            searchContext.setTransaction( partitionTxn );
+            lockRead();
+    
+            try
+            {
+                cursor = head.search( searchContext );
+            }
+            finally
+            {
+                unlockRead();
+            }
         }
-        finally
+        catch ( IOException ioe )
         {
-            unlockRead();
+            throw new LdapOtherException( ioe.getMessage(), ioe );
         }
 
         if ( IS_DEBUG )
@@ -1439,7 +1847,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Search operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Search operation took {} ns", ( System.nanoTime() - opStart ) );
         }
 
         return cursor;
@@ -1477,7 +1885,7 @@ public class DefaultOperationManager implements OperationManager
 
         if ( IS_TIME )
         {
-            OPERATION_TIME.debug( "Unbind operation took " + ( System.nanoTime() - opStart ) + " ns" );
+            OPERATION_TIME.debug( "Unbind operation took {} ns", ( System.nanoTime() - opStart ) );
         }
     }
 

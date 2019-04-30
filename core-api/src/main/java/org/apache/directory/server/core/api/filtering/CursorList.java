@@ -27,6 +27,7 @@ import org.apache.directory.api.i18n.I18n;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.cursor.AbstractCursor;
 import org.apache.directory.api.ldap.model.cursor.ClosureMonitor;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -93,6 +94,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      * @param start the lower bound index
      * @param list the list this ListCursor operates on
      * @param end the upper bound index
+     * @param searchContext The SearchContext instance
      */
     public CursorList( int start, List<EntryFilteringCursor> list, int end, SearchOperationContext searchContext )
     {
@@ -114,19 +116,19 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
 
         if ( ( start < 0 ) || ( start > listSize ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02005_START_INDEX_OUT_OF_RANGE, start ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_13105_START_INDEX_OUT_OF_RANGE, start ) );
         }
 
         if ( ( end < 0 ) || ( end > listSize ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02006_END_INDEX_OUT_OF_RANGE, end ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_13106_END_INDEX_OUT_OF_RANGE, end ) );
         }
 
         // check list is not empty list since the empty list is the only situation
         // where we allow for start to equal the end: in other cases it makes no sense
         if ( ( listSize > 0 ) && ( start >= end ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02007_START_INDEX_ABOVE_END_INDEX, start, end ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_13107_START_INDEX_ABOVE_END_INDEX, start, end ) );
         }
 
         this.start = start;
@@ -142,6 +144,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      * acquired from the size of the list.
      *
      * @param list the backing for this ListCursor
+     * @param searchContext The SearchContext instance
      */
     public CursorList( List<EntryFilteringCursor> list, SearchOperationContext searchContext )
     {
@@ -168,7 +171,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      */
     public void before( Entry element ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_13108_LIST_MAY_BE_SORTED ) );
     }
 
 
@@ -177,7 +180,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
      */
     public void after( Entry element ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02008_LIST_MAY_BE_SORTED ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_13108_LIST_MAY_BE_SORTED ) );
     }
 
 
@@ -333,7 +336,7 @@ public class CursorList extends AbstractCursor<Entry> implements EntryFilteringC
     {
         if ( ( index < start ) || ( index >= end ) )
         {
-            throw new CursorException( I18n.err( I18n.ERR_02009_CURSOR_NOT_POSITIONED ) );
+            throw new CursorException( I18n.err( I18n.ERR_13109_CURSOR_NOT_POSITIONED ) );
         }
 
         if ( currentCursor.available() )

@@ -211,7 +211,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !targetDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, targetDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, targetDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -223,7 +223,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, pkgRootDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -232,7 +232,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootUsrBinDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootUsrBinDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, pkgRootUsrBinDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -242,7 +242,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootUsrLocalApachedsDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                 pkgRootUsrLocalApachedsDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
@@ -252,7 +252,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootInstancesDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgRootInstancesDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, pkgRootInstancesDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -261,7 +261,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootInstancesDefaultDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                 pkgRootInstancesDefaultDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
@@ -272,7 +272,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootInstancesDefaultConfDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                 pkgRootInstancesDefaultConfDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
@@ -282,7 +282,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootInstancesDefaultDirectoryLog.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                 pkgRootInstancesDefaultDirectoryLog ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
@@ -293,7 +293,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootInstancesDefaultDirectoryPartitions.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                 pkgRootInstancesDefaultDirectoryPartitions ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
@@ -303,7 +303,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootInstancesDefaultDirectoryRun.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                 pkgRootInstancesDefaultDirectoryRun ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
@@ -313,7 +313,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !pkgRootLibraryLaunchDaemons.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                 pkgRootLibraryLaunchDaemons ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
@@ -342,7 +342,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
             if ( !pkgResourcesEnglishDirectory.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY,
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
                     pkgResourcesEnglishDirectory ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
@@ -352,7 +352,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
             if ( !pkgScriptsDirectory.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, pkgScriptsDirectory ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, pkgScriptsDirectory ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
@@ -415,7 +415,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !dmgDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dmgDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, dmgDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -427,7 +427,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
 
         if ( !dmgDmgBackgroundDirectory.mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECORY, dmgDmgBackgroundDirectory ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, dmgDmgBackgroundDirectory ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -555,6 +555,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void initializeFilterProperties()
     {
         super.initializeFilterProperties();
@@ -574,7 +575,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
      */
     public File getInstallationDirectory()
     {
-        return new File( getTargetDirectory(), ROOT + "/" + USR_LOCAL_APACHEDS
+        return new File( getTargetDirectory(), ROOT + File.separator + USR_LOCAL_APACHEDS
             + mojo.getProject().getVersion() );
     }
 

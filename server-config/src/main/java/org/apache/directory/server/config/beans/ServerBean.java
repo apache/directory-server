@@ -39,7 +39,7 @@ public abstract class ServerBean extends AdsBaseBean
 
     /** The set of transports to use for this server */
     @ConfigurationElement(objectClass = "ads-transport", container = "transports")
-    private List<TransportBean> transports = new ArrayList<TransportBean>();
+    private List<TransportBean> transports = new ArrayList<>();
 
 
     /**
@@ -107,6 +107,7 @@ public abstract class ServerBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();
@@ -130,6 +131,7 @@ public abstract class ServerBean extends AdsBaseBean
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return toString( "" );

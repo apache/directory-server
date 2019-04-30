@@ -19,12 +19,14 @@
  */
 package org.apache.directory.kerberos.client;
 
+
 import java.io.File;
 
 import org.apache.directory.kerberos.credentials.cache.Credentials;
 import org.apache.directory.kerberos.credentials.cache.CredentialsCache;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
+
 
 /**
  * Authenticates to the Kerberos server and gets the initial Ticket Granting Ticket,
@@ -34,52 +36,55 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
  */
 public class Kinit
 {
-	
-	private KdcConnection kdc;
-	private File credCacheFile;
-	
-	public Kinit( KdcConnection kdc )
-	{
-		this.kdc = kdc;
-	}
-	
-	public void setCredCacheFile( File credCacheFile )
-	{
-		this.credCacheFile = credCacheFile;
-	}
-	
-	public File getCredCacheFile()
-	{
-		return this.credCacheFile;
-	}
-	
+    private KdcConnection kdc;
+    private File credCacheFile;
+
+
+    public Kinit( KdcConnection kdc )
+    {
+        this.kdc = kdc;
+    }
+
+
+    public void setCredCacheFile( File credCacheFile )
+    {
+        this.credCacheFile = credCacheFile;
+    }
+
+
+    public File getCredCacheFile()
+    {
+        return this.credCacheFile;
+    }
+
+
     /**
      * Authenticates to the Kerberos server and gets the initial Ticket Granting Ticket,
      * then cache the tgt in credentials cache, as MIT kinit does.
      * 
      * @param principal the client's principal 
      * @param password password of the client
-     * @return
-     * @throws Exception
+     * @throws Exception If we had an issue while getting the TGT, or creating the PrincipalName, or
+     * storing the credentials
      */
     public void kinit( String principal, String password ) throws Exception
     {
-    	if ( principal == null || password == null || credCacheFile == null )
-    	{
-    		throw new IllegalArgumentException( "Invalid principal, password, or credentials cache file" );
-    	}
-    	
-    	TgTicket tgt = kdc.getTgt( principal, password );
-    	
-    	CredentialsCache credCache = new CredentialsCache();
-    	
-    	PrincipalName princ = new PrincipalName( principal, PrincipalNameType.KRB_NT_PRINCIPAL );
-    	princ.setRealm( tgt.getRealm() );
-    	credCache.setPrimaryPrincipalName( princ );
-    	
-    	Credentials cred = new Credentials( tgt );
-    	credCache.addCredentials( cred );
-    	
-    	CredentialsCache.store( credCacheFile, credCache );
-    }    
+        if ( principal == null || password == null || credCacheFile == null )
+        {
+            throw new IllegalArgumentException( "Invalid principal, password, or credentials cache file" );
+        }
+
+        TgTicket tgt = kdc.getTgt( principal, password );
+
+        CredentialsCache credCache = new CredentialsCache();
+
+        PrincipalName princ = new PrincipalName( principal, PrincipalNameType.KRB_NT_PRINCIPAL );
+        princ.setRealm( tgt.getRealm() );
+        credCache.setPrimaryPrincipalName( princ );
+
+        Credentials cred = new Credentials( tgt );
+        credCache.addCredentials( cred );
+
+        CredentialsCache.store( credCacheFile, credCache );
+    }
 }

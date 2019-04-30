@@ -84,7 +84,7 @@ public class ReplicaEventMessage
      *
      * @param csn the CSN
      * @return true if the event's CSN is older than the given CSN
-     * @throws Exception if there are any extreme conditions like a null entry or missing entryCSN attribute.
+     * @throws LdapException if there are any extreme conditions like a null entry or missing entryCSN attribute.
      */
     public boolean isEventOlderThan( String csn ) throws LdapException
     {

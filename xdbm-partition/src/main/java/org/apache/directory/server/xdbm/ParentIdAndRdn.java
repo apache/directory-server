@@ -345,7 +345,8 @@ public class ParentIdAndRdn implements Externalizable, Comparable<ParentIdAndRdn
 
     /**
      * Sets the number of descendants this entry has
-     * @param nbChildren The number of descendants
+     * 
+     * @param nbDescendants The number of descendants
      */
     public void setNbDescendants( int nbDescendants )
     {

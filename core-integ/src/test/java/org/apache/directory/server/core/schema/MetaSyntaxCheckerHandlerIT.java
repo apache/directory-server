@@ -96,7 +96,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
-        assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, OctetStringSyntaxChecker.class );
         assertTrue( isOnDisk( dn ) );
@@ -184,10 +184,9 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         connection.add( entry );
 
         assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
-        assertEquals( schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "apachemeta", schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
-        assertEquals( clazz.getName(),
-            "org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker" );
+        assertEquals( "org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker", clazz.getName() );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -327,8 +326,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
             .contains( OID ) );
 
-        assertEquals( "syntaxChecker schema should be set to apache not apachemeta", schemaManager
-            .getSyntaxCheckerRegistry().getSchemaName( OID ), "apache" );
+        assertEquals( "syntaxChecker schema should be set to apache not apachemeta", "apache",
+                schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, OctetStringSyntaxChecker.class );
@@ -353,8 +352,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "new syntaxChecker OID should be present", schemaManager.getSyntaxCheckerRegistry().contains(
             NEW_OID ) );
 
-        assertEquals( "syntaxChecker with new oid should have schema set to apache NOT apachemeta", schemaManager
-            .getSyntaxCheckerRegistry().getSchemaName( NEW_OID ), "apache" );
+        assertEquals( "syntaxChecker with new oid should have schema set to apache NOT apachemeta", "apache",
+                schemaManager.getSyntaxCheckerRegistry().getSchemaName( NEW_OID ) );
 
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, OctetStringSyntaxChecker.class );
@@ -376,8 +375,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
             .contains( OID ) );
 
-        assertEquals( "syntaxChecker schema should be set to apachemeta", schemaManager.getSyntaxCheckerRegistry()
-            .getSchemaName( OID ), "apachemeta" );
+        assertEquals( "syntaxChecker schema should be set to apachemeta", "apachemeta",
+                schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, BogusSyntaxChecker.class );
@@ -399,8 +398,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
             .contains( OID ) );
 
-        assertEquals( "syntaxChecker schema should be set to apachemeta", schemaManager.getSyntaxCheckerRegistry()
-            .getSchemaName( OID ), "apachemeta" );
+        assertEquals( "syntaxChecker schema should be set to apachemeta", "apachemeta",
+                schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
 
         Class<?> clazz = schemaManager.getSyntaxCheckerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, BogusSyntaxChecker.class );
@@ -624,8 +623,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         assertTrue( "syntaxChecker OID should be present when moved to enabled schema", schemaManager
             .getSyntaxCheckerRegistry().contains( OID ) );
 
-        assertEquals( "syntaxChecker should be in apachemeta schema after move", schemaManager
-            .getSyntaxCheckerRegistry().getSchemaName( OID ), "apachemeta" );
+        assertEquals( "syntaxChecker should be in apachemeta schema after move", "apachemeta", 
+                schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
     }
 
     public static class BogusSyntaxChecker extends SyntaxChecker

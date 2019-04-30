@@ -51,8 +51,6 @@ public class AdMandatoryForKdcDecoderTest
     @Test
     public void testAdMandatoryForKdc()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
-
         ByteBuffer stream = ByteBuffer.allocate( 0x24 );
 
         stream.put( new byte[]
@@ -100,7 +98,7 @@ public class AdMandatoryForKdcDecoderTest
         // Decode the AdMandatoryForKdc PDU
         try
         {
-            kerberosDecoder.decode( stream, adMandatoryForKdcContainer );
+            Asn1Decoder.decode( stream, adMandatoryForKdcContainer );
         }
         catch ( DecoderException de )
         {

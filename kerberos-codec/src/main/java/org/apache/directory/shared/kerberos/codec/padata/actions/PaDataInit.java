@@ -54,7 +54,7 @@ public class PaDataInit extends GrammarAction<PaDataContainer>
     /**
      * {@inheritDoc}
      */
-    public void action( PaDataContainer paDataContainer ) throws DecoderException
+    public void action( PaDataContainer paDataContainer )
     {
         PaData paData = new PaData();
         paDataContainer.setPaData( paData );

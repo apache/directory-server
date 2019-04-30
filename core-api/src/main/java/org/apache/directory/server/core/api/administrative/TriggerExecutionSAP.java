@@ -66,6 +66,7 @@ public class TriggerExecutionSAP extends TriggerExecutionAdministrativePoint
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString()
     {
         return "TriggerExecution SAP : " + super.toString();

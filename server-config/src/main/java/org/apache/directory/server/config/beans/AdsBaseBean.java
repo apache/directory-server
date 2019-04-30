@@ -101,6 +101,11 @@ public abstract class AdsBaseBean
 
     /**
      * Formated print of a boolean
+     * 
+     * @param tabs The starting spaces
+     * @param name The bean name
+     * @param value the boolean value
+     * @return A string for this boolean
      */
     protected String toString( String tabs, String name, boolean value )
     {
@@ -125,6 +130,11 @@ public abstract class AdsBaseBean
 
     /**
      * Formated print of a String that can be null
+     * 
+     * @param tabs The starting spaces
+     * @param name The bean name
+     * @param value the string value
+     * @return A string for this String
      */
     protected String toString( String tabs, String name, String value )
     {
@@ -141,6 +151,11 @@ public abstract class AdsBaseBean
 
     /**
      * Formated print of a Dn that can be null
+     * 
+     * @param tabs The starting spaces
+     * @param name The bean name
+     * @param value the Dn value
+     * @return A string for this Dn
      */
     protected String toString( String tabs, String name, Dn value )
     {
@@ -168,6 +183,11 @@ public abstract class AdsBaseBean
 
     /**
      * Formated print of a long
+     * 
+     * @param tabs The starting spaces
+     * @param name The bean name
+     * @param value the long value
+     * @return A string for this long
      */
     protected String toString( String tabs, String name, long value )
     {

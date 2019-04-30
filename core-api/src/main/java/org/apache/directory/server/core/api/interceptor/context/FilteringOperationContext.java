@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.core.api.interceptor.context;
 
@@ -23,10 +23,9 @@ package org.apache.directory.server.core.api.interceptor.context;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
@@ -69,9 +68,9 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
-     * Creates a new instance of LookupOperationContext.
+     * Creates a new instance of FilteringOperationContext.
      *
+     * @param session The session to use
      */
     public FilteringOperationContext( CoreSession session )
     {
@@ -81,9 +80,10 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
-     * Creates a new instance of LookupOperationContext.
+     * Creates a new instance of FilteringOperationContext.
      *
+     * @param session The session to use
+     * @param dn The Dn
      */
     public FilteringOperationContext( CoreSession session, Dn dn )
     {
@@ -93,9 +93,10 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param returningAttributes The attributes to return
      */
     public FilteringOperationContext( CoreSession session, String... returningAttributes )
     {
@@ -106,60 +107,17 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
 
     /**
-     * 
      * Creates a new instance of LookupOperationContext.
      *
+     * @param session The session to use
+     * @param dn The Dn
+     * @param returningAttributes The attributes to return
      */
     public FilteringOperationContext( CoreSession session, Dn dn, String... returningAttributes )
     {
         super( session, dn );
 
         setReturningAttributes( returningAttributes );
-    }
-
-
-    /**
-     * Add an attribute ID to the current list, creating the list if necessary
-     *
-     * @param attrId the Id to add
-     *
-    public void addAttrsId( String attrId )
-    {
-        if ( noAttributes == null )
-        {
-            if ( attrId.equals( SchemaConstants.NO_ATTRIBUTE ) )
-            {
-                noAttributes = true;
-
-                if ( attrsId != null )
-                {
-                    attrsId.clear();
-                }
-
-                return;
-            }
-
-            if ( attrId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
-            {
-                allUserAttributes = true;
-
-                return;
-            }
-
-            if ( attrId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
-            {
-                allOperationalAttributes = true;
-
-                return;
-            }
-
-            if ( attrsId == null )
-            {
-                attrsId = new ArrayList<String>();
-            }
-
-            attrsId.add( attrId );
-        }
     }
 
 
@@ -183,7 +141,8 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
     /**
      * Tells if an attribute is present in the list of attribute to return
-     * 
+     *
+     * @param schemaManager The SchemaManager instance
      * @param attribute The attribute we are looking for
      * @return true if the attribute is present
      */
@@ -209,7 +168,8 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
     /**
      * Tells if an attribute is present in the list of attribute to return
-     * 
+     *
+     * @param schemaManager The SchemaManager instance
      * @param attributeType The attributeType we are looking for
      * @return true if the attribute is present
      */
@@ -236,6 +196,13 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             return false;
         }
 
+        // Shortcut
+        if ( returningAttributes.contains( new AttributeTypeOptions( attributeType ) ) )
+        {
+            return true;
+        }
+
+        // Ok, do it the slow way...
         for ( AttributeTypeOptions attributeTypeOptions : returningAttributes )
         {
             if ( attributeTypeOptions.getAttributeType().equals( attributeType )
@@ -254,15 +221,15 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
         if ( ( attributeIds != null ) && ( attributeIds.length != 0 ) && ( attributeIds[0] != null ) )
         {
             // We have something in the list
-            // first, ignore all the unkown AT and convert the strings to 
+            // first, ignore all the unkown AT and convert the strings to
             // AttributeTypeOptions
-            returningAttributes = new HashSet<AttributeTypeOptions>();
-            Set<String> attributesString = new HashSet<String>();
+            returningAttributes = new HashSet<>();
+            Set<String> attributesString = new HashSet<>();
 
             Set<AttributeTypeOptions> collectedAttributes = collectAttributeTypes( attributeIds );
 
             // If we have valid, '*' or '+' attributes, we can get rid of the NoAttributes flag
-            if ( ( collectedAttributes.size() > 0 ) || allUserAttributes || allOperationalAttributes )
+            if ( !collectedAttributes.isEmpty() || allUserAttributes || allOperationalAttributes )
             {
                 noAttributes = false;
             }
@@ -270,7 +237,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
             // Now, loop on the list of attributes, and remove all the USER attributes if
             // we have the '*' attribute, and remove all the OPERATIONAL attributes if we
             // have the '+' attribute
-            if ( collectedAttributes.size() > 0 )
+            if ( !collectedAttributes.isEmpty() )
             {
                 for ( AttributeTypeOptions attributeTypeOption : collectedAttributes )
                 {
@@ -290,7 +257,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
                 }
             }
 
-            if ( attributesString.size() > 0 )
+            if ( !attributesString.isEmpty() )
             {
                 // We have some valid attributes, lt's convert it to String
                 returningAttributesString = attributesString.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
@@ -312,7 +279,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
     private Set<AttributeTypeOptions> collectAttributeTypes( String... attributesIds )
     {
-        Set<AttributeTypeOptions> collectedAttributes = new HashSet<AttributeTypeOptions>();
+        Set<AttributeTypeOptions> collectedAttributes = new HashSet<>();
 
         if ( ( attributesIds != null ) && ( attributesIds.length != 0 ) )
         {
@@ -352,12 +319,6 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
 
                     collectedAttributes.add( attrOptions );
                 }
-                catch ( LdapNoSuchAttributeException nsae )
-                {
-                    LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored",
-                        returnAttribute );
-                    // Unknown attributes should be silently ignored, as RFC 2251 states
-                }
                 catch ( LdapException le )
                 {
                     LOG.warn( "Requested attribute {} does not exist in the schema, it will be ignored",
@@ -374,9 +335,9 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     /**
      * @param allOperationalAttributes the allOperationalAttributes to set
      */
-    public void setAllOperationalAttributes( boolean allOperationalAttribute )
+    public void setAllOperationalAttributes( boolean allOperationalAttributes )
     {
-        this.allOperationalAttributes = allOperationalAttribute;
+        this.allOperationalAttributes = allOperationalAttributes;
     }
 
 
@@ -446,6 +407,7 @@ public abstract class FilteringOperationContext extends AbstractOperationContext
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

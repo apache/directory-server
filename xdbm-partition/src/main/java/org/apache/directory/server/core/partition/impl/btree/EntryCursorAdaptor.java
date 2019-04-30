@@ -30,6 +30,7 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.PartitionSearchResult;
@@ -49,12 +50,15 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
+    
+    /** The transaction in use */
+    private PartitionTxn partitionTxn;
 
     private final Cursor<IndexEntry<String, String>> indexCursor;
     private final Evaluator<? extends ExprNode> evaluator;
 
 
-    public EntryCursorAdaptor( AbstractBTreePartition db, PartitionSearchResult searchResult )
+    public EntryCursorAdaptor( PartitionTxn partitionTxn, AbstractBTreePartition db, PartitionSearchResult searchResult )
     {
         if ( IS_DEBUG )
         {
@@ -63,6 +67,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
 
         indexCursor = searchResult.getResultSet();
         evaluator = searchResult.getEvaluator();
+        this.partitionTxn = partitionTxn;
     }
 
 
@@ -114,6 +119,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setClosureMonitor( ClosureMonitor monitor )
     {
         indexCursor.setClosureMonitor( monitor );
@@ -123,6 +129,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -137,6 +144,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -166,7 +174,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
 
         try
         {
-            if ( evaluator.evaluate( indexEntry ) )
+            if ( evaluator.evaluate( partitionTxn, indexEntry ) )
             {
                 Entry entry = indexEntry.getEntry();
                 indexEntry.setEntry( null );
@@ -190,6 +198,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isClosed()
     {
         return indexCursor.isClosed();
@@ -226,6 +235,7 @@ public class EntryCursorAdaptor extends AbstractCursor<Entry>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

@@ -41,7 +41,7 @@ import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.SortKey;
 import org.apache.directory.api.ldap.model.message.controls.SortRequest;
-import org.apache.directory.api.ldap.model.message.controls.SortRequestControlImpl;
+import org.apache.directory.api.ldap.model.message.controls.SortRequestImpl;
 import org.apache.directory.api.ldap.model.message.controls.SortResponse;
 import org.apache.directory.api.ldap.model.message.controls.SortResultCode;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -91,7 +91,6 @@ public class SortedSearchIT extends AbstractLdapTestUnit
         {
             con = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
             con.bind( "uid=admin,ou=system", "secret" );
-            con.setTimeOut( Long.MAX_VALUE );
         }
 
         baseDn = new Dn( "ou=parent,ou=system" );
@@ -108,7 +107,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
         
         // tests may overwrite the fields of the below SortKey instance
         sk = new SortKey( "entryDn" );
-        ctrl = new SortRequestControlImpl();
+        ctrl = new SortRequestImpl();
         ctrl.addSortKey( sk );
         req.addControl( ctrl );
     }
@@ -368,7 +367,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
     public void testSortByDn() throws Exception
     {
         sk.setAttributeTypeDesc( "entryDn" );
-        sk.setMatchingRuleId( "2.5.13.1" );
+        sk.setMatchingRuleId( SchemaConstants.DISTINGUISHED_NAME_MATCH_MR_OID );
         SearchCursor cursor = con.search( req );
 
         List<Entry> actualOrder = new ArrayList<Entry>();

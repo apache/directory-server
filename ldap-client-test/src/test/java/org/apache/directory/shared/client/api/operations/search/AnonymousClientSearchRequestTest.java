@@ -98,7 +98,6 @@ public class AnonymousClientSearchRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getAnonymousNetworkConnection( getLdapServer() );
-        connection.setTimeOut( 0L );
     }
     
     

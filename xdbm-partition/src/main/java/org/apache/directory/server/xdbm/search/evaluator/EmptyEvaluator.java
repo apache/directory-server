@@ -23,6 +23,7 @@ package org.apache.directory.server.xdbm.search.evaluator;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.filter.UndefinedNode;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.search.Evaluator;
 
@@ -36,7 +37,6 @@ public class EmptyEvaluator implements Evaluator<UndefinedNode>
 {
     /**
      * Create a new instance of the PassThroughEvaluator
-     * @throws Exception
      */
     public EmptyEvaluator()
     {
@@ -46,7 +46,7 @@ public class EmptyEvaluator implements Evaluator<UndefinedNode>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         return false;
     }
@@ -55,7 +55,7 @@ public class EmptyEvaluator implements Evaluator<UndefinedNode>
     /**
      * {@inheritDoc}
      */
-    public boolean evaluate( Entry entry ) throws Exception
+    public boolean evaluate( Entry entry ) throws LdapException
     {
         return false;
     }

@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -107,7 +106,6 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.setTimeOut( 0L );
     }
 
 
@@ -643,9 +641,13 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
 
         connection.unBind();
 
-        // this call hangs forever
-        assertFalse( cursor1.next() );
-        assertFalse( cursor2.next() );
-        assertFalse( cursor3.next() );
+        // this calls hung forever
+        /*
+         * Don't make any assumption whether cursor has next or not because entries
+         * are received async and may already been received or not.
+         */
+        cursor1.next();
+        cursor2.next();
+        cursor3.next();
     }
 }

@@ -53,7 +53,7 @@ public interface ReplicationRequestHandler
      *
      * @param session the LdapSession instance
      * @param req the SearchRequest with the SyncRequest control
-     * @throws LdapException
+     * @throws LdapException If the syncrepl request wasn't handled properly
      */
     void handleSyncRequest( LdapSession session, SearchRequest req ) throws LdapException;
 }

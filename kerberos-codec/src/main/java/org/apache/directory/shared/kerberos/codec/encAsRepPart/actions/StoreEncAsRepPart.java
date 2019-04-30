@@ -65,21 +65,19 @@ public class StoreEncAsRepPart extends GrammarAction<EncAsRepPartContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_04066 ) );
+            LOG.error( I18n.err( I18n.ERR_01308_ZERO_LENGTH_TLV ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_04067 ) );
+            throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
 
         // Now, let's decode the EncKdcRepPart
-        Asn1Decoder encKdcRepPartDecoder = new Asn1Decoder();
-
         EncKdcRepPartContainer encKdcRepPartContainer = new EncKdcRepPartContainer( encAsRepPartContainer.getStream() );
 
         // Decode the EncKdcRepPart PDU
         try
         {
-            encKdcRepPartDecoder.decode( encAsRepPartContainer.getStream(), encKdcRepPartContainer );
+            Asn1Decoder.decode( encAsRepPartContainer.getStream(), encKdcRepPartContainer );
         }
         catch ( DecoderException de )
         {

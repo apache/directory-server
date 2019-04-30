@@ -36,6 +36,8 @@ public class UnbindOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of UnbindOperationContext.
+     * 
+     * @param session The session to use
      */
     public UnbindOperationContext( CoreSession session )
     {
@@ -45,6 +47,12 @@ public class UnbindOperationContext extends AbstractOperationContext
     }
 
 
+    /**
+     * Creates a new instance of UnbindOperationContext.
+     * 
+     * @param session The session to use
+     * @param unbindRequest The UnbindRequest to process
+     */
     public UnbindOperationContext( CoreSession session, UnbindRequest unbindRequest )
     {
         super( session, session.getEffectivePrincipal().getDn() );

@@ -86,15 +86,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
         {
             return proc.invoke( null, spArgs );
         }
-        catch ( IllegalArgumentException e )
-        {
-            throw new LdapException( e );
-        }
-        catch ( IllegalAccessException e )
-        {
-            throw new LdapException( e );
-        }
-        catch ( InvocationTargetException e )
+        catch ( IllegalArgumentException | IllegalAccessException | InvocationTargetException e )
         {
             throw new LdapException( e );
         }

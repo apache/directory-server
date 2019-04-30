@@ -65,7 +65,7 @@ public class ETypeInfo2 implements Asn1Object
      */
     public ETypeInfo2()
     {
-        this.etypeInfo2Entries = new ArrayList<ETypeInfo2Entry>();
+        this.etypeInfo2Entries = new ArrayList<>();
     }
 
 
@@ -78,7 +78,7 @@ public class ETypeInfo2 implements Asn1Object
     {
         if ( etypeInfo2Entries == null )
         {
-            this.etypeInfo2Entries = new ArrayList<ETypeInfo2Entry>();
+            this.etypeInfo2Entries = new ArrayList<>();
         }
         else
         {
@@ -100,7 +100,7 @@ public class ETypeInfo2 implements Asn1Object
     /**
      * Returns true if this {@link ETypeInfo2Entry} contains a specified {@link ETypeInfo2Entry}.
      *
-     * @param address The etypeInfo2Entry we are looking for in the existing list
+     * @param etypeInfo2Entry The etypeInfo2Entry we are looking for in the existing list
      * @return true if this {@link ETypeInfo2Entry} contains a specified {@link ETypeInfo2Entry}.
      */
     public boolean contains( ETypeInfo2Entry etypeInfo2Entry )
@@ -185,13 +185,13 @@ public class ETypeInfo2 implements Asn1Object
      * 
      * 0x30 L1 ETypeInfo2 sequence of ETypeInfo2Entry
      *  |
-     *  +--> 0x30 L2[1] ETypeInfo2Entry[1]
+     *  +--&gt; 0x30 L2[1] ETypeInfo2Entry[1]
      *  |
-     *  +--> 0x30 L2[2] ETypeInfo2Entry[2]
+     *  +--&gt; 0x30 L2[2] ETypeInfo2Entry[2]
      *  |
      *  ...
      *  |
-     *  +--> 0x30 L2[n] ETypeInfo2Entry[n]
+     *  +--&gt; 0x30 L2[n] ETypeInfo2Entry[n]
      *        
      *  where L1 = sum( L2[1], l2[2], ..., L2[n] )
      * </pre>
@@ -201,7 +201,7 @@ public class ETypeInfo2 implements Asn1Object
         // Compute the ETypeInfo2 length.
         etypeInfo2Length = 0;
 
-        if ( ( etypeInfo2Entries != null ) && ( etypeInfo2Entries.size() != 0 ) )
+        if ( ( etypeInfo2Entries != null ) && !etypeInfo2Entries.isEmpty() )
         {
             for ( ETypeInfo2Entry info2Entry : etypeInfo2Entries )
             {
@@ -243,7 +243,7 @@ public class ETypeInfo2 implements Asn1Object
             buffer.put( TLV.getBytes( etypeInfo2Length ) );
 
             // The ETypeInfo2Entry list, if it's not empty
-            if ( ( etypeInfo2Entries != null ) && ( etypeInfo2Entries.size() != 0 ) )
+            if ( ( etypeInfo2Entries != null ) && !etypeInfo2Entries.isEmpty() )
             {
                 for ( ETypeInfo2Entry info2Entry : etypeInfo2Entries )
                 {
@@ -261,7 +261,7 @@ public class ETypeInfo2 implements Asn1Object
         if ( IS_DEBUG )
         {
             LOG.debug( "ETYPE-INFO encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            LOG.debug( "ETYPE-INFO initial value : {}", toString() );
+            LOG.debug( "ETYPE-INFO initial value : {}", this );
         }
 
         return buffer;

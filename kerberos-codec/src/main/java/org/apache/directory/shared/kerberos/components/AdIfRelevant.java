@@ -43,6 +43,7 @@ public class AdIfRelevant extends AuthorizationData
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return toString( "" );
@@ -52,6 +53,7 @@ public class AdIfRelevant extends AuthorizationData
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

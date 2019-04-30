@@ -6,22 +6,26 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 package org.apache.directory.server.operations.search;
 
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -40,10 +44,8 @@ import javax.naming.event.ObjectChangeListener;
 import javax.naming.ldap.HasControls;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.api.ldap.codec.api.CodecControl;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
-import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeDecorator;
-import org.apache.directory.api.ldap.codec.controls.search.persistentSearch.PersistentSearchDecorator;
+import org.apache.directory.api.ldap.codec.controls.search.entryChange.EntryChangeFactory;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -77,7 +79,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test case which tests the correct operation of the persistent search decorator.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
@@ -187,7 +189,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         {
             return;
         }
-        
+
         listener.close();
         ctx.close();
 
@@ -283,7 +285,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
+        assertEquals( ChangeType.MODIFY, listener.result.control.getChangeType() );
     }
 
 
@@ -299,7 +301,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.MODDN );
+        assertEquals( ChangeType.MODDN, listener.result.control.getChangeType() );
         assertEquals( ( RDN + ",ou=system" ), listener.result.control.getPreviousDn().getName() );
     }
 
@@ -316,7 +318,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.DELETE );
+        assertEquals( ChangeType.DELETE,  listener.result.control.getChangeType() );
     }
 
 
@@ -332,7 +334,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         waitForThreadToDie( t );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
+        assertEquals( ChangeType.ADD, listener.result.control.getChangeType() );
     }
 
 
@@ -353,7 +355,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.ADD );
+        assertEquals( ChangeType.ADD, listener.result.control.getChangeType() );
         tearDownListener();
 
         setUpListener( true, ctrl, true );
@@ -368,45 +370,45 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
         assertNotNull( listener.result );
         assertEquals( RDN, listener.result.getName() );
-        assertEquals( listener.result.control.getChangeType(), ChangeType.MODIFY );
+        assertEquals( ChangeType.MODIFY, listener.result.control.getChangeType() );
     }
 
 
     /**
-     * Test for DIRSERVER-1908 
+     * Test for DIRSERVER-1908
      */
     @Test
     public void testPsearchMove() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
         connection.bind( "uid=admin,ou=system", "secret" );
-        
+
         Entry newOu = new DefaultEntry( "uid=persist, ou=users,ou=system" );
         newOu.add( "objectClass", "inetOrgPerson" );
         newOu.add( "cn", "persist_cn" );
         newOu.add( "sn", "persist_sn" );
-        
+
         connection.add( newOu );
-        
+
         SearchRequest sr = new SearchRequestImpl();
         sr.setBase( new Dn( BASE ) );
         sr.setFilter( "(objectClass=*)" );
         sr.setScope( SearchScope.SUBTREE );
-        
+
         PersistentSearch ps = new PersistentSearchImpl();
         ps.setChangesOnly( true );
         ps.setReturnECs( true );
         ps.setCritical( true );
-        
+
         sr.addControl( ps );
-        
+
         final SearchCursor cursor = connection.search( sr );
-        
+
         final List<Entry> entryList = new ArrayList<Entry>();
-        
+
         Runnable r = new Runnable()
         {
-            
+
             @Override
             public void run()
             {
@@ -423,27 +425,27 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                 }
             }
         };
-        
+
         new Thread( r ).start();
-        
+
         connection.move( newOu.getDn(), newOu.getDn().getParent().getParent() );
         Thread.sleep( 1000 );
         assertFalse( entryList.isEmpty() );
         assertEquals( 1, entryList.size() );
         assertEquals( "uid=persist,ou=system", entryList.get( 0 ).getDn().getName() );
-        
+
         connection.close();
     }
 
-    
+
     /**
      * Shows correct notifications for add(1) changes with returned
      * EntryChangeControl and changesOnly set to false so we return
      * the first set of entries.
-     * 
+     *
      * This test is commented out because it exhibits some producer
      * consumer lockups (server and client being in same process)
-     * 
+     *
      * PLUS ALL THIS GARBAGE IS TIME DEPENDENT!!!!!
      */
     //    public void testPsearchAddWithECAndFalseChangesOnly() throws Exception
@@ -488,15 +490,15 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         PSearchListener listener = new PSearchListener( decorator );
         Thread t = new Thread( listener );
         t.start();
-    
+
         while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
         Thread.sleep( 250 );
-    
+
         ctx.createSubcontext( "cn=Jack Black", getPersonAttributes( "Black", "Jack Black" ) );
-    
+
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -506,18 +508,18 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                 break;
             }
         }
-    
+
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( listener.result.decorator.getChangeType(), ChangeType.ADD );
-        
+
         listener = new PSearchListener( decorator );
-    
+
         t = new Thread( listener );
         t.start();
-    
+
         ctx.destroySubcontext( "cn=Jack Black" );
-    
+
         start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -527,14 +529,14 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                 break;
             }
         }
-    
+
         // there seems to be a race condition here
         // assertNull( listener.result );
         assertNotNull( listener.result );
         assertEquals( "cn=Jack Black", listener.result.getName() );
         assertEquals( ChangeType.DELETE, listener.result.decorator.getChangeType() );
         listener.result = null;
-    
+
         // thread is still waiting for notifications try a modify
         ctx.modifyAttributes( Rdn, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
             true ) );
@@ -547,7 +549,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                 break;
             }
         }
-    
+
         assertNull( listener.result );
         //assertEquals( Rdn, listener.result.getName() );
         //assertEquals( listener.result.decorator.getChangeType(), ChangeType.MODIFY );
@@ -560,24 +562,28 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         NamingExceptionEvent exceptionEvent = null;
 
 
+        @Override
         public void objectAdded( NamingEvent evt )
         {
             list.add( 0, evt );
         }
 
 
+        @Override
         public void objectRemoved( NamingEvent evt )
         {
             list.add( 0, evt );
         }
 
 
+        @Override
         public void objectRenamed( NamingEvent evt )
         {
             list.add( 0, evt );
         }
 
 
+        @Override
         public void namingExceptionThrown( NamingExceptionEvent evt )
         {
             hasError = true;
@@ -586,6 +592,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         }
 
 
+        @Override
         public void objectChanged( NamingEvent evt )
         {
             list.add( 0, evt );
@@ -596,23 +603,20 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
     {
         boolean isReady = false;
         PSearchNotification result;
-        final PersistentSearchDecorator persistentSearch;
+        final PersistentSearch persistentSearch;
         LdapContext ctx;
         NamingEnumeration<SearchResult> list;
 
 
         PSearchListener()
         {
-            persistentSearch = new PersistentSearchDecorator( getLdapServer().getDirectoryService()
-                .getLdapCodecService() );
+            persistentSearch = new PersistentSearchImpl();
         }
 
 
         PSearchListener( PersistentSearch persistentSearch )
         {
-            CodecControl<? extends Control> wrapped =
-                getLdapServer().getDirectoryService().getLdapCodecService().newControl( persistentSearch );
-            this.persistentSearch = ( PersistentSearchDecorator ) wrapped;
+            this.persistentSearch = persistentSearch;
         }
 
 
@@ -646,12 +650,13 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         }
 
 
+        @Override
         public void run()
         {
             LOG.debug( "PSearchListener.run() called." );
             LdapApiService codec = getLdapServer().getDirectoryService().getLdapCodecService();
+            EntryChangeFactory factory = ( EntryChangeFactory ) codec.getResponseControlFactories().get( EntryChange.OID );
             persistentSearch.setCritical( true );
-            persistentSearch.setValue( persistentSearch.getValue() );
 
             Control[] ctxCtls = new Control[]
                 { persistentSearch };
@@ -683,8 +688,8 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
                                 if ( jndiControl.getID().equals(
                                     EntryChange.OID ) )
                                 {
-                                    ecControl = ( EntryChange ) JndiUtils.fromJndiControl( codec, jndiControl );
-                                    ( ( EntryChangeDecorator ) ecControl ).decode( jndiControl.getEncodedValue() );
+                                    ecControl = ( EntryChange ) JndiUtils.fromJndiResponseControl( codec, jndiControl );
+                                    factory.decodeValue( ecControl, jndiControl.getEncodedValue() );
                                 }
                             }
                         }
@@ -721,6 +726,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
         }
 
 
+        @Override
         public String toString()
         {
             StringBuffer buf = new StringBuffer();

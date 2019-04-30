@@ -46,7 +46,7 @@ public interface RegistrySynchronizer
      * Adds a new SchemaObject to its registry
      *
      * @param entry The SchemObject to add
-     * @throws Exception If the addition failed
+     * @throws LdapException If the addition failed
      */
     void add( Entry entry ) throws LdapException;
 
@@ -56,7 +56,7 @@ public interface RegistrySynchronizer
      *
      * @param entry The entry associated with the SchemaObject to delete
      * @param cascaded unused
-     * @throws Exception If the deletion failed
+     * @throws LdapException If the deletion failed
      */
     void delete( Entry entry, boolean cascaded ) throws LdapException;
 
@@ -67,7 +67,7 @@ public interface RegistrySynchronizer
      * @param entry The entry to be renamed
      * @param newRdn The new entry name
      * @param cascaded unused
-     * @throws Exception If the rename failed
+     * @throws LdapException If the rename failed
      */
     void rename( Entry entry, Rdn newRdn, boolean cascaded ) throws LdapException;
 
@@ -79,7 +79,7 @@ public interface RegistrySynchronizer
      * @param targetEntry The modified entry
      * @param cascaded Unused
      * @return True if the modification has been done
-     * @throws Exception If the modification failed
+     * @throws LdapException If the modification failed
      */
     boolean modify( ModifyOperationContext modifyContext, Entry targetEntry, boolean cascaded )
         throws LdapException;

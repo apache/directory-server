@@ -84,7 +84,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     private boolean refreshNPersist = true;
 
     /** time interval for successive sync requests, default is 60 seconds */
-    private long refreshInterval = 60 * 1000;
+    private long refreshInterval = 60L * 1000L;
 
     /** the base Dn whose content will be searched for replicating */
     private String baseDn;
@@ -139,7 +139,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
      */
     public SyncReplConfiguration()
     {
-        attributes = new HashSet<String>();
+        attributes = new HashSet<>();
         // the default list of attributes
         attributes.add( SchemaConstants.ALL_USER_ATTRIBUTES );
         
@@ -172,7 +172,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
     /**
      * A convenient method that concatenates the host and port of the producer
-     * @return The <host>:<port> the consumer is connected to
+     * @return The &lt;host&gt;:&lt;port&gt; the consumer is connected to
      */
     public String getProducer()
     {
@@ -349,7 +349,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
      */
     public void setSearchSizeLimit( int searchSizeLimit )
     {
-        if ( searchTimeout < 0 )
+        if ( searchSizeLimit < 0 )
         {
             throw new IllegalArgumentException( "search size limit value cannot be negative " + searchSizeLimit );
         }
@@ -505,7 +505,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /**
      * set the option to turn on/off use of TLS
      * 
-     * @param useTls
+     * @param useTls If we have to use TLS
      */
     public void setUseTls( boolean useTls )
     {
@@ -525,7 +525,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /**
      * set the strict certificate verification
      * 
-     * @param strictCertVerification
+     * @param strictCertVerification If we require a certificate validation
      */
     public void setStrictCertVerification( boolean strictCertVerification )
     {
@@ -572,7 +572,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /**
      * enable/disable MMR option
      *
-     * @param mmrMode
+     * @param mmrMode The type of replication
      */
     public void setMmrMode( boolean mmrMode )
     {

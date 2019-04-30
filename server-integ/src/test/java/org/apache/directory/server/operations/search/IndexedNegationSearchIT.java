@@ -128,10 +128,10 @@ import org.junit.runner.RunWith;
         "cn: Joe Newbie",
         "sn: Newbie" })
 @CreateLdapServer(
-    transports =
+    /*transports =
         {
             @CreateTransport(protocol = "LDAP")
-    },
+    },*/
     saslMechanisms =
         {
             @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),

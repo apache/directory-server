@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *                      -- NOTE: there is no [2] tag
  *      enc-part        [3] EncryptedData -- EncKrbPrivPart
  * }
- * </pre
+ * </pre>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class KrbPriv extends KerberosMessage
@@ -103,17 +103,18 @@ public class KrbPriv extends KerberosMessage
      * 
      * 0x75 L1 KRB-PRIV APPLICATION[21]
      *  |
-     *  +--> 0x30 L2 KRB-PRIV sequence
+     *  +--&gt; 0x30 L2 KRB-PRIV sequence
      *        |
-     *        +--> 0xA0 0x03 pvno tag
+     *        +--&gt; 0xA0 0x03 pvno tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x05 pvno (5)
+     *        |     +--&gt; 0x02 0x01 0x05 pvno (5)
      *        |
-     *        +--> 0xA1 0x03 msg-type tag
+     *        +--&gt; 0xA1 0x03 msg-type tag
      *        |     |
-     *        |     +--> 0x02 0x01 0x15 msg-type (21)
+     *        |     +--&gt; 0x02 0x01 0x15 msg-type (21)
      *        |     
-     *        +--> 0xA3 L3 enc-part (EncryptedData -- EncKrbPrivPart)
+     *        +--&gt; 0xA3 L3 enc-part (EncryptedData -- EncKrbPrivPart)
+     * </pre>
      */
     @Override
     public int computeLength()
@@ -179,7 +180,7 @@ public class KrbPriv extends KerberosMessage
         if ( IS_DEBUG )
         {
             log.debug( "KrbPriv encoding : {}", Strings.dumpBytes( buffer.array() ) );
-            log.debug( "KrbPriv initial value : {}", toString() );
+            log.debug( "KrbPriv initial value : {}", this );
         }
 
         return buffer;

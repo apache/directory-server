@@ -43,6 +43,7 @@ public class PaEncTimestamp extends EncryptedData
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString()
     {
         return toString( "" );
@@ -52,6 +53,7 @@ public class PaEncTimestamp extends EncryptedData
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

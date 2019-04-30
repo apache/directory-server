@@ -26,13 +26,16 @@ import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.NoOpNormalizer;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 
 
@@ -44,15 +47,30 @@ import org.apache.directory.server.xdbm.Store;
  */
 public class EqualityEvaluator<T> extends LeafEvaluator<T>
 {
+    /**
+     * Creates a new EqualityEvaluator
+     * 
+     * @param node The EqualityNode
+     * @param db The Store
+     * @param schemaManager The SchemaManager
+     * @throws LdapException If the creation failed
+     */
     @SuppressWarnings("unchecked")
     public EqualityEvaluator( EqualityNode<T> node, Store db, SchemaManager schemaManager )
-        throws Exception
+        throws LdapException
     {
         super( node, db, schemaManager );
 
         if ( db.hasIndexOn( attributeType ) )
         {
-            idx = ( Index<T, String> ) db.getIndex( attributeType );
+            try
+            {
+                idx = ( Index<T, String> ) db.getIndex( attributeType );
+            }
+            catch ( IndexNotFoundException infe )
+            {
+                throw new LdapOtherException( infe.getMessage(), infe ); 
+            }
         }
 
         MatchingRule mr = attributeType.getEquality();
@@ -84,14 +102,14 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
      * {@inheritDoc}
      */
     @Override
-    public boolean evaluate( IndexEntry<?, String> indexEntry ) throws LdapException
+    public boolean evaluate( PartitionTxn partitionTxn, IndexEntry<?, String> indexEntry ) throws LdapException
     {
         Entry entry = indexEntry.getEntry();
 
         // resuscitate the entry if it has not been and set entry in IndexEntry
         if ( null == entry )
         {
-            entry = db.fetch( indexEntry.getId() );
+            entry = db.fetch( partitionTxn, indexEntry.getId() );
 
             if ( null == entry )
             {
@@ -151,7 +169,7 @@ public class EqualityEvaluator<T> extends LeafEvaluator<T>
 
     // TODO - determine if comparator and index entry should have the Value
     // wrapper or the raw normalized value
-    private boolean evaluate( Attribute attribute ) throws LdapException
+    private boolean evaluate( Attribute attribute )
     {
         if ( attribute.contains( node.getValue() ) )
         {

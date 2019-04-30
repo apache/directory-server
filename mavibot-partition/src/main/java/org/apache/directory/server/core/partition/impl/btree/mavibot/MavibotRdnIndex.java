@@ -21,9 +21,9 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -54,7 +54,11 @@ public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn>
     }
 
 
-    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws IOException
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void init( SchemaManager schemaManager, AttributeType attributeType ) throws LdapException, IOException
     {
         LOG.debug( "Initializing an Index for attribute '{}'", attributeType.getName() );
 
@@ -67,8 +71,7 @@ public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn>
 
         if ( this.wkDirPath == null )
         {
-            NullPointerException e = new NullPointerException( "The index working directory has not be set" );
-            throw e;
+            throw new NullPointerException( "The index working directory has not be set" );
         }
 
         String path = new File( this.wkDirPath, attributeType.getOid() ).getAbsolutePath();
@@ -80,16 +83,9 @@ public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn>
         catch ( IOException e )
         {
             // clean up
-            close();
+            close( null );
             throw e;
         }
-
-        // finally write a text file in the format <OID>-<attribute-name>.txt
-        FileWriter fw = new FileWriter( new File( path + "-" + attributeType.getName() + ".txt" ) );
-
-        // write the AttributeType description
-        fw.write( attributeType.toString() );
-        fw.close();
 
         initialized = true;
     }

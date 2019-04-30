@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.ldap.handlers.extended;
 
@@ -27,8 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.SerializationUtils;
-import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.directory.api.ldap.codec.api.LdapApiService;
+import org.apache.directory.api.ldap.extras.extended.ads_impl.storedProcedure.StoredProcedureFactory;
 import org.apache.directory.api.ldap.extras.extended.storedProcedure.StoredProcedureRequest;
 import org.apache.directory.api.ldap.extras.extended.storedProcedure.StoredProcedureResponse;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -44,7 +45,8 @@ import org.apache.directory.server.ldap.LdapSession;
 
 
 /**
- * @todo : Missing Javadoc
+ * A Handler for the StoredProcedure extended operation
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class StoredProcedureExtendedOperationHandler implements
@@ -59,7 +61,7 @@ public class StoredProcedureExtendedOperationHandler implements
         super();
         //StoredProcEngineConfig javaxScriptSPEngineConfig = new JavaxStoredProcEngineConfig();
         StoredProcEngineConfig javaSPEngineConfig = new JavaStoredProcEngineConfig();
-        List<StoredProcEngineConfig> spEngineConfigs = new ArrayList<StoredProcEngineConfig>();
+        List<StoredProcEngineConfig> spEngineConfigs = new ArrayList<>();
         //spEngineConfigs.add( javaxScriptSPEngineConfig );
         spEngineConfigs.add( javaSPEngineConfig );
         String spContainer = "ou=Stored Procedures,ou=system";
@@ -67,13 +69,14 @@ public class StoredProcedureExtendedOperationHandler implements
     }
 
 
+    @Override
     public void handleExtendedOperation( LdapSession session, StoredProcedureRequest req ) throws Exception
     {
         String procedure = req.getProcedureSpecification();
         Entry spUnit = manager.findStoredProcUnit( session.getCoreSession(), procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
 
-        List<Object> valueList = new ArrayList<Object>( req.size() );
+        List<Object> valueList = new ArrayList<>( req.size() );
 
         for ( int ii = 0; ii < req.size(); ii++ )
         {
@@ -92,9 +95,11 @@ public class StoredProcedureExtendedOperationHandler implements
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
         Object response = engine.invokeProcedure( session.getCoreSession(), procedure, values );
         byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
-        StoredProcedureResponse resp =
-            LdapApiServiceFactory.getSingleton().newExtendedResponse( req.getRequestName(), req.getMessageId(),
-                serializedResponse );
+        LdapApiService codec = session.getLdapServer().getDirectoryService().getLdapCodecService();
+        StoredProcedureFactory factory = ( StoredProcedureFactory ) codec.getExtendedResponseFactories().get( req.getRequestName() );
+        StoredProcedureResponse resp = ( StoredProcedureResponse ) factory.newResponse( serializedResponse );
+        resp.setMessageId( req.getMessageId() );
+        
         session.getIoSession().write( resp );
     }
 
@@ -102,6 +107,7 @@ public class StoredProcedureExtendedOperationHandler implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getOid()
     {
         return StoredProcedureRequest.EXTENSION_OID;
@@ -111,7 +117,7 @@ public class StoredProcedureExtendedOperationHandler implements
 
     static
     {
-        Set<String> s = new HashSet<String>();
+        Set<String> s = new HashSet<>();
         s.add( StoredProcedureRequest.EXTENSION_OID );
         s.add( StoredProcedureResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( s );
@@ -121,6 +127,7 @@ public class StoredProcedureExtendedOperationHandler implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
@@ -130,6 +137,7 @@ public class StoredProcedureExtendedOperationHandler implements
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setLdapServer( LdapServer ldapServer )
     {
     }

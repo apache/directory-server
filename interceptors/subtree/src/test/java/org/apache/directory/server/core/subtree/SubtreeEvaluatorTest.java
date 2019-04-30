@@ -28,9 +28,6 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
@@ -54,6 +51,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mycila.junit.concurrent.Concurrency;
 import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
@@ -99,9 +98,7 @@ public class SubtreeEvaluatorTest
             fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
         }
 
-        CacheManager.getInstance().addCacheIfAbsent( "dnCache" );
-        Cache dnCache = CacheManager.getInstance().getCache( "dnCache" );
-        dnFactory = new DefaultDnFactory( schemaManager, dnCache );
+        dnFactory = new DefaultDnFactory( schemaManager, 100 );
 
         ncn = new ConcreteNameComponentNormalizer( schemaManager );
 
@@ -115,7 +112,6 @@ public class SubtreeEvaluatorTest
     {
         visitor = null;
         evaluator = null;
-        CacheManager.getInstance().getCache( "dnCache" ).removeAll();
     }
 
 

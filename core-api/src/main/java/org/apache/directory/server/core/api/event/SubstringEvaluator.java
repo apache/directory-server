@@ -99,7 +99,7 @@ public class SubstringEvaluator implements Evaluator
 
         for ( Value value : attr )
         {
-            String normValue = normalizer.normalize( value.getValue() );
+            String normValue = normalizer.normalize( value.getString() );
 
             // Once match is found cleanup and return true
 

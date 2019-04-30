@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.handlers.request;
 
 
 import org.apache.directory.api.ldap.model.message.CompareRequest;
+import org.apache.directory.api.ldap.model.message.CompareResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.server.ldap.LdapSession;
@@ -42,14 +43,17 @@ public class CompareRequestHandler extends LdapRequestHandler<CompareRequest>
     /**
      * {@inheritDoc}
      */
-    public void handle( LdapSession session, CompareRequest req )
+    public void handle( LdapSession session, CompareRequest compareRequest )
     {
-        LOG.debug( "Handling compare request while ignoring referrals: {}", req );
-        LdapResult result = req.getResultResponse().getLdapResult();
+        LOG.debug( "Handling compare request while ignoring referrals: {}", compareRequest );
+        
+        CompareResponse compareResponse = ( CompareResponse ) compareRequest.getResultResponse();
+        
+        LdapResult result = compareRequest.getResultResponse().getLdapResult();
 
         try
         {
-            if ( session.getCoreSession().compare( req ) )
+            if ( session.getCoreSession().compare( compareRequest ) )
             {
                 result.setResultCode( ResultCodeEnum.COMPARE_TRUE );
             }
@@ -58,12 +62,12 @@ public class CompareRequestHandler extends LdapRequestHandler<CompareRequest>
                 result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
             }
 
-            result.setMatchedDn( req.getName() );
-            session.getIoSession().write( req.getResultResponse() );
+            result.setMatchedDn( compareRequest.getName() );
+            session.getIoSession().write( compareResponse );
         }
         catch ( Exception e )
         {
-            handleException( session, req, e );
+            handleException( session, compareRequest, compareResponse, e );
         }
     }
 }

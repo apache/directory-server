@@ -28,6 +28,7 @@ import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.xdbm.AbstractIndexCursor;
 import org.apache.directory.server.xdbm.IndexEntry;
@@ -59,7 +60,16 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     private IndexEntry<String, String> prefetched;
 
 
-    public PresenceCursor( Store store, PresenceEvaluator presenceEvaluator ) throws Exception
+    /**
+     * Creates a new instance of an PresenceCursor
+     * 
+     * @param partitionTxn The transaction to use
+     * @param store The store
+     * @param presenceEvaluator The Presence evaluator
+     * @throws LdapException If the cursor can't be created
+     */
+    public PresenceCursor( PartitionTxn partitionTxn, Store store, PresenceEvaluator presenceEvaluator ) 
+            throws LdapException
     {
         if ( IS_DEBUG )
         {
@@ -67,6 +77,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         }
 
         this.presenceEvaluator = presenceEvaluator;
+        this.partitionTxn = partitionTxn;
         AttributeType type = presenceEvaluator.getAttributeType();
 
         // we don't maintain a presence index for objectClass, and entryCSN
@@ -74,13 +85,13 @@ public class PresenceCursor extends AbstractIndexCursor<String>
         // instead for those attributes and all un-indexed attributes we use the ndn index
         if ( store.hasUserIndexOn( type ) )
         {
-            presenceCursor = store.getPresenceIndex().forwardCursor( type.getOid() );
+            presenceCursor = store.getPresenceIndex().forwardCursor( partitionTxn, type.getOid() );
             uuidCursor = null;
         }
         else
         {
             presenceCursor = null;
-            uuidCursor = new AllEntriesCursor( store );
+            uuidCursor = new AllEntriesCursor( partitionTxn, store );
         }
     }
 
@@ -94,6 +105,10 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean available()
     {
         if ( presenceCursor != null )
@@ -108,9 +123,10 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void before( IndexEntry<String, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "before()" );
+        checkNotClosed();
 
         if ( presenceCursor != null )
         {
@@ -126,9 +142,10 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void after( IndexEntry<String, String> element ) throws LdapException, CursorException
     {
-        checkNotClosed( "after()" );
+        checkNotClosed();
 
         if ( presenceCursor != null )
         {
@@ -146,7 +163,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
      */
     public void beforeFirst() throws LdapException, CursorException
     {
-        checkNotClosed( "beforeFirst()" );
+        checkNotClosed();
 
         if ( presenceCursor != null )
         {
@@ -165,7 +182,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
      */
     public void afterLast() throws LdapException, CursorException
     {
-        checkNotClosed( "afterLast()" );
+        checkNotClosed();
 
         if ( presenceCursor != null )
         {
@@ -183,7 +200,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
      */
     public boolean first() throws LdapException, CursorException
     {
-        checkNotClosed( "first()" );
+        checkNotClosed();
         if ( presenceCursor != null )
         {
             return presenceCursor.first();
@@ -199,7 +216,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
      */
     public boolean last() throws LdapException, CursorException
     {
-        checkNotClosed( "last()" );
+        checkNotClosed();
 
         if ( presenceCursor != null )
         {
@@ -215,9 +232,10 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean previous() throws LdapException, CursorException
     {
-        checkNotClosed( "previous()" );
+        checkNotClosed();
 
         if ( presenceCursor != null )
         {
@@ -226,10 +244,10 @@ public class PresenceCursor extends AbstractIndexCursor<String>
 
         while ( uuidCursor.previous() )
         {
-            checkNotClosed( "previous()" );
+            checkNotClosed();
             IndexEntry<?, String> candidate = uuidCursor.get();
 
-            if ( presenceEvaluator.evaluate( candidate ) )
+            if ( presenceEvaluator.evaluate( partitionTxn, candidate ) )
             {
                 return setAvailable( true );
             }
@@ -242,9 +260,10 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean next() throws LdapException, CursorException
     {
-        checkNotClosed( "next()" );
+        checkNotClosed();
 
         if ( presenceCursor != null )
         {
@@ -253,10 +272,10 @@ public class PresenceCursor extends AbstractIndexCursor<String>
 
         while ( uuidCursor.next() )
         {
-            checkNotClosed( "next()" );
+            checkNotClosed();
             IndexEntry<String, String> candidate = uuidCursor.get();
 
-            if ( presenceEvaluator.evaluate( candidate ) )
+            if ( presenceEvaluator.evaluate( partitionTxn, candidate ) )
             {
                 prefetched = candidate;
 
@@ -273,7 +292,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
      */
     public IndexEntry<String, String> get() throws CursorException
     {
-        checkNotClosed( "get()" );
+        checkNotClosed();
 
         if ( presenceCursor != null )
         {
@@ -309,6 +328,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() throws IOException
     {
         if ( IS_DEBUG )
@@ -332,6 +352,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close( Exception cause ) throws IOException
     {
         if ( IS_DEBUG )
@@ -355,6 +376,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /**
      * @see Object#toString()
      */
+    @Override
     public String toString( String tabs )
     {
         StringBuilder sb = new StringBuilder();

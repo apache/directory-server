@@ -59,7 +59,6 @@ public class HostAddressesDecoderTest
     @Test
     public void testHostAddresses()
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x44 );
 
@@ -142,7 +141,7 @@ public class HostAddressesDecoderTest
         // Decode the HostAddresses PDU
         try
         {
-            kerberosDecoder.decode( stream, hostAddressesContainer );
+            Asn1Decoder.decode( stream, hostAddressesContainer );
         }
         catch ( DecoderException de )
         {
@@ -192,7 +191,6 @@ public class HostAddressesDecoderTest
     @Test(expected = DecoderException.class)
     public void testHostAddressEmpty() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
 
@@ -205,7 +203,7 @@ public class HostAddressesDecoderTest
         Asn1Container hostAddressesContainer = new HostAddressesContainer();
 
         // Decode the HostAddress PDU
-        kerberosDecoder.decode( stream, hostAddressesContainer );
+        Asn1Decoder.decode( stream, hostAddressesContainer );
         fail();
     }
 
@@ -216,7 +214,6 @@ public class HostAddressesDecoderTest
     @Test(expected = DecoderException.class)
     public void testHostAddressesNoHostAddress() throws DecoderException
     {
-        Asn1Decoder kerberosDecoder = new Asn1Decoder();
 
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
 
@@ -231,7 +228,7 @@ public class HostAddressesDecoderTest
         Asn1Container hostAddressesContainer = new HostAddressContainer();
 
         // Decode the HostAddresses PDU
-        kerberosDecoder.decode( stream, hostAddressesContainer );
+        Asn1Decoder.decode( stream, hostAddressesContainer );
         fail();
     }
 }

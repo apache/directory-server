@@ -22,11 +22,12 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -39,13 +40,19 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
+import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import jdbm.recman.BaseRecordManager;
+import jdbm.recman.TransactionManager;
 
 
 /**
@@ -58,22 +65,28 @@ public class JdbmRdnIndexTest
     private static File dbFileDir;
     Index<ParentIdAndRdn, String> idx;
     private static SchemaManager schemaManager;
+    private PartitionTxn partitionTxn;
+    
+    /** The temporary directory the files will be created in */
+    private static Path tempDir;
+    
+    /** The temporary index file */  
+    private File tmpIndexFile;
+
+    /** A temporary file */
+    private Path tempFile;
+
+    /** The RecordManager */
+    private BaseRecordManager recMan;
 
 
     @BeforeClass
     public static void init() throws Exception
     {
-        String workingDirectory = System.getProperty( "workingDirectory" );
+        tempDir = Files.createTempDirectory( JdbmIndexTest.class.getSimpleName() );
 
-        if ( workingDirectory == null )
-        {
-            String path = JdbmRdnIndexTest.class.getResource( "" ).getPath();
-            int targetPos = path.indexOf( "target" );
-            workingDirectory = path.substring( 0, targetPos + 6 );
-        }
-
-        File schemaRepository = new File( workingDirectory, "schema" );
-        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( new File( workingDirectory ) );
+        File schemaRepository = new File( tempDir.toFile(), "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( tempDir.toFile() );
         extractor.extractOrCopy( true );
         LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
         schemaManager = new DefaultSchemaManager( loader );
@@ -90,45 +103,37 @@ public class JdbmRdnIndexTest
     @Before
     public void setup() throws IOException
     {
+        tempFile = Files.createTempFile( tempDir, "data", null );
 
-        File tmpIndexFile = File.createTempFile( JdbmRdnIndexTest.class.getSimpleName(), "db" );
+        tmpIndexFile = tempFile.toFile();
         tmpIndexFile.deleteOnExit();
-        dbFileDir = new File( tmpIndexFile.getParentFile(), JdbmRdnIndexTest.class.getSimpleName() );
-
-        dbFileDir.mkdirs();
+        
+        recMan = new BaseRecordManager( tmpIndexFile.getPath() );
+        TransactionManager transactionManager = recMan.getTransactionManager();
+        transactionManager.setMaximumTransactionsInLog( 2000 );
     }
 
 
     @After
     public void teardown() throws Exception
     {
+        recMan.close();
         destroyIndex();
-
-        if ( ( dbFileDir != null ) && dbFileDir.exists() )
-        {
-            FileUtils.deleteDirectory( dbFileDir );
-        }
     }
 
+    
+    
+    @AfterClass
+    public static void cleanup() throws Exception
+    {
+        FileUtils.deleteDirectory( tempDir.toFile() );
+    }
 
     void destroyIndex() throws Exception
     {
         if ( idx != null )
         {
-            idx.sync();
-            idx.close();
-
-            // created by this test
-            File dbFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".db" );
-            assertTrue( dbFile.delete() );
-
-            // created by TransactionManager, if transactions are not disabled
-            File logFile = new File( idx.getWkDirPath().getPath(), idx.getAttribute().getOid() + ".lg" );
-
-            if ( logFile.exists() )
-            {
-                assertTrue( logFile.delete() );
-            }
+            idx.close( partitionTxn );
         }
 
         idx = null;
@@ -138,8 +143,9 @@ public class JdbmRdnIndexTest
     void initIndex() throws Exception
     {
         JdbmRdnIndex index = new JdbmRdnIndex();
-        index.setWkDirPath( dbFileDir.toURI() );
+        index.setWkDirPath( tmpIndexFile.toURI() );
         initIndex( index );
+        partitionTxn = new MockPartitionReadTxn();
     }
 
 
@@ -150,7 +156,7 @@ public class JdbmRdnIndexTest
             jdbmIdx = new JdbmRdnIndex();
         }
 
-        jdbmIdx.init( schemaManager,
+        jdbmIdx.init( recMan, schemaManager,
             schemaManager.lookupAttributeTypeRegistry( ApacheSchemaConstants.APACHE_RDN_AT_OID ) );
         this.idx = jdbmIdx;
     }
@@ -208,7 +214,7 @@ public class JdbmRdnIndexTest
         {
         }
 
-        assertEquals( dbFileDir.toURI(), idx.getWkDirPath() );
+        assertEquals( tmpIndexFile.toURI(), idx.getWkDirPath() );
 
         destroyIndex();
 
@@ -241,26 +247,26 @@ public class JdbmRdnIndexTest
     public void testCount() throws Exception
     {
         initIndex();
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( partitionTxn ) );
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count() );
+        idx.add( partitionTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( partitionTxn ) );
 
         // setting a different parentId should make this key a different key
         key = new ParentIdAndRdn( Strings.getUUID( 1L ), new Rdn( "cn=key" ) );
 
-        idx.add( key, Strings.getUUID( 1L ) );
-        assertEquals( 2, idx.count() );
+        idx.add( partitionTxn, key, Strings.getUUID( 1L ) );
+        assertEquals( 2, idx.count( partitionTxn ) );
 
         //count shouldn't get affected cause of inserting the same key
-        idx.add( key, Strings.getUUID( 2L ) );
-        assertEquals( 2, idx.count() );
+        idx.add( partitionTxn, key, Strings.getUUID( 2L ) );
+        assertEquals( 2, idx.count( partitionTxn ) );
 
         key = new ParentIdAndRdn( Strings.getUUID( 2L ), new Rdn( "cn=key" ) );
-        idx.add( key, Strings.getUUID( 3L ) );
-        assertEquals( 3, idx.count() );
+        idx.add( partitionTxn, key, Strings.getUUID( 3L ) );
+        assertEquals( 3, idx.count( partitionTxn ) );
     }
 
 
@@ -271,10 +277,10 @@ public class JdbmRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertEquals( 0, idx.count( key ) );
+        assertEquals( 0, idx.count( partitionTxn, key ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count( key ) );
+        idx.add( partitionTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( partitionTxn, key ) );
     }
 
 
@@ -289,17 +295,17 @@ public class JdbmRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( schemaManager, "cn=key" ) );
 
-        assertNull( idx.forwardLookup( key ) );
+        assertNull( idx.forwardLookup( partitionTxn, key ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( Strings.getUUID( 0L ) ) );
+        idx.add( partitionTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, key ) );
+        assertEquals( key, idx.reverseLookup( partitionTxn, Strings.getUUID( 0L ) ) );
 
         // check with the different case in UP name, this ensures that the custom
         // key comparator is used
         key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( schemaManager, "cn=KEY" ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( key ) );
-        assertEquals( key, idx.reverseLookup( Strings.getUUID( 0L ) ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( partitionTxn, key ) );
+        assertEquals( key, idx.reverseLookup( partitionTxn, Strings.getUUID( 0L ) ) );
     }
 
 
@@ -310,15 +316,15 @@ public class JdbmRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertNull( idx.forwardLookup( key ) );
+        assertNull( idx.forwardLookup( partitionTxn, key ) );
 
         // test add/drop without adding any duplicates
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup( key ) );
+        idx.add( partitionTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( Strings.getUUID( 0L ), idx.forwardLookup(partitionTxn,  key ) );
 
-        idx.drop( key, Strings.getUUID( 0L ) );
-        assertNull( idx.forwardLookup( key ) );
-        assertNull( idx.reverseLookup( Strings.getUUID( 0L ) ) );
+        idx.drop( partitionTxn, key, Strings.getUUID( 0L ) );
+        assertNull( idx.forwardLookup( partitionTxn, key ) );
+        assertNull( idx.reverseLookup( partitionTxn, Strings.getUUID( 0L ) ) );
     }
 
 
@@ -333,22 +339,22 @@ public class JdbmRdnIndexTest
 
         ParentIdAndRdn key = new ParentIdAndRdn( Strings.getUUID( 0L ), new Rdn( "cn=key" ) );
 
-        assertEquals( 0, idx.count() );
+        assertEquals( 0, idx.count( partitionTxn ) );
 
-        idx.add( key, Strings.getUUID( 0L ) );
-        assertEquals( 1, idx.count() );
+        idx.add( partitionTxn, key, Strings.getUUID( 0L ) );
+        assertEquals( 1, idx.count( partitionTxn ) );
 
         for ( long i = 1; i < 5; i++ )
         {
             key = new ParentIdAndRdn( Strings.getUUID( i ), new Rdn( "cn=key" + i ) );
 
-            idx.add( key, Strings.getUUID( i ) );
+            idx.add( partitionTxn, key, Strings.getUUID( i ) );
         }
 
-        assertEquals( 5, idx.count() );
+        assertEquals( 5, idx.count( partitionTxn ) );
 
         // use forward index's cursor
-        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = idx.forwardCursor();
+        Cursor<IndexEntry<ParentIdAndRdn, String>> cursor = idx.forwardCursor( partitionTxn );
         cursor.beforeFirst();
 
         cursor.next();

@@ -22,12 +22,11 @@ package org.apache.directory.server.core.authz;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.directory.SearchControls;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -50,6 +49,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.i18n.I18n;
 import org.slf4j.Logger;
@@ -92,8 +92,7 @@ public class GroupCache
     private static final Set<String> EMPTY_GROUPS = new HashSet<>();
 
     /** String key for the Dn of a group to a Set (HashSet) for the Strings of member DNs */
-    private Cache groupCache;
-
+    private final Map<String, Set<String>> groups = new ConcurrentHashMap<>();
 
 
     /**
@@ -111,8 +110,6 @@ public class GroupCache
 
         // stuff for dealing with the admin group
         administratorsGroupDn = parseNormalized( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
-
-        groupCache = dirService.getCacheService().getCache( "groupCache" );
 
         initialize( dirService.getAdminSession() );
     }
@@ -148,10 +145,14 @@ public class GroupCache
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             ctls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES } );
+            
+            Partition partition = nexus.getPartition( baseDn );
 
             SearchOperationContext searchOperationContext = new SearchOperationContext( session,
                 baseDn, filter, ctls );
             searchOperationContext.setAliasDerefMode( AliasDerefMode.DEREF_ALWAYS );
+            searchOperationContext.setPartition( partition );
+            searchOperationContext.setTransaction( partition.beginReadTransaction() );
             EntryFilteringCursor results = nexus.search( searchOperationContext );
 
             try
@@ -173,8 +174,7 @@ public class GroupCache
                         Set<String> memberSet = new HashSet<>( members.size() );
                         addMembers( memberSet, members );
 
-                        Element cacheElement = new Element( groupDn.getNormName(), memberSet );
-                        groupCache.put( cacheElement );
+                        groups.put( groupDn.getNormName(), memberSet );
                     }
                     else
                     {
@@ -195,7 +195,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents on startup:\n {}", groupCache.getAllWithLoader( groupCache.getKeys(), null ) );
+            LOG.debug( "group cache contents on startup:\n {}", groups );
         }
     }
 
@@ -207,7 +207,7 @@ public class GroupCache
      * @param entry the entry inspected for member attributes
      * @return the member attribute
      */
-    private Attribute getMemberAttribute( Entry entry ) throws LdapException
+    private Attribute getMemberAttribute( Entry entry )
     {
         Attribute member = entry.get( directoryService.getAtProvider().getMember() );
 
@@ -240,7 +240,7 @@ public class GroupCache
         {
 
             // get and normalize the Dn of the member
-            String member = value.getValue();
+            String member = value.getString();
             Dn memberDn = null;
 
             try
@@ -250,6 +250,7 @@ public class GroupCache
             catch ( LdapException e )
             {
                 LOG.warn( "Malformed member Dn in groupOf[Unique]Names entry.  Member not added to GroupCache.", e );
+                continue;
             }
 
             memberSet.add( memberDn.getNormName() );
@@ -269,7 +270,7 @@ public class GroupCache
         for ( Value value : members )
         {
             // get and normalize the Dn of the member
-            String member = value.getValue();
+            String member = value.getString();
             Dn memberDn = null;
 
             try
@@ -279,6 +280,7 @@ public class GroupCache
             catch ( LdapException e )
             {
                 LOG.warn( "Malformed member Dn in groupOf[Unique]Names entry.  Member not removed from GroupCache.", e );
+                continue;
             }
 
             memberSet.remove( memberDn.getNormName() );
@@ -306,13 +308,11 @@ public class GroupCache
         Set<String> memberSet = new HashSet<>( members.size() );
         addMembers( memberSet, members );
 
-        Element cacheElement = new Element( name, memberSet );
-        groupCache.put( cacheElement );
+        groups.put( name, memberSet );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after adding '{}' :\n {}", name,
-                groupCache.getAllWithLoader( groupCache.getKeys(), null ) );
+            LOG.debug( "group cache contents after adding '{}' :\n {}", name, groups );
         }
     }
 
@@ -323,6 +323,7 @@ public class GroupCache
      *
      * @param name the normalized Dn of the group entry
      * @param entry the attributes of entry being deleted
+     * @throws LdapException If we wasn't able to delete the entry from the cache
      */
     public void groupDeleted( Dn name, Entry entry ) throws LdapException
     {
@@ -333,12 +334,11 @@ public class GroupCache
             return;
         }
 
-        groupCache.remove( name.getNormName() );
+        groups.remove( name.getNormName() );
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(),
-                groupCache.getAllWithLoader( groupCache.getKeys(), null ) );
+            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -388,6 +388,7 @@ public class GroupCache
      * @param name the normalized name of the group entry modified
      * @param mods the modification operations being performed
      * @param entry the group entry being modified
+     * @param schemaManager The SchemaManager instance
      * @throws LdapException if there are problems accessing attribute  values
      */
     public void groupModified( Dn name, List<Modification> mods, Entry entry, SchemaManager schemaManager )
@@ -418,11 +419,10 @@ public class GroupCache
         {
             if ( memberAttr.getOid() == modification.getAttribute().getId() )
             {
-                Element memSetElement = groupCache.get( name.getNormName() );
-
-                if ( memSetElement != null )
+                Set<String> memberSet = groups.get( name.getNormName() );
+                
+                if ( memberSet != null )
                 {
-                    Set<String> memberSet = ( Set<String> ) memSetElement.getObjectValue();
                     modify( memberSet, modification.getOperation(), modification.getAttribute() );
                 }
 
@@ -432,8 +432,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(),
-                groupCache.getAllWithLoader( groupCache.getKeys(), null ) );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -456,18 +455,16 @@ public class GroupCache
             return;
         }
 
-        Element memSetElement = groupCache.get( name.getNormName() );
+        Set<String> memberSet = groups.get( name.getNormName() );
 
-        if ( memSetElement != null )
+        if ( memberSet != null )
         {
-            Set<String> memberSet = ( Set<String> ) memSetElement.getObjectValue();
             modify( memberSet, modOp, members );
         }
 
         if ( IS_DEBUG )
         {
-            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(),
-                groupCache.getAllWithLoader( groupCache.getKeys(), null ) );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getName(), groups );
         }
     }
 
@@ -486,17 +483,15 @@ public class GroupCache
             return true;
         }
 
-        Element cacheElement = groupCache.get( administratorsGroupDn.getNormName() );
-
-        if ( cacheElement == null )
+        Set<String> members = groups.get( administratorsGroupDn.getNormName() );
+        
+        if ( members == null )
         {
             LOG.warn( "What do you mean there is no administrators group? This is bad news." );
             return false;
         }
         else
         {
-            Set<String> members = ( Set<String> ) cacheElement.getObjectValue();
-            
             return members.contains( principalDn );
         }
     }
@@ -506,7 +501,7 @@ public class GroupCache
      * Gets the set of groups a user is a member of.  The groups are returned
      * as normalized Name objects within the set.
      *
-     * @param member the member (user) to get the groups for
+     * @param memberDn the member (user) to get the groups for
      * @return a Set of Name objects representing the groups
      * @throws LdapException if there are problems accessing attribute  values
      */
@@ -514,17 +509,10 @@ public class GroupCache
     {
         Set<String> memberGroups = null;
 
-        for ( Object obj : groupCache.getKeys() )
+        for ( Map.Entry<String, Set<String>> entry : groups.entrySet() )
         {
-            String group = ( String ) obj;
-            Element element = groupCache.get( group );
-
-            if ( element == null )
-            {
-                continue;
-            }
-
-            Set<String> members = ( Set<String> ) element.getObjectValue();
+            String group = entry.getKey();
+            Set<String> members = entry.getValue();
 
             if ( members == null )
             {
@@ -553,21 +541,17 @@ public class GroupCache
 
     public boolean groupRenamed( Dn oldName, Dn newName )
     {
-        Element membersElement = groupCache.get( oldName.getNormName() );
+        Set<String> members = groups.get( oldName.getNormName() );
 
-        if ( membersElement != null )
+        if ( members != null )
         {
-            Set<String> members = ( Set<String> ) membersElement.getObjectValue();
+            groups.remove( oldName.getNormName() );
 
-            groupCache.remove( oldName.getNormName() );
-
-            Element cacheElement = new Element( newName, members );
-            groupCache.put( cacheElement );
+            groups.put( newName.getNormName(), members );
 
             if ( IS_DEBUG )
             {
-                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(),
-                    groupCache.getAllWithLoader( groupCache.getKeys(), null ) );
+                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getName(), groups );
             }
 
             return true;

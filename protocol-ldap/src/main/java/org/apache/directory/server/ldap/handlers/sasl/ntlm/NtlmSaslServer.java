@@ -21,7 +21,6 @@ package org.apache.directory.server.ldap.handlers.sasl.ntlm;
 
 
 import javax.naming.Context;
-import javax.naming.InvalidNameException;
 import javax.security.sasl.SaslException;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
@@ -182,7 +181,7 @@ public class NtlmSaslServer extends AbstractSaslServer
                         dn, AuthenticationLevel.STRONG );
                     getLdapSession().putSaslProperty( SaslConstants.SASL_AUTHENT_USER, ldapPrincipal );
                     getLdapSession()
-                        .putSaslProperty( Context.SECURITY_PRINCIPAL, getBindRequest().getName().toString() );
+                        .putSaslProperty( Context.SECURITY_PRINCIPAL, getBindRequest().getName() );
                 }
                 catch ( Exception e )
                 {
@@ -211,10 +210,9 @@ public class NtlmSaslServer extends AbstractSaslServer
     /**
      * Try to authenticate the usr against the underlying LDAP server.
      */
-    private CoreSession authenticate( String user, String password ) throws InvalidNameException, Exception
+    private CoreSession authenticate( String user, String password ) throws Exception
     {
         BindOperationContext bindContext = new BindOperationContext( getLdapSession().getCoreSession() );
-        bindContext.setTransaction( getLdapSession().getCoreSession().getDirectoryService().getPartitionNexus().beginReadTransaction() );
         bindContext.setDn( new Dn( user ) );
         bindContext.setCredentials( Strings.getBytesUtf8( password ) );
 

@@ -50,6 +50,10 @@ public enum TransportProtocol
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString()
     {
         return stringValue;

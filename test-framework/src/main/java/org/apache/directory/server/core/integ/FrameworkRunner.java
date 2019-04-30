@@ -22,24 +22,15 @@ package org.apache.directory.server.core.integ;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.apache.directory.api.ldap.model.entry.DefaultModification;
-import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.Modification;
-import org.apache.directory.api.ldap.model.entry.ModificationOperation;
-import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
-import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
-import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -87,6 +78,9 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
 
     /**
      * Creates a new instance of FrameworkRunner.
+     * 
+     * @param clazz The class to run
+     * @throws InitializationError If the initialization failed
      */
     public FrameworkRunner( Class<?> clazz ) throws InitializationError
     {
@@ -138,8 +132,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 DSAnnotationProcessor.applyLdifs( getDescription(), directoryService );
             }
             
-            updateTlsKey( classDS );
-
             // check if it has a LdapServerBuilder
             // then use the DS created above
             if ( classLdapServerBuilder != null )
@@ -190,6 +182,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             LOG.error( I18n.err( I18n.ERR_181, getTestClass().getName() ) );
             LOG.error( e.getLocalizedMessage() );
             notifier.fireTestFailure( new Failure( getDescription(), e ) );
@@ -209,9 +202,7 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
      */
     private int getMinPort()
     {
-        int minPort = 0;
-
-        return minPort;
+        return 0;
     }
 
 
@@ -266,8 +257,6 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
                 DSAnnotationProcessor.applyLdifs( methodDescription, methodDS );
 
                 directoryService = methodDS;
-                
-                updateTlsKey( directoryService );
             }
             else if ( classDS != null )
             {
@@ -454,23 +443,5 @@ public class FrameworkRunner extends BlockJUnit4ClassRunner
             LOG.debug( "Revert revision {}", revision );
             dirService.revert( revision );
         }
-    }
-
-
-    private void updateTlsKey( DirectoryService ds ) throws LdapException, LdapInvalidDnException
-    {
-        // Update TLS key for tests. Newer Java 8 releases consider RSA keys
-        // with less than 1024 bits as insecure and such are disabled by default, see 
-        // http://www.oracle.com/technetwork/java/javase/8-compatibility-guide-2156366.html
-        Entry adminEntry = ds.getAdminSession().lookup( new Dn( ServerDNConstants.ADMIN_SYSTEM_DN ) );
-        TlsKeyGenerator.addKeyPair( adminEntry, TlsKeyGenerator.CERTIFICATE_PRINCIPAL_DN,
-            TlsKeyGenerator.CERTIFICATE_PRINCIPAL_DN, "RSA", 1024 );
-        Modification mod1 = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            adminEntry.get( TlsKeyGenerator.PRIVATE_KEY_AT ) );
-        Modification mod2 = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            adminEntry.get( TlsKeyGenerator.PUBLIC_KEY_AT ) );
-        Modification mod3 = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            adminEntry.get( TlsKeyGenerator.USER_CERTIFICATE_AT ) );
-        ds.getAdminSession().modify( adminEntry.getDn(), mod1, mod2, mod3 );
     }
 }

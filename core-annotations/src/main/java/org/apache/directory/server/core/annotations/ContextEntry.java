@@ -35,6 +35,6 @@ import java.lang.annotation.Target;
     { ElementType.METHOD, ElementType.TYPE })
 public @interface ContextEntry
 {
-    /** the context entry in LDIF to be added */
+    /** @return the context entry in LDIF to be added */
     String entryLdif();
 }

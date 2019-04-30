@@ -75,7 +75,6 @@ public class DesStringToKey
      *
      * @param passPhrase The passphrase.
      * @return The DES key.
-     * @throws Exception
      */
     protected byte[] generateKey( String passPhrase )
     {
@@ -152,8 +151,8 @@ public class DesStringToKey
         int posBit = pos % 8;
 
         byte valByte = data[posByte];
-        int valInt = valByte >> ( 8 - ( posBit + 1 ) ) & 0x0001;
-        return valInt;
+        
+        return valByte >> ( 8 - ( posBit + 1 ) ) & 0x0001;
     }
 
 
@@ -206,20 +205,16 @@ public class DesStringToKey
 
                 for ( int jj = 0; jj < 8; jj++ )
                 {
-                    tempbyte2 = 0;
-
                     for ( int kk = 0; kk < 4; kk++ )
                     {
                         tempbyte2 = ( byte ) ( ( 1 << ( 7 - kk ) ) & 0xff );
                         tempbyte1 |= ( blockValue1[jj] & tempbyte2 ) >>> ( 7 - 2 * kk );
-                        tempbyte2 = 0;
                     }
 
                     for ( int kk = 4; kk < 8; kk++ )
                     {
                         tempbyte2 = ( byte ) ( ( 1 << ( 7 - kk ) ) & 0xff );
                         tempbyte1 |= ( blockValue1[jj] & tempbyte2 ) << ( 2 * kk - 7 );
-                        tempbyte2 = 0;
                     }
 
                     blockValue2[7 - jj] = tempbyte1;
@@ -319,11 +314,7 @@ public class DesStringToKey
      */
     protected byte[] characterEncodeString( String string )
     {
-        byte encodedByteArray[] = new byte[string.length()];
-
-        encodedByteArray = Strings.getBytesUtf8( string );
-
-        return encodedByteArray;
+        return Strings.getBytesUtf8( string );
     }
 
 

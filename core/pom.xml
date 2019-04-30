@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0.AM25-SNAPSHOT</version>
+    <version>2.0.0.AM26-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-core</artifactId>
@@ -130,11 +130,6 @@
     </dependency>
     
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-codec-core</artifactId>
     </dependency>
@@ -185,7 +180,7 @@
             <id>attach-sources</id>
             <phase>verify</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
@@ -217,7 +212,6 @@
             </Export-Package>
             <Import-Package>
                 javax.security.auth.x500,
-                org.apache.commons.lang;version=${commons.lang.version},
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},

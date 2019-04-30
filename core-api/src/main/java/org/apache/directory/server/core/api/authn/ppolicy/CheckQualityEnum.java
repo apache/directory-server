@@ -22,7 +22,7 @@ package org.apache.directory.server.core.api.authn.ppolicy;
 
 
 /**
- * The 3 possible values for the password check quality : </br>
+ * The 3 possible values for the password check quality : <br>
  * <ul>
  * <li>NO_CHECK (0) : No check will be done</li>
  * <li>CHECK_ACCEPT (1) : Check the password and accept hashed passwords</li>

@@ -41,25 +41,25 @@ public interface ChangeLogStore
      * Initialize the store.
      * 
      * @param service The associated DirectoryService
-     * @throws Exception If the initialization failed
+     * @throws LdapException If the initialization failed
      */
-    void init( DirectoryService service ) throws Exception;
+    void init( DirectoryService service ) throws LdapException;
 
 
     /**
      * Write the changes on disk
      * 
-     * @throws Exception If the write failed
+     * @throws LdapException If the write failed
      */
-    void sync() throws Exception;
+    void sync() throws LdapException;
 
 
     /**
      * Destroy the logs. 
      * 
-     * @throws Exception If we can't destroy the logs
+     * @throws LdapException If we can't destroy the logs
      */
-    void destroy() throws Exception;
+    void destroy() throws LdapException;
 
 
     /**
@@ -78,9 +78,8 @@ public interface ChangeLogStore
      * @param forward LDIF of the change going to the next state
      * @param reverse LDIF (anti-operation): the change required to revert this change
      * @return the new revision reached after having applied the forward LDIF
-     * @throws Exception if there are problems logging the change
      */
-    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse ) throws Exception;
+    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse );
 
 
     /**
@@ -91,9 +90,8 @@ public interface ChangeLogStore
      * @param forward LDIF of the change going to the next state
      * @param reverses LDIF (anti-operation): the changes required to revert this change
      * @return the new revision reached after having applied the forward LDIF
-     * @throws Exception if there are problems logging the change
      */
-    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses ) throws Exception;
+    ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses );
 
 
     /**
@@ -101,11 +99,10 @@ public interface ChangeLogStore
      *
      * @param revision to get a ChangeLogEvent for
      * @return the ChangeLogEvent associated with the revision
-     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    ChangeLogEvent lookup( long revision ) throws Exception;
+    ChangeLogEvent lookup( long revision );
 
 
     /**
@@ -117,9 +114,8 @@ public interface ChangeLogStore
      * increasing the revision should not be seen.
      *
      * @return a Cursor over all the ChangeLogEvents
-     * @throws Exception if there are failures accessing the store
      */
-    Cursor<ChangeLogEvent> find() throws Exception;
+    Cursor<ChangeLogEvent> find();
 
 
     /**
@@ -128,11 +124,10 @@ public interface ChangeLogStore
      *
      * @param revision the revision number to get the ChangeLogEvents before
      * @return a Cursor over the ChangeLogEvents before a revision
-     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    Cursor<ChangeLogEvent> findBefore( long revision ) throws Exception;
+    Cursor<ChangeLogEvent> findBefore( long revision );
 
 
     /**
@@ -144,11 +139,10 @@ public interface ChangeLogStore
      *
      * @param revision the revision number to get the ChangeLogEvents after
      * @return a Cursor of all the ChangeLogEvents after and including the revision
-     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the revision is out of range (less than 0
      * and greater than the current revision)
      */
-    Cursor<ChangeLogEvent> findAfter( long revision ) throws LdapException;
+    Cursor<ChangeLogEvent> findAfter( long revision );
 
 
     /**
@@ -157,9 +151,8 @@ public interface ChangeLogStore
      * @param startRevision the revision number to start getting the ChangeLogEvents above
      * @param endRevision the revision number to start getting the ChangeLogEvents below
      * @return an enumeration of all the ChangeLogEvents within some revision range inclusive
-     * @throws Exception if there are failures accessing the store
      * @throws IllegalArgumentException if the start and end revisions are out of range
-     * (less than 0 and greater than the current revision), or if startRevision > endRevision
+     * (less than 0 and greater than the current revision), or if startRevision &gt; endRevision
      */
-    Cursor<ChangeLogEvent> find( long startRevision, long endRevision ) throws Exception;
+    Cursor<ChangeLogEvent> find( long startRevision, long endRevision );
 }

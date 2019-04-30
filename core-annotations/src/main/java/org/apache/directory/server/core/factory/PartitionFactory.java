@@ -24,6 +24,7 @@ import java.io.File;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.xdbm.Index;
 
 
 /**
@@ -38,6 +39,7 @@ public interface PartitionFactory
      * Creates a new Partition.
      * 
      * @param schemaManager The SchemaManager instance
+     * @param dnFactory The DnFactory instance
      * @param id the partition id
      * @param suffix the suffix
      * @param cacheSize the cache size
@@ -46,8 +48,7 @@ public interface PartitionFactory
      * @throws Exception the exception
      */
     Partition createPartition( SchemaManager schemaManager, DnFactory dnFactory, String id, String suffix,
-        int cacheSize,
-        File workingDirectory ) throws Exception;
+        int cacheSize, File workingDirectory ) throws Exception;
 
 
     /**

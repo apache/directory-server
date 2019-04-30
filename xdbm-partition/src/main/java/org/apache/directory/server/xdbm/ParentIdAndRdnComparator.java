@@ -29,7 +29,7 @@ import org.apache.directory.api.ldap.model.schema.comparators.SerializableCompar
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class ParentIdAndRdnComparator<ID extends Comparable<ID>> extends SerializableComparator<ParentIdAndRdn>
+public class ParentIdAndRdnComparator<I extends Comparable<I>> extends SerializableComparator<ParentIdAndRdn>
 {
     /** The serial version UID */
     private static final long serialVersionUID = 2L;

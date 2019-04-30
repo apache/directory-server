@@ -22,6 +22,7 @@ package org.apache.directory.server.dns.store.jndi.operations;
 
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -77,7 +78,7 @@ public class GetRecords implements DnsOperation
 
     static
     {
-        Map<RecordType, String> typeToObjectClass = new HashMap<RecordType, String>();
+        EnumMap<RecordType, String> typeToObjectClass = new EnumMap<>( RecordType.class );
         typeToObjectClass.put( RecordType.SOA, "apacheDnsStartOfAuthorityRecord" );
         typeToObjectClass.put( RecordType.A, "apacheDnsAddressRecord" );
         typeToObjectClass.put( RecordType.NS, "apacheDnsNameServerRecord" );
@@ -97,7 +98,7 @@ public class GetRecords implements DnsOperation
 
     static
     {
-        Map<String, RecordType> objectClassToType = new HashMap<String, RecordType>();
+        Map<String, RecordType> objectClassToType = new HashMap<>();
         objectClassToType.put( "apacheDnsStartOfAuthorityRecord", RecordType.SOA );
         objectClassToType.put( "apacheDnsAddressRecord", RecordType.A );
         objectClassToType.put( "apacheDnsNameServerRecord", RecordType.NS );
@@ -134,7 +135,7 @@ public class GetRecords implements DnsOperation
 
         NamingEnumeration<SearchResult> list = ctx.search( transformDomainName( name ), filter, controls );
 
-        Set<ResourceRecord> set = new HashSet<ResourceRecord>();
+        Set<ResourceRecord> set = new HashSet<>();
 
         while ( list.hasMore() )
         {
@@ -228,7 +229,7 @@ public class GetRecords implements DnsOperation
             return "";
         }
 
-        StringBuffer buf = new StringBuffer( domainName.length() + 16 );
+        StringBuilder buf = new StringBuilder( domainName.length() + 16 );
 
         buf.append( "dc=" );
         buf.append( domainName.replaceAll( "\\.", ",dc=" ) );
