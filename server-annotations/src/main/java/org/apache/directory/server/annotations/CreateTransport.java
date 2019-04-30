@@ -68,4 +68,7 @@ public @interface CreateTransport
 
     /** @return The number of threads to use. Default to 3*/
     int nbThreads() default 3;
+
+    /** @return A flag to tell if the transport should ask for client certificate. Default to false */
+    boolean clientAuth() default false;
 }

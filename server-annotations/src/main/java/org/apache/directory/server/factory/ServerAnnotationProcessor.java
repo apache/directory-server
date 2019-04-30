@@ -490,6 +490,7 @@ public final class ServerAnnotationProcessor
         int nbThreads = transportBuilder.nbThreads();
         int backlog = transportBuilder.backlog();
         String address = transportBuilder.address();
+        boolean clientAuth = transportBuilder.clientAuth();
         
         if ( Strings.isEmpty( address ) )
         {
@@ -517,6 +518,7 @@ public final class ServerAnnotationProcessor
         {
             Transport tcp = new TcpTransport( address, port, nbThreads, backlog );
             tcp.setEnableSSL( true );
+            ( ( TcpTransport ) tcp ).setWantClientAuth( clientAuth );
             return Collections.singletonList( tcp );
         }
         else if ( protocol.equalsIgnoreCase( "UDP" ) )

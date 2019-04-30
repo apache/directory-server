@@ -153,6 +153,13 @@ objectclass: top
 ads-saslMechName: SIMPLE
 ads-enabled: true
 
+dn: ads-saslMechName=external,ou=saslmechhandlers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
+ads-saslMechClassName: org.apache.directory.server.ldap.handlers.sasl.external.certificate.CertificateMechanismHandler
+objectclass: ads-saslMechHandler
+objectclass: top
+ads-saslMechName: EXTERNAL
+ads-enabled: true
+
 dn: ou=replConsumers,ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectClass: organizationalUnit
 objectClass: top

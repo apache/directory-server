@@ -195,6 +195,7 @@
                 org.apache.directory.server.ldap.handlers.sasl.gssapi;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.ntlm;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.plain;version=${project.version},
+                org.apache.directory.server.ldap.handlers.sasl.external.certificate;version=${project.version},
                 org.apache.directory.server.ldap.replication;version=${project.version},
                 org.apache.directory.server.ldap.replication.provider;version=${project.version},
                 org.apache.directory.server.ldap.replication.consumer;version=${project.version}
