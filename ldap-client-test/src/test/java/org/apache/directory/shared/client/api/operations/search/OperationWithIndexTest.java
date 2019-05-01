@@ -93,6 +93,7 @@ import org.junit.runner.RunWith;
                         @CreateIndex(attribute = "objectClass"),
                         @CreateIndex(attribute = "sn"),
                         @CreateIndex(attribute = "cn"),
+                        @CreateIndex(attribute = "uniqueMember"),
                         @CreateIndex(attribute = "displayName")
                 })
 
@@ -812,6 +813,77 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
         assertTrue( entries.contains( "cn=test,dc=test,dc=com" ) );
         assertTrue( entries.contains( "cn=test,dc=example,dc=com" ) );
         assertTrue( entries.contains( "cn=test,ou=system" ) );
+        cursor.close();
+    }
+
+
+    /**
+     * Check that we can find entries in more than one partition 
+     */
+    @Test
+    public void testSearchWithIndex() throws Exception
+    {
+        int nbIterations = 1000;
+
+        //BufferedWriter out = new BufferedWriter( new FileWriter("/tmp/out.txt") );
+
+        long t0 = System.currentTimeMillis();
+        long t00 = 0L;
+        long tt0 = System.currentTimeMillis();
+
+        for ( int i = 0; i < nbIterations; i++ )
+        {
+            if ( i % 100 == 0 )
+            {
+                long tt1 = System.currentTimeMillis();
+
+                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                tt0 = tt1;
+            }
+
+            if ( i == 500 )
+            {
+                t00 = System.currentTimeMillis();
+            }
+
+            String cnStr = "user" + i;
+            String rdnStr = "cn=" + cnStr;
+            Dn dn = new Dn( rdnStr + ",dc=test,dc=com" );
+            Entry entry = new DefaultEntry(
+                getService().getSchemaManager(),
+                dn,
+                "objectClass: top",
+                "objectClass: groupOfUniqueNames",
+                "cn", cnStr,
+                "uniqueMember", dn.toString() );
+
+            connection.add( entry );
+        }
+
+        long t1 = System.currentTimeMillis();
+
+        Long deltaWarmed = ( t1 - t00 );
+        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500 ) * 1000 ) / deltaWarmed )
+            + " per s ) /" + ( t1 - t0 ) );
+
+
+        // Now search the entry from the root
+        EntryCursor cursor = connection.search( "", "(uniqueMember=cn=user784,dc=test,dc=com)", SearchScope.SUBTREE );
+        List<String> entries = new ArrayList<String>();
+
+        while ( cursor.next() )
+        {
+            Entry entryFound = cursor.get();
+            assertNotNull( entryFound );
+            entries.add( entryFound.getDn().getName() );
+        }
+
+        SearchResultDone done = cursor.getSearchResultDone();
+
+        assertNotNull( done );
+        assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
+        assertEquals( 1, entries.size() );
+        assertTrue( entries.contains( "cn=user784,dc=test,dc=com" ) );
         cursor.close();
     }
 }
