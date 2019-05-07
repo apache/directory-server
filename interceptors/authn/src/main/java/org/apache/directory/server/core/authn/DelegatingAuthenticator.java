@@ -283,15 +283,22 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             try
             {
                 ldapConnection.bind( bindDn, Strings.utf8ToString( bindContext.getCredentials() ) );
-
-                // no need to remain bound to delegate host
-                ldapConnection.unBind();
             }
             catch ( LdapException le )
             {
                 String message = I18n.err( I18n.ERR_230, bindDn.getName() );
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
+            }
+            finally
+            {
+                // no need to remain bound to delegate host
+                ldapConnection.unBind();
+
+                if ( IS_DEBUG )
+                {
+                    LOG.debug( "Authenticated successfully {}", bindContext.getDn() );
+                }
             }
 
             // Create the new principal
