@@ -518,4 +518,27 @@ public class SimpleBindIT extends AbstractLdapTestUnit
                 new SimpleAuthenticator( Dn.ROOT_DSE ),
                 new AnonymousAuthenticator( Dn.ROOT_DSE ) } );
     }
+
+
+    @Test
+    public void testSimpleBindAndUnbindLoop() throws Exception
+    {
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
+            getLdapServer().getPort() ) )
+        {
+            for ( int i = 0; i < 10000; i++ )
+            {
+                System.out.println( i );
+
+                connection.bind( "uid=admin,ou=system", "secret" );
+                assertTrue( connection.isAuthenticated() );
+
+                connection.unBind();
+                assertFalse( connection.isAuthenticated() );
+
+                // Thread.sleep( 10L );
+            }
+        }
+    }
+
 }
