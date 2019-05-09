@@ -76,5 +76,4 @@ public class CertificateMechanismHandler extends AbstractMechanismHandler
     {
         ldapSession.clearSaslProperties();
     }
-
 }

@@ -31,6 +31,7 @@ import org.apache.directory.server.ldap.handlers.sasl.SimpleMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.external.certificate.CertificateMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
+import org.apache.directory.server.ldap.handlers.sasl.external.certificate.CertificateMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 

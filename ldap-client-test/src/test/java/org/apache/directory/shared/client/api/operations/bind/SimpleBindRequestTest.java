@@ -650,4 +650,29 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
         cursor2.next();
         cursor3.next();
     }
+
+
+    /**
+     * Test simple bind and unbind in a loop.
+     */
+    @Test
+    public void testSimpleBindAndUnbindLoop() throws Exception
+    {
+        for ( int i = 0; i < 1000; i++ )
+        {
+            if ( i % 100 == 0 )
+            {
+                System.out.println( i );
+            }
+
+            connection.bind( "uid=admin,ou=system", "secret" );
+            assertTrue( connection.isAuthenticated() );
+
+            connection.unBind();
+            assertFalse( connection.isAuthenticated() );
+
+            // Thread.sleep( 10L );
+        }
+    }
+
 }

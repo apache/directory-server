@@ -72,7 +72,7 @@ public final class ExternalSaslServer extends AbstractSaslServer
 
     /**
      *
-     * Creates a new instance of PlainSaslServer.
+     * Creates a new instance of ExternalSaslServer.
      *
      * @param ldapSession The associated LdapSession instance
      * @param adminSession The Administrator session
@@ -116,6 +116,7 @@ public final class ExternalSaslServer extends AbstractSaslServer
         {
             throw new SaslException( "Error authentication using client certificate: " + ExceptionUtils.getStackTrace( e ), e );
         }
+        
         return Strings.EMPTY_BYTES;
     }
 
@@ -157,7 +158,6 @@ public final class ExternalSaslServer extends AbstractSaslServer
 
         try ( EntryFilteringCursor cursor = operationManager.search( searchContext ) )
         {
-
             if ( cursor.next() )
             {
                 Entry entry = cursor.get();
@@ -180,6 +180,5 @@ public final class ExternalSaslServer extends AbstractSaslServer
 
             throw new LdapAuthenticationException( "Cannot authenticate user cert=" + peerCertificate );
         }
-
     }
 }

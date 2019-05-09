@@ -313,7 +313,8 @@ public final class TlsKeyGenerator
         certGen.setPublicKey( publicKey );
         certGen.setSignatureAlgorithm( "SHA256With" + keyAlgo );
         certGen.addExtension( Extension.basicConstraints, false, new BasicConstraints( false ) );
-        certGen.addExtension( Extension.extendedKeyUsage, true, new ExtendedKeyUsage( new KeyPurposeId[] { KeyPurposeId.id_kp_clientAuth, KeyPurposeId.id_kp_serverAuth } ) );
+        certGen.addExtension( Extension.extendedKeyUsage, true, new ExtendedKeyUsage( 
+            new KeyPurposeId[] { KeyPurposeId.id_kp_clientAuth, KeyPurposeId.id_kp_serverAuth } ) );
 
         try
         {
