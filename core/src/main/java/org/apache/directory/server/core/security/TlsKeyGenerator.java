@@ -47,8 +47,12 @@ import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.i18n.I18n;
+import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.x509.X509V1CertificateGenerator;
+import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -297,7 +301,7 @@ public final class TlsKeyGenerator
         // Generate the self-signed certificate
         BigInteger serialNumber = BigInteger.valueOf( System.currentTimeMillis() );
 
-        X509V1CertificateGenerator certGen = new X509V1CertificateGenerator();
+        X509V3CertificateGenerator certGen = new X509V3CertificateGenerator();
         X500Principal issuerName = new X500Principal( issuerDN );
         X500Principal subjectName = new X500Principal( subjectDN );
 
@@ -308,6 +312,10 @@ public final class TlsKeyGenerator
         certGen.setSubjectDN( subjectName );
         certGen.setPublicKey( publicKey );
         certGen.setSignatureAlgorithm( "SHA256With" + keyAlgo );
+        certGen.addExtension( Extension.basicConstraints, false, new BasicConstraints( false ) );
+        certGen.addExtension( Extension.extendedKeyUsage, true, new ExtendedKeyUsage( 
+            new KeyPurposeId[] { KeyPurposeId.id_kp_clientAuth, KeyPurposeId.id_kp_serverAuth } ) );
+
         
 
         try

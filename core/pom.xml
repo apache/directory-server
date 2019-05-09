@@ -258,6 +258,8 @@
                 org.apache.directory.server.i18n;version=${project.version},
                 org.bouncycastle.jce.provider;version=${bcprov.version},
                 org.bouncycastle.x509;version=${bcprov.version},
+                org.bouncycastle.asn1;version=${bcprov.version},
+                org.bouncycastle.asn1.x509;version=${bcprov.version},
                 org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>
