@@ -523,12 +523,16 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAndUnbindLoop() throws Exception
     {
+        long t0 = System.currentTimeMillis();
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
             getLdapServer().getPort() ) )
         {
-            for ( int i = 0; i < 10000; i++ )
+            for ( int i = 0; i < 1000; i++ )
             {
-                System.out.println( i );
+                if ( i % 100 == 0 )
+                {
+                    System.out.println( i );
+                }
 
                 connection.bind( "uid=admin,ou=system", "secret" );
                 assertTrue( connection.isAuthenticated() );
@@ -536,9 +540,12 @@ public class SimpleBindIT extends AbstractLdapTestUnit
                 connection.unBind();
                 assertFalse( connection.isAuthenticated() );
 
-                // Thread.sleep( 10L );
+                // Thread.sleep( 2L );
             }
         }
+        long t1 = System.currentTimeMillis();
+        
+        System.out.println( "Delta = " + ( t1 - t0 ) );
     }
 
 }

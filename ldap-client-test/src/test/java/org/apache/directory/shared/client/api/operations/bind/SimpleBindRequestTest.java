@@ -658,9 +658,12 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAndUnbindLoop() throws Exception
     {
-        for ( int i = 0; i < 10000; i++ )
+        for ( int i = 0; i < 1000; i++ )
         {
-            System.out.println( i );
+            if ( i % 100 == 0 )
+            {
+                System.out.println( i );
+            }
 
             connection.bind( "uid=admin,ou=system", "secret" );
             assertTrue( connection.isAuthenticated() );
