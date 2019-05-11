@@ -143,7 +143,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
             // Get the entry's password. We will use the first one.
             Value userPassword = entry.get( userPasswordAT ).get();
-            String strUserPassword = userPassword.getString();
+            String strUserPassword = Strings.utf8ToString( userPassword.getBytes() );
 
             String principalName = entry.get( krb5PrincipalNameAT ).getString();
 

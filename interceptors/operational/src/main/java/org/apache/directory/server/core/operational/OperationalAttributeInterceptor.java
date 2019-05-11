@@ -613,7 +613,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
      * short name for an attributeType definition.
      * 
      * @param dn the normalized distinguished name
-     * @return the distinuished name denormalized
+     * @return the distinguished name denormalized
      * @throws Exception if there are problems denormalizing
      */
     private Dn denormalizeTypes( Dn dn ) throws LdapException

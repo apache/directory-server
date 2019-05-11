@@ -29,7 +29,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
-import org.apache.directory.api.ldap.model.schema.LdapComparator;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
@@ -219,7 +218,6 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
     // wrapper or the raw normalized value
     private boolean evaluate( IndexEntry<Object, String> indexEntry, Attribute attribute )
     {
-        LdapComparator ldapComparator = attribute.getAttributeType().getOrdering().getLdapComparator();
         /*
          * Cycle through the attribute values testing normalized version
          * obtained from using the ordering or equality matching rule's
@@ -228,7 +226,7 @@ public class LessEqEvaluator<T> extends LeafEvaluator<T>
          */
         for ( Value value : attribute )
         {
-            if ( ldapComparator.compare( value.getString(), node.getValue().getString() ) <= 0 )
+            if ( ldapComparator.compare( value.getNormalized(), node.getValue().getNormalized() ) <= 0 )
             {
                 if ( indexEntry != null )
                 {
