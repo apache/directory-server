@@ -46,7 +46,6 @@ import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
-import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
@@ -1308,7 +1307,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
         {
             String uuid = Strings.uuidToString( limitedUuidList.get( 0 ) );
 
-            filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new Value( uuid ).getString() );
+            filter = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, uuid );
             if ( isRefreshPresent )
             {
                 filter = new NotNode( filter );
@@ -1328,7 +1327,7 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
             for ( int i = 0; i < size; i++ )
             {
                 String uuid = Strings.uuidToString( limitedUuidList.get( i ) );
-                ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, new Value( uuid ) .getString() );
+                ExprNode uuidEqNode = new EqualityNode<String>( SchemaConstants.ENTRY_UUID_AT, uuid );
 
                 if ( isRefreshPresent )
                 {

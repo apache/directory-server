@@ -137,7 +137,6 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
 
 
     @Test
-    //@Ignore
     public void testRenameWithALotOfDummiesAndSomeCustomAttributes() {
         LdapConnectionTemplate template = classCreateDsRule.getLdapConnectionTemplate();
         AddResponse response = null;

@@ -45,7 +45,6 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 public class TicketTest
 {
     @Test
-    //@Ignore
     public void testTicket() throws Exception
     {
         TicketFactory ticketFactory = new TicketFactory();

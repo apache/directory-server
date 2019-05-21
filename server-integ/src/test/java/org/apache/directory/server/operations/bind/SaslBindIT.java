@@ -474,7 +474,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * Tests to make sure GSS-API binds below the RootDSE work.
      */
     @Test
-    //@Ignore("Fails on ac OSX")
     public void testSaslGssApiBind() throws Exception
     {
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );

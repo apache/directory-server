@@ -181,7 +181,6 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
      * Modify Rdn of an entry, delete its old rdn value and search before and
      * after rename.
      */
-    //@Ignore
     @Test
     public void testModifyRdnAndDeleteOldWithSearchInBetween() throws Exception
     {
