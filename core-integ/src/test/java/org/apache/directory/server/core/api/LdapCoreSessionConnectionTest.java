@@ -122,7 +122,6 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
     }
 
 
-    //@Ignore
     @Test
     public void testBindWithLdapCoreSessionConnection() throws LdapException
     {
