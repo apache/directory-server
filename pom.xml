@@ -46,7 +46,7 @@
     <!--additionalparam>-Xdoclint:none</additionalparam-->
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>2.0.0.AM3-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.0.0.AM3</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>2.0.1-SNAPSHOT</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>2.0.0</org.apache.directory.junit.junit-addons.version>
@@ -1290,8 +1290,8 @@
   <scm>
     <connection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</developerConnection>
-    <url>https://gitbox.apache.org/repos/asf?p=directory-server.git;a=tag;h=refs/tags/${project.scm.tag}</url>
-    <tag>HEAD</tag>
+    <url>https://github.com/apache/directory-server/tree/${project.scm.tag}</url>
+    <tag>master</tag>
   </scm>
 
   <repositories>
