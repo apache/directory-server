@@ -46,7 +46,7 @@
     <!--additionalparam>-Xdoclint:none</additionalparam-->
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>2.0.0.AM3</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.0.0.AM4-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>2.0.1-SNAPSHOT</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.junit.junit-addons.version>2.0.0</org.apache.directory.junit.junit-addons.version>

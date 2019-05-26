@@ -56,7 +56,6 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -115,57 +114,45 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
     }
 
 
+    /**
+     * Test for DIRAPI-342: Unbind breaks connection
+     */
     @Test
-    @Ignore
-    public void testRebindNoPool() throws Exception
+    public void testBindAndUnbindLoop() throws Exception
     {
-        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-        connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
-
-        for ( int i = 0; i < 10000; i++ )
+        try ( LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
+            getLdapServer().getPort() ) )
         {
-            if ( i % 100 == 0 )
+            for ( int i = 0; i < 1000; i++ )
             {
-                System.out.println( "Iteration # " + i );
-            }
-            // First, unbind
-            try
-            {
+                connection.bind( "uid=admin,ou=system", "secret" );
+                assertTrue( connection.isAuthenticated() );
+
                 connection.unBind();
-            }
-            catch ( Exception e )
-            {
-                e.printStackTrace();
-                throw e;
-            }
-
-            //Thread.sleep( 5 );
-
-            // Don't close the connection, we want to reuse it
-            // Then bind again
-            try
-            {
-                connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
-            }
-            catch ( Exception e )
-            {
-                System.out.println( "Failure after " + i + " iterations" );
-                e.printStackTrace();
-                throw e;
+                assertFalse( connection.isAuthenticated() );
             }
         }
+    }
 
-        // terminate with an unbind
-        try
+
+    /**
+     * Test for DIRAPI-342: Unbind breaks connection
+     */
+    @Test
+    public void testBindAndCloseLoop() throws Exception
+    {
+        try ( LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
+            getLdapServer().getPort() ) )
         {
-            connection.unBind();
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
+            for ( int i = 0; i < 1000; i++ )
+            {
+                connection.bind( "uid=admin,ou=system", "secret" );
+                assertTrue( connection.isAuthenticated() );
 
-        connection.close();
+                connection.close();
+                assertFalse( connection.isAuthenticated() );
+            }
+        }
     }
 
 
@@ -376,4 +363,5 @@ public void testLookup() throws Exception
 
         connection.close();
     }
+
 }
