@@ -127,7 +127,6 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     @Test
     public void testBindRequestSSLConfig() throws Exception
     {
-        System.out.println( sslConfig.getLdapPort() );
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
         {
             connection.bind( "uid=admin,ou=system", "secret" );
@@ -193,6 +192,35 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             List<String> controlList = connection.getSupportedControls();
             assertNotNull( controlList );
             assertFalse( controlList.isEmpty() );
+        }
+    }
+
+
+    /**
+     * Test for DIRAPI-342: Unbind breaks connection
+     */
+    @Test
+    public void testSSLConnectAndBindAndUnbindLoop() throws Exception
+    {
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+        {
+            for ( int i = 0; i < 100; i++ )
+            {
+                connection.connect();
+                assertTrue( connection.isConnected() );
+                assertTrue( connection.isSecured() );
+                assertFalse( connection.isAuthenticated() );
+
+                connection.bind( "uid=admin,ou=system", "secret" );
+                assertTrue( connection.isConnected() );
+                assertTrue( connection.isSecured() );
+                assertTrue( connection.isAuthenticated() );
+
+                connection.unBind();
+                assertFalse( connection.isSecured() );
+                assertFalse( connection.isConnected() );
+                assertFalse( connection.isAuthenticated() );
+            }
         }
     }
 
@@ -331,6 +359,35 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             assertEquals( "uid=admin,ou=system", admin.getDn().getName() );
 
             connection.unBind();
+        }
+    }
+
+
+    /**
+     * Test for DIRAPI-342: Unbind breaks connection
+     */
+    @Test
+    public void testStartTLSConnectAndBindAndUnbindLoop() throws Exception
+    {
+        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+        {
+            for ( int i = 0; i < 100; i++ )
+            {
+                connection.startTls();
+                assertTrue( connection.isConnected() );
+                assertTrue( connection.isSecured() );
+                assertFalse( connection.isAuthenticated() );
+
+                connection.bind( "uid=admin,ou=system", "secret" );
+                assertTrue( connection.isConnected() );
+                assertTrue( connection.isSecured() );
+                assertTrue( connection.isAuthenticated() );
+
+                connection.unBind();
+                assertFalse( connection.isConnected() );
+                assertFalse( connection.isSecured() );
+                assertFalse( connection.isAuthenticated() );
+            }
         }
     }
 

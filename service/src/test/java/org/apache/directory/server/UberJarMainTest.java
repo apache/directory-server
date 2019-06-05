@@ -150,6 +150,7 @@ public class UberJarMainTest
         configuration.setCredentials( PartitionNexus.ADMIN_PASSWORD_STRING );
         configuration.setBinaryAttributeDetector( new SchemaBinaryAttributeDetector( null ) );
         LdapConnection connection = new LdapNetworkConnection( configuration );
+        connection.connect();
         connection.loadSchema();
 
         // Binding on the connection
