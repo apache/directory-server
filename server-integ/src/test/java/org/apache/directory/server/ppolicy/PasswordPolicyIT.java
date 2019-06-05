@@ -232,13 +232,11 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     /**
      * Check we can bind a user with a given password
      */
-    private void checkBindSuccess( Dn userDn, String password ) throws Exception
+    private void checkBindSuccess( LdapConnection userConnection, Dn userDn, String password ) throws Exception
     {
-        LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), password );
+        userConnection.bind( userDn, password );
         assertNotNull( userConnection );
         assertTrue( userConnection.isAuthenticated() );
-
-        userConnection.close();
     }
 
 
@@ -618,7 +616,10 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS,
             changePassword( userDn, "12345", "123456" ).getLdapResult().getResultCode() );
 
-        checkBindSuccess( userDn, "123456" );
+        try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
+        {
+            checkBindSuccess( userConnection, userDn, "123456" );
+        }
 
         adminConnection.close();
     }
@@ -635,7 +636,12 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         try (LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() ))
         {
             Dn userDn = addUser( adminConnection, "userPwdHist", "12345" );
-            checkBindSuccess( userDn, "12345" );
+
+            try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
+            {
+                checkBindSuccess( userConnection, userDn, "12345" );
+            }
+            
             Entry entry = adminConnection.lookup( userDn, "*", "+" );
     
             Attribute pwdHistAt = entry.get( PasswordPolicySchemaConstants.PWD_HISTORY_AT );
@@ -647,7 +653,11 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     
             ModifyResponse response = changePassword( userDn, "12345", "67891" );
             assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-            checkBindSuccess( userDn, "67891" );
+
+            try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
+            {
+                checkBindSuccess( userConnection, userDn, "67891" );
+            }
     
             entry = adminConnection.lookup( userDn, "*", "+" );
 
@@ -660,7 +670,11 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     
             response = changePassword( userDn, "67891", "abcde" );
             assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-            checkBindSuccess( userDn, "abcde" );
+
+            try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
+            {
+                checkBindSuccess( userConnection, userDn, "abcde" );
+            }
     
             entry = adminConnection.lookup( userDn, "*", "+" );
 
@@ -674,7 +688,11 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             PasswordPolicyResponse respCtrl = getPwdRespCtrl( response );
             assertNotNull( respCtrl );
             assertEquals( PasswordPolicyErrorEnum.PASSWORD_IN_HISTORY, respCtrl.getPasswordPolicyError() );
-            checkBindSuccess( userDn, "abcde" );
+
+            try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
+            {
+                checkBindSuccess( userConnection, userDn, "abcde" );
+            }
     
             // Try to reuse the very first password, should succeed
             response = changePassword( userDn, "abcde", "12345" );
@@ -718,7 +736,10 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertEquals( ResultCodeEnum.SUCCESS,
             changePassword( userDn, "set4now", "123456" ).getLdapResult().getResultCode() );
 
-        checkBindSuccess( userDn, "123456" );
+        try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
+        {
+            checkBindSuccess( userConnection, userDn, "123456" );
+        }
 
         adminConnection.close();
     }
@@ -1316,7 +1337,10 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         addUser( adminConnection, "userLockout4", "12345" );
 
         // We should succeed
-        checkBindSuccess( userDn, "12345" );
+        try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
+        {
+            checkBindSuccess( userConnection, userDn, "12345" );
+        }
 
         // Wait 5 seconds now
         Thread.sleep( 5000 );
@@ -1344,7 +1368,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
             // We should be able to bind
-            checkBindSuccess( userDn, "12345" );
+            checkBindSuccess( userConnection, userDn, "12345" );
         }
 
         try (LdapConnection userConnection = getNetworkConnectionAs( getLdapServer(), userDn.getName(), "12345" ))
@@ -1366,8 +1390,11 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             modifyResponse = userConnection.modify( modReq );
     
             assertEquals( ResultCodeEnum.SUCCESS, modifyResponse.getLdapResult().getResultCode() );
+        }
     
-            checkBindSuccess( userDn, "67890" );
+        try (LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
+        {
+            checkBindSuccess( userConnection, userDn, "67890" );
         }
 
         adminConnection.close();
