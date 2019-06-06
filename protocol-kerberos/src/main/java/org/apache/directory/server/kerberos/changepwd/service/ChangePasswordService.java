@@ -254,7 +254,7 @@ public final class ChangePasswordService
             byte[] decryptedData = cipherTextHandler.decrypt( subSessionKey, encReqPrivPart, KeyUsage.KRB_PRIV_ENC_PART_CHOSEN_KEY );
             EncKrbPrivPart privatePart = KerberosDecoder.decodeEncKrbPrivPart( decryptedData );
 
-            if ( authenticator.getSeqNumber() != privatePart.getSeqNumber() )
+            if ( ( authenticator.getSeqNumber() != null ) && ( authenticator.getSeqNumber() != privatePart.getSeqNumber() ) )
             {
                 throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_MALFORMED );    
             }
