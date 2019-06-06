@@ -38,6 +38,7 @@ import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.transport.socket.AbstractSocketSessionConfig;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,6 +143,10 @@ public class KdcServer extends DirectoryBackedService
 
             // Inject the protocol handler
             acceptor.setHandler( new KerberosProtocolHandler( this, store ) );
+            
+            // Set the buffer size to 32Kb, instead of 1Kb by default
+            ( ( AbstractSocketSessionConfig ) acceptor.getSessionConfig() ).setReadBufferSize( 32 * 1024 );
+            ( ( AbstractSocketSessionConfig ) acceptor.getSessionConfig() ).setSendBufferSize( 32 * 1024 );
 
             // Bind to the configured address
             acceptor.bind();
