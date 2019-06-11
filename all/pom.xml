@@ -167,6 +167,7 @@
                   <excludes>
                     <exclude>META-INF/BCK*.SF</exclude>
                     <exclude>META-INF/BCK*.DSA</exclude>
+                    <exclude>META-INF/BCK*.RSA</exclude>
                   </excludes>
                 </filter>
               </filters>
