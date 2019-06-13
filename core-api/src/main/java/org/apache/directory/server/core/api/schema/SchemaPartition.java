@@ -232,7 +232,15 @@ public final class SchemaPartition extends AbstractPartition
 
             try
             {
+                // The schemaManager *must* be relaxed, otherwise disabled schema
+                // won't be loaded properly
+                schemaManager.setRelaxed();
+                
+                // Load the schemas
                 wrapped.initialize();
+                
+                // Now we can get the schemaManager back to strict mode
+                schemaManager.setStrict();
 
                 synchronizer = new RegistrySynchronizerAdaptor( schemaManager );
             }
