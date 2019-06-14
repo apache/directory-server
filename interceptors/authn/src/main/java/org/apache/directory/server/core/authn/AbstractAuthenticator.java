@@ -294,7 +294,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                     unlockTime += lockedDate.getTime();
 
                     Date unlockDate = new Date( unlockTime );
-                    Date now = DateUtils.getDate( DateUtils.getGeneralizedTime() );
+                    Date now = new Date( directoryService.getTimeProvider().currentIimeMillis() );
 
                     if ( unlockDate.after( now ) )
                     {
@@ -354,7 +354,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                 long time = pPolicyConfig.getPwdMaxIdle() * 1000L;
                 time += DateUtils.getDate( pwdLastSuccessTimeAttr.getString() ).getTime();
 
-                if ( System.currentTimeMillis() >= time )
+                if ( directoryService.getTimeProvider().currentIimeMillis() >= time )
                 {
                     throw new PasswordPolicyException(
                         "account locked due to the max idle time of the password was exceeded",
@@ -387,7 +387,7 @@ public abstract class AbstractAuthenticator implements Authenticator
                 if ( pwdChangeTimeAttr != null )
                 {
                     boolean expired = PasswordUtil.isPwdExpired( pwdChangeTimeAttr.getString(),
-                        pPolicyConfig.getPwdMaxAge() );
+                        pPolicyConfig.getPwdMaxAge(), directoryService.getTimeProvider() );
 
                     if ( expired )
                     {

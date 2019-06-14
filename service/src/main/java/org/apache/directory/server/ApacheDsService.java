@@ -837,7 +837,7 @@ public class ApacheDsService
 
             if ( !timeChecker.isValidSyntax( createdTime ) )
             {
-                createdTimeAt = new DefaultAttribute( atType, DateUtils.getGeneralizedTime() );
+                createdTimeAt = new DefaultAttribute( atType, DateUtils.getGeneralizedTime( dirService.getTimeProvider() ) );
             }
 
             Modification createdMod = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, createdTimeAt );

@@ -22,9 +22,11 @@ package org.apache.directory.server.core.changelog;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -36,19 +38,23 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifRevertor;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.api.util.TimeProvider;
+import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.changelog.ChangeLogEvent;
 import org.apache.directory.server.core.api.changelog.ChangeLogEventSerializer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -56,8 +62,6 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class MemoryChangeLogStoreTest
 {
     private static MemoryChangeLogStore store;
@@ -68,9 +72,45 @@ public class MemoryChangeLogStoreTest
     @BeforeClass
     public static void setUp() throws Exception
     {
+        // setup working directory
+        DirectoryService directoryService = new DefaultDirectoryService();
+        String tmpDirPath = System.getProperty( "workingDirectory", System.getProperty( "java.io.tmpdir" ) );
+        File workingDirectory = new File( tmpDirPath + "/server-work-"
+            + MemoryChangeLogStoreTest.class.getSimpleName() );
+        InstanceLayout instanceLayout = new InstanceLayout( workingDirectory );
+        directoryService.setInstanceLayout( instanceLayout );
+
+        if ( !workingDirectory.exists() )
+        {
+            workingDirectory.mkdirs();
+        }
+
+        directoryService.getInstanceLayout().setPartitionsDir( workingDirectory );
+
+        // --------------------------------------------------------------------
+        // Load the bootstrap schemas to start up the schema partition
+        // --------------------------------------------------------------------
+
+        File schemaRepository = new File( workingDirectory, "schema" );
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor( workingDirectory );
+        extractor.extractOrCopy( true );
+        LdifSchemaLoader loader = new LdifSchemaLoader( schemaRepository );
+        schemaManager = new DefaultSchemaManager( loader );
+
+        boolean loaded = schemaManager.loadAllEnabled();
+
+        if ( !loaded )
+        {
+            fail( "Schema load failed : " + Exceptions.printErrors( schemaManager.getErrors() ) );
+        }
+
+        directoryService.setSchemaManager( schemaManager );
+
         schemaManager = new DefaultSchemaManager();
 
         store = new MemoryChangeLogStore();
+        
+        store.init( directoryService );
     }
 
 
@@ -115,7 +155,7 @@ public class MemoryChangeLogStoreTest
 
         LdifEntry reverse = LdifRevertor.reverseAdd( reverseDn );
 
-        String zuluTime = DateUtils.getGeneralizedTime();
+        String zuluTime = DateUtils.getGeneralizedTime( TimeProvider.DEFAULT );
         long revision = 1L;
 
         LdapPrincipal principal = new LdapPrincipal( schemaManager, adminDn, AuthenticationLevel.SIMPLE,

@@ -65,6 +65,7 @@ import org.apache.directory.api.ldap.model.name.DnUtils;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.util.tree.DnNode;
+import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.NotImplementedException;
@@ -291,6 +292,8 @@ public class DefaultDirectoryService implements DirectoryService
 
     /** The object class provider */
     private ObjectClassProvider ocProvider;
+    
+    private TimeProvider timeProvider;
 
 
     // ------------------------------------------------------------------------
@@ -310,6 +313,7 @@ public class DefaultDirectoryService implements DirectoryService
         csnFactory = new CsnFactory( replicaId );
         evaluator = new SubtreeEvaluator( schemaManager );
         setDefaultInterceptorConfigurations();
+        timeProvider = TimeProvider.DEFAULT;
     }
 
 
@@ -1500,7 +1504,7 @@ public class DefaultDirectoryService implements DirectoryService
                 serverEntry.put( SchemaConstants.CN_AT, "system administrator" );
                 serverEntry.put( SchemaConstants.SN_AT, "administrator" );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
@@ -1534,7 +1538,7 @@ public class DefaultDirectoryService implements DirectoryService
     
                 serverEntry.put( SchemaConstants.OU_AT, "users" );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
                 
@@ -1567,7 +1571,7 @@ public class DefaultDirectoryService implements DirectoryService
     
                 serverEntry.put( SchemaConstants.OU_AT, "groups" );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
     
@@ -1601,7 +1605,7 @@ public class DefaultDirectoryService implements DirectoryService
                 serverEntry.put( SchemaConstants.CN_AT, "Administrators" );
                 serverEntry.put( SchemaConstants.UNIQUE_MEMBER_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
     
@@ -1632,7 +1636,7 @@ public class DefaultDirectoryService implements DirectoryService
     
                 serverEntry.put( SchemaConstants.OU_AT, "configuration" );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
     
@@ -1662,7 +1666,7 @@ public class DefaultDirectoryService implements DirectoryService
                     SchemaConstants.ORGANIZATIONAL_UNIT_OC );
                 serverEntry.put( SchemaConstants.OU_AT, "partitions" );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
     
@@ -1693,7 +1697,7 @@ public class DefaultDirectoryService implements DirectoryService
     
                 serverEntry.put( SchemaConstants.OU_AT, "services" );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
     
@@ -1724,7 +1728,7 @@ public class DefaultDirectoryService implements DirectoryService
     
                 serverEntry.put( SchemaConstants.OU_AT, "interceptors" );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
     
@@ -1757,7 +1761,7 @@ public class DefaultDirectoryService implements DirectoryService
     
                 serverEntry.put( "prefNodeName", "sysPrefRoot" );
                 serverEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
-                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                serverEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 serverEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 serverEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
     
@@ -1867,7 +1871,7 @@ public class DefaultDirectoryService implements DirectoryService
     
                 // Add some operational attributes
                 systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
-                systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( getTimeProvider() ) );
                 systemEntry.add( SchemaConstants.ENTRY_CSN_AT, getCSN().toString() );
                 systemEntry.add( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
                 systemEntry.put( DnUtils.getRdnAttributeType( ServerDNConstants.SYSTEM_DN ), DnUtils
@@ -2456,4 +2460,23 @@ public class DefaultDirectoryService implements DirectoryService
         return ocProvider;
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TimeProvider getTimeProvider()
+    {
+        return timeProvider;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setTimeProvider( TimeProvider timeProvider )
+    {
+        this.timeProvider = timeProvider;
+    }
 }

@@ -42,6 +42,7 @@ import org.apache.directory.api.ldap.model.cursor.ListCursor;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.util.DateUtils;
+import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.changelog.ChangeLogEvent;
@@ -78,6 +79,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     /** The DirectoryService */
     private DirectoryService directoryService;
 
+    private TimeProvider timeProvider = TimeProvider.DEFAULT;
 
     /**
      * {@inheritDoc}
@@ -139,6 +141,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     {
         workingDirectory = service.getInstanceLayout().getLogDirectory();
         this.directoryService = service;
+        this.timeProvider = service.getTimeProvider();
         
         try
         {
@@ -398,7 +401,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, LdifEntry reverse )
     {
         currentRevision++;
-        ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(),
+        ChangeLogEvent event = new ChangeLogEvent( currentRevision, 
+            DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ),
             principal, forward, reverse );
         events.add( event );
         
@@ -413,8 +417,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     public ChangeLogEvent log( LdapPrincipal principal, LdifEntry forward, List<LdifEntry> reverses )
     {
         currentRevision++;
-        ChangeLogEvent event = new ChangeLogEvent( currentRevision, DateUtils.getGeneralizedTime(),
-            principal, forward, reverses );
+        ChangeLogEvent event = new ChangeLogEvent( currentRevision, 
+            DateUtils.getGeneralizedTime( timeProvider ), principal, forward, reverses );
         events.add( event );
         
         return event;

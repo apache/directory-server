@@ -51,6 +51,7 @@ import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.AddFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -237,7 +238,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         String uuid = UUID.randomUUID().toString();
         String csn = new CsnFactory( 0 ).newInstance().toString();
         String creator = dn.getName();
-        String createdTime = DateUtils.getGeneralizedTime();
+        String createdTime = DateUtils.getGeneralizedTime( TimeProvider.DEFAULT );
 
         Entry entry = new DefaultEntry( dn );
         entry.add( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.PERSON_OC );

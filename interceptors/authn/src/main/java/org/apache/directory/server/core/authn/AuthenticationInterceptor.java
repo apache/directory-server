@@ -381,7 +381,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 throw new LdapOperationException( ResultCodeEnum.CONSTRAINT_VIOLATION, e.getMessage(), e );
             }
 
-            String pwdChangedTime = DateUtils.getGeneralizedTime();
+            String pwdChangedTime = DateUtils.getGeneralizedTime( directoryService.getTimeProvider() );
 
             if ( ( policyConfig.getPwdMinAge() > 0 ) || ( policyConfig.getPwdMaxAge() > 0 ) )
             {
@@ -654,7 +654,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                     purgeFailureTimes( policyConfig, pwdFailTimeAt );
                 }
 
-                String failureTime = DateUtils.getGeneralizedTime();
+                String failureTime = DateUtils.getGeneralizedTime( directoryService.getTimeProvider() );
                 pwdFailTimeAt.add( failureTime );
                 Modification pwdFailTimeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdFailTimeAt );
 
@@ -736,7 +736,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             if ( policyConfig.getPwdMaxIdle() > 0 )
             {
                 Attribute pwdLastSuccesTimeAt = new DefaultAttribute( pwdLastSuccessAT );
-                pwdLastSuccesTimeAt.add( DateUtils.getGeneralizedTime() );
+                pwdLastSuccesTimeAt.add( DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ) );
                 Modification pwdLastSuccesTimeMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdLastSuccesTimeAt );
                 mods.add( pwdLastSuccesTimeMod );
             }
@@ -765,7 +765,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 if ( pwdChangeTimeAttr != null )
                 {
                     boolean expired = PasswordUtil.isPwdExpired( pwdChangeTimeAttr.getString(),
-                        policyConfig.getPwdMaxAge() );
+                        policyConfig.getPwdMaxAge(), directoryService.getTimeProvider() );
 
                     if ( expired )
                     {
@@ -784,7 +784,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
                         pwdRespCtrl.setGraceAuthNRemaining( numGraceAuth );
 
-                        pwdGraceUseAttr.add( DateUtils.getGeneralizedTime() );
+                        pwdGraceUseAttr.add( DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ) );
                         Modification pwdGraceUseMod = new DefaultModification( ADD_ATTRIBUTE, pwdGraceUseAttr );
                         mods.add( pwdGraceUseMod );
                     }
@@ -1050,7 +1050,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 int histSize = policyConfig.getPwdInHistory();
                 Modification pwdRemHistMod = null;
                 Modification pwdAddHistMod = null;
-                String pwdChangedTime = DateUtils.getGeneralizedTime();
+                String pwdChangedTime = DateUtils.getGeneralizedTime( directoryService.getTimeProvider() );
 
                 if ( histSize > 0 )
                 {
@@ -1556,7 +1556,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
         long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
 
-        long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
+        long currentTime = directoryService.getTimeProvider().currentIimeMillis();
         long pwdAge = ( currentTime - changedTime ) / 1000;
 
         if ( pwdAge > policyConfig.getPwdMaxAge() )
@@ -1617,7 +1617,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             long changedTime = DateUtils.getDate( pwdChangedTimeAt.getString() ).getTime();
             changedTime += policyConfig.getPwdMinAge() * 1000L;
 
-            long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
+            long currentTime = directoryService.getTimeProvider().currentIimeMillis();
 
             if ( changedTime > currentTime )
             {
@@ -1897,7 +1897,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         interval *= 1000;
 
-        long currentTime = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
+        long currentTime = directoryService.getTimeProvider().currentIimeMillis();
 
         Iterator<Value> itr = pwdFailTimeAt.iterator();
 

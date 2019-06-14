@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.slf4j.Logger;
@@ -87,7 +86,7 @@ public class ReplicaEventLogJanitor extends Thread
                             return;
                         }
 
-                        long now = DateUtils.getDate( DateUtils.getGeneralizedTime() ).getTime();
+                        long now = directoryService.getTimeProvider().currentIimeMillis();
 
                         long maxIdleTime = log.getMaxIdlePeriod() * 1000L;
 

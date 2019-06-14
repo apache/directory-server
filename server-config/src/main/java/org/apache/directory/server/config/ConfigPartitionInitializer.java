@@ -31,6 +31,7 @@ import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.DateUtils;
+import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
@@ -171,7 +172,7 @@ public class ConfigPartitionInitializer
 
                 if ( !entry.containsAttribute( SchemaConstants.CREATE_TIMESTAMP_AT ) )
                 {
-                    entry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+                    entry.add( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime( TimeProvider.DEFAULT ) );
                 }
 
                 AddOperationContext addContext = new AddOperationContext( null, entry );

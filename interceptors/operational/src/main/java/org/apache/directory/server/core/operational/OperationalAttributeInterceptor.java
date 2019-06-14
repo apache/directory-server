@@ -304,7 +304,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // The CreateTimeStamp attribute
         if ( !checkAddOperationalAttribute( isAdmin, entry, directoryService.getAtProvider().getCreateTimestamp() ) )
         {
-            entry.put( directoryService.getAtProvider().getCreateTimestamp(), DateUtils.getGeneralizedTime() );
+            entry.put( directoryService.getAtProvider().getCreateTimestamp(), DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ) );        
         }
 
         // Now, check that the user does not add operational attributes
@@ -445,7 +445,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 // Inject the ModifyTimestamp AT if it's not present
                 Attribute attribute = new DefaultAttribute( directoryService.getAtProvider().getModifyTimestamp(),
-                    DateUtils.getGeneralizedTime() );
+                    DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ) );
 
                 Modification timestamp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, attribute );
 
@@ -474,7 +474,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         Entry modifiedEntry = moveContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveContext ).getName() );
-        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ) );
 
         Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
             .getCSN().toString() );
@@ -495,7 +495,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         Entry modifiedEntry = moveAndRenameContext.getModifiedEntry();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( moveAndRenameContext ).getName() );
-        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ) );
         modifiedEntry.setDn( moveAndRenameContext.getNewDn() );
 
         Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
@@ -516,11 +516,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     {
         Entry entry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getClonedEntry();
         entry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
-        entry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        entry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ) );
 
         Entry modifiedEntry = renameContext.getOriginalEntry().clone();
         modifiedEntry.put( SchemaConstants.MODIFIERS_NAME_AT, getPrincipal( renameContext ).getName() );
-        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+        modifiedEntry.put( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime( directoryService.getTimeProvider() ) );
 
         Attribute csnAt = new DefaultAttribute( directoryService.getAtProvider().getEntryCSN(), directoryService
             .getCSN().toString() );

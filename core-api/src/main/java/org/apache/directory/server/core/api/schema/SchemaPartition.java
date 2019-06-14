@@ -525,7 +525,7 @@ public final class SchemaPartition extends AbstractPartition
     private void updateSchemaModificationAttributes( OperationContext opContext ) throws LdapException
     {
         String modifiersName = opContext.getSession().getEffectivePrincipal().getName();
-        String modifyTimestamp = DateUtils.getGeneralizedTime();
+        String modifyTimestamp = DateUtils.getGeneralizedTime( opContext.getSession().getDirectoryService().getTimeProvider() );
 
         List<Modification> mods = new ArrayList<>( 2 );
 

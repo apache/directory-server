@@ -32,6 +32,7 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.util.tree.DnNode;
+import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.server.core.api.administrative.AccessControlAdministrativePoint;
 import org.apache.directory.server.core.api.administrative.CollectiveAttributeAdministrativePoint;
 import org.apache.directory.server.core.api.administrative.SubschemaAdministrativePoint;
@@ -639,4 +640,19 @@ public interface DirectoryService extends ServerEntryFactory
      */
     ObjectClassProvider getOcProvider();
 
+
+    /**
+     * Gets the time provider.
+     * 
+     * @return the time provider
+     */
+    TimeProvider getTimeProvider();
+
+
+    /**
+     * Sets the time provider.
+     * 
+     * @param timeProvider the time provider
+     */
+    void setTimeProvider( TimeProvider timeProvider );
 }

@@ -67,6 +67,8 @@ import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
+import org.apache.directory.api.util.MockTimeProvider;
+import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -108,7 +110,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     private static final PasswordPolicyRequest PP_REQ_CTRL =
         new PasswordPolicyRequestImpl();
 
-
+    private MockTimeProvider mockTimeProvider;
+    
     private PasswordPolicyConfiguration policyConfig;
 
     private Dn customPolicyDn;
@@ -144,6 +147,9 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
 
         authenticationInterceptor.setPwdPolicies( policyContainer );
+
+        mockTimeProvider = new MockTimeProvider();
+        getService().setTimeProvider( mockTimeProvider );
     }
 
 
@@ -151,6 +157,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
+        getService().setTimeProvider( TimeProvider.DEFAULT );
     }
 
 
@@ -273,6 +280,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     {
         for ( int i = 0; i < nbIterations; i++ )
         {
+            mockTimeProvider.addMillis( 1 ); // make sure pwdFailureTime uses a different timestamp
+            
             try
             {
                 connection.bind( userDn, password );
@@ -544,12 +553,10 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         for ( int i = 0; i < 3; i++ )
         {
+            mockTimeProvider.addMillis( 1000 );
             userConnection.bind( bindReq );
             assertFalse( userConnection.isAuthenticated() );
         }
-
-        // Added an extra wait (for Windows)
-        Thread.sleep( 2000 );
 
         userEntry = adminConnection.lookup( userDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
         Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
@@ -606,11 +613,13 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         adminConnection.add( userEntry );
 
         // We should not be able to modify the password : it's too recent
+        mockTimeProvider.addMillis( 1000 );
+        
         assertEquals( ResultCodeEnum.CONSTRAINT_VIOLATION,
             changePassword( userDn, "12345", "123456" ).getLdapResult().getResultCode() );
 
         // Wait for the pwdMinAge delay to be over
-        Thread.sleep( 5000 );
+        mockTimeProvider.addMillis( 4000 );
 
         // Now, we should be able to modify the password
         assertEquals( ResultCodeEnum.SUCCESS,
@@ -648,8 +657,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertNotNull( pwdHistAt );
             assertEquals( 1, pwdHistAt.size() );
     
-            Thread.sleep( 1000 );// to avoid creating a history value with the same
-                                 // timestamp
+            mockTimeProvider.addMillis( 1000 ); // to avoid creating a history value with the same timestamp
     
             ModifyResponse response = changePassword( userDn, "12345", "67891" );
             assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -665,8 +673,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertNotNull( pwdHistAt );
             assertEquals( 2, pwdHistAt.size() );
     
-            Thread.sleep( 1000 );// to avoid creating a history value with the same
-                                 // timestamp
+            mockTimeProvider.addMillis( 1000 ); // to avoid creating a history value with the same timestamp
     
             response = changePassword( userDn, "67891", "abcde" );
             assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
@@ -769,7 +776,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
+            mockTimeProvider.addMillis( 1000 ); // sleep for one second so that the password expire warning will be sent
     
             BindResponse bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
@@ -778,7 +785,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertNotNull( respCtrl );
             assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
     
-            Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
+            mockTimeProvider.addMillis( 4500 ); // sleep for four seconds and a half so that the password expires
     
             // this time it should fail
             bindResp = userCon.bind( bindReq );
@@ -816,7 +823,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
+            mockTimeProvider.addMillis( 1000 ); // sleep for one second so that the password expire warning will be sent
     
             BindResponse bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
@@ -825,7 +832,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertNotNull( respCtrl );
             assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
     
-            Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
+            mockTimeProvider.addMillis( 4500 ); // sleep for four seconds and a half so that the password expires
     
             // bind for one more time, should succeed
             bindResp = userCon.bind( bindReq );
@@ -833,14 +840,18 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
             assertEquals( 1, respCtrl.getGraceAuthNRemaining() );
-    
+            
+            mockTimeProvider.addMillis( 1000 ); // make sure pwdGraceUseTime uses a different timestamp
+            
             // bind for one last time, should succeed
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResp );
             assertNotNull( respCtrl );
             assertEquals( 0, respCtrl.getGraceAuthNRemaining() );
-    
+            
+            mockTimeProvider.addMillis( 1000 ); // make sure pwdGraceUseTime uses a different timestamp
+            
             // this time it should fail
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, bindResp.getLdapResult().getResultCode() );
@@ -877,7 +888,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
+            mockTimeProvider.addMillis( 1000 ); // sleep for one second so that the password expire warning will be sent
     
             BindResponse bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
@@ -886,7 +897,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertNotNull( respCtrl );
             assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
     
-            Thread.sleep( 4500 ); // sleep for four seconds and a half so that the password expires
+            mockTimeProvider.addMillis( 4500 ); // sleep for four seconds and a half so that the password expires
     
             // bind for one more time, should succeed
             bindResp = userCon.bind( bindReq );
@@ -896,6 +907,8 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertEquals( 1, respCtrl.getGraceAuthNRemaining() );
     
             // Wait 1 second, we should still be able to bind
+            mockTimeProvider.addMillis( 1000 ); // make sure pwdGraceUseTime uses a different timestamp
+            
             // bind for one last time, should succeed
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
@@ -939,7 +952,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
         {
-            Thread.sleep( 1000 ); // sleep for one second so that the password expire warning will be sent
+            mockTimeProvider.addMillis( 1000 ); // sleep for one second so that the password expire warning will be sent
     
             BindResponse bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
@@ -948,7 +961,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertNotNull( respCtrl );
             assertTrue( respCtrl.getTimeBeforeExpiration() > 0 );
     
-            Thread.sleep( 4000 ); // sleep for four seconds so that the password expires
+            mockTimeProvider.addMillis( 4000 ); // sleep for four seconds so that the password expires
     
             // bind for two more times, should succeed
             bindResp = userCon.bind( bindReq );
@@ -958,7 +971,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             assertEquals( 1, respCtrl.getGraceAuthNRemaining() );
     
             // this extra second sleep is necessary to modify pwdGraceUseTime attribute with a different timestamp
-            Thread.sleep( 1000 );
+            mockTimeProvider.addMillis( 1000 );
             bindResp = userCon.bind( bindReq );
             assertEquals( ResultCodeEnum.SUCCESS, bindResp.getLdapResult().getResultCode() );
             respCtrl = getPwdRespCtrl( bindResp );
@@ -1045,7 +1058,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
-        Thread.sleep( 2000 ); // let the password expire
+        mockTimeProvider.addMillis( 2000 ); // let the password expire
         BindResponse bindResp = userConnection.bind( bindReq );
         assertTrue( userConnection.isAuthenticated() );
         PasswordPolicyResponse ppolicy = getPwdRespCtrl( bindResp );
@@ -1099,6 +1112,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         for ( int i = 0; i < 4; i++ )
         {
+            mockTimeProvider.addMillis( 1 ); // make sure pwdFailureTime uses a different timestamp
             userConnection.bind( bindReq );
             assertFalse( userConnection.isAuthenticated() );
         }
@@ -1107,7 +1121,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         Attribute pwdAccountLockedTime = userEntry.get( PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT );
         assertNotNull( pwdAccountLockedTime );
 
-        Thread.sleep( 10000 );
+        mockTimeProvider.addMillis( 10000 );
         bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
         bindReq.setCredentials( "12345" ); // correct password
@@ -1196,7 +1210,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
                 assertNotNull( pwdAccountLockedTime );
 
                 // Expected : wait 1 second before retrying
-                Thread.sleep( 1000 );
+                mockTimeProvider.addMillis( 1000 );
             }
         }
 
@@ -1239,7 +1253,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertNotNull( pwdFailureTime );
         assertEquals( 1, pwdFailureTime.size() );
 
-        Thread.sleep( 1000 );
+        mockTimeProvider.addMillis( 1000 );
 
         // Second attempt
         checkBind( userConnection, userDn, "badPassword", 1,
@@ -1251,7 +1265,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertNotNull( pwdFailureTime );
         assertEquals( 2, pwdFailureTime.size() );
 
-        Thread.sleep( 1000 );
+        mockTimeProvider.addMillis( 1000 );
 
         // Third attempt
         checkBind( userConnection, userDn, "badPassword", 1,
@@ -1263,7 +1277,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         assertNotNull( pwdFailureTime );
         assertEquals( 2, pwdFailureTime.size() );
 
-        Thread.sleep( 1000 );
+        mockTimeProvider.addMillis( 1000 );
 
         // Forth attempt
         checkBind( userConnection, userDn, "badPassword", 1,
@@ -1306,14 +1320,14 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout,ou=system" );
 
         // Wait 1 second
-        Thread.sleep( 1000L );
+        mockTimeProvider.addMillis( 1000L );
 
         // Retry with the correct password : we should get rejected because it's too early
         checkBind( userConnection, userDn, "12345", 1,
             "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout,ou=system" );
 
         // Wait 1 second and a bit more
-        Thread.sleep( 1200L );
+        mockTimeProvider.addMillis( 1200L );
 
         // Retry : it should work
         userConnection.bind( userDn, "12345" );
@@ -1343,7 +1357,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         }
 
         // Wait 5 seconds now
-        Thread.sleep( 5000 );
+        mockTimeProvider.addMillis( 5000 );
 
         // We shpuld not be able to succeed now
         checkBindFailure( userDn, "12345" );
@@ -1414,6 +1428,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection adminConnection = null;
         LdapConnection userConnection = null;
         LdapConnection userConnection2 = null;
+        
         try {
             String userCn = "userExpireWarningToo";
             Dn userDn = new Dn( "cn=" + userCn + ",ou=system" );
@@ -1563,7 +1578,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
            getPwdRespCtrl( modifyResponse ).getPasswordPolicyError() );
 
        // Wait for the pwdMinAge delay to be over
-       Thread.sleep( 1000 );
+       mockTimeProvider.addMillis( 1000 );
 
        // Now, we should be able to modify the password
        modifyResponse = userConnection.modify( modifyRequest );

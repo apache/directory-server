@@ -41,6 +41,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -77,187 +78,186 @@ import org.junit.runner.RunWith;
 })
 public class ClientModifyRequestTest extends AbstractLdapTestUnit
 {
-private LdapNetworkConnection connection;
-private CoreSession session;
-
-
-@Before
-public void setup() throws Exception
-{
-    connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
-    session = getLdapServer().getDirectoryService().getAdminSession();
-}
-
-
-@After
-public void shutdown() throws Exception
-{
-    LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
-}
-
-
-@Test
-public void testModify() throws Exception
-{
-    Dn dn = new Dn( "uid=admin,ou=system" );
-
-    String expected = String.valueOf( System.currentTimeMillis() );
-    ModifyRequest modRequest = new ModifyRequestImpl();
-    modRequest.setName( dn );
-    modRequest.replace( SchemaConstants.SN_AT, expected );
-
-    connection.modify( modRequest );
-
-    Entry entry = session.lookup( dn );
-
-    String actual = entry.get( SchemaConstants.SN_AT ).getString();
-
-    assertEquals( expected, actual );
-}
-
-
-@Test
-public void testModifyWithEntry() throws Exception
-{
-    Dn dn = new Dn( "uid=admin,ou=system" );
-
-    Entry entry = new DefaultEntry( dn );
-
-    String expectedSn = String.valueOf( System.currentTimeMillis() );
-    String expectedCn = String.valueOf( System.currentTimeMillis() );
-
-    entry.add( SchemaConstants.SN_AT, expectedSn );
-
-    entry.add( SchemaConstants.CN_AT, expectedCn );
-
-    connection.modify( entry, ModificationOperation.REPLACE_ATTRIBUTE );
-
-    Entry lookupEntry = session.lookup( dn );
-
-    String actualSn = lookupEntry.get( SchemaConstants.SN_AT ).getString();
-    assertEquals( expectedSn, actualSn );
-
-    String actualCn = lookupEntry.get( SchemaConstants.CN_AT ).getString();
-    assertEquals( expectedCn, actualCn );
-}
-
-
-@Test
-public void testModifyReplaceRemove() throws Exception
-{
-    Dn dn = new Dn( "uid=admin,ou=system" );
-
-    Entry entry = new DefaultEntry( dn );
-
-    entry.add( "givenName", "test" );
-
-    connection.modify( entry, ModificationOperation.REPLACE_ATTRIBUTE );
-
-    Entry lookupEntry = session.lookup( dn );
-
-    String gn = lookupEntry.get( "givenName" ).getString();
-    assertEquals( "test", gn );
-
-    // Now, replace the givenName
-    ModifyRequest modifyRequest = new ModifyRequestImpl();
-    modifyRequest.setName( dn );
-    modifyRequest.replace( "givenName" );
-    connection.modify( modifyRequest );
-
-    lookupEntry = session.lookup( dn );
-    Attribute giveName = lookupEntry.get( "givenName" );
-    assertNull( giveName );
-}
-
-
-@Test
-public void modifyAsync() throws Exception
-{
-    Dn dn = new Dn( "uid=admin,ou=system" );
-
-    String expected = String.valueOf( System.currentTimeMillis() );
-    ModifyRequest modifyRequest = new ModifyRequestImpl();
-    modifyRequest.setName( dn );
-    modifyRequest.replace( SchemaConstants.SN_AT, expected );
-
-    assertTrue( session.exists( dn ) );
-
-    ModifyFuture modifyFuture = connection.modifyAsync( modifyRequest );
-
-    ModifyResponse response = modifyFuture.get( 1000, TimeUnit.MILLISECONDS );
-
-    assertNotNull( response );
-
-    Entry entry = session.lookup( dn );
-
-    String actual = entry.get( SchemaConstants.SN_AT ).getString();
-
-    assertEquals( expected, actual );
-
-    assertTrue( connection.isAuthenticated() );
-    assertTrue( session.exists( dn ) );
-}
-
-
-/**
- * ApacheDS doesn't allow modifying entryUUID and entryCSN AT
- */
-@Test
-public void testModifyEntryUUIDAndEntryCSN() throws Exception
-{
-    Dn dn = new Dn( "uid=admin,ou=system" );
-
-    ModifyRequest modifyRequest = new ModifyRequestImpl();
-    modifyRequest.setName( dn );
-    modifyRequest.replace( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
-
-    ModifyResponse modResp = connection.modify( modifyRequest );
-    assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
-
-    modifyRequest = new ModifyRequestImpl();
-    modifyRequest.setName( dn );
-    modifyRequest.replace( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
-
-    // admin can modify the entryCsn
-    modResp = connection.modify( modifyRequest );
-    assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
-
-    LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
-
-    Dn bindDn = new Dn( "uid=billyd,ou=users,ou=system" );
-    nonAdminConnection.bind( bindDn.getName(), "secret" );
-
-    // non-admin user cannot modify entryCSN
-    modResp = nonAdminConnection.modify( modifyRequest );
-    assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
-
-    nonAdminConnection.close();
-}
-
-
-/**
- * ApacheDS allows modifying the modifiersName and modifyTimestamp operational AT
- */
-@Test
-public void testModifyModifierNameAndModifyTimestamp() throws Exception
-{
-    Dn dn = new Dn( "uid=admin,ou=system" );
-
-    String modifierName = "uid=x,ou=system";
-    String modifiedTime = DateUtils.getGeneralizedTime();
-
-    ModifyRequest modifyRequest = new ModifyRequestImpl();
-    modifyRequest.setName( dn );
-    modifyRequest.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
-    modifyRequest.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );
-
-    ModifyResponse modResp = connection.modify( modifyRequest );
-    assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
-
-    Entry loadedEntry = connection.lookup( dn.getName(), "+" );
-
-    assertEquals( modifierName, loadedEntry.get( SchemaConstants.MODIFIERS_NAME_AT ).getString() );
-    assertEquals( modifiedTime, loadedEntry.get( SchemaConstants.MODIFY_TIMESTAMP_AT ).getString() );
-}
-
+    private LdapNetworkConnection connection;
+    private CoreSession session;
+    
+    
+    @Before
+    public void setup() throws Exception
+    {
+        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        session = getLdapServer().getDirectoryService().getAdminSession();
+    }
+    
+    
+    @After
+    public void shutdown() throws Exception
+    {
+        LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
+    }
+    
+    
+    @Test
+    public void testModify() throws Exception
+    {
+        Dn dn = new Dn( "uid=admin,ou=system" );
+    
+        String expected = String.valueOf( System.currentTimeMillis() );
+        ModifyRequest modRequest = new ModifyRequestImpl();
+        modRequest.setName( dn );
+        modRequest.replace( SchemaConstants.SN_AT, expected );
+    
+        connection.modify( modRequest );
+    
+        Entry entry = session.lookup( dn );
+    
+        String actual = entry.get( SchemaConstants.SN_AT ).getString();
+    
+        assertEquals( expected, actual );
+    }
+    
+    
+    @Test
+    public void testModifyWithEntry() throws Exception
+    {
+        Dn dn = new Dn( "uid=admin,ou=system" );
+    
+        Entry entry = new DefaultEntry( dn );
+    
+        String expectedSn = String.valueOf( System.currentTimeMillis() );
+        String expectedCn = String.valueOf( System.currentTimeMillis() );
+    
+        entry.add( SchemaConstants.SN_AT, expectedSn );
+    
+        entry.add( SchemaConstants.CN_AT, expectedCn );
+    
+        connection.modify( entry, ModificationOperation.REPLACE_ATTRIBUTE );
+    
+        Entry lookupEntry = session.lookup( dn );
+    
+        String actualSn = lookupEntry.get( SchemaConstants.SN_AT ).getString();
+        assertEquals( expectedSn, actualSn );
+    
+        String actualCn = lookupEntry.get( SchemaConstants.CN_AT ).getString();
+        assertEquals( expectedCn, actualCn );
+    }
+    
+    
+    @Test
+    public void testModifyReplaceRemove() throws Exception
+    {
+        Dn dn = new Dn( "uid=admin,ou=system" );
+    
+        Entry entry = new DefaultEntry( dn );
+    
+        entry.add( "givenName", "test" );
+    
+        connection.modify( entry, ModificationOperation.REPLACE_ATTRIBUTE );
+    
+        Entry lookupEntry = session.lookup( dn );
+    
+        String gn = lookupEntry.get( "givenName" ).getString();
+        assertEquals( "test", gn );
+    
+        // Now, replace the givenName
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( "givenName" );
+        connection.modify( modifyRequest );
+    
+        lookupEntry = session.lookup( dn );
+        Attribute giveName = lookupEntry.get( "givenName" );
+        assertNull( giveName );
+    }
+    
+    
+    @Test
+    public void modifyAsync() throws Exception
+    {
+        Dn dn = new Dn( "uid=admin,ou=system" );
+    
+        String expected = String.valueOf( System.currentTimeMillis() );
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( SchemaConstants.SN_AT, expected );
+    
+        assertTrue( session.exists( dn ) );
+    
+        ModifyFuture modifyFuture = connection.modifyAsync( modifyRequest );
+    
+        ModifyResponse response = modifyFuture.get( 1000, TimeUnit.MILLISECONDS );
+    
+        assertNotNull( response );
+    
+        Entry entry = session.lookup( dn );
+    
+        String actual = entry.get( SchemaConstants.SN_AT ).getString();
+    
+        assertEquals( expected, actual );
+    
+        assertTrue( connection.isAuthenticated() );
+        assertTrue( session.exists( dn ) );
+    }
+    
+    
+    /**
+     * ApacheDS doesn't allow modifying entryUUID and entryCSN AT
+     */
+    @Test
+    public void testModifyEntryUUIDAndEntryCSN() throws Exception
+    {
+        Dn dn = new Dn( "uid=admin,ou=system" );
+    
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( SchemaConstants.ENTRY_UUID_AT, UUID.randomUUID().toString() );
+    
+        ModifyResponse modResp = connection.modify( modifyRequest );
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
+    
+        modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( SchemaConstants.ENTRY_CSN_AT, new CsnFactory( 0 ).newInstance().toString() );
+    
+        // admin can modify the entryCsn
+        modResp = connection.modify( modifyRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+    
+        LdapNetworkConnection nonAdminConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+    
+        Dn bindDn = new Dn( "uid=billyd,ou=users,ou=system" );
+        nonAdminConnection.bind( bindDn.getName(), "secret" );
+    
+        // non-admin user cannot modify entryCSN
+        modResp = nonAdminConnection.modify( modifyRequest );
+        assertEquals( ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, modResp.getLdapResult().getResultCode() );
+    
+        nonAdminConnection.close();
+    }
+    
+    
+    /**
+     * ApacheDS allows modifying the modifiersName and modifyTimestamp operational AT
+     */
+    @Test
+    public void testModifyModifierNameAndModifyTimestamp() throws Exception
+    {
+        Dn dn = new Dn( "uid=admin,ou=system" );
+    
+        String modifierName = "uid=x,ou=system";
+        String modifiedTime = DateUtils.getGeneralizedTime( TimeProvider.DEFAULT );
+    
+        ModifyRequest modifyRequest = new ModifyRequestImpl();
+        modifyRequest.setName( dn );
+        modifyRequest.replace( SchemaConstants.MODIFIERS_NAME_AT, modifierName );
+        modifyRequest.replace( SchemaConstants.MODIFY_TIMESTAMP_AT, modifiedTime );
+    
+        ModifyResponse modResp = connection.modify( modifyRequest );
+        assertEquals( ResultCodeEnum.SUCCESS, modResp.getLdapResult().getResultCode() );
+    
+        Entry loadedEntry = connection.lookup( dn.getName(), "+" );
+    
+        assertEquals( modifierName, loadedEntry.get( SchemaConstants.MODIFIERS_NAME_AT ).getString() );
+        assertEquals( modifiedTime, loadedEntry.get( SchemaConstants.MODIFY_TIMESTAMP_AT ).getString() );
+    }
 }
