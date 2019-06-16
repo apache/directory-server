@@ -719,6 +719,44 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     //---------------------------------------------------------------------------------------------
     // The Add operation
     //---------------------------------------------------------------------------------------------
+    private ParentIdAndRdn getParentId( PartitionTxn partitionTxn, Dn entryDn ) throws LdapException
+    {
+        Dn parentDn = null;
+        ParentIdAndRdn key;
+        String parentId = null;
+
+        if ( entryDn.getNormName().equals( suffixDn.getNormName() ) )
+        {
+            parentId = Partition.ROOT_ID;
+            key = new ParentIdAndRdn( parentId, suffixDn.getRdns() );
+        }
+        else
+        {
+            parentDn = entryDn.getParent();
+
+            lockRead();
+
+            try
+            {
+                parentId = getEntryId( partitionTxn, parentDn );
+            }
+            finally
+            {
+                unlockRead();
+            }
+
+            if ( parentId == null )
+            {
+                return null;
+            }
+            
+            key = new ParentIdAndRdn( parentId, entryDn.getRdn() );
+        }
+        
+        return key;
+    }
+    
+    
     /**
      * {@inheritDoc}
      */
@@ -738,11 +776,24 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             Dn entryDn = entry.getDn();
 
             // check if the entry already exists
+            ParentIdAndRdn parentIdAndRdn = getParentId( partitionTxn, entryDn );
+            
+            // don't keep going if we cannot find the parent Id
+            if ( parentIdAndRdn == null )
+            {
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216_ID_FOR_PARENT_NOT_FOUND, 
+                    parentIdAndRdn ) );
+            }
+
+            String parentId = parentIdAndRdn.getParentId();
+
             lockRead();
 
             try
             {
-                if ( getEntryId( partitionTxn, entryDn ) != null )
+                ParentIdAndRdn currentRdn = new ParentIdAndRdn( parentId, entryDn.getRdn() );
+                
+                if ( rdnIdx.forwardLookup( partitionTxn, currentRdn ) != null )
                 {
                     throw new LdapEntryAlreadyExistsException(
                         I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
@@ -751,45 +802,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             finally
             {
                 unlockRead();
-            }
-
-            String parentId = null;
-
-            //
-            // Suffix entry cannot have a parent since it is the root so it is
-            // capped off using the zero value which no entry can have since
-            // entry sequences start at 1.
-            //
-            Dn parentDn = null;
-            ParentIdAndRdn key;
-
-            if ( entryDn.getNormName().equals( suffixDn.getNormName() ) )
-            {
-                parentId = Partition.ROOT_ID;
-                key = new ParentIdAndRdn( parentId, suffixDn.getRdns() );
-            }
-            else
-            {
-                parentDn = entryDn.getParent();
-
-                lockRead();
-
-                try
-                {
-                    parentId = getEntryId( partitionTxn, parentDn );
-                }
-                finally
-                {
-                    unlockRead();
-                }
-
-                key = new ParentIdAndRdn( parentId, entryDn.getRdn() );
-            }
-
-            // don't keep going if we cannot find the parent Id
-            if ( parentId == null )
-            {
-                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216_ID_FOR_PARENT_NOT_FOUND, parentDn ) );
             }
 
             // Get a new UUID for the added entry if it does not have any already
@@ -899,7 +911,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             try
             {
                 // Update the RDN index
-                rdnIdx.add( partitionTxn, key, id );
+                rdnIdx.add( partitionTxn, parentIdAndRdn, id );
 
                 // Update the parent's nbChildren and nbDescendants values
                 if ( parentId != Partition.ROOT_ID )
