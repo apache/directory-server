@@ -144,13 +144,11 @@ pipeline {
       }
       // https://cwiki.apache.org/confluence/display/INFRA/JDK+Installation+Matrix
       // https://cwiki.apache.org/confluence/display/INFRA/Maven+Installation+Matrix
-      // TODO: do not deploy before merged to master
       steps {
         sh '''
         export JAVA_HOME=/home/jenkins/tools/java/latest1.8
         export MAVEN_OPTS="-Xmx512m"
-        #/home/jenkins/tools/maven/latest3/bin/mvn -V -U clean install source:jar deploy
-        /home/jenkins/tools/maven/latest3/bin/mvn -V -U clean install source:jar -DskipTests
+        /home/jenkins/tools/maven/latest3/bin/mvn -V -U clean install source:jar deploy
         '''
       }
       post {
