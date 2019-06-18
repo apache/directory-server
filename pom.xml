@@ -88,7 +88,7 @@
     <wrapper.version>3.2.3</wrapper.version>
   </properties>
 
-  <url>http://directory.apache.org/apacheds/1.5</url>
+  <url>https://directory.apache.org/apacheds/1.5</url>
 
   <distributionManagement>
     <site>
@@ -99,7 +99,7 @@
 
   <issueManagement>
     <system>JIRA</system>
-    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
+    <url>https://issues.apache.org/jira/browse/DIRSERVER</url>
   </issueManagement>
   
   <modules>
