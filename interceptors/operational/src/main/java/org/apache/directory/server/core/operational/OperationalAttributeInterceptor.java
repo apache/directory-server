@@ -674,11 +674,14 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         AttributeTypeOptions nbChildrenAto = new AttributeTypeOptions( nbChildrenAt );
         AttributeType nbSubordinatesAt = directoryService.getAtProvider().getNbSubordinates();
         AttributeTypeOptions nbSubordinatesAto = new AttributeTypeOptions( nbSubordinatesAt );
+        AttributeType hasSubordinatesAt = directoryService.getAtProvider().getHasSubordinates();
+        AttributeTypeOptions hasSubordinatesAto = new AttributeTypeOptions( hasSubordinatesAt );
         
         if ( returningAttributes != null )
         {
             boolean nbChildrenRequested = returningAttributes.contains( nbChildrenAto ) || allAttributes;
             boolean nbSubordinatesRequested = returningAttributes.contains( nbSubordinatesAto ) || allAttributes;
+            boolean hasSubordinatesRequested = returningAttributes.contains( hasSubordinatesAto ) || allAttributes;
 
             if ( nbChildrenRequested || nbSubordinatesRequested )
             {
@@ -698,6 +701,15 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 { 
                     entry.add( new DefaultAttribute( nbSubordinatesAt,
                         Long.toString( nbSubordinates ) ) );
+                }
+                
+                if ( hasSubordinatesRequested )
+                { 
+                    entry.add( new DefaultAttribute( hasSubordinatesAt, "TRUE" ) );
+                }
+                else
+                {
+                    entry.add( new DefaultAttribute( hasSubordinatesAt, "FALSE" ) );
                 }
             }
         }

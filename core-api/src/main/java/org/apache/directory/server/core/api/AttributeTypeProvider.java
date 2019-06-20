@@ -55,6 +55,7 @@ public class AttributeTypeProvider
     private final AttributeType userPassword;
     private final AttributeType nbChildren;
     private final AttributeType nbSubordinates;
+    private final AttributeType hasSubordinates;
 
     private final AttributeType[] subentryOperationalAttributes;
 
@@ -86,6 +87,7 @@ public class AttributeTypeProvider
         userPassword = schemaManager.getAttributeType( SchemaConstants.USER_PASSWORD_AT_OID );
         nbChildren = schemaManager.getAttributeType( ApacheSchemaConstants.NB_CHILDREN_OID );
         nbSubordinates = schemaManager.getAttributeType( ApacheSchemaConstants.NB_SUBORDINATES_OID );
+        hasSubordinates = schemaManager.getAttributeType( SchemaConstants.HAS_SUBORDINATES_AT );
 
         subentryOperationalAttributes = new AttributeType[]
             {
@@ -292,6 +294,15 @@ public class AttributeTypeProvider
     public AttributeType getNbSubordinates()
     {
         return nbSubordinates;
+    }
+
+
+    /**
+     * @return the operational attributes of a hasSubordinates
+     */
+    public AttributeType getHasSubordinates()
+    {
+        return hasSubordinates;
     }
 
 

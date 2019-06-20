@@ -2145,4 +2145,39 @@ public class SearchIT extends AbstractLdapTestUnit
         assertEquals(3, count);
         cursor.close();
     }
+
+
+    @Test
+    public void testSearchSubordinates() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[]
+            { "+", "*" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
+            .getJndiValue() );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration<SearchResult> list = sysRoot.search( "ou=testing01", "(ObjectClass=*)", controls );
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        list.close();
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+
+        Attributes attrs = map.get( "ou=testing01,ou=system" );
+
+        assertNotNull( attrs.get( "createTimestamp" ) );
+        assertNotNull( attrs.get( "creatorsName" ) );
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "ou" ) );
+        assertNotNull( attrs.get( "hasSubordinates" ) );
+        assertEquals( "TRUE", attrs.get( "hasSubordinates" ).get() );
+    }
 }
