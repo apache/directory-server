@@ -120,8 +120,10 @@ public class UberJarMainTest
             
             keyStore.setKeyEntry( "apachedsKey", keyPair.getPrivate(), keyStorePassword, new X509Certificate[] { certificate } );
             
-            FileOutputStream out = new FileOutputStream( keyStoreFile );
-            keyStore.store( out, keyStorePassword );
+            try ( FileOutputStream out = new FileOutputStream( keyStoreFile ) )
+            {
+                keyStore.store( out, keyStorePassword );
+            }
         }
         catch ( Exception e )
         {

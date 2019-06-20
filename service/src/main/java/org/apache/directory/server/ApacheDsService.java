@@ -249,8 +249,10 @@ public class ApacheDsService
                 
                 keyStore.setKeyEntry( "apachedsKey", keyPair.getPrivate(), keyStorePassword, new X509Certificate[] { certificate } );
                 
-                FileOutputStream out = new FileOutputStream( ldapServerKeystoreFile );
-                keyStore.store( out, keyStorePassword );
+                try ( FileOutputStream out = new FileOutputStream( ldapServerKeystoreFile ) )
+                {
+                    keyStore.store( out, keyStorePassword );
+                }
             }
             
             ldapServerBean.setLdapServerKeystoreFile( ldapServerKeystoreFile.getAbsolutePath() );

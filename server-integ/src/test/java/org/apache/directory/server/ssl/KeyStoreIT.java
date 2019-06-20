@@ -89,7 +89,10 @@ public class KeyStoreIT extends AbstractLdapTestUnit
         goodKeyStore.setCertificateEntry( "apacheds", cert );
         goodKeyStore.setKeyEntry( "apacheds", keyPair.getPrivate(), KEYSTORE_PW.toCharArray(), new Certificate[]
             { cert } );
-        goodKeyStore.store( new FileOutputStream( goodKeyStoreFile ), KEYSTORE_PW.toCharArray() );
+        try ( FileOutputStream out = new FileOutputStream( goodKeyStoreFile ) )
+        {
+            goodKeyStore.store( out, KEYSTORE_PW.toCharArray() );
+        }
 
         // Create the empty key store
         File emptyKeyStoreFile = new File( BAD_KEYSTORE_WITH_ZERO_ENTRIES );
@@ -99,7 +102,10 @@ public class KeyStoreIT extends AbstractLdapTestUnit
         }
         KeyStore emptyKeyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
         emptyKeyStore.load( null, null );
-        emptyKeyStore.store( new FileOutputStream( emptyKeyStoreFile ), KEYSTORE_PW.toCharArray() );
+        try ( FileOutputStream out = new FileOutputStream( emptyKeyStoreFile ) )
+        {
+            emptyKeyStore.store( new FileOutputStream( emptyKeyStoreFile ), KEYSTORE_PW.toCharArray() );
+        }
 
         // Create the bad key store with two entries
         File twoEntiesKeyStoreFile = new File( BAD_KEYSTORE_WITH_TWO_ENTRIES );
@@ -112,7 +118,10 @@ public class KeyStoreIT extends AbstractLdapTestUnit
         twoEntiesKeyStore.setCertificateEntry( "foo123", cert );
         twoEntiesKeyStore.setKeyEntry( "apacheds", keyPair.getPrivate(), KEYSTORE_PW.toCharArray(), new Certificate[]
             { cert } );
-        twoEntiesKeyStore.store( new FileOutputStream( twoEntiesKeyStoreFile ), KEYSTORE_PW.toCharArray() );
+        try ( FileOutputStream out = new FileOutputStream( twoEntiesKeyStoreFile ) )
+        {
+            twoEntiesKeyStore.store( out, KEYSTORE_PW.toCharArray() );
+        }
     }
 
 
