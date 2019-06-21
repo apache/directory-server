@@ -52,8 +52,10 @@ import org.junit.runner.RunWith;
         // Entry # 1
         "dn: cn=test,ou=system",
         "objectClass: person",
+        "objectClass: inetorgPerson",
         "cn: test",
-        "sn: sn_test" })
+        "sn: sn_test",
+        })
 public class LookupIT extends AbstractLdapTestUnit
 {
     /** The ldap connection */
@@ -104,8 +106,8 @@ public class LookupIT extends AbstractLdapTestUnit
         Entry entry = connection.lookup( "cn=test,ou=system", "+" );
         assertNotNull( entry );
         
-        // We should have 6 attributes
-        assertEquals( 8, entry.size() );
+        // We should have 9 attributes
+        assertEquals( 10, entry.size() );
 
         // Check that all the user attributes are absent
         assertNull( entry.get( "cn" ) );
@@ -129,6 +131,8 @@ public class LookupIT extends AbstractLdapTestUnit
         assertNotNull( entry.get( "entryDn" ));
         assertNotNull( entry.get( "nbChildren" ));
         assertNotNull( entry.get( "nbSubordinates" ));
+        assertNotNull( entry.get( "hasSubordinates" ));
+        assertNotNull( entry.get( "structuralObjectClass" ));
         assertEquals( "cn=test,ou=system", entry.get( "entryDn" ).getString() );
     }
 
@@ -264,20 +268,21 @@ public class LookupIT extends AbstractLdapTestUnit
         
         assertNotNull( entry );
 
-        // We should have 11 attributes
-        assertEquals( 11, entry.size() );
-        assertTrue( entry.containsAttribute( "nbChildren", "nbSubordinates" ) );
+        // We should have 13 attributes
+        assertEquals( 13, entry.size() );
+        assertTrue( entry.containsAttribute( "nbChildren", "nbSubordinates", "hasSubordinates", "structuralObjectClass" ) );
         assertEquals( 0L, Long.parseLong( entry.get( "nbChildren" ).getString() ) );
         assertEquals( 0L, Long.parseLong( entry.get( "nbSubordinates" ).getString() ) );
-        
+        assertEquals( "FALSE", entry.get( "hasSubordinates" ).getString() );
+
         // Now lookup for the "ou=system"
         entry = connection.lookup( "ou=system", "*", "+" );
         
         assertNotNull( entry );
 
-        // We should have 11 attributes
-        assertEquals( 11, entry.size() );
-        assertTrue( entry.containsAttribute( "nbChildren", "nbSubordinates" ) );
+        // We should have 12 attributes
+        assertEquals( 13, entry.size() );
+        assertTrue( entry.containsAttribute( "nbChildren", "nbSubordinates", "hasSubordinates", "structuralObjectClass" ) );
 
         // we will have 6 children :
         // - ou=configuration
@@ -289,6 +294,7 @@ public class LookupIT extends AbstractLdapTestUnit
         // and 10 subordinates, as we have 3 children under ou=configuration and one under ou=groups
         assertEquals( 6L, Long.parseLong( entry.get( "nbChildren" ).getString() ) );
         assertEquals( 10L, Long.parseLong( entry.get( "nbSubordinates" ).getString() ) );
+        assertEquals( "TRUE", entry.get( "hasSubordinates" ).getString() );
         
         // Check with only one of the two attributes 
         entry = connection.lookup( "ou=system", "nbChildren" );
@@ -321,5 +327,54 @@ public class LookupIT extends AbstractLdapTestUnit
 
         // we will have 10 subordinates
         assertEquals( 10L, Long.parseLong( entry.get( "nbSubordinates" ).getString() ) );
+    }
+    
+    
+    @Test
+    public void testLookupStructuralObjectClass() throws LdapException
+    {
+        Entry entry = connection.lookup( "cn=test,ou=system", "*", "+" );
+        
+        assertNotNull( entry );
+
+        // We should have 12 attributes
+        assertEquals( 13, entry.size() );
+        assertTrue( entry.containsAttribute( "nbChildren", "nbSubordinates", "hasSubordinates", "structuralObjectClass" ) );
+        assertEquals( 0L, Long.parseLong( entry.get( "nbChildren" ).getString() ) );
+        assertEquals( 0L, Long.parseLong( entry.get( "nbSubordinates" ).getString() ) );
+        assertEquals( "FALSE", entry.get( "hasSubordinates" ).getString() );
+        assertEquals( "inetOrgPerson", entry.get( "structuralObjectClass" ).getString() );
+
+        // Now lookup for the "ou=system"
+        entry = connection.lookup( "ou=system", "*", "+" );
+        
+        assertNotNull( entry );
+
+        // We should have 13 attributes
+        assertEquals( 13, entry.size() );
+        assertTrue( entry.containsAttribute( "nbChildren", "nbSubordinates", "hasSubordinates", "structuralObjectClass" ) );
+
+        // we will have 6 children :
+        // - ou=configuration
+        // - ou=consumer
+        // - ou = groups
+        // - ou=users
+        // - ou=prefNodeNames
+        // - uid=admin
+        // and 10 subordinates, as we have 3 children under ou=configuration and one under ou=groups
+        assertEquals( 6L, Long.parseLong( entry.get( "nbChildren" ).getString() ) );
+        assertEquals( 10L, Long.parseLong( entry.get( "nbSubordinates" ).getString() ) );
+        assertEquals( "TRUE", entry.get( "hasSubordinates" ).getString() );
+        assertEquals( "organizationalUnit", entry.get( "structuralObjectClass" ).getString() );
+        
+        // Check with only one of the two attributes 
+        entry = connection.lookup( "ou=system", "structuralObjectClass" );
+        
+        assertNotNull( entry );
+
+        // We should have 1 attributes
+        assertEquals( 1, entry.size() );
+        assertTrue( entry.containsAttribute( "structuralObjectClass" ) );
+        assertEquals( "organizationalUnit", entry.get( "structuralObjectClass" ).getString() );
     }
 }

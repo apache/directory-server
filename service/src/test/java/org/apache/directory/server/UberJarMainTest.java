@@ -73,7 +73,6 @@ public class UberJarMainTest
     private UberjarMain uberjarMain;
     
     private KeyStore keyStore;
-    private File keyStoreFile;
 
     @Before
     public void create()

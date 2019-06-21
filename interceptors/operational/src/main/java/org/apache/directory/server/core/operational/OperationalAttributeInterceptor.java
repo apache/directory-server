@@ -20,7 +20,9 @@
 package org.apache.directory.server.core.operational;
 
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -40,6 +42,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
+import org.apache.directory.api.ldap.model.schema.ObjectClass;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
@@ -676,14 +679,18 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         AttributeTypeOptions nbSubordinatesAto = new AttributeTypeOptions( nbSubordinatesAt );
         AttributeType hasSubordinatesAt = directoryService.getAtProvider().getHasSubordinates();
         AttributeTypeOptions hasSubordinatesAto = new AttributeTypeOptions( hasSubordinatesAt );
+        AttributeType structuralObjectClassAt = directoryService.getAtProvider().getStructuralObjectClass();
+        AttributeTypeOptions structuralObjectClassAto = new AttributeTypeOptions( structuralObjectClassAt );
         
         if ( returningAttributes != null )
         {
             boolean nbChildrenRequested = returningAttributes.contains( nbChildrenAto ) || allAttributes;
             boolean nbSubordinatesRequested = returningAttributes.contains( nbSubordinatesAto ) || allAttributes;
             boolean hasSubordinatesRequested = returningAttributes.contains( hasSubordinatesAto ) || allAttributes;
+            boolean structuralObjectClassRequested = returningAttributes.contains( structuralObjectClassAto ) || allAttributes;
 
-            if ( nbChildrenRequested || nbSubordinatesRequested )
+            if ( nbChildrenRequested || nbSubordinatesRequested || hasSubordinatesRequested 
+                || structuralObjectClassRequested )
             {
                 Partition partition = directoryService.getPartitionNexus().getPartition( entry.getDn() );
                 Subordinates subordinates = partition.getSubordinates( operationContext.getTransaction(), entry );
@@ -691,25 +698,77 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                 long nbChildren = subordinates.getNbChildren();
                 long nbSubordinates = subordinates.getNbSubordinates();
                 
+                // Inject the nbChildren OpAttr if needed
                 if ( nbChildrenRequested )
                 {
                     entry.add( new DefaultAttribute( nbChildrenAt, 
                         Long.toString( nbChildren ) ) );
                 }
     
+                // Inject the nbSubordinates OpAttr if needed
                 if ( nbSubordinatesRequested )
                 { 
                     entry.add( new DefaultAttribute( nbSubordinatesAt,
                         Long.toString( nbSubordinates ) ) );
                 }
                 
+                // Inject the hasSubordinates OpAttr if needed
                 if ( hasSubordinatesRequested )
                 { 
-                    entry.add( new DefaultAttribute( hasSubordinatesAt, "TRUE" ) );
+                    if ( nbSubordinates > 0 )
+                    {
+                        entry.add( new DefaultAttribute( hasSubordinatesAt, "TRUE" ) );
+                    }
+                    else
+                    {
+                        entry.add( new DefaultAttribute( hasSubordinatesAt, "FALSE" ) );
+                    }
                 }
-                else
+
+                // Inject the structuralObjectclass OpAttr if needed
+                if ( structuralObjectClassRequested )
                 {
-                    entry.add( new DefaultAttribute( hasSubordinatesAt, "FALSE" ) );
+                    Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+                    Map<String, ObjectClass> superiors = new HashMap<>();
+                    ObjectClass[] objectClassArray = new ObjectClass[objectClasses.size()];
+                    int nbStructural = 0;
+                    
+                    // First get all the structural objectClasses
+                    for ( Value objectClassValue : objectClasses )
+                    {
+                        ObjectClass objectClass = 
+                            schemaManager.getObjectClassRegistry().get( objectClassValue.getNormalized() );
+                        
+                        if ( objectClass.isStructural() )
+                        {
+                            objectClassArray[nbStructural++] = objectClass;
+                            
+                            // We can only have one superior objectClass for Structural ObjectClass
+                            superiors.put( objectClass.getSuperiors().get( 0 ).getOid(), objectClass );
+                        }
+                    }
+
+                    // Then find the top of them
+                    if ( nbStructural == 1 )
+                    {
+                        entry.add( new DefaultAttribute( structuralObjectClassAt, 
+                            objectClassArray[0].getName() ) );
+                    }
+                    else
+                    {
+                        ObjectClass topStructural = objectClassArray[0];
+
+                        for ( ObjectClass oc : objectClassArray )
+                        {
+                            if ( !superiors.containsKey( oc.getOid() ) )
+                            {
+                                // We are done : the current OC is not the superior of any other
+                                // OC, this is necessarily the top level one
+                                entry.add( new DefaultAttribute( structuralObjectClassAt, oc.getName() ) );
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }

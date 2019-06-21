@@ -2148,7 +2148,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     @Test
-    public void testSearchSubordinates() throws Exception
+    public void testSearchHasSubordinates() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
