@@ -204,7 +204,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     {
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
         {
-            for ( int i = 0; i < 100; i++ )
+            for ( int i = 0; i < 10; i++ )
             {
                 connection.connect();
                 assertTrue( connection.isConnected() );
@@ -371,7 +371,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     {
         try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
         {
-            for ( int i = 0; i < 100; i++ )
+            for ( int i = 0; i < 10; i++ )
             {
                 connection.startTls();
                 assertTrue( connection.isConnected() );

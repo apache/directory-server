@@ -123,7 +123,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         try ( LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
             getLdapServer().getPort() ) )
         {
-            for ( int i = 0; i < 1000; i++ )
+            for ( int i = 0; i < 100; i++ )
             {
                 connection.bind( "uid=admin,ou=system", "secret" );
                 assertTrue( connection.isAuthenticated() );
@@ -144,7 +144,7 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
         try ( LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
             getLdapServer().getPort() ) )
         {
-            for ( int i = 0; i < 1000; i++ )
+            for ( int i = 0; i < 100; i++ )
             {
                 connection.bind( "uid=admin,ou=system", "secret" );
                 assertTrue( connection.isAuthenticated() );
@@ -324,7 +324,7 @@ public void testLookup() throws Exception
     {
         try ( LdapConnection connection = new LdapNetworkConnection( "notexisting", 1234 ) )
         {
-            connection.setTimeOut( 1000L );
+            connection.setTimeOut( 10000L );
             connection.connect();
         }
         catch ( Exception e )
@@ -342,7 +342,7 @@ public void testLookup() throws Exception
     {
         try ( LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, 123 ) )
         {
-            connection.setTimeOut( 1000L );
+            connection.setTimeOut( 10000L );
             connection.connect();
         }
         catch ( Exception e )
