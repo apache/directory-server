@@ -837,7 +837,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
             {
                 long tt1 = System.currentTimeMillis();
 
-                System.out.println( i + ", " + ( tt1 - tt0 ) );
+                // System.out.println( i + ", " + ( tt1 - tt0 ) );
                 tt0 = tt1;
             }
 
@@ -863,8 +863,8 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
         long t1 = System.currentTimeMillis();
 
         Long deltaWarmed = ( t1 - t00 );
-        System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500 ) * 1000 ) / deltaWarmed )
-            + " per s ) /" + ( t1 - t0 ) );
+        // System.out.println( "Delta : " + deltaWarmed + "( " + ( ( ( nbIterations - 500 ) * 1000 ) / deltaWarmed )
+        //    + " per s ) /" + ( t1 - t0 ) );
 
 
         // Now search the entry from the root
