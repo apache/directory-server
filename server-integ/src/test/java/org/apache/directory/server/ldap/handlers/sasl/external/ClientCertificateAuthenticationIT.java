@@ -139,14 +139,16 @@ public class ClientCertificateAuthenticationIT extends AbstractLdapTestUnit
             TlsKeyGenerator.addKeyPair( entry, issuerDn, subjectDn, startDate, expiryDate, keyAlgo, keySize, null );
 
             // prepare socket factory to provide client certificate
-            try ( ByteArrayInputStream in = new ByteArrayInputStream( TlsKeyGenerator.getCertificate( entry ).getEncoded() ) )
+            try (
+                ByteArrayInputStream in = new ByteArrayInputStream( TlsKeyGenerator.getCertificate( entry ).getEncoded() );
+                FileOutputStream out = new FileOutputStream( ClientCertificateSslSocketFactory.ksFile ) )
             {
                 CertificateFactory factory = CertificateFactory.getInstance( "X.509" );
                 Certificate cert = factory.generateCertificate( in );
                 KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
                 ks.load( null, null );
                 ks.setKeyEntry("apacheds", TlsKeyGenerator.getKeyPair( entry ).getPrivate(), ClientCertificateSslSocketFactory.ksPassword, new Certificate[] { cert } );
-                ks.store( new FileOutputStream( ClientCertificateSslSocketFactory.ksFile ), ClientCertificateSslSocketFactory.ksPassword );
+                ks.store( out, ClientCertificateSslSocketFactory.ksPassword );
             }
 
             // set certificte to testuser

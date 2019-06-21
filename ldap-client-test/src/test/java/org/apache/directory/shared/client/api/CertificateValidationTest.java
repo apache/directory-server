@@ -158,7 +158,10 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
         keyStore.setCertificateEntry( "apacheds", cert );
         keyStore.setKeyEntry( "apacheds", keyPair.getPrivate(), KEYSTORE_PW.toCharArray(), new Certificate[]
             { cert } );
-        keyStore.store( new FileOutputStream( goodKeyStoreFile ), KEYSTORE_PW.toCharArray() );
+        try ( FileOutputStream out = new FileOutputStream( goodKeyStoreFile ) )
+        {
+            keyStore.store( out, KEYSTORE_PW.toCharArray() );
+        }
         return keyStore;
     }
 
