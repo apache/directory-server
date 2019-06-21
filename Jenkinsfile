@@ -88,6 +88,7 @@ pipeline {
           }
           post {
             always {
+              junit '**/target/surefire-reports/*.xml'
               deleteDir()
             }
           }
@@ -108,6 +109,7 @@ pipeline {
           }
           post {
             always {
+              junit '**/target/surefire-reports/*.xml'
               deleteDir()
             }
           }
@@ -124,11 +126,12 @@ pipeline {
             bat '''
             set JAVA_HOME=F:\\jenkins\\tools\\java\\latest1.8
             set MAVEN_OPTS="-Xmx512m"
-            F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V -U clean verify -DskipTests
+            F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V -U clean verify
             '''
           }
           post {
             always {
+              junit '**/target/surefire-reports/*.xml'
               deleteDir()
             }
           }
