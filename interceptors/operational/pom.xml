@@ -117,6 +117,7 @@
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.schema.registries;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.schema;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},
                 org.apache.directory.server.constants;version=${project.version},
