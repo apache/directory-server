@@ -315,7 +315,7 @@ public final class CertificateUtil
         NoSuchAlgorithmException, CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException
     {
         // Create a temporary keystore, be sure to remove it when exiting the test
-        File keyStoreFile = File.createTempFile( keyStoreName, "ks" );
+        File keyStoreFile = Files.createTempFile( keyStoreName, "ks" ).toFile();
         keyStoreFile.deleteOnExit();
         
         KeyStore keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );

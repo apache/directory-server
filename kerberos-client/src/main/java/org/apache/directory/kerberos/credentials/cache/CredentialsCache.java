@@ -139,7 +139,7 @@ public class CredentialsCache
 
     public static void main( String[] args ) throws IOException
     {
-        String dumpFile = File.createTempFile( "credCache-", ".cc" ).getAbsolutePath();
+        String dumpFile = Files.createTempFile( "credCache-", ".cc" ).toFile().getAbsolutePath();
         System.out.println( "This tool tests CredentialsCache reading and writing, " +
             "and will load the built-in sample credentials cache by default, and dump to " + dumpFile );
 
