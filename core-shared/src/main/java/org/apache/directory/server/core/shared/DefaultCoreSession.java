@@ -23,6 +23,7 @@ package org.apache.directory.server.core.shared;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1422,7 +1423,7 @@ public class DefaultCoreSession implements CoreSession
         
         try 
         {
-            file = File.createTempFile( "replica", ".sorted-data" );    // see DIRSERVER-2007
+            file = Files.createTempFile( "replica", ".sorted-data" ).toFile();    // see DIRSERVER-2007
         } 
         catch ( IOException e ) 
         {
