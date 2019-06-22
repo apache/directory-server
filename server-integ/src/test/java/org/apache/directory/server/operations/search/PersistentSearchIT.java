@@ -192,6 +192,7 @@ public class PersistentSearchIT extends AbstractLdapTestUnit
 
         listener.close();
         ctx.close();
+        t.join( 10000L );
 
         while ( !eventService.getRegistrationEntries().isEmpty() )
         {
