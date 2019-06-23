@@ -24,7 +24,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.directory.server.installers.archive.ArchiveInstallerCommand;
 import org.apache.directory.server.installers.archive.ArchiveTarget;
@@ -114,13 +113,6 @@ public class GenerateMojo extends AbstractMojo
      * @parameter
      */
     private ArchiveTarget[] archiveTargets;
-
-    /**
-     * The exclusions.
-     * 
-     * @parameter
-     */
-    private Set<String> excludes;
 
     /**
      *  The dpkg utility executable.
@@ -301,17 +293,6 @@ public class GenerateMojo extends AbstractMojo
     public MavenProject getProject()
     {
         return project;
-    }
-
-
-    /**
-     * Gets the excluded artifacts.
-     *
-     * @return the excluded artifacts
-     */
-    public Set<String> getExcludes()
-    {
-        return excludes;
     }
 
 
