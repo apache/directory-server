@@ -30,7 +30,7 @@ pipeline {
     stage ('Debug') {
       options {
         timeout(time: 1, unit: 'HOURS')
-        retry(1)
+        retry(2)
       }
       agent {
         docker {
@@ -53,7 +53,7 @@ pipeline {
         stage ('Linux Java 8') {
           options {
             timeout(time: 4, unit: 'HOURS')
-            retry(1)
+            retry(2)
           }
           agent {
             docker {
@@ -77,7 +77,7 @@ pipeline {
         stage ('Linux Java 11') {
           options {
             timeout(time: 4, unit: 'HOURS')
-            retry(1)
+            retry(2)
           }
           agent {
             docker {
@@ -99,7 +99,7 @@ pipeline {
         stage ('Linux Java 12') {
           options {
             timeout(time: 4, unit: 'HOURS')
-            retry(1)
+            retry(2)
           }
           agent {
             docker {
@@ -121,7 +121,7 @@ pipeline {
         stage ('Windows Java 8') {
           options {
             timeout(time: 4, unit: 'HOURS')
-            retry(1)
+            retry(2)
           }
           agent {
             label 'Windows'
@@ -146,7 +146,7 @@ pipeline {
     stage ('Deploy') {
       options {
         timeout(time: 4, unit: 'HOURS')
-        retry(1)
+        retry(2)
       }
       agent {
         label 'ubuntu'
@@ -169,7 +169,7 @@ pipeline {
     stage ('Build Installers') {
       options {
         timeout(time: 2, unit: 'HOURS')
-        retry(1)
+        retry(2)
       }
       agent {
         docker {
@@ -199,7 +199,7 @@ pipeline {
         stage ('deb') {
           options {
             timeout(time: 2, unit: 'HOURS')
-            retry(1)
+            retry(2)
           }
           agent {
             label 'ubuntu'
@@ -217,7 +217,7 @@ pipeline {
         stage ('rpm') {
           options {
             timeout(time: 2, unit: 'HOURS')
-            retry(1)
+            retry(2)
           }
           agent {
             label 'ubuntu'
@@ -235,7 +235,7 @@ pipeline {
         stage ('bin') {
           options {
             timeout(time: 2, unit: 'HOURS')
-            retry(1)
+            retry(2)
           }
           agent {
             label 'ubuntu'
@@ -253,7 +253,7 @@ pipeline {
         stage ('archive') {
           options {
             timeout(time: 2, unit: 'HOURS')
-            retry(1)
+            retry(2)
           }
           agent {
             label 'ubuntu'
