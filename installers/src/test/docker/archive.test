@@ -122,7 +122,7 @@ fi
 # assert password warning in log
 grep ".*WARN.*admin password.*security breach.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
 # assert no error in log
-#! grep ".*ERROR.*" /opt/${DIRNAME}/instances/default/log/apacheds.log
+grep ".*ERROR.*" /opt/${DIRNAME}/instances/default/log/apacheds.log && false
 
 # SUCCESS
 echo "SUCCESS"
