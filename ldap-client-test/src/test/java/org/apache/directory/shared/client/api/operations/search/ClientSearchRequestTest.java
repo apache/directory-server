@@ -87,7 +87,22 @@ import org.junit.runner.RunWith;
         "objectClass: extensibleObject",
         "sn:: RW1tYW51ZWwgTMOpY2hhcm55",
         "cn: elecharny",
-        "publicKey:: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKbHnLFs5N2PHk0gkyI/g3XeIdjxnWOAW5RVap4zWZuNY4gNGH1MhfHPVHcy6WEMoo+zaxU0Xh+Iv6BzrIa70IUCAwEAAQ=="
+        "publicKey:: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKbHnLFs5N2PHk0gkyI/g3XeIdjxnWOAW5RVap4zWZuNY4gNGH1MhfHPVHcy6WEMoo+zaxU0Xh+Iv6BzrIa70IUCAwEAAQ==",
+        
+        // Another test
+        "dn: cn= test THIS , ou=users,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "sn: test sn",
+        "cn: test THIS ",
+        
+        // Another test
+        "dn: cn=test, ou=users,ou=system",
+        "objectClass: person",
+        "objectClass: top",
+        "sn: test sn",
+        "cn: test"
+
 })
 public class ClientSearchRequestTest extends AbstractLdapTestUnit
 {
@@ -251,7 +266,35 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         }
         while ( !( searchResponse instanceof SearchResultDone ) );
     
-        assertEquals( 3, count );
+        assertEquals( 5, count );
+    }
+    
+    
+    /**
+     * Test a search with a more evoluted Substring filter
+     * @throws Exception
+     */
+    @Test
+    public void testSearchSubstring2() throws Exception
+    {
+        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(cn=Test *)", SearchScope.SUBTREE,
+            "*", "+" );
+        int count = 0;
+        Response searchResponse = null;
+    
+        do
+        {
+            searchResponse = searchFuture.get( 100000, TimeUnit.MILLISECONDS );
+            assertNotNull( searchResponse );
+    
+            if ( !( searchResponse instanceof SearchResultDone ) )
+            {
+                count++;
+            }
+        }
+        while ( !( searchResponse instanceof SearchResultDone ) );
+    
+        assertEquals( 2, count );
     }
     
     
@@ -274,7 +317,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         cursor.close();
     
         // due to dereferencing of aliases we get only one entry
-        assertEquals( 2, count );
+        assertEquals( 4, count );
     
         count = 0;
         searchRequest.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
@@ -286,7 +329,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
         }
         cursor.close();
     
-        assertEquals( 3, count );
+        assertEquals( 5, count );
     }
     
     
@@ -328,6 +371,39 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     
     @Test
     public void testSubDn() throws Exception
+    {
+        connection.loadSchema();
+        EntryCursor cursor = connection.search( "ou=system", "(cn=user1)", SearchScope.SUBTREE, "publicKey" );
+    
+        assertTrue( cursor.next() );
+    
+        Entry entry = cursor.get();
+        assertEquals( "cn=user1,ou=users,ou=system", entry.getDn().getName() );
+    
+        cursor.close();
+    
+        SearchRequest req = new SearchRequestImpl();
+        req.setScope( SearchScope.SUBTREE );
+        req.addAttributes( "*" );
+        req.setTimeLimit( 0 );
+        req.setBase( new Dn( "ou=system" ) );
+        req.setFilter( "(cn=user1)" );
+    
+        SearchCursor searchCursor = connection.search( req );
+    
+        assertTrue( searchCursor.next() );
+    
+        Response response = searchCursor.get();
+    
+        Entry resultEntry = ( ( SearchResultEntry ) response ).getEntry();
+        assertEquals( "cn=user1,ou=users,ou=system", resultEntry.getDn().getName() );
+    
+        searchCursor.close();
+    }
+    
+    
+    @Test
+    public void testSubstring() throws Exception
     {
         connection.loadSchema();
         EntryCursor cursor = connection.search( "ou=system", "(cn=user1)", SearchScope.SUBTREE, "publicKey" );
