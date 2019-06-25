@@ -20,11 +20,11 @@
 package org.apache.directory.server.installers;
 
 
+import java.util.Properties;
+
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.introspection.ReflectionValueExtractor;
-
-import java.util.Properties;
 
 
 /**

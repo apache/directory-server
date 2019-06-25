@@ -180,8 +180,7 @@ pipeline {
         }
       }
       steps {
-        sh 'mvn -V -U clean install -DskipTests'
-        sh 'cd installers && mvn -V clean package -Pinstallers -Pdocker'
+        sh 'mvn -V -U clean verify -DskipTests -Pinstallers -Pdocker'
         stash name: 'deb', includes: 'installers/target/installers/*.deb,installers/target/docker/*deb*'
         stash name: 'rpm', includes: 'installers/target/installers/*.rpm,installers/target/docker/*rpm*'
         stash name: 'bin', includes: 'installers/target/installers/*.bin,installers/target/docker/*bin*'

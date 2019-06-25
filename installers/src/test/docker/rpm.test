@@ -42,6 +42,9 @@ wait_for_apacheds() {
 yum -y -q install openldap-clients nmap procps
 command -v java >/dev/null 2>&1 || yum -y -q install java-openjdk-headless
 
+# assert no duplicate files (DIRSERVER-2197)
+test $(rpm -qlp /apacheds.rpm | sort | uniq -cd | wc -l) -eq 0
+
 # install ApacheDS
 rpm -Uvh apacheds.rpm
 
@@ -93,7 +96,7 @@ done
 # assert password warning in log
 grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log/apacheds.log
 # assert no error in log
-#! grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log
+grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log && false
 
 # uninstall
 rpm -e apacheds

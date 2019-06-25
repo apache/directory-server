@@ -103,7 +103,7 @@ service ${SERVICE_NAME} status || test $? -ne 0
 # assert password warning in log
 grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log/apacheds.log
 # assert no error in log
-#! grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log
+grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log && false
 
 # SUCCESS
 echo "SUCCESS"
