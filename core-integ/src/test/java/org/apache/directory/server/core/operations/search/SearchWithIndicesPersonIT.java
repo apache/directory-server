@@ -49,7 +49,7 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @RunWith(FrameworkRunner.class)
-@CreateDS( name = "SearchWithIndicesIT" )
+@CreateDS( name = "SearchWithIndicesIT", enableChangeLog = false )
 public class SearchWithIndicesPersonIT extends AbstractLdapTestUnit
 {
     private static LdapConnection connection;
