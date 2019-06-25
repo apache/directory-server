@@ -28,7 +28,9 @@ import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -67,15 +69,24 @@ public class SearchWithIndicesPersonIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // Add a bunch of persons
         // -------------------------------------------------------------------
+        PartitionTxn transaction = systemPartition.beginWriteTransaction();
+        
+        // Speedup the addition by using a global transaction
+        ((LdapCoreSessionConnection)connection).getSession().addTransaction( systemPartition, transaction );
+        ((LdapCoreSessionConnection)connection).getSession().beginSessionTransaction();
+
         for ( int i = 0; i < 1000; i++ )
         {
             addPerson( "name" + i, i );
         }
+        
+        transaction.commit();
     }
 
 
     private void addPerson( String name, int id ) throws Exception
     {
+        
         connection.add(
             new DefaultEntry(
                 "cn=" + name + ",ou=system",
@@ -100,9 +111,7 @@ public class SearchWithIndicesPersonIT extends AbstractLdapTestUnit
     {
         Set<String> results = new HashSet<String>();
 
-        long t0 = System.nanoTime();
         EntryCursor cursor = connection.search( "ou=system", filter, SearchScope.SUBTREE, "1.1" );
-        long t1 = System.nanoTime();
         
         while ( cursor.next() )
         {
