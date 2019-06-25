@@ -35,6 +35,9 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.LdapCoreSessionConnection;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 
 
@@ -244,6 +247,12 @@ public class AutzIntegUtils
     {
         LdapConnection connection = getAdminConnection();
 
+        // Speedup the addition by using a global transaction
+        Partition systemPartition = service.getSystemPartition();
+        PartitionTxn transaction = systemPartition.beginWriteTransaction();
+        ((LdapCoreSessionConnection)connection).getSession().addTransaction( systemPartition, transaction );
+        ((LdapCoreSessionConnection)connection).getSession().beginSessionTransaction();
+
         Entry systemEntry = connection.lookup( "ou=system", "+", "*" );
 
         // modify ou=system to be an AP for an A/C AA if it is not already
@@ -269,6 +278,8 @@ public class AutzIntegUtils
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( subEntry );
         AddResponse addResponse = connection.add( addRequest );
+
+        transaction.commit();
 
         return addResponse.getLdapResult().getResultCode();
     }
