@@ -1114,6 +1114,10 @@ public class DefaultDirectoryService implements DirectoryService
          *
          * TODO review this code.
          */
+        PartitionTxn transaction = systemPartition.beginWriteTransaction();
+        // Speedup the addition by using a global transaction
+        adminSession.addTransaction( systemPartition, transaction );
+        adminSession.beginSessionTransaction();
 
         try
         {
@@ -1160,10 +1164,21 @@ public class DefaultDirectoryService implements DirectoryService
                             throw new NotImplementedException( I18n.err( I18n.ERR_76, reverse.getChangeType() ) );
                     }
                 }
+                
+                adminSession.endSessionTransaction( true );
             }
         }
         catch ( Exception e )
         {
+            try
+            {
+                adminSession.endSessionTransaction( false );
+            }
+            catch ( IOException ioe )
+            {
+                throw new LdapOperationException( ioe.getMessage(), ioe );
+            }
+            
             throw new LdapOperationException( e.getMessage(), e );
         }
         finally
