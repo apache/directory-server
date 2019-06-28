@@ -147,7 +147,7 @@ public class DefaultDirectoryServiceFactory implements DirectoryServiceFactory
             }
             catch ( IOException e )
             {
-                LOG.warn( "couldn't delete the instance directory before initializing the DirectoryService", e );
+                LOG.error( "couldn't delete the instance directory before initializing the DirectoryService", e );
             }
         }
 
