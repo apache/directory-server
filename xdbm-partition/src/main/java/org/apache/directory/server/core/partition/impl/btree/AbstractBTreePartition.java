@@ -2033,15 +2033,19 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             Attribute entryAttr = entry.get( mods.getAttributeType() );
 
-            for ( Value value : mods )
+            // Allow for null to fix DIRSERVER-2135
+            if ( entryAttr != null )
             {
-                entryAttr.remove( value );
-            }
-
-            // if nothing is left just remove empty attribute
-            if ( entryAttr.size() == 0 )
-            {
-                entry.removeAttributes( entryAttr.getId() );
+                for ( Value value : mods )
+                {
+                    entryAttr.remove( value );
+                }
+    
+                // if nothing is left just remove empty attribute
+                if ( entryAttr.size() == 0 )
+                {
+                    entry.removeAttributes( entryAttr.getId() );
+                }
             }
         }
 
