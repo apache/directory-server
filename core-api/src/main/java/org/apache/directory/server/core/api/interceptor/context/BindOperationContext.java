@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api.interceptor.context;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -62,6 +63,9 @@ public class BindOperationContext extends AbstractOperationContext
 
     /** The IoSession if any */
     private IoSession ioSession;
+    
+    /** The LDAP Principal */
+    private Entry principal;
 
 
     /**
@@ -287,5 +291,23 @@ public class BindOperationContext extends AbstractOperationContext
     public void setIoSession( IoSession ioSession )
     {
         this.ioSession = ioSession;
+    }
+
+
+    /**
+     * @return the principal
+     */
+    public Entry getPrincipal()
+    {
+        return principal;
+    }
+
+
+    /**
+     * @param principal the principal to set
+     */
+    public void setPrincipal( Entry principal )
+    {
+        this.principal = principal;
     }
 }

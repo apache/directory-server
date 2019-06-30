@@ -160,7 +160,8 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
             try
             {
-                principalEntry = directoryService.getAdminSession().lookup( bindRequest.getDn() );
+                principalEntry = directoryService.getAdminSession().lookup( bindRequest.getDn(), 
+                    SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
             }
             catch ( Exception le )
             {
@@ -187,6 +188,10 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
                 ldapSession.getIoSession().write( bindResponse );
 
                 return;
+            }
+            else
+            { 
+                bindContext.setPrincipal( principalEntry );
             }
 
             // TODO - might cause issues since lookups are not returning all

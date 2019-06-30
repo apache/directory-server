@@ -279,13 +279,18 @@ public class SimpleAuthenticator extends AbstractAuthenticator
              * sub operation.
              * We request all the attributes
              */
-            LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
-                bindContext.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
-
-            lookupContext.setPartition( bindContext.getPartition() );
-            lookupContext.setTransaction( bindContext.getTransaction() );
-
-            userEntry = getDirectoryService().getPartitionNexus().lookup( lookupContext );
+            userEntry = bindContext.getPrincipal();
+            
+            if ( userEntry == null )
+            {
+                LookupOperationContext lookupContext = new LookupOperationContext( getDirectoryService().getAdminSession(),
+                    bindContext.getDn(), SchemaConstants.ALL_USER_ATTRIBUTES, SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES );
+    
+                lookupContext.setPartition( bindContext.getPartition() );
+                lookupContext.setTransaction( bindContext.getTransaction() );
+    
+                userEntry = getDirectoryService().getPartitionNexus().lookup( lookupContext );
+            }
 
             if ( userEntry == null )
             {

@@ -430,4 +430,37 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
 
         connection.close();
     }
+
+
+    @Test
+    public void testAddUidWithDash() throws LdapException, IOException
+    {
+        connection.setTimeOut( 0L );
+        connection.loadSchema();
+
+        // Use the client API
+        connection.bind( "uid=admin,ou=system", "secret" );
+
+        // Add a new entry with some null values
+        Entry entry = new DefaultEntry( getLdapServer().getDirectoryService().getSchemaManager(), 
+            "uid=#4869,ou=system",
+            "objectclass: top",
+            "objectclass: person",
+            "objectclass: inetOrgPerson",
+            "uid: Hi",
+            "cn: Java Duke",
+            "sn: Duke", 
+            "userpassword: Password1" );
+
+        connection.add( entry );
+
+        // Now fetch the entry
+        Entry found = connection.lookup( "uid=#4869,ou=system" );
+
+        assertNotNull( found );
+        assertNotNull( found.get( "userPassword" ) );
+        assertTrue( found.contains( "uid", "Hi" ) );
+        
+        connection.close();
+    }
 }
