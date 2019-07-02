@@ -721,18 +721,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     //---------------------------------------------------------------------------------------------
     private ParentIdAndRdn getParentId( PartitionTxn partitionTxn, Dn entryDn ) throws LdapException
     {
-        Dn parentDn = null;
         ParentIdAndRdn key;
-        String parentId = null;
 
         if ( entryDn.getNormName().equals( suffixDn.getNormName() ) )
         {
-            parentId = Partition.ROOT_ID;
-            key = new ParentIdAndRdn( parentId, suffixDn.getRdns() );
+            key = new ParentIdAndRdn( Partition.ROOT_ID, suffixDn.getRdns() );
         }
         else
         {
-            parentDn = entryDn.getParent();
+            String parentId = null;
+            Dn parentDn = entryDn.getParent();
 
             lockRead();
 
@@ -791,9 +789,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             try
             {
-                ParentIdAndRdn currentRdn = new ParentIdAndRdn( parentId, entryDn.getRdn() );
-                
-                if ( rdnIdx.forwardLookup( partitionTxn, currentRdn ) != null )
+                if ( rdnIdx.forwardLookup( partitionTxn, parentIdAndRdn ) != null )
                 {
                     throw new LdapEntryAlreadyExistsException(
                         I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
@@ -998,7 +994,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     protected void updateRdnIdx( PartitionTxn partitionTxn, String parentId, boolean addRemove, int nbDescendant ) throws LdapException
     {
         boolean isFirst = true;
-        ////dumpRdnIdx();
 
         if ( parentId.equals( Partition.ROOT_ID ) )
         {
