@@ -27,6 +27,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -36,7 +40,9 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.search.FilterBuilder;
 import org.apache.directory.ldap.client.template.ConnectionCallback;
 import org.apache.directory.ldap.client.template.EntryMapper;
@@ -52,12 +58,11 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.CreateLdapConnectionPoolRule;
-import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
-import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotPartition;
+import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,14 +80,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@CreateLdapServer(
-        transports = {
-                @CreateTransport( protocol = "LDAP" )
-        } )
+@RunWith(FrameworkRunner.class)
 @CreateDS( name = "classDS",
         partitions = {
                 @CreatePartition( 
-                        type = MavibotPartition.class,
+                        //type = MavibotPartition.class,
                         name = "example",
                         suffix = "dc=example,dc=com",
                         contextEntry = @ContextEntry(
@@ -94,24 +96,24 @@ import org.slf4j.LoggerFactory;
                         ),
                         indexes = {
                                 @CreateIndex(
-                                    type = MavibotIndex.class,
                                     attribute = "objectClass" 
                                 ),
                                 @CreateIndex( 
-                                    type = MavibotIndex.class,
                                     attribute = "dc" 
                                 ),
                                 @CreateIndex( 
-                                    type = MavibotIndex.class,
                                     attribute = "ou" 
                                 ),
                                 @CreateIndex( 
-                                    type = MavibotIndex.class,
                                     attribute = "uid" 
                                 )
                         }
                 )
         } )
+@CreateLdapServer(
+    transports = {
+            @CreateTransport( protocol = "LDAP" )
+    } )
 @CreateLdapConnectionPool(
         maxActive = 4,
         maxIdle = 2,
@@ -131,14 +133,128 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
         }
     };
 
-    @ClassRule
-    public static CreateLdapConnectionPoolRule classCreateDsRule =
-            new CreateLdapConnectionPoolRule();
-
-
     @Test
+    public void testRenameWithALotOfDummiesAndSomeCustomAttributesAPI() throws LdapException, CursorException, IOException 
+    {
+        LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.bind( "uid=admin, ou=system", "secret" );
+        
+        Dn peopleDn = new Dn( "ou=people," + BASE );
+            
+        // Add the root entry
+        connection.add( 
+            new DefaultEntry( peopleDn,
+            "objectClass: top",
+            "objectClass: organizationalUnit",
+            "ou: people" ) );
+
+        // Add 1000 children
+        int dummyCount = 1000;
+
+        for ( int i = 0; i < dummyCount; i++ ) 
+        {
+            String dn = "uid=uid-" + i + "," + peopleDn;
+            
+            connection.add( new DefaultEntry( dn,
+                    "objectClass: top",
+                    "objectClass: person",
+                    "objectClass: organizationalPerson",
+                    "objectClass: inetOrgPerson",
+                    "uid", "uid-" + i,
+                    "cn", "cn-" + i,
+                    "sn", "sn-" + i,
+                    "description", i + " is a person." ) );
+            
+            if ( i % 50 == 0 ) 
+            {
+                logger.debug( "Added person {}", i );
+            }
+        }
+        
+        EntryCursor cursor;
+        int count = 0;
+        
+        // Now test the rename
+        for ( int i = 0; i < 100; i++ ) 
+        {
+            String oldDnString = "uid=myra-ellen-amos, " + peopleDn.getName();
+            String newDnString = "uid=tory-amos, " + peopleDn.getName();
+
+            // Add an entry
+            connection.add( new DefaultEntry( oldDnString,
+                "objectClass: top", 
+                "objectClass: person", 
+                "objectClass: organizationalPerson", 
+                "objectClass: inetOrgPerson", 
+                "objectClass: portalPerson",
+                "uid: myra-ellen-amos",
+                "cn: Myra Ellen Amo",
+                "sn: Amos",
+                "active", Boolean.TRUE.toString(),
+                "affiliation: Unknown",
+                "timeZone: America/New_York",
+                "description: Myra Ellen Amos is a person." ) );
+            
+            // Check it has been added
+            Entry result = connection.lookup( oldDnString );
+            
+            assertNotNull (result );
+            
+            // Search for it
+            cursor = connection.search( peopleDn, "(sn=amos)", SearchScope.ONELEVEL );
+            count = 0;
+            
+            while ( cursor.next() )
+            {
+                Entry amos = cursor.get();
+                assertEquals( "myra-ellen-amos", amos.get( "uid" ).getString() );
+                assertEquals( "uid=myra-ellen-amos", amos.getDn().getRdn().getName() );
+                
+                count++;
+            }
+            
+            assertEquals( 1, count );
+
+            cursor.close();
+            
+            // Rename it
+            connection.rename( oldDnString, "uid=tory-amos" );
+
+            // Search for the old and renalme entry
+            assertNull( connection.lookup( oldDnString ) );
+            result = connection.lookup( newDnString );
+            assertNotNull( result );
+
+            // Search for the new entry
+            cursor = connection.search( peopleDn, "(sn=amos)", SearchScope.ONELEVEL );
+            count = 0;
+            
+            while ( cursor.next() )
+            {
+                Entry amos = cursor.get();
+                assertEquals( "tory-amos", amos.get( "uid" ).getString() );
+                assertEquals( "uid=tory-amos", amos.getDn().getRdn().getName() );
+                
+                count++;
+            }
+            
+            assertEquals( 1, count );
+
+            cursor.close();
+            
+            // Finally delete the new entry
+            connection.delete( newDnString );
+        }
+        
+        connection.close();
+    }
+
+    
+    @Test
+    @Ignore
     public void testRenameWithALotOfDummiesAndSomeCustomAttributes() {
-        LdapConnectionTemplate template = classCreateDsRule.getLdapConnectionTemplate();
+        CreateLdapConnectionPoolRule connectionPool = new CreateLdapConnectionPoolRule();
+        LdapConnectionTemplate template = connectionPool.getLdapConnectionTemplate();
         AddResponse response = null;
 
         final String peopleOu = "people";
@@ -215,6 +331,7 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
 
             Entry found = template.searchFirst( peopleDn, FilterBuilder.equal( "sn", "amos" ),
                     SearchScope.ONELEVEL, DEFAULT_ENTRY_MAPPER );
+            
             assertNotNull( found );
             Rdn foundRdn = found.getDn().getRdn();
             assertEquals( "uid", foundRdn.getType() );
@@ -239,6 +356,8 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
             foundRdn = found.getDn().getRdn();
             assertEquals( "uid", foundRdn.getType() );
             assertEquals( newUid, foundRdn.getValue() );
+            
+
 
             template.delete( newDn );
         }
@@ -249,7 +368,6 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
      * Modify Rdn of an entry, delete its old rdn value and search before and
      * after rename.
      */
-    @Ignore
     @Test
     public void testModifyRdnWithLotsOfDummies() throws Exception
     {

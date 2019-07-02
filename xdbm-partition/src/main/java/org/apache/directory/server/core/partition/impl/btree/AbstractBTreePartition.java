@@ -197,6 +197,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
     private static final boolean NO_REVERSE = Boolean.FALSE;
     private static final boolean WITH_REVERSE = Boolean.TRUE;
+    
+    private static final boolean ADD_CACHE = Boolean.TRUE;
+    private static final boolean DEL_CACHE = Boolean.FALSE;
 
     protected static final boolean ADD_CHILD = true;
     protected static final boolean REMOVE_CHILD = false;
@@ -908,6 +911,9 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 // Update the RDN index
                 rdnIdx.add( partitionTxn, parentIdAndRdn, id );
+                
+                // Update the PIAR cache at the same time
+                updatePiarCache( parentIdAndRdn, id, ADD_CACHE );
 
                 // Update the parent's nbChildren and nbDescendants values
                 if ( parentId != Partition.ROOT_ID )
@@ -1005,7 +1011,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         while ( parent != null )
         {
             rdnIdx.drop( partitionTxn, parentId );
-            ////dumpRdnIdx();
             
             if ( isFirst )
             {
@@ -1144,7 +1149,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 rdnIdx.drop( partitionTxn, id );
 
-                ////dumpRdnIdx();
+                updatePiarCache( parent, id, DEL_CACHE );
 
                 entryDnCache.invalidate( id );
                 
@@ -2139,10 +2144,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         updateRdnIdx( partitionTxn, oldParentId, REMOVE_CHILD, movedEntry.getNbDescendants() );
 
         rdnIdx.drop( partitionTxn, entryId );
+        updatePiarCache( movedEntry, entryId, DEL_CACHE );
 
         // Now, add the new entry at the right position
         movedEntry.setParentId( newParentId );
         rdnIdx.add( partitionTxn, movedEntry, entryId );
+        updatePiarCache( movedEntry, entryId, ADD_CACHE );
 
         updateRdnIdx( partitionTxn, newParentId, ADD_CHILD, movedEntry.getNbDescendants() );
 
@@ -2293,6 +2300,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         
         // First drop the moved entry from the rdn index
         rdnIdx.drop( partitionTxn, entryId );
+        updatePiarCache( movedEntry, entryId, DEL_CACHE );
 
         //
         // The update the Rdn index. We will remove the ParentIdAndRdn associated with the
@@ -2318,6 +2326,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         movedEntry.setRdns( new Rdn[]
             { newRdn } );
         rdnIdx.add( partitionTxn, movedEntry, entryId );
+        updatePiarCache( movedEntry, entryId, ADD_CACHE );
 
         updateRdnIdx( partitionTxn, newParentId, ADD_CHILD, movedEntry.getNbDescendants() );
 
@@ -2538,7 +2547,6 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                     {
                         presenceIdx.drop( partitionTxn, newRdnAttrType.getOid(), oldId );
                     }
-
                 }
             }
 
@@ -2555,20 +2563,8 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 Index<?, String> userIndex = getUserIndex( newRdnAttrType );
                 
-                /*
-                if ( oldRemoved )
-                {
-                    String normalized = newRdnAttrType.getEquality().getNormalizer().normalize( newNormValue );
-                    ( ( Index ) userIndex ).add( normalized, id );
-                    ( ( Index ) index ).drop( newNormValue, oldId );
-                }
-                */
-                
                 String normalized = newRdnAttrType.getEquality().getNormalizer().normalize( ( String ) newNormValue );
                 ( ( Index ) userIndex ).add( partitionTxn, normalized, oldId );
-                
-                
-                //( ( Index ) index ).add( newNormValue, oldId );
 
                 // Make sure the altered entry shows the existence of the new attrib
                 String normTypeOid = presenceNormalizer.normalize( newNormType );
@@ -2686,12 +2682,16 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
         // Now we can drop it
         rdnIdx.drop( partitionTxn, oldId );
+        
+        updatePiarCache( parentIdAndRdn, oldId, DEL_CACHE );
 
         // Update the descendants
         parentIdAndRdn.setParentId( parentId );
         parentIdAndRdn.setRdns( newRdn );
 
         rdnIdx.add( partitionTxn, parentIdAndRdn, oldId );
+
+        updatePiarCache( parentIdAndRdn, oldId, ADD_CACHE );
 
         entryDnCache.invalidateAll();
         
@@ -2760,6 +2760,22 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         String entryCsn = entry.get( SchemaConstants.ENTRY_CSN_AT ).getString();
         entryCsnIdx.drop( partitionTxn, id );
         entryCsnIdx.add( partitionTxn, entryCsn, id );
+    }
+    
+    
+    /**
+     * Update the ParentIdAndRdn cache, by adding or removing an element
+     */
+    private void updatePiarCache( ParentIdAndRdn piar, String id, boolean add )
+    {
+        if ( add == ADD_CACHE )
+        {
+            piarCache.put( id, piar );
+        }
+        else
+        {
+            piarCache.invalidate( id );
+        }
     }
 
 
