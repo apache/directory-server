@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
@@ -67,7 +68,7 @@ public class KerberosTestUtils
 
         CharArrayWriter writer = new CharArrayWriter();
 
-        try ( Reader reader = new InputStreamReader( new BufferedInputStream( is ) ) )
+        try ( Reader reader = new InputStreamReader( new BufferedInputStream( is ), StandardCharsets.UTF_8 ) )
         {
             char[] buf = new char[2048];
             int len = 0;

@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -92,7 +93,7 @@ public class KerberosUtils
     public static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
 
     /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
-    public static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
+    public static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'", Locale.ROOT );
 
     private static final Set<EncryptionType> oldEncTypes = new HashSet<>();
 

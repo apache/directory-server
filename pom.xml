@@ -66,6 +66,7 @@
     <dnsjava.version>2.1.9</dnsjava.version>
     <caffeine.version>2.7.0</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
+    <forbiddenapis.version>2.6</forbiddenapis.version>
     <jetty.version>9.4.19.v20190610</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.19</jetty.bundle.version>
@@ -527,6 +528,29 @@
             </plugins>
           </reportPlugins>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>de.thetaphi</groupId>
+        <artifactId>forbiddenapis</artifactId>
+        <version>${forbiddenapis.version}</version>
+        <configuration>
+          <internalRuntimeForbidden>false</internalRuntimeForbidden>
+          <failOnUnsupportedJava>true</failOnUnsupportedJava>
+          <failOnViolation>true</failOnViolation>
+          <bundledSignatures>
+            <bundledSignature>jdk-unsafe</bundledSignature>
+            <bundledSignature>jdk-deprecated</bundledSignature>
+          </bundledSignatures>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+              <goal>testCheck</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

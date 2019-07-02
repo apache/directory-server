@@ -21,14 +21,13 @@ package org.apache.directory.server.core.changelog;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -163,7 +162,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
         if ( revFile.exists() )
         {
-            try ( BufferedReader reader = new BufferedReader( new FileReader( revFile ) ) )
+            try ( BufferedReader reader = Files.newBufferedReader( revFile.toPath(), StandardCharsets.UTF_8 ) )
             {
                 String line = reader.readLine();
                 currentRevision = Long.valueOf( line );
@@ -181,7 +180,8 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, revFile.getAbsolutePath() ) );
         }
 
-        try ( PrintWriter out = new PrintWriter( new FileWriter( revFile ) ) )
+        
+        try ( PrintWriter out = new PrintWriter( Files.newBufferedWriter( revFile.toPath(), StandardCharsets.UTF_8 ) ) )
         {
             out.println( currentRevision );
             out.flush();

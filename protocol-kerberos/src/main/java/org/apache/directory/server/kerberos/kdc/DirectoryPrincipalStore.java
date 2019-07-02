@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
+import java.nio.charset.StandardCharsets;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
@@ -92,7 +94,7 @@ public class DirectoryPrincipalStore implements PrincipalStore
             if ( ebyPrincipalEntry == null )
             {
                 throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_HARDERROR,
-                    ( "No such principal " + byPrincipal ).getBytes() );
+                    ( "No such principal " + byPrincipal ).getBytes( StandardCharsets.UTF_8 ) );
             }
 
             SchemaManager schemaManager = directoryService.getSchemaManager();

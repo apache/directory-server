@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -83,7 +84,8 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
         boolean response = connection.compare( dn, SchemaConstants.UID_AT, "admin" );
         assertTrue( response );
 
-        response = connection.compare( dn.getName(), SchemaConstants.USER_PASSWORD_AT, "secret".getBytes() );
+        response = connection.compare( dn.getName(), SchemaConstants.USER_PASSWORD_AT,
+            "secret".getBytes( StandardCharsets.UTF_8 ) );
         assertNotNull( response );
         assertTrue( response );
     }

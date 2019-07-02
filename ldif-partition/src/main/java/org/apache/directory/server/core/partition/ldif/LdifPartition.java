@@ -22,8 +22,10 @@ package org.apache.directory.server.core.partition.ldif;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -380,7 +382,8 @@ public class LdifPartition extends AbstractLdifPartition
         Dn dn = modifyContext.getDn();
 
         // And write it back on disk
-        try ( FileWriter fw = new FileWriter( getFile( dn, DELETE ) ) )
+        
+        try ( Writer fw = Files.newBufferedWriter( getFile( dn, DELETE ).toPath(), StandardCharsets.UTF_8 ) )
         {
             fw.write( LdifUtils.convertToLdif( modifiedEntry, true ) );
         }
@@ -884,7 +887,7 @@ public class LdifPartition extends AbstractLdifPartition
         // Remove the EntryDN
         entry.removeAttributes( entryDnAT );
 
-        try ( FileWriter fw = new FileWriter( getFile( entry.getDn(), CREATE ) ) )
+        try ( Writer fw = Files.newBufferedWriter( getFile( entry.getDn(), CREATE ).toPath(), StandardCharsets.UTF_8 ) )
         {
             fw.write( LdifUtils.convertToLdif( entry ) );
         }

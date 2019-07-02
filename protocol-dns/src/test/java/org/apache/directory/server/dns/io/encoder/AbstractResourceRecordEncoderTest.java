@@ -22,6 +22,7 @@ package org.apache.directory.server.dns.io.encoder;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.apache.directory.server.dns.messages.RecordClass;
@@ -59,11 +60,11 @@ public abstract class AbstractResourceRecordEncoderTest
         expectedData = IoBuffer.allocate( 128 );
         expectedData.put( ( byte ) 18 );
         expectedData.put( ( byte ) domainNameParts[0].length() ); // 1
-        expectedData.put( domainNameParts[0].getBytes() ); // + 5
+        expectedData.put( domainNameParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 5
         expectedData.put( ( byte ) domainNameParts[1].length() ); // + 1
-        expectedData.put( domainNameParts[1].getBytes() ); // + 6
+        expectedData.put( domainNameParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 6
         expectedData.put( ( byte ) domainNameParts[2].length() ); // + 1
-        expectedData.put( domainNameParts[2].getBytes() ); // + 3
+        expectedData.put( domainNameParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 18
         expectedData.putShort( RecordType.A.convert() );
         expectedData.putShort( RecordClass.IN.convert() );

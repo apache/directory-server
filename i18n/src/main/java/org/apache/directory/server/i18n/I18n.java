@@ -22,6 +22,7 @@ package org.apache.directory.server.i18n;
 
 
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -786,10 +787,10 @@ public enum I18n
     ERR_750("ERR_750");
 
     private static final ResourceBundle ERR_BUNDLE = ResourceBundle
-        .getBundle( "org.apache.directory.server.i18n.errors" );
+        .getBundle( "org.apache.directory.server.i18n.errors", Locale.ROOT );
 
     private static final ResourceBundle MSG_BUNDLE = ResourceBundle
-        .getBundle( "org/apache/directory/server/i18n/messages" );
+        .getBundle( "org/apache/directory/server/i18n/messages", Locale.ROOT );
 
     /** The error code */
     private String errorCode;
@@ -825,7 +826,8 @@ public enum I18n
     {
         try
         {
-            return err + " " + MessageFormat.format( ERR_BUNDLE.getString( err.getErrorCode() ), args );
+            return err + " "
+                + new MessageFormat( ERR_BUNDLE.getString( err.getErrorCode() ), Locale.ROOT ).format( args );
         }
         catch ( Exception e )
         {
@@ -863,13 +865,13 @@ public enum I18n
     {
         try
         {
-            return MessageFormat.format( MSG_BUNDLE.getString( msg ), args );
+            return new MessageFormat( MSG_BUNDLE.getString( msg ), Locale.ROOT ).format( args );
         }
         catch ( MissingResourceException mre )
         {
             try
             {
-                return MessageFormat.format( msg, args );
+                return new MessageFormat( msg, Locale.ROOT ).format( args );
             }
             catch ( Exception e )
             {

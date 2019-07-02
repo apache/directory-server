@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Properties;
@@ -77,9 +77,8 @@ public final class MojoHelperUtils
         InputStream from, File to, boolean filtering ) throws IOException
     {
         // buffer so it isn't reading a byte at a time!
-        try ( Reader fileReader = new BufferedReader( new InputStreamReader( from ) );
-            OutputStream out = Files.newOutputStream( to.toPath() );
-            Writer fileWriter = new OutputStreamWriter( out ) )
+        try ( Reader fileReader = new BufferedReader( new InputStreamReader( from, StandardCharsets.UTF_8 ) );
+            Writer writer = Files.newBufferedWriter( to.toPath(), StandardCharsets.UTF_8 ) )
         {
             Reader reader = null;
             if ( filtering )
@@ -103,7 +102,7 @@ public final class MojoHelperUtils
             {
                 reader = fileReader;
             }
-            IOUtil.copy( reader, fileWriter );
+            IOUtil.copy( reader, writer );
         }
     }
 

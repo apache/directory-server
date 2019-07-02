@@ -25,7 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -151,7 +151,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        byte[] plainPwd = "secret".getBytes();
+        byte[] plainPwd = "secret".getBytes( StandardCharsets.UTF_8 );
         Dn dn = new Dn( "cn=test,ou=system" );
 
         Entry entry = connection.lookup( dn );
@@ -166,7 +166,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        byte[] plainPwd = "newsecret".getBytes();
+        byte[] plainPwd = "newsecret".getBytes( StandardCharsets.UTF_8 );
         Dn dn = new Dn( "cn=test,ou=system" );
 
         AttributeType pwdAtType = getService().getSchemaManager().lookupAttributeTypeRegistry(
@@ -212,7 +212,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        byte[] plainPwd = "secret".getBytes();
+        byte[] plainPwd = "secret".getBytes( StandardCharsets.UTF_8 );
         byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA );
 
         Dn dn = new Dn( "cn=testHash,ou=system" );
@@ -237,7 +237,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        byte[] plainPwd = "xyzsecret".getBytes();
+        byte[] plainPwd = "xyzsecret".getBytes( StandardCharsets.UTF_8 );
         byte[] hashedPwd = PasswordUtil.createStoragePassword( plainPwd, LdapSecurityConstants.HASH_METHOD_SSHA256 );
 
         Dn dn = new Dn( "cn=test,ou=system" );

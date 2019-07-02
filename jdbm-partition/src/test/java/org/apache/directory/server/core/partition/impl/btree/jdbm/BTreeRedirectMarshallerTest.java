@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Random;
 
@@ -152,7 +153,7 @@ public class BTreeRedirectMarshallerTest
 
         try
         {
-            marshaller.deserialize( "bogus".getBytes() );
+            marshaller.deserialize( "bogus".getBytes( StandardCharsets.UTF_8 ) );
             fail( "Should not get here." );
         }
         catch ( IOException e )

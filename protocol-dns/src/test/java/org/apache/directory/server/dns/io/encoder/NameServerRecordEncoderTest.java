@@ -21,6 +21,7 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,13 +62,13 @@ public class NameServerRecordEncoderTest extends AbstractResourceRecordEncoderTe
     {
         expectedData.put( ( byte ) 19 );
         expectedData.put( ( byte ) nsParts[0].length() ); // 1
-        expectedData.put( nsParts[0].getBytes() ); // + 3
+        expectedData.put( nsParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) nsParts[1].length() ); // + 1
-        expectedData.put( nsParts[1].getBytes() ); // + 2
+        expectedData.put( nsParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 2
         expectedData.put( ( byte ) nsParts[2].length() ); // + 1
-        expectedData.put( nsParts[2].getBytes() ); // + 7
+        expectedData.put( nsParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 7
         expectedData.put( ( byte ) nsParts[3].length() ); // + 1
-        expectedData.put( nsParts[3].getBytes() ); // + 3
+        expectedData.put( nsParts[3].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 19
     }
 }

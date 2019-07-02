@@ -24,6 +24,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -95,7 +96,7 @@ public class LdifTupleReaderWriter<E> implements TupleReaderWriter<Dn, E>
                 
                 try ( LdifReader ldifReader = new LdifReader() )
                 {
-                    LdifEntry ldifEntry = ldifReader.parseLdif( new String( data ) ).get( 0 );
+                    LdifEntry ldifEntry = ldifReader.parseLdif( new String( data, StandardCharsets.UTF_8 ) ).get( 0 );
                     Entry entry = new DefaultEntry( schemaManager, ldifEntry.getEntry() );
     
                     tuple.setValue( ( E ) entry );

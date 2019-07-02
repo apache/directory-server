@@ -23,6 +23,7 @@ package org.apache.directory.shared.kerberos;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.apache.directory.api.util.Strings;
@@ -121,7 +122,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     private void convertInternal( long date )
     {
-        Calendar calendar = Calendar.getInstance( UTC );
+        Calendar calendar = Calendar.getInstance( UTC, Locale.ROOT );
         calendar.setTimeInMillis( date );
 
         synchronized ( KerberosUtils.UTC_DATE_FORMAT )

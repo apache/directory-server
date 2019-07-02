@@ -22,9 +22,9 @@ package org.apache.directory.server.core.journal;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
@@ -91,8 +91,7 @@ public class DefaultJournalStore implements JournalStore
 
         // The new requests are added at the end of the existing journal
         writer = new PrintWriter(
-            new OutputStreamWriter(
-                Files.newOutputStream( journal.toPath(), StandardOpenOption.APPEND ) ) );
+            Files.newBufferedWriter( journal.toPath(), StandardCharsets.UTF_8, StandardOpenOption.APPEND ) );
     }
 
 

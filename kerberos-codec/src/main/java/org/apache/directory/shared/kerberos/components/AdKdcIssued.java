@@ -22,6 +22,7 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
@@ -189,7 +190,7 @@ public class AdKdcIssued implements Asn1Object
         // Compute the i-realm length, if any
         if ( irealm != null )
         {
-            irealmBytes = irealm.getBytes();
+            irealmBytes = irealm.getBytes( StandardCharsets.UTF_8 );
             irealmTagLength = 1 + TLV.getNbBytes( irealmBytes.length ) + irealmBytes.length;
             adKdcIssuedSeqLength += 1 + TLV.getNbBytes( irealmTagLength ) + irealmTagLength;
         }

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -243,7 +244,7 @@ public class ClientInitialRefreshIT
         config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
         config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
-        config.setReplUserPassword( "secret".getBytes() );
+        config.setReplUserPassword( "secret".getBytes( StandardCharsets.UTF_8 ) );
         config.setUseTls( false );
         config.setBaseDn( "dc=example,dc=com" );
 

@@ -22,6 +22,8 @@ package org.apache.directory.server.operations.compare;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Locale;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
@@ -96,7 +98,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         String[] values =
-            { PERSON_SN, PERSON_SN.toUpperCase(), Strings.toLowerCaseAscii( PERSON_SN ), PERSON_SN + "X" };
+            { PERSON_SN, PERSON_SN.toUpperCase( Locale.ROOT ), Strings.toLowerCaseAscii( PERSON_SN ), PERSON_SN + "X" };
         boolean[] expected =
             { true, true, true, false };
 
