@@ -32,6 +32,8 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -82,7 +84,7 @@ public class UberJarMainTest
         tmpDirectory.deleteOnExit();
 
         // Creating an instance directory
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ), Locale.ROOT );
         instanceDirectory = new File( tmpDirectory, "ApacheDS-" + calendar.get( Calendar.YEAR )
             + calendar.get( Calendar.MONTH ) + calendar.get( Calendar.DATE ) + calendar.get( Calendar.HOUR )
             + calendar.get( Calendar.MINUTE ) + calendar.get( Calendar.SECOND ) );

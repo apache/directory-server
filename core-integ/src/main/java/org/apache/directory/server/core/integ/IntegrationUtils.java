@@ -21,6 +21,7 @@ package org.apache.directory.server.core.integ;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,7 +138,8 @@ public class IntegrationUtils
 
     public static LdifEntry getUserAddLdif() throws LdapException
     {
-        return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes(), "Alex Karasulu", "Karasulu" );
+        return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes( StandardCharsets.UTF_8 ),
+            "Alex Karasulu", "Karasulu" );
     }
 
 

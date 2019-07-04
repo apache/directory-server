@@ -22,6 +22,7 @@ package org.apache.directory.server.ntp.io;
 
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.directory.server.ntp.messages.LeapIndicatorType;
 import org.apache.directory.server.ntp.messages.ModeType;
@@ -110,7 +111,7 @@ public class NtpMessageDecoder
     {
         byte[] nextFourBytes = new byte[4];
         request.get( nextFourBytes );
-        return ReferenceIdentifier.getTypeByName( new String( nextFourBytes ) );
+        return ReferenceIdentifier.getTypeByName( new String( nextFourBytes, StandardCharsets.UTF_8 ) );
     }
 
 

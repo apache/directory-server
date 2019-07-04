@@ -21,6 +21,9 @@ package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Iterator;
 
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -79,33 +82,32 @@ public class LdifBulkLoaderTest
     {
         File file = File.createTempFile( "bulkload-test", ".ldif" );
         file.deleteOnExit();
-        
-        FileWriter fw = new FileWriter( file );
-        
-        Dn parentDn = new Dn( "ou=grandchildren,ou=children,ou=parent,ou=system" );
-        
-        Dn currentDn = parentDn;
-        
-        for( Rdn rdn : parentDn.getRdns() )
-        {
-            for( int i =0; i< 2; i++ )
-            {
-                String user = personTemplate.replace( "{uid}", "user"+i );
-                user = user.replace( "{parent}", currentDn.getName() );
 
-                fw.write( user );
+        try ( Writer writer = Files.newBufferedWriter( file.toPath(), StandardCharsets.UTF_8 ) )
+        {
+
+            Dn parentDn = new Dn( "ou=grandchildren,ou=children,ou=parent,ou=system" );
+
+            Dn currentDn = parentDn;
+
+            for ( Rdn rdn : parentDn.getRdns() )
+            {
+                for ( int i = 0; i < 2; i++ )
+                {
+                    String user = personTemplate.replace( "{uid}", "user" + i );
+                    user = user.replace( "{parent}", currentDn.getName() );
+
+                    writer.write( user );
+                }
+
+                String userBranch = ouTemplate.replace( "{ou}", rdn.getValue() );
+                userBranch = userBranch.replace( "{ouDn}", currentDn.getName() );
+
+                writer.write( userBranch );
+
+                currentDn = currentDn.getParent();
             }
-            
-            
-            String userBranch = ouTemplate.replace( "{ou}", rdn.getValue() );
-            userBranch = userBranch.replace( "{ouDn}", currentDn.getName() );
-            
-            fw.write( userBranch );
-            
-            currentDn = currentDn.getParent();
         }
-        
-        fw.close();
 
         return file;
     }

@@ -20,6 +20,7 @@
 
 package org.apache.directory.kerberos.client;
 
+import java.nio.charset.StandardCharsets;
 
 /**
  * The class to hold the result of change password operation.
@@ -42,7 +43,7 @@ public class ChangePasswordResult
 
         code = ChangePasswordResultCode.getByValue( r );
 
-        message = new String( userData, 2, userData.length - 2 );
+        message = new String( userData, 2, userData.length - 2, StandardCharsets.UTF_8 );
     }
 
 

@@ -21,6 +21,7 @@
 package org.apache.directory.server.dns.io.decoder;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.apache.directory.api.util.Strings;
@@ -53,11 +54,11 @@ public class NameServerRecordDecoderTest
     {
         inputBuffer = IoBuffer.allocate( 128 );
         inputBuffer.put( ( byte ) domainNameParts[0].length() );
-        inputBuffer.put( domainNameParts[0].getBytes() );
+        inputBuffer.put( domainNameParts[0].getBytes( StandardCharsets.UTF_8 ) );
         inputBuffer.put( ( byte ) domainNameParts[1].length() );
-        inputBuffer.put( domainNameParts[1].getBytes() );
+        inputBuffer.put( domainNameParts[1].getBytes( StandardCharsets.UTF_8 ) );
         inputBuffer.put( ( byte ) domainNameParts[2].length() );
-        inputBuffer.put( domainNameParts[2].getBytes() );
+        inputBuffer.put( domainNameParts[2].getBytes( StandardCharsets.UTF_8 ) );
         inputBuffer.put( ( byte ) 0x00 );
         inputBuffer.flip();
 

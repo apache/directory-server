@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
@@ -256,7 +257,7 @@ public class KeyTypeTest
 
         Mac mac = Mac.getInstance( "HmacMD5" );
         mac.init( sk );
-        byte[] result = mac.doFinal( "Hello world!".getBytes() );
+        byte[] result = mac.doFinal( "Hello world!".getBytes( StandardCharsets.UTF_8 ) );
 
         assertEquals( "HmacMD5 size", 16, result.length );
     }
@@ -275,7 +276,7 @@ public class KeyTypeTest
 
         Mac mac = Mac.getInstance( "HmacSHA1" );
         mac.init( sk );
-        byte[] result = mac.doFinal( "Hi There".getBytes() );
+        byte[] result = mac.doFinal( "Hi There".getBytes( StandardCharsets.UTF_8 ) );
 
         assertEquals( "HmacSHA1 size", 20, result.length );
     }

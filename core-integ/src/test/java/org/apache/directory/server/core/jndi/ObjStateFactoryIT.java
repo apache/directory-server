@@ -25,6 +25,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAdd
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -198,7 +199,7 @@ public class ObjStateFactoryIT extends AbstractLdapTestUnit
                     if ( pw instanceof String )
                         passwd = ( String ) pw;
                     else
-                        passwd = new String( ( byte[] ) pw );
+                        passwd = new String( ( byte[] ) pw,  StandardCharsets.UTF_8  );
                 }
 
                 return new Person( ( String ) attrs.get( "sn" ).get(), ( String ) attrs.get( "cn" ).get(), passwd,

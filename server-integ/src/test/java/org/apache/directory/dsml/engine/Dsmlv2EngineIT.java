@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.directory.api.dsmlv2.Dsmlv2ResponseParser;
 import org.apache.directory.api.dsmlv2.engine.Dsmlv2Engine;
@@ -88,7 +89,7 @@ public class Dsmlv2EngineIT extends AbstractLdapTestUnit
         engine.processDSML( dsmlIn, byteOut );
 
         Dsmlv2ResponseParser respParser = new Dsmlv2ResponseParser( LdapApiServiceFactory.getSingleton() );
-        respParser.setInput( byteOut.toString() );
+        respParser.setInput( byteOut.toString( StandardCharsets.UTF_8.name() ) );
 
         respParser.parseAllResponses();
 
@@ -117,7 +118,7 @@ public class Dsmlv2EngineIT extends AbstractLdapTestUnit
 
         engine.setGenerateSoapResp( false );
 
-        String resp = byteOut.toString();
+        String resp = byteOut.toString( StandardCharsets.UTF_8.name() );
 
         Dsmlv2ResponseParser respParser = new Dsmlv2ResponseParser( LdapApiServiceFactory.getSingleton() );
         respParser.setInput( resp );

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.directory.api.util.FileUtils;
@@ -245,7 +246,7 @@ public class StaleEventLogDetectionIT
         config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
         config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
-        config.setReplUserPassword( "secret".getBytes() );
+        config.setReplUserPassword( "secret".getBytes( StandardCharsets.UTF_8 ) );
         config.setUseTls( false );
         config.setBaseDn( "dc=example,dc=com" );
         config.setRefreshInterval( 1000 );

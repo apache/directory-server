@@ -26,6 +26,8 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Objects;
 
 import javax.naming.NamingEnumeration;
@@ -484,7 +486,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         SaslGssApiRequest request = new SaslGssApiRequest();
         request.setUsername( userDn.getRdn().getValue() );
         request.setCredentials( "secret" );
-        request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase() );
+        request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase( Locale.ROOT ) );
         request.setKdcHost( Network.LOOPBACK_HOSTNAME );
         request.setKdcPort( 6088 );
         BindResponse resp = connection.bind( request );
@@ -539,7 +541,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         SaslGssApiRequest request = new SaslGssApiRequest();
         request.setUsername( userDn.getRdn().getValue() );
         request.setCredentials( "badsecret" );
-        request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase() );
+        request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase( Locale.ROOT ) );
         request.setKdcHost( Network.LOOPBACK_HOSTNAME );
         request.setKdcPort( 6088 );
         try
@@ -566,16 +568,19 @@ public class SaslBindIT extends AbstractLdapTestUnit
         BogusNtlmProvider provider = getNtlmProviderUsingReflection();
 
         NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.NTLM );
-        BindResponse type2response = client.bindType1( "type1_test".getBytes() );
+        BindResponse type2response = client.bindType1( "type1_test".getBytes( StandardCharsets.UTF_8 ) );
         assertEquals( 1, type2response.getMessageId() );
         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
-        assertTrue( Objects.deepEquals( "type1_test".getBytes(), provider.getType1Response() ) );
-        assertTrue( Objects.deepEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+        assertTrue(
+            Objects.deepEquals( "type1_test".getBytes( StandardCharsets.UTF_8 ), provider.getType1Response() ) );
+        assertTrue(
+            Objects.deepEquals( "challenge".getBytes( StandardCharsets.UTF_8 ), type2response.getServerSaslCreds() ) );
 
-        BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
+        BindResponse finalResponse = client.bindType3( "type3_test".getBytes( StandardCharsets.UTF_8 ) );
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
-        assertTrue( Objects.deepEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+        assertTrue(
+            Objects.deepEquals( "type3_test".getBytes( StandardCharsets.UTF_8 ), provider.getType3Response() ) );
     }
 
 
@@ -595,16 +600,16 @@ public class SaslBindIT extends AbstractLdapTestUnit
         ntlmHandler.setNtlmProvider( provider );
 
         NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.GSS_SPNEGO );
-        BindResponse type2response = client.bindType1( "type1_test".getBytes() );
+        BindResponse type2response = client.bindType1( "type1_test".getBytes( StandardCharsets.UTF_8 ) );
         assertEquals( 1, type2response.getMessageId() );
         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
-        assertTrue( Objects.deepEquals( "type1_test".getBytes(), provider.getType1Response() ) );
-        assertTrue( Objects.deepEquals( "challenge".getBytes(), type2response.getServerSaslCreds() ) );
+        assertTrue( Objects.deepEquals( "type1_test".getBytes( StandardCharsets.UTF_8 ), provider.getType1Response() ) );
+        assertTrue( Objects.deepEquals( "challenge".getBytes( StandardCharsets.UTF_8 ), type2response.getServerSaslCreds() ) );
 
-        BindResponse finalResponse = client.bindType3( "type3_test".getBytes() );
+        BindResponse finalResponse = client.bindType3( "type3_test".getBytes( StandardCharsets.UTF_8 ) );
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
-        assertTrue( Objects.deepEquals( "type3_test".getBytes(), provider.getType3Response() ) );
+        assertTrue( Objects.deepEquals( "type3_test".getBytes( StandardCharsets.UTF_8 ), provider.getType3Response() ) );
     }
 
 

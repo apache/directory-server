@@ -24,6 +24,7 @@ package org.apache.directory.server.ntp.messages;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 
@@ -43,7 +44,7 @@ public class NtpTimeStamp
      */
     private static final long NTP_EPOCH_DIFFERENCE = -2208988800000L;
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS z" );
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS z", Locale.ROOT );
 
     private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
     

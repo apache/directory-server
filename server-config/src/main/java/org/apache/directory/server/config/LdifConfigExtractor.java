@@ -24,12 +24,12 @@ package org.apache.directory.server.config;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -145,18 +145,16 @@ public final class LdifConfigExtractor
             throw new FileNotFoundException( I18n.err( I18n.ERR_509, source.getAbsolutePath() ) );
         }
 
-        try ( FileWriter out = new FileWriter( destination ) )
+        try ( Writer out = Files.newBufferedWriter( destination.toPath(), StandardCharsets.UTF_8 );
+            BufferedReader in = Files.newBufferedReader( source.toPath(), StandardCharsets.UTF_8 ); )
         {
-            try ( BufferedReader in = new BufferedReader( new FileReader( source ) ) )
+            String line;
+
+            while ( null != ( line = in.readLine() ) )
             {
-                String line;
-                
-                while ( null != ( line = in.readLine() ) )
-                {
-                    out.write( line + "\n" );
-                }
+                out.write( line + "\n" );
             }
-        
+
             out.flush();
         }
     }
@@ -306,8 +304,9 @@ public final class LdifConfigExtractor
 
             byte[] buf = new byte[1024 * 1024];
 
+            
             try ( InputStream in = configUrl.openStream();
-                FileWriter fw = new FileWriter( configFile ) )
+                Writer writer = Files.newBufferedWriter( configFile.toPath(), StandardCharsets.UTF_8 ) )
             {
                 while ( true )
                 {
@@ -319,7 +318,7 @@ public final class LdifConfigExtractor
                     }
 
                     String s = Strings.utf8ToString( buf, 0, read );
-                    fw.write( s );
+                    writer.write( s );
                 }
             }
 

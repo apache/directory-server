@@ -21,9 +21,11 @@ package org.apache.directory.server.config;
 
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -146,7 +148,7 @@ public class ConfigWriter
     public void writeToFile( File file ) throws ConfigurationException, IOException
     {
         // Writing the file to disk
-        try ( FileWriter writer = new FileWriter( file ) )
+        try ( Writer writer = Files.newBufferedWriter( file.toPath(), StandardCharsets.UTF_8 ) )
         {
             writer.append( writeToString() );
         }

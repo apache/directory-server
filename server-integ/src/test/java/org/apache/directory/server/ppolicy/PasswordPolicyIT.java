@@ -37,6 +37,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -771,7 +772,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
-        bindReq.setCredentials( password.getBytes() );
+        bindReq.setCredentials( password.getBytes( StandardCharsets.UTF_8 ) );
         bindReq.addControl( PP_REQ_CTRL );
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
@@ -818,7 +819,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
-        bindReq.setCredentials( password.getBytes() );
+        bindReq.setCredentials( password.getBytes( StandardCharsets.UTF_8 ) );
         bindReq.addControl( PP_REQ_CTRL );
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
@@ -883,7 +884,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
-        bindReq.setCredentials( password.getBytes() );
+        bindReq.setCredentials( password.getBytes( StandardCharsets.UTF_8 ) );
         bindReq.addControl( PP_REQ_CTRL );
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
@@ -947,7 +948,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
-        bindReq.setCredentials( password.getBytes() );
+        bindReq.setCredentials( password.getBytes( StandardCharsets.UTF_8 ) );
         bindReq.addControl( PP_REQ_CTRL );
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))

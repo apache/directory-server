@@ -21,6 +21,7 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,11 +71,11 @@ public class ServerSelectionRecordEncoderTest extends AbstractResourceRecordEnco
         expectedData.putShort( Short.parseShort( weight ) );
         expectedData.putShort( Short.parseShort( port ) );
         expectedData.put( ( byte ) srvParts[0].length() ); // 1
-        expectedData.put( srvParts[0].getBytes() ); // + 3
+        expectedData.put( srvParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) srvParts[1].length() ); // + 1
-        expectedData.put( srvParts[1].getBytes() ); // + 6
+        expectedData.put( srvParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 6
         expectedData.put( ( byte ) srvParts[2].length() ); // + 1
-        expectedData.put( srvParts[2].getBytes() ); // + 3
+        expectedData.put( srvParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 16
     }
 }

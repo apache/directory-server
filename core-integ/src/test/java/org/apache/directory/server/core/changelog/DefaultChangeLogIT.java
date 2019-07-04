@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -423,7 +424,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     {
         Attribute userPassword = entry.get( "userPassword" );
         assertNotNull( userPassword );
-        assertTrue( Arrays.equals( password.getBytes(), userPassword.getBytes() ) );
+        assertTrue( Arrays.equals( password.getBytes( StandardCharsets.UTF_8 ), userPassword.getBytes() ) );
     }
 
 

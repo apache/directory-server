@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.operations.delete;
 
+import java.util.Locale;
+
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -138,7 +140,7 @@ public class DeletePerfIT extends AbstractLdapTestUnit
             dn = new Dn( "cn=" + name + ",dc=example,dc=com" );
             entry = new DefaultEntry( getService().getSchemaManager(), dn );
             entry.add( "ObjectClass", "top", "person" );
-            entry.add( "sn", name.toUpperCase() );
+            entry.add( "sn", name.toUpperCase( Locale.ROOT ) );
             entry.add( "cn", name );
             
             connection.add(entry );

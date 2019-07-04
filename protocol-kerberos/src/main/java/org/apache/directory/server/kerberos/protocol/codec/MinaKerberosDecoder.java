@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.protocol.codec;
 
 
 import java.nio.ByteBuffer;
+import java.util.Locale;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
@@ -83,7 +84,7 @@ public class MinaKerberosDecoder extends CumulativeProtocolDecoder
                         session.removeAttribute( KERBEROS_MESSAGE_CONTAINER );
                         
                         String err = "Request length %d exceeds allowed max PDU size %d";
-                        err = String.format( err, len, maxPduSize );
+                        err = String.format( Locale.ROOT, err, len, maxPduSize );
                         
                         throw new DecoderException( err );
                     }
@@ -116,7 +117,7 @@ public class MinaKerberosDecoder extends CumulativeProtocolDecoder
                 session.removeAttribute( KERBEROS_MESSAGE_CONTAINER );
                 
                 String err = "Total length of recieved bytes %d exceeds allowed max PDU size %d";
-                err = String.format( err, totLen, maxPduSize );
+                err = String.format( Locale.ROOT, err, totLen, maxPduSize );
                 
                 throw new DecoderException( err );
             }

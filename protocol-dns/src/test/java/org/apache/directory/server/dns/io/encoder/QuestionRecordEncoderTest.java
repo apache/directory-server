@@ -29,6 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+import java.nio.charset.StandardCharsets;
+
 
 /**
  * Tests for the Question record encoder.
@@ -56,11 +58,11 @@ public class QuestionRecordEncoderTest
 
         expectedData = IoBuffer.allocate( 128 );
         expectedData.put( ( byte ) nameParts[0].length() ); // 1
-        expectedData.put( nameParts[0].getBytes() ); // + 3
+        expectedData.put( nameParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) nameParts[1].length() ); // + 1
-        expectedData.put( nameParts[1].getBytes() ); // + 6
+        expectedData.put( nameParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 6
         expectedData.put( ( byte ) nameParts[2].length() ); // + 1
-        expectedData.put( nameParts[2].getBytes() ); // + 3
+        expectedData.put( nameParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 16
         expectedData.putShort( type.convert() );
         expectedData.putShort( rClass.convert() );

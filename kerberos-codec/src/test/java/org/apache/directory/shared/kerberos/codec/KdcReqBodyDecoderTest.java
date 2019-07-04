@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -211,19 +212,22 @@ public class KdcReqBodyDecoderTest
         body.addEType( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         HostAddresses addresses = new HostAddresses();
-        addresses.addHostAddress( new HostAddress( HostAddrType.ADDRTYPE_INET, "192.168.0.1".getBytes() ) );
-        addresses.addHostAddress( new HostAddress( HostAddrType.ADDRTYPE_INET, "192.168.0.2".getBytes() ) );
+        addresses.addHostAddress(
+            new HostAddress( HostAddrType.ADDRTYPE_INET, "192.168.0.1".getBytes( StandardCharsets.UTF_8 ) ) );
+        addresses.addHostAddress(
+            new HostAddress( HostAddrType.ADDRTYPE_INET, "192.168.0.2".getBytes( StandardCharsets.UTF_8 ) ) );
         body.setAddresses( addresses );
 
         EncryptedData encAuthorizationData = new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96,
-            "abcdef".getBytes() );
+            "abcdef".getBytes( StandardCharsets.UTF_8 ) );
         body.setEncAuthorizationData( encAuthorizationData );
 
         Ticket ticket1 = new Ticket();
         ticket1.setTktVno( 5 );
         ticket1.setRealm( "EXAMPLE.COM" );
         ticket1.setSName( new PrincipalName( "client", PrincipalNameType.KRB_NT_PRINCIPAL ) );
-        ticket1.setEncPart( new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, "abcdef".getBytes() ) );
+        ticket1.setEncPart(
+            new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, "abcdef".getBytes( StandardCharsets.UTF_8 ) ) );
 
         body.addAdditionalTicket( ticket1 );
 
@@ -231,7 +235,8 @@ public class KdcReqBodyDecoderTest
         ticket2.setTktVno( 5 );
         ticket2.setRealm( "EXAMPLE.COM" );
         ticket2.setSName( new PrincipalName( "server", PrincipalNameType.KRB_NT_PRINCIPAL ) );
-        ticket2.setEncPart( new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, "abcdef".getBytes() ) );
+        ticket2.setEncPart(
+            new EncryptedData( EncryptionType.AES128_CTS_HMAC_SHA1_96, "abcdef".getBytes( StandardCharsets.UTF_8 ) ) );
 
         body.addAdditionalTicket( ticket2 );
 

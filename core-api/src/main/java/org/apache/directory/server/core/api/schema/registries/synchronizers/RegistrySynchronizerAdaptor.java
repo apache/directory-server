@@ -22,6 +22,7 @@ package org.apache.directory.server.core.api.schema.registries.synchronizers;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -309,7 +310,7 @@ public class RegistrySynchronizerAdaptor
             return false;
         }
 
-        LOG.error( String.format( I18n.err( I18n.ERR_84 ),
+        LOG.error( String.format( Locale.ROOT, I18n.err( I18n.ERR_84 ),
             modifyContext.getDn(), entry, modifyContext.getModItems() ) );
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }

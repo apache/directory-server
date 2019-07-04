@@ -19,11 +19,13 @@ package org.apache.directory.server;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -84,7 +86,8 @@ public class UberjarMain
                 LOG.debug( "Stopping runtime" );
                 InstanceLayout layout = new InstanceLayout( instanceDirectory );
                 try ( Socket socket = new Socket( Network.LOOPBACK, readShutdownPort( layout ) );
-                    PrintWriter writer = new PrintWriter( socket.getOutputStream() ) )
+                    OutputStreamWriter osw = new OutputStreamWriter( socket.getOutputStream(), StandardCharsets.UTF_8 );
+                    PrintWriter writer = new PrintWriter( osw ) )
                 {
                     writer.print( readShutdownPassword( layout ) );
                 }
@@ -257,9 +260,10 @@ public class UberjarMain
                         }
                         else
                         {
-                            try
+                            try ( InputStreamReader reader = new InputStreamReader( socket.getInputStream(),
+                                StandardCharsets.UTF_8 ); )
                             {
-                                InputStreamReader reader = new InputStreamReader( socket.getInputStream() );
+                                
                                 
                                 CharBuffer buffer = CharBuffer.allocate( 2048 );
                                 while ( reader.read( buffer ) >= 0 )
@@ -268,8 +272,6 @@ public class UberjarMain
                                 }
                                 buffer.flip();
                                 String password = buffer.toString();
-                                
-                                reader.close();
                                 
                                 if ( shutdownPassword.equals( password ) )
                                 {

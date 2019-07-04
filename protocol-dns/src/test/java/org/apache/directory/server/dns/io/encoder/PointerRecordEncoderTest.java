@@ -21,6 +21,7 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,11 +62,11 @@ public class PointerRecordEncoderTest extends AbstractResourceRecordEncoderTest
     {
         expectedData.put( ( byte ) 15 );
         expectedData.put( ( byte ) ptrParts[0].length() ); // 1
-        expectedData.put( ptrParts[0].getBytes() ); // + 3
+        expectedData.put( ptrParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) ptrParts[1].length() ); // + 1
-        expectedData.put( ptrParts[1].getBytes() ); // + 6
+        expectedData.put( ptrParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 6
         expectedData.put( ( byte ) ptrParts[2].length() ); // + 1
-        expectedData.put( ptrParts[2].getBytes() ); // + 3
+        expectedData.put( ptrParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 15
     }
 }

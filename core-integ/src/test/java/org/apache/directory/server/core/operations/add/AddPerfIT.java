@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.operations.add;
 
 
+import java.util.Locale;
+
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -101,7 +103,7 @@ public class AddPerfIT extends AbstractLdapTestUnit
             entry = new DefaultEntry( getService().getSchemaManager(), dn,
                 "ObjectClass: top",
                 "ObjectClass: person",
-                "sn", name.toUpperCase(),
+                "sn", name.toUpperCase( Locale.ROOT ),
                 "cn", name );
 
             entries[i] = entry;

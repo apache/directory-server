@@ -23,6 +23,7 @@ package org.apache.directory.kerberos.credentials.cache;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -180,7 +181,7 @@ public class CacheInputStream extends DataInputStream
         byte[] bytes = new byte[namelength];
         read( bytes, 0, bytes.length );
 
-        return new String( bytes );
+        return new String( bytes, StandardCharsets.UTF_8 );
     }
 
 

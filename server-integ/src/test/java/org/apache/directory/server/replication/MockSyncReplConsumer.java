@@ -23,6 +23,7 @@ package org.apache.directory.server.replication;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -791,7 +792,7 @@ public class MockSyncReplConsumer implements ConnectionClosedEventListener, Repl
             if ( cookieFile == null )
             {
                 cookieFile = new File( cookieDir, String.valueOf( LdapProtocolUtils.getReplicaId( new String(
-                    syncCookie ) ) ) );
+                    syncCookie, StandardCharsets.UTF_8 ) ) ) );
             }
 
             try ( FileOutputStream fout = new FileOutputStream( cookieFile ) )
