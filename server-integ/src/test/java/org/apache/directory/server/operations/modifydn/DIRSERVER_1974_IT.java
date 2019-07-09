@@ -126,6 +126,14 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
     private static final Logger logger = LoggerFactory.getLogger( DIRSERVER_1974_IT.class );
     private static final String BASE = "dc=example,dc=com";
 
+    /*
+     * Reduce dummy and loop count to speedup test. Original values for reproducing the bug:
+     * DUMMY_COUNT = 1000
+     * LOOP_COUNT = 100
+     */
+    private static final int DUMMY_COUNT = 100;
+    private static final int LOOP_COUNT = 10;
+
     private static final EntryMapper<Entry> DEFAULT_ENTRY_MAPPER = new EntryMapper<Entry>() {
         @Override
         public Entry map( Entry entry ) throws LdapException {
@@ -148,10 +156,9 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
             "objectClass: organizationalUnit",
             "ou: people" ) );
 
-        // Add 1000 children
-        int dummyCount = 1000;
+        // Add N children
 
-        for ( int i = 0; i < dummyCount; i++ ) 
+        for ( int i = 0; i < DUMMY_COUNT; i++ )
         {
             String dn = "uid=uid-" + i + "," + peopleDn;
             
@@ -175,7 +182,7 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
         int count = 0;
         
         // Now test the rename
-        for ( int i = 0; i < 100; i++ ) 
+        for ( int i = 0; i < LOOP_COUNT; i++ )
         {
             String oldDnString = "uid=myra-ellen-amos, " + peopleDn.getName();
             String newDnString = "uid=tory-amos, " + peopleDn.getName();
@@ -272,9 +279,8 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
                                 "objectClass", "organizationalUnit",
                                 "ou", peopleOu ) );
 
-                        int dummyCount = 1000;
-                        logger.debug( "Add {} dummy people", dummyCount );
-                        for ( int i = 1; i < dummyCount; i++ ) 
+                        logger.debug( "Add {} dummy people", DUMMY_COUNT );
+                        for ( int i = 1; i < DUMMY_COUNT; i++ )
                         {
                             String uid = "uid-" + i;
                             String dn = "uid=" + uid + "," + peopleDn;
@@ -297,7 +303,7 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
             
                 } );
 
-        for ( int i = 0; i < 100; i++ ) {
+        for ( int i = 0; i < LOOP_COUNT; i++ ) {
             logger.info( "round {}", i );
             final String oldUid = "myra-ellen-amos";
             final String oldCn = "Myra Ellen Amos";
@@ -386,9 +392,8 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
                     "objectClass", "organizationalUnit",
                     "ou", people ) );
 
-            int dummyCount = 1000;
-            logger.debug( "Add {} dummy people", dummyCount );
-            for ( int i = 1; i < dummyCount; i++ ) 
+            logger.debug( "Add {} dummy people", DUMMY_COUNT );
+            for ( int i = 1; i < DUMMY_COUNT; i++ )
             {
                 String uid = "uid-" + i;
                 String dn = "uid=" + uid + "," + dnPeople;
@@ -422,7 +427,7 @@ public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
             
             try
             {
-                for ( ; i < 100; i++ ) 
+                for ( ; i < LOOP_COUNT; i++ )
                 {
                     rename( connection, base, oldDn, oldUid, oldCn, newRdn, newUid, newDn );
                 }

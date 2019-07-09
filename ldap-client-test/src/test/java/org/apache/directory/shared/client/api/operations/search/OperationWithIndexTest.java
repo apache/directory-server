@@ -823,7 +823,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
     @Test
     public void testSearchWithIndex() throws Exception
     {
-        int nbIterations = 1000;
+        int nbIterations = 100;
 
         //BufferedWriter out = new BufferedWriter( new FileWriter("/tmp/out.txt") );
 
@@ -868,7 +868,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
 
 
         // Now search the entry from the root
-        EntryCursor cursor = connection.search( "", "(uniqueMember=cn=user784,dc=test,dc=com)", SearchScope.SUBTREE );
+        EntryCursor cursor = connection.search( "", "(uniqueMember=cn=user78,dc=test,dc=com)", SearchScope.SUBTREE );
         List<String> entries = new ArrayList<String>();
 
         while ( cursor.next() )
@@ -883,7 +883,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
         assertNotNull( done );
         assertEquals( ResultCodeEnum.SUCCESS, done.getLdapResult().getResultCode() );
         assertEquals( 1, entries.size() );
-        assertTrue( entries.contains( "cn=user784,dc=test,dc=com" ) );
+        assertTrue( entries.contains( "cn=user78,dc=test,dc=com" ) );
         cursor.close();
     }
 }
