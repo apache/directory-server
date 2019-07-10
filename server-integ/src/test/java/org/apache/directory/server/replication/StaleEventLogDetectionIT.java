@@ -26,10 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory;
 import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory;
@@ -40,7 +38,9 @@ import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -246,7 +246,7 @@ public class StaleEventLogDetectionIT
         config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
         config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
-        config.setReplUserPassword( "secret".getBytes( StandardCharsets.UTF_8 ) );
+        config.setReplUserPassword( Strings.getBytesUtf8( "secret" ) );
         config.setUseTls( false );
         config.setBaseDn( "dc=example,dc=com" );
         config.setRefreshInterval( 1000 );

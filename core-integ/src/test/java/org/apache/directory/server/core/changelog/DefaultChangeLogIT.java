@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -34,6 +33,7 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.changelog.Tag;
@@ -424,7 +424,7 @@ public class DefaultChangeLogIT extends AbstractLdapTestUnit
     {
         Attribute userPassword = entry.get( "userPassword" );
         assertNotNull( userPassword );
-        assertTrue( Arrays.equals( password.getBytes( StandardCharsets.UTF_8 ), userPassword.getBytes() ) );
+        assertTrue( Arrays.equals( Strings.getBytesUtf8( password ), userPassword.getBytes() ) );
     }
 
 

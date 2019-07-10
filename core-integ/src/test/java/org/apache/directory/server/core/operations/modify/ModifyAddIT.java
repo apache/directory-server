@@ -26,8 +26,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.charset.StandardCharsets;
-
 import javax.naming.NameNotFoundException;
 import javax.naming.NoPermissionException;
 import javax.naming.directory.Attribute;
@@ -339,7 +337,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( "12345".getBytes(StandardCharsets.UTF_8) ) );
+        assertTrue( attr.contains( Strings.getBytesUtf8( "12345" ) ) );
         assertEquals( 1, attr.size() );
     }
 
@@ -544,8 +542,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
 
-        Attributes attrs = new BasicAttributes( "crossCertificatePair", "12345".getBytes( StandardCharsets.UTF_8 ),
-            true );
+        Attributes attrs = new BasicAttributes( "crossCertificatePair", Strings.getBytesUtf8( "12345" ), true );
 
         // Add the first Ava
         sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
@@ -559,7 +556,7 @@ public class ModifyAddIT extends AbstractLdapTestUnit
         attrs = sysRoot.getAttributes( "ou=testing01" );
         Attribute attr = attrs.get( "crossCertificatePair" );
         assertNotNull( attr );
-        assertTrue( attr.contains( "12345".getBytes( StandardCharsets.UTF_8 ) ) );
+        assertTrue( attr.contains( Strings.getBytesUtf8( "12345" ) ) );
         assertTrue( attr.contains( Strings.EMPTY_BYTES ) );
         assertEquals( 2, attr.size() );
     }

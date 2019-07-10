@@ -23,9 +23,9 @@ package org.apache.directory.kerberos.credentials.cache;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.KerberosEncoder;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
@@ -145,7 +145,7 @@ public class CacheOutputStream extends DataOutputStream
         if ( pname.getRealm() != null )
         {
             byte[] realmBytes = null;
-            realmBytes = pname.getRealm().getBytes( StandardCharsets.UTF_8 );
+            realmBytes = Strings.getBytesUtf8( pname.getRealm() );
             writeInt( realmBytes.length );
             write( realmBytes );
         }
@@ -157,7 +157,7 @@ public class CacheOutputStream extends DataOutputStream
         byte[] bytes = null;
         for ( int i = 0; i < pname.getNames().size(); i++ )
         {
-            bytes = pname.getNames().get( i ).getBytes( StandardCharsets.UTF_8 );
+            bytes = Strings.getBytesUtf8( pname.getNames().get( i ) );
             writeInt( bytes.length );
             write( bytes );
         }

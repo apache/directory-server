@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -1968,7 +1967,7 @@ public class SchemaAwareEntryTest
 
         Attribute attribute = entry.get( atPwd );
         assertEquals( 1, attribute.size() );
-        assertTrue( attribute.contains( "test".getBytes( StandardCharsets.UTF_8 ) ) );
+        assertTrue( attribute.contains( Strings.getBytesUtf8( "test" ) ) );
     }
 
 

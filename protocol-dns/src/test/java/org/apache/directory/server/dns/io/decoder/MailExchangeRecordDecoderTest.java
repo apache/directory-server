@@ -21,7 +21,8 @@
 package org.apache.directory.server.dns.io.decoder;
 
 
-import java.nio.charset.StandardCharsets;
+import static org.junit.Assert.assertEquals;
+
 import java.util.Map;
 
 import org.apache.directory.api.util.Strings;
@@ -29,8 +30,6 @@ import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -56,11 +55,11 @@ public class MailExchangeRecordDecoderTest
         inputBuffer = IoBuffer.allocate( 128 );
         inputBuffer.putShort( preference );
         inputBuffer.put( ( byte ) domainNameParts[0].length() );
-        inputBuffer.put( domainNameParts[0].getBytes( StandardCharsets.UTF_8 ) );
+        inputBuffer.put( Strings.getBytesUtf8( domainNameParts[0] ) );
         inputBuffer.put( ( byte ) domainNameParts[1].length() );
-        inputBuffer.put( domainNameParts[1].getBytes( StandardCharsets.UTF_8 ) );
+        inputBuffer.put( Strings.getBytesUtf8( domainNameParts[1] ) );
         inputBuffer.put( ( byte ) domainNameParts[2].length() );
-        inputBuffer.put( domainNameParts[2].getBytes( StandardCharsets.UTF_8 ) );
+        inputBuffer.put( Strings.getBytesUtf8( domainNameParts[2] ) );
         inputBuffer.put( ( byte ) 0x00 );
         inputBuffer.flip();
 

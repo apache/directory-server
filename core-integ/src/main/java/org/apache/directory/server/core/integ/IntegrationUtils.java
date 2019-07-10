@@ -21,7 +21,6 @@ package org.apache.directory.server.core.integ;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +45,7 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -138,7 +138,7 @@ public class IntegrationUtils
 
     public static LdifEntry getUserAddLdif() throws LdapException
     {
-        return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes( StandardCharsets.UTF_8 ),
+        return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", Strings.getBytesUtf8( "test" ),
             "Alex Karasulu", "Karasulu" );
     }
 

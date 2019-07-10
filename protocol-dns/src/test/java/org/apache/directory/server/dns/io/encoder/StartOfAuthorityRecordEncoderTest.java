@@ -21,7 +21,6 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,18 +75,18 @@ public class StartOfAuthorityRecordEncoderTest extends AbstractResourceRecordEnc
     {
         expectedData.put( ( byte ) 60 ); // 1 + 18 + 1 + 20 + 4 + 4 + 4 + 4 + 4
         expectedData.put( ( byte ) mNameParts[0].length() ); // 1
-        expectedData.put( mNameParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 2
+        expectedData.put( Strings.getBytesUtf8( mNameParts[0] ) ); // + 2
         expectedData.put( ( byte ) mNameParts[1].length() ); // + 1
-        expectedData.put( mNameParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 9
+        expectedData.put( Strings.getBytesUtf8( mNameParts[1] ) ); // + 9
         expectedData.put( ( byte ) mNameParts[2].length() ); // + 1
-        expectedData.put( mNameParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 3
+        expectedData.put( Strings.getBytesUtf8( mNameParts[2] ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 18
         expectedData.put( ( byte ) rNameParts[0].length() ); // 1
-        expectedData.put( rNameParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 4
+        expectedData.put( Strings.getBytesUtf8( rNameParts[0] ) ); // + 4
         expectedData.put( ( byte ) rNameParts[1].length() ); // + 1
-        expectedData.put( rNameParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 9
+        expectedData.put( Strings.getBytesUtf8( rNameParts[1] ) ); // + 9
         expectedData.put( ( byte ) rNameParts[2].length() ); // + 1
-        expectedData.put( rNameParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 3
+        expectedData.put( Strings.getBytesUtf8( rNameParts[2] ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 20
         expectedData.putInt( ( int ) Long.parseLong( serial ) );
         expectedData.putInt( Integer.parseInt( refresh ) );

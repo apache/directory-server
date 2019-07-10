@@ -27,10 +27,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Random;
 
+import org.apache.directory.api.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -153,7 +153,7 @@ public class BTreeRedirectMarshallerTest
 
         try
         {
-            marshaller.deserialize( "bogus".getBytes( StandardCharsets.UTF_8 ) );
+            marshaller.deserialize( Strings.getBytesUtf8( "bogus" ) );
             fail( "Should not get here." );
         }
         catch ( IOException e )

@@ -20,7 +20,9 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import java.nio.charset.StandardCharsets;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
@@ -37,13 +39,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.apache.directory.api.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -257,7 +258,7 @@ public class KeyTypeTest
 
         Mac mac = Mac.getInstance( "HmacMD5" );
         mac.init( sk );
-        byte[] result = mac.doFinal( "Hello world!".getBytes( StandardCharsets.UTF_8 ) );
+        byte[] result = mac.doFinal( Strings.getBytesUtf8( "Hello world!" ) );
 
         assertEquals( "HmacMD5 size", 16, result.length );
     }
@@ -276,7 +277,7 @@ public class KeyTypeTest
 
         Mac mac = Mac.getInstance( "HmacSHA1" );
         mac.init( sk );
-        byte[] result = mac.doFinal( "Hi There".getBytes( StandardCharsets.UTF_8 ) );
+        byte[] result = mac.doFinal( Strings.getBytesUtf8( "Hi There" ) );
 
         assertEquals( "HmacSHA1 size", 20, result.length );
     }

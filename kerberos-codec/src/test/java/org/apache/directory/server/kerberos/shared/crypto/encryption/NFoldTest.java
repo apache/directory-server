@@ -20,16 +20,17 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import java.nio.charset.StandardCharsets;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.apache.directory.api.util.Strings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.mycila.junit.concurrent.Concurrency;
+import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -51,11 +52,11 @@ public class NFoldTest
         int n = 64;
         String passPhrase = "012345";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 192, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0xbe, ( byte ) 0x07, ( byte ) 0x26, ( byte ) 0x31, ( byte ) 0x27, ( byte ) 0x6b, ( byte ) 0x19,
@@ -73,11 +74,11 @@ public class NFoldTest
         int n = 56;
         String passPhrase = "password";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 448, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0x78, ( byte ) 0xa0, ( byte ) 0x7b, ( byte ) 0x6c, ( byte ) 0xaf, ( byte ) 0x85, ( byte ) 0xfa };
@@ -94,11 +95,11 @@ public class NFoldTest
         int n = 64;
         String passPhrase = "Rough Consensus, and Running Code";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 2112, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0xbb, ( byte ) 0x6e, ( byte ) 0xd3, ( byte ) 0x08, ( byte ) 0x70, ( byte ) 0xb7, ( byte ) 0xf0,
@@ -116,11 +117,11 @@ public class NFoldTest
         int n = 168;
         String passPhrase = "password";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 1344, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0x59, ( byte ) 0xe4, ( byte ) 0xa8, ( byte ) 0xca, ( byte ) 0x7c, ( byte ) 0x03, ( byte ) 0x85,
@@ -140,11 +141,11 @@ public class NFoldTest
         int n = 192;
         String passPhrase = "MASSACHVSETTS INSTITVTE OF TECHNOLOGY";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 7104, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0xdb, ( byte ) 0x3b, ( byte ) 0x0d, ( byte ) 0x8f, ( byte ) 0x0b, ( byte ) 0x06, ( byte ) 0x1e,
@@ -165,11 +166,11 @@ public class NFoldTest
         int n = 168;
         String passPhrase = "Q";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 168, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0x51, ( byte ) 0x8a, ( byte ) 0x54, ( byte ) 0xa2, ( byte ) 0x15, ( byte ) 0xa8, ( byte ) 0x45,
@@ -189,11 +190,11 @@ public class NFoldTest
         int n = 168;
         String passPhrase = "ba";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 336, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0xfb, ( byte ) 0x25, ( byte ) 0xd5, ( byte ) 0x31, ( byte ) 0xae, ( byte ) 0x89, ( byte ) 0x74,
@@ -213,11 +214,11 @@ public class NFoldTest
         int n = 64;
         String passPhrase = "kerberos";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 64, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0x6b, ( byte ) 0x65, ( byte ) 0x72, ( byte ) 0x62, ( byte ) 0x65, ( byte ) 0x72, ( byte ) 0x6f,
@@ -235,11 +236,11 @@ public class NFoldTest
         int n = 128;
         String passPhrase = "kerberos";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 128, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0x6b, ( byte ) 0x65, ( byte ) 0x72, ( byte ) 0x62, ( byte ) 0x65, ( byte ) 0x72, ( byte ) 0x6f,
@@ -258,11 +259,11 @@ public class NFoldTest
         int n = 168;
         String passPhrase = "kerberos";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 1344, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0x83, ( byte ) 0x72, ( byte ) 0xc2, ( byte ) 0x36, ( byte ) 0x34, ( byte ) 0x4e, ( byte ) 0x5f,
@@ -282,11 +283,11 @@ public class NFoldTest
         int n = 256;
         String passPhrase = "kerberos";
 
-        int k = passPhrase.getBytes( StandardCharsets.UTF_8 ).length * 8;
+        int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
         assertEquals( "LCM", 256, lcm );
 
-        byte[] nFoldValue = NFold.nFold( n, passPhrase.getBytes( StandardCharsets.UTF_8 ) );
+        byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
         byte[] testVector =
             { ( byte ) 0x6b, ( byte ) 0x65, ( byte ) 0x72, ( byte ) 0x62, ( byte ) 0x65, ( byte ) 0x72, ( byte ) 0x6f,

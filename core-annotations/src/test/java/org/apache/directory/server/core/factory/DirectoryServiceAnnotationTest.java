@@ -24,7 +24,6 @@ package org.apache.directory.server.core.factory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +31,7 @@ import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.FileUtils;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateAuthenticator;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -213,8 +213,7 @@ public class DirectoryServiceAnnotationTest
             "Expected the only interceptor to be the dummy interceptor",
             DummyAuthenticator.class,
             authenticators.iterator().next().getClass() );
-        service.getSession( new Dn( "uid=non-existant-user,ou=system" ),
-            "wrong-password".getBytes( StandardCharsets.UTF_8 ) );
+        service.getSession( new Dn( "uid=non-existant-user,ou=system" ), Strings.getBytesUtf8( "wrong-password" ) );
         assertTrue( "Expected dummy authenticator to have been invoked", dummyAuthenticatorCalled );
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );

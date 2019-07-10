@@ -21,15 +21,15 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
+import static org.junit.Assert.assertEquals;
+
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-
-import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -58,11 +58,11 @@ public class QuestionRecordEncoderTest
 
         expectedData = IoBuffer.allocate( 128 );
         expectedData.put( ( byte ) nameParts[0].length() ); // 1
-        expectedData.put( nameParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 3
+        expectedData.put( Strings.getBytesUtf8( nameParts[0] ) ); // + 3
         expectedData.put( ( byte ) nameParts[1].length() ); // + 1
-        expectedData.put( nameParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 6
+        expectedData.put( Strings.getBytesUtf8( nameParts[1] ) ); // + 6
         expectedData.put( ( byte ) nameParts[2].length() ); // + 1
-        expectedData.put( nameParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 3
+        expectedData.put( Strings.getBytesUtf8( nameParts[2] ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 16
         expectedData.putShort( type.convert() );
         expectedData.putShort( rClass.convert() );

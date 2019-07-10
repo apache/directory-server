@@ -24,7 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -33,6 +32,7 @@ import org.apache.directory.api.ldap.model.message.CompareRequestImpl;
 import org.apache.directory.api.ldap.model.message.CompareResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.future.CompareFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -85,7 +85,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
         assertTrue( response );
 
         response = connection.compare( dn.getName(), SchemaConstants.USER_PASSWORD_AT,
-            "secret".getBytes( StandardCharsets.UTF_8 ) );
+            Strings.getBytesUtf8( "secret" ) );
         assertNotNull( response );
         assertTrue( response );
     }

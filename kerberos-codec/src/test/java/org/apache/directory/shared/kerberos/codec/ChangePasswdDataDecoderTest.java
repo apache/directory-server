@@ -24,7 +24,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
@@ -104,7 +103,7 @@ public class ChangePasswdDataDecoderTest
 
         ChangePasswdData chngPwdData = container.getChngPwdData();
 
-        assertArrayEquals( "secret".getBytes( StandardCharsets.UTF_8 ), chngPwdData.getNewPasswd() );
+        assertArrayEquals( Strings.getBytesUtf8( "secret" ), chngPwdData.getNewPasswd() );
         assertEquals( "krbtgt", chngPwdData.getTargName().getNameString() );
         assertEquals( "EXAMPLE.COM", chngPwdData.getTargRealm() );
 
@@ -157,7 +156,7 @@ public class ChangePasswdDataDecoderTest
 
         ChangePasswdData chngPwdData = container.getChngPwdData();
 
-        assertArrayEquals( "secret".getBytes( StandardCharsets.UTF_8 ), chngPwdData.getNewPasswd() );
+        assertArrayEquals( Strings.getBytesUtf8( "secret" ), chngPwdData.getNewPasswd() );
         assertEquals( "EXAMPLE.COM", chngPwdData.getTargRealm() );
 
         String encodedPdu = Strings.dumpBytes( chngPwdData.encode( null ).array() );
@@ -214,7 +213,7 @@ public class ChangePasswdDataDecoderTest
 
         ChangePasswdData chngPwdData = container.getChngPwdData();
 
-        assertArrayEquals( "secret".getBytes( StandardCharsets.UTF_8 ), chngPwdData.getNewPasswd() );
+        assertArrayEquals( Strings.getBytesUtf8( "secret" ), chngPwdData.getNewPasswd() );
         assertEquals( "krbtgt", chngPwdData.getTargName().getNameString() );
 
         String encodedPdu = Strings.dumpBytes( chngPwdData.encode( null ).array() );
@@ -250,7 +249,7 @@ public class ChangePasswdDataDecoderTest
 
         ChangePasswdData chngPwdData = container.getChngPwdData();
 
-        assertArrayEquals( "secret".getBytes( StandardCharsets.UTF_8 ), chngPwdData.getNewPasswd() );
+        assertArrayEquals( Strings.getBytesUtf8( "secret" ), chngPwdData.getNewPasswd() );
 
         String encodedPdu = Strings.dumpBytes( chngPwdData.encode( null ).array() );
         assertEquals( decodedPdu, encodedPdu );

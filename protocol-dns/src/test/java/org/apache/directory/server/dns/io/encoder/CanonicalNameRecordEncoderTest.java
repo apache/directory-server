@@ -41,7 +41,6 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,11 +81,11 @@ public class CanonicalNameRecordEncoderTest extends AbstractResourceRecordEncode
     {
         expectedData.put( ( byte ) 18 );
         expectedData.put( ( byte ) cnameParts[0].length() ); // 1
-        expectedData.put( cnameParts[0].getBytes( StandardCharsets.UTF_8 ) ); // + 5
+        expectedData.put( Strings.getBytesUtf8( cnameParts[0] ) ); // + 5
         expectedData.put( ( byte ) cnameParts[1].length() ); // + 1
-        expectedData.put( cnameParts[1].getBytes( StandardCharsets.UTF_8 ) ); // + 6
+        expectedData.put( Strings.getBytesUtf8( cnameParts[1] ) ); // + 6
         expectedData.put( ( byte ) cnameParts[2].length() ); // + 1
-        expectedData.put( cnameParts[2].getBytes( StandardCharsets.UTF_8 ) ); // + 3
+        expectedData.put( Strings.getBytesUtf8( cnameParts[2] ) ); // + 3
         expectedData.put( ( byte ) 0x00 ); // + 1 = 18
     }
 }

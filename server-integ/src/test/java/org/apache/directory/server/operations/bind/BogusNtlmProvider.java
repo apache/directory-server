@@ -21,8 +21,7 @@
 package org.apache.directory.server.operations.bind;
 
 
-import java.nio.charset.StandardCharsets;
-
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmProvider;
 import org.apache.mina.core.session.IoSession;
 
@@ -49,7 +48,7 @@ public class BogusNtlmProvider implements NtlmProvider
     public byte[] generateChallenge( IoSession session, byte[] type1reponse ) throws Exception
     {
         this.type1response = type1reponse;
-        return "challenge".getBytes( StandardCharsets.UTF_8 );
+        return Strings.getBytesUtf8( "challenge" );
     }
 
 

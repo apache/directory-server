@@ -28,8 +28,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.nio.charset.StandardCharsets;
-
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
@@ -552,7 +550,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
     {
         LdapConnection adminConnection = getAdminNetworkConnection( getLdapServer() );
 
-        byte[] password = "secret1".getBytes( StandardCharsets.UTF_8 );
+        byte[] password = Strings.getBytesUtf8( "secret1" );
         byte[] credHash = PasswordUtil.createStoragePassword( password, LdapSecurityConstants.HASH_METHOD_SHA256 );
         addUser( adminConnection, "User11", credHash );
 

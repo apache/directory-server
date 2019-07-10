@@ -22,7 +22,6 @@ package org.apache.directory.kerberos.client;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.List;
@@ -116,7 +115,7 @@ public class KdcConnection
         this.config = config;
 
         nonceGenerator = new SecureRandom(
-            String.valueOf( System.currentTimeMillis() ).getBytes( StandardCharsets.UTF_8 ) );
+            Strings.getBytesUtf8( String.valueOf( System.currentTimeMillis() ) ) );
         cipherTextHandler = new CipherTextHandler();
         channel = new KerberosChannel();
     }

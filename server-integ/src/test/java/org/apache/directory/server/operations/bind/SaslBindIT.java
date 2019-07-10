@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -54,6 +53,7 @@ import org.apache.directory.api.ldap.model.message.Message;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.SaslCramMd5Request;
@@ -568,19 +568,19 @@ public class SaslBindIT extends AbstractLdapTestUnit
         BogusNtlmProvider provider = getNtlmProviderUsingReflection();
 
         NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.NTLM );
-        BindResponse type2response = client.bindType1( "type1_test".getBytes( StandardCharsets.UTF_8 ) );
+        BindResponse type2response = client.bindType1( Strings.getBytesUtf8( "type1_test" ) );
         assertEquals( 1, type2response.getMessageId() );
         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
         assertTrue(
-            Objects.deepEquals( "type1_test".getBytes( StandardCharsets.UTF_8 ), provider.getType1Response() ) );
+            Objects.deepEquals( Strings.getBytesUtf8( "type1_test" ), provider.getType1Response() ) );
         assertTrue(
-            Objects.deepEquals( "challenge".getBytes( StandardCharsets.UTF_8 ), type2response.getServerSaslCreds() ) );
+            Objects.deepEquals( Strings.getBytesUtf8( "challenge" ), type2response.getServerSaslCreds() ) );
 
-        BindResponse finalResponse = client.bindType3( "type3_test".getBytes( StandardCharsets.UTF_8 ) );
+        BindResponse finalResponse = client.bindType3( Strings.getBytesUtf8( "type3_test" ) );
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
         assertTrue(
-            Objects.deepEquals( "type3_test".getBytes( StandardCharsets.UTF_8 ), provider.getType3Response() ) );
+            Objects.deepEquals( Strings.getBytesUtf8( "type3_test" ), provider.getType3Response() ) );
     }
 
 
@@ -600,16 +600,16 @@ public class SaslBindIT extends AbstractLdapTestUnit
         ntlmHandler.setNtlmProvider( provider );
 
         NtlmSaslBindClient client = new NtlmSaslBindClient( SupportedSaslMechanisms.GSS_SPNEGO );
-        BindResponse type2response = client.bindType1( "type1_test".getBytes( StandardCharsets.UTF_8 ) );
+        BindResponse type2response = client.bindType1( Strings.getBytesUtf8( "type1_test" ) );
         assertEquals( 1, type2response.getMessageId() );
         assertEquals( ResultCodeEnum.SASL_BIND_IN_PROGRESS, type2response.getLdapResult().getResultCode() );
-        assertTrue( Objects.deepEquals( "type1_test".getBytes( StandardCharsets.UTF_8 ), provider.getType1Response() ) );
-        assertTrue( Objects.deepEquals( "challenge".getBytes( StandardCharsets.UTF_8 ), type2response.getServerSaslCreds() ) );
+        assertTrue( Objects.deepEquals( Strings.getBytesUtf8( "type1_test" ), provider.getType1Response() ) );
+        assertTrue( Objects.deepEquals( Strings.getBytesUtf8( "challenge" ), type2response.getServerSaslCreds() ) );
 
-        BindResponse finalResponse = client.bindType3( "type3_test".getBytes( StandardCharsets.UTF_8 ) );
+        BindResponse finalResponse = client.bindType3( Strings.getBytesUtf8( "type3_test" ) );
         assertEquals( 2, finalResponse.getMessageId() );
         assertEquals( ResultCodeEnum.SUCCESS, finalResponse.getLdapResult().getResultCode() );
-        assertTrue( Objects.deepEquals( "type3_test".getBytes( StandardCharsets.UTF_8 ), provider.getType3Response() ) );
+        assertTrue( Objects.deepEquals( Strings.getBytesUtf8( "type3_test" ), provider.getType3Response() ) );
     }
 
 

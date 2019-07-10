@@ -37,13 +37,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequestImpl;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
@@ -68,10 +67,11 @@ import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.password.PasswordUtil;
-import org.apache.directory.api.util.MockTimeProvider;
-import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.api.util.DateUtils;
+import org.apache.directory.api.util.MockTimeProvider;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
+import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -772,7 +772,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
-        bindReq.setCredentials( password.getBytes( StandardCharsets.UTF_8 ) );
+        bindReq.setCredentials( Strings.getBytesUtf8( password ) );
         bindReq.addControl( PP_REQ_CTRL );
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
@@ -819,7 +819,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
-        bindReq.setCredentials( password.getBytes( StandardCharsets.UTF_8 ) );
+        bindReq.setCredentials( Strings.getBytesUtf8( password ) );
         bindReq.addControl( PP_REQ_CTRL );
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
@@ -884,7 +884,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
-        bindReq.setCredentials( password.getBytes( StandardCharsets.UTF_8 ) );
+        bindReq.setCredentials( Strings.getBytesUtf8( password ) );
         bindReq.addControl( PP_REQ_CTRL );
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))
@@ -948,7 +948,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         BindRequest bindReq = new BindRequestImpl();
         bindReq.setDn( userDn );
-        bindReq.setCredentials( password.getBytes( StandardCharsets.UTF_8 ) );
+        bindReq.setCredentials( Strings.getBytesUtf8( password ) );
         bindReq.addControl( PP_REQ_CTRL );
 
         try (LdapConnection userCon = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() ))

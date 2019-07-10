@@ -25,23 +25,19 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.directory.api.util.FileUtils;
-import org.apache.directory.api.ldap.codec.api.LdapApiService;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncDoneValueFactory;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncRequestValueFactory;
-import org.apache.directory.api.ldap.extras.controls.syncrepl_impl.SyncStateValueFactory;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.Network;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -63,7 +59,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -244,7 +239,7 @@ public class ClientInitialRefreshIT
         config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
         config.setRemotePort( 16000 );
         config.setReplUserDn( "uid=admin,ou=system" );
-        config.setReplUserPassword( "secret".getBytes( StandardCharsets.UTF_8 ) );
+        config.setReplUserPassword( Strings.getBytesUtf8( "secret" ) );
         config.setUseTls( false );
         config.setBaseDn( "dc=example,dc=com" );
 

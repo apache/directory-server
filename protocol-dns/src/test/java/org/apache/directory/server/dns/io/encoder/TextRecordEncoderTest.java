@@ -21,7 +21,6 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +60,6 @@ public class TextRecordEncoderTest extends AbstractResourceRecordEncoderTest
     {
         expectedData.put( ( byte ) ( characterString.length() + 1 ) );
         expectedData.put( ( byte ) characterString.length() );
-        expectedData.put( characterString.getBytes( StandardCharsets.UTF_8 ) );
+        expectedData.put( Strings.getBytesUtf8( characterString ) );
     }
 }

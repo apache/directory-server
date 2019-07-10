@@ -22,7 +22,6 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
 import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
@@ -489,7 +488,7 @@ public class EncKdcRepPart implements Asn1Object
         }
 
         // The srealm
-        srealmBytes = srealm.getBytes( StandardCharsets.UTF_8 );
+        srealmBytes = Strings.getBytesUtf8( srealm );
         srealmLength = 1 + TLV.getNbBytes( srealmBytes.length ) + srealmBytes.length;
         encKdcRepPartSeqLength += 1 + TLV.getNbBytes( srealmLength ) + srealmLength;
 
