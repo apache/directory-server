@@ -121,9 +121,9 @@ import org.slf4j.LoggerFactory;
 @ApplyLdifFiles( {
     "dirserver_1974_it.ldif"
 } )
-public class DIRSERVER_1974_IT extends AbstractLdapTestUnit
+public class DIRSERVER_1974_PerfIT extends AbstractLdapTestUnit
 {
-    private static final Logger logger = LoggerFactory.getLogger( DIRSERVER_1974_IT.class );
+    private static final Logger logger = LoggerFactory.getLogger( DIRSERVER_1974_PerfIT.class );
     private static final String BASE = "dc=example,dc=com";
 
     private static final EntryMapper<Entry> DEFAULT_ENTRY_MAPPER = new EntryMapper<Entry>() {
