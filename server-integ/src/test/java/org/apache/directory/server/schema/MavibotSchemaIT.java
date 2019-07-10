@@ -94,7 +94,7 @@ import org.junit.runner.RunWith;
     },
     enableChangeLog = false)
 @CreateLdapServer(transports =
-    { @CreateTransport(port = 10389, protocol = "LDAP") })
+    { @CreateTransport(port = -1, protocol = "LDAP") })
 public class MavibotSchemaIT extends AbstractLdapTestUnit
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";

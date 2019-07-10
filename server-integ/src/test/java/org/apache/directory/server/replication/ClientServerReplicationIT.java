@@ -538,7 +538,7 @@ public class ClientServerReplicationIT
 
     @CreateDS(
         allowAnonAccess = true,
-        name = "provider-replication",
+        name = "ClientServerReplicationIT-provider-replication",
         enableChangeLog = false,
         partitions =
             {
@@ -600,7 +600,7 @@ public class ClientServerReplicationIT
     @CreateDS(
         allowAnonAccess = true,
         enableChangeLog = false,
-        name = "consumer-replication",
+        name = "ClientServerReplicationIT-consumer-replication",
         partitions =
             {
                 @CreatePartition(
