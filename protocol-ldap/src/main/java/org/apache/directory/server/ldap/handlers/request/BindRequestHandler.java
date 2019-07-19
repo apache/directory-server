@@ -165,7 +165,8 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
             }
             catch ( Exception le )
             {
-                // this is OK
+                // this is OK, it may be a delegated authentication, and in this case
+                // the entry is not present locally
             }
 
             if ( principalEntry == null )
