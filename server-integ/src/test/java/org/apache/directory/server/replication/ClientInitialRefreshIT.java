@@ -142,7 +142,7 @@ public class ClientInitialRefreshIT
     }
 
 
-    @CreateDS(allowAnonAccess = true, name = "provider-replication", partitions =
+    @CreateDS(allowAnonAccess = true, name = "ClientInitialRefreshIT-provider-replication", partitions =
         {
             @CreatePartition(
                 name = "example",
@@ -159,7 +159,7 @@ public class ClientInitialRefreshIT
                         "dc: example"))
     })
     @CreateLdapServer(transports =
-        { @CreateTransport(port = 16000, protocol = "LDAP") })
+        { @CreateTransport(port = -1, protocol = "LDAP") })
     public static void startProvider() throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
@@ -237,7 +237,7 @@ public class ClientInitialRefreshIT
         final MockSyncReplConsumer syncreplClient = new MockSyncReplConsumer();
         final SyncReplConfiguration config = new SyncReplConfiguration();
         config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
-        config.setRemotePort( 16000 );
+        config.setRemotePort( providerServer.getPort() );
         config.setReplUserDn( "uid=admin,ou=system" );
         config.setReplUserPassword( Strings.getBytesUtf8( "secret" ) );
         config.setUseTls( false );

@@ -148,7 +148,7 @@ public class StaleEventLogDetectionIT
     }
 
 
-    @CreateDS(allowAnonAccess = true, name = "provider-replication", partitions =
+    @CreateDS(allowAnonAccess = true, name = "StaleEventLogDetectionIT-provider-replication", partitions =
         {
             @CreatePartition(
                 name = "example",
@@ -165,7 +165,7 @@ public class StaleEventLogDetectionIT
                         "dc: example"))
     })
     @CreateLdapServer(transports =
-        { @CreateTransport(port = 16000, protocol = "LDAP") })
+        { @CreateTransport(port = -1, protocol = "LDAP") })
     public static void startProvider() throws Exception
     {
         DirectoryService provDirService = DSAnnotationProcessor.getDirectoryService();
@@ -244,7 +244,7 @@ public class StaleEventLogDetectionIT
         final ReplicationConsumer syncreplClient = new MockSyncReplConsumer();
         final SyncReplConfiguration config = new SyncReplConfiguration();
         config.setRemoteHost( Network.LOOPBACK_HOSTNAME );
-        config.setRemotePort( 16000 );
+        config.setRemotePort( providerServer.getPort() );
         config.setReplUserDn( "uid=admin,ou=system" );
         config.setReplUserPassword( Strings.getBytesUtf8( "secret" ) );
         config.setUseTls( false );
