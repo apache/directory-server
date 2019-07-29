@@ -169,6 +169,17 @@ public class DefaultCoreSession implements CoreSession
 
 
     /**
+     * Gets the IoSession from the CoreSession. This is only useful when the server is not embedded.
+     * 
+     * @return ioSession The IoSession for this CoreSession
+     */
+    public IoSession getIoSession()
+    {
+        return ioSession;
+    }
+
+
+    /**
      * Stores the IoSession into the CoreSession. This is only useful when the server is not embedded.
      * 
      * @param ioSession The IoSession for this CoreSession

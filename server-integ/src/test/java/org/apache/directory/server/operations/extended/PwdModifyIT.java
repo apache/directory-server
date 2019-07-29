@@ -64,6 +64,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.PwdModifyHandler;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -83,6 +84,7 @@ import org.junit.runner.RunWith;
 //disable changelog, for more info see DIRSERVER-1528
 @CreateDS(enableChangeLog = false, name = "PasswordPolicyTest", additionalInterceptors =
     { Sha512PasswordHashingInterceptor.class })
+@Ignore
 public class PwdModifyIT extends AbstractLdapTestUnit
 {
     private static final PasswordPolicyResponse PP_REQ_CTRL = new PasswordPolicyResponseImpl();
