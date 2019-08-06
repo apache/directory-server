@@ -57,7 +57,7 @@
     <ant.version>1.10.6</ant.version>
     <bcprov.version>1.62</bcprov.version>
     <commons.cli.version>1.4</commons.cli.version>
-    <commons.codec.version>1.12</commons.codec.version>
+    <commons.codec.version>1.13</commons.codec.version>
     <commons.collections.version>4.3</commons.collections.version>
     <commons.daemon.version>1.1.0</commons.daemon.version>
     <commons.lang.version>3.9</commons.lang.version>
