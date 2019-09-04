@@ -48,6 +48,7 @@
     <module>operational</module>
     <module>collective</module>
     <module>logger</module>
+    <module>members</module>
     <module>exception</module>
     <module>hash</module>
     <module>schema</module>
