@@ -157,16 +157,6 @@ public class SearchMembersIT extends AbstractLdapTestUnit
 
         cursor.close();
 
-        req.setFilter( "(member=cn=\\5C#User1,ou=users,dc=example,dc=com)" );
-        cursor = connection.search( req );
-        assertTrue( cursor.next() );
-        cursor.close();
-
-        req.setFilter( "(member=cn=User#2,ou=users,dc=example,dc=com)" );
-        cursor = connection.search( req );
-        assertTrue( cursor.next() );
-        cursor.close();
-
         connection.close();
     }
 }
