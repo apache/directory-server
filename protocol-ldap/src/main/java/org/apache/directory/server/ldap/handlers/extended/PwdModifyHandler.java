@@ -30,12 +30,14 @@ import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyRes
 import org.apache.directory.api.ldap.extras.extended.pwdModify.PasswordModifyResponseImpl;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.message.Control;
@@ -48,6 +50,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.shared.DefaultCoreSession;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
@@ -88,157 +91,355 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
 
     /**
      * Modify the user's credentials.
+     * 
+     * We will need to modify the userPassword attribute, accordingly to a few rules:
+     * - if the old password is present, we should verify it's valid. if not, we return an error
+     * - if the old password is absent, we are modifying the password of the current used.
+     * - if the new password is absent, we will return an error. The RFC says that we could
+     * generate a random password, but that would be dangerous to do so.
+     * - if the new password already exists, we simply return not changing anything 
+     * - otherwise, we just remove the old password from the list of passwords (we may have 
+     * more than one) and add the new password. This is done with a REPLACE operation (Modify)
      */
-    private void modifyUserPassword( CoreSession userSession, IoSession ioPipe, Dn userDn, byte[] oldPassword, byte[] newPassword,
-        PasswordModifyRequest req )
+    private void modifyUserPassword( CoreSession userSession, Entry userEntry, Dn userDn, 
+        byte[] oldPassword, byte[] newPassword, PasswordModifyRequest req )
     {
-        // First, check that the user exists
-        try
-        {
-            Entry userEntry = userSession.lookup( userDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-            
-            if ( userEntry == null )
-            {
-                LOG.error( "Cannot find an entry for DN {}", userDn );
-                // We can't find the entry in the DIT
-                ioPipe.write( new PasswordModifyResponseImpl(
-                    req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT, "Cannot find an entry for DN " + userDn ) );
+        IoSession ioSession = ( ( DefaultCoreSession ) userSession ).getIoSession();
 
-                return;
-            }
-            
-            Attribute at = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
-            
-            if ( ( oldPassword != null ) && ( at != null ) )
-            {
-                for ( Value value : at )
-                {
-                    byte[] bytes = value.getBytes();
-                    boolean equal = PasswordUtil.compareCredentials( oldPassword, bytes );
-                    
-                    if ( equal )
-                    {
-                        oldPassword = bytes;
-                    }
-                }
-            }
-        }
-        catch ( LdapException le )
+        if ( newPassword == null )
         {
-            LOG.error( "Cannot find an entry for DN {}, exception : {}", userDn, le.getMessage() );
-            // We can't find the entry in the DIT
-            ioPipe.write(
-                new PasswordModifyResponseImpl(
-                    req.getMessageId(), ResultCodeEnum.NO_SUCH_OBJECT, "Cannot find an entry for DN " + userDn ) );
+            // We don't support password generation on ApacheDS
+            writeResult( ioSession, req, ResultCodeEnum.UNWILLING_TO_PERFORM, 
+                "Cannot change a password for user " + userDn + ", exception : null new password" );
 
             return;
         }
-
-        // We can try to update the userPassword now
-        ModifyRequest modifyRequest = new ModifyRequestImpl();
-        modifyRequest.setName( userDn );
-
-        Control ppolicyControl = req.getControl( PasswordPolicyRequest.OID );
         
-        if ( ppolicyControl != null )
+        // Get the user password attribute
+        Attribute userPassword = userEntry.get( SchemaConstants.USER_PASSWORD_AT );
+        
+        if ( userPassword == null )
         {
-            modifyRequest.addControl( ppolicyControl );
-        }
-
-        Modification modification = null;
-
-        if ( oldPassword != null )
-        {
-            modification = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-                SchemaConstants.USER_PASSWORD_AT, oldPassword );
-
-            modifyRequest.addModification( modification );
-        }
-
-        if ( newPassword != null )
-        {
-            if ( oldPassword == null )
-            {
-                modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-                    SchemaConstants.USER_PASSWORD_AT, newPassword );
-            }
-            else
-            {
-                modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-                    SchemaConstants.USER_PASSWORD_AT, newPassword );
-            }
-
-            modifyRequest.addModification( modification );
-        }
-        else
-        {
-            // In this case, we could either generate a new password, or return an error
-            // Atm, we will return an unwillingToPerform error
-            LOG.error( "Cannot create a new password for user {}, exception : null new password", userDn );
-
             // We can't modify the password
-            ioPipe.write( new PasswordModifyResponseImpl(
-                req.getMessageId(), ResultCodeEnum.UNWILLING_TO_PERFORM, "Cannot generate a new password for user "
-                    + userDn ) );
+            writeResult( ioSession, req, ResultCodeEnum.UNWILLING_TO_PERFORM, 
+                "Cannot change a password for user " + userDn + ", the user has no existing password" );
 
             return;
         }
-
-        ResultCodeEnum errorCode = null;
-        String errorMessage = null;
-
-        try
+        
+        if ( userPassword.contains( newPassword ) )
         {
-            userSession.modify( modifyRequest );
-
-            if ( LOG.isDebugEnabled() )
-            {
-                LOG.debug( "Password modified for user {}", userDn );
-            }
-
-            // Ok, all done
+           // Ok, we are done : just return success
             PasswordModifyResponseImpl pmrl = new PasswordModifyResponseImpl(
                 req.getMessageId(), ResultCodeEnum.SUCCESS );
 
-            ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
+            Control ppolicyControl = req.getControl( PasswordPolicyRequest.OID );
 
             if ( ppolicyControl != null )
             {
                 pmrl.addControl( ppolicyControl );
             }
 
-            ioPipe.write( pmrl );
+            ioSession.write( pmrl );
 
             return;
         }
-        catch ( LdapOperationException loe )
+        
+        if ( oldPassword == null )
         {
-            errorCode = loe.getResultCode();
-            errorMessage = loe.getMessage();
+            // We are modifying the password on behalf of another user. ACI will
+            // protect such modification if it's not allowed. In any case, we just 
+            // modify the existing userPassword attribute, adding the password
+            ModifyRequest modifyRequest = new ModifyRequestImpl();
+            modifyRequest.setName( userDn );
+
+            Control ppolicyControl = req.getControl( PasswordPolicyRequest.OID );
+            
+            if ( ppolicyControl != null )
+            {
+                modifyRequest.addControl( ppolicyControl );
+            }
+            
+            try
+            {
+                Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+                    userPassword.getAttributeType(), newPassword );
+    
+                modifyRequest.addModification( modification );
+                ResultCodeEnum errorCode = null;
+                String errorMessage = null;
+
+                try
+                {
+                    userSession.modify( modifyRequest );
+
+                    if ( LOG.isDebugEnabled() )
+                    {
+                        LOG.debug( "Password modified for user {}", userDn );
+                    }
+
+                    // Ok, all done
+                    PasswordModifyResponseImpl pmrl = new PasswordModifyResponseImpl(
+                        req.getMessageId(), ResultCodeEnum.SUCCESS );
+
+                    ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
+
+                    if ( ppolicyControl != null )
+                    {
+                        pmrl.addControl( ppolicyControl );
+                    }
+
+                    ioSession.write( pmrl );
+
+                    return;
+                }
+                catch ( LdapOperationException loe )
+                {
+                    errorCode = loe.getResultCode();
+                    errorMessage = loe.getMessage();
+                }
+                catch ( LdapException le )
+                {
+                    // this exception means something else must be wrong
+                    errorCode = ResultCodeEnum.OTHER;
+                    errorMessage = le.getMessage();
+                }
+
+                // We can't modify the password
+                LOG.error( "Cannot modify the password for user {}, exception : {}", userDn, errorMessage );
+                PasswordModifyResponseImpl errorPmrl = new PasswordModifyResponseImpl(
+                    req.getMessageId(), errorCode, "Cannot modify the password for user "
+                        + userDn + ", exception : " + errorMessage );
+
+                ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
+
+                if ( ppolicyControl != null )
+                {
+                    errorPmrl.addControl( ppolicyControl );
+                }
+
+                ioSession.write( errorPmrl );
+                
+                return;
+            }
+            catch ( LdapInvalidAttributeValueException liave )
+            {
+                // Nothing to do, this will never be a problem
+            }
         }
-        catch ( LdapException le )
+        else
         {
-            // this exception means something else must be wrong
-            errorCode = ResultCodeEnum.OTHER;
-            errorMessage = le.getMessage();
+            // We are changing the password of the current user, check the password
+            boolean valid = false;
+            Attribute modifiedPassword = new DefaultAttribute( userPassword.getAttributeType() );
+            
+            for ( Value value : userPassword )
+            {
+                if ( !valid )
+                {
+                    valid = PasswordUtil.compareCredentials( oldPassword, value.getBytes() ) ;
+                }
+                
+                try
+                {
+                    if ( valid )
+                    {
+                        modifiedPassword.add( newPassword );
+                    }
+                    else
+                    { 
+                        modifiedPassword.add( value );
+                    }
+                }
+                catch ( LdapInvalidAttributeValueException e )
+                {
+                    // Nothing to do, this will never be a problem
+                }
+            }
+            
+            // At this point, we have what is needed to modify the password, if the oldPassword
+            // was valid
+            if ( valid )
+            {
+                ModifyRequest modifyRequest = new ModifyRequestImpl();
+                modifyRequest.setName( userDn );
+
+                Control ppolicyControl = req.getControl( PasswordPolicyRequest.OID );
+                
+                if ( ppolicyControl != null )
+                {
+                    modifyRequest.addControl( ppolicyControl );
+                }
+                
+                Modification modification = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+                    modifiedPassword );
+
+                modifyRequest.addModification( modification );
+
+                ResultCodeEnum errorCode = null;
+                String errorMessage = null;
+
+                try
+                {
+                    userSession.modify( modifyRequest );
+
+                    if ( LOG.isDebugEnabled() )
+                    {
+                        LOG.debug( "Password modified for user {}", userDn );
+                    }
+
+                    // Ok, all done
+                    PasswordModifyResponseImpl pmrl = new PasswordModifyResponseImpl(
+                        req.getMessageId(), ResultCodeEnum.SUCCESS );
+
+                    ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
+
+                    if ( ppolicyControl != null )
+                    {
+                        pmrl.addControl( ppolicyControl );
+                    }
+
+                    ioSession.write( pmrl );
+
+                    return;
+                }
+                catch ( LdapOperationException loe )
+                {
+                    errorCode = loe.getResultCode();
+                    errorMessage = loe.getMessage();
+                }
+                catch ( LdapException le )
+                {
+                    // this exception means something else must be wrong
+                    errorCode = ResultCodeEnum.OTHER;
+                    errorMessage = le.getMessage();
+                }
+
+                // We can't modify the password
+                LOG.error( "Cannot modify the password for user {}, exception : {}", userDn, errorMessage );
+                PasswordModifyResponseImpl errorPmrl = new PasswordModifyResponseImpl(
+                    req.getMessageId(), errorCode, "Cannot modify the password for user "
+                        + userDn + ", exception : " + errorMessage );
+
+                ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
+
+                if ( ppolicyControl != null )
+                {
+                    errorPmrl.addControl( ppolicyControl );
+                }
+
+                ioSession.write( errorPmrl );
+                
+                return;
+            }
+            else
+            {
+                // Too bad, the old password is invalid
+                writeResult( ioSession, req, ResultCodeEnum.INVALID_CREDENTIALS, 
+                    "Cannot change a password for user " + userDn + ", invalid credentials" );
+
+                return;
+            }
         }
-
-        // We can't modify the password
-        LOG.error( "Cannot modify the password for user {}, exception : {}", userDn, errorMessage );
-        PasswordModifyResponseImpl errorPmrl = new PasswordModifyResponseImpl(
-            req.getMessageId(), errorCode, "Cannot modify the password for user "
-                + userDn + ", exception : " + errorMessage );
-
-        ppolicyControl = modifyRequest.getResultResponse().getControl( PasswordPolicyRequest.OID );
-
-        if ( ppolicyControl != null )
-        {
-            errorPmrl.addControl( ppolicyControl );
-        }
-
-        ioPipe.write( errorPmrl );
     }
 
+    
+    private void writeResult( LdapSession requestor, PasswordModifyRequest req, ResultCodeEnum error, String errorMessage )
+    {
+        writeResult( requestor.getIoSession(), req, error, errorMessage );
+
+    }
+
+    
+    private void writeResult( IoSession ioSession, PasswordModifyRequest req, ResultCodeEnum error, String errorMessage )
+    {
+        LOG.error( errorMessage );
+        ioSession.write( new PasswordModifyResponseImpl(
+            req.getMessageId(), error, errorMessage ) );
+
+    }
+    
+    
+    private Entry getModifiedEntry( LdapSession requestor, PasswordModifyRequest req, Dn entryDn )
+    {
+        try
+        {
+            Entry modifiedEntry = requestor.getCoreSession().lookup( entryDn, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
+            
+            if ( modifiedEntry == null )
+            {
+                // The entry does not exist, we can't modify its password
+                writeResult( requestor, req, ResultCodeEnum.NO_SUCH_OBJECT, 
+                    "The entry does not exist, we can't modify its password" );
+                return null;
+            }
+            else
+            {
+                return modifiedEntry;
+            }
+        }
+        catch ( Exception le )
+        {
+            // The entry does not exist, we can't modify its password
+            writeResult( requestor, req, ResultCodeEnum.NO_SUCH_OBJECT, 
+                "The entry does not exist, we can't modify its password" );
+            return null;
+        }
+    }
+    
+    
+    private void processAuthenticatedPasswordModify( LdapSession requestor, PasswordModifyRequest req,
+        Dn userDn )
+    {
+        byte[] oldPassword = req.getOldPassword();
+        byte[] newPassword = req.getNewPassword();
+
+        // We are already bound. Fetch the entry which we want to modify
+        Entry modifiedEntry = null;
+        
+        Dn principalDn = requestor.getCoreSession().getEffectivePrincipal().getDn();
+
+        LOG.debug( "User {} trying to modify password of user {}", principalDn, userDn );
+        
+        
+        // First, check that the userDn is null : we can't change the password of someone else
+        // except if we are admin
+        if ( ( userDn != null ) && ( !userDn.equals( principalDn ) ) )
+        {
+            // Are we admin ?
+            if ( requestor.getCoreSession().isAdministrator() )
+            {
+                modifiedEntry = getModifiedEntry( requestor, req, userDn );
+                
+                if ( modifiedEntry == null )
+                {
+                    return;
+                }
+                
+                // We are administrator, we can try to modify the user's credentials
+                modifyUserPassword( requestor.getCoreSession(), modifiedEntry, userDn, oldPassword, newPassword, req );
+            }
+            else
+            {
+                // No : error
+                writeResult( requestor, req, ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS, 
+                    "Non-admin user cannot access another user's password to modify it" );
+            }
+        }
+        else
+        {
+            // We are trying to modify our own password
+            modifiedEntry = getModifiedEntry( requestor, req, principalDn );
+
+            if ( modifiedEntry == null )
+            {
+                return;
+            }
+
+            modifyUserPassword( requestor.getCoreSession(), modifiedEntry, principalDn, oldPassword, newPassword, req );
+        }
+    }
+    
 
     /**
      * {@inheritDoc}
@@ -261,10 +462,10 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             }
             catch ( LdapInvalidDnException lide )
             {
-                LOG.error( "The user DN is invalid : {}", userDn );
                 // The userIdentity is not a DN : return with an error code.
-                requestor.getIoSession().write( new PasswordModifyResponseImpl(
-                    req.getMessageId(), ResultCodeEnum.INVALID_DN_SYNTAX, "The user DN is invalid : " + userDn ) );
+                writeResult( requestor, req, ResultCodeEnum.INVALID_DN_SYNTAX, 
+                    "The user DN is invalid : " + userDn );
+
                 return;
             }
         }
@@ -275,34 +476,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
         // First check if the user is bound or not
         if ( requestor.isAuthenticated() )
         {
-            Dn principalDn = requestor.getCoreSession().getEffectivePrincipal().getDn();
-
-            LOG.debug( "User {} trying to modify password of user {}", principalDn, userDn );
-
-            // First, check that the userDn is null : we can't change the password of someone else
-            // except if we are admin
-            if ( ( userDn != null ) && ( !userDn.equals( principalDn ) ) )
-            {
-                // Are we admin ?
-                if ( !requestor.getCoreSession().isAdministrator() )
-                {
-                    // No : error
-                    LOG.error( "Non-admin user cannot access another user's password to modify it" );
-                    requestor.getIoSession().write( new PasswordModifyResponseImpl(
-                        req.getMessageId(), ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS,
-                        "Non-admin user cannot access another user's password to modify it" ) );
-                }
-                else
-                {
-                    // We are administrator, we can try to modify the user's credentials
-                    modifyUserPassword( requestor.getCoreSession(), requestor.getIoSession(), userDn, oldPassword, newPassword, req );
-                }
-            }
-            else
-            {
-                // We are trying to modify our own password
-                modifyUserPassword( requestor.getCoreSession(), requestor.getIoSession(), principalDn, oldPassword, newPassword, req );
-            }
+            processAuthenticatedPasswordModify( requestor, req, userDn );
         }
         else
         {
@@ -328,7 +502,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
 
             // Ok, we were able to bind using the userIdentity and the password. Let's
             // modify the password now
-            modifyUserPassword( requestor.getCoreSession(), requestor.getIoSession(), userDn, oldPassword, newPassword, req );
+            modifyUserPassword( requestor.getCoreSession(), bindContext.getEntry(), userDn, oldPassword, newPassword, req );
         }
     }
 
