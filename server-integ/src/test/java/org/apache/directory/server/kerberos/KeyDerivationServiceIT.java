@@ -177,9 +177,13 @@ public class KeyDerivationServiceIT extends AbstractLdapTestUnit
         {
             assertTrue( "Number of keys", krb5key.size() > 4 );
         }
+        else if ( vendor.equalsIgnoreCase( "Eclipse OpenJ9" ) )
+        {
+            assertTrue( "Number of keys", krb5key.size() > 4 );
+        }
         else
         {
-            fail( "Unkown JVM: " + vendor );
+            fail( "Unkown JVM/keysize: '" + vendor + "' / " + krb5key.size() );
         }
     }
 
