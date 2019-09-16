@@ -157,6 +157,28 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>ci-management</report>
+              <report>dependencies</report>
+              <report>dependency-management</report>
+              <report>index</report>
+              <report>issue-management</report>
+              <report>licenses</report>
+              <report>mailing-lists</report>
+              <report>plugin-management</report>
+              <report>scm</report>
+              <report>summary</report>
+              <report>team</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
         <reportSets>
           <reportSet>
@@ -501,33 +523,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <reportPlugins>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <reportSets>
-                  <reportSet>
-                    <reports>
-                      <report>project-team</report>
-                      <report>mailing-list</report>
-                      <report>license</report>
-                      <report>dependencies</report>
-                      <report>issue-tracking</report>
-                      <report>index</report>
-                      <report>scm</report>
-                      <report>cim</report>
-                      <report>plugin-management</report>
-                      <report>dependency-management</report>
-                      <report>summary</report>
-                    </reports>
-                  </reportSet>
-                </reportSets>
-              </plugin>
-            </plugins>
-          </reportPlugins>
-        </configuration>
       </plugin>
 
       <plugin>
