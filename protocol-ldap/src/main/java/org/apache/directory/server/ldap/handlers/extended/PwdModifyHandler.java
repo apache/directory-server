@@ -237,7 +237,7 @@ public class PwdModifyHandler implements ExtendedOperationHandler<PasswordModify
             {
                 if ( !valid )
                 {
-                    valid = PasswordUtil.compareCredentials( oldPassword, value.getBytes() ) ;
+                    valid = PasswordUtil.compareCredentials( oldPassword, value.getBytes() );
                 }
                 
                 try
