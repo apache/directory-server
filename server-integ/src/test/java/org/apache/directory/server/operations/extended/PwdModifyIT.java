@@ -64,6 +64,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.apache.directory.server.ldap.handlers.extended.PwdModifyHandler;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -83,6 +84,7 @@ import org.junit.runner.RunWith;
 //disable changelog, for more info see DIRSERVER-1528
 @CreateDS(enableChangeLog = false, name = "PasswordPolicyTest", additionalInterceptors =
     { Sha512PasswordHashingInterceptor.class })
+//@Ignore
 public class PwdModifyIT extends AbstractLdapTestUnit
 {
     private static final PasswordPolicyResponse PP_REQ_CTRL = new PasswordPolicyResponseImpl();
@@ -391,7 +393,8 @@ public class PwdModifyIT extends AbstractLdapTestUnit
         PasswordModifyResponse pwdModifyResponse = ( PasswordModifyResponse ) adminConnection.extended( pwdModifyRequest );
 
         assertEquals( ResultCodeEnum.NO_SUCH_OBJECT, pwdModifyResponse.getLdapResult().getResultCode() );
-        assertEquals( "Cannot find an entry for DN cn=baduser,ou=system", pwdModifyResponse.getLdapResult()
+        
+        assertEquals( "The entry does not exist, we can't modify its password", pwdModifyResponse.getLdapResult()
             .getDiagnosticMessage() );
 
         adminConnection.close();
