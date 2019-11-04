@@ -858,12 +858,10 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
         {
             return find( key, startNode.right, path );
         }
-        else if ( c < 0 )
+        else
         {
             return find( key, startNode.left, path );
         }
-
-        return null;
     }
 
 

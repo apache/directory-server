@@ -165,7 +165,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             try ( BufferedReader reader = Files.newBufferedReader( revFile.toPath(), StandardCharsets.UTF_8 ) )
             {
                 String line = reader.readLine();
-                currentRevision = Long.valueOf( line );
+                currentRevision = Long.parseLong( line );
             }
         }
     }
