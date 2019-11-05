@@ -657,12 +657,10 @@ public class AvlTreeImpl<K> implements AvlTree<K>
         {
             return find( key, startNode.right, path );
         }
-        else if ( c < 0 )
+        else
         {
             return find( key, startNode.left, path );
         }
-
-        return null;
     }
 
 

@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.shared.partition;
 
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -163,9 +164,9 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         Properties props = new Properties();
 
-        try
+        try ( InputStream inputStream = getClass().getResourceAsStream( "version.properties" ) )
         {
-            props.load( getClass().getResourceAsStream( "version.properties" ) );
+            props.load( inputStream );
         }
         catch ( IOException e )
         {
