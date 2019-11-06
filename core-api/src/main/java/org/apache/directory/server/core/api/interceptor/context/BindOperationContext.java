@@ -199,8 +199,7 @@ public class BindOperationContext extends AbstractOperationContext
     @Override
     public String toString()
     {
-        return "BindContext for Dn '" + getDn().getName() + "', credentials <"
-            + ( credentials != null ? Strings.dumpBytes( credentials ) : "" ) + ">"
+        return "BindContext for Dn '" + getDn().getName()
             + ( saslMechanism != null ? ", saslMechanism : <" + saslMechanism + ">" : "" )
             + ( saslAuthId != null ? ", saslAuthId <" + saslAuthId + ">" : "" );
     }
