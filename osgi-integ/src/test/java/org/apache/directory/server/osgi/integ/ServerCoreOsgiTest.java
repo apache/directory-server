@@ -43,7 +43,7 @@ public class ServerCoreOsgiTest extends ServerOsgiTestBase
         DefaultDirectoryService ds = new DefaultDirectoryService();
         new DefaultOperationManager( ds );
         TlsKeyGenerator.addKeyPair( new DefaultEntry() );
-        CertificateUtil.createTempKeyStore( "foo" );
+        CertificateUtil.createTempKeyStore( "foo", "secret".toCharArray() );
     }
 
 }

@@ -172,7 +172,7 @@ public final class CertificateUtil
     /**
      * Create a self signed certificate
      * 
-     * @param issuer The Issuer (§which is the same as the subject
+     * @param issuer The Issuer (which is the same as the subject
      * @param keyPair The asymmetric keyPair
      * @param days Validity number of days
      * @param algoStr Algorithm
@@ -204,7 +204,7 @@ public final class CertificateUtil
     /**
      * Generate a Certificate signed by a CA certificate
      * 
-     * @param issuer The Issuer (§which is the same as the subject
+     * @param issuer The Issuer (which is the same as the subject
      * @param keyPair The asymmetric keyPair
      * @param days Validity number of days
      * @param algoStr Algorithm
@@ -311,7 +311,7 @@ public final class CertificateUtil
     }
     
     
-    public static File createTempKeyStore( String keyStoreName ) throws IOException, KeyStoreException, 
+    public static File createTempKeyStore( String keyStoreName, char[] keyStorePassword ) throws IOException, KeyStoreException,
         NoSuchAlgorithmException, CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException
     {
         // Create a temporary keystore, be sure to remove it when exiting the test
@@ -319,7 +319,6 @@ public final class CertificateUtil
         keyStoreFile.deleteOnExit();
         
         KeyStore keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-        char[] keyStorePassword = "secret".toCharArray();
         
         try ( InputStream keyStoreData = new FileInputStream( keyStoreFile ) )
         {

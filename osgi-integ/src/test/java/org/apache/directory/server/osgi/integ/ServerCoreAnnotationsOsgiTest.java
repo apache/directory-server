@@ -45,7 +45,7 @@ public class ServerCoreAnnotationsOsgiTest extends ServerOsgiTestBase
         DirectoryService ds = factory.getDirectoryService();
         assertNotNull( ds );
         assertNotNull( ds.getDnFactory() );
-        CertificateUtil.createTempKeyStore( "foo" );
+        CertificateUtil.createTempKeyStore( "foo", "secret".toCharArray() );
     }
 
 }

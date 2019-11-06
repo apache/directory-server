@@ -36,7 +36,7 @@ public class ServerAnnotationsOsgiTest extends ServerOsgiTestBase
     @Override
     protected void useBundleClasses() throws Exception
     {
-        CertificateUtil.createTempKeyStore( "foo" );
+        CertificateUtil.createTempKeyStore( "foo", "secret".toCharArray() );
     }
 
 }

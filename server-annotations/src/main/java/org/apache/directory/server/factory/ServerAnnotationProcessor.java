@@ -155,7 +155,7 @@ public final class ServerAnnotationProcessor
                 try
                 {
                     // Create a temporary keystore, be sure to remove it when exiting the test
-                    File keyStoreFile = CertificateUtil.createTempKeyStore( "testStore" );
+                    File keyStoreFile = CertificateUtil.createTempKeyStore( "testStore", "secret".toCharArray() );
                     ldapServer.setKeystoreFile( keyStoreFile.getAbsolutePath() );
                     ldapServer.setCertificatePassword( "secret" );
                 }
