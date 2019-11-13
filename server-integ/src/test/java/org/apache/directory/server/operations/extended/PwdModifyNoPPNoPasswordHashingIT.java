@@ -57,12 +57,8 @@ import org.junit.runner.RunWith;
 
 
 /**
-<<<<<<< HEAD
- * Test the PwdModify extended operation
-=======
  * Test the PwdModify extended operation, when no PasswordPolicy or PasswordHashing interceptor
  * are present.
->>>>>>> c42030f59692518133715f0a4753ce24bb63b2d8
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
