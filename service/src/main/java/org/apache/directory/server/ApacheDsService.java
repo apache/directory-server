@@ -21,14 +21,7 @@ package org.apache.directory.server;
 
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,8 +85,6 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ntp.NtpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import sun.security.x509.X500Name;
 
 
 /**
@@ -222,37 +213,10 @@ public class ApacheDsService
             
             if ( !ldapServerKeystoreFile.exists() )
             {
-                // We need to create a KeyStore
-                ldapServerKeystoreFile.createNewFile();
-                ldapServerKeystoreFile.deleteOnExit();
                 ldapServerBean.setLdapServerCertificatePassword( "secret" );
 
-                
-                KeyStore keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-                char[] keyStorePassword = "secret".toCharArray();
-                
-                try ( InputStream keyStoreData = new FileInputStream( ldapServerKeystoreFile ) )
-                {
-                    keyStore.load( null, keyStorePassword );
-                }
-
-                // Generate the asymmetric keys, using EC algorithm
-                KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance( "EC" );
-                KeyPair keyPair = keyPairGenerator.generateKeyPair();
-                
-                // Generate the subject's name
-                @SuppressWarnings("restriction")
-                X500Name owner = new X500Name( "apacheds", "directory", "apache", "US" );
-
-                // Create the self-signed certificate
-                X509Certificate certificate = CertificateUtil.generateSelfSignedCertificate( owner, keyPair, 365, "SHA256WithECDSA" );
-                
-                keyStore.setKeyEntry( "apachedsKey", keyPair.getPrivate(), keyStorePassword, new X509Certificate[] { certificate } );
-                
-                try ( FileOutputStream out = new FileOutputStream( ldapServerKeystoreFile ) )
-                {
-                    keyStore.store( out, keyStorePassword );
-                }
+                // We need to create a KeyStore
+                ldapServerKeystoreFile = CertificateUtil.createTempKeyStore( "tempks", "secret".toCharArray() );
             }
             
             ldapServerBean.setLdapServerKeystoreFile( ldapServerKeystoreFile.getAbsolutePath() );
