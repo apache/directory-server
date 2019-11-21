@@ -21,8 +21,8 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -105,7 +105,7 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
         byte[] newChecksum = calculateIntegrity( decryptedData, key.getKeyValue(), usage );
 
         // compare checksums
-        if ( !Arrays.equals( oldChecksum, newChecksum ) )
+        if ( !MessageDigest.isEqual( oldChecksum, newChecksum ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
         }

@@ -29,8 +29,8 @@ import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1816,7 +1816,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         
         Value userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
-        needToChangeAdminPassword = Arrays.equals( PartitionNexus.ADMIN_PASSWORD_BYTES, userPassword.getBytes() );
+        needToChangeAdminPassword = MessageDigest.isEqual( PartitionNexus.ADMIN_PASSWORD_BYTES, userPassword.getBytes() );
 
         if ( needToChangeAdminPassword )
         {

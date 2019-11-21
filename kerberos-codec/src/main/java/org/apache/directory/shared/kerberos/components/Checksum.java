@@ -22,6 +22,7 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 import java.util.Arrays;
 
 import org.apache.directory.api.asn1.Asn1Object;
@@ -122,7 +123,7 @@ public class Checksum implements Asn1Object
 
         Checksum that = ( Checksum ) o;
 
-        return ( cksumtype == that.cksumtype ) && ( Arrays.equals( checksum, that.checksum ) );
+        return ( cksumtype == that.cksumtype ) && ( MessageDigest.isEqual( checksum, that.checksum ) );
     }
 
 

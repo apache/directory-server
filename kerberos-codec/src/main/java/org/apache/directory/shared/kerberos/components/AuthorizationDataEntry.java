@@ -19,7 +19,7 @@
  */
 package org.apache.directory.shared.kerberos.components;
 
-
+import java.security.MessageDigest;
 import java.util.Arrays;
 
 import org.apache.directory.api.util.Strings;
@@ -163,7 +163,7 @@ public class AuthorizationDataEntry
 
         AuthorizationDataEntry other = ( AuthorizationDataEntry ) obj;
 
-        if ( !Arrays.equals( adData, other.adData ) )
+        if ( !MessageDigest.isEqual( adData, other.adData ) )
         {
             return false;
         }
