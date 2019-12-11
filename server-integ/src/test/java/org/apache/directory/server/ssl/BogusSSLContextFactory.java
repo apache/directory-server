@@ -138,7 +138,7 @@ public class BogusSSLContextFactory
         }
 
         // Set up key manager factory to use our key store
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
         kmf.init( ks, BOGUS_PW );
 
         // Initialize the SSLContext to work with our key managers.
