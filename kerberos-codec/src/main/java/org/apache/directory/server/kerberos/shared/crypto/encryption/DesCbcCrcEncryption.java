@@ -22,8 +22,8 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.Arrays;
 import java.util.zip.CRC32;
 
 import javax.crypto.Cipher;
@@ -108,7 +108,7 @@ public class DesCbcCrcEncryption extends EncryptionEngine
         byte[] newChecksum = calculateIntegrity( decryptedData, key.getKeyValue(), usage );
 
         // compare checksums
-        if ( !Arrays.equals( oldChecksum, newChecksum ) )
+        if ( !MessageDigest.isEqual( oldChecksum, newChecksum ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
         }

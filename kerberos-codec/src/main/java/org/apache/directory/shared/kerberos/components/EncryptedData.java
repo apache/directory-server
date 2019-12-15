@@ -22,6 +22,7 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 import java.util.Arrays;
 
 import org.apache.directory.api.asn1.Asn1Object;
@@ -350,7 +351,7 @@ public class EncryptedData implements Asn1Object
 
         EncryptedData other = ( EncryptedData ) obj;
 
-        if ( !Arrays.equals( cipher, other.cipher ) )
+        if ( !MessageDigest.isEqual( cipher, other.cipher ) )
         {
             return false;
         }

@@ -37,8 +37,8 @@ import static org.apache.directory.api.ldap.model.entry.ModificationOperation.RE
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REPLACE_ATTRIBUTE;
 
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -1159,7 +1159,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             // https://issues.apache.org/jira/browse/DIRSERVER-2084 
             if ( !modifyContext.getSession().isAnAdministrator() )
             {
-                boolean matched = Arrays.equals( newPassword, pwdh.getPassword() );
+                boolean matched = MessageDigest.isEqual( newPassword, pwdh.getPassword() );
 
                 if ( matched )
                 {
