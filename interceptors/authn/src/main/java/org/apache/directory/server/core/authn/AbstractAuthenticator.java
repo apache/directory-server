@@ -363,7 +363,7 @@ public abstract class AbstractAuthenticator implements Authenticator
             }
         }
 
-        // Chekc that the password is not too old and need to be disabled
+        // Check that the password is not too old and need to be disabled
         if ( pPolicyConfig.getPwdMaxAge() > 0 )
         {
             // In case we have a grace number of attempts
