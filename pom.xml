@@ -43,7 +43,7 @@
   <properties>
     <projectName>Apache Directory Server</projectName>
     <distMgmtSiteUrl>scpexe://people.apache.org/www/directory.apache.org/apacheds/gen-docs/${project.version}/</distMgmtSiteUrl>
-    <!--additionalparam>-Xdoclint:none</additionalparam-->
+    <doclint>none</doclint>
 
     <!-- Set versions for depending projects -->
     <org.apache.directory.api.version>2.0.0</org.apache.directory.api.version>
@@ -204,7 +204,7 @@
             <additionalOptions>-Xmaxwarns 1000</additionalOptions>
             <additionalOptions>-Xmaxerrs 1000</additionalOptions>
           </additionalOptions>
-          <!--additionalparam>-Xdoclint:none</additionalparam-->
+          <doclint>none</doclint>
           <tags>
             <tag>
               <name>org.apache.xbean.XBean</name>
