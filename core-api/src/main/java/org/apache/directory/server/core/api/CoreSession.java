@@ -853,8 +853,7 @@ public interface CoreSession
      * Retrieve a transaction associated with a partition, if we have one.
      * 
      * @return The found transaction, or null if no transaction  has been started
-     * @param partition
-     * @return
+     * @param partition The Partition 
      */
     PartitionTxn getTransaction( Partition partition );
     
