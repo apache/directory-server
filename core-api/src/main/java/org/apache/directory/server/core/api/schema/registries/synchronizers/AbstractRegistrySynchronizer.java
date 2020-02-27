@@ -104,7 +104,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
      *
      * @param dn The SchemaObject's Dn
      * @return true if the schema is loaded
-     * @throws Exception If The Dn is not a SchemaObject Dn
+     * @throws LdapException If The Dn is not a SchemaObject Dn
      */
     protected boolean isSchemaLoaded( Dn dn ) throws LdapException
     {

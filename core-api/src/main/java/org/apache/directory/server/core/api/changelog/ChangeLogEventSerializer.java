@@ -26,7 +26,6 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -95,7 +94,6 @@ public final class ChangeLogEventSerializer
      * @param in The input stream from which the ChengaLogEvent is read
      * @return a deserialized ChangeLogEvent
      * @throws IOException If we had an issue processing the stream
-     * @throws LdapInvalidDnException If the deserialization failed
      */
     public static ChangeLogEvent deserialize( SchemaManager schemaManager, ObjectInput in )
         throws IOException
