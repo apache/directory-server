@@ -54,7 +54,7 @@ public class ClientCertificateSslSocketFactory extends SocketFactory
 
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance( "SunX509" );
             keyManagerFactory.init( keyStore, ksPassword );
-
+            /** TLS is not secure */
             SSLContext context = SSLContext.getInstance( "TLS" );
             context.init( keyManagerFactory.getKeyManagers(), BogusTrustManagerFactory.X509_MANAGERS, new SecureRandom() );
 
