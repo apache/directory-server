@@ -295,6 +295,7 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
     {
         try
         {
+        /** DESede is not secure, recommend AES*/
             SecretKey sk = new SecretKeySpec( key, "DESede" );
 
             Mac mac = Mac.getInstance( "HmacSHA1" );
