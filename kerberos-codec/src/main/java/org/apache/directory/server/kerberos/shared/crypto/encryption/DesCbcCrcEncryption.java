@@ -155,6 +155,7 @@ public class DesCbcCrcEncryption extends EncryptionEngine
     {
         try
         {
+        /** 1. DES/CBC/NoPadding is not secure, recommend AES/CFB/PKCS5Padding 2.DES is not secure, recommend AES or RSA*/
             Cipher cipher = Cipher.getInstance( "DES/CBC/NoPadding" );
             SecretKey key = new SecretKeySpec( keyBytes, "DES" );
 
