@@ -63,6 +63,7 @@ public class ReloadableSSLSocketFactory extends SSLSocketFactory
             TrustManager[] trustManagers = factory.getTrustManagers();
 
             // create the real socket factory
+            // TLS is not secure
             SSLContext sc = SSLContext.getInstance( "TLS" ); //$NON-NLS-1$
             sc.init( null, trustManagers, null );
             delegate = sc.getSocketFactory();
