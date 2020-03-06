@@ -40,6 +40,7 @@ public class BogusSSLContextFactory
     /**
      * Protocol to use.
      */
+    /** TLS is not secure, should upgrade to TLSv1.2 */
     private static final String PROTOCOL = "TLS";
 
     /**
