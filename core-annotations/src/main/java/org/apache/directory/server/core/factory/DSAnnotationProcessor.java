@@ -468,6 +468,19 @@ public final class DSAnnotationProcessor
             System.out.println( loadSchema );
         }
     }
+    
+    
+    private static boolean isDn( String str )
+    {
+        if ( ( Strings.isEmpty( str ) ) | ( str.length() < 3 ) )
+        {
+            return false;
+        }
+        
+        return ( ( ( str.charAt( 0 ) == 'd' ) || ( str.charAt( 0 ) == 'D' ) ) &&
+            ( ( str.charAt( 1 ) == 'n' ) || ( str.charAt( 1 ) == 'N' ) ) &&
+            ( str.charAt( 2 ) == ':' ) );
+    }
 
 
     /**
@@ -501,24 +514,24 @@ public final class DSAnnotationProcessor
         {
             String[] ldifs = applyLdifs.value();
 
-            String dnStart = "dn:";
-
             StringBuilder sb = new StringBuilder();
 
             for ( int i = 0; i < ldifs.length; )
             {
-                String s = ldifs[i++].trim();
-                if ( s.startsWith( dnStart ) )
+                String str = ldifs[i++].trim();
+                
+                if ( isDn( str ) )
                 {
-                    sb.append( s ).append( '\n' );
+                    sb.append( str ).append( '\n' );
 
                     // read the rest of lines till we encounter Dn again
                     while ( i < ldifs.length )
                     {
-                        s = ldifs[i++];
-                        if ( !s.startsWith( dnStart ) )
+                        str = ldifs[i++];
+
+                        if ( !isDn( str ) )
                         {
-                            sb.append( s ).append( '\n' );
+                            sb.append( str ).append( '\n' );
                         }
                         else
                         {
