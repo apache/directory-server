@@ -461,6 +461,8 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     private ExprNode handleNotNode( ExprNode node )
     {
+        NotNode newNotNode = new NotNode();
+
         for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
         {
             ExprNode modifiedNode = removeObjectClass( child );
@@ -476,9 +478,12 @@ public class NormalizationInterceptor extends BaseInterceptor
                 // Here, we will select everything
                 return ObjectClassNode.OBJECT_CLASS_NODE;
             }
+            
+            newNotNode.addNode( modifiedNode );
+
         }
 
-        return node;
+        return newNotNode;
     }
 
 
@@ -487,6 +492,8 @@ public class NormalizationInterceptor extends BaseInterceptor
      */
     private ExprNode handleOrNode( ExprNode node )
     {
+        OrNode newOrNode = new OrNode();
+
         for ( ExprNode child : ( ( BranchNode ) node ).getChildren() )
         {
             ExprNode modifiedNode = removeObjectClass( child );
@@ -496,14 +503,16 @@ public class NormalizationInterceptor extends BaseInterceptor
                 // We can return immediately with an ObjectClass node
                 return ObjectClassNode.OBJECT_CLASS_NODE;
             }
+            
+            newOrNode.addNode( modifiedNode );
         }
 
-        return node;
+        return newOrNode;
     }
 
 
     /**
-     * Remove the (ObjectClass=*) node from the filter, if we have one.
+     * Remove the (ObjectClass=*) and ( ObjectClass=top) nodes from the filter, if we have one.
      */
     private ExprNode removeObjectClass( ExprNode node )
     {
