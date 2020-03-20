@@ -477,9 +477,9 @@ public final class DSAnnotationProcessor
             return false;
         }
         
-        return ( ( ( str.charAt( 0 ) == 'd' ) || ( str.charAt( 0 ) == 'D' ) ) &&
-            ( ( str.charAt( 1 ) == 'n' ) || ( str.charAt( 1 ) == 'N' ) ) &&
-            ( str.charAt( 2 ) == ':' ) );
+        return ( ( ( str.charAt( 0 ) == 'd' ) || ( str.charAt( 0 ) == 'D' ) ) 
+            && ( ( str.charAt( 1 ) == 'n' ) || ( str.charAt( 1 ) == 'N' ) ) 
+            && ( str.charAt( 2 ) == ':' ) );
     }
 
 
