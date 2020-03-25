@@ -136,6 +136,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
 
     @Test
+    @org.junit.Ignore // See DIRSERVER-2305
     public void testDeleteWithCascadeControl() throws Exception
     {
         assertTrue( session.exists( "cn=parent,ou=system" ) );
@@ -223,6 +224,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
 
     @Test
+    @org.junit.Ignore // See DIRSERVER-2305
     public void testDeleteWithControl() throws Exception
     {
         assertTrue( session.exists( "cn=parent,ou=system" ) );
