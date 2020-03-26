@@ -664,7 +664,7 @@ public class DefaultOperationManager implements OperationManager
     }
     
     
-    private void deleteEntry( DeleteOperationContext deleteContext , Dn dn ) throws LdapException
+    private void deleteEntry( DeleteOperationContext deleteContext, Dn dn ) throws LdapException
     {
         DeleteOperationContext entryDeleteContext = 
             new DeleteOperationContext( deleteContext.getSession(), dn );
