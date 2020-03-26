@@ -26,8 +26,10 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.directory.api.ldap.extras.controls.ad.TreeDelete;
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
@@ -40,11 +42,14 @@ import org.apache.directory.api.ldap.model.exception.LdapPartialResultException;
 import org.apache.directory.api.ldap.model.exception.LdapReferralException;
 import org.apache.directory.api.ldap.model.exception.LdapServiceUnavailableException;
 import org.apache.directory.api.ldap.model.exception.LdapURLEncodingException;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.url.LdapUrl;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.OperationManager;
@@ -99,6 +104,12 @@ public class DefaultOperationManager implements OperationManager
     /** A lock used to protect against concurrent operations */
     private ReadWriteLock rwLock = new ReentrantReadWriteLock( true );
 
+    /** A reference to the ObjectClass AT */
+    protected AttributeType objectClassAT;
+    
+    /** The nbChildren count attributeType */
+    protected AttributeType nbChildrenAT;
+    
     public DefaultOperationManager( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
@@ -651,6 +662,61 @@ public class DefaultOperationManager implements OperationManager
 
         return result;
     }
+    
+    
+    private void deleteEntry( DeleteOperationContext deleteContext , Dn dn ) throws LdapException
+    {
+        DeleteOperationContext entryDeleteContext = 
+            new DeleteOperationContext( deleteContext.getSession(), dn );
+        entryDeleteContext.setTransaction( deleteContext.getTransaction() );
+
+        eagerlyPopulateFields( entryDeleteContext );
+        
+        // Call the Delete method
+        Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
+
+        head.delete( entryDeleteContext );
+    }
+    
+    
+    private void processTreeDelete( DeleteOperationContext deleteContext, Dn dn ) throws LdapException, CursorException
+    {
+        objectClassAT = directoryService.getSchemaManager().getAttributeType( SchemaConstants.OBJECT_CLASS_AT );
+        nbChildrenAT = directoryService.getSchemaManager().getAttributeType( ApacheSchemaConstants.NB_CHILDREN_OID );
+
+        // This is a depth first recursive operation
+        PresenceNode filter = new PresenceNode( objectClassAT );
+        SearchOperationContext searchContext = new SearchOperationContext( 
+            deleteContext.getSession(), 
+            dn, 
+            SearchScope.ONELEVEL, filter,
+            ApacheSchemaConstants.NB_CHILDREN_OID );
+        searchContext.setTransaction( deleteContext.getTransaction() );
+
+        EntryFilteringCursor cursor = search( searchContext );
+        
+        cursor.beforeFirst();
+        
+        while ( cursor.next() )
+        {
+            Entry entry = cursor.get();
+            
+            if ( Integer.parseInt( entry.get( nbChildrenAT ).getString() ) == 0 )
+            {
+                // We can delete the entry
+                deleteEntry( deleteContext, entry.getDn() );
+            }
+            else
+            {
+                // Recurse
+                processTreeDelete( deleteContext, entry.getDn() );
+            }
+        }
+        
+        // Done with the children, we can delete the entry
+        // We can delete the entry
+        deleteEntry( deleteContext, dn );
+    }
 
 
     /**
@@ -748,16 +814,48 @@ public class DefaultOperationManager implements OperationManager
             
             deleteContext.setTransaction( transaction );
 
-            eagerlyPopulateFields( deleteContext );
-
-            // Call the Delete method
-            Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
-
-            head.delete( deleteContext );
-
-            if ( !deleteContext.getSession().hasSessionTransaction() )
+            // Check if the TreeDelete control is used
+            if ( deleteContext.hasRequestControl( TreeDelete.OID ) )
             {
-                transaction.commit();
+                try
+                {
+                    processTreeDelete( deleteContext, deleteContext.getDn() );
+
+                    if ( !deleteContext.getSession().hasSessionTransaction() )
+                    {
+                        transaction.commit();
+                    }
+                }
+                catch ( CursorException ce )
+                {
+                    try
+                    {
+                        if ( transaction != null )
+                        {
+                            transaction.abort();
+                        }
+                        
+                        throw new LdapOtherException( ce.getMessage(), ce );
+                    }
+                    catch ( IOException ioe )
+                    {
+                        throw new LdapOtherException( ioe.getMessage(), ioe );
+                    }
+                }
+            }
+            else
+            {
+                eagerlyPopulateFields( deleteContext );
+    
+                // Call the Delete method
+                Interceptor head = directoryService.getInterceptor( deleteContext.getNextInterceptor() );
+    
+                head.delete( deleteContext );
+    
+                if ( !deleteContext.getSession().hasSessionTransaction() )
+                {
+                    transaction.commit();
+                }
             }
         }
         catch ( LdapException le )
