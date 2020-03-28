@@ -218,6 +218,7 @@
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.model.filter;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.ldif;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
