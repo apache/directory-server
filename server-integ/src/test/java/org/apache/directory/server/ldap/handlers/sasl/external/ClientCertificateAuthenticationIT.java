@@ -136,7 +136,7 @@ public class ClientCertificateAuthenticationIT extends AbstractLdapTestUnit
             int keySize = 1024;
 
             Entry entry = new DefaultEntry();
-            TlsKeyGenerator.addKeyPair( entry, issuerDn, subjectDn, startDate, expiryDate, keyAlgo, keySize, null );
+            TlsKeyGenerator.addKeyPair( entry, issuerDn, subjectDn, startDate, expiryDate, keyAlgo, keySize, null, false );
 
             // prepare socket factory to provide client certificate
             try (

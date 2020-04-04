@@ -253,12 +253,12 @@ public final class TlsKeyGenerator
     {
         Date startDate = new Date();
         Date expiryDate = new Date( System.currentTimeMillis() + YEAR_MILLIS );
-        addKeyPair( entry, issuerDN, subjectDN, startDate, expiryDate, keyAlgo, keySize, null );
+        addKeyPair( entry, issuerDN, subjectDN, startDate, expiryDate, keyAlgo, keySize, null, false );
     }
 
 
     public static void addKeyPair( Entry entry, String issuerDN, String subjectDN, Date startDate, Date expiryDate,
-        String keyAlgo, int keySize, PrivateKey optionalSigningKey ) throws LdapException
+        String keyAlgo, int keySize, PrivateKey optionalSigningKey, boolean isCA ) throws LdapException
     {
         Attribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -312,11 +312,9 @@ public final class TlsKeyGenerator
         certGen.setSubjectDN( subjectName );
         certGen.setPublicKey( publicKey );
         certGen.setSignatureAlgorithm( "SHA256With" + keyAlgo );
-        certGen.addExtension( Extension.basicConstraints, false, new BasicConstraints( false ) );
+        certGen.addExtension( Extension.basicConstraints, false, new BasicConstraints( isCA ) );
         certGen.addExtension( Extension.extendedKeyUsage, true, new ExtendedKeyUsage( 
             new KeyPurposeId[] { KeyPurposeId.id_kp_clientAuth, KeyPurposeId.id_kp_serverAuth } ) );
-
-        
 
         try
         {
