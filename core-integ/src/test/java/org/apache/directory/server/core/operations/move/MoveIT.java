@@ -21,6 +21,7 @@ package org.apache.directory.server.core.operations.move;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationErrorException;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -67,8 +68,7 @@ import static org.junit.Assert.fail;
                 @CreateIndex(attribute = "sn"),
                 @CreateIndex(attribute = "cn") 
             })
-    }, 
-    enableChangeLog = false)
+    })
 public class MoveIT extends AbstractLdapTestUnit
 {
     /**
@@ -198,6 +198,55 @@ public class MoveIT extends AbstractLdapTestUnit
 
         assertNull( connection.lookup( newDn ) );
         assertNotNull( connection.lookup( oldDn ) );
+        
+        connection.close();
+    }
+
+
+    /**
+     * Test a move operation on an existing location:
+     * cn=test,ou=system will be moved to cn=test,ou=users,ou=system, which already exists
+     */
+    @Test
+    public void testMoveExistingTarget() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String oldDn = "cn=test,ou=system";
+        String newDn = "cn=test,ou=users,ou=system";
+        String newSuperior = "ou=users,ou=system";
+        String targetDnStr = "cn=test,ou=users,ou=system";
+
+        Dn dn = new Dn( oldDn );
+        Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
+            "ObjectClass: top", 
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test" );
+
+        connection.add( entry );
+
+        Dn targetDn = new Dn( targetDnStr );
+        Entry target = new DefaultEntry( getService().getSchemaManager(), targetDn,
+            "ObjectClass: top", 
+            "ObjectClass: person",
+            "sn: TEST",
+            "cn: test" );
+
+        connection.add( target );
+
+        assertNotNull( connection.lookup( oldDn ) );
+
+        try
+        {
+            connection.move( oldDn, newSuperior );
+            fail();
+        }
+        catch ( LdapEntryAlreadyExistsException leaee )
+        {
+            assertNotNull( connection.lookup( newDn ) );
+            assertNotNull( connection.lookup( oldDn ) );
+        }
         
         connection.close();
     }

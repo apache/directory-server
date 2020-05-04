@@ -22,6 +22,7 @@ package org.apache.directory.server.core.operations.rename;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapEntryAlreadyExistsException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -38,6 +39,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
 
 /**
@@ -263,6 +265,65 @@ public class RenameIT extends AbstractLdapTestUnit
         
         assertTrue( countryName.contains( "DE" ) );
         assertFalse( countryName.contains( "FR" ) );
+    }
+    
+    
+    /**
+     * Check that when doing a rename, with a SV RDN, we don't have the previous RDN in the entry,
+     * if the deleteOldrdn flag is set to true
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRenameSVAttributeDeleteOldRdnExistingEntry() throws Exception
+    {
+        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+
+        String frDnStr = "c=FR,ou=system";
+        String deDnStr = "c=DE,ou=system";
+
+        // Create an entry that will collide with the rename
+        Dn deDn = new Dn( deDnStr );
+        Entry deEntry = new DefaultEntry( getService().getSchemaManager(), deDn,
+            "ObjectClass: top",
+            "ObjectClass: country",
+            "c: DE" );
+
+        connection.add( deEntry );
+
+        // Create the entry that will be renamed
+        Dn frDn = new Dn( frDnStr );
+        Entry frEntry = new DefaultEntry( getService().getSchemaManager(), frDn,
+            "ObjectClass: top",
+            "ObjectClass: country",
+            "c: FR" );
+
+        connection.add( frEntry );
+        
+        Entry original = connection.lookup( frDn );
+        
+        assertNotNull( original );
+
+        // rename the FR entry to DE entry : should fail as DE entry already exists
+        try
+        {
+            connection.rename( frDnStr, "c=DE", true );
+            fail();
+        }
+        catch ( LdapEntryAlreadyExistsException leaee )
+        {
+            Entry originalFr = connection.lookup( frDn );
+            assertNotNull( originalFr );
+            assertEquals( frDnStr, originalFr.getDn().toString() );
+            assertTrue( originalFr.get( "c" ).contains( "FR" ) );
+            assertFalse( originalFr.get( "c" ).contains( "DE" ) );
+
+            Entry originalDe = connection.lookup( deDn );
+            assertNotNull( originalDe );
+            assertEquals( deDnStr, originalDe.getDn().toString() );
+            assertTrue( originalDe.get( "c" ).contains( "DE" ) );
+            assertFalse( originalDe.get( "c" ).contains( "FR" ) );
+        }
     }
     
     
