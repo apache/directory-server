@@ -109,36 +109,36 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
         // generate root CA, self-signed
         String rootCaSubjectDn = issuerDn;
         ROOT_CA_KEYSTORE = createKeyStore( rootCaSubjectDn, issuerDn, startDate, expiryDate, keyAlgo, keySize, null,
-            ROOT_CA_KEYSTORE_PATH );
+            true, ROOT_CA_KEYSTORE_PATH );
         PrivateKey rootCaPrivateKey = ( PrivateKey ) ROOT_CA_KEYSTORE.getKey( "apacheds", KEYSTORE_PW.toCharArray() );
 
         // generate a valid certificate, signed by root CA
         createKeyStore( subjectDn, issuerDn, startDate, expiryDate, keyAlgo, keySize, rootCaPrivateKey,
-            VALID_KEYSTORE_PATH );
+            false, VALID_KEYSTORE_PATH );
 
         // generate an expired certificate, signed by root CA
         Date expiredStartDate = new Date( System.currentTimeMillis() - TlsKeyGenerator.YEAR_MILLIS );
         Date expiredExpiryDate = new Date( System.currentTimeMillis() - TlsKeyGenerator.YEAR_MILLIS / 365 );
         createKeyStore( subjectDn, issuerDn, expiredStartDate, expiredExpiryDate, keyAlgo, keySize,
-            rootCaPrivateKey, EXPIRED_KEYSTORE_PATH );
+            rootCaPrivateKey, false, EXPIRED_KEYSTORE_PATH );
 
         // generate a not yet valid certificate, signed by root CA
         Date notYetValidStartDate = new Date( System.currentTimeMillis() + TlsKeyGenerator.YEAR_MILLIS / 365 );
         Date notYetValidExpiryDate = new Date( System.currentTimeMillis() + TlsKeyGenerator.YEAR_MILLIS );
         createKeyStore( subjectDn, issuerDn, notYetValidStartDate, notYetValidExpiryDate, keyAlgo, keySize,
-            rootCaPrivateKey, NOT_YET_VALID_KEYSTORE_PATH );
+            rootCaPrivateKey, false, NOT_YET_VALID_KEYSTORE_PATH );
 
         // generate a certificate with small key size, signed by root CA
         int smallKeySize = 512;
         createKeyStore( subjectDn, issuerDn, startDate, expiryDate, keyAlgo, smallKeySize,
-            rootCaPrivateKey, SMALL_KEYSIZE_KEYSTORE_PATH );
+            rootCaPrivateKey, false, SMALL_KEYSIZE_KEYSTORE_PATH );
 
         // TODO signature does not match if root private key is null
     }
 
 
     private static KeyStore createKeyStore( String subjectDn, String issuerDn, Date startDate, Date expiryDate,
-        String keyAlgo, int keySize, PrivateKey optionalSigningKey, String keystorePath )
+        String keyAlgo, int keySize, PrivateKey optionalSigningKey, boolean isCA, String keystorePath )
         throws Exception
     {
         File goodKeyStoreFile = new File( keystorePath );
@@ -148,7 +148,7 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
         }
         Entry entry = new DefaultEntry();
         TlsKeyGenerator.addKeyPair( entry, issuerDn, subjectDn, startDate, expiryDate, keyAlgo, keySize,
-            optionalSigningKey );
+            optionalSigningKey, isCA );
         KeyPair keyPair = TlsKeyGenerator.getKeyPair( entry );
         X509Certificate cert = TlsKeyGenerator.getCertificate( entry );
         //System.out.println( cert );

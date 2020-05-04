@@ -96,7 +96,7 @@ pipeline {
             }
           }
         }
-        stage ('Linux Java 12') {
+        stage ('Linux Java 14') {
           options {
             timeout(time: 4, unit: 'HOURS')
             retry(2)
@@ -104,7 +104,7 @@ pipeline {
           agent {
             docker {
               label 'ubuntu && !H28 && !H36 && !H40'
-              image 'apachedirectory/maven-build:jdk-12'
+              image 'apachedirectory/maven-build:jdk-14'
               args '-v $HOME/.m2:/home/hnelson/.m2'
             }
           }
