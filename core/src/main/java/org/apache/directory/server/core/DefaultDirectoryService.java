@@ -2248,7 +2248,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
             else
             {
-                interceptors.add( position, interceptor );
+                interceptors.add( position + 1, interceptor );
             }
         }
         finally
