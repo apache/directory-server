@@ -38,10 +38,14 @@ import java.util.TimeZone;
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.ObjectClass;
+import org.apache.directory.api.ldap.model.schema.registries.Schema;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
@@ -56,6 +60,7 @@ import org.junit.Test;
 import sun.security.x509.X500Name;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
@@ -219,6 +224,79 @@ public class UberJarMainTest
      * @throws Exception
      */
     @Test
+    public void nisTest() throws Exception
+    {   
+        // First start the server to initialize the example partition 
+        uberjarMain.start( instanceDirectory.toString() );
+        
+        // Creating a separate thread for the connection verification
+        Thread connectionVerificationThread = new Thread()
+        {
+            public void run()
+            {
+                LdapConnection connection = null;
+                
+                try
+                {
+                    // Creating a connection on the created server
+                    connection = createConnection();
+                    
+                    connection.modify( "cn=nis,ou=schema", 
+                        new DefaultModification( 
+                            ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "FALSE" ) );
+                    
+                    // Reload the schema in order to be able to deal with NIS elements
+                    connection.loadSchema();
+                    
+                    // Ok, now try to fetch the NIS schema elements
+                    Entry nisSchema = connection.lookup( "cn=nis,ou=schema" );
+                    
+                    assertEquals( "FALSE", nisSchema.get( "m-disabled" ).getString() );
+                    
+                    Entry posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
+                    
+                    if ( posixAccount == null )
+                    {
+                        // This isn't good
+                        verified = false;
+                        return;
+                    }
+                }
+                catch ( Exception e )
+                {
+                    verified = false;
+                }
+                finally
+                {
+                    try
+                    {
+                        connection.close();
+                    }
+                    catch ( Exception e )
+                    {
+                        // nothing we can do
+                    }
+                }
+            };
+        };
+
+        connectionVerificationThread.start();
+        connectionVerificationThread.join();
+
+        // Checking if verification is successful
+        if ( !verified )
+        {
+            fail();
+        }
+    }
+
+
+    /**
+     * Tests the creation of a new ApacheDS Service instance.
+     *
+     * @throws Exception
+     */
+    @Test
     public void serviceInstanceTest() throws Exception
     {   
         Thread connectionVerificationThread = createServer();
@@ -232,6 +310,59 @@ public class UberJarMainTest
         if ( !verified )
         {
             fail();
+        }
+        
+        // Stop the server
+        uberjarMain.stop();
+
+        // Restart the server
+        uberjarMain.start( instanceDirectory.toString() );
+        
+        LdapConnection connection = null;
+        
+        try
+        {
+            // Creating a connection on the created server
+            connection = createConnection();
+
+            // Looking for the Root DSE entry
+            Entry rootDseEntry = connection.lookup( Dn.ROOT_DSE );
+            
+            Entry nisSchema = connection.lookup( "cn=nis,ou=schema" );
+            
+            System.out.println( "Before nis anabling" );
+            System.out.println( nisSchema );
+
+            Entry nisObjectClass = connection.lookup( "ou=objectClasses,cn=nis,ou=schema" );
+
+            System.out.println( nisObjectClass );
+            
+            Entry posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
+            
+            System.out.println( "posixAccount : " + posixAccount );
+
+            if ( rootDseEntry == null )
+            {
+                // This isn't good
+                verified = false;
+                return;
+            }
+        }
+        catch ( Exception e )
+        {
+            verified = false;
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                connection.close();
+            }
+            catch ( Exception e )
+            {
+                // nothing we can do
+            }
         }
     }
 
