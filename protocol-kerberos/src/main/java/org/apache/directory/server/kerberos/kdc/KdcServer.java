@@ -29,7 +29,6 @@ import org.apache.directory.server.kerberos.changepwd.ChangePasswordServer;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.protocol.codec.KerberosProtocolCodecFactory;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -89,6 +88,8 @@ public class KdcServer extends DirectoryBackedService
         this.config = config;
         super.setServiceName( SERVICE_NAME );
         super.setSearchBaseDn( config.getSearchBaseDn() );
+
+        initReplayCache();
     }
 
 
@@ -109,10 +110,6 @@ public class KdcServer extends DirectoryBackedService
         PrincipalStore store;
 
         store = new DirectoryPrincipalStore( getDirectoryService(), new Dn( this.getSearchBaseDn() ) );
-
-        LOG.debug( "initializing the kerberos replay cache" );
-
-        replayCache = new ReplayCacheImpl( config.getAllowableClockSkew() );
 
         // Kerberos can use UDP or TCP
         for ( Transport transport : transports )
@@ -255,4 +252,36 @@ public class KdcServer extends DirectoryBackedService
 
         return sb.toString();
     }
+
+    private void initReplayCache()
+    {
+        LOG.debug( "initializing the kerberos replay cache" );
+
+        Class<? extends ReplayCache> clazz = config.getReplayCacheType();
+        if ( clazz == null )
+        {
+            LOG.trace( "Kerberos replay cache is disabled" );
+            return;
+        }
+
+        LOG.debug( "Creating ReplayCache of type {}", clazz.getName() );
+        ReplayCache instance = null;
+        try
+        {
+            try
+            {
+                instance = clazz.getConstructor( Long.TYPE ).newInstance( config.getAllowableClockSkew() );
+            }
+            catch ( NoSuchMethodException e )
+            {
+                instance = clazz.newInstance();
+            }
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Failed to create the ReplayCache instance. No replay cache will be used!", e );
+        }
+        replayCache = instance;
+    }
+
 }
