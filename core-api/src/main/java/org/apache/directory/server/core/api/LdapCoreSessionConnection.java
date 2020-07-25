@@ -166,6 +166,16 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
      * {@inheritDoc}
      */
     @Override
+    public Throwable exceptionCaught()
+    {
+        return null;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public AddResponse add( AddRequest addRequest ) throws LdapException
     {
         if ( addRequest == null )
