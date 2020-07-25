@@ -134,25 +134,25 @@ public class MoveAndRenameIT extends AbstractLdapTestUnit
         Entry oldCommon = connection.lookup( "ou=people,ou=system", "*", "+" );
         Entry oldSuperior = connection.lookup( "ou=committers,ou=Apache,ou=people,ou=system", "*", "+" );
         Entry newSuperior = connection.lookup( "dc=domain,ou=system", "*", "+" );
-        
+
         // Check the old common
         Attribute nbSubordinate = oldCommon.get( "nbSubordinates" );
         Attribute nbChildren = oldCommon.get( "nbChildren" );
-        
+
         assertEquals( "5", nbSubordinate.getString() );
         assertEquals( "1", nbChildren.getString() );
 
         // The old superior
         nbSubordinate = oldSuperior.get( "nbSubordinates" );
         nbChildren = oldSuperior.get( "nbChildren" );
-        
+
         assertEquals( "2", nbSubordinate.getString() );
         assertEquals( "2", nbChildren.getString() );
 
         // The new superior
         nbSubordinate = newSuperior.get( "nbSubordinates" );
         nbChildren = newSuperior.get( "nbChildren" );
-        
+
         assertEquals( "0", nbSubordinate.getString() );
         assertEquals( "0", nbChildren.getString() );
 
@@ -166,41 +166,41 @@ public class MoveAndRenameIT extends AbstractLdapTestUnit
         connection.moveAndRename( oldDn, newDn, true );
 
         assertNull( connection.lookup( oldDn ) );
-        
+
         Entry movedEntry = connection.lookup( newDn, "*", "+" );
         assertNotNull( movedEntry );
         assertTrue( movedEntry.contains( "cn", "emmanuel" ) );
         assertFalse( movedEntry.contains( "cn", "elecharny" ) );
-        
+
         // Get the nbSubordinates before the move
         oldCommon = connection.lookup( "ou=people,ou=system", "*", "+" );
         oldSuperior = connection.lookup( "ou=committers,ou=Apache,ou=people,ou=system", "*", "+" );
         newSuperior = connection.lookup( "dc=domain,ou=system", "*", "+" );
-        
+
         // Check the old common
         nbSubordinate = oldCommon.get( "nbSubordinates" );
         nbChildren = oldCommon.get( "nbChildren" );
-        
+
         assertEquals( "4", nbSubordinate.getString() );
         assertEquals( "1", nbChildren.getString() );
 
         // The old superior
         nbSubordinate = oldSuperior.get( "nbSubordinates" );
         nbChildren = oldSuperior.get( "nbChildren" );
-        
+
         assertEquals( "1", nbSubordinate.getString() );
         assertEquals( "1", nbChildren.getString() );
 
         // The new superior
         nbSubordinate = newSuperior.get( "nbSubordinates" );
         nbChildren = newSuperior.get( "nbChildren" );
-        
+
         assertEquals( "1", nbSubordinate.getString() );
         assertEquals( "1", nbChildren.getString() );
         connection.close();
     }
 
-    
+
     /**
      * Test a simple MoveAndRename move operation
      * cn=elecharny,ou=committers,ou=Apache,ou=people,ou=system will be moved to 
@@ -220,25 +220,25 @@ public class MoveAndRenameIT extends AbstractLdapTestUnit
         Entry oldCommon = connection.lookup( "ou=people,ou=system", "*", "+" );
         Entry oldSuperior = connection.lookup( "ou=committers,ou=Apache,ou=people,ou=system", "*", "+" );
         Entry newSuperior = connection.lookup( "dc=domain,ou=system", "*", "+" );
-        
+
         // Check the old common
         Attribute nbSubordinate = oldCommon.get( "nbSubordinates" );
         Attribute nbChildren = oldCommon.get( "nbChildren" );
-        
+
         assertEquals( "5", nbSubordinate.getString() );
         assertEquals( "1", nbChildren.getString() );
 
         // The old superior
         nbSubordinate = oldSuperior.get( "nbSubordinates" );
         nbChildren = oldSuperior.get( "nbChildren" );
-        
+
         assertEquals( "2", nbSubordinate.getString() );
         assertEquals( "2", nbChildren.getString() );
 
         // The new superior
         nbSubordinate = newSuperior.get( "nbSubordinates" );
         nbChildren = newSuperior.get( "nbChildren" );
-        
+
         assertEquals( "0", nbSubordinate.getString() );
         assertEquals( "0", nbChildren.getString() );
 
@@ -252,42 +252,42 @@ public class MoveAndRenameIT extends AbstractLdapTestUnit
         connection.moveAndRename( oldDn, newDn, false );
 
         assertNull( connection.lookup( oldDn ) );
-        
+
         Entry movedEntry = connection.lookup( newDn, "*", "+" );
         assertNotNull( movedEntry );
         assertTrue( movedEntry.contains( "cn", "emmanuel" ) );
         assertTrue( movedEntry.contains( "cn", "elecharny" ) );
-        
+
         // Get the nbSubordinates before the move
         oldCommon = connection.lookup( "ou=people,ou=system", "*", "+" );
         oldSuperior = connection.lookup( "ou=committers,ou=Apache,ou=people,ou=system", "*", "+" );
         newSuperior = connection.lookup( "dc=domain,ou=system", "*", "+" );
-        
+
         // Check the old common
         nbSubordinate = oldCommon.get( "nbSubordinates" );
         nbChildren = oldCommon.get( "nbChildren" );
-        
+
         assertEquals( "4", nbSubordinate.getString() );
         assertEquals( "1", nbChildren.getString() );
 
         // The old superior
         nbSubordinate = oldSuperior.get( "nbSubordinates" );
         nbChildren = oldSuperior.get( "nbChildren" );
-        
+
         assertEquals( "1", nbSubordinate.getString() );
         assertEquals( "1", nbChildren.getString() );
 
         // The new superior
         nbSubordinate = newSuperior.get( "nbSubordinates" );
         nbChildren = newSuperior.get( "nbChildren" );
-        
+
         assertEquals( "1", nbSubordinate.getString() );
         assertEquals( "1", nbChildren.getString() );
 
         connection.close();
     }
 
-    
+
     /**
      * Test a simple MoveAndRename move operation
      * ou=Apache,ou=system will be moved to cn=test,ou=users,ou=system
@@ -300,7 +300,6 @@ public class MoveAndRenameIT extends AbstractLdapTestUnit
     public void testMoveAndRenameRdnNotInObjectClass() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
-        
 
         String oldDn = "ou=Apache,ou=system";
         String newDn = "uid=test,ou=people,ou=system";
@@ -311,17 +310,17 @@ public class MoveAndRenameIT extends AbstractLdapTestUnit
         connection.moveAndRename( oldDn, newDn );
 
         assertNull( connection.lookup( oldDn ) );
-        
+
         Entry movedEntry = connection.lookup( newDn );
         assertNotNull( movedEntry );
         assertTrue( movedEntry.contains( "cn", "test" ) );
         assertTrue( movedEntry.contains( "cn", "jDoe" ) );
         assertTrue( movedEntry.contains( "ou", "Apache" ) );
-        
+
         connection.close();
     }
-    
-    
+
+
     /**
      * Check that when doing a rename, with a SV RDN, we don't have the previous RDN in the entry,
      * if the deleteOldrdn flag is set to true
@@ -353,9 +352,9 @@ public class MoveAndRenameIT extends AbstractLdapTestUnit
             "c: FR" );
 
         connection.add( frEntry );
-        
+
         Entry original = connection.lookup( frDn );
-        
+
         assertNotNull( original );
 
         // rename the FR entry to DE entry : should fail as DE entry already exists

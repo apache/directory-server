@@ -88,24 +88,24 @@ public class RenameIT extends AbstractLdapTestUnit
             "cn: test1" );
 
         connection.add( entry );
-        
+
         Entry original = connection.lookup( oldDn );
-        
+
         assertNotNull( original );
 
         connection.rename( oldDn, "cn=TEST2" );
-        
+
         Entry renamed = connection.lookup( newDn );
-        
+
         assertNotNull( renamed );
         assertEquals( newDn, renamed.getDn().toString() );
         Attribute attribute = renamed.get( "cn" );
-        
-        assertTrue( attribute.contains(  "test1" ) );
-        assertTrue( attribute.contains(  "test2" ) );
+
+        assertTrue( attribute.contains( "test1" ) );
+        assertTrue( attribute.contains( "test2" ) );
     }
-    
-    
+
+
     /**
      * Check that when doing a rename, with a MV RDN, and teh deleteOldRdn flag set to true,
      * we don't have the previous RDN in the entry.
@@ -128,25 +128,25 @@ public class RenameIT extends AbstractLdapTestUnit
             "cn: test1" );
 
         connection.add( entry );
-        
+
         Entry original = connection.lookup( oldDn );
-        
+
         assertNotNull( original );
 
         connection.rename( oldDn, "cn=test2", true );
-        
+
         assertNull( connection.lookup( oldDn ) );
         Entry renamed = connection.lookup( newDn );
-        
+
         assertNotNull( renamed );
         assertEquals( newDn, renamed.getDn().toString() );
         Attribute attribute = renamed.get( "cn" );
-        
+
         assertFalse( attribute.contains( "test1" ) );
         assertTrue( attribute.contains( "test2" ) );
     }
-    
-    
+
+
     /**
      * Check that when doing a rename, with a MV RDN, and the deleteOldRdn flag set to false,
      * we have the previous RDN in the entry.
@@ -169,25 +169,25 @@ public class RenameIT extends AbstractLdapTestUnit
             "cn: test1" );
 
         connection.add( entry );
-        
+
         Entry original = connection.lookup( oldDn );
-        
+
         assertNotNull( original );
 
         connection.rename( oldDn, "cn=test2", false );
-        
+
         assertNull( connection.lookup( oldDn ) );
         Entry renamed = connection.lookup( newDn );
-        
+
         assertNotNull( renamed );
         assertEquals( newDn, renamed.getDn().toString() );
         Attribute attribute = renamed.get( "cn" );
-        
+
         assertTrue( attribute.contains( "test1" ) );
         assertTrue( attribute.contains( "test2" ) );
     }
-    
-    
+
+
     /**
      * Check that when doing a rename, with a SV RDN, we get an error if the deleteOldRdn flag is
      * set to false
@@ -209,9 +209,9 @@ public class RenameIT extends AbstractLdapTestUnit
             "c: FR" );
 
         connection.add( entry );
-        
+
         Entry original = connection.lookup( oldDn );
-        
+
         assertNotNull( original );
 
         try
@@ -222,12 +222,12 @@ public class RenameIT extends AbstractLdapTestUnit
         {
             System.out.println( e.getMessage() );
         }
-        
+
         assertNotNull( connection.lookup( oldDn ) );
         assertNull( connection.lookup( newDn ) );
     }
-    
-    
+
+
     /**
      * Check that when doing a rename, with a SV RDN, we don't have the previous RDN in the entry,
      * if the deleteOldrdn flgg is set to true
@@ -249,25 +249,25 @@ public class RenameIT extends AbstractLdapTestUnit
             "c: FR" );
 
         connection.add( entry );
-        
+
         Entry original = connection.lookup( oldDn );
-        
+
         assertNotNull( original );
 
         connection.rename( oldDn, "c=DE", true );
-        
+
         assertNull( connection.lookup( oldDn ) );
         Entry renamed = connection.lookup( newDn );
-        
+
         assertNotNull( renamed );
         assertEquals( newDn, renamed.getDn().toString() );
         Attribute countryName = renamed.get( "c" );
-        
+
         assertTrue( countryName.contains( "DE" ) );
         assertFalse( countryName.contains( "FR" ) );
     }
-    
-    
+
+
     /**
      * Check that when doing a rename, with a SV RDN, we don't have the previous RDN in the entry,
      * if the deleteOldrdn flag is set to true
@@ -299,9 +299,9 @@ public class RenameIT extends AbstractLdapTestUnit
             "c: FR" );
 
         connection.add( frEntry );
-        
+
         Entry original = connection.lookup( frDn );
-        
+
         assertNotNull( original );
 
         // rename the FR entry to DE entry : should fail as DE entry already exists
@@ -325,15 +325,15 @@ public class RenameIT extends AbstractLdapTestUnit
             assertFalse( originalDe.get( "c" ).contains( "FR" ) );
         }
     }
-    
-    
+
+
     /**
      * Check that when doing a rename, with a SV RDN, we get an error if the deleteOldRdn flag is
      * set to false
      * 
      * @throws Exception
      */
-    @Test 
+    @Test
     public void testRenameMvAttributeSVAttributeKeepOldRdn() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
@@ -351,26 +351,26 @@ public class RenameIT extends AbstractLdapTestUnit
             "cn: test" );
 
         connection.add( entry );
-        
+
         Entry original = connection.lookup( oldDn );
-        
+
         assertNotNull( original );
 
         connection.rename( oldDn, "displayName=myTest", false );
-        
+
         assertNull( connection.lookup( oldDn ) );
         Entry renamed = connection.lookup( newDn );
-        
+
         assertNotNull( renamed );
         assertEquals( newDn, renamed.getDn().toString() );
         Attribute displayName = renamed.get( "displayName" );
         Attribute cn = renamed.get( "cn" );
-        
+
         assertTrue( displayName.contains( "mytest" ) );
         assertTrue( cn.contains( "test" ) );
     }
-    
-    
+
+
     /**
      * Check that when doing a rename, from a MV attribute to a SV attribute, we don't have 
      * the previous RDN in the entry, if the deleteOldrdn flgg is set to true
@@ -393,24 +393,24 @@ public class RenameIT extends AbstractLdapTestUnit
             "ObjectClass: inetOrgPerson",
             "sn: TEST",
             "cn: test",
-            "gn: test");
+            "gn: test" );
 
         connection.add( entry );
-        
+
         Entry original = connection.lookup( oldDn );
-        
+
         assertNotNull( original );
 
         connection.rename( oldDn, "displayName=MyTest", true );
-        
+
         assertNull( connection.lookup( oldDn ) );
         Entry renamed = connection.lookup( newDn );
-        
+
         assertNotNull( renamed );
         assertEquals( newDn, renamed.getDn().toString() );
         Attribute displayName = renamed.get( "displayName" );
         Attribute cn = renamed.get( "gn" );
-        
+
         assertTrue( displayName.contains( "mytest" ) );
         assertNull( cn );
     }

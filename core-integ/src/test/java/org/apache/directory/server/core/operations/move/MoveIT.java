@@ -86,7 +86,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         Dn dn = new Dn( oldDn );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: TEST",
             "cn: test" );
@@ -100,7 +100,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         assertNotNull( connection.lookup( newDn ) );
         assertNull( connection.lookup( oldDn ) );
-        
+
         connection.close();
     }
 
@@ -115,29 +115,29 @@ public class MoveIT extends AbstractLdapTestUnit
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
         Entry test1 = new DefaultEntry( getService().getSchemaManager(), "cn=test1,ou=system",
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: Test1",
             "cn: tes1t" );
 
         Entry childTest1 = new DefaultEntry( getService().getSchemaManager(), "cn=childTest1,cn=test1,ou=system",
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: child test1",
             "cn: childTest1" );
 
         Entry test2 = new DefaultEntry( getService().getSchemaManager(), "cn=test2,ou=system",
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: Test2",
             "cn: test2" );
 
         Entry childTest2 = new DefaultEntry( getService().getSchemaManager(), "cn=childTest2,cn=test2,ou=system",
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: child test2",
             "cn: childTest2" );
-        
+
         connection.add( test1 );
         connection.add( test2 );
         connection.add( childTest1 );
@@ -156,11 +156,11 @@ public class MoveIT extends AbstractLdapTestUnit
         assertNotNull( connection.lookup( "cn=childTest2,cn=test2,ou=system" ) );
         assertNotNull( connection.lookup( "cn=test1,cn=test2,ou=system" ) );
         assertNotNull( connection.lookup( "cn=childTest1,cn=test1,cn=test2,ou=system" ) );
-        
+
         connection.close();
     }
-    
-    
+
+
     /**
      * Test a move operation to a non existing parent:
      * cn=test,ou=system will be moved to cn=test,ou=users,ou=system
@@ -176,7 +176,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         Dn dn = new Dn( oldDn );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: TEST",
             "cn: test" );
@@ -198,7 +198,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         assertNull( connection.lookup( newDn ) );
         assertNotNull( connection.lookup( oldDn ) );
-        
+
         connection.close();
     }
 
@@ -219,7 +219,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         Dn dn = new Dn( oldDn );
         Entry entry = new DefaultEntry( getService().getSchemaManager(), dn,
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: TEST",
             "cn: test" );
@@ -228,7 +228,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         Dn targetDn = new Dn( targetDnStr );
         Entry target = new DefaultEntry( getService().getSchemaManager(), targetDn,
-            "ObjectClass: top", 
+            "ObjectClass: top",
             "ObjectClass: person",
             "sn: TEST",
             "cn: test" );
@@ -247,7 +247,7 @@ public class MoveIT extends AbstractLdapTestUnit
             assertNotNull( connection.lookup( newDn ) );
             assertNotNull( connection.lookup( oldDn ) );
         }
-        
+
         connection.close();
     }
 }
