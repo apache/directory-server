@@ -117,7 +117,7 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         // create a new certificate
         String newIssuerDN = "new_issuer_dn";
         String newSubjectDN = "new_subject_dn";
-        changeCertificate( ldapServer.getKeystoreFile(), "secret", newIssuerDN, newSubjectDN, 365, "SHA256WithECDSA" );
+        changeCertificate( ldapServer.getKeystoreFile(), "secret", newIssuerDN, newSubjectDN, 365, "SHA256withECDSA" );
 
         // now update the certificate (over the wire)
         getLdapServer().reloadSslContext();

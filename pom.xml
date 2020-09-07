@@ -86,6 +86,7 @@
     <wagon.ssh.version>3.3.3</wagon.ssh.version>
     <wagon.ssh.external.version>3.3.3</wagon.ssh.external.version>
     <wrapper.version>3.2.3</wrapper.version>
+    <wildfly-elytron.version>1.12.1.Final</wildfly-elytron.version>
   </properties>
 
   <url>https://directory.apache.org/apacheds/1.5</url>
@@ -1245,6 +1246,12 @@
         <groupId>findbugs</groupId>
         <artifactId>annotations</artifactId>
         <version>${findbugs.annotations.version}</version>
+      </dependency>
+    
+      <dependency>
+        <groupId>org.wildfly.security</groupId>
+        <artifactId>wildfly-elytron-x500-cert</artifactId>
+        <version>${wildfly-elytron.version}</version>
       </dependency>
       
       <dependency>

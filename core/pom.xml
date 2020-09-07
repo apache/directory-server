@@ -158,6 +158,11 @@
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.wildfly.security</groupId>
+      <artifactId>wildfly-elytron-x500-cert</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
