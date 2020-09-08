@@ -1061,6 +1061,13 @@
         <groupId>org.apache.directory.mavibot</groupId>
         <artifactId>mavibot</artifactId>
         <version>${org.apache.directory.mavibot.version}</version>
+        <!-- Can be removed once we pick up the next Mavibot version -->
+        <exclusions>
+            <exclusion>
+              <groupId>commons-collections</groupId>
+              <artifactId>commons-collections</artifactId>
+            </exclusion>
+        </exclusions>
       </dependency>
       
       <!-- Mina dependencies -->
@@ -1077,6 +1084,13 @@
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>${commons.codec.version}</version>
+      </dependency>
+
+      <!-- Can be removed once we pick up the next Mavibot version -->
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.2.2</version>
       </dependency>
       
       <dependency>
