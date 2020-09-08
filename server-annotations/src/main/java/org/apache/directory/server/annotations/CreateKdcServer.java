@@ -28,6 +28,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
 
 
 /**
@@ -83,4 +85,7 @@ public @interface CreateKdcServer
     
     /** @return the DN of the search base for finding users and services */
     String searchBaseDn() default ServerDNConstants.USER_EXAMPLE_COM_DN;
+
+    /** @return the replay cache implementing class */
+    Class<? extends ReplayCache> replayCacheType() default ReplayCacheImpl.class;
 }

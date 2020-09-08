@@ -26,6 +26,8 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCacheImpl;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
@@ -80,6 +82,9 @@ public class KerberosConfig
     public static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
         { "aes128-cts-hmac-sha1-96", "des-cbc-md5", "des3-cbc-sha1-kd" };
 
+    /** The default ReplayCache type */
+    public static final Class<? extends ReplayCache> DEFAULT_REPLAY_CACHE_TYPE = ReplayCacheImpl.class;
+
     /** The primary realm */
     private String primaryRealm = KerberosConfig.DEFAULT_REALM;
 
@@ -118,6 +123,9 @@ public class KerberosConfig
 
     /** Whether to verify the body checksum. */
     private boolean isBodyChecksumVerified = KerberosConfig.DEFAULT_VERIFY_BODY_CHECKSUM;
+
+    /** Replay cache implementing class. */
+    private Class<? extends ReplayCache> replayCacheType = KerberosConfig.DEFAULT_REPLAY_CACHE_TYPE;
 
     /** The encryption types. */
     private Set<EncryptionType> encryptionTypes;
@@ -416,6 +424,18 @@ public class KerberosConfig
     public void setSearchBaseDn( String searchBaseDn )
     {
         this.searchBaseDn = searchBaseDn;
+    }
+
+
+    public Class<? extends ReplayCache> getReplayCacheType()
+    {
+        return replayCacheType;
+    }
+
+
+    public void setReplayCacheType( Class<? extends ReplayCache> replayCacheType )
+    {
+        this.replayCacheType = replayCacheType;
     }
 
 
