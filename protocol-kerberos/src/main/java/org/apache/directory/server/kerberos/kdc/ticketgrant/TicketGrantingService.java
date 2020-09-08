@@ -322,7 +322,7 @@ public final class TicketGrantingService
                 EncTicketPart encTicketPart = tgt.getEncTicketPart();
                 EncryptionKey sessionKey = encTicketPart.getKey();
 
-                if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
+                if ( authenticatorChecksum.getChecksumType() == null
                     || authenticatorChecksum.getChecksumValue() == null || bodyBytes == null )
                 {
                     throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );

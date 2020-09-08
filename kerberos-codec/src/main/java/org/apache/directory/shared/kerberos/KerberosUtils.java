@@ -389,11 +389,11 @@ public class KerberosUtils
     {
         String cipherName = Strings.toLowerCaseAscii( encType.getName() );
 
-        for ( String c : cipherAlgoMap.keySet() )
+        for ( Map.Entry<String, String> entry : cipherAlgoMap.entrySet() )
         {
-            if ( cipherName.startsWith( c ) )
+            if ( cipherName.startsWith( entry.getKey() ) )
             {
-                return cipherAlgoMap.get( c );
+                return entry.getValue();
             }
         }
 
