@@ -56,7 +56,8 @@ import org.junit.runner.RunWith;
                 type = DelegatingAuthenticator.class,
                 delegatePort = 10201,
                 delegateSsl = false,
-                delegateTls = true) })
+                delegateTls = true,
+                delegateTlsTrustManagerFQCN = "org.apache.directory.ldap.client.api.NoVerificationTrustManager") })
 @ApplyLdifs(
     {
         // Entry # 1
