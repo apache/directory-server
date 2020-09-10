@@ -24,10 +24,8 @@ import java.security.SecureRandom;
 import java.util.List;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -66,8 +64,8 @@ public final class LdapsInitializer
         {
             // Initialize the SSLContext to work with our key managers.
             sslCtx = SSLContext.getInstance( "TLS" );
-            sslCtx.init( ldapServer.getKeyManagerFactory().getKeyManagers(), new TrustManager[]
-                { new NoVerificationTrustManager() }, new SecureRandom() );
+            sslCtx.init( ldapServer.getKeyManagerFactory().getKeyManagers(),
+                    ldapServer.getTrustManagers(), new SecureRandom() );
         }
         catch ( Exception e )
         {

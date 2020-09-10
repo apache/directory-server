@@ -92,6 +92,10 @@ import static org.junit.Assert.assertTrue;
         saslMechanisms =
                 {
                         @SaslMechanism(name = SupportedSaslMechanisms.EXTERNAL, implClass = CertificateMechanismHandler.class)
+                },
+        trustManagers =
+                {
+                        org.apache.directory.ldap.client.api.NoVerificationTrustManager.class
                 })
 @ApplyLdifs(
         {

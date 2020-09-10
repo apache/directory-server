@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 
 import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsRequest;
 import org.apache.directory.api.ldap.extras.extended.startTls.StartTlsResponse;
@@ -38,7 +37,6 @@ import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
@@ -181,8 +179,8 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
         try
         {
-            sslContext.init( ldapServer.getKeyManagerFactory().getKeyManagers(), new TrustManager[]
-                { new NoVerificationTrustManager() }, new SecureRandom() );
+            sslContext.init( ldapServer.getKeyManagerFactory().getKeyManagers(),
+                    ldapServer.getTrustManagers(), new SecureRandom() );
         }
         catch ( Exception e )
         {

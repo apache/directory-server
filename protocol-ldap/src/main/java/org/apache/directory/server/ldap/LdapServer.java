@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap;
 
 
 import java.io.IOException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.constants.Loggers;
@@ -247,6 +250,7 @@ public class LdapServer extends DirectoryBackedService
     private List<ReplicationConsumer> replConsumers;
 
     private KeyManagerFactory keyManagerFactory;
+    private TrustManager[] trustManagers;
 
     /** the time interval between subsequent pings to each replication provider */
     private int pingerSleepTime;
@@ -355,7 +359,7 @@ public class LdapServer extends DirectoryBackedService
      * with a new SslFilter after reloading the keystore.
      *
      * Note: should be called to reload the keystore after changing the digital certificate.
-     * @throws Exception If teh SSLContext can't be reloaded
+     * @throws Exception If the SSLContext can't be reloaded
      */
     public void reloadSslContext() throws Exception
     {
@@ -419,6 +423,13 @@ public class LdapServer extends DirectoryBackedService
         }
 
         keyManagerFactory = CertificateUtil.loadKeyStore( keystoreFile, certificatePassword );
+
+        if ( trustManagers == null )
+        {
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
+            trustManagerFactory.init( ( KeyStore ) null );
+            trustManagers = trustManagerFactory.getTrustManagers();
+        }
 
         /*
          * The server is now initialized, we can
@@ -1649,6 +1660,18 @@ public class LdapServer extends DirectoryBackedService
         return keyManagerFactory;
     }
 
+    /**
+     * @return the trust managers of the server
+     */
+    public TrustManager[] getTrustManagers()
+    {
+        return trustManagers;
+    }
+
+    public void setTrustManagers( TrustManager[] trustManagers )
+    {
+        this.trustManagers = trustManagers;
+    }
 
     /**
      * @return The maximum allowed size for an incoming PDU
