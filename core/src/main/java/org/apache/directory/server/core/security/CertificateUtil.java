@@ -25,6 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
@@ -50,6 +52,8 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.directory.api.util.Strings;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -85,18 +89,25 @@ public final class CertificateUtil
         try
         {
             ContentSigner signer = new JcaContentSignerBuilder( sigAlgorithm ).build( keyPair.getPrivate() );
+            InetAddress localHost = InetAddress.getLocalHost();
+            GeneralName[] sanLocalHost = new GeneralName[] {
+                    new GeneralName( GeneralName.dNSName,
+                            localHost.getHostName() ),
+                    new GeneralName( GeneralName.iPAddress, localHost.getHostAddress() )
+            };
             X509v3CertificateBuilder certificateBuilder = new JcaX509v3CertificateBuilder( issuerDn,
                     serialNumber,
                     Date.from( from ),
                     Date.from( to ),
                     subjectDn,
                     keyPair.getPublic() )
-                .addExtension( Extension.basicConstraints, CRITICAL, new BasicConstraints( isCa ) );
+                .addExtension( Extension.basicConstraints, CRITICAL, new BasicConstraints( isCa ) )
+                .addExtension( Extension.subjectAlternativeName, false, new GeneralNames( sanLocalHost ) );
 
             return new JcaX509CertificateConverter().setProvider( new BouncyCastleProvider() )
                     .getCertificate( certificateBuilder.build( signer ) );
         }
-        catch ( OperatorCreationException | CertIOException e )
+        catch ( OperatorCreationException | CertIOException | UnknownHostException e )
         {
             throw new CertificateException( "BouncyCastle failed to generate the X509 certificate.", e );
         }
