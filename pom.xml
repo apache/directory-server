@@ -1248,6 +1248,12 @@
         <artifactId>bcprov-jdk15on</artifactId>
         <version>${bcprov.version}</version>
       </dependency>
+    
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk15on</artifactId>
+        <version>${bcprov.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
@@ -1260,7 +1266,7 @@
         <artifactId>annotations</artifactId>
         <version>${findbugs.annotations.version}</version>
       </dependency>
-      
+    
       <dependency>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>

@@ -25,9 +25,9 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
 
-import org.junit.Test;
+import javax.security.auth.x500.X500Principal;
 
-import sun.security.x509.X500Name;
+import org.junit.Test;
 
 /**
  * Test for the CertificateUtil class.
@@ -42,7 +42,7 @@ public class CertificateUtilTest
     public void testSelfSignedCertificateCreation() throws IOException, GeneralSecurityException
     {
         // Generate the subject's name
-        X500Name owner = new X500Name( "apacheds", "directory", "apache", "US" );
+        X500Principal owner = new X500Principal( "CN=apacheds,OU=directory,O=apache,C=US" );
         
         
         // generate the asymetric keys

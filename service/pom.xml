@@ -108,10 +108,11 @@
             <configuration>
               <filters>
                 <filter>
-                  <artifact>org.bouncycastle:bcprov-jdk15on</artifact>
+                  <artifact>*:*</artifact>
                   <excludes>
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
                   </excludes>
                 </filter>
               </filters>

@@ -35,6 +35,8 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -54,8 +56,6 @@ import org.apache.directory.server.core.security.CertificateUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import sun.security.x509.X500Name;
 
 import static org.junit.Assert.assertEquals;
 
@@ -114,8 +114,7 @@ public class UberJarMainTest
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
             // Generate the subject's name
-            @SuppressWarnings("restriction")
-            X500Name owner = new X500Name( "apacheds", "directory", "apache", "US" );
+            X500Principal owner = new X500Principal( "CN=apacheds,OU=directory,O=apache,C=US" );
 
             // Create the self-signed certificate
             X509Certificate certificate = CertificateUtil.generateSelfSignedCertificate( owner, keyPair, 365,
