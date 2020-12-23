@@ -20,10 +20,10 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.HashSet;
@@ -55,10 +55,12 @@ import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.Optimizer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class NestedFilterTest extends AbstractCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( NestedFilterTest.class );
@@ -79,7 +82,7 @@ public class NestedFilterTest extends AbstractCursorTest
     static FilterNormalizingVisitor visitor;
 
 
-    @BeforeClass
+    @BeforeAll
     static public void setup() throws Exception
     {
         // setup the standard registries
@@ -118,7 +121,7 @@ public class NestedFilterTest extends AbstractCursorTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
         directoryService = new MockDirectoryService();
@@ -156,7 +159,7 @@ public class NestedFilterTest extends AbstractCursorTest
     }
 
 
-    @After
+    @AfterEach
     public void destryStore() throws Exception
     {
         if ( store != null )

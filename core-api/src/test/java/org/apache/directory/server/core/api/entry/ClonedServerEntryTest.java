@@ -25,13 +25,10 @@ import static org.junit.Assert.assertFalse;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -39,8 +36,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class ClonedServerEntryTest
 {
     private static Entry clonedServerEntryA;
@@ -55,7 +51,7 @@ public class ClonedServerEntryTest
     /**
      * Initialize name instances
      */
-    @BeforeClass
+    @BeforeAll
     public static void initNames() throws Exception
     {
         Entry eA = new DefaultEntry( "dc=example,dc=com" );

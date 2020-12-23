@@ -19,12 +19,12 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.Comparator;
@@ -37,9 +37,11 @@ import jdbm.helper.TupleBrowser;
 import jdbm.recman.BaseRecordManager;
 
 import org.apache.directory.api.util.Strings;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class KeyBTreeCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( KeyBTreeCursorTest.class );
@@ -62,7 +65,7 @@ public class KeyBTreeCursorTest
     KeyBTreeCursor<String> cursor;
 
 
-    @Before
+    @BeforeEach
     public void createCursor() throws Exception
     {
         File tmpDir = null;
@@ -94,7 +97,7 @@ public class KeyBTreeCursorTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyCursor() throws Exception
     {
         recman.close();

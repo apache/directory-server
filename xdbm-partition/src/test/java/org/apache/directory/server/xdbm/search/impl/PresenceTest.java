@@ -20,10 +20,11 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,10 +56,12 @@ import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.cursor.PresenceCursor;
 import org.apache.directory.server.xdbm.search.evaluator.PresenceEvaluator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +71,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class PresenceTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( PresenceTest.class );
@@ -79,7 +83,7 @@ public class PresenceTest
     private static String NORMALIZED_CN_OID;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -118,7 +122,7 @@ public class PresenceTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
         // setup the working directory for the store
@@ -149,7 +153,7 @@ public class PresenceTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyStore() throws Exception
     {
         if ( store != null )
@@ -488,90 +492,102 @@ public class PresenceTest
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testInvalidCursorPositionException() throws Exception
     {
-        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
-        PresenceCursor cursor = null;
-
-        try
+        assertThrows( InvalidCursorPositionException.class, () ->
         {
-            PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
-            PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-            cursor = new PresenceCursor( txn, store, evaluator );
-            cursor.get();
-        }
-        finally
-        {
-            cursor.close();
-        }
+            PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
+            PresenceCursor cursor = null;
+    
+            try
+            {
+                PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
+                PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
+                cursor = new PresenceCursor( txn, store, evaluator );
+                cursor.get();
+            }
+            finally
+            {
+                cursor.close();
+            }
+        } );
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testInvalidCursorPositionException2() throws Exception
     {
-        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
-        PresenceCursor cursor = null;
-
-        try
+        assertThrows( InvalidCursorPositionException.class, () ->
         {
-            PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "cn" ) );
-            PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-            cursor = new PresenceCursor( txn, store, evaluator );
-            cursor.get();
-        }
-        finally
-        {
-            cursor.close();
-        }
+            PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
+            PresenceCursor cursor = null;
+    
+            try
+            {
+                PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "cn" ) );
+                PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
+                cursor = new PresenceCursor( txn, store, evaluator );
+                cursor.get();
+            }
+            finally
+            {
+                cursor.close();
+            }
+        } );
     }
 
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testUnsupportBeforeWithoutIndex() throws Exception
     {
-        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
-        PresenceCursor cursor = null;
-
-        try
+        assertThrows( UnsupportedOperationException.class, () ->
         {
-            PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
-            PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-            cursor = new PresenceCursor( txn, store, evaluator );
-
-            // test before()
-            IndexEntry<String, String> entry = new IndexEntry<String, String>();
-            entry.setKey( SchemaConstants.SN_AT_OID );
-            cursor.before( entry );
-        }
-        finally
-        {
-            cursor.close();
-        }
+            PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
+            PresenceCursor cursor = null;
+    
+            try
+            {
+                PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
+                PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
+                cursor = new PresenceCursor( txn, store, evaluator );
+    
+                // test before()
+                IndexEntry<String, String> entry = new IndexEntry<String, String>();
+                entry.setKey( SchemaConstants.SN_AT_OID );
+                cursor.before( entry );
+            }
+            finally
+            {
+                cursor.close();
+            }
+        } );
     }
 
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testUnsupportAfterWithoutIndex() throws Exception
     {
-        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
-        PresenceCursor cursor = null;
-
-        try
+        assertThrows( UnsupportedOperationException.class, () ->
         {
-            PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
-            PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
-            cursor = new PresenceCursor( txn, store, evaluator );
-
-            // test before()
-            IndexEntry<String, String> entry = new IndexEntry<String, String>();
-            entry.setKey( SchemaConstants.SN_AT_OID );
-            cursor.after( entry );
-        }
-        finally
-        {
-            cursor.close();
-        }
+            PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
+            PresenceCursor cursor = null;
+    
+            try
+            {
+                PresenceNode node = new PresenceNode( schemaManager.getAttributeType( "sn" ) );
+                PresenceEvaluator evaluator = new PresenceEvaluator( node, store, schemaManager );
+                cursor = new PresenceCursor( txn, store, evaluator );
+    
+                // test before()
+                IndexEntry<String, String> entry = new IndexEntry<String, String>();
+                entry.setKey( SchemaConstants.SN_AT_OID );
+                cursor.after( entry );
+            }
+            finally
+            {
+                cursor.close();
+            }
+        } );
     }
 }

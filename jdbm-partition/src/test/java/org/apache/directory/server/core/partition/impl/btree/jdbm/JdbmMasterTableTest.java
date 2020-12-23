@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
@@ -38,9 +38,11 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class JdbmMasterTableTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( JdbmMasterTableTest.class );
@@ -88,7 +91,7 @@ public class JdbmMasterTableTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createTable() throws Exception
     {
         destroyTable();
@@ -112,7 +115,7 @@ public class JdbmMasterTableTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyTable() throws Exception
     {
         if ( table != null )

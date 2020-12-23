@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.HashSet;
@@ -35,25 +35,22 @@ import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtr
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
  * Tests methods in SchemaInterceptor.
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class SchemaServiceTest
 {
     private static SchemaManager schemaManager;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );

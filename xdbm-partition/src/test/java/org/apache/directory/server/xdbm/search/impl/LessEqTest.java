@@ -20,11 +20,12 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,10 +69,12 @@ import org.apache.directory.server.xdbm.StoreUtils;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.search.cursor.LessEqCursor;
 import org.apache.directory.server.xdbm.search.evaluator.LessEqEvaluator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +84,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class LessEqTest
 {
     public static final Logger LOG = LoggerFactory.getLogger( LessEqTest.class );
@@ -91,7 +95,7 @@ public class LessEqTest
     private static DnFactory dnFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         // setup the standard registries
@@ -128,7 +132,7 @@ public class LessEqTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
         // setup the working directory for the store
@@ -157,7 +161,7 @@ public class LessEqTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyStore() throws Exception
     {
         if ( store != null )
@@ -743,29 +747,32 @@ public class LessEqTest
     }
 
 
-    @Test(expected = LdapSchemaException.class)
+    @Test
     public void testEvaluatorAttributeNoMatchingRule() throws Exception
     {
-        LdapSyntax syntax = new BogusSyntax( 10 );
-        AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
-        at.addName( "bogus" );
-        at.setSchemaName( "other" );
-        at.setSyntax( syntax );
-
-        assertTrue( schemaManager.add( syntax ) );
-        assertTrue( schemaManager.add( at ) );
-
-        try
+        assertThrows( LdapSchemaException.class, () ->
         {
-            LessEqNode<String> node = new LessEqNode<String>( at, new Value( at, "3" ) );
-
-            new LessEqEvaluator<String>( node, store, schemaManager );
-        }
-        finally
-        {
-            assertTrue( schemaManager.delete( at ) );
-            assertTrue( schemaManager.delete( syntax ) );
-        }
+            LdapSyntax syntax = new BogusSyntax( 10 );
+            AttributeType at = new AttributeType( SchemaConstants.ATTRIBUTE_TYPES_AT_OID + ".2000" );
+            at.addName( "bogus" );
+            at.setSchemaName( "other" );
+            at.setSyntax( syntax );
+    
+            assertTrue( schemaManager.add( syntax ) );
+            assertTrue( schemaManager.add( at ) );
+    
+            try
+            {
+                LessEqNode<String> node = new LessEqNode<String>( at, new Value( at, "3" ) );
+    
+                new LessEqEvaluator<String>( node, store, schemaManager );
+            }
+            finally
+            {
+                assertTrue( schemaManager.delete( at ) );
+                assertTrue( schemaManager.delete( syntax ) );
+            }
+        } );
     }
 
 

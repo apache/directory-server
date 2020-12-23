@@ -506,6 +506,16 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
         return false;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Throwable exceptionCaught()
+    {
+        return null;
+    }
+
 
     /**
      * {@inheritDoc}

@@ -20,17 +20,20 @@
 package org.apache.directory.server.xdbm;
 
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.server.core.api.partition.Partition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -38,6 +41,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class SingletonIndexCursorTest
 {
 
@@ -45,7 +49,7 @@ public class SingletonIndexCursorTest
     private SingletonIndexCursor<String> indexCursor;
 
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         indexEntry = new IndexEntry<String, String>();
@@ -56,7 +60,7 @@ public class SingletonIndexCursorTest
     }
 
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception
     {
         indexCursor.close();
@@ -72,26 +76,35 @@ public class SingletonIndexCursorTest
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testGetNotPositioned() throws Exception
     {
-        indexCursor.get();
+        assertThrows( InvalidCursorPositionException.class, () ->
+        {
+            indexCursor.get();
+        } );
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testGetBeforeFirst() throws Exception
     {
-        indexCursor.beforeFirst();
-        indexCursor.get();
+        assertThrows( InvalidCursorPositionException.class, () ->
+        {
+            indexCursor.beforeFirst();
+            indexCursor.get();
+        } );
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testGetAfterLast() throws Exception
     {
-        indexCursor.afterLast();
-        indexCursor.get();
+        assertThrows( InvalidCursorPositionException.class, () ->
+        {
+            indexCursor.afterLast();
+            indexCursor.get();
+        } );
     }
 
 
@@ -234,16 +247,22 @@ public class SingletonIndexCursorTest
     }
 
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testBefore() throws Exception
     {
-        indexCursor.before( null );
+        assertThrows( UnsupportedOperationException.class, () ->
+        {
+            indexCursor.before( null );
+        } );
     }
 
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testAfter() throws Exception
     {
-        indexCursor.after( null );
+        assertThrows( UnsupportedOperationException.class, () ->
+        {
+            indexCursor.after( null );
+        } );
     }
 }

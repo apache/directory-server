@@ -37,6 +37,17 @@
       <artifactId>junit-addons</artifactId>
       <scope>test</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -83,11 +94,6 @@
       <artifactId>apacheds-mavibot-partition</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    
     <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-codec-standalone</artifactId>

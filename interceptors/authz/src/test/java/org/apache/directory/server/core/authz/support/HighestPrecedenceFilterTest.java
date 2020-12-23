@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,16 +29,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
 import org.apache.directory.api.ldap.aci.ACITuple;
 import org.apache.directory.api.ldap.aci.MicroOperation;
 import org.apache.directory.api.ldap.aci.ProtectedItem;
 import org.apache.directory.api.ldap.aci.UserClass;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -47,8 +45,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class HighestPrecedenceFilterTest
 {
     private static final Collection<ProtectedItem> PI_EMPTY_COLLECTION = Collections

@@ -20,14 +20,17 @@
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -74,13 +77,12 @@ import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,11 +124,11 @@ public class MavibotStoreTest
 
     private PartitionTxn partitionTxn;
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    @TempDir
+    public Path tmpDir;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -162,13 +164,13 @@ public class MavibotStoreTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
         StoreUtils.createdExtraAttributes( schemaManager );
         
         // setup the working directory for the store
-        wkdir = tmpDir.newFolder( getClass().getSimpleName() );
+        wkdir = Files.createDirectory( tmpDir.resolve( getClass().getSimpleName() ) ).toFile();
 
         // initialize the store
         store = new MavibotPartition( schemaManager, dnFactory );
@@ -204,7 +206,7 @@ public class MavibotStoreTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyStore() throws Exception
     {
         if ( store != null )
@@ -227,7 +229,7 @@ public class MavibotStoreTest
     public void testTwoComponentSuffix() throws Exception
     {
         // setup the working directory for the 2nd store
-        File wkdir2 = tmpDir.newFolder( getClass().getSimpleName() + "-store2" );
+        File wkdir2 = Files.createDirectory( tmpDir.resolve( getClass().getSimpleName() + "-store2" ) ).toFile();
 
         // initialize the 2nd store
         MavibotPartition store2 = new MavibotPartition( schemaManager, dnFactory );
@@ -558,36 +560,42 @@ public class MavibotStoreTest
     }
     */
 
-    @Test(expected = LdapNoSuchObjectException.class)
+    @Test
     public void testAddWithoutParentId() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top",
-            "objectClass: person",
-            "objectClass: organizationalPerson",
-            "ou: Not Present",
-            "cn: Martin King" );
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        addContext.setPartition( store );
-        addContext.setTransaction( store.beginWriteTransaction() );
-        
-        store.add( addContext );
+        assertThrows( LdapNoSuchObjectException.class, () ->
+        {
+            Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
+            Entry entry = new DefaultEntry( schemaManager, dn,
+                "objectClass: top",
+                "objectClass: person",
+                "objectClass: organizationalPerson",
+                "ou: Not Present",
+                "cn: Martin King" );
+            AddOperationContext addContext = new AddOperationContext( null, entry );
+            addContext.setPartition( store );
+            addContext.setTransaction( store.beginWriteTransaction() );
+            
+            store.add( addContext );
+        } );
     }
 
 
-    @Test(expected = LdapSchemaViolationException.class)
+    @Test
     public void testAddWithoutObjectClass() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Martin King,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn,
-            "ou: Sales",
-            "cn: Martin King" );
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        addContext.setPartition( store );
-        addContext.setTransaction( store.beginWriteTransaction() );
-        
-        store.add( addContext );
+        assertThrows( LdapSchemaViolationException.class, () ->
+        {
+            Dn dn = new Dn( schemaManager, "cn=Martin King,ou=Sales,o=Good Times Co." );
+            Entry entry = new DefaultEntry( schemaManager, dn,
+                "ou: Sales",
+                "cn: Martin King" );
+            AddOperationContext addContext = new AddOperationContext( null, entry );
+            addContext.setPartition( store );
+            addContext.setTransaction( store.beginWriteTransaction() );
+            
+            store.add( addContext );
+        } );
     }
 
 
@@ -837,7 +845,7 @@ public class MavibotStoreTest
 
 
     @Test
-    @Ignore("Ignore till mavibot file nam extensions are frozen")
+    @Disabled("Ignore till mavibot file nam extensions are frozen")
     public void testDeleteUnusedIndexFiles() throws Exception
     {
         File ouIndexDbFile = new File( wkdir, SchemaConstants.OU_AT_OID + ".db" );

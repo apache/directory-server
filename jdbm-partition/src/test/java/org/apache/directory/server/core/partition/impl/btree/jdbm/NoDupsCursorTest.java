@@ -19,11 +19,11 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
@@ -44,10 +44,12 @@ import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.Table;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +60,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class NoDupsCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( NoDupsCursorTest.class );
@@ -70,7 +73,7 @@ public class NoDupsCursorTest
     private PartitionTxn partitionTxn;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -97,7 +100,7 @@ public class NoDupsCursorTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createTable() throws Exception
     {
         File tmpDir = null;
@@ -122,7 +125,7 @@ public class NoDupsCursorTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyTable() throws Exception
     {
         table.close( partitionTxn );

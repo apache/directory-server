@@ -20,13 +20,16 @@
 package org.apache.directory.server.xdbm;
 
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.server.core.api.partition.Partition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -34,20 +37,21 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class EmptyIndexCursorTest
 {
 
     private EmptyIndexCursor<String> indexCursor;
 
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         indexCursor = new EmptyIndexCursor<String>( new MockPartitionReadTxn() );
     }
 
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception
     {
         if ( !indexCursor.isClosed() )
@@ -66,26 +70,35 @@ public class EmptyIndexCursorTest
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testGet() throws Exception
     {
-        indexCursor.get();
+        assertThrows( InvalidCursorPositionException.class, () ->
+        {
+            indexCursor.get();
+        } );
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testGetBeforeFirst() throws Exception
     {
-        indexCursor.beforeFirst();
-        indexCursor.get();
+        assertThrows( InvalidCursorPositionException.class, () ->
+        {
+            indexCursor.beforeFirst();
+            indexCursor.get();
+        } );
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testGetAfterLast() throws Exception
     {
-        indexCursor.afterLast();
-        indexCursor.get();
+        assertThrows( InvalidCursorPositionException.class, () ->
+        {
+            indexCursor.afterLast();
+            indexCursor.get();
+        } );
     }
 
 

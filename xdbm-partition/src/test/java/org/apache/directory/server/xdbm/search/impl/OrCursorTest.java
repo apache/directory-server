@@ -20,9 +20,10 @@
 package org.apache.directory.server.xdbm.search.impl;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,10 +62,12 @@ import org.apache.directory.server.xdbm.search.Evaluator;
 import org.apache.directory.server.xdbm.search.cursor.OrCursor;
 import org.apache.directory.server.xdbm.search.cursor.SubstringCursor;
 import org.apache.directory.server.xdbm.search.evaluator.SubstringEvaluator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +82,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class OrCursorTest extends AbstractCursorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( OrCursorTest.class );
@@ -87,7 +91,7 @@ public class OrCursorTest extends AbstractCursorTest
     static SchemaManager schemaManager = null;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -122,7 +126,7 @@ public class OrCursorTest extends AbstractCursorTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
         directoryService = new MockDirectoryService();
@@ -158,7 +162,7 @@ public class OrCursorTest extends AbstractCursorTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyStore() throws Exception
     {
         if ( store != null )
@@ -301,169 +305,172 @@ public class OrCursorTest extends AbstractCursorTest
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     @SuppressWarnings("unchecked")
     public void testOrCursor() throws Exception
     {
-        PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
-        List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>();
-        List<Cursor<IndexEntry<?, String>>> cursors = new ArrayList<Cursor<IndexEntry<?, String>>>();
-        Evaluator<? extends ExprNode> eval;
-        Cursor<IndexEntry<?, String>> cursor;
-
-        OrNode orNode = new OrNode();
-
-        ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
-        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        Cursor subStrCursor1 = new SubstringCursor( txn, store, ( SubstringEvaluator ) eval );
-        cursors.add( subStrCursor1 );
-        evaluators.add( eval );
-        orNode.addNode( exprNode );
-
-        //        try
-        //        {
-        //            new OrCursor( cursors, evaluators );
-        //            fail( "should throw IllegalArgumentException" );
-        //        }
-        //        catch( IllegalArgumentException ie ){ }
-
-        exprNode = new SubstringNode( schemaManager.getAttributeType( "sn" ), "W", null );
-        eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
-        evaluators.add( eval );
-        Cursor subStrCursor2 = new SubstringCursor( txn, store, ( SubstringEvaluator ) eval );
-        cursors.add( subStrCursor2 );
-
-        orNode.addNode( exprNode );
-
-        Set<String> expectedUuid = new HashSet<String>();
-        expectedUuid.add( Strings.getUUID( 5 ) );
-        expectedUuid.add( Strings.getUUID( 6 ) );
-        expectedUuid.add( Strings.getUUID( 8 ) );
-        expectedUuid.add( Strings.getUUID( 9 ) );
-        expectedUuid.add( Strings.getUUID( 10 ) );
-        expectedUuid.add( Strings.getUUID( 11 ) );
-
-        Set<String> foundUuid = new HashSet<String>();
-
-        cursor = new OrCursor( txn, cursors, evaluators );
-
-        cursor.beforeFirst();
-        assertFalse( cursor.available() );
-
-        // from first
-        assertTrue( cursor.first() );
-        assertTrue( cursor.available() );
-        String uuid = cursor.get().getId();
-        assertTrue( expectedUuid.contains( uuid ) );
-        foundUuid.add( uuid );
-        expectedUuid.remove( uuid );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( expectedUuid.contains( uuid ) );
-        foundUuid.add( uuid );
-        expectedUuid.remove( uuid );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( expectedUuid.contains( uuid ) );
-        foundUuid.add( uuid );
-        expectedUuid.remove( uuid );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( expectedUuid.contains( uuid ) );
-        foundUuid.add( uuid );
-        expectedUuid.remove( uuid );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( expectedUuid.contains( uuid ) );
-        foundUuid.add( uuid );
-        expectedUuid.remove( uuid );
-
-        assertTrue( cursor.next() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( expectedUuid.contains( uuid ) );
-        foundUuid.add( uuid );
-        expectedUuid.remove( uuid );
-
-        assertFalse( cursor.next() );
-        assertFalse( cursor.available() );
-
-        // from last        
-        cursor.afterLast();
-        assertFalse( cursor.available() );
-
-        assertTrue( cursor.last() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( foundUuid.contains( uuid ) );
-        foundUuid.remove( uuid );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( foundUuid.contains( uuid ) );
-        foundUuid.remove( uuid );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( foundUuid.contains( uuid ) );
-        foundUuid.remove( uuid );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( foundUuid.contains( uuid ) );
-        foundUuid.remove( uuid );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( foundUuid.contains( uuid ) );
-        foundUuid.remove( uuid );
-
-        assertTrue( cursor.previous() );
-        assertTrue( cursor.available() );
-        uuid = cursor.get().getId();
-        assertTrue( foundUuid.contains( uuid ) );
-        foundUuid.remove( uuid );
-
-        assertFalse( cursor.previous() );
-        assertFalse( cursor.available() );
-
-        try
+        assertThrows( InvalidCursorPositionException.class, () ->
         {
-            cursor.after( new IndexEntry<String, String>() );
-            fail( "should fail with UnsupportedOperationException " );
-        }
-        catch ( UnsupportedOperationException uoe )
-        {
-        }
-
-        try
-        {
-            cursor.before( new IndexEntry<String, String>() );
-            fail( "should fail with UnsupportedOperationException " );
-        }
-        catch ( UnsupportedOperationException uoe )
-        {
-        }
-
-        try
-        {
-            cursor.get();
-        }
-        finally
-        {
-            cursor.close();
-        }
+            PartitionTxn txn = ( ( Partition ) store ).beginReadTransaction();
+            List<Evaluator<? extends ExprNode>> evaluators = new ArrayList<Evaluator<? extends ExprNode>>();
+            List<Cursor<IndexEntry<?, String>>> cursors = new ArrayList<Cursor<IndexEntry<?, String>>>();
+            Evaluator<? extends ExprNode> eval;
+            Cursor<IndexEntry<?, String>> cursor;
+    
+            OrNode orNode = new OrNode();
+    
+            ExprNode exprNode = new SubstringNode( schemaManager.getAttributeType( "cn" ), "J", null );
+            eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
+            Cursor subStrCursor1 = new SubstringCursor( txn, store, ( SubstringEvaluator ) eval );
+            cursors.add( subStrCursor1 );
+            evaluators.add( eval );
+            orNode.addNode( exprNode );
+    
+            //        try
+            //        {
+            //            new OrCursor( cursors, evaluators );
+            //            fail( "should throw IllegalArgumentException" );
+            //        }
+            //        catch( IllegalArgumentException ie ){ }
+    
+            exprNode = new SubstringNode( schemaManager.getAttributeType( "sn" ), "W", null );
+            eval = new SubstringEvaluator( ( SubstringNode ) exprNode, store, schemaManager );
+            evaluators.add( eval );
+            Cursor subStrCursor2 = new SubstringCursor( txn, store, ( SubstringEvaluator ) eval );
+            cursors.add( subStrCursor2 );
+    
+            orNode.addNode( exprNode );
+    
+            Set<String> expectedUuid = new HashSet<String>();
+            expectedUuid.add( Strings.getUUID( 5 ) );
+            expectedUuid.add( Strings.getUUID( 6 ) );
+            expectedUuid.add( Strings.getUUID( 8 ) );
+            expectedUuid.add( Strings.getUUID( 9 ) );
+            expectedUuid.add( Strings.getUUID( 10 ) );
+            expectedUuid.add( Strings.getUUID( 11 ) );
+    
+            Set<String> foundUuid = new HashSet<String>();
+    
+            cursor = new OrCursor( txn, cursors, evaluators );
+    
+            cursor.beforeFirst();
+            assertFalse( cursor.available() );
+    
+            // from first
+            assertTrue( cursor.first() );
+            assertTrue( cursor.available() );
+            String uuid = cursor.get().getId();
+            assertTrue( expectedUuid.contains( uuid ) );
+            foundUuid.add( uuid );
+            expectedUuid.remove( uuid );
+    
+            assertTrue( cursor.next() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( expectedUuid.contains( uuid ) );
+            foundUuid.add( uuid );
+            expectedUuid.remove( uuid );
+    
+            assertTrue( cursor.next() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( expectedUuid.contains( uuid ) );
+            foundUuid.add( uuid );
+            expectedUuid.remove( uuid );
+    
+            assertTrue( cursor.next() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( expectedUuid.contains( uuid ) );
+            foundUuid.add( uuid );
+            expectedUuid.remove( uuid );
+    
+            assertTrue( cursor.next() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( expectedUuid.contains( uuid ) );
+            foundUuid.add( uuid );
+            expectedUuid.remove( uuid );
+    
+            assertTrue( cursor.next() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( expectedUuid.contains( uuid ) );
+            foundUuid.add( uuid );
+            expectedUuid.remove( uuid );
+    
+            assertFalse( cursor.next() );
+            assertFalse( cursor.available() );
+    
+            // from last        
+            cursor.afterLast();
+            assertFalse( cursor.available() );
+    
+            assertTrue( cursor.last() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( foundUuid.contains( uuid ) );
+            foundUuid.remove( uuid );
+    
+            assertTrue( cursor.previous() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( foundUuid.contains( uuid ) );
+            foundUuid.remove( uuid );
+    
+            assertTrue( cursor.previous() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( foundUuid.contains( uuid ) );
+            foundUuid.remove( uuid );
+    
+            assertTrue( cursor.previous() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( foundUuid.contains( uuid ) );
+            foundUuid.remove( uuid );
+    
+            assertTrue( cursor.previous() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( foundUuid.contains( uuid ) );
+            foundUuid.remove( uuid );
+    
+            assertTrue( cursor.previous() );
+            assertTrue( cursor.available() );
+            uuid = cursor.get().getId();
+            assertTrue( foundUuid.contains( uuid ) );
+            foundUuid.remove( uuid );
+    
+            assertFalse( cursor.previous() );
+            assertFalse( cursor.available() );
+    
+            try
+            {
+                cursor.after( new IndexEntry<String, String>() );
+                fail( "should fail with UnsupportedOperationException " );
+            }
+            catch ( UnsupportedOperationException uoe )
+            {
+            }
+    
+            try
+            {
+                cursor.before( new IndexEntry<String, String>() );
+                fail( "should fail with UnsupportedOperationException " );
+            }
+            catch ( UnsupportedOperationException uoe )
+            {
+            }
+    
+            try
+            {
+                cursor.get();
+            }
+            finally
+            {
+                cursor.close();
+            }
+        } );
     }
 }

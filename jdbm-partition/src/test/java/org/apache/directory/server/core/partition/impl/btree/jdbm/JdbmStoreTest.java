@@ -20,12 +20,13 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -75,11 +76,13 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.Store;
 import org.apache.directory.server.xdbm.StoreUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +95,7 @@ import jdbm.recman.BaseRecordManager;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @SuppressWarnings("unchecked")
+@Execution(ExecutionMode.SAME_THREAD)
 public class JdbmStoreTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( JdbmStoreTest.class );
@@ -125,7 +129,7 @@ public class JdbmStoreTest
     private static Path tempDir;
     
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         tempDir = Files.createTempDirectory( JdbmIndexTest.class.getSimpleName() );
@@ -154,7 +158,7 @@ public class JdbmStoreTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
         // setup the working directory for the store
@@ -192,7 +196,7 @@ public class JdbmStoreTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyStore() throws Exception
     {
         if ( partition != null )
@@ -215,7 +219,7 @@ public class JdbmStoreTest
     }
     
     
-    @AfterClass
+    @AfterAll
     public static void cleanup() throws Exception
     {
         FileUtils.deleteDirectory( tempDir.toFile() );
@@ -575,61 +579,67 @@ public class JdbmStoreTest
     }
     */
 
-    @Test(expected = LdapNoSuchObjectException.class)
+    @Test
     public void testAddWithoutParentId() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn,
-            "objectClass: top",
-            "objectClass: person",
-            "objectClass: organizationalPerson",
-            "ou: Not Present",
-            "cn: Martin King" );
-        
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        addContext.setPartition( partition );
-        PartitionTxn partitionTxn = null;
-        
-        try
+        assertThrows( LdapNoSuchObjectException.class, () ->
         {
-            partitionTxn = partition.beginWriteTransaction();
-            addContext.setTransaction( partitionTxn );
-        
-            partition.add( addContext );
-            partitionTxn.commit();
-        }
-        catch ( Exception e )
-        {
-            partitionTxn.abort();
-            throw e;
-        }
+            Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
+            Entry entry = new DefaultEntry( schemaManager, dn,
+                "objectClass: top",
+                "objectClass: person",
+                "objectClass: organizationalPerson",
+                "ou: Not Present",
+                "cn: Martin King" );
+            
+            AddOperationContext addContext = new AddOperationContext( null, entry );
+            addContext.setPartition( partition );
+            PartitionTxn partitionTxn = null;
+            
+            try
+            {
+                partitionTxn = partition.beginWriteTransaction();
+                addContext.setTransaction( partitionTxn );
+            
+                partition.add( addContext );
+                partitionTxn.commit();
+            }
+            catch ( Exception e )
+            {
+                partitionTxn.abort();
+                throw e;
+            }
+        } );
     }
 
 
-    @Test(expected = LdapSchemaViolationException.class)
+    @Test
     public void testAddWithoutObjectClass() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Martin King,ou=Sales,o=Good Times Co." );
-        Entry entry = new DefaultEntry( schemaManager, dn,
-            "ou: Sales",
-            "cn: Martin King" );
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        addContext.setPartition( partition );
-        PartitionTxn partitionTxn = null;
-        
-        try
+        assertThrows( LdapSchemaViolationException.class, () ->
         {
-            partitionTxn = partition.beginWriteTransaction();
-            addContext.setTransaction( partitionTxn );
-        
-            partition.add( addContext );
-            partitionTxn.commit();
-        }
-        catch ( Exception e )
-        {
-            partitionTxn.abort();
-            throw e;
-        }
+            Dn dn = new Dn( schemaManager, "cn=Martin King,ou=Sales,o=Good Times Co." );
+            Entry entry = new DefaultEntry( schemaManager, dn,
+                "ou: Sales",
+                "cn: Martin King" );
+            AddOperationContext addContext = new AddOperationContext( null, entry );
+            addContext.setPartition( partition );
+            PartitionTxn partitionTxn = null;
+            
+            try
+            {
+                partitionTxn = partition.beginWriteTransaction();
+                addContext.setTransaction( partitionTxn );
+            
+                partition.add( addContext );
+                partitionTxn.commit();
+            }
+            catch ( Exception e )
+            {
+                partitionTxn.abort();
+                throw e;
+            }
+        } );
     }
 
 

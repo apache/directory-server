@@ -60,10 +60,12 @@ import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
 import org.apache.directory.server.xdbm.impl.avl.AvlPartitionTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +75,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class PartitionTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( PartitionTest.class );
@@ -90,7 +93,7 @@ public class PartitionTest
     /** The CN AttributType instance */
     private static AttributeType CN_AT;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -122,7 +125,7 @@ public class PartitionTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
         StoreUtils.createdExtraAttributes( schemaManager );
@@ -144,7 +147,7 @@ public class PartitionTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyStore() throws Exception
     {
         partition.destroy( null );

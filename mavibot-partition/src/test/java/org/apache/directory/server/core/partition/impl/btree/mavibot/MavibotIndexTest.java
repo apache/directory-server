@@ -20,14 +20,16 @@
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -45,12 +47,13 @@ import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -58,6 +61,7 @@ import org.junit.rules.TemporaryFolder;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class MavibotIndexTest
 {
     private static File dbFileDir;
@@ -74,11 +78,11 @@ public class MavibotIndexTest
     
     private PartitionTxn partitionTxn;
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    public Path tempFolder;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -105,10 +109,10 @@ public class MavibotIndexTest
     }
 
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException
     {
-        dbFileDir = tempFolder.newFolder( MavibotIndexTest.class.getSimpleName() );
+        dbFileDir = Files.createDirectory( tempFolder.resolve( MavibotIndexTest.class.getSimpleName() ) ).toFile();
 
         recordMan = new RecordManager( dbFileDir.getAbsolutePath() );
         
@@ -116,7 +120,7 @@ public class MavibotIndexTest
     }
 
 
-    @After
+    @AfterEach
     public void teardown() throws Exception
     {
         destroyIndex();

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,12 +41,10 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -54,8 +52,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class MaxValueCountFilterTest
 {
     private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections
@@ -79,7 +76,7 @@ public class MaxValueCountFilterTest
     private static SchemaManager schemaManager;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         schemaManager = new DefaultSchemaManager();

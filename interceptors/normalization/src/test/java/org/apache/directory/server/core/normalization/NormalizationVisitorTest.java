@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.normalization;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.text.ParseException;
 
@@ -39,13 +39,10 @@ import org.apache.directory.api.ldap.schema.loader.JarLdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * A class to test the normalizing Visitor
@@ -53,8 +50,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  *
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class NormalizationVisitorTest
 {
     /** a filter node value normalizer and undefined node remover */
@@ -64,7 +60,7 @@ public class NormalizationVisitorTest
     private static SchemaManager schemaManager;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();

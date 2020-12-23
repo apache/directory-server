@@ -22,23 +22,21 @@ package org.apache.directory.server.xdbm.impl.avl;
 
 import static org.apache.directory.server.xdbm.impl.avl.TableData.injectDupsData;
 import static org.apache.directory.server.xdbm.impl.avl.TableData.injectNoDupsData;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Comparator;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -46,8 +44,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.SAME_THREAD)
 public class AvlTableTest
 {
     private AvlTable<Integer, Integer> dups;
@@ -56,7 +53,7 @@ public class AvlTableTest
     PartitionTxn txn;
 
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         txn = new MockPartitionReadTxn();

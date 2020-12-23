@@ -20,11 +20,12 @@
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
@@ -36,12 +37,13 @@ import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.mavibot.btree.RecordManager;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class MavibotMasterTableTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( MavibotMasterTableTest.class );
@@ -63,11 +66,11 @@ public class MavibotMasterTableTest
     
     private PartitionTxn partitionTxn;
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    @TempDir
+    public Path tmpDir;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void loadSchema() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -97,12 +100,12 @@ public class MavibotMasterTableTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createTable() throws Exception
     {
         destroyTable();
 
-        recordMan = new RecordManager( tmpDir.getRoot().getAbsolutePath() );
+        recordMan = new RecordManager( tmpDir.toFile().getAbsolutePath() );
 
         table = new MavibotMasterTable( recordMan, schemaManager, "master" );
         LOG.debug( "Created new table and populated it with data" );
@@ -111,7 +114,7 @@ public class MavibotMasterTableTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyTable() throws Exception
     {
         if ( table == null )

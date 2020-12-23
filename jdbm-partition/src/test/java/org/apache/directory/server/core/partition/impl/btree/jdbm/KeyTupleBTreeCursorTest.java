@@ -19,10 +19,11 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Comparator;
@@ -44,10 +45,12 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -55,6 +58,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class KeyTupleBTreeCursorTest
 {
     JdbmTable<String, String> table;
@@ -69,7 +73,7 @@ public class KeyTupleBTreeCursorTest
     private PartitionTxn partitionTxn;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -96,7 +100,7 @@ public class KeyTupleBTreeCursorTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createTree() throws Exception
     {
         comparator = new Comparator<String>()
@@ -129,7 +133,7 @@ public class KeyTupleBTreeCursorTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyTable() throws Exception
     {
         recman.close();
@@ -145,18 +149,21 @@ public class KeyTupleBTreeCursorTest
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testEmptyCursor() throws Exception
     {
-        assertFalse( cursor.next() );
-        assertFalse( cursor.available() );
-
-        assertFalse( cursor.isClosed() );
-
-        assertFalse( cursor.first() );
-        assertFalse( cursor.last() );
-
-        cursor.get(); // should throw InvalidCursorPositionException
+        assertThrows( InvalidCursorPositionException.class, () ->
+        {
+            assertFalse( cursor.next() );
+            assertFalse( cursor.available() );
+    
+            assertFalse( cursor.isClosed() );
+    
+            assertFalse( cursor.first() );
+            assertFalse( cursor.last() );
+    
+            cursor.get(); // should throw InvalidCursorPositionException
+        } );
     }
 
 

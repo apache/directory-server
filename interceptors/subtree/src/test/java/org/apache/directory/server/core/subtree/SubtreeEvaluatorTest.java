@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.subtree;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.HashSet;
@@ -46,24 +46,17 @@ import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.api.subtree.SubtreeEvaluator;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * Unit test cases for the SubtreeEvaluator.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class SubtreeEvaluatorTest
 {
     private static DnFactory dnFactory;
@@ -73,7 +66,7 @@ public class SubtreeEvaluatorTest
     private static ConcreteNameComponentNormalizer ncn;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -107,7 +100,7 @@ public class SubtreeEvaluatorTest
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void destroyTest()
     {
         visitor = null;
@@ -115,7 +108,7 @@ public class SubtreeEvaluatorTest
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception
     {
         schemaManager = null;

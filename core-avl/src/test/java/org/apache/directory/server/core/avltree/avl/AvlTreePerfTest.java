@@ -31,10 +31,12 @@ import java.util.Set;
 
 import org.apache.directory.server.core.avltree.AvlTreeMarshaller;
 import org.apache.directory.server.core.avltree.IntegerKeyMarshaller;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -43,6 +45,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class AvlTreePerfTest
 {
     AvlTreeSet<Integer> tree;
@@ -70,7 +73,7 @@ public class AvlTreePerfTest
     AvlTreeMarshaller<Integer> treeMarshaller = new AvlTreeMarshaller<Integer>( comparator, new IntegerKeyMarshaller() );
 
 
-    @Before
+    @BeforeEach
     public void createTree()
     {
         tree = new AvlTreeSet<Integer>();
@@ -81,7 +84,7 @@ public class AvlTreePerfTest
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void deleteFiles()
     {
         setSerialFile.delete();
@@ -108,7 +111,7 @@ public class AvlTreePerfTest
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRBTreeLookupPerf()
     {
         for ( int i = 0; i < numKeys; i++ )
@@ -131,7 +134,7 @@ public class AvlTreePerfTest
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRemoveFromRBTree()
     {
         for ( int i = 0; i < numKeys; i++ )
@@ -171,7 +174,7 @@ public class AvlTreePerfTest
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testAVLTreeLookupPerf()
     {
 
@@ -195,7 +198,7 @@ public class AvlTreePerfTest
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testAVLTreeRemovePerf()
     {
         for ( int i = 0; i < numKeys; i++ )
@@ -218,7 +221,7 @@ public class AvlTreePerfTest
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRBTreeSerializationPerf() throws Exception
     {
         FileOutputStream fout = new FileOutputStream( setSerialFile );
@@ -245,7 +248,7 @@ public class AvlTreePerfTest
 
     @SuppressWarnings("unchecked")
     @Test
-    @Ignore
+    @Disabled
     public void testRBTreeDeserializationPerf() throws Exception
     {
         // read test

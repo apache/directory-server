@@ -20,17 +20,20 @@
 package org.apache.directory.server.xdbm;
 
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Iterator;
 
 import org.apache.directory.api.ldap.model.cursor.CursorClosedException;
 import org.apache.directory.api.ldap.model.cursor.DefaultClosureMonitor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -38,20 +41,21 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class AbstractIndexCursorTest
 {
 
     private AbstractIndexCursor<String> indexCursor;
 
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         indexCursor = new EmptyIndexCursor<String>( new MockPartitionReadTxn() );
     }
 
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception
     {
         if ( !indexCursor.isClosed() )
@@ -61,10 +65,13 @@ public class AbstractIndexCursorTest
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSetClosureMonitorNull()
     {
-        indexCursor.setClosureMonitor( null );
+        assertThrows( IllegalArgumentException.class, () ->
+        {
+            indexCursor.setClosureMonitor( null );
+        } );
     }
 
 
@@ -82,19 +89,25 @@ public class AbstractIndexCursorTest
     }
 
 
-    @Test(expected = CursorClosedException.class)
+    @Test
     public void testCheckNotClosedIfClosed() throws Exception
     {
-        indexCursor.close();
-        indexCursor.checkNotClosed();
+        assertThrows( CursorClosedException.class, () ->
+        {
+            indexCursor.close();
+            indexCursor.checkNotClosed();
+        } );
     }
 
 
-    @Test(expected = CursorClosedException.class)
+    @Test
     public void testCheckNotClosedIfClosedWithCustomException() throws Exception
     {
-        indexCursor.close( new IllegalArgumentException() );
-        indexCursor.checkNotClosed();
+        assertThrows( CursorClosedException.class, () ->
+        {
+            indexCursor.close( new IllegalArgumentException() );
+            indexCursor.checkNotClosed();
+        } );
     }
 
 

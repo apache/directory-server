@@ -20,19 +20,22 @@
 package org.apache.directory.server.core.avltree;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Comparator;
 
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
 import org.apache.directory.api.ldap.model.cursor.Tuple;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -41,6 +44,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class AvlTreeMapNoDupsCursorTest
 {
     AvlTreeMap<Integer, Integer> tree;
@@ -48,7 +52,7 @@ public class AvlTreeMapNoDupsCursorTest
     AvlSingletonOrOrderedSetCursor<Integer, Integer> cursor;
 
 
-    @Before
+    @BeforeEach
     public void createTree()
     {
         Comparator<Integer> comparator = new Comparator<Integer>()
@@ -67,7 +71,7 @@ public class AvlTreeMapNoDupsCursorTest
     }
     
     
-    @After
+    @AfterEach
     public void cleanup() throws Exception
     {
         cursor.close();
@@ -441,17 +445,17 @@ public class AvlTreeMapNoDupsCursorTest
     }
 
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testAfterValue() throws Exception
     {
-        cursor.afterValue( 0, null );
+        assertThrows( UnsupportedOperationException.class, () -> cursor.afterValue( 0, null ) );
     }
 
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testBeforeValue() throws Exception
     {
-        cursor.beforeValue( 0, null );
+        assertThrows( UnsupportedOperationException.class, () -> cursor.beforeValue( 0, null ) );
     }
 
 

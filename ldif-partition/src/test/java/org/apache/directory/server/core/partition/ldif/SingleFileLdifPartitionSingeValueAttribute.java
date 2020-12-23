@@ -21,16 +21,18 @@
 package org.apache.directory.server.core.partition.ldif;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,12 +90,11 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 
 /**
@@ -121,11 +122,11 @@ public class SingleFileLdifPartitionSingeValueAttribute
     /** the file in use during the current test method's execution */
     private File ldifFileInUse;
     
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public Path folder;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -177,10 +178,10 @@ public class SingleFileLdifPartitionSingeValueAttribute
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
-        ldifFileInUse = folder.newFile( "partition.ldif" );
+        ldifFileInUse = Files.createFile( folder.resolve( "partition.ldif" ) ).toFile();
     }
 
 
@@ -1147,7 +1148,7 @@ public class SingleFileLdifPartitionSingeValueAttribute
      * @throws Exception
      */
     @Test
-    @Ignore("Taking way too much time and very timing dependent")
+    @Disabled("Taking way too much time and very timing dependent")
     public void testConcurrentOperations() throws Exception
     {
         SingleFileLdifPartition partition = injectEntries();

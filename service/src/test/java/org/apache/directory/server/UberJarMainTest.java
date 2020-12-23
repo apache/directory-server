@@ -61,6 +61,7 @@ import sun.security.x509.X500Name;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 /**
@@ -240,13 +241,11 @@ public class UberJarMainTest
                 {
                     // Creating a connection on the created server
                     connection = createConnection();
+                    connection.setTimeOut( 0L );
                     
                     connection.modify( "cn=nis,ou=schema", 
                         new DefaultModification( 
                             ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "FALSE" ) );
-                    
-                    // Reload the schema in order to be able to deal with NIS elements
-                    connection.loadSchema();
                     
                     // Ok, now try to fetch the NIS schema elements
                     Entry nisSchema = connection.lookup( "cn=nis,ou=schema" );
@@ -255,6 +254,24 @@ public class UberJarMainTest
                     
                     Entry posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
                     
+                    Throwable exception = connection.exceptionCaught();
+
+                    assertNotNull( exception );
+
+                    if ( exception != null )
+                    {
+                        System.out.println( exception.getMessage() );
+                    }
+                    
+                    // Reload the schema in order to be able to deal with NIS elements
+                    connection.loadSchema();
+                    
+                    posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
+                    
+                    exception = connection.exceptionCaught();
+                        
+                    assertNull( exception );
+
                     if ( posixAccount == null )
                     {
                         // This isn't good
@@ -264,6 +281,7 @@ public class UberJarMainTest
                 }
                 catch ( Exception e )
                 {
+                    e.printStackTrace();
                     verified = false;
                 }
                 finally

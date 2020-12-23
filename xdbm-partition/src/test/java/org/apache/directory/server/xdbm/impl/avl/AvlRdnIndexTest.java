@@ -20,9 +20,10 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,11 +43,13 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -54,6 +57,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class AvlRdnIndexTest
 {
     private static File dbFileDir;
@@ -62,7 +66,7 @@ public class AvlRdnIndexTest
     private MockPartitionReadTxn mockTxn;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -89,7 +93,7 @@ public class AvlRdnIndexTest
     }
 
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException
     {
 
@@ -102,7 +106,7 @@ public class AvlRdnIndexTest
     }
 
 
-    @After
+    @AfterEach
     public void teardown() throws Exception
     {
         destroyIndex();
@@ -148,22 +152,28 @@ public class AvlRdnIndexTest
     // Property Test Methods
     // -----------------------------------------------------------------------
 
-    @Test(expected = UnsupportedOperationException.class)
-    @Ignore
+    @Test
+    @Disabled
     public void testCacheSize() throws Exception
     {
-        // uninitialized index
-        AvlRdnIndex AvlRdnIndex = new AvlRdnIndex();
-        AvlRdnIndex.setCacheSize( 337 );
+        assertThrows( UnsupportedOperationException.class, () ->
+        {
+            // uninitialized index
+            AvlRdnIndex AvlRdnIndex = new AvlRdnIndex();
+            AvlRdnIndex.setCacheSize( 337 );
+        } );
     }
 
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testWkDirPath() throws Exception
     {
-        // uninitialized index
-        AvlRdnIndex AvlRdnIndex = new AvlRdnIndex();
-        AvlRdnIndex.setWkDirPath( new File( dbFileDir, "foo" ).toURI() );
+        assertThrows( UnsupportedOperationException.class, () ->
+        {
+            // uninitialized index
+            AvlRdnIndex AvlRdnIndex = new AvlRdnIndex();
+            AvlRdnIndex.setWkDirPath( new File( dbFileDir, "foo" ).toURI() );
+        } );
     }
 
 

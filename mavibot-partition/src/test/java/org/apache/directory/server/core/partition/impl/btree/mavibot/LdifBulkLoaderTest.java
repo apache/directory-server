@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree.mavibot;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,14 +29,14 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.mavibot.btree.Tuple;
 import org.apache.directory.mavibot.btree.persisted.BulkDataSorter;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * TODO LdifBulkLoaderTest.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@Ignore
+@Disabled
 public class LdifBulkLoaderTest
 {
     String personTemplate =  "# just a comment\n"+

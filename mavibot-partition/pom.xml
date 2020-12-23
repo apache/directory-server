@@ -28,12 +28,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.directory.junit</groupId>
-      <artifactId>junit-addons</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.directory.mavibot</groupId>
       <artifactId>mavibot</artifactId>
     </dependency>

@@ -20,10 +20,11 @@
 package org.apache.directory.server.core.avltree;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,15 +34,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
@@ -49,8 +48,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class AvlTreeMarshallerTest
 {
     private static final long[] AVLTREE_KEYS_PRE_REMOVE =
@@ -101,7 +99,7 @@ public class AvlTreeMarshallerTest
     private static final Logger LOG = LoggerFactory.getLogger( AvlTreeMarshallerTest.class );
 
 
-    @BeforeClass
+    @BeforeAll
     public static void createComparator()
     {
         comparator = new Comparator<Integer>()
@@ -126,7 +124,7 @@ public class AvlTreeMarshallerTest
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void deleteFiles()
     {
         treeFile.delete();
@@ -155,7 +153,7 @@ public class AvlTreeMarshallerTest
 
         for ( long key : AVLTREE_KEYS_PRE_REMOVE )
         {
-            assertNotNull( "Should find " + key, tree.find( key ) );
+            assertNotNull( tree.find( key ), "Should find " + key );
         }
 
         /*
@@ -167,7 +165,7 @@ public class AvlTreeMarshallerTest
 
         for ( long key : AVLTREE_EXPECTED_KEYS_POST_REMOVE )
         {
-            assertNotNull( "Should find " + key, tree.find( key ) );
+            assertNotNull( tree.find( key ), "Should find " + key );
         }
     }
 
@@ -476,11 +474,14 @@ public class AvlTreeMarshallerTest
     }
 
 
-    @Test(expected = IOException.class)
+    @Test
     public void testDeserializeNullData() throws IOException
     {
-        AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
-        treeMarshaller.deserialize( null );
+        assertThrows( IOException.class, () -> 
+            {
+                AvlTreeMarshaller<Integer> treeMarshaller = createTreeMarshaller();
+                treeMarshaller.deserialize( null );
+            } );
     }
 
     public class LongMarshaller implements Marshaller<Long>

@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,12 +54,10 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.server.core.api.event.ExpressionEvaluator;
 import org.apache.directory.server.core.api.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -67,8 +65,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class RelatedProtectedItemFilterTest
 {
     private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections
@@ -98,7 +95,7 @@ public class RelatedProtectedItemFilterTest
     private static AttributeType SN_AT;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         schemaManager = new DefaultSchemaManager();

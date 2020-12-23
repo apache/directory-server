@@ -19,9 +19,10 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Comparator;
 
@@ -29,13 +30,11 @@ import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException
 import org.apache.directory.api.ldap.model.cursor.Tuple;
 import org.apache.directory.server.core.avltree.ArrayTree;
 import org.apache.directory.server.xdbm.KeyTupleArrayCursor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -44,8 +43,7 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.SAME_THREAD)
 public class KeyTupleArrayCursorTest
 {
 
@@ -55,7 +53,7 @@ public class KeyTupleArrayCursorTest
     private static final Integer KEY = Integer.valueOf( 1 );
 
 
-    @Before
+    @BeforeEach
     public void createTree()
     {
         Comparator<Integer> comparator = new Comparator<Integer>()
@@ -74,25 +72,28 @@ public class KeyTupleArrayCursorTest
     }
     
     
-    @After
+    @AfterEach
     public void cleanup() throws Exception
     {
         cursor.close();
     }
 
 
-    @Test(expected = InvalidCursorPositionException.class)
+    @Test
     public void testEmptyCursor() throws Exception
     {
-        assertFalse( cursor.next() );
-        assertFalse( cursor.available() );
-
-        assertFalse( cursor.isClosed() );
-
-        assertFalse( cursor.first() );
-        assertFalse( cursor.last() );
-
-        cursor.get(); // should throw InvalidCursorPositionException
+        assertThrows( InvalidCursorPositionException.class, () ->
+        {
+            assertFalse( cursor.next() );
+            assertFalse( cursor.available() );
+    
+            assertFalse( cursor.isClosed() );
+    
+            assertFalse( cursor.first() );
+            assertFalse( cursor.last() );
+    
+            cursor.get(); // should throw InvalidCursorPositionException
+        } );
     }
 
 

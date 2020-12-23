@@ -30,9 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
 import org.apache.directory.api.ldap.aci.ACITuple;
 import org.apache.directory.api.ldap.aci.MicroOperation;
 import org.apache.directory.api.ldap.aci.ProtectedItem;
@@ -46,9 +43,10 @@ import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -56,8 +54,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class MostSpecificProtectedItemFilterTest
 {
     private static final Set<AttributeType> EMPTY_STRING_COLLECTION = Collections
@@ -85,7 +82,7 @@ public class MostSpecificProtectedItemFilterTest
     private static final List<ACITuple> TUPLES_E = new ArrayList<ACITuple>();
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init()
     {
         Collection<ProtectedItem> attributeType = new ArrayList<ProtectedItem>();

@@ -20,8 +20,8 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,17 +30,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
 import org.apache.directory.api.ldap.aci.ACITuple;
 import org.apache.directory.api.ldap.aci.MicroOperation;
 import org.apache.directory.api.ldap.aci.ProtectedItem;
 import org.apache.directory.api.ldap.aci.UserClass;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.subtree.SubtreeSpecification;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -48,8 +46,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class MostSpecificUserClassFilterTest
 {
     private static final Set<String> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<String>() );

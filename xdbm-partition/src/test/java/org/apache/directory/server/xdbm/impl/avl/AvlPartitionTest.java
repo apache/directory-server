@@ -20,12 +20,13 @@
 package org.apache.directory.server.xdbm.impl.avl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -66,10 +67,12 @@ import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.xdbm.IndexNotFoundException;
 import org.apache.directory.server.xdbm.StoreUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +82,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class AvlPartitionTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( AvlPartitionTest.class );
@@ -103,7 +107,7 @@ public class AvlPartitionTest
     private PartitionTxn txn;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -139,7 +143,7 @@ public class AvlPartitionTest
     }
 
 
-    @Before
+    @BeforeEach
     public void createStore() throws Exception
     {
         StoreUtils.createdExtraAttributes( schemaManager );
@@ -161,7 +165,7 @@ public class AvlPartitionTest
     }
 
 
-    @After
+    @AfterEach
     public void destroyStore() throws Exception
     {
         partition.destroy( txn );
@@ -390,36 +394,42 @@ public class AvlPartitionTest
     }
 
 
-    @Test(expected = LdapNoSuchObjectException.class)
+    @Test
     public void testAddWithoutParentId() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "objectClass", "top", "person", "organizationalPerson" );
-        entry.add( "ou", "Not Present" );
-        entry.add( "cn", "Martin King" );
-
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        addContext.setPartition( partition );
-        addContext.setTransaction( partition.beginWriteTransaction() );
-
-        partition.add( addContext );
+        assertThrows( LdapNoSuchObjectException.class, () ->
+        {
+            Dn dn = new Dn( schemaManager, "cn=Marting King,ou=Not Present,o=Good Times Co." );
+            DefaultEntry entry = new DefaultEntry( schemaManager, dn );
+            entry.add( "objectClass", "top", "person", "organizationalPerson" );
+            entry.add( "ou", "Not Present" );
+            entry.add( "cn", "Martin King" );
+    
+            AddOperationContext addContext = new AddOperationContext( null, entry );
+            addContext.setPartition( partition );
+            addContext.setTransaction( partition.beginWriteTransaction() );
+    
+            partition.add( addContext );
+        } );
     }
 
 
-    @Test(expected = LdapSchemaViolationException.class)
+    @Test
     public void testAddWithoutObjectClass() throws Exception
     {
-        Dn dn = new Dn( schemaManager, "cn=Martin King,ou=Sales,o=Good Times Co." );
-        DefaultEntry entry = new DefaultEntry( schemaManager, dn );
-        entry.add( "ou", "Sales" );
-        entry.add( "cn", "Martin King" );
-
-        AddOperationContext addContext = new AddOperationContext( null, entry );
-        addContext.setPartition( partition );
-        addContext.setTransaction( partition.beginWriteTransaction() );
-
-        partition.add( addContext );
+        assertThrows( LdapSchemaViolationException.class, () ->
+        {
+            Dn dn = new Dn( schemaManager, "cn=Martin King,ou=Sales,o=Good Times Co." );
+            DefaultEntry entry = new DefaultEntry( schemaManager, dn );
+            entry.add( "ou", "Sales" );
+            entry.add( "cn", "Martin King" );
+    
+            AddOperationContext addContext = new AddOperationContext( null, entry );
+            addContext.setPartition( partition );
+            addContext.setTransaction( partition.beginWriteTransaction() );
+    
+            partition.add( addContext );
+        } );
     }
 
 

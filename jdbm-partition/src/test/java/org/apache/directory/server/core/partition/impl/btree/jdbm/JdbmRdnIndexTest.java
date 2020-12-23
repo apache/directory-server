@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,11 +45,13 @@ import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.MockPartitionReadTxn;
 import org.apache.directory.server.xdbm.ParentIdAndRdn;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.TransactionManager;
@@ -60,6 +62,7 @@ import jdbm.recman.TransactionManager;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class JdbmRdnIndexTest
 {
     private static File dbFileDir;
@@ -80,7 +83,7 @@ public class JdbmRdnIndexTest
     private BaseRecordManager recMan;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         tempDir = Files.createTempDirectory( JdbmIndexTest.class.getSimpleName() );
@@ -100,7 +103,7 @@ public class JdbmRdnIndexTest
     }
 
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException
     {
         tempFile = Files.createTempFile( tempDir, "data", null );
@@ -114,7 +117,7 @@ public class JdbmRdnIndexTest
     }
 
 
-    @After
+    @AfterEach
     public void teardown() throws Exception
     {
         recMan.close();
@@ -123,7 +126,7 @@ public class JdbmRdnIndexTest
 
     
     
-    @AfterClass
+    @AfterAll
     public static void cleanup() throws Exception
     {
         FileUtils.deleteDirectory( tempDir.toFile() );

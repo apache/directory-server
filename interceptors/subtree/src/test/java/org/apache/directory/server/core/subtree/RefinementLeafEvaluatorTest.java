@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.subtree;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -37,13 +37,11 @@ import org.apache.directory.api.ldap.schema.loader.JarLdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.api.subtree.RefinementLeafEvaluator;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 
 /**
@@ -51,8 +49,6 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class RefinementLeafEvaluatorTest
 {
     /** the SchemaManager instance */
@@ -72,7 +68,7 @@ public class RefinementLeafEvaluatorTest
      * Initializes the global registries.
      * @throws javax.naming.NamingException if there is a failure loading the schema
      */
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         JarLdifSchemaLoader loader = new JarLdifSchemaLoader();
@@ -96,7 +92,7 @@ public class RefinementLeafEvaluatorTest
     /**
      * Sets evaluator and registries to null.
      */
-    @AfterClass
+    @AfterAll
     public static void tearDown()
     {
         evaluator = null;
