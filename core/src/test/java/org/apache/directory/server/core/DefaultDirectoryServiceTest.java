@@ -46,7 +46,7 @@ public class DefaultDirectoryServiceTest
         for ( int i = 0; i < service.getInterceptors().size(); i++ )
         {
             Interceptor interceptor = service.getInterceptors().get( i );
-            
+
             if ( existingInterceptorName.equals( interceptor.getName() ) )
             {
                 final Interceptor nextInterceptor = service.getInterceptors().get( i + 1 );

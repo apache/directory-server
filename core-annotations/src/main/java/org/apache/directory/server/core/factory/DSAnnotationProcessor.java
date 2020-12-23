@@ -472,7 +472,7 @@ public final class DSAnnotationProcessor
     
     private static boolean isDn( String str )
     {
-        if ( ( Strings.isEmpty( str ) ) | ( str.length() < 3 ) )
+        if ( ( Strings.isEmpty( str ) ) || ( str.length() < 3 ) )
         {
             return false;
         }

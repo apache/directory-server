@@ -158,6 +158,11 @@
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -261,6 +266,10 @@
                 org.bouncycastle.x509;version=${bcprov.version},
                 org.bouncycastle.asn1;version=${bcprov.version},
                 org.bouncycastle.asn1.x509;version=${bcprov.version},
+                org.bouncycastle.operator;version=${bcprov.version},
+                org.bouncycastle.operator.jcajce;version=${bcprov.version},
+                org.bouncycastle.cert;version=${bcprov.version},
+                org.bouncycastle.cert.jcajce;version=${bcprov.version},
                 org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>

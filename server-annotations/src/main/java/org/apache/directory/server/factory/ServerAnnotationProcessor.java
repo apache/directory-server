@@ -408,6 +408,7 @@ public final class ServerAnnotationProcessor
         kdcConfig.setPrimaryRealm( createKdcServer.primaryRealm() );
         kdcConfig.setMaximumTicketLifetime( createKdcServer.maxTicketLifetime() );
         kdcConfig.setMaximumRenewableLifetime( createKdcServer.maxRenewableLifetime() );
+        kdcConfig.setReplayCacheType( createKdcServer.replayCacheType() );
 
         KdcServer kdcServer = new KdcServer( kdcConfig );
 

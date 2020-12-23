@@ -23,6 +23,8 @@ package org.apache.directory.server.factory;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -31,6 +33,8 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.kerberos.KerberosConfig;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.Test;
 
@@ -47,6 +51,7 @@ public class CreateKdcServerAnnotationTest
         kdcPrincipal = "krbtgt/apache.org@apache.org",
         maxTicketLifetime = 1000,
         maxRenewableLifetime = 2000,
+        replayCacheType = DisabledReplayCache.class,
         transports =
             {
                 @CreateTransport(protocol = "TCP"),
@@ -69,6 +74,7 @@ public class CreateKdcServerAnnotationTest
         assertEquals( "krbtgt/apache.org@apache.org", config.getServicePrincipal().getName() );
         assertEquals( 1000, config.getMaximumTicketLifetime() );
         assertEquals( 2000, config.getMaximumRenewableLifetime() );
+        assertEquals( DisabledReplayCache.class, config.getReplayCacheType() );
         
         server.stop();
         directoryService.shutdown();
@@ -101,11 +107,38 @@ public class CreateKdcServerAnnotationTest
         assertEquals( "krbtgt/apache.org@apache.org", config.getServicePrincipal().getName() );
         assertEquals( 1000, config.getMaximumTicketLifetime() );
         assertEquals( 2000, config.getMaximumRenewableLifetime() );
+        assertEquals( KerberosConfig.DEFAULT_REPLAY_CACHE_TYPE, config.getReplayCacheType() );
         
         server.stop();
         directoryService.shutdown();
 
         FileUtils.deleteDirectory( directoryService.getInstanceLayout().getInstanceDirectory() );
     }
-    
+
+    /**
+     * Empty {@link ReplayCache} implementation which doesn't cache.
+     */
+    public static class DisabledReplayCache implements ReplayCache
+    {
+
+        @Override
+        public boolean isReplay(KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal, KerberosTime clientTime,
+                int clientMicroSeconds)
+        {
+            return false;
+        }
+
+        @Override
+        public void save(KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal, KerberosTime clientTime,
+                int clientMicroSeconds)
+        {
+        }
+
+        @Override
+        public void clear()
+        {
+        }
+
+    }
+
 }

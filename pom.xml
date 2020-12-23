@@ -54,20 +54,20 @@
     <skin.version>1.0.3</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.10.8</ant.version>
-    <bcprov.version>1.65</bcprov.version>
+    <ant.version>1.10.9</ant.version>
+    <bcprov.version>1.67</bcprov.version>
     <commons.cli.version>1.4</commons.cli.version>
     <commons.codec.version>1.14</commons.codec.version>
     <commons.collections.version>4.4</commons.collections.version>
     <commons.daemon.version>1.2.0</commons.daemon.version>
     <commons.lang.version>3.9</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
-    <commons.pool.version>2.8.0</commons.pool.version>
+    <commons.pool.version>2.8.1</commons.pool.version>
     <dnsjava.version>2.1.9</dnsjava.version>
     <caffeine.version>2.7.0</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <forbiddenapis.version>2.6</forbiddenapis.version>
-    <jetty.version>9.4.24.v20191120</jetty.version>
+    <jetty.version>9.4.34.v20201102</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.19</jetty.bundle.version>
     <junit.version>4.12</junit.version>
@@ -1071,6 +1071,13 @@
         <groupId>org.apache.directory.mavibot</groupId>
         <artifactId>mavibot</artifactId>
         <version>${org.apache.directory.mavibot.version}</version>
+        <!-- Can be removed once we pick up the next Mavibot version -->
+        <exclusions>
+            <exclusion>
+              <groupId>commons-collections</groupId>
+              <artifactId>commons-collections</artifactId>
+            </exclusion>
+        </exclusions>
       </dependency>
       
       <!-- Mina dependencies -->
@@ -1087,6 +1094,13 @@
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>${commons.codec.version}</version>
+      </dependency>
+
+      <!-- Can be removed once we pick up the next Mavibot version -->
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.2.2</version>
       </dependency>
       
       <dependency>
@@ -1265,6 +1279,12 @@
         <artifactId>bcprov-jdk15on</artifactId>
         <version>${bcprov.version}</version>
       </dependency>
+    
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk15on</artifactId>
+        <version>${bcprov.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
@@ -1277,7 +1297,7 @@
         <artifactId>annotations</artifactId>
         <version>${findbugs.annotations.version}</version>
       </dependency>
-      
+    
       <dependency>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>

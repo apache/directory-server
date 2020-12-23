@@ -30,12 +30,12 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.security.CertificateUtil;
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
-
-import sun.security.x509.X500Name;
 
 
 /**
@@ -43,7 +43,6 @@ import sun.security.x509.X500Name;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@SuppressWarnings("restriction")
 public abstract class AbstractLdapTestUnit
 {
     /** The used DirectoryService instance */
@@ -106,10 +105,10 @@ public abstract class AbstractLdapTestUnit
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         
         // Generate the subject's name
-        X500Name subject = new X500Name( subjectDn, "directory", "apache", "US" );
+        X500Principal subject = new X500Principal( "CN=" + subjectDn + ",OU=directory,O=apache,C=US" );
         
         // Generate the issuer's name
-        X500Name issuer = new X500Name( issuerDn, "directory", "apache", "US" );
+        X500Principal issuer = new X500Principal( "CN=" + issuerDn + ",OU=directory,O=apache,C=US" );
 
         // Create the self-signed certificate
         X509Certificate certificate = CertificateUtil.generateCertificate( subject, issuer, keyPair, days, algorithm );

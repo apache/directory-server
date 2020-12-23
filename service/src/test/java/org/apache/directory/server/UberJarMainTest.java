@@ -35,6 +35,8 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.directory.api.ldap.codec.api.SchemaBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -44,8 +46,6 @@ import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.api.ldap.model.schema.ObjectClass;
-import org.apache.directory.api.ldap.model.schema.registries.Schema;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
@@ -57,11 +57,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import sun.security.x509.X500Name;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 
 /**
@@ -76,10 +72,10 @@ public class UberJarMainTest
 
     /** The instance directory */
     private File instanceDirectory;
-    
+
     /** The UberjarMain */
     private UberjarMain uberjarMain;
-    
+
     private KeyStore keyStore;
 
     @Before
@@ -98,17 +94,16 @@ public class UberJarMainTest
 
         // Creating the UberjarMain
         uberjarMain = new UberjarMain();
-        
+
         try
         {
             // Create a temporary keystore, be sure to remove it when exiting the test
             File keyStoreFile = File.createTempFile( "testStore", "ks" );
             keyStoreFile.deleteOnExit();
 
-            
             keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
             char[] keyStorePassword = "secret".toCharArray();
-            
+
             try ( InputStream keyStoreData = new FileInputStream( keyStoreFile ) )
             {
                 keyStore.load( null, keyStorePassword );
@@ -117,16 +112,17 @@ public class UberJarMainTest
             // Generate the asymmetric keys, using EC algorithm
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance( "EC" );
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
-            
+
             // Generate the subject's name
-            @SuppressWarnings("restriction")
-            X500Name owner = new X500Name( "apacheds", "directory", "apache", "US" );
+            X500Principal owner = new X500Principal( "CN=apacheds,OU=directory,O=apache,C=US" );
 
             // Create the self-signed certificate
-            X509Certificate certificate = CertificateUtil.generateSelfSignedCertificate( owner, keyPair, 365, "SHA256WithECDSA" );
-            
-            keyStore.setKeyEntry( "apachedsKey", keyPair.getPrivate(), keyStorePassword, new X509Certificate[] { certificate } );
-            
+            X509Certificate certificate = CertificateUtil.generateSelfSignedCertificate( owner, keyPair, 365,
+                "SHA256WithECDSA" );
+
+            keyStore.setKeyEntry( "apachedsKey", keyPair.getPrivate(), keyStorePassword, new X509Certificate[]
+                { certificate } );
+
             try ( FileOutputStream out = new FileOutputStream( keyStoreFile ) )
             {
                 keyStore.store( out, keyStorePassword );
@@ -134,12 +130,12 @@ public class UberJarMainTest
         }
         catch ( Exception e )
         {
-            
+
         }
 
     }
 
-    
+
     @After
     public void delete() throws Exception
     {
@@ -148,8 +144,8 @@ public class UberJarMainTest
             uberjarMain.stop();
         }
     }
-    
-    
+
+
     private LdapConnection createConnection() throws LdapException, UnknownHostException
     {
         LdapConnectionConfig configuration = new LdapConnectionConfig();
@@ -164,11 +160,11 @@ public class UberJarMainTest
 
         // Binding on the connection
         connection.bind();
-        
+
         return connection;
     }
-    
-    
+
+
     private Thread createServer()
     {
         // First start the server to initialize the example partition 
@@ -180,7 +176,7 @@ public class UberJarMainTest
             public void run()
             {
                 LdapConnection connection = null;
-                
+
                 try
                 {
                     // Creating a connection on the created server
@@ -188,7 +184,7 @@ public class UberJarMainTest
 
                     // Looking for the Root DSE entry
                     Entry rootDseEntry = connection.lookup( Dn.ROOT_DSE );
-                    
+
                     if ( rootDseEntry == null )
                     {
                         // This isn't good
@@ -226,51 +222,35 @@ public class UberJarMainTest
      */
     @Test
     public void nisTest() throws Exception
-    {   
+    {
         // First start the server to initialize the example partition 
         uberjarMain.start( instanceDirectory.toString() );
-        
+
         // Creating a separate thread for the connection verification
         Thread connectionVerificationThread = new Thread()
         {
             public void run()
             {
                 LdapConnection connection = null;
-                
+
                 try
                 {
                     // Creating a connection on the created server
                     connection = createConnection();
-                    connection.setTimeOut( 0L );
-                    
-                    connection.modify( "cn=nis,ou=schema", 
-                        new DefaultModification( 
+
+                    connection.modify( "cn=nis,ou=schema",
+                        new DefaultModification(
                             ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "FALSE" ) );
-                    
-                    // Ok, now try to fetch the NIS schema elements
-                    Entry nisSchema = connection.lookup( "cn=nis,ou=schema" );
-                    
-                    assertEquals( "FALSE", nisSchema.get( "m-disabled" ).getString() );
-                    
-                    Entry posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
-                    
-                    Throwable exception = connection.exceptionCaught();
 
-                    assertNotNull( exception );
-
-                    if ( exception != null )
-                    {
-                        System.out.println( exception.getMessage() );
-                    }
-                    
                     // Reload the schema in order to be able to deal with NIS elements
                     connection.loadSchema();
-                    
-                    posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
-                    
-                    exception = connection.exceptionCaught();
-                        
-                    assertNull( exception );
+
+                    // Ok, now try to fetch the NIS schema elements
+                    Entry nisSchema = connection.lookup( "cn=nis,ou=schema" );
+
+                    assertEquals( "FALSE", nisSchema.get( "m-disabled" ).getString() );
+
+                    Entry posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
 
                     if ( posixAccount == null )
                     {
@@ -316,9 +296,9 @@ public class UberJarMainTest
      */
     @Test
     public void serviceInstanceTest() throws Exception
-    {   
+    {
         Thread connectionVerificationThread = createServer();
-        
+
         // Starting the connection verification thread
         // and waiting for the termination of it
         connectionVerificationThread.start();
@@ -329,15 +309,15 @@ public class UberJarMainTest
         {
             fail();
         }
-        
+
         // Stop the server
         uberjarMain.stop();
 
         // Restart the server
         uberjarMain.start( instanceDirectory.toString() );
-        
+
         LdapConnection connection = null;
-        
+
         try
         {
             // Creating a connection on the created server
@@ -345,18 +325,18 @@ public class UberJarMainTest
 
             // Looking for the Root DSE entry
             Entry rootDseEntry = connection.lookup( Dn.ROOT_DSE );
-            
+
             Entry nisSchema = connection.lookup( "cn=nis,ou=schema" );
-            
+
             System.out.println( "Before nis anabling" );
             System.out.println( nisSchema );
 
             Entry nisObjectClass = connection.lookup( "ou=objectClasses,cn=nis,ou=schema" );
 
             System.out.println( nisObjectClass );
-            
+
             Entry posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
-            
+
             System.out.println( "posixAccount : " + posixAccount );
 
             if ( rootDseEntry == null )
@@ -392,10 +372,10 @@ public class UberJarMainTest
      */
     @Test
     public void repairTest() throws Exception
-    {   
+    {
         // First start the server to initialize the example partition 
         Thread connectionVerificationThread = createServer();
-        
+
         // Starting the connection verification thread
         // and waiting for the termination of it
         connectionVerificationThread.start();
@@ -406,7 +386,7 @@ public class UberJarMainTest
         {
             fail();
         }
-        
+
         // Add a few entries to create a more complex hierarchy
         // We will have :
         // dc=example,dc=com
@@ -423,137 +403,125 @@ public class UberJarMainTest
         //   ou=groups
         //     cn=users
         LdapConnection connection = createConnection();
-        
+
         // First level
-        Entry people = new DefaultEntry( 
+        Entry people = new DefaultEntry(
             "ou=People,dc=example,dc=com",
             "objectClass: organizationalUnit",
             "objectClass: top",
-            "ou: People"
-            );
-        
+            "ou: People" );
+
         connection.add( people );
-        
-        Entry groups = new DefaultEntry( 
+
+        Entry groups = new DefaultEntry(
             "ou=Groups,dc=example,dc=com",
             "objectClass: organizationalUnit",
             "objectClass: top",
-            "ou: Groups"
-            );
-        
+            "ou: Groups" );
+
         connection.add( groups );
-        
+
         // Second level
-        Entry committers  = new DefaultEntry( 
+        Entry committers = new DefaultEntry(
             "ou=Committers,ou=people,dc=example,dc=com",
             "objectClass: organizationalUnit",
             "objectClass: top",
-            "ou: Committers"
-            );
+            "ou: Committers" );
 
         connection.add( committers );
 
-        Entry pmcs  = new DefaultEntry( 
+        Entry pmcs = new DefaultEntry(
             "ou=Pmcs,ou=people,dc=example,dc=com",
             "objectClass: organizationalUnit",
             "objectClass: top",
-            "ou: Pmcs"
-            );
+            "ou: Pmcs" );
 
         connection.add( pmcs );
 
-        Entry users  = new DefaultEntry( 
+        Entry users = new DefaultEntry(
             "ou=Users,ou=people,dc=example,dc=com",
             "objectClass: organizationalUnit",
             "objectClass: top",
-            "ou: Users"
-            );
+            "ou: Users" );
 
         connection.add( users );
 
         // Third level, committers
-        Entry emmanuelCommitter  = new DefaultEntry( 
+        Entry emmanuelCommitter = new DefaultEntry(
             "cn=emmanuel,ou=Committers,ou=people,dc=example,dc=com",
             "objectClass: person",
             "objectClass: top",
             "cn: emmanuel",
-            "sn: Emmanuel Lecharny"
-            );
+            "sn: Emmanuel Lecharny" );
 
         connection.add( emmanuelCommitter );
 
-        Entry kiranCommitter  = new DefaultEntry( 
+        Entry kiranCommitter = new DefaultEntry(
             "cn=kiran,ou=Committers,ou=people,dc=example,dc=com",
             "objectClass: person",
             "objectClass: top",
             "cn: kiran",
-            "sn: Kiran Ayyagari"
-            );
+            "sn: Kiran Ayyagari" );
 
         connection.add( kiranCommitter );
 
-        Entry stefanCommitter  = new DefaultEntry( 
+        Entry stefanCommitter = new DefaultEntry(
             "cn=stefan,ou=Committers,ou=people,dc=example,dc=com",
             "objectClass: person",
             "objectClass: top",
             "cn: stefan",
-            "sn: Stefan Seelmann"
-            );
+            "sn: Stefan Seelmann" );
 
         connection.add( stefanCommitter );
-        
-        Entry radovanCommitter  = new DefaultEntry( 
+
+        Entry radovanCommitter = new DefaultEntry(
             "cn=radovan,ou=Committers,ou=people,dc=example,dc=com",
             "objectClass: person",
             "objectClass: top",
             "cn: radovan",
-            "sn: Radovan Semancik"
-            );
+            "sn: Radovan Semancik" );
 
         connection.add( radovanCommitter );
 
         // Third level, PMCs
-        Entry emmanuelPmc = new DefaultEntry( 
+        Entry emmanuelPmc = new DefaultEntry(
             "cn=emmanuel,ou=Pmcs,ou=people,dc=example,dc=com",
             "objectClass: person",
             "objectClass: top",
             "cn: emmanuel",
-            "sn: Emmanuel Lecharny"
-            );
+            "sn: Emmanuel Lecharny" );
 
         connection.add( emmanuelPmc );
 
-        Entry kiranPmc = new DefaultEntry( 
+        Entry kiranPmc = new DefaultEntry(
             "cn=kiran,ou=Pmcs,ou=people,dc=example,dc=com",
             "objectClass: person",
             "objectClass: top",
             "cn: kiran",
-            "sn: Kiran Ayyagari"
-            );
+            "sn: Kiran Ayyagari" );
 
         connection.add( kiranPmc );
 
-        Entry stefanPmc = new DefaultEntry( 
+        Entry stefanPmc = new DefaultEntry(
             "cn=stefan,ou=Pmcs,ou=people,dc=example,dc=com",
             "objectClass: person",
             "objectClass: top",
             "cn: stefan",
-            "sn: Stefan Seelmann"
-            );
+            "sn: Stefan Seelmann" );
 
         connection.add( stefanPmc );
-        
+
         // Now, check that we have 13 entries
         int entryCount = 0;
-        
-        EntryCursor cursor = connection.search( "dc=example, dc=com","(ObjectClass=*)", SearchScope.SUBTREE, "*" );
-        
+
+        EntryCursor cursor = connection.search( "dc=example, dc=com", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+
         while ( cursor.next() )
         {
             cursor.get();
             entryCount++;
         }
-        
+
         assertEquals( 13, entryCount );
 
         // Stop the server
@@ -564,7 +532,7 @@ public class UberJarMainTest
 
         // And restart it
         connectionVerificationThread = createServer();
-        
+
         // Starting the connection verification thread
         // and waiting for the termination of it
         connectionVerificationThread.start();
@@ -580,15 +548,15 @@ public class UberJarMainTest
         connection = createConnection();
 
         entryCount = 0;
-        
-        cursor = connection.search( "dc=example, dc=com","(ObjectClass=*)", SearchScope.SUBTREE, "*" );
-        
+
+        cursor = connection.search( "dc=example, dc=com", "(ObjectClass=*)", SearchScope.SUBTREE, "*" );
+
         while ( cursor.next() )
         {
             cursor.get();
             entryCount++;
         }
-        
+
         assertEquals( 13, entryCount );
     }
 }
