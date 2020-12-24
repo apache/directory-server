@@ -91,6 +91,7 @@ import org.apache.directory.server.core.api.normalization.FilterNormalizingVisit
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -120,6 +121,8 @@ public class SingleFileLdifPartitionTest
 
     /** the file in use during the current test method's execution */
     private File ldifFileInUse;
+    
+    private SingleFileLdifPartition partition;
 
     @TempDir
     public Path folder;
@@ -187,6 +190,14 @@ public class SingleFileLdifPartitionTest
     public void createStore() throws Exception
     {
         ldifFileInUse = Files.createFile( folder.resolve( "partition.ldif" ) ).toFile();
+    }
+    
+    
+    @AfterEach
+    public void deleteStore() throws LdapException
+    {
+        ldifFileInUse.delete();
+        partition.destroy( partition.beginWriteTransaction() );
     }
 
 
@@ -257,6 +268,8 @@ public class SingleFileLdifPartitionTest
 
     private SingleFileLdifPartition reloadPartition() throws Exception
     {
+        partition.destroy( partition.beginWriteTransaction() );
+
         return createPartition( ldifFileInUse.getAbsolutePath(), false );
     }
 
@@ -354,30 +367,31 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testAddContextEntry() throws Exception
     {
-        SingleFileLdifPartition partition = createPartition( null, true );
+        partition = createPartition( null, true );
+        
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
         addCtx.setPartition( partition );
         addCtx.setTransaction( partition.beginWriteTransaction() );
-
+    
         partition.add( addCtx );
-
+    
         String id = partition.getEntryId( partition.beginReadTransaction(), contextEntry.getDn() );
         assertNotNull( id );
-
+    
         Entry fetched = partition.fetch( partition.beginReadTransaction(), id );
-
+    
         //remove the entryDn cause it is not present in the above hand made contextEntry
         fetched.removeAttributes( SchemaConstants.ENTRY_DN_AT );
-
+    
         assertEquals( contextEntry, fetched );
-
+    
         RandomAccessFile file = new RandomAccessFile( new File( partition.getPartitionPath() ), "r" );
-
+    
         assertEquals( getEntryLdifLen( contextEntry ), file.length() );
-
+    
         file.close();
-
+    
         partition = reloadPartition();
         assertExists( partition, contextEntry );
     }
@@ -391,7 +405,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testAddEntries() throws Exception
     {
-        SingleFileLdifPartition partition = createPartition( null, true );
+        partition = createPartition( null, true );
 
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
@@ -440,7 +454,8 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testModifyEntry() throws Exception
     {
-        SingleFileLdifPartition partition = createPartition( null, true );
+        partition = createPartition( null, true );
+        
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
         addCtx.setPartition( partition );
@@ -594,7 +609,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifAddExistingEntry() throws Exception
     {
-        SingleFileLdifPartition partition = createPartition( null, true );
+        partition = createPartition( null, true );
 
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
@@ -650,7 +665,8 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifDeleteExistingEntry() throws Exception
     {
-        SingleFileLdifPartition partition = createPartition( null, true );
+        partition = createPartition( null, true );
+        
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
         addCtx.setPartition( partition );
@@ -730,7 +746,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifSearchExistingEntry() throws Exception
     {
-        SingleFileLdifPartition partition = createPartition( null, true );
+        partition = createPartition( null, true );
 
         AddOperationContext addCtx = new AddOperationContext( mockSession );
         addCtx.setEntry( contextEntry );
@@ -808,7 +824,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifMoveEntry() throws Exception
     {
-        SingleFileLdifPartition partition = injectEntries();
+        partition = injectEntries();
 
         Entry childEntry1 = partition.fetch( partition.beginReadTransaction(), 
             partition.getEntryId( partition.beginReadTransaction(), new Dn( schemaManager,
@@ -838,7 +854,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifMoveSubChildEntry() throws Exception
     {
-        SingleFileLdifPartition partition = injectEntries();
+        partition = injectEntries();
 
         Entry childEntry1 = partition.fetch( partition.beginReadTransaction(), 
             partition.getEntryId( partition.beginReadTransaction(), new Dn( schemaManager,
@@ -869,7 +885,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifRenameAndDeleteOldRDN() throws Exception
     {
-        SingleFileLdifPartition partition = injectEntries();
+        partition = injectEntries();
 
         Dn childDn1 = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
 
@@ -907,7 +923,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifRenameAndRetainOldRDN() throws Exception
     {
-        SingleFileLdifPartition partition = injectEntries();
+        partition = injectEntries();
 
         Dn childDn1 = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
 
@@ -945,7 +961,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifMoveAndRenameWithDeletingOldRDN() throws Exception
     {
-        SingleFileLdifPartition partition = injectEntries();
+        partition = injectEntries();
 
         Dn childDn1 = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
 
@@ -1020,7 +1036,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testLdifMoveAndRenameRetainingOldRDN() throws Exception
     {
-        SingleFileLdifPartition partition = injectEntries();
+        partition = injectEntries();
 
         Dn childDn1 = new Dn( schemaManager, "cn=child1,ou=test,ou=system" );
 
@@ -1094,7 +1110,7 @@ public class SingleFileLdifPartitionTest
     @Test
     public void testEnableRewritingFlag() throws Exception
     {
-        SingleFileLdifPartition partition = createPartition( null, true );
+        partition = createPartition( null, true );
 
         // disable writing
         partition.setEnableRewriting( partition.beginReadTransaction(), false );
@@ -1146,7 +1162,7 @@ public class SingleFileLdifPartitionTest
     @Disabled("Taking way too much time and very timing dependent")
     public void testConcurrentOperations() throws Exception
     {
-        SingleFileLdifPartition partition = injectEntries();
+        partition = injectEntries();
 
         ThreadGroup tg = new ThreadGroup( "singlefileldifpartitionTG" );
 
