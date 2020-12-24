@@ -90,6 +90,7 @@ import org.apache.directory.server.core.api.interceptor.context.SearchOperationC
 import org.apache.directory.server.core.api.normalization.FilterNormalizingVisitor;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -150,7 +151,6 @@ public class SingleFileLdifPartitionTest
         }
 
         reader = new LdifReader( schemaManager );
-
         defaultCSNFactory = new CsnFactory( 0 );
 
         Dn adminDn = new Dn( schemaManager, "uid=admin,ou=system" );
@@ -173,6 +173,13 @@ public class SingleFileLdifPartitionTest
         contextEntry = new ClonedServerEntry( new DefaultEntry( schemaManager, ldifEntry.getEntry() ) );
 
         dnFactory = new DefaultDnFactory( schemaManager, 100 );
+    }
+    
+    
+    @AfterAll
+    public static void shutdown() throws IOException
+    {
+        reader.close();
     }
 
 
