@@ -264,6 +264,8 @@ public class MavibotStoreTest
 
         // make sure all files are closed so that they can be deleted on Windows.
         // wkdir2 is deleted by TemporaryFolder rule
+        
+        store2.destroy( partitionTxn );
     }
 
 
