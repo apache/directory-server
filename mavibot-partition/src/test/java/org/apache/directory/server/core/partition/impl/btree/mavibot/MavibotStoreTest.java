@@ -212,7 +212,7 @@ public class MavibotStoreTest
         if ( store != null )
         {
             // make sure all files are closed so that they can be deleted on Windows.
-            //store.destroy();
+            store.destroy( partitionTxn );
         }
 
         store = null;

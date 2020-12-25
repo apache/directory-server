@@ -123,6 +123,8 @@ public class MavibotMasterTableTest
         }
 
         table.close( partitionTxn );
+        
+        recordMan.close();
     }
 
 
