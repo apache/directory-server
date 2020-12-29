@@ -86,6 +86,7 @@ import org.apache.directory.server.core.api.authn.ppolicy.PasswordValidator;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
+import org.apache.directory.server.core.api.interceptor.context.AbstractChangeOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -123,6 +124,21 @@ public class AuthenticationInterceptor extends BaseInterceptor
      */
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
+    // userAccountControl
+    public static final String USER_ACCOUNT_CONTROL_AT_OID = "1.2.840.113556.1.4.8";
+
+    // msDS-UserAccountDisabled
+    public static final String MS_DS_USER_ACCOUNT_DISABLED_AT_OID = "1.2.840.113556.1.4.1853";
+
+    // pwdLastSet
+    public static final String PWD_LAST_SET_AT_OID = "1.2.840.113556.1.4.96";
+
+    // User
+    public static final String USER_OC = "user";
+
+    // msDS-BindableObject
+    public static final String MS_DS_BINDABLE_OBJECT_OC = "msDS-BindalbeObject";
+
     /** A Set of all the existing Authenticator to be used by the bind operation */
     private Set<Authenticator> authenticators = new HashSet<>();
 
@@ -130,6 +146,17 @@ public class AuthenticationInterceptor extends BaseInterceptor
     private final EnumMap<AuthenticationLevel, Collection<Authenticator>> authenticatorsMapByType = new EnumMap<>( AuthenticationLevel.class );
 
     private CoreSession adminSession;
+
+    // MS AD and AD LDS attributes
+    private AttributeType userAccountControlAT;
+
+    private AttributeType msDSUserAccountDisabledAT;
+
+    private AttributeType pwdLastSetAT;
+
+    private Attribute userOC;
+
+    private Attribute msDSBindableObjectOC;
 
     // pwdpolicy state attribute types
     private AttributeType pwdResetAT;
@@ -187,6 +214,14 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         loadPwdPolicyStateAttributeTypes();
+
+        userAccountControlAT = schemaManager.getAttributeType( USER_ACCOUNT_CONTROL_AT_OID );
+        msDSUserAccountDisabledAT = schemaManager.getAttributeType( MS_DS_USER_ACCOUNT_DISABLED_AT_OID );
+        pwdLastSetAT = schemaManager.getAttributeType( PWD_LAST_SET_AT_OID );
+        userOC = new DefaultAttribute(
+                schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID ), USER_OC );
+        msDSBindableObjectOC = new DefaultAttribute(
+                schemaManager.getAttributeType( SchemaConstants.OBJECT_CLASS_AT_OID ), MS_DS_BINDABLE_OBJECT_OC );
     }
 
 
@@ -334,6 +369,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         checkAuthenticated( addContext );
+
+        updatePwdLastSet( addContext );
 
         Entry entry = addContext.getEntry();
 
@@ -534,6 +571,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             LOG.debug( "Operation Context: {}", bindContext );
         }
+
+        checkUserDisabled( bindContext );
 
         CoreSession session = bindContext.getSession();
         Dn bindDn = bindContext.getDn();
@@ -942,6 +981,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         }
 
         checkAuthenticated( modifyContext );
+
+        updatePwdLastSet( modifyContext );
 
         if ( !directoryService.isPwdPolicyEnabled() || modifyContext.isReplEvent() )
         {
@@ -1913,5 +1954,112 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 itr.remove();
             }
         }
+    }
+
+    private void checkUserDisabled( BindOperationContext context ) throws LdapException
+    {
+        Entry principal = context.getPrincipal();
+
+        if ( principal != null )
+        {
+            if ( userAccountControlAT != null )
+            {
+                Attribute attr = principal.get( userAccountControlAT );
+                if ( attr != null && ( Long.parseUnsignedLong( attr.getString() ) & 2L ) != 0L )
+                {
+                    throw new LdapOperationException( ResultCodeEnum.INVALID_CREDENTIALS, "user is disabled" );
+                }
+            }
+
+            if ( msDSUserAccountDisabledAT != null )
+            {
+                Attribute attr = principal.get( msDSUserAccountDisabledAT );
+                if ( attr != null && Boolean.parseBoolean( attr.getString() ) )
+                {
+                    throw new LdapOperationException( ResultCodeEnum.INVALID_CREDENTIALS, "user is disabled" );
+                }
+            }
+        }
+    }
+
+    private void updatePwdLastSet( AbstractChangeOperationContext context ) throws LdapException
+    {
+        Entry entry = context.getEntry();
+
+        if ( pwdLastSetAT == null || context.isReplEvent() )
+        {
+            return;
+        }
+
+        if ( !entry.hasObjectClass( userOC ) && !entry.hasObjectClass( msDSBindableObjectOC ) )
+        {
+            return;
+        }
+
+        if ( context instanceof AddOperationContext )
+        {
+            Attribute pwdLastSet = entry.get( pwdLastSetAT );
+            if ( pwdLastSet == null )
+            {
+                pwdLastSet = new DefaultAttribute( pwdLastSetAT );
+                pwdLastSet.add( currentTimeInActiveDirectory() );
+                entry.add( pwdLastSet );
+            }
+            else if ( !"0".equals( pwdLastSet.getString() ) )
+            {
+                pwdLastSet.clear();
+                pwdLastSet.add( currentTimeInActiveDirectory() );
+            }
+        }
+        else if ( context instanceof ModifyOperationContext )
+        {
+            AttributeType userPasswordAT = directoryService.getAtProvider().getUserPassword();
+
+            if ( directoryService.isPwdPolicyEnabled() )
+            {
+                PasswordPolicyConfiguration policyConfig = getPwdPolicy( context.getEntry() );
+                if ( context.hasRequestControl( PasswordPolicyRequest.OID ) )
+                {
+                    userPasswordAT = schemaManager.getAttributeType( policyConfig.getPwdAttribute() );
+                }
+            }
+
+            ModifyOperationContext modifyContext = ( ModifyOperationContext ) context;
+            List<Modification> modifications = modifyContext.getModItems();
+
+            boolean needUpdatePwdLastSet = false;
+            boolean nonZeroPwdLastSet = true;
+            for ( Modification mod : modifications )
+            {
+                Attribute attr = mod.getAttribute();
+                if ( nonZeroPwdLastSet && userPasswordAT.equals( attr.getAttributeType() ) )
+                {
+                    needUpdatePwdLastSet = true;
+                }
+                else if ( pwdLastSetAT.equals( attr.getAttributeType() ) )
+                {
+                    nonZeroPwdLastSet = !"0".equals( attr.getString() );
+                    needUpdatePwdLastSet = nonZeroPwdLastSet;
+                }
+            }
+
+            if ( needUpdatePwdLastSet )
+            {
+                Attribute pwdLastSet = new DefaultAttribute( pwdLastSetAT );
+                pwdLastSet.add( currentTimeInActiveDirectory() );
+                Modification pwdLastSetMod = new DefaultModification( REPLACE_ATTRIBUTE, pwdLastSet );
+
+                List<Modification> mods = new ArrayList<>( modifications.size() + 1 );
+                mods.addAll( modifications );
+                mods.add( pwdLastSetMod );
+                modifyContext.setModItems( mods );
+            }
+        }
+    }
+
+    // https://github.com/apache/directory-studio/blob/2.0.0.v20200411-M15/plugins/valueeditors/src/main/java/org/apache/directory/studio/valueeditors/adtime/ActiveDirectoryTimeUtils.java#L54
+    private static String currentTimeInActiveDirectory()
+    {
+        return Long.toUnsignedString( System.currentTimeMillis() * 10000L + 116444736000000000L );
     }
 }
