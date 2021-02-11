@@ -22,6 +22,8 @@ package org.apache.directory.server.core.authn;
 
 import java.net.SocketAddress;
 
+import javax.net.ssl.TrustManager;
+
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
@@ -30,7 +32,6 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
@@ -248,7 +249,21 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             connectionConfig = new LdapConnectionConfig();
             connectionConfig.setLdapHost( delegateHost );
             connectionConfig.setLdapPort( delegatePort );
-            connectionConfig.setTrustManagers( new NoVerificationTrustManager() );
+            if ( delegateTlsTrustManagerFQCN != null && !"".equals( delegateTlsTrustManagerFQCN ) )
+            {
+                try
+                {
+                    Class<?> trustManagerClass = Class.forName( delegateTlsTrustManagerFQCN );
+                    TrustManager trustManager = ( TrustManager ) trustManagerClass.newInstance();
+                    connectionConfig.setTrustManagers( trustManager );
+                }
+                catch ( ClassNotFoundException | InstantiationException | IllegalAccessException e )
+                {
+                    String message = "Cannot load " + delegateTlsTrustManagerFQCN;
+                    LOG.error( message );
+                    throw new LdapException( message );
+                }
+            }
 
             ldapConnection = new LdapNetworkConnection( connectionConfig );
             ldapConnection.connect();
@@ -260,7 +275,21 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             connectionConfig.setLdapHost( delegateHost );
             connectionConfig.setUseSsl( true );
             connectionConfig.setLdapPort( delegatePort );
-            connectionConfig.setTrustManagers( new NoVerificationTrustManager() );
+            if ( delegateSslTrustManagerFQCN != null && !"".equals( delegateSslTrustManagerFQCN ) )
+            {
+                try
+                {
+                    Class<?> trustManagerClass = Class.forName( delegateSslTrustManagerFQCN );
+                    TrustManager trustManager = ( TrustManager ) trustManagerClass.newInstance();
+                    connectionConfig.setTrustManagers( trustManager );
+                }
+                catch ( ClassNotFoundException | InstantiationException | IllegalAccessException e )
+                {
+                    String message = "Cannot load " + delegateSslTrustManagerFQCN;
+                    LOG.error( message );
+                    throw new LdapException( message );
+                }
+            }
 
             ldapConnection = new LdapNetworkConnection( connectionConfig );
             ldapConnection.connect();
