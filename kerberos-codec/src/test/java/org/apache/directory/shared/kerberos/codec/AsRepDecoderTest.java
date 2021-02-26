@@ -31,19 +31,15 @@ import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.asRep.AsRepContainer;
 import org.apache.directory.shared.kerberos.messages.AsRep;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
  * Test the decoder for a AS-REP
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class AsRepDecoderTest
 {
     /**
@@ -269,7 +265,7 @@ public class AsRepDecoderTest
     /**
      * Test the decoding of a AS-REP with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAsRepEmpty() throws DecoderException
     {
 
@@ -281,18 +277,19 @@ public class AsRepDecoderTest
         stream.flip();
 
         // Allocate a AS-REP Container
-        Asn1Container asRepContainer = new AsRepContainer( stream );
+        Asn1Container container = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
-        Asn1Decoder.decode( stream, asRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a AS-REP with empty Pvno tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAsRepEmptyPvnoTag() throws DecoderException
     {
 
@@ -307,18 +304,19 @@ public class AsRepDecoderTest
         stream.flip();
 
         // Allocate a AS-REP Container
-        Asn1Container asRepContainer = new AsRepContainer( stream );
+        Asn1Container container = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
-        Asn1Decoder.decode( stream, asRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a AS-REP with empty Pvno value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAsRepEmptyPvnoValue() throws DecoderException
     {
 
@@ -334,11 +332,12 @@ public class AsRepDecoderTest
         stream.flip();
 
         // Allocate a AS-REP Container
-        Asn1Container asRepContainer = new AsRepContainer( stream );
+        Asn1Container container = new AsRepContainer( stream );
 
         // Decode the AS-REP PDU
-        Asn1Decoder.decode( stream, asRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 

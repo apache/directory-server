@@ -42,8 +42,8 @@ import org.apache.directory.shared.kerberos.components.EncKrbCredPart;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.KrbCredInfo;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -83,7 +83,7 @@ public class EncKrbCredPartDecoderTest
     }
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         optionalFieldValueList = new ArrayList<FieldValueHolder>();

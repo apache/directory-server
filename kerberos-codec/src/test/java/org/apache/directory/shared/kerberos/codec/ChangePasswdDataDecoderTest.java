@@ -29,7 +29,7 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.changePwdData.ChangePasswdDataContainer;
 import org.apache.directory.shared.kerberos.messages.ChangePasswdData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

@@ -26,12 +26,9 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.shared.kerberos.KerberosUtils;
 
@@ -41,11 +38,9 @@ import org.apache.directory.shared.kerberos.KerberosUtils;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class KerberosUtilsTest
 {
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception
     {
         // First setup a default realm

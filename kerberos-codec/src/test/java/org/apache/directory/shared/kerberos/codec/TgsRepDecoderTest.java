@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -34,16 +32,14 @@ import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.tgsRep.TgsRepContainer;
 import org.apache.directory.shared.kerberos.messages.TgsRep;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the decoder for a TGS-REP
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class TgsRepDecoderTest
 {
     /**
@@ -269,7 +265,7 @@ public class TgsRepDecoderTest
     /**
      * Test the decoding of a TGS-REP with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTgsRepEmpty() throws DecoderException
     {
 
@@ -281,18 +277,19 @@ public class TgsRepDecoderTest
         stream.flip();
 
         // Allocate a TGS-REP Container
-        Asn1Container tgsRepContainer = new TgsRepContainer( stream );
+        Asn1Container container = new TgsRepContainer( stream );
 
         // Decode the TGS-REP PDU
-        Asn1Decoder.decode( stream, tgsRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a TGS-REP with empty Pvno tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTgsRepEmptyPvnoTag() throws DecoderException
     {
 
@@ -307,18 +304,19 @@ public class TgsRepDecoderTest
         stream.flip();
 
         // Allocate a TGS-REP Container
-        Asn1Container tgsRepContainer = new TgsRepContainer( stream );
+        Asn1Container container = new TgsRepContainer( stream );
 
         // Decode the TGS-REP PDU
-        Asn1Decoder.decode( stream, tgsRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a TGS-REP with empty Pvno value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTgsRepEmptyPvnoValue() throws DecoderException
     {
 
@@ -334,10 +332,11 @@ public class TgsRepDecoderTest
         stream.flip();
 
         // Allocate a TGS-REP Container
-        Asn1Container tgsRepContainer = new TgsRepContainer( stream );
+        Asn1Container container = new TgsRepContainer( stream );
 
         // Decode the TGS-REP PDU
-        Asn1Decoder.decode( stream, tgsRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 }

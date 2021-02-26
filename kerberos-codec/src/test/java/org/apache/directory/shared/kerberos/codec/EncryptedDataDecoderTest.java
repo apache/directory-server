@@ -28,8 +28,6 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -39,8 +37,8 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.encryptedData.EncryptedDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -48,8 +46,6 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class EncryptedDataDecoderTest
 {
     /**
@@ -204,7 +200,7 @@ public class EncryptedDataDecoderTest
     /**
      * Test the decoding of a EncryptedData with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncryptedDataEmpty() throws DecoderException
     {
 
@@ -219,15 +215,16 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        Asn1Decoder.decode( stream, encryptedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encryptedDataContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncryptedData with no type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncryptedDataNoEType() throws DecoderException
     {
 
@@ -244,15 +241,16 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        Asn1Decoder.decode( stream, encryptedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encryptedDataContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncryptedData with a missing type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncryptedDataMissingEType() throws DecoderException
     {
 
@@ -283,15 +281,16 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        Asn1Decoder.decode( stream, encryptedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encryptedDataContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncryptedData with an empty type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncryptedDataEmptyType() throws DecoderException
     {
 
@@ -310,15 +309,16 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        Asn1Decoder.decode( stream, encryptedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encryptedDataContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncryptedData with an empty kvno
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncryptedDataEmptyKvno() throws DecoderException
     {
 
@@ -340,15 +340,16 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        Asn1Decoder.decode( stream, encryptedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encryptedDataContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncryptedData with no cipher
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncryptedDataNoCipher() throws DecoderException
     {
 
@@ -373,15 +374,16 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        Asn1Decoder.decode( stream, encryptedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encryptedDataContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncryptedData empty cipher
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncryptedDataEmptyCipher() throws DecoderException
     {
 
@@ -408,15 +410,16 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        Asn1Decoder.decode( stream, encryptedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encryptedDataContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncryptedData with a null cipher
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncryptedDataNullCipher() throws DecoderException
     {
 
@@ -445,6 +448,8 @@ public class EncryptedDataDecoderTest
         Asn1Container encryptedDataContainer = new EncryptedDataContainer();
 
         // Decode the EncryptedData PDU
-        Asn1Decoder.decode( stream, encryptedDataContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encryptedDataContainer);
+        } );
     }
 }

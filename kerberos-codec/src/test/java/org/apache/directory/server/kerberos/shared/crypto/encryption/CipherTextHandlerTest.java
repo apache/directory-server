@@ -36,11 +36,8 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.shared.kerberos.KerberosUtils;
 
@@ -49,8 +46,6 @@ import org.apache.directory.shared.kerberos.KerberosUtils;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class CipherTextHandlerTest
 {
     private static final byte[] DES_ENCRYPTED_TIME_STAMP =

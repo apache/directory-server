@@ -35,7 +35,8 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.checksum.ChecksumContainer;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -109,7 +110,7 @@ public class ChecksumDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeChecksumWithoutType() throws DecoderException
     {
 
@@ -133,12 +134,13 @@ public class ChecksumDecoderTest
 
         ChecksumContainer chkContainer = new ChecksumContainer();
 
-        Asn1Decoder.decode( stream, chkContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, chkContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeChecksumWithoutChecksumValue() throws DecoderException
     {
 
@@ -157,12 +159,13 @@ public class ChecksumDecoderTest
 
         ChecksumContainer chkContainer = new ChecksumContainer();
 
-        Asn1Decoder.decode( stream, chkContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, chkContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeChecksumWithEmptySeq() throws DecoderException
     {
 
@@ -177,8 +180,9 @@ public class ChecksumDecoderTest
 
         ChecksumContainer chkContainer = new ChecksumContainer();
 
-        Asn1Decoder.decode( stream, chkContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, chkContainer);
+        } );
     }
 
 }

@@ -27,8 +27,6 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -38,8 +36,9 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.hostAddress.HostAddressContainer;
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -47,8 +46,6 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class HostAddressDecoderTest
 {
     /**
@@ -130,7 +127,7 @@ public class HostAddressDecoderTest
     /**
      * Test the decoding of a HostAddress with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressEmpty() throws DecoderException
     {
 
@@ -145,15 +142,16 @@ public class HostAddressDecoderTest
         Asn1Container hostAddressContainer = new HostAddressContainer();
 
         // Decode the HostAddress PDU
-        Asn1Decoder.decode( stream, hostAddressContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a HostAddress with no addr-type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressNoAddrType() throws DecoderException
     {
 
@@ -171,15 +169,16 @@ public class HostAddressDecoderTest
         Asn1Container hostAddressContainer = new HostAddressContainer();
 
         // Decode the HostAddress PDU
-        Asn1Decoder.decode( stream, hostAddressContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a HostAddress with an empty addr-type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressEmptyAddrType() throws DecoderException
     {
 
@@ -199,15 +198,16 @@ public class HostAddressDecoderTest
         Asn1Container hostAddressContainer = new HostAddressContainer();
 
         // Decode the HostAddress PDU
-        Asn1Decoder.decode( stream, hostAddressContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a HostAddress with no address
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressNoAddress() throws DecoderException
     {
 
@@ -229,15 +229,16 @@ public class HostAddressDecoderTest
         Asn1Container hostAddressContainer = new HostAddressContainer();
 
         // Decode the HostAddress PDU
-        Asn1Decoder.decode( stream, hostAddressContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a HostAddress empty address
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressEmptyAddress() throws DecoderException
     {
 
@@ -262,15 +263,16 @@ public class HostAddressDecoderTest
         Asn1Container hostAddressContainer = new HostAddressContainer();
 
         // Decode the HostAddress PDU
-        Asn1Decoder.decode( stream, hostAddressContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a HostAddress with no add-type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressMissingAddrType() throws DecoderException
     {
 
@@ -301,15 +303,16 @@ public class HostAddressDecoderTest
         Asn1Container hostAddressContainer = new HostAddressContainer();
 
         // Decode the HostAddress PDU
-        Asn1Decoder.decode( stream, hostAddressContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a HostAddress with no adddress
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressMissingAddress() throws DecoderException
     {
 
@@ -330,7 +333,8 @@ public class HostAddressDecoderTest
         Asn1Container hostAddressContainer = new HostAddressContainer();
 
         // Decode the HostAddress PDU
-        Asn1Decoder.decode( stream, hostAddressContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressContainer);
+        } );
     }
 }

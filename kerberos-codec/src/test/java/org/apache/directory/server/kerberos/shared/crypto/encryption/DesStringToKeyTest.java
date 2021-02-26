@@ -25,10 +25,7 @@ import java.util.Arrays;
 
 import javax.crypto.spec.DESKeySpec;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertTrue;
 
@@ -39,8 +36,6 @@ import static org.junit.Assert.assertTrue;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class DesStringToKeyTest
 {
     private static final byte[] FAN_FOLD1 =

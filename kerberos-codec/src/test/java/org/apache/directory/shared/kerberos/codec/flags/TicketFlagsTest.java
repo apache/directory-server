@@ -28,7 +28,7 @@ import java.util.Arrays;
 
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

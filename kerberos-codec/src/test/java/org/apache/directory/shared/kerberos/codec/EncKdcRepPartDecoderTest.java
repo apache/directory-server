@@ -33,7 +33,8 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.EncKdcRepPart.EncKdcRepPartContainer;
 import org.apache.directory.shared.kerberos.components.EncKdcRepPart;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -47,7 +48,7 @@ public class EncKdcRepPartDecoderTest
      * Test an empty EncKdcRepPart
      * @throws Exception
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncKdcRepPartEmpty() throws Exception
     {
 
@@ -64,8 +65,9 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        Asn1Decoder.decode( stream, encKdcRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encKdcRepPartContainer);
+        } );
     }
 
 
@@ -73,7 +75,7 @@ public class EncKdcRepPartDecoderTest
      * Test an EncKdcRepPart with an empty key
      * @throws Exception
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncKdcRepPartEmptyKey() throws Exception
     {
 
@@ -91,8 +93,9 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        Asn1Decoder.decode( stream, encKdcRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encKdcRepPartContainer);
+        } );
     }
 
 
@@ -100,7 +103,7 @@ public class EncKdcRepPartDecoderTest
      * Test an EncKdcRepPart with a missing key
      * @throws Exception
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncKdcRepPartMissingKey() throws Exception
     {
 
@@ -118,8 +121,9 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        Asn1Decoder.decode( stream, encKdcRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encKdcRepPartContainer);
+        } );
     }
 
 
@@ -127,7 +131,7 @@ public class EncKdcRepPartDecoderTest
      * Test an EncKdcRepPart with an empty last-req
      * @throws Exception
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncKdcRepPartEmptylastReq() throws Exception
     {
 
@@ -152,8 +156,9 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        Asn1Decoder.decode( stream, encKdcRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encKdcRepPartContainer);
+        } );
     }
 
 
@@ -161,7 +166,7 @@ public class EncKdcRepPartDecoderTest
      * Test an EncKdcRepPart with an missing last-req
      * @throws Exception
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncKdcRepPartLastReqMissing() throws Exception
     {
 
@@ -186,8 +191,9 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        Asn1Decoder.decode( stream, encKdcRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encKdcRepPartContainer);
+        } );
     }
 
 
@@ -195,7 +201,7 @@ public class EncKdcRepPartDecoderTest
      * Test an EncKdcRepPart with an empty nonce
      * @throws Exception
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncKdcRepPartEmptyNonce() throws Exception
     {
 
@@ -234,8 +240,9 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        Asn1Decoder.decode( stream, encKdcRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encKdcRepPartContainer);
+        } );
     }
 
 
@@ -243,7 +250,7 @@ public class EncKdcRepPartDecoderTest
      * Test an EncKdcRepPart with an missing nonce
      * @throws Exception
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncKdcRepPartNonceMissing() throws Exception
     {
 
@@ -282,8 +289,9 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        Asn1Decoder.decode( stream, encKdcRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encKdcRepPartContainer);
+        } );
     }
 
 
@@ -291,7 +299,7 @@ public class EncKdcRepPartDecoderTest
      * Test an EncKdcRepPart with an empty key-expiration
      * @throws Exception
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncKdcRepPartEmptyKeyExpiration() throws Exception
     {
 
@@ -332,8 +340,9 @@ public class EncKdcRepPartDecoderTest
         Asn1Container encKdcRepPartContainer = new EncKdcRepPartContainer( stream );
 
         // Decode the EncKdcRepPart PDU
-        Asn1Decoder.decode( stream, encKdcRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encKdcRepPartContainer);
+        } );
     }
 
 

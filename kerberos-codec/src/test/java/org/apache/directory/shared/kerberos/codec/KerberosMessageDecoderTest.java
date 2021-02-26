@@ -34,19 +34,14 @@ import org.apache.directory.shared.kerberos.codec.tgsReq.TgsReqContainer;
 import org.apache.directory.shared.kerberos.messages.ApRep;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.TgsReq;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
  * Test the decoder for some KerberosMessage
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class KerberosMessageDecoderTest
 {
     /**

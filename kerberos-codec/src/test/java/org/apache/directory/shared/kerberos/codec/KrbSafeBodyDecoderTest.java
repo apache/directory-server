@@ -37,7 +37,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.krbSafeBody.KrbSafeBodyContainer;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.KrbSafeBody;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

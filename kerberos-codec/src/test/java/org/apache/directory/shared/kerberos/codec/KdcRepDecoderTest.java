@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -35,16 +33,14 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.kdcRep.KdcRepContainer;
 import org.apache.directory.shared.kerberos.components.KdcRep;
 import org.apache.directory.shared.kerberos.messages.AsRep;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the decoder for a KDC-REP
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class KdcRepDecoderTest
 {
     /**
@@ -270,7 +266,7 @@ public class KdcRepDecoderTest
     /**
      * Test the decoding of a KDC-REP with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcRepEmpty() throws DecoderException
     {
 
@@ -285,15 +281,16 @@ public class KdcRepDecoderTest
         Asn1Container kdcRepContainer = new KdcRepContainer( stream );
 
         // Decode the KDC-REP PDU
-        Asn1Decoder.decode( stream, kdcRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, kdcRepContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a KDC-REP with empty Pvno tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcRepEmptyPvnoTag() throws DecoderException
     {
 
@@ -311,15 +308,16 @@ public class KdcRepDecoderTest
         Asn1Container kdcRepContainer = new KdcRepContainer( stream );
 
         // Decode the KDC-REP PDU
-        Asn1Decoder.decode( stream, kdcRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, kdcRepContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a KDC-REP with empty Pvno value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcRepEmptyPvnoValue() throws DecoderException
     {
 
@@ -338,7 +336,8 @@ public class KdcRepDecoderTest
         Asn1Container kdcRepContainer = new KdcRepContainer( stream );
 
         // Decode the KDC-REP PDU
-        Asn1Decoder.decode( stream, kdcRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, kdcRepContainer);
+        } );
     }
 }

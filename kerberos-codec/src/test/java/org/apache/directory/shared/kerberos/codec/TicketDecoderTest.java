@@ -28,8 +28,6 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -42,15 +40,13 @@ import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class TicketDecoderTest
 {
     /**
@@ -192,7 +188,7 @@ public class TicketDecoderTest
     /**
      * Test the decoding of an empty Ticket message
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmpty() throws Exception
     {
 
@@ -207,14 +203,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of an empty Ticket sequence
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptySEQ() throws Exception
     {
 
@@ -232,14 +230,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of an empty tktvno tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptyTktVnoTag() throws Exception
     {
 
@@ -258,14 +258,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of an empty tktvno value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptyTktVnoValue() throws Exception
     {
 
@@ -285,14 +287,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of an bad tktvno value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketBadTktVnoValue() throws Exception
     {
 
@@ -312,14 +316,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with no realm
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketNoRealm() throws Exception
     {
 
@@ -339,14 +345,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of an empty realm tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptyRealmTag() throws Exception
     {
 
@@ -367,14 +375,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of an empty realm value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptyRealmValue() throws Exception
     {
 
@@ -396,14 +406,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with no sname
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketNoSname() throws Exception
     {
 
@@ -425,14 +437,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with an empty sname tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptySnameTag() throws Exception
     {
 
@@ -455,14 +469,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with an empty sname value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptySnameValue() throws Exception
     {
 
@@ -486,14 +502,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with a bad principalName
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketBadSName() throws Exception
     {
 
@@ -540,14 +558,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with no enc-part
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketNoEncPart() throws Exception
     {
 
@@ -608,14 +628,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with an empty enc-part tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptyEncPartTag() throws Exception
     {
 
@@ -678,14 +700,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with an empty enc-part
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmptyEncPart() throws Exception
     {
 
@@ -750,14 +774,16 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a ticket with a bad enc-part
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketBadEncPart() throws Exception
     {
 
@@ -824,6 +850,8 @@ public class TicketDecoderTest
         Asn1Container ticketContainer = new TicketContainer( stream );
 
         // Decode the Ticket PDU
-        Asn1Decoder.decode( stream, ticketContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, ticketContainer);
+        } );
     }
 }

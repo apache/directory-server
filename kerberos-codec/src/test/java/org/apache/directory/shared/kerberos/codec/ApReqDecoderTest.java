@@ -32,20 +32,16 @@ import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.apReq.ApReqContainer;
 import org.apache.directory.shared.kerberos.messages.ApReq;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
  * Test the decoder for a ApReq
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class ApReqDecoderTest
 {
     /**
@@ -211,7 +207,7 @@ public class ApReqDecoderTest
     /**
      * Test the decoding of a ApReq message with a bad MsgType
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeFullApReqBadMsgType() throws Exception
     {
 
@@ -329,18 +325,19 @@ public class ApReqDecoderTest
         stream.flip();
 
         // Allocate a ApReq Container
-        ApReqContainer apReqContainer = new ApReqContainer( stream );
+        ApReqContainer container = new ApReqContainer( stream );
 
         // Decode the ApReq PDU
-        Asn1Decoder.decode( stream, apReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a AP-REQ with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testApReqEmpty() throws DecoderException
     {
 
@@ -352,16 +349,17 @@ public class ApReqDecoderTest
         stream.flip();
 
         // Allocate a AP-REQ Container
-        Asn1Container apReqContainer = new ApReqContainer( stream );
+        Asn1Container container = new ApReqContainer( stream );
 
         // Decode the AP-REQ PDU
-        Asn1Decoder.decode( stream, apReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testDecodeFullApReqPerf() throws Exception
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x6C );

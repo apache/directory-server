@@ -27,15 +27,12 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.EncoderException;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -43,8 +40,6 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class EncryptionKeyTest
 {
     private static EncryptionKey encryptionA;
@@ -64,7 +59,7 @@ public class EncryptionKeyTest
     /**
      * Initialize name instances
      */
-    @BeforeClass
+    @BeforeAll
     public static void initNames() throws Exception
     {
         encryptionA = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, ENCRYPTION_VALUE_A );

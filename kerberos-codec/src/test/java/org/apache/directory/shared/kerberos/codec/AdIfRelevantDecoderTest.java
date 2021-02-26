@@ -37,7 +37,7 @@ import org.apache.directory.shared.kerberos.codec.adIfRelevant.AdIfRelevantConta
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AdIfRelevant;
 import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

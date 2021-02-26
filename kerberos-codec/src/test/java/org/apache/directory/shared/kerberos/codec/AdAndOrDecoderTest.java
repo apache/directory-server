@@ -32,7 +32,8 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.adAndOr.AdAndOrContainer;
 import org.apache.directory.shared.kerberos.components.AdAndOr;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -133,7 +134,7 @@ public class AdAndOrDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrWithEmptySeq() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 2 );
@@ -148,12 +149,13 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        Asn1Decoder.decode( stream, adAndOrContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, adAndOrContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrEmptyConditionCount() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 4 );
@@ -169,12 +171,13 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        Asn1Decoder.decode( stream, adAndOrContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, adAndOrContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrNullConditionCount() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 6 );
@@ -191,12 +194,13 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        Asn1Decoder.decode( stream, adAndOrContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, adAndOrContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrNoConditionCount() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x28 );
@@ -248,12 +252,13 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        Asn1Decoder.decode( stream, adAndOrContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, adAndOrContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrNoElements() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x07 );
@@ -272,12 +277,13 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        Asn1Decoder.decode( stream, adAndOrContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, adAndOrContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrEmptyElements() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
@@ -297,12 +303,13 @@ public class AdAndOrDecoderTest
 
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
 
-        Asn1Decoder.decode( stream, adAndOrContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, adAndOrContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrNullElements() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x0B );
@@ -325,7 +332,8 @@ public class AdAndOrDecoderTest
         AdAndOrContainer adAndOrContainer = new AdAndOrContainer();
         adAndOrContainer.setStream( stream );
 
-        Asn1Decoder.decode( stream, adAndOrContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, adAndOrContainer);
+        } );
     }
 }

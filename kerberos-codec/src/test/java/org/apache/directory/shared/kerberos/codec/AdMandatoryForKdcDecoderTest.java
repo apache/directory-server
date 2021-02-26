@@ -37,7 +37,7 @@ import org.apache.directory.shared.kerberos.codec.adMandatoryForKdc.AdMandatoryF
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AdMandatoryForKdc;
 import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

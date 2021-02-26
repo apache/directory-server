@@ -34,7 +34,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.krbPriv.KrbPrivContainer;
 import org.apache.directory.shared.kerberos.messages.KrbPriv;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

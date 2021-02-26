@@ -35,7 +35,7 @@ import org.apache.directory.shared.kerberos.components.EncryptedData;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.KrbCred;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

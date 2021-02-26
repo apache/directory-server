@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -34,16 +32,14 @@ import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.apRep.ApRepContainer;
 import org.apache.directory.shared.kerberos.messages.ApRep;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the decoder for a AP-REP
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class ApRepDecoderTest
 {
     /**
@@ -132,7 +128,7 @@ public class ApRepDecoderTest
     /**
      * Test the decoding of a AP-REP message with a wrong msg-type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeFullApRepWrongMsgType() throws Exception
     {
 
@@ -175,18 +171,19 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AsRep Container
-        ApRepContainer apRepContainer = new ApRepContainer( stream );
+        ApRepContainer container = new ApRepContainer( stream );
 
         // Decode the ApRep PDU
-        Asn1Decoder.decode( stream, apRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a AP-REP with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testApRepEmpty() throws DecoderException
     {
 
@@ -198,18 +195,19 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AP-REP Container
-        Asn1Container apRepContainer = new ApRepContainer( stream );
+        Asn1Container container = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
-        Asn1Decoder.decode( stream, apRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a AP-REP with empty SEQ
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testApRepEmptSEQ() throws DecoderException
     {
 
@@ -224,18 +222,19 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AP-REP Container
-        Asn1Container apRepContainer = new ApRepContainer( stream );
+        Asn1Container container = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
-        Asn1Decoder.decode( stream, apRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a AP-REP with empty Pvno tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testApRepEmptyPvnoTag() throws DecoderException
     {
 
@@ -251,18 +250,19 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AP-REP Container
-        Asn1Container apRepContainer = new ApRepContainer( stream );
+        Asn1Container container = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
-        Asn1Decoder.decode( stream, apRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a AP-REP with empty Pvno value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAsRepEmptyPvnoValue() throws DecoderException
     {
 
@@ -279,10 +279,11 @@ public class ApRepDecoderTest
         stream.flip();
 
         // Allocate a AP-REP Container
-        Asn1Container apRepContainer = new ApRepContainer( stream );
+        Asn1Container container = new ApRepContainer( stream );
 
         // Decode the AP-REP PDU
-        Asn1Decoder.decode( stream, apRepContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 }

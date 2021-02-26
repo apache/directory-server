@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -37,8 +35,8 @@ import org.apache.directory.shared.kerberos.codec.etypeInfo2.ETypeInfo2Container
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -46,8 +44,6 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class ETypeInfo2DecoderTest
 {
     /**
@@ -149,7 +145,7 @@ public class ETypeInfo2DecoderTest
     /**
      * Test the decoding of a ETypeInfo2 with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testETypeInfo2Empty() throws DecoderException
     {
 
@@ -161,18 +157,19 @@ public class ETypeInfo2DecoderTest
         stream.flip();
 
         // Allocate a ETypeInfo2 Container
-        Asn1Container etypeInfo2Container = new ETypeInfo2Container();
+        Asn1Container container = new ETypeInfo2Container();
 
         // Decode the ETypeInfo2 PDU
-        Asn1Decoder.decode( stream, etypeInfo2Container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a ETypeInfo2 with empty ETypeInfo2Entry in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testETypeInfo2NoETypeInfo2Entry() throws DecoderException
     {
 
@@ -187,10 +184,11 @@ public class ETypeInfo2DecoderTest
         stream.flip();
 
         // Allocate a ETypeInfo2 Container
-        Asn1Container etypeInfo2Container = new ETypeInfo2Container();
+        Asn1Container container = new ETypeInfo2Container();
 
         // Decode the ETypeInfo2 PDU
-        Asn1Decoder.decode( stream, etypeInfo2Container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 }

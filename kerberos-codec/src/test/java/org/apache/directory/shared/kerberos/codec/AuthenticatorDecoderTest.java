@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -35,16 +33,14 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.authenticator.AuthenticatorContainer;
 import org.apache.directory.shared.kerberos.messages.Authenticator;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the decoder for a Authenticator message
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class AuthenticatorDecoderTest
 {
     /**
@@ -249,7 +245,7 @@ public class AuthenticatorDecoderTest
     /**
      * Test the decoding of a Authenticator with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthenticatorEmpty() throws DecoderException
     {
 
@@ -264,15 +260,16 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        Asn1Decoder.decode( stream, authenticatorContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authenticatorContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a Authenticator with empty sequence
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcReqBodyEmptySequence() throws DecoderException
     {
 
@@ -290,15 +287,16 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        Asn1Decoder.decode( stream, authenticatorContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authenticatorContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a Authenticator with empty authenticator-vno tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcReqBodyEmptyAuthenticatorTag() throws DecoderException
     {
 
@@ -317,15 +315,16 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        Asn1Decoder.decode( stream, authenticatorContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authenticatorContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a Authenticator with empty authenticator-vno value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcReqBodyEmptyAuthenticatorValue() throws DecoderException
     {
 
@@ -345,15 +344,16 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        Asn1Decoder.decode( stream, authenticatorContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authenticatorContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a Authenticator with no authenticator-vno
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcReqBodyNoOptions() throws DecoderException
     {
 
@@ -473,7 +473,8 @@ public class AuthenticatorDecoderTest
         Asn1Container authenticatorContainer = new AuthenticatorContainer( stream );
 
         // Decode the Authenticator PDU
-        Asn1Decoder.decode( stream, authenticatorContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authenticatorContainer);
+        } );
     }
 }
