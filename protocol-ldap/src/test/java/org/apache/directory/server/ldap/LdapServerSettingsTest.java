@@ -35,11 +35,7 @@ import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.sasl.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -47,8 +43,6 @@ import com.mycila.junit.concurrent.ConcurrentJunitRunner;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class LdapServerSettingsTest
 {
     @Test

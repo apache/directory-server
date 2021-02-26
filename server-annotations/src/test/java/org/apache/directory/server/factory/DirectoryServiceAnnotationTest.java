@@ -51,7 +51,7 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**
