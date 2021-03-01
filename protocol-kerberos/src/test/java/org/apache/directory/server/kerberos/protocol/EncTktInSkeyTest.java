@@ -38,9 +38,9 @@ import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -61,7 +61,7 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
     /**
      * Creates a new instance of {@link EncTktInSkeyTest}.
      */
-    @Before
+    @BeforeEach
     public void setUp()
     {
         kdcServer = new KdcServer();
@@ -83,7 +83,7 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
     /**
      * Shutdown the Kerberos server
      */
-    @After
+    @AfterEach
     public void shutDown()
     {
         kdcServer.stop();

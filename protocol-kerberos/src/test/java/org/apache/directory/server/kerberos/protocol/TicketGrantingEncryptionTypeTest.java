@@ -45,10 +45,10 @@ import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.TgsRep;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -68,7 +68,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     /**
      * Creates a new instance of {@link TicketGrantingEncryptionTypeTest}.
      */
-    @Before
+    @BeforeEach
     public void setUp()
     {
         kdcServer = new KdcServer();
@@ -90,7 +90,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     /**
      * Shutdown the Kerberos server
      */
-    @After
+    @AfterEach
     public void shutDown()
     {
         kdcServer.stop();
@@ -103,7 +103,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
      * @throws Exception
      */
     @Test
-    @Ignore( "uses DES but the encryption key is generated in AbstractAuthenticationServiceTest always uses AES" )
+    @Disabled( "uses DES but the encryption key is generated in AbstractAuthenticationServiceTest always uses AES" )
     public void testRequestDesCbcMd5() throws Exception
     {
         // Get the mutable ticket part.

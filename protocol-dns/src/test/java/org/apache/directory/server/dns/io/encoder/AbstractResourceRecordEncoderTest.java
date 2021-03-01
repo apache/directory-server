@@ -32,8 +32,8 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordImpl;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -52,7 +52,7 @@ public abstract class AbstractResourceRecordEncoderTest
     ResourceRecord record;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws UnknownHostException
     {
         setUpResourceData();
@@ -65,7 +65,7 @@ public abstract class AbstractResourceRecordEncoderTest
         expectedData.put( ( byte ) domainNameParts[1].length() ); // + 1
         expectedData.put( Strings.getBytesUtf8( domainNameParts[1] ) ); // + 6
         expectedData.put( ( byte ) domainNameParts[2].length() ); // + 1
-        expectedData.put( Strings.getBytesUtf8( domainNameParts[2] ) ); // + 3
+        expectedData.put( Strings.getBytesUtf8( domainNameParts[2] ) ); // + 3esourceRecordEncoder
         expectedData.put( ( byte ) 0x00 ); // + 1 = 18
         expectedData.putShort( RecordType.A.convert() );
         expectedData.putShort( RecordClass.IN.convert() );
@@ -78,8 +78,8 @@ public abstract class AbstractResourceRecordEncoderTest
     public void testEncode() throws IOException
     {
         IoBuffer outBuffer = IoBuffer.allocate( 128 );
-        getEncoder().put( outBuffer, record );
-        assertEquals( expectedData, outBuffer );
+        getEncoder().put(outBuffer, record);
+        assertEquals(expectedData, outBuffer);
     }
 
 

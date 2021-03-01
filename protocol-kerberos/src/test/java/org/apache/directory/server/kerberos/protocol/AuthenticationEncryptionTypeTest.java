@@ -50,10 +50,10 @@ import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -73,7 +73,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     /**
      * Creates a new instance of {@link AuthenticationEncryptionTypeTest}.
      */
-    @Before
+    @BeforeEach
     public void setUp()
     {
         kdcServer = new KdcServer();
@@ -88,7 +88,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     /**
      * Shutdown the Kerberos server
      */
-    @After
+    @AfterEach
     public void shutDown()
     {
         kdcServer.stop();
@@ -101,7 +101,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      * @throws Exception
      */
     @Test
-    @Ignore( "uses DES but the encryption key is generated in AbstractAuthenticationServiceTest always uses AES" )
+    @Disabled( "uses DES but the encryption key is generated in AbstractAuthenticationServiceTest always uses AES" )
     public void testRequestDesCbcMd5() throws Exception
     {
         KdcReqBody kdcReqBody = new KdcReqBody();

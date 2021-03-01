@@ -32,8 +32,8 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.filter.codec.ProtocolCodecSession;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -54,7 +54,7 @@ public class FragmentDecoderTest
     private ProtocolCodecSession session;
 
 
-    @Before
+    @BeforeEach
     public void setup()
     {
         decoder = new MinaKerberosDecoder();

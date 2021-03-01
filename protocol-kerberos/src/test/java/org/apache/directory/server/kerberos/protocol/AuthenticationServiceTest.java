@@ -46,9 +46,9 @@ import org.apache.directory.shared.kerberos.messages.AsRep;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.TgsRep;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -68,7 +68,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     /**
      * Creates a new instance of {@link AuthenticationServiceTest}.
      */
-    @Before
+    @BeforeEach
     public void setUp()
     {
         kdcServer = new KdcServer();
@@ -83,7 +83,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
     /**
      * Shutdown the Kerberos server
      */
-    @After
+    @AfterEach
     public void shutDown()
     {
         kdcServer.stop();

@@ -53,9 +53,9 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.partition.PartitionNexus;
 import org.apache.directory.server.core.security.CertificateUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -78,7 +78,7 @@ public class UberJarMainTest
 
     private KeyStore keyStore;
 
-    @Before
+    @BeforeEach
     public void create()
     {
         // Getting tmp directory
@@ -136,7 +136,7 @@ public class UberJarMainTest
     }
 
 
-    @After
+    @AfterEach
     public void delete() throws Exception
     {
         if ( uberjarMain != null )
