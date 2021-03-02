@@ -26,7 +26,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 public class DefaultDirectoryServiceTest

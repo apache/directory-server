@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.ntp.io.NtpMessageDecoder;
 import org.apache.directory.server.ntp.messages.NtpMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

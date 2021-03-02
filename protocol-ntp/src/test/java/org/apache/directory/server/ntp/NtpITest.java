@@ -31,10 +31,10 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.util.AvailablePortFinder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -51,7 +51,7 @@ public class NtpITest
     /**
      * Set up a partition for EXAMPLE.COM and enable the NTP service.  The LDAP service is disabled.
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         ntpConfig = new NtpServer();
@@ -74,7 +74,7 @@ public class NtpITest
      * @throws Exception if there are errors
      */
     @Test
-    @Ignore
+    @Disabled
     // Fails with a timeout !!!
     public void testNtp() throws Exception
     {
@@ -100,7 +100,7 @@ public class NtpITest
     /**
      * Tear down.
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         ntpConfig.stop();

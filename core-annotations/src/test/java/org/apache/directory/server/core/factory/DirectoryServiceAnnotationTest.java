@@ -47,7 +47,7 @@ import org.apache.directory.server.core.authn.AbstractAuthenticator;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

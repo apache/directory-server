@@ -32,11 +32,6 @@
   <description>Annotations used to define a DirectoryService</description>
   
   <dependencies>
-    <dependency>
-      <groupId>org.apache.directory.junit</groupId>
-      <artifactId>junit-addons</artifactId>
-      <scope>test</scope>
-    </dependency>
     
     <dependency>
       <groupId>junit</groupId>

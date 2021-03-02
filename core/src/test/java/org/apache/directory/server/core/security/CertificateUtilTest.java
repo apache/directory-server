@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for the CertificateUtil class.
