@@ -313,7 +313,7 @@ public final class ServerAnnotationProcessor
      * @param directoryService the directory service
      * @return a running LdapServer instance
      */
-    private static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
+    public static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
     {
         LdapServer ldapServer = instantiateLdapServer( createLdapServer, directoryService );
 
