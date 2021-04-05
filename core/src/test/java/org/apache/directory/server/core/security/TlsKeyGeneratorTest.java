@@ -33,23 +33,16 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
 
 /**
  * Test for the TlsKeyGenerator class.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class TlsKeyGeneratorTest
 {
     private static final Logger LOG = LoggerFactory.getLogger( TlsKeyGeneratorTest.class );
@@ -60,7 +53,7 @@ public class TlsKeyGeneratorTest
     /**
      * Initialize the registries once for the whole test suite
      */
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception
     {
         /*
