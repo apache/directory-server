@@ -23,8 +23,8 @@ package org.apache.directory.server.core.trigger;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.injectEntries;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -35,10 +35,10 @@ import org.apache.directory.api.ldap.model.entry.AttributeUtils;
 import org.apache.directory.api.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.api.ldap.trigger.TriggerUtils;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -46,8 +46,8 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
-@Ignore
+@ExtendWith( ApacheDSTestExtension.class )
+@Disabled
 public class TriggerInterceptorIT extends AbstractLdapTestUnit
 {
     LdapContext spCtx;

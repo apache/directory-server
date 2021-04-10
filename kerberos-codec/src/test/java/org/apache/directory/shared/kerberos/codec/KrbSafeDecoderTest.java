@@ -34,7 +34,8 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.krbSafe.KrbSafeContainer;
 import org.apache.directory.shared.kerberos.messages.KrbSafe;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -146,7 +147,7 @@ public class KrbSafeDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeKrbSafeWithIncorrectPdu() throws DecoderException
     {
         byte[] data = new byte[]
@@ -168,6 +169,8 @@ public class KrbSafeDecoderTest
 
         KrbSafeContainer container = new KrbSafeContainer( stream );
 
-        Asn1Decoder.decode( stream, container );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 }

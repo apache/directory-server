@@ -37,7 +37,7 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.encKrbPrivPart.EncKrbPrivPartContainer;
 import org.apache.directory.shared.kerberos.components.EncKrbPrivPart;
 import org.apache.directory.shared.kerberos.components.HostAddress;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

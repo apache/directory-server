@@ -22,9 +22,9 @@ package org.apache.directory.server.core.operations.modify;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NoPermissionException;
@@ -44,9 +44,10 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
  
 
 /**
@@ -54,7 +55,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "ModifyAddIT")
 @ApplyLdifs(
     {
@@ -304,16 +305,19 @@ public class ModifyAddIT extends AbstractLdapTestUnit
      * Add a new AT with a valid Value in the entry, the AT is not part of the MAY or MUST,
      * and the OC does not contain the extensibleObject OC
      */
-    @Test( expected = SchemaViolationException.class )
+    @Test
     public void testModifyAddExistingEntryNotExistingATNotInMayValidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // A valid AT not in MUST or MAY
-        Attributes attrs = new BasicAttributes( "crossCertificatePair", "12345", true );
-
-        sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // A valid AT not in MUST or MAY
+            Attributes attrs = new BasicAttributes( "crossCertificatePair", "12345", true );
+    
+            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
 
 
@@ -371,69 +375,81 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a new single valued AT with 2 Values in the entry
      */
-    @Test( expected = InvalidAttributeValueException.class )
+    @Test
     public void testModifyAddExistingEntrySingleValuedATWithTwoValues() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // 
-        Attribute attr = new BasicAttribute( "c" );
-        attr.add( "FR" );
-        attr.add( "US" );
-        Attributes attrs = new BasicAttributes( "c", true );
-        attrs.put( attr );
-
-        // Add the Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( InvalidAttributeValueException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // 
+            Attribute attr = new BasicAttribute( "c" );
+            attr.add( "FR" );
+            attr.add( "US" );
+            Attributes attrs = new BasicAttributes( "c", true );
+            attrs.put( attr );
+    
+            // Add the Ava
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
 
     
     /**
      * Add a bad AT in the entry, the OC does not contain the extensibleObject OC
      */
-    @Test( expected = InvalidAttributesException.class )
+    @Test
     public void testModifyAddExistingEntryNotExistingATInvalidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // An invalid AT
-        Attributes attrs = new BasicAttributes( "badAttr", "12345", true );
-
-        sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( InvalidAttributesException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // An invalid AT
+            Attributes attrs = new BasicAttributes( "badAttr", "12345", true );
+    
+            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
 
 
     /**
      * Add a bad AT in the entry, the OC contains the extensibleObject OC
      */
-    @Test( expected = InvalidAttributesException.class )
+    @Test
     public void testModifyAddExistingEntryNotExistingATInvalidAVAExtensibleObjectInOcs() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // An invalid AT
-        Attributes attrs = new BasicAttributes( "badAttr", "12345", true );
-
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( InvalidAttributesException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // An invalid AT
+            Attributes attrs = new BasicAttributes( "badAttr", "12345", true );
+    
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
     
 
     /**
      * Add a AT part of the MAY/MUST, with an invalid value
      */
-    @Test( expected = IllegalArgumentException.class )
+    @Test
     public void testModifyAddExistingEntryExistingATInvalidValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // An invalid AT value
-        Attributes attrs = new BasicAttributes( "seeAlso", "AAA", true );
-
-        sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( IllegalArgumentException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // An invalid AT value
+            Attributes attrs = new BasicAttributes( "seeAlso", "AAA", true );
+    
+            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
     
     
@@ -441,48 +457,57 @@ public class ModifyAddIT extends AbstractLdapTestUnit
      * Add a AT not part of the MAY/MUST, with an invalid value, in an entry with the 
      * extensibleObject OC 
      */
-    @Test( expected = InvalidAttributeValueException.class )
+    @Test
     public void testModifyAddExistingEntryExistingATInvalidValueExtensibleObjectInOcs() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // An invalid AT value
-        Attributes attrs = new BasicAttributes( "mobile", "AAA", true );
-
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( InvalidAttributeValueException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // An invalid AT value
+            Attributes attrs = new BasicAttributes( "mobile", "AAA", true );
+    
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
     
     
     /**
      * Add an operational AT in an entry with no extensibleObject OC
      */
-    @Test( expected = NoPermissionException.class )
+    @Test
     public void testModifyAddExistingEntryOperationalAttribute() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // An operationalAttribute
-        Attributes attrs = new BasicAttributes( "subschemaSubentry", "cn=anotherSchema", true );
-
-        sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( NoPermissionException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // An operationalAttribute
+            Attributes attrs = new BasicAttributes( "subschemaSubentry", "cn=anotherSchema", true );
+    
+            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
     
     
     /**
      * Add an operational AT in an entry the extensibleObject OC
      */
-    @Test( expected = NoPermissionException.class )
+    @Test
     public void testModifyAddExistingEntryOperationalAttributeExtensibleObjectInOcs() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // An operational attribute
-        Attributes attrs = new BasicAttributes( "subschemaSubentry", "cn=anotherSchema", true );
-
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( NoPermissionException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // An operational attribute
+            Attributes attrs = new BasicAttributes( "subschemaSubentry", "cn=anotherSchema", true );
+    
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
     
     
@@ -520,15 +545,18 @@ public class ModifyAddIT extends AbstractLdapTestUnit
      * Add a new AT with a valid Value in the entry, the AT is part of the MAY,
      * the value already exists
      */
-    @Test( expected = AttributeInUseException.class )
+    @Test
     public void testModifyAddExistingEntryExistingATExistingValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION, true );
-
-        sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( AttributeInUseException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION, true );
+    
+            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
     
     
@@ -565,63 +593,72 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add a new value in a single valued AT
      */
-    @Test( expected = InvalidAttributeValueException.class )
+    @Test
     public void testModifyAddExistingEntryExistingSingleValuedAT() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // The initial value
-        Attributes attrs = new BasicAttributes( "c", "FR", true );
-
-        // Add the Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
-        
-        // Add another value
-        Attributes attrs2 = new BasicAttributes( "c", "US", true );
-
-        // Add the Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs2 );
+        Assertions.assertThrows( InvalidAttributeValueException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // The initial value
+            Attributes attrs = new BasicAttributes( "c", "FR", true );
+    
+            // Add the Ava
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+            
+            // Add another value
+            Attributes attrs2 = new BasicAttributes( "c", "US", true );
+    
+            // Add the Ava
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs2 );
+        } );
     }
     
     
     /**
      * Add the existing value in a single valued AT
      */
-    @Test( expected = AttributeInUseException.class )
+    @Test
     public void testModifyAddExistingEntryExistingSingleValuedATExistingValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // The initial value
-        Attributes attrs = new BasicAttributes( "c", "FR", true );
-
-        // Add the Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
-        
-        // Add another value
-        Attributes attrs2 = new BasicAttributes( "c", "FR", true );
-
-        // Add the Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs2 );
+        Assertions.assertThrows( AttributeInUseException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // The initial value
+            Attributes attrs = new BasicAttributes( "c", "FR", true );
+    
+            // Add the Ava
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+            
+            // Add another value
+            Attributes attrs2 = new BasicAttributes( "c", "FR", true );
+    
+            // Add the Ava
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs2 );
+        } );
     }
     
     
     /**
      * Add an invalue in a existing AT
      */
-    @Test( expected = InvalidAttributeValueException.class )
+    @Test
     public void testModifyAddExistingEntryExistingATBadValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // The added value
-        Attributes attrs = new BasicAttributes( "telephoneNumber", "BAD", true );
-
-        // Add the Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( InvalidAttributeValueException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // The added value
+            Attributes attrs = new BasicAttributes( "telephoneNumber", "BAD", true );
+    
+            // Add the Ava
+            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
     
     
@@ -655,15 +692,18 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     /**
      * Add an AT in an entry which does not exist
      */
-    @Test( expected = NameNotFoundException.class )
+    @Test
     public void testModifyAddNotExistingEntry() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // An operational attribute
-        Attributes attrs = new BasicAttributes( "cn", "test", true );
-
-        sysRoot.modifyAttributes( "ou=absent", DirContext.ADD_ATTRIBUTE, attrs );
+        Assertions.assertThrows( NameNotFoundException.class, () -> 
+        {
+            LdapContext sysRoot = getSystemContext( getService() );
+            createData( sysRoot );
+    
+            // An operational attribute
+            Attributes attrs = new BasicAttributes( "cn", "test", true );
+    
+            sysRoot.modifyAttributes( "ou=absent", DirContext.ADD_ATTRIBUTE, attrs );
+        } );
     }
 }

@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.operations.bind;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 
@@ -34,12 +34,13 @@ import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformExcep
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -47,7 +48,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "SimpleBindIT", allowAnonAccess = true)
 public class SimpleBindIT extends AbstractLdapTestUnit
 {
@@ -55,14 +56,14 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     private LdapConnection connection;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( getService() );
     }
 
 
-    @After
+    @AfterEach
     public void shutdown() throws Exception
     {
         connection.close();
@@ -106,10 +107,13 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected=LdapAuthenticationException.class )
+    @Test
     public void testSimpleBindAPrincipalBadPassword() throws LdapException, IOException
     {
-        connection.bind( "uid=admin,ou=system", "badsecret" );
+        Assertions.assertThrows( LdapAuthenticationException.class, () -> 
+        {
+            connection.bind( "uid=admin,ou=system", "badsecret" );
+        } );
     }
 
 
@@ -118,10 +122,13 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected=LdapInvalidDnException.class )
+    @Test
     public void testSimpleBindBadPrincipalAPassword() throws LdapException, IOException
     {
-        connection.bind( "admin", "badsecret" );
+        Assertions.assertThrows( LdapInvalidDnException.class, () -> 
+        {
+            connection.bind( "admin", "badsecret" );
+        } );
     }
 
 
@@ -130,10 +137,13 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected=LdapAuthenticationException.class )
+    @Test
     public void testSimpleBindUnknowPrincipalAPassword() throws LdapException, IOException
     {
-        connection.bind( (String)null, "secret" );
+        Assertions.assertThrows( LdapAuthenticationException.class, () -> 
+        {
+            connection.bind( (String)null, "secret" );
+        } );
     }
 
 
@@ -163,10 +173,13 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected=LdapUnwillingToPerformException.class )
+    @Test
     public void testSimpleBindAPrincipalNoPassword() throws LdapException, IOException
     {
-        connection.bind( "uid=admin,ou=system", null );
+        Assertions.assertThrows( LdapUnwillingToPerformException.class, () -> 
+        {
+            connection.bind( "uid=admin,ou=system", null );
+        } );
     }
 
 
@@ -175,15 +188,18 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapUnwillingToPerformException.class )
+    @Test
     public void testSimpleBindAPrincipalNullPassword() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );
-        assertFalse( connection.isAuthenticated() );
-
-        connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", "secret" );
-
-        connection.bind( "uid=admin,ou=system", null );
+        Assertions.assertThrows( LdapUnwillingToPerformException.class, () -> 
+        {
+            LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );
+            assertFalse( connection.isAuthenticated() );
+    
+            connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", "secret" );
+    
+            connection.bind( "uid=admin,ou=system", null );
+        } );
     }
 
 
@@ -192,10 +208,13 @@ public class SimpleBindIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected=LdapAuthenticationException.class )
+    @Test
     public void testSimpleBindNoPrincipalAPassword() throws LdapException, IOException
     {
-        connection.bind( "", "secret" );
+        Assertions.assertThrows( LdapAuthenticationException.class, () -> 
+        {
+            connection.bind( "", "secret" );
+        } );
     }
 
 

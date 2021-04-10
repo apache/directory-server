@@ -22,8 +22,8 @@ package org.apache.directory.server.core.authz;
 
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -41,12 +41,13 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -55,19 +56,19 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "AuthorizationServiceAsAdminIT")
 public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
 {
 
-    @Before
+    @BeforeEach
     public void setService()
     {
         AutzIntegUtils.service = getService();
     }
 
 
-    @After
+    @AfterEach
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
@@ -79,10 +80,13 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
      *
      * @throws Exception if there are problems
      */
-    @Test(expected = LdapNoPermissionException.class)
+    @Test
     public void testNoDeleteOnAdminByAdmin() throws Exception
     {
-        getAdminConnection().delete( "uid=admin,ou=system" );
+        Assertions.assertThrows( LdapNoPermissionException.class, () -> 
+        {
+            getAdminConnection().delete( "uid=admin,ou=system" );
+        } );
     }
 
 
@@ -91,11 +95,14 @@ public class AuthorizationServiceAsAdminIT extends AbstractLdapTestUnit
      *
      * @throws Exception if there are problems
      */
-    @Test(expected = LdapNoPermissionException.class)
+    @Test
     public void testNoRdnChangesOnAdminByAdmin() throws Exception
     {
-        getAdminConnection().rename( new Dn( getService().getSchemaManager(), "uid=admin,ou=system" ),
-            new Rdn( getService().getSchemaManager(), "uid=alex" ) );
+        Assertions.assertThrows( LdapNoPermissionException.class, () -> 
+        {
+            getAdminConnection().rename( new Dn( getService().getSchemaManager(), "uid=admin,ou=system" ),
+                new Rdn( getService().getSchemaManager(), "uid=alex" ) );
+        } );
     }
 
 

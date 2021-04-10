@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -42,12 +42,12 @@ import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -56,7 +56,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "MetaSyntaxCheckerHandlerIT")
 public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 {
@@ -67,7 +67,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     private static SchemaManager schemaManager;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         super.init();
@@ -120,8 +120,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         // nis is by default inactive
         connection.add( entry );
 
-        assertFalse( "adding new syntaxChecker to disabled schema should not register it into the registries",
-            schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "adding new syntaxChecker to disabled schema should not register it into the registries" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -150,8 +150,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             // Expected result.
         }
 
-        assertFalse( "adding new syntaxChecker to disabled schema should not register it into the registries",
-            schemaManager.getSyntaxCheckerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "adding new syntaxChecker to disabled schema should not register it into the registries" );
         assertFalse( isOnDisk( dn ) );
     }
 
@@ -230,14 +230,14 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         testAddSyntaxCheckerToEnabledSchema();
 
-        assertTrue( "syntaxChecker should be removed from the registry after being deleted", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should be removed from the registry after being deleted" );
         assertTrue( isOnDisk( dn ) );
 
         connection.delete( dn );
 
-        assertFalse( "syntaxChecker should be removed from the registry after being deleted", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should be removed from the registry after being deleted" );
 
         try
         {
@@ -259,14 +259,14 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         testAddSyntaxCheckerToEnabledSchema();
 
-        assertTrue( "syntaxChecker should be removed from the registry after being deleted", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should be removed from the registry after being deleted" );
         assertTrue( isOnDisk( dn ) );
 
         connection.delete( dn );
 
-        assertFalse( "syntaxChecker should be removed from the registry after being deleted", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should be removed from the registry after being deleted" );
 
         try
         {
@@ -282,7 +282,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRenameSyntaxChecker() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
@@ -292,8 +292,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         Rdn rdn = new Rdn( "m-oid=" + NEW_OID );
         connection.rename( dn, rdn );
 
-        assertFalse( "old syntaxChecker OID should be removed from the registry after being renamed", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "old syntaxChecker OID should be removed from the registry after being renamed" );
 
         //noinspection EmptyCatchBlock
         try
@@ -312,7 +312,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxChecker() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -323,8 +323,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
-            .contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker OID should still be present" );
 
         assertEquals( "syntaxChecker schema should be set to apache not apachemeta", "apache",
                 schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
@@ -335,7 +335,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxCheckerAndChangeRdn() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -346,11 +346,11 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.moveAndRename( dn, newDn );
 
-        assertFalse( "old syntaxChecker OID should NOT be present", schemaManager.getSyntaxCheckerRegistry().contains(
-            OID ) );
+        assertFalse( schemaManager.getSyntaxCheckerRegistry().contains(OID ) ,
+             "old syntaxChecker OID should NOT be present" );
 
-        assertTrue( "new syntaxChecker OID should be present", schemaManager.getSyntaxCheckerRegistry().contains(
-            NEW_OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains(NEW_OID ) ,
+             "new syntaxChecker OID should be present" );
 
         assertEquals( "syntaxChecker with new oid should have schema set to apache NOT apachemeta", "apache",
                 schemaManager.getSyntaxCheckerRegistry().getSchemaName( NEW_OID ) );
@@ -361,7 +361,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testModifySyntaxCheckerWithModificationItems() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -372,8 +372,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             ModificationOperation.REPLACE_ATTRIBUTE, "m-fqcn", BogusSyntaxChecker.class.getName() );
         connection.modify( dn, mod );
 
-        assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
-            .contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker OID should still be present" );
 
         assertEquals( "syntaxChecker schema should be set to apachemeta", "apachemeta",
                 schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
@@ -384,7 +384,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testModifySyntaxCheckerWithAttributes() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -395,8 +395,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
             ModificationOperation.REPLACE_ATTRIBUTE, "m-fqcn", BogusSyntaxChecker.class.getName() );
         connection.modify( dn, mod );
 
-        assertTrue( "syntaxChecker OID should still be present", schemaManager.getSyntaxCheckerRegistry()
-            .contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker OID should still be present" );
 
         assertEquals( "syntaxChecker schema should be set to apachemeta", "apachemeta",
                 schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );
@@ -450,13 +450,13 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "syntaxChecker should still be in the registry after delete failure", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should still be in the registry after delete failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxCheckerWhenInUse() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -474,15 +474,15 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "syntaxChecker should still be in the registry after move failure", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should still be in the registry after move failure" );
         schemaManager.getLdapSyntaxRegistry().unregister( OID );
         schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxCheckerAndChangeRdnWhenInUse() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -500,15 +500,15 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "syntaxChecker should still be in the registry after move failure", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should still be in the registry after move failure" );
         schemaManager.getLdapSyntaxRegistry().unregister( OID );
         schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRenameSyntaxCheckerWhenInUse() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
@@ -527,8 +527,8 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "syntaxChecker should still be in the registry after rename failure", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should still be in the registry after rename failure" );
         schemaManager.getLdapSyntaxRegistry().unregister( OID );
         schemaManager.getGlobalOidRegistry().unregister( OID );
     }
@@ -539,7 +539,7 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxCheckerToTop() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -557,13 +557,13 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "syntaxChecker should still be in the registry after move failure", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxCheckerToComparatorContainer() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -581,13 +581,13 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "syntaxChecker should still be in the registry after move failure", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxCheckerToDisabledSchema() throws Exception
     {
         testAddSyntaxCheckerToEnabledSchema();
@@ -599,13 +599,13 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertFalse( "syntaxChecker OID should no longer be present", schemaManager.getSyntaxCheckerRegistry()
-            .contains( OID ) );
+        assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker OID should no longer be present" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxCheckerToEnabledSchema() throws Exception
     {
         testAddSyntaxCheckerToDisabledSchema();
@@ -613,15 +613,15 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
         // nis is inactive by default
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=nis,ou=schema" );
 
-        assertFalse( "syntaxChecker OID should NOT be present when added to disabled nis schema", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker OID should NOT be present when added to disabled nis schema" );
 
         Dn newDn = new Dn( "m-oid=" + OID + ",ou=syntaxCheckers,cn=apachemeta,ou=schema" );
 
         connection.move( dn, newDn );
 
-        assertTrue( "syntaxChecker OID should be present when moved to enabled schema", schemaManager
-            .getSyntaxCheckerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getSyntaxCheckerRegistry().contains( OID ) ,
+             "syntaxChecker OID should be present when moved to enabled schema" );
 
         assertEquals( "syntaxChecker should be in apachemeta schema after move", "apachemeta", 
                 schemaManager.getSyntaxCheckerRegistry().getSchemaName( OID ) );

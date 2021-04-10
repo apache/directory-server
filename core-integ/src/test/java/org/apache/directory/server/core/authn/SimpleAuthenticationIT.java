@@ -23,9 +23,9 @@ package org.apache.directory.server.core.authn;
 import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getConnectionAs;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Objects;
 
@@ -39,11 +39,11 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "SimpleAuthenticationIT-DS")
 public class SimpleAuthenticationIT extends AbstractLdapTestUnit
 {
@@ -72,7 +72,7 @@ public class SimpleAuthenticationIT extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();

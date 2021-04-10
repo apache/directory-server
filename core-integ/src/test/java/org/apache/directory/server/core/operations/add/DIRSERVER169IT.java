@@ -21,10 +21,10 @@ package org.apache.directory.server.core.operations.add;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -34,9 +34,10 @@ import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationExceptio
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -44,7 +45,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "AddIT")
 public class DIRSERVER169IT extends AbstractLdapTestUnit
 {
@@ -79,21 +80,24 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
      * 
      * @throws Exception on error
      */
-    @Test( expected=LdapSchemaViolationException.class )
+    @Test
     public void testAddAttributesNotInObjectClasses() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( getService() );
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
+        {
+            LdapConnection sysRoot = getAdminConnection( getService() );
 
-        String base = "uid=kevin, ou=system";
-
-        Entry entry = new DefaultEntry( base,
-            "ObjectClass: top",
-            "cn: kevin Spacey",
-            "dc: ke" );
-
-        //create subcontext
-        sysRoot.add( entry );
-        fail( "Should not reach this state" );
+            String base = "uid=kevin, ou=system";
+    
+            Entry entry = new DefaultEntry( base,
+                "ObjectClass: top",
+                "cn: kevin Spacey",
+                "dc: ke" );
+    
+            //create subcontext
+            sysRoot.add( entry );
+            fail( "Should not reach this state" );
+        } );
     }
 
 
@@ -102,22 +106,25 @@ public class DIRSERVER169IT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected=LdapInvalidAttributeValueException.class )
+    @Test
     public void testAddAttributesBadSyntax() throws Exception
     {
-        LdapConnection sysRoot = getAdminConnection( getService() );
-
-        String base = "sn=kevin, ou=system";
-
-        Entry entry = new DefaultEntry( base,
-            "ObjectClass: top",
-            "ObjectClass: person",
-            "cn: kevin Spacey",
-            "sn: ke",
-            "telephoneNumber: 0123456abc" );
-
-        // create subcontext
-        sysRoot.add( entry );
+        Assertions.assertThrows( LdapInvalidAttributeValueException.class, () -> 
+        {
+            LdapConnection sysRoot = getAdminConnection( getService() );
+    
+            String base = "sn=kevin, ou=system";
+    
+            Entry entry = new DefaultEntry( base,
+                "ObjectClass: top",
+                "ObjectClass: person",
+                "cn: kevin Spacey",
+                "sn: ke",
+                "telephoneNumber: 0123456abc" );
+    
+            // create subcontext
+            sysRoot.add( entry );
+        } );
     }
 
 

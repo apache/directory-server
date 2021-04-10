@@ -37,7 +37,8 @@ import org.apache.directory.shared.kerberos.codec.authorizationData.Authorizatio
 import org.apache.directory.shared.kerberos.codec.types.AuthorizationType;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -140,7 +141,7 @@ public class AuthorizationDataDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthorizationDataEmptyPdu() throws DecoderException
     {
 
@@ -155,12 +156,13 @@ public class AuthorizationDataDecoderTest
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder.decode( stream, authDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authDataContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthorizationDataWithNoInnerData() throws DecoderException
     {
 
@@ -176,12 +178,13 @@ public class AuthorizationDataDecoderTest
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder.decode( stream, authDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authDataContainer);
+        } );;
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthorizationDataEmptyTypeTag() throws DecoderException
     {
 
@@ -198,12 +201,13 @@ public class AuthorizationDataDecoderTest
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder.decode( stream, authDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authDataContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthorizationDataEmptyTypeValue() throws DecoderException
     {
 
@@ -222,12 +226,13 @@ public class AuthorizationDataDecoderTest
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder.decode( stream, authDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authDataContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthorizationDataWithoutType() throws DecoderException
     {
 
@@ -247,12 +252,13 @@ public class AuthorizationDataDecoderTest
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder.decode( stream, authDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authDataContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthorizationDataWithoutData() throws DecoderException
     {
 
@@ -272,12 +278,13 @@ public class AuthorizationDataDecoderTest
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder.decode( stream, authDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authDataContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthorizationDataWithEmptyDataTag() throws DecoderException
     {
 
@@ -299,12 +306,13 @@ public class AuthorizationDataDecoderTest
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder.decode( stream, authDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authDataContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthorizationDataWithEmptyData() throws DecoderException
     {
 
@@ -328,7 +336,8 @@ public class AuthorizationDataDecoderTest
 
         AuthorizationDataContainer authDataContainer = new AuthorizationDataContainer();
 
-        Asn1Decoder.decode( stream, authDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, authDataContainer);
+        } );
     }
 }

@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
@@ -38,12 +38,12 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.registries.ObjectClassRegistry;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "MetaObjectClassHandlerIT")
 public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 {
@@ -71,7 +71,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     private static LdapConnection connection;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         super.init();
@@ -127,8 +127,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     {
         Dn dn = addObjectClassToDisabledSchema();
 
-        assertFalse( "adding new objectClass to disabled schema should not register it into the registries",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "adding new objectClass to disabled schema should not register it into the registries" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -160,8 +160,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
             // Excpected result
         }
 
-        assertFalse( "adding new objectClass to disabled schema should not register it into the registries",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "adding new objectClass to disabled schema should not register it into the registries" );
         assertFalse( isOnDisk( dn ) );
     }
 
@@ -173,14 +173,14 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         addObjectClass();
 
-        assertTrue( "objectClass should be removed from the registry after being deleted",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should be removed from the registry after being deleted" );
         assertTrue( isOnDisk( dn ) );
 
         connection.delete( dn );
 
-        assertFalse( "objectClass should be removed from the registry after being deleted",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should be removed from the registry after being deleted" );
 
         try
         {
@@ -202,14 +202,14 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         addObjectClassToDisabledSchema();
 
-        assertFalse( "objectClass should be removed from the registry after being deleted",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should be removed from the registry after being deleted" );
         assertTrue( isOnDisk( dn ) );
 
         connection.delete( dn );
 
-        assertFalse( "objectClass should be removed from the registry after being deleted",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should be removed from the registry after being deleted" );
 
         try
         {
@@ -225,7 +225,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRenameObjectClassType() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=nis,ou=schema" );
@@ -236,8 +236,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertFalse( "old objectClass OID should be removed from the registry after being renamed",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "old objectClass OID should be removed from the registry after being renamed" );
 
         //noinspection EmptyCatchBlock
         try
@@ -254,7 +254,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveObjectClass() throws Exception
     {
         addObjectClass();
@@ -265,8 +265,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertTrue( "objectClass OID should still be present",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass OID should still be present" );
 
         assertEquals( "objectClass schema should be set to apache not apachemeta", "apache",
             getObjectClassRegistry().getSchemaName( OID ) );
@@ -274,7 +274,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveObjectClassAndChangeRdn() throws Exception
     {
         addObjectClass();
@@ -285,11 +285,11 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertFalse( "old objectClass OID should NOT be present",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "old objectClass OID should NOT be present" );
 
-        assertTrue( "new objectClass OID should be present",
-            getObjectClassRegistry().contains( NEW_OID ) );
+        assertTrue( getObjectClassRegistry().contains( NEW_OID ) ,
+             "new objectClass OID should be present" );
 
         assertEquals( "objectClass with new oid should have schema set to apache NOT apachemeta","apache",
             getObjectClassRegistry().getSchemaName( NEW_OID ) );
@@ -297,7 +297,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testModifyObjectClassWithModificationItems() throws Exception
     {
         addObjectClass();
@@ -315,8 +315,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.modify( dn, mod1, mod2 );
 
-        assertTrue( "objectClass OID should still be present",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass OID should still be present" );
 
         assertEquals( "objectClass schema should be set to apachemeta", "apachemeta",
             getObjectClassRegistry().getSchemaName( OID ) );
@@ -328,7 +328,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testModifyObjectClassWithAttributes() throws Exception
     {
         addObjectClass();
@@ -346,8 +346,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.modify( dn, mod1, mod2 );
 
-        assertTrue( "objectClass OID should still be present",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass OID should still be present" );
 
         assertEquals( "objectClass schema should be set to apachemeta", "apachemeta",
             getObjectClassRegistry().getSchemaName( OID ) );
@@ -402,13 +402,13 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "objectClass should still be in the registry after delete failure",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should still be in the registry after delete failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveObjectClassWhenInUse() throws Exception
     {
         addObjectClass();
@@ -427,13 +427,13 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "objectClass should still be in the registry after move failure",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveObjectClassAndChangeRdnWhenInUse() throws Exception
     {
         addObjectClass();
@@ -452,13 +452,13 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "ObjectClass should still be in the registry after move failure",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "ObjectClass should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRenameObjectClassWhenInUse() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apacheMeta,ou=schema" );
@@ -477,8 +477,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "objectClass should still be in the registry after rename failure",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should still be in the registry after rename failure" );
     }
 
 
@@ -486,7 +486,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
     // Let's try some freaky stuff
     // ----------------------------------------------------------------------
     @Test
-    @Ignore
+    @Disabled
     public void testMoveObjectClassToTop() throws Exception
     {
         addObjectClass();
@@ -504,13 +504,13 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "objectClass should still be in the registry after move failure",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveObjectClassToComparatorContainer() throws Exception
     {
         addObjectClass();
@@ -528,8 +528,8 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "objectClass should still be in the registry after move failure",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass should still be in the registry after move failure" );
     }
 
 
@@ -556,7 +556,7 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveObjectClassToDisabledSchema() throws Exception
     {
         addObjectClass();
@@ -568,13 +568,13 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertFalse( "objectClass OID should no longer be present",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "objectClass OID should no longer be present" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveObjectClassToEnabledSchema() throws Exception
     {
         addObjectClassToDisabledSchema();
@@ -582,15 +582,15 @@ public class MetaObjectClassHandlerIT extends AbstractMetaSchemaObjectHandler
         // nis is inactive by default
         Dn dn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=nis,ou=schema" );
 
-        assertFalse( "objectClass OID should NOT be present when added to disabled nis schema",
-            getObjectClassRegistry().contains( OID ) );
+        assertFalse( getObjectClassRegistry().contains( OID ) ,
+             "objectClass OID should NOT be present when added to disabled nis schema" );
 
         Dn newDn = new Dn( "m-oid=" + OID + ",ou=objectClasses,cn=apachemeta,ou=schema" );
 
         connection.move( dn, newDn );
 
-        assertTrue( "objectClass OID should be present when moved to enabled schema",
-            getObjectClassRegistry().contains( OID ) );
+        assertTrue( getObjectClassRegistry().contains( OID ) ,
+             "objectClass OID should be present when moved to enabled schema" );
 
         assertEquals( "objectClass should be in apachemeta schema after move", "apachemeta",
             getObjectClassRegistry().getSchemaName( OID ) );

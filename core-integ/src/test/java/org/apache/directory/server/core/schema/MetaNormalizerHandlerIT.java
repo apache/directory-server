@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -45,12 +45,12 @@ import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimNormalizer
 import org.apache.directory.api.ldap.model.schema.normalizers.NoOpNormalizer;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -59,7 +59,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "MetaNormalizerHandlerIT")
 public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 {
@@ -70,7 +70,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     private static LdapConnection connection;
 
 
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         super.init();
@@ -123,8 +123,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.add( entry );
 
-        assertFalse( "adding new normalizer to disabled schema should not register it into the registries",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "adding new normalizer to disabled schema should not register it into the registries" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -154,8 +154,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             // Expected result.
         }
 
-        assertFalse( "adding new normalizer to disabled schema should not register it into the registries",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "adding new normalizer to disabled schema should not register it into the registries" );
         assertFalse( isOnDisk( dn ) );
     }
 
@@ -234,14 +234,14 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         testAddNormalizerToEnabledSchema();
 
-        assertTrue( "normalizer should be removed from the registry after being deleted",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should be removed from the registry after being deleted" );
         assertTrue( isOnDisk( dn ) );
 
         connection.delete( dn );
 
-        assertFalse( "normalizer should be removed from the registry after being deleted",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should be removed from the registry after being deleted" );
 
         try
         {
@@ -263,14 +263,14 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         testAddNormalizerToEnabledSchema();
 
-        assertTrue( "normalizer should be removed from the registry after being deleted",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should be removed from the registry after being deleted" );
         assertTrue( isOnDisk( dn ) );
 
         connection.delete( dn );
 
-        assertFalse( "normalizer should be removed from the registry after being deleted",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should be removed from the registry after being deleted" );
 
         try
         {
@@ -286,7 +286,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRenameNormalizer() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=normalizers,cn=apacheMeta,ou=schema" );
@@ -296,8 +296,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.rename( dn, rdn );
 
-        assertFalse( "old normalizer OID should be removed from the registry after being renamed",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "old normalizer OID should be removed from the registry after being renamed" );
 
         //noinspection EmptyCatchBlock
         try
@@ -316,7 +316,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveNormalizer() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -327,8 +327,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertTrue( "normalizer OID should still be present",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer OID should still be present" );
 
         assertEquals( "normalizer schema should be set to apache not apachemeta", "apache",
             schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
@@ -339,7 +339,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveNormalizerAndChangeRdn() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -349,11 +349,11 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.moveAndRename( dn, newDn );
 
-        assertFalse( "old normalizer OID should NOT be present",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "old normalizer OID should NOT be present" );
 
-        assertTrue( "new normalizer OID should be present",
-            schemaManager.getNormalizerRegistry().contains( NEW_OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( NEW_OID ) ,
+             "new normalizer OID should be present" );
 
         assertEquals( "normalizer with new oid should have schema set to apache NOT apachemeta", "apache",
             schemaManager.getNormalizerRegistry().getSchemaName( NEW_OID ) );
@@ -364,7 +364,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testModifyNormalizerWithModificationItems() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -376,8 +376,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.modify( dn, mod );
 
-        assertTrue( "normalizer OID should still be present",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer OID should still be present" );
 
         assertEquals( "normalizer schema should be set to apachemeta", "apachemeta",
             schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
@@ -388,7 +388,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testModifyNormalizerWithAttributes() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -399,8 +399,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             ModificationOperation.REPLACE_ATTRIBUTE, "m-fqcn", DeepTrimNormalizer.class.getName() );
         connection.modify( dn, mod );
 
-        assertTrue( "normalizer OID should still be present",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer OID should still be present" );
 
         assertEquals( "normalizer schema should be set to apachemeta", "apachemeta",
             schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
@@ -455,13 +455,13 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "Normalizer should still be in the registry after delete failure", schemaManager
-            .getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ),
+            "Normalizer should still be in the registry after delete failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveNormalizerWhenInUse() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -479,15 +479,15 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "normalizer should still be in the registry after move failure",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should still be in the registry after move failure" );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
         schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveNormalizerAndChangeRdnWhenInUse() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -505,15 +505,15 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "normalizer should still be in the registry after move failure",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should still be in the registry after move failure" );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
         schemaManager.getGlobalOidRegistry().unregister( OID );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRenameNormalizerWhenInUse() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=normalizers,cn=apacheMeta,ou=schema" );
@@ -532,8 +532,8 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "normalizer should still be in the registry after rename failure",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should still be in the registry after rename failure" );
         schemaManager.getMatchingRuleRegistry().unregister( OID );
         schemaManager.getGlobalOidRegistry().unregister( OID );
     }
@@ -544,7 +544,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveNormalizerToTop() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -563,13 +563,13 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
-        assertTrue( "normalizer should still be in the registry after move failure",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveNormalizerToComparatorContainer() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -588,13 +588,13 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
-        assertTrue( "normalizer should still be in the registry after move failure",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveNormalizerToDisabledSchema() throws Exception
     {
         testAddNormalizerToEnabledSchema();
@@ -606,13 +606,13 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertFalse( "normalizer OID should no longer be present",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer OID should no longer be present" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveNormalizerToEnabledSchema() throws Exception
     {
         testAddNormalizerToDisabledSchema();
@@ -620,15 +620,15 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
         // nis is inactive by default
         Dn dn = new Dn( "m-oid=" + OID + ",ou=normalizers,cn=nis,ou=schema" );
 
-        assertFalse( "normalizer OID should NOT be present when added to disabled nis schema",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertFalse( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer OID should NOT be present when added to disabled nis schema" );
 
         Dn newDn = new Dn( "m-oid=" + OID + ",ou=normalizers,cn=apacheMeta,ou=schema" );
 
         connection.move( dn, newDn );
 
-        assertTrue( "normalizer OID should be present when moved to enabled schema",
-            schemaManager.getNormalizerRegistry().contains( OID ) );
+        assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
+             "normalizer OID should be present when moved to enabled schema" );
 
         assertEquals( "normalizer should be in apachemeta schema after move", "apachemeta",
             schemaManager.getNormalizerRegistry().getSchemaName( OID ) );

@@ -35,7 +35,9 @@ import org.apache.directory.shared.kerberos.codec.lastReq.LastReqContainer;
 import org.apache.directory.shared.kerberos.codec.types.LastReqType;
 import org.apache.directory.shared.kerberos.components.LastReq;
 import org.apache.directory.shared.kerberos.components.LastReqEntry;
-import org.junit.Test;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -159,7 +161,7 @@ public class LastReqDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testLastReqWithoutType() throws DecoderException
     {
 
@@ -192,12 +194,13 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        Asn1Decoder.decode( stream, lastReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, lastReqContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testLastReqWithoutValue() throws DecoderException
     {
 
@@ -215,12 +218,13 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        Asn1Decoder.decode( stream, lastReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, lastReqContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testLastReqWithIncorrectPdu() throws DecoderException
     {
 
@@ -233,12 +237,13 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        Asn1Decoder.decode( stream, lastReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, lastReqContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testLastReqWithEmptyValue() throws DecoderException
     {
 
@@ -261,12 +266,13 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        Asn1Decoder.decode( stream, lastReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, lastReqContainer);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testLastReqWithEmptyType() throws DecoderException
     {
 
@@ -303,7 +309,8 @@ public class LastReqDecoderTest
 
         LastReqContainer lastReqContainer = new LastReqContainer();
 
-        Asn1Decoder.decode( stream, lastReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, lastReqContainer);
+        } );
     }
 }

@@ -27,8 +27,6 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -40,8 +38,9 @@ import org.apache.directory.shared.kerberos.codec.hostAddresses.HostAddressesCon
 import org.apache.directory.shared.kerberos.codec.types.HostAddrType;
 import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.HostAddresses;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -49,8 +48,6 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class HostAddressesDecoderTest
 {
     /**
@@ -188,7 +185,7 @@ public class HostAddressesDecoderTest
     /**
      * Test the decoding of a HostAddresses with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressEmpty() throws DecoderException
     {
 
@@ -203,15 +200,16 @@ public class HostAddressesDecoderTest
         Asn1Container hostAddressesContainer = new HostAddressesContainer();
 
         // Decode the HostAddress PDU
-        Asn1Decoder.decode( stream, hostAddressesContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressesContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a HostAddresses with empty hostAddress in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testHostAddressesNoHostAddress() throws DecoderException
     {
 
@@ -228,7 +226,8 @@ public class HostAddressesDecoderTest
         Asn1Container hostAddressesContainer = new HostAddressContainer();
 
         // Decode the HostAddresses PDU
-        Asn1Decoder.decode( stream, hostAddressesContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, hostAddressesContainer);
+        } );
     }
 }

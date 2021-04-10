@@ -31,17 +31,17 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Test the modification of an entry with a MV attribute We add one new value N times
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "ModifyMVAttributeIT")
 @ApplyLdifs(
     {
@@ -61,7 +61,7 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
      * With this test the Master table will grow linearily.
      */
     @Test
-    @Ignore( "Ignore atm, this is a perf test" )
+    @Disabled( "Ignore atm, this is a perf test" )
     public void testAdd1000Members() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
@@ -88,7 +88,7 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
      * With this test the Master table will grow crazy.
      */
     @Test
-    @Ignore( "Ignore atm, this is a perf test" )
+    @Disabled( "Ignore atm, this is a perf test" )
     public void testAdd500Members() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );

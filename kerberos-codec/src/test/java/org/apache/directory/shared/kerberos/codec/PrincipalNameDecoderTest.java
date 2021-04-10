@@ -26,8 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -37,16 +35,14 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the PrincipalName decoder
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class PrincipalNameDecoderTest
 {
     /**
@@ -148,7 +144,7 @@ public class PrincipalNameDecoderTest
     /**
      * Test the decoding of a PrincipalName with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameEmpty() throws DecoderException
     {
 
@@ -163,15 +159,16 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a PrincipalName with no type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameNoType() throws DecoderException
     {
 
@@ -188,15 +185,16 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a PrincipalName with an empty type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameEmptyType() throws DecoderException
     {
 
@@ -215,15 +213,16 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a PrincipalName with a wrong type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameBadType() throws DecoderException
     {
 
@@ -247,15 +246,16 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a PrincipalName with an empty name
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameEmptyName() throws DecoderException
     {
 
@@ -277,15 +277,16 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a PrincipalName with no name
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameNoName() throws DecoderException
     {
 
@@ -309,15 +310,16 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a PrincipalName
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameBadName() throws DecoderException
     {
 
@@ -343,15 +345,16 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a PrincipalName
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameBadName2() throws DecoderException
     {
 
@@ -405,14 +408,16 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a PrincipalName with no name-type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testPrincipalNameNoNameType() throws DecoderException
     {
 
@@ -461,6 +466,8 @@ public class PrincipalNameDecoderTest
         Asn1Container principalNameContainer = new PrincipalNameContainer();
 
         // Decode the PrincipalName PDU
-        Asn1Decoder.decode( stream, principalNameContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, principalNameContainer);
+        } );
     }
 }

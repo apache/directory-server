@@ -22,11 +22,11 @@ package org.apache.directory.server.core.jndi;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -41,9 +41,10 @@ import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -52,7 +53,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(factory = DefaultDirectoryServiceFactory.class, name = "ModifyContextIT-class")
 public class ModifyContextIT extends AbstractLdapTestUnit
 {
@@ -255,14 +256,17 @@ public class ModifyContextIT extends AbstractLdapTestUnit
     }
 
 
-    @Test(expected = NamingException.class)
+    @Test
     public void testRemoveNonExistingValue() throws Exception
     {
-        createData();
-
-        LdapContext sysRoot = getSystemContext( getService() );
-        Attributes attributes = new BasicAttributes( true );
-        attributes.put( "ou", "testCases" );
-        sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
+        Assertions.assertThrows( NamingException.class, () -> 
+        {
+            createData();
+    
+            LdapContext sysRoot = getSystemContext( getService() );
+            Attributes attributes = new BasicAttributes( true );
+            attributes.put( "ou", "testCases" );
+            sysRoot.modifyAttributes( "ou=testing00", DirContext.REMOVE_ATTRIBUTE, attributes );
+        } );
     }
 }

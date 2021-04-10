@@ -21,8 +21,8 @@ package org.apache.directory.server.core.jndi;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
@@ -30,9 +30,9 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "DestroyContextIT")
 @ApplyLdifs(
     {
@@ -66,76 +66,75 @@ import org.junit.runner.RunWith;
 })
 public class DestroyContextIT extends AbstractLdapTestUnit
 {
-/**
- * Tests the creation and subsequent read of a new JNDI context under the
- * system context root.
- *
- * @throws NamingException if there are failures
- */
-@Test
-public void testDestroyContext() throws Exception
-{
-    LdapContext sysRoot = getSystemContext( getService() );
-
-    /*
-     * delete ou=testing00,ou=system
+    /**
+     * Tests the creation and subsequent read of a new JNDI context under the
+     * system context root.
+     *
+     * @throws NamingException if there are failures
      */
-    sysRoot.destroySubcontext( "ou=testing00" );
-
-    try
+    @Test
+    public void testDestroyContext() throws Exception
     {
-        sysRoot.lookup( "ou=testing00" );
-        fail( "ou=testing00, ou=system should not exist" );
+        LdapContext sysRoot = getSystemContext( getService() );
+    
+        /*
+         * delete ou=testing00,ou=system
+         */
+        sysRoot.destroySubcontext( "ou=testing00" );
+    
+        try
+        {
+            sysRoot.lookup( "ou=testing00" );
+            fail( "ou=testing00, ou=system should not exist" );
+        }
+        catch ( Exception e )
+        {
+            assertTrue( e instanceof NamingException );
+        }
+    
+        /*
+         * delete ou=subtest,ou=testing01,ou=system
+         */
+        sysRoot.destroySubcontext( "ou=subtest,ou=testing01" );
+    
+        try
+        {
+            sysRoot.lookup( "ou=subtest,ou=testing01" );
+            fail( "ou=subtest,ou=testing01,ou=system should not exist" );
+        }
+        catch ( NamingException e )
+        {
+            assertTrue( e instanceof NamingException );
+        }
+    
+        /*
+         * delete ou=testing01,ou=system
+         */
+        sysRoot.destroySubcontext( "ou=testing01" );
+    
+        try
+        {
+            sysRoot.lookup( "ou=testing01" );
+            fail( "ou=testing01, ou=system should not exist" );
+        }
+        catch ( NamingException e )
+        {
+            assertTrue( e instanceof NamingException );
+        }
+    
+        /*
+         * delete ou=testing01,ou=system
+         */
+        sysRoot.destroySubcontext( "ou=testing02" );
+    
+        try
+        {
+            sysRoot.lookup( "ou=testing02" );
+            fail( "ou=testing02, ou=system should not exist" );
+        }
+        catch ( NamingException e )
+        {
+            assertTrue( e instanceof NamingException );
+        }
     }
-    catch ( Exception e )
-    {
-        assertTrue( e instanceof NamingException );
-    }
-
-    /*
-     * delete ou=subtest,ou=testing01,ou=system
-     */
-    sysRoot.destroySubcontext( "ou=subtest,ou=testing01" );
-
-    try
-    {
-        sysRoot.lookup( "ou=subtest,ou=testing01" );
-        fail( "ou=subtest,ou=testing01,ou=system should not exist" );
-    }
-    catch ( NamingException e )
-    {
-        assertTrue( e instanceof NamingException );
-    }
-
-    /*
-     * delete ou=testing01,ou=system
-     */
-    sysRoot.destroySubcontext( "ou=testing01" );
-
-    try
-    {
-        sysRoot.lookup( "ou=testing01" );
-        fail( "ou=testing01, ou=system should not exist" );
-    }
-    catch ( NamingException e )
-    {
-        assertTrue( e instanceof NamingException );
-    }
-
-    /*
-     * delete ou=testing01,ou=system
-     */
-    sysRoot.destroySubcontext( "ou=testing02" );
-
-    try
-    {
-        sysRoot.lookup( "ou=testing02" );
-        fail( "ou=testing02, ou=system should not exist" );
-    }
-    catch ( NamingException e )
-    {
-        assertTrue( e instanceof NamingException );
-    }
-}
-
 }

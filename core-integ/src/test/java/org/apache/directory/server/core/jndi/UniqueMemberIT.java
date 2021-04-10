@@ -21,11 +21,11 @@ package org.apache.directory.server.core.jndi;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,9 +46,9 @@ import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -57,7 +57,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "UniqueMemeberIT")
 public class UniqueMemberIT extends AbstractLdapTestUnit
 {
@@ -318,7 +318,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
             map.put( Strings.toLowerCaseAscii( result.getName() ), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         attrs = map.get( "cn=kevin spacey,ou=system" );
 
@@ -372,7 +372,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
             map.put( Strings.toLowerCaseAscii( result.getName() ), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         attrs = map.get( "cn=kevin spacey,ou=system" );
 
@@ -467,7 +467,7 @@ public class UniqueMemberIT extends AbstractLdapTestUnit
             map.put( Strings.toLowerCaseAscii( result.getName() ), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         attrs = map.get( "cn=kevin spacey,ou=system" );
 

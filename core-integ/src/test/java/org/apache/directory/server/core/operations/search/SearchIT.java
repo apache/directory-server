@@ -23,12 +23,12 @@ package org.apache.directory.server.core.operations.search;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,12 +65,12 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -78,7 +78,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "SearchDS",
     loadedSchemas =
         { @LoadSchema(name = "nis", enabled = true) })
@@ -224,7 +224,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * @param sysRoot the system root to add entries to
      * @throws NamingException on errors
      */
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         sysRoot = getSystemContext( getService() );
@@ -251,7 +251,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 9, map.size() );
+        assertEquals( 9, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
@@ -278,7 +278,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect", 14, map.size() );
+        assertEquals( 14, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "ou=system" ) );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
@@ -310,7 +310,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
         Attributes attrs = map.get( "ou=testing02,ou=system" );
         assertEquals( 0, attrs.size() );
@@ -338,7 +338,7 @@ public class SearchIT extends AbstractLdapTestUnit
         list.close();
 
         // 0 because the filter does not have a SUBSTRING MR
-        assertEquals( "Expected number of results returned was incorrect", 0, map.size() );
+        assertEquals( 0, map.size(), "Expected number of results returned was incorrect!" );
 
         // 
         list = sysRoot.search( "", "(ou=*es*)", controls );
@@ -351,7 +351,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect", 8, map.size() );
+        assertEquals( 8, map.size(), "Expected number of results returned was incorrect!" );
         
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
@@ -434,7 +434,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
+        assertEquals( 2, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
     }
@@ -460,8 +460,8 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "size of results", 1, map.size() );
-        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
+        assertEquals( 1, map.size(), "size of results" );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
     }
 
 
@@ -485,24 +485,20 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "size of results", 23, map.size() );
-        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
-        assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( "contains ou=configuration,ou=system", map.containsKey( "ou=configuration,ou=system" ) );
-        assertTrue( "contains ou=groups,ou=system", map.containsKey( "ou=groups,ou=system" ) );
-        assertTrue( "contains ou=interceptors,ou=configuration,ou=system", map
-            .containsKey( "ou=interceptors,ou=configuration,ou=system" ) );
-        assertTrue( "contains ou=partitions,ou=configuration,ou=system", map
-            .containsKey( "ou=partitions,ou=configuration,ou=system" ) );
-        assertTrue( "contains ou=services,ou=configuration,ou=system", map
-            .containsKey( "ou=services,ou=configuration,ou=system" ) );
-        assertTrue( "contains ou=subtest,ou=testing01,ou=system", map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
-        assertTrue( "contains ou=system", map.containsKey( "ou=system" ) );
-        assertTrue( "contains ou=users,ou=system", map.containsKey( "ou=users,ou=system" ) );
-        assertTrue( "contains uid=admin,ou=system", map.containsKey( "uid=admin,ou=system" ) );
-        assertTrue( "contains cn=administrators,ou=groups,ou=system", map
-            .containsKey( "cn=Administrators,ou=groups,ou=system" ) );
+        assertEquals( 23, map.size(), "size of results" );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing02,ou=system" );
+        assertTrue( map.containsKey( "ou=configuration,ou=system" ), "contains ou=configuration,ou=system" );
+        assertTrue( map.containsKey( "ou=groups,ou=system" ), "contains ou=groups,ou=system" );
+        assertTrue( map.containsKey( "ou=interceptors,ou=configuration,ou=system" ), "contains ou=interceptors,ou=configuration,ou=system" );
+        assertTrue( map.containsKey( "ou=partitions,ou=configuration,ou=system" ), "contains ou=partitions,ou=configuration,ou=system" );
+        assertTrue( map.containsKey( "ou=services,ou=configuration,ou=system" ), "contains ou=services,ou=configuration,ou=system" );
+        assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ), "contains ou=subtest,ou=testing01,ou=system" );
+        assertTrue( map.containsKey( "ou=system" ), "contains ou=system" );
+        assertTrue( map.containsKey( "ou=users,ou=system" ), "contains ou=users,ou=system" );
+        assertTrue( map.containsKey( "uid=admin,ou=system" ), "contains uid=admin,ou=system" );
+        assertTrue( map.containsKey( "cn=Administrators,ou=groups,ou=system" ), "contains cn=administrators,ou=groups,ou=system" );
     }
 
 
@@ -526,9 +522,9 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "size of results", 2, map.size() );
-        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
-        assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) );
+        assertEquals( 2, map.size(), "size of results" );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
     }
 
 
@@ -552,13 +548,13 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "size of results", 6, map.size() );
-        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
-        assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing02,ou=system" ) );
-        assertTrue( "contains ou=testing03,ou=system", map.containsKey( "ou=testing03,ou=system" ) );
-        assertTrue( "contains ou=testing04,ou=system", map.containsKey( "ou=testing04,ou=system" ) );
-        assertTrue( "contains ou=testing05,ou=system", map.containsKey( "ou=testing05,ou=system" ) );
+        assertEquals( 6, map.size(), "size of results" );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
+        assertTrue( map.containsKey( "ou=testing02,ou=system" ), "contains ou=testing02,ou=system" );
+        assertTrue( map.containsKey( "ou=testing03,ou=system" ), "contains ou=testing03,ou=system" );
+        assertTrue( map.containsKey( "ou=testing04,ou=system" ), "contains ou=testing04,ou=system" );
+        assertTrue( map.containsKey( "ou=testing05,ou=system" ), "contains ou=testing05,ou=system" );
     }
 
 
@@ -587,13 +583,13 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "size of results", 6, map.size() );
-        assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) );
-        assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing02,ou=system" ) );
-        assertTrue( "contains ou=testing03,ou=system", map.containsKey( "ou=testing03,ou=system" ) );
-        assertTrue( "contains ou=testing04,ou=system", map.containsKey( "ou=testing04,ou=system" ) );
-        assertTrue( "contains ou=testing05,ou=system", map.containsKey( "ou=testing05,ou=system" ) );
+        assertEquals( 6, map.size(), "size of results" );
+        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
+        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
+        assertTrue( map.containsKey( "ou=testing02,ou=system" ), "contains ou=testing02,ou=system" );
+        assertTrue( map.containsKey( "ou=testing03,ou=system" ), "contains ou=testing03,ou=system" );
+        assertTrue( map.containsKey( "ou=testing04,ou=system" ), "contains ou=testing04,ou=system" );
+        assertTrue( map.containsKey( "ou=testing05,ou=system" ), "contains ou=testing05,ou=system" );
     }
 
 
@@ -619,11 +615,11 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         Attributes attrs = map.get( "ou=testing00,ou=system" );
-        assertEquals( "normalized creator's name", "0.9.2342.19200300.100.1.1= admin ,2.5.4.11= system ", attrs.get(
-            "creatorsName" ).get() );
+        assertEquals( "0.9.2342.19200300.100.1.1= admin ,2.5.4.11= system ", attrs.get(
+            "creatorsName" ).get(), "normalized creator's name" );
     }
 
 
@@ -650,10 +646,10 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         Attributes attrs = map.get( "ou=testing00,ou=system" );
-        assertEquals( "normalized creator's name", "uid=admin,ou=system", attrs.get( "creatorsName" ).get() );
+        assertEquals( "uid=admin,ou=system", attrs.get( "creatorsName" ).get(), "normalized creator's name" );
     }
 
 
@@ -734,7 +730,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -767,7 +763,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -800,7 +796,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -833,7 +829,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -866,7 +862,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -899,7 +895,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -915,7 +911,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * @throws NamingException if there are errors
      */
     @Test
-    @Ignore("We don't support options")
+    @Disabled("We don't support options")
     public void testSearchFetchNonExistingAttributeOption() throws Exception
     {
         SearchControls ctls = new SearchControls();
@@ -1319,7 +1315,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "cn=Sid Vicious,ou=system" );
 
@@ -1371,7 +1367,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
             list.close();
 
-            assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+            assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
             Attributes attrs = map.get( "cn=Sid Vicious,ou=system" );
 
@@ -1573,7 +1569,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 2, map.size() );
+        assertEquals( 2, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "cn=Heather Nova, ou=system" ) || map.containsKey( "cn=Heather Nova,ou=system" ) );
     }
 
@@ -1599,7 +1595,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "cn=with-dn, ou=system" ) || map.containsKey( "cn=with-dn,ou=system" ) );
     }
 
@@ -1631,7 +1627,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "size of results", 5, map.size() );
+        assertEquals( 5, map.size(), "size of results" );
         assertTrue( map.containsKey( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( map.containsKey( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( map.containsKey( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1668,7 +1664,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -1703,7 +1699,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -1740,7 +1736,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 
@@ -2007,7 +2003,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
     }
 
@@ -2032,7 +2028,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 0, map.size() );
+        assertEquals( 0, map.size(), "Expected number of results returned was incorrect!" );
     }
 
 
@@ -2169,7 +2165,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
         list.close();
 
-        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
 
         Attributes attrs = map.get( "ou=testing01,ou=system" );
 

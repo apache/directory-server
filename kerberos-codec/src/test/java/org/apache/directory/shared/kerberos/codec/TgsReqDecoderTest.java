@@ -26,8 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -35,16 +33,14 @@ import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.tgsReq.TgsReqContainer;
 import org.apache.directory.shared.kerberos.messages.TgsReq;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the decoder for a TgsReq
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class TgsReqDecoderTest
 {
     /**
@@ -231,7 +227,7 @@ public class TgsReqDecoderTest
     /**
      * Test the decoding of a TgsReq message with a bad MsgType
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeFullTgsReqBadMsgType() throws Exception
     {
 
@@ -370,18 +366,19 @@ public class TgsReqDecoderTest
         stream.flip();
 
         // Allocate a TgsReq Container
-        TgsReqContainer tgsReqContainer = new TgsReqContainer( stream );
+        TgsReqContainer container = new TgsReqContainer( stream );
 
         // Decode the TgsReq PDU
-        Asn1Decoder.decode( stream, tgsReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
     /**
      * Test the decoding of a TGS-REQ with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTgsReqEmpty() throws DecoderException
     {
 
@@ -393,10 +390,11 @@ public class TgsReqDecoderTest
         stream.flip();
 
         // Allocate a TGS-REQ Container
-        Asn1Container tgsReqContainer = new TgsReqContainer( stream );
+        Asn1Container container = new TgsReqContainer( stream );
 
         // Decode the TGS-REQ PDU
-        Asn1Decoder.decode( stream, tgsReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 }

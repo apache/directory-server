@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.api;
 
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
@@ -42,10 +42,10 @@ import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfigur
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateLdapServer(transports =
     {
         @CreateTransport(protocol = "LDAP") })
@@ -78,7 +78,7 @@ public class LdapCoreSessionConnectionTest extends AbstractLdapTestUnit
         new PasswordPolicyResponseImpl();
 
 
-    @Before
+    @BeforeEach
     public void setPwdPolicy() throws LdapException
     {
         PasswordPolicyConfiguration policyConfig = new PasswordPolicyConfiguration();

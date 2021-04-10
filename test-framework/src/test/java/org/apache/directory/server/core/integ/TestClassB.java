@@ -24,11 +24,11 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
-@RunWith(FrameworkRunner.class)
+@ExtendWith( CreateDSTestExtension.class )
 @ApplyLdifs(
     {
         "dn: cn=testClassB,ou=system",
@@ -39,16 +39,20 @@ import org.junit.runner.RunWith;
 public class TestClassB extends AbstractLdapTestUnit
 {
     @Test
+    public void testWithoutFactoryAnnotation() throws Exception
+    {
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+    }
+
+
+    /**
+     * We should inherit the ApplyLdifs from the class in the newly created DS
+     * @throws Exception
+     */
+    @Test
     @CreateDS(name = "testDS")
     public void testWithFactoryAnnotation() throws Exception
     {
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
-    }
-    
-    
-    @Test
-    public void testWithoutFactoryAnnotation() throws Exception
-    {
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+        assertTrue( methodService.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
 }

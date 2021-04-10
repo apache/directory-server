@@ -72,7 +72,8 @@
     <jetty.bundle.version>9.4.19</jetty.bundle.version>
     <junit.version>4.12</junit.version>
     <junit.engine.version>5.7.0</junit.engine.version>
-    <junit.api.version>5.7.0</junit.api.version>
+    <junit.jupiter.version>5.7.0</junit.jupiter.version>
+    <junit.jupiter.api.version>5.7.0</junit.jupiter.api.version>
     <junit.platform.version>1.7.0-RC1</junit.platform.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
@@ -1140,7 +1141,6 @@
       </dependency>
 
       <!-- Test dependencies -->
-
       <dependency>
         <groupId>org.apache.directory.junit</groupId>
         <artifactId>junit-addons</artifactId>
@@ -1156,7 +1156,13 @@
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit.api.version}</version>
+        <version>${junit.jupiter.api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit.jupiter.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -1172,6 +1178,12 @@
         <artifactId>junit-platform-runner</artifactId>
         <version>${junit.platform.version}</version>
         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>${junit.jupiter.version}</version>
       </dependency>
 
       <dependency>
@@ -1340,14 +1352,12 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit.engine.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-runner</artifactId>
-      <version>${junit.platform.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

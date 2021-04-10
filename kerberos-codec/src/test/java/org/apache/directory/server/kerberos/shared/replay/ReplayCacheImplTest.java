@@ -37,7 +37,7 @@ import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import com.mycila.junit.concurrent.Concurrency;

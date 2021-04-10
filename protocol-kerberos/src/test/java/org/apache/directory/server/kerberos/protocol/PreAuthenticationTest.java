@@ -43,9 +43,9 @@ import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.AsReq;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -66,7 +66,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     /**
      * Creates a new instance of {@link PreAuthenticationTest}.
      */
-    @Before
+    @BeforeEach
     public void setUp()
     {
         kdcServer = new KdcServer();
@@ -81,7 +81,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
     /**
      * Shutdown the Kerberos server
      */
-    @After
+    @AfterEach
     public void shutDown()
     {
         kdcServer.stop();

@@ -32,7 +32,8 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.paEncTsEnc.PaEncTsEncContainer;
 import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -115,7 +116,7 @@ public class PaEncTsEncDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodePaEncTsEncWithEmptySeq() throws DecoderException
     {
 
@@ -128,14 +129,15 @@ public class PaEncTsEncDecoderTest
 
         stream.flip();
 
-        PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
+        PaEncTsEncContainer container = new PaEncTsEncContainer();
 
-        Asn1Decoder.decode( stream, paEncTsEncContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodePaEncTsEncEmptyPaTimestamp() throws DecoderException
     {
 
@@ -149,14 +151,15 @@ public class PaEncTsEncDecoderTest
 
         stream.flip();
 
-        PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
+        PaEncTsEncContainer container = new PaEncTsEncContainer();
 
-        Asn1Decoder.decode( stream, paEncTsEncContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrNullPaTimestamp() throws DecoderException
     {
 
@@ -171,14 +174,15 @@ public class PaEncTsEncDecoderTest
 
         stream.flip();
 
-        PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
+        PaEncTsEncContainer container = new PaEncTsEncContainer();
 
-        Asn1Decoder.decode( stream, paEncTsEncContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeAdAndOrNoPaTimestamp() throws DecoderException
     {
 
@@ -195,10 +199,11 @@ public class PaEncTsEncDecoderTest
 
         stream.flip();
 
-        PaEncTsEncContainer paEncTsEncContainer = new PaEncTsEncContainer();
+        PaEncTsEncContainer container = new PaEncTsEncContainer();
 
-        Asn1Decoder.decode( stream, paEncTsEncContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 

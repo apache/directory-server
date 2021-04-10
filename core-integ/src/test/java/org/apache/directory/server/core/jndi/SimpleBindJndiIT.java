@@ -20,11 +20,11 @@
 package org.apache.directory.server.core.jndi;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Hashtable;
 
@@ -47,11 +47,11 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -59,7 +59,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "SimpleBindIT", allowAnonAccess = true)
 public class SimpleBindJndiIT extends AbstractLdapTestUnit
 {
@@ -235,8 +235,8 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
         catch ( AuthenticationException ae )
         {
             // lae.printStackTrace();
-            assertTrue( org.apache.directory.server.i18n.I18n.err( org.apache.directory.server.i18n.I18n.ERR_229 ), ae
-                .getMessage().startsWith( org.apache.directory.server.i18n.I18n.ERR_229.getErrorCode() ) );
+            assertTrue( ae.getMessage().startsWith( org.apache.directory.server.i18n.I18n.ERR_229.getErrorCode() ), 
+                org.apache.directory.server.i18n.I18n.err( org.apache.directory.server.i18n.I18n.ERR_229 ) );
         }
         catch ( NamingException ne )
         {
@@ -367,15 +367,18 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test( expected = LdapUnwillingToPerformException.class )
+    @Test
     public void testSimpleBindAPrincipalNullPassword() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );
-        assertFalse( connection.isAuthenticated() );
-
-        connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", "secret" );
-
-        connection.bind( "uid=admin,ou=system", null );
+        Assertions.assertThrows( LdapUnwillingToPerformException.class, () -> 
+        {
+            LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );
+            assertFalse( connection.isAuthenticated() );
+    
+            connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", "secret" );
+    
+            connection.bind( "uid=admin,ou=system", null );
+        } );
     }
 
 

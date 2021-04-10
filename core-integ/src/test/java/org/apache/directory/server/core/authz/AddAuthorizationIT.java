@@ -24,8 +24,8 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.addUserToGro
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccessControlSubentry;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -34,10 +34,10 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -45,12 +45,12 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "AddAuthorizationIT")
 public class AddAuthorizationIT extends AbstractLdapTestUnit
 {
 
-    @Before
+    @BeforeEach
     public void setService()
     {
         AutzIntegUtils.service = getService();

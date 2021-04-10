@@ -21,11 +21,11 @@ package org.apache.directory.server.core.jndi;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -44,9 +44,9 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -54,7 +54,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "MixedCaseITest-class",
     partitions =
         {
@@ -89,11 +89,11 @@ public class MixedCaseIT extends AbstractLdapTestUnit
         sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
         NamingEnumeration<SearchResult> ne = ctxRoot.search( "", "(objectClass=*)", sc );
-        assertTrue( "Search should return at least one entry.", ne.hasMore() );
+        assertTrue( ne.hasMore(), "Search should return at least one entry." );
 
         SearchResult sr = ne.next();
-        assertEquals( "The entry returned should be the root entry.", SUFFIX_DN, sr.getName() );
-        assertFalse( "Search should return no more entries.", ne.hasMore() );
+        assertEquals( SUFFIX_DN, sr.getName(), "The entry returned should be the root entry." );
+        assertFalse( ne.hasMore(), "Search should return no more entries." );
     }
 
 
@@ -114,11 +114,11 @@ public class MixedCaseIT extends AbstractLdapTestUnit
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         NamingEnumeration<SearchResult> ne = ctxRoot.search( dn, "(objectClass=*)", sc );
-        assertTrue( "Search should return at least one entry.", ne.hasMore() );
+        assertTrue( ne.hasMore(), "Search should return at least one entry." );
 
         SearchResult sr = ne.next();
-        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX_DN, sr.getName() );
-        assertFalse( "Search should return no more entries.", ne.hasMore() );
+        assertEquals( dn + "," + SUFFIX_DN, sr.getName(), "The entry returned should be the entry added earlier." );
+        assertFalse( ne.hasMore(), "Search should return no more entries." );
     }
 
 
@@ -145,16 +145,16 @@ public class MixedCaseIT extends AbstractLdapTestUnit
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         NamingEnumeration<SearchResult> ne = ctxRoot.search( dn, "(objectClass=*)", sc );
-        assertTrue( "Search should return at least one entry.", ne.hasMore() );
+        assertTrue( ne.hasMore(), "Search should return at least one entry." );
 
         SearchResult sr = ( SearchResult ) ne.next();
-        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX_DN, sr.getName() );
+        assertEquals( dn + "," + SUFFIX_DN, sr.getName(), "The entry returned should be the entry added earlier." );
 
         attributes = sr.getAttributes();
         Attribute attribute = attributes.get( "description" );
 
-        assertEquals( "The description attribute should contain the new value.", description, attribute.get() );
-        assertFalse( "Search should return no more entries.", ne.hasMore() );
+        assertEquals( description, attribute.get(), "The description attribute should contain the new value." );
+        assertFalse( ne.hasMore(), "Search should return no more entries." );
     }
 
 

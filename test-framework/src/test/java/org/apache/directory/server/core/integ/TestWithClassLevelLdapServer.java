@@ -26,11 +26,11 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateLdapServer(
     transports =
         {
@@ -42,11 +42,11 @@ public class TestWithClassLevelLdapServer extends AbstractLdapTestUnit
     @ApplyLdifFiles("test-entry.ldif")
     public void testWithApplyLdifFiles() throws Exception
     {
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
 
-        assertTrue( getLdapServer().getDirectoryService().getInstanceId().startsWith( "default" ) ); // after 'default' a UUID follows
+        assertTrue( ldapServer.getDirectoryService().getInstanceId().startsWith( "default" ) ); // after 'default' a UUID follows
 
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
 
         assertNotNull( getLdapServer() );
     }

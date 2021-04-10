@@ -24,11 +24,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
-@RunWith(FrameworkRunner.class)
+@ExtendWith( CreateDSTestExtension.class )
 public class TestClassC extends AbstractLdapTestUnit
 {
     @Test

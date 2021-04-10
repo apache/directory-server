@@ -29,8 +29,6 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -46,16 +44,14 @@ import org.apache.directory.shared.kerberos.components.AuthorizationDataEntry;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test cases for AD-KDCIssued decoder.
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class AdKdcIssuedDecoderTest
 {
     /**
@@ -374,7 +370,7 @@ public class AdKdcIssuedDecoderTest
     /**
      * Test the decoding of an empty AdKDCIssued message
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeTicketEmpty() throws Exception
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
@@ -389,6 +385,8 @@ public class AdKdcIssuedDecoderTest
         adKdcIssuedContainer.setStream( stream );
 
         // Decode the AdKDCIssued PDU
-        Asn1Decoder.decode( stream, adKdcIssuedContainer );
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, adKdcIssuedContainer);
+        } );
     }
 }

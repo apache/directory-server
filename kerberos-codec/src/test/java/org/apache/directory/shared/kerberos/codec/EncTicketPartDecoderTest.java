@@ -46,8 +46,8 @@ import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -61,7 +61,7 @@ public class EncTicketPartDecoderTest
     private EncTicketPart expected;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         TicketFlags flags = new TicketFlags( TicketFlag.FORWARDABLE.getValue() );

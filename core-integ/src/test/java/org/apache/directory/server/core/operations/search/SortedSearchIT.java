@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,12 +50,12 @@ import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -63,7 +63,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "SearchDS",
     loadedSchemas =
         { @LoadSchema(name = "nis", enabled = true) })
@@ -85,7 +85,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
     private SortRequest ctrl;
 
 
-    @Before
+    @BeforeEach
     public void createConnection() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( getService() );
@@ -110,7 +110,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void closeConnection() throws Exception
     {
         connection.close();

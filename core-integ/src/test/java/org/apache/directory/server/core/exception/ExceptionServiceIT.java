@@ -21,12 +21,12 @@ package org.apache.directory.server.core.exception;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -51,19 +51,19 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Tests the correct operation of the ServerExceptionService.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "ExceptionServiceIT-DS")
 public class ExceptionServiceIT extends AbstractLdapTestUnit
 {
@@ -94,7 +94,7 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
@@ -270,12 +270,15 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test(expected = LdapEntryAlreadyExistsException.class)
+    @Test
     public void testFailModifyRdnEntryAlreadyExists() throws Exception
     {
-        LdapConnection connection = getAdminConnection( getService() );
-
-        connection.rename( "ou=users,ou=system", "ou=Groups" );
+        Assertions.assertThrows( LdapEntryAlreadyExistsException.class, () -> 
+        {
+            LdapConnection connection = getAdminConnection( getService() );
+    
+            connection.rename( "ou=users,ou=system", "ou=Groups" );
+        } );
     }
 
 
@@ -284,12 +287,15 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test(expected = LdapNoSuchObjectException.class)
+    @Test
     public void testFailModifyRdnNoSuchObject() throws Exception
     {
-        LdapConnection connection = getAdminConnection( getService() );
-
-        connection.rename( "ou=blah,ou=system", "ou=asdf" );
+        Assertions.assertThrows( LdapNoSuchObjectException.class, () -> 
+        {
+            LdapConnection connection = getAdminConnection( getService() );
+    
+            connection.rename( "ou=blah,ou=system", "ou=asdf" );
+        } );
     }
 
 
@@ -452,22 +458,25 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test(expected = LdapAliasException.class)
+    @Test
     public void testFailAddOnAlias() throws Exception
     {
-        LdapConnection connection = getAdminConnection( getService() );
-
-        Entry entry = new DefaultEntry( "cn=toanother,ou=system" );
-        entry.add( SchemaConstants.OBJECT_CLASS_AT, "alias", SchemaConstants.EXTENSIBLE_OBJECT_OC );
-        entry.add( "aliasedObjectName", "ou=users,ou=system" );
-
-        connection.add( entry );
-
-        Entry aliasChild = new DefaultEntry( "ou=blah,cn=toanother,ou=system" );
-        aliasChild.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
-        aliasChild.add( SchemaConstants.OU_AT, "blah" );
-
-        connection.add( aliasChild );
+        Assertions.assertThrows( LdapAliasException.class, () -> 
+        {
+            LdapConnection connection = getAdminConnection( getService() );
+    
+            Entry entry = new DefaultEntry( "cn=toanother,ou=system" );
+            entry.add( SchemaConstants.OBJECT_CLASS_AT, "alias", SchemaConstants.EXTENSIBLE_OBJECT_OC );
+            entry.add( "aliasedObjectName", "ou=users,ou=system" );
+    
+            connection.add( entry );
+    
+            Entry aliasChild = new DefaultEntry( "ou=blah,cn=toanother,ou=system" );
+            aliasChild.add( SchemaConstants.OBJECT_CLASS_AT, "organizationalUnit" );
+            aliasChild.add( SchemaConstants.OU_AT, "blah" );
+    
+            connection.add( aliasChild );
+        } );
     }
 
 
@@ -512,15 +521,18 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test(expected = LdapContextNotEmptyException.class)
+    @Test
     public void testFailDeleteNotAllowedOnNonLeaf() throws Exception
     {
-        LdapConnection connection = getAdminConnection( getService() );
-
-        AddResponse resp = createSubContext( "ou", "blah" );
-        resp = createSubContext( new Dn( "ou=blah,ou=system" ), "ou", "subctx" );
-
-        connection.delete( "ou=blah,ou=system" );
+        Assertions.assertThrows( LdapContextNotEmptyException.class, () -> 
+        {
+            LdapConnection connection = getAdminConnection( getService() );
+    
+            AddResponse resp = createSubContext( "ou", "blah" );
+            resp = createSubContext( new Dn( "ou=blah,ou=system" ), "ou", "subctx" );
+    
+            connection.delete( "ou=blah,ou=system" );
+        } );
     }
 
 
@@ -530,12 +542,15 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test(expected = LdapNoSuchObjectException.class)
+    @Test
     public void testFailDeleteNoSuchObject() throws Exception
     {
-        LdapConnection connection = getAdminConnection( getService() );
-
-        connection.delete( "ou=blah,ou=system" );
+        Assertions.assertThrows( LdapNoSuchObjectException.class, () -> 
+        {
+            LdapConnection connection = getAdminConnection( getService() );
+    
+            connection.delete( "ou=blah,ou=system" );
+        } );
     }
 
 

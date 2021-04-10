@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -34,16 +32,14 @@ import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.encAsRepPart.EncAsRepPartContainer;
 import org.apache.directory.shared.kerberos.messages.EncAsRepPart;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the decoder for a EncAsRepPart
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class EncAsRepPartDecoderTest
 {
     /**
@@ -145,7 +141,7 @@ public class EncAsRepPartDecoderTest
     /**
      * Test the decoding of a EncAsRepPart with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncAsRepPartEmpty() throws DecoderException
     {
 
@@ -160,15 +156,16 @@ public class EncAsRepPartDecoderTest
         Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 
         // Decode the EncAsRepPart PDU
-        Asn1Decoder.decode( stream, encAsRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encAsRepPartContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncAsRepPart with empty EncKdcRepPart tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncAsRepPartEmptyEncKdcRepPart() throws DecoderException
     {
 
@@ -186,7 +183,8 @@ public class EncAsRepPartDecoderTest
         Asn1Container encAsRepPartContainer = new EncAsRepPartContainer( stream );
 
         // Decode the EncAsRepPart PDU
-        Asn1Decoder.decode( stream, encAsRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encAsRepPartContainer);
+        } );
     }
 }

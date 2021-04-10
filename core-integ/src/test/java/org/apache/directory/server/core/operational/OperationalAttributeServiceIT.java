@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.operational;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -38,13 +38,13 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -53,7 +53,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "OperationalAttributeServiceDS")
 public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 {
@@ -63,7 +63,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     private LdapConnection connection;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( getService() );
@@ -81,7 +81,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void shutdown() throws Exception
     {
         // delete this entry after each test because we want 
@@ -96,7 +96,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testBinaryAttributeFilterExtension() throws Exception
     {
         Entry entry = new DefaultEntry(
@@ -142,7 +142,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testAddShouldAddOperationalOpAttrs() throws Exception
     {
         /*
@@ -188,7 +188,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testSystemContextRoot() throws Exception
     {
         EntryCursor responses = connection
@@ -232,7 +232,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testConfirmNonAdminUserDnIsCreatorsName() throws Exception
     {
         Entry entry = new DefaultEntry(
@@ -268,7 +268,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testModifyShouldLeadToModifiersAttributes() throws Exception
     {
         Entry entry = connection.lookup( DN_KATE_BUSH, "modifiersName", "modifyTimestamp" );
@@ -295,7 +295,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * @throws InterruptedException on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testModifyShouldChangeModifyTimestamp() throws Exception, InterruptedException
     {
         // Add attribute description to entry
@@ -337,7 +337,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * this will succeed look at DIRSERVER-1416
      */
     @Test
-    @Ignore
+    @Disabled
     public void testModifyOperationalAttributeAdd() throws Exception
     {
         // Add attribute description to entry
@@ -353,14 +353,17 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test(expected = LdapNoPermissionException.class)
-    @Ignore
+    @Test
+    @Disabled
     public void testModifyOperationalAttributeRemove() throws Exception
     {
-        Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-            new DefaultAttribute( "creatorsName" ) );
-
-        connection.modify( DN_KATE_BUSH, modifyOp );
+        Assertions.assertThrows( LdapNoPermissionException.class, () -> 
+        {
+            Modification modifyOp = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+                new DefaultAttribute( "creatorsName" ) );
+    
+            connection.modify( DN_KATE_BUSH, modifyOp );
+        } );
     }
 
 
@@ -369,14 +372,17 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test(expected = LdapNoPermissionException.class)
-    @Ignore
+    @Test
+    @Disabled
     public void testModifyOperationalAttributeReplace() throws Exception
     {
-        Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
-            new DefaultAttribute( "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
-
-        connection.modify( DN_KATE_BUSH, modifyOp );
+        Assertions.assertThrows( LdapNoPermissionException.class, () -> 
+        {
+            Modification modifyOp = new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE,
+                new DefaultAttribute( "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
+    
+            connection.modify( DN_KATE_BUSH, modifyOp );
+        } );
     }
 
 
@@ -384,7 +390,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * Rename an entry and check whether attribute modifyTimestamp changes.
      */
     @Test
-    @Ignore
+    @Disabled
     public void testRenameShouldChangeModifyTimestamp() throws Exception, InterruptedException
     {
         Entry entry = connection.lookup( DN_KATE_BUSH, "*", "+" );
@@ -411,7 +417,7 @@ public class OperationalAttributeServiceIT extends AbstractLdapTestUnit
      * Move an entry and check whether attribute modifyTimestamp changes.
      */
     @Test
-    @Ignore
+    @Disabled
     public void testMoveShouldChangeModifyTimestamp() throws Exception, InterruptedException
     {
         Entry entry = connection.lookup( DN_KATE_BUSH, "*", "+" );

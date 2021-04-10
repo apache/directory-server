@@ -22,6 +22,7 @@ package org.apache.directory.server.factory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -313,7 +314,7 @@ public final class ServerAnnotationProcessor
      * @param directoryService the directory service
      * @return a running LdapServer instance
      */
-    private static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
+    public static LdapServer createLdapServer( CreateLdapServer createLdapServer, DirectoryService directoryService )
     {
         LdapServer ldapServer = instantiateLdapServer( createLdapServer, directoryService );
 
@@ -346,6 +347,22 @@ public final class ServerAnnotationProcessor
     public static LdapServer createLdapServer( Description description, DirectoryService directoryService )
     {
         CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
+
+        // Ok, we have found a CreateLdapServer annotation. Process it now.
+        return createLdapServer( createLdapServer, directoryService );
+    }
+
+
+    /**
+     * Create a new instance of LdapServer
+     *
+     * @param description A description for the created LdapServer
+     * @param directoryService The associated DirectoryService
+     * @return An LdapServer instance 
+     */
+    public static LdapServer createLdapServer( AnnotatedElement annotation, DirectoryService directoryService )
+    {
+        CreateLdapServer createLdapServer = annotation.getAnnotation( CreateLdapServer.class );
 
         // Ok, we have found a CreateLdapServer annotation. Process it now.
         return createLdapServer( createLdapServer, directoryService );
@@ -555,6 +572,14 @@ public final class ServerAnnotationProcessor
     public static KdcServer getKdcServer( Description description, DirectoryService directoryService, int startPort )
     {
         CreateKdcServer createLdapServer = description.getAnnotation( CreateKdcServer.class );
+
+        return createKdcServer( createLdapServer, directoryService );
+    }
+
+
+    public static KdcServer getKdcServer( AnnotatedElement annotation, DirectoryService directoryService, int startPort )
+    {
+        CreateKdcServer createLdapServer = annotation.getAnnotation( CreateKdcServer.class );
 
         return createKdcServer( createLdapServer, directoryService );
     }

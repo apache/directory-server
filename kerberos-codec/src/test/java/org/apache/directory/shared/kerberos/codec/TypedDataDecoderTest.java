@@ -35,7 +35,8 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.typedData.TypedDataContainer;
 import org.apache.directory.shared.kerberos.components.TypedData;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -136,7 +137,7 @@ public class TypedDataDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTypedDataWithoutType() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
@@ -152,10 +153,11 @@ public class TypedDataDecoderTest
 
         stream.flip();
 
-        TypedDataContainer typedDataContainer = new TypedDataContainer();
+        TypedDataContainer container = new TypedDataContainer();
 
-        Asn1Decoder.decode( stream, typedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
@@ -187,7 +189,7 @@ public class TypedDataDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTypedDataWithIncorrectPdu() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
@@ -200,14 +202,15 @@ public class TypedDataDecoderTest
 
         stream.flip();
 
-        TypedDataContainer typedDataContainer = new TypedDataContainer();
+        TypedDataContainer container = new TypedDataContainer();
 
-        Asn1Decoder.decode( stream, typedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTypedDataWithEmptyData() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0xD );
@@ -228,14 +231,15 @@ public class TypedDataDecoderTest
 
         stream.flip();
 
-        TypedDataContainer typedDataContainer = new TypedDataContainer();
+        TypedDataContainer container = new TypedDataContainer();
 
-        Asn1Decoder.decode( stream, typedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTypedDataWithEmptyType() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0xD );
@@ -256,9 +260,10 @@ public class TypedDataDecoderTest
 
         stream.flip();
 
-        TypedDataContainer typedDataContainer = new TypedDataContainer();
+        TypedDataContainer container = new TypedDataContainer();
 
-        Asn1Decoder.decode( stream, typedDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 }

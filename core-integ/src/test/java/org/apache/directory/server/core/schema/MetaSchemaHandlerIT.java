@@ -20,11 +20,11 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -38,12 +38,12 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -90,7 +90,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "MetaSchemaHandlerIT")
 public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
 {
@@ -104,7 +104,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
     private static LdapConnection connection;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         super.init();
@@ -539,7 +539,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testAddDisabledSchemaNoDeps() throws Exception
     {
         Dn dn = new Dn( "cn=dummy,ou=schema" );
@@ -565,7 +565,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testAddDisabledSchemaWithDeps() throws Exception
     {
         Dn dn = new Dn( "cn=dummy,ou=schema" );
@@ -593,7 +593,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testRejectDisabledSchemaAddWithMissingDeps() throws Exception
     {
         Dn dn = new Dn( "cn=dummy,ou=schema" );
@@ -637,7 +637,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testAddEnabledSchemaNoDeps() throws Exception
     {
         Dn dn = new Dn( "cn=dummy,ou=schema" );
@@ -663,7 +663,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testRejectEnabledSchemaAddWithDisabledDeps() throws Exception
     {
         Dn dn = new Dn( "cn=dummy,ou=schema" );
@@ -709,7 +709,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testDeleteSchemaNoDependents() throws Exception
     {
         Dn dn = new Dn( "cn=dummy,ou=schema" );
@@ -730,7 +730,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testRejectSchemaDeleteWithDependents() throws Exception
     {
         // add the dummy schema enabled
@@ -763,7 +763,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testRejectEnabledSchemaAddWithMisingDeps() throws Exception
     {
         Dn dn = new Dn( "cn=dummy,ou=schema" );
@@ -807,7 +807,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testDisableSchemaWithEnabledDependents() throws Exception
     {
         // let's enable the test schema and add the dummy schema
@@ -870,7 +870,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testSchemaRenameDisabledSchema() throws Exception
     {
         connection.rename( "cn=samba,ou=schema", "cn=foo" );
@@ -904,7 +904,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testRejectSchemaRenameWithDeps() throws Exception
     {
         try
@@ -939,7 +939,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testSchemaRenameEnabledSchema() throws Exception
     {
         IntegrationUtils.enableSchema( getService(), "samba" );
@@ -973,7 +973,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testRejectAddBogusDependency() throws Exception
     {
         try
@@ -998,7 +998,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testRejectAddOfDisabledDependencyToEnabledSchema() throws Exception
     {
         IntegrationUtils.enableSchema( getService(), "nis" );
@@ -1023,7 +1023,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testAddOfDisabledDependencyToDisabledSchema() throws Exception
     {
         connection.modify( "cn=nis,ou=schema",
@@ -1042,7 +1042,7 @@ public class MetaSchemaHandlerIT extends AbstractMetaSchemaObjectHandler
      * @throws Exception on error
      */
     @Test
-    @Ignore
+    @Disabled
     public void testAddOfEnabledDependencyToDisabledSchema() throws Exception
     {
         connection.modify( "cn=nis,ou=schema",

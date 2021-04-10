@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -35,16 +33,14 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.encApRepPart.EncApRepPartContainer;
 import org.apache.directory.shared.kerberos.messages.EncApRepPart;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the decoder for a EncApRepPart message
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class EncApRepPartDecoderTest
 {
     /**
@@ -153,7 +149,7 @@ public class EncApRepPartDecoderTest
     /**
      * Test the decoding of a EncApRepPart with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAuthenticatorEmpty() throws DecoderException
     {
 
@@ -168,15 +164,16 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        Asn1Decoder.decode( stream, encApRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encApRepPartContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncApRepPart with empty sequence
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncApRepPartEmptySequence() throws DecoderException
     {
 
@@ -194,15 +191,16 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        Asn1Decoder.decode( stream, encApRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encApRepPartContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncApRepPart with empty ctime tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncApRepPartEmptyCTimeg() throws DecoderException
     {
 
@@ -221,15 +219,16 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        Asn1Decoder.decode( stream, encApRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encApRepPartContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncApRepPart with no CTime
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncApRepPartNoCtime() throws DecoderException
     {
 
@@ -274,15 +273,16 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        Asn1Decoder.decode( stream, encApRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encApRepPartContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a EncApRepPart with no cusec
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testEncApRepPartNoCusec() throws DecoderException
     {
 
@@ -341,8 +341,9 @@ public class EncApRepPartDecoderTest
         Asn1Container encApRepPartContainer = new EncApRepPartContainer( stream );
 
         // Decode the EncApRepPart PDU
-        Asn1Decoder.decode( stream, encApRepPartContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, encApRepPartContainer);
+        } );
     }
 
 

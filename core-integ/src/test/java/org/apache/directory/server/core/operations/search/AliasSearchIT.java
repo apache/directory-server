@@ -20,9 +20,9 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +39,11 @@ import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "AliasSearchDS", partitions =
     { @CreatePartition(name = "example", suffix = "dc=example,dc=com"),
         @CreatePartition(name = "acme", suffix = "o=acme") })
@@ -81,10 +82,13 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     }
 
 
-    @Test(expected = LdapNoSuchObjectException.class)
+    @Test
     public void testNonexistingPartition() throws Exception
     {
-        search( "dc=x", SearchScope.SUBTREE, "(objectClass=*)", AliasDerefMode.NEVER_DEREF_ALIASES );
+        Assertions.assertThrows( LdapNoSuchObjectException.class, () -> 
+        {
+            search( "dc=x", SearchScope.SUBTREE, "(objectClass=*)", AliasDerefMode.NEVER_DEREF_ALIASES );
+        } );
     }
 
 
@@ -238,7 +242,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
      *
      * @throws Exception
      */
-    @Ignore("fixme")
+    @Disabled("fixme")
     @Test
     public void testDerefDescendantOfAlias() throws Exception
     {
@@ -303,7 +307,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
      *
      * @throws Exception
      */
-    @Ignore("not implemented")
+    @Disabled("not implemented")
     @Test
     public void testOuHr() throws Exception
     {
@@ -321,7 +325,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
      *
      * @throws Exception
      */
-    @Ignore("not implemented")
+    @Disabled("not implemented")
     @Test
     public void testUidFoobar() throws Exception
     {
@@ -346,7 +350,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
      *
      * @throws Exception
      */
-    @Ignore("not implemented")
+    @Disabled("not implemented")
     @Test
     public void testUidUser1OuManager() throws Exception
     {
@@ -403,7 +407,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
      *
      * @throws Exception
      */
-    @Ignore("fixme")
+    @Disabled("fixme")
     @Test
     public void testOuUser3_Loop() throws Exception
     {
@@ -419,7 +423,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     }
 
 
-    @Ignore("fixme")
+    @Disabled("fixme")
     @Test
     public void testCnDeputyOuUser3_Loop() throws Exception
     {
@@ -432,7 +436,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     }
 
 
-    @Ignore
+    @Disabled
     @Test
     public void testCursorNextPrevWithReset() throws Exception
     {
@@ -479,7 +483,7 @@ public class AliasSearchIT extends AbstractLdapTestUnit
     }
 
 
-    @Ignore
+    @Disabled
     @Test
     public void testCursorPrevNext() throws Exception
     {

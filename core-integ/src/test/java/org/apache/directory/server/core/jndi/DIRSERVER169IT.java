@@ -21,8 +21,8 @@ package org.apache.directory.server.core.jndi;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Hashtable;
 
@@ -40,9 +40,9 @@ import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -50,7 +50,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(allowAnonAccess = true, name = "DIRSERVER169IT")
 public class DIRSERVER169IT extends AbstractLdapTestUnit
 {

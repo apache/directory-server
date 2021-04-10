@@ -70,9 +70,9 @@ public @interface CreateAuthenticator
 
 
     /** @return The SSL TrustManager FQCN */
-    String delegateSslTrustManagerFQCN() default "org.apache.directory.ldap.client.api.NoVerificationTrustManager";
+    String delegateSslTrustManagerFQCN() default "";
 
 
     /** @return The startTls TrustManager FQCN */
-    String delegateTlsTrustManagerFQCN() default "org.apache.directory.ldap.client.api.NoVerificationTrustManager";
+    String delegateTlsTrustManagerFQCN() default "";
 }

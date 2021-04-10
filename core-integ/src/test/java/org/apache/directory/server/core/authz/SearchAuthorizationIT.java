@@ -30,12 +30,12 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.deleteAccess
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.removeEntryACI;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -55,14 +55,14 @@ import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -71,7 +71,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(
     enableAccessControl = true,
     name = "SearchAuthorizationIT",
@@ -152,14 +152,14 @@ import org.junit.runner.RunWith;
 })
 public class SearchAuthorizationIT extends AbstractLdapTestUnit
 {
-    @Before
+    @BeforeEach
     public void setService() throws Exception
     {
         AutzIntegUtils.service = getService();
     }
     
     
-    @After
+    @AfterEach
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
@@ -1112,7 +1112,7 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
      * @throws Exception if the test encounters an error
      */
     @Test
-    @Ignore("The test is currently failing")
+    @Disabled( "The test is currently failing" )
     public void testRangeOfValues() throws Exception
     {
         // create the non-admin user

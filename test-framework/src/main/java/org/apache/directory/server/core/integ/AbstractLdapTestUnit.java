@@ -48,11 +48,17 @@ public abstract class AbstractLdapTestUnit
     /** The used DirectoryService instance */
     public static DirectoryService service;
 
+    /** The test DirectoryService instance */
+    public static DirectoryService methodService;
+
     /** The used LdapServer instance */
     public static LdapServer ldapServer;
 
     /** The used KdcServer instance */
     public static KdcServer kdcServer;
+    
+    /** The current revision */
+    public static long revision = 0L;
 
     public static DirectoryService getService()
     {

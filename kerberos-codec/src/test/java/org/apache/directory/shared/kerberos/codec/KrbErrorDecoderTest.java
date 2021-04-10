@@ -37,7 +37,7 @@ import org.apache.directory.shared.kerberos.KerberosMessageType;
 import org.apache.directory.shared.kerberos.codec.krbError.KrbErrorContainer;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.messages.KrbError;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

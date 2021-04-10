@@ -35,7 +35,8 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.padata.PaDataContainer;
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.PaData;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -111,7 +112,7 @@ public class PaDataDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodePaDataWithoutType() throws DecoderException
     {
 
@@ -133,14 +134,15 @@ public class PaDataDecoderTest
 
         stream.flip();
 
-        PaDataContainer chkContainer = new PaDataContainer();
+        PaDataContainer container = new PaDataContainer();
 
-        Asn1Decoder.decode( stream, chkContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeChecksumWithoutPaDataValue() throws DecoderException
     {
 
@@ -159,8 +161,9 @@ public class PaDataDecoderTest
 
         PaDataContainer container = new PaDataContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 

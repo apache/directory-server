@@ -46,8 +46,8 @@ import org.apache.directory.shared.kerberos.components.KrbCredInfo;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -96,7 +96,7 @@ public class KrbCredInfoDecoderTest
     }
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         optionalFieldValueList = new ArrayList<FieldValueHolder>();

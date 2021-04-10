@@ -25,8 +25,8 @@ import static org.apache.directory.server.core.authz.AutzIntegUtils.createAccess
 import static org.apache.directory.server.core.authz.AutzIntegUtils.createUser;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getAdminConnection;
 import static org.apache.directory.server.core.authz.AutzIntegUtils.getConnectionAs;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -36,12 +36,12 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -49,18 +49,18 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(enableAccessControl = true, name = "DeleteAuthorizationIT")
 public class DeleteAuthorizationIT extends AbstractLdapTestUnit
 {
-    @Before
+    @BeforeEach
     public void setService()
     {
         AutzIntegUtils.service = getService();
     }
 
 
-    @After
+    @AfterEach
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();

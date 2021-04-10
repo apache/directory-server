@@ -26,8 +26,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -35,15 +35,15 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( CreateDSTestExtension.class )
 @CreateDS(name = "TestMultiLevelDS-class")
 public class TestMultiLevelDS extends AbstractLdapTestUnit
 {
     @Test
     public void testMethodWithClassLevelDs()
     {
-        assertFalse( getService().isAccessControlEnabled() );
-        assertEquals( "TestMultiLevelDS-class", getService().getInstanceId() );
+        assertFalse( service.isAccessControlEnabled() );
+        assertEquals( "TestMultiLevelDS-class", service.getInstanceId() );
     }
 
 
@@ -51,7 +51,7 @@ public class TestMultiLevelDS extends AbstractLdapTestUnit
     @CreateDS(enableAccessControl = true, name = "testMethodWithClassLevelDs-method")
     public void testMethodWithMethodLevelDs()
     {
-        assertTrue( getService().isAccessControlEnabled() );
-        assertEquals( "testMethodWithClassLevelDs-method", getService().getInstanceId() );
+        assertTrue( methodService.isAccessControlEnabled() );
+        assertEquals( "testMethodWithClassLevelDs-method", methodService.getInstanceId() );
     }
 }

@@ -34,13 +34,13 @@ import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -48,13 +48,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS( name = "SearchWithIndicesIT", enableChangeLog = false )
 public class SearchWithIndicesPersonIT extends AbstractLdapTestUnit
 {
     private static LdapConnection connection;
 
-    @Before
+    @BeforeEach
     public void createData() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( getService() );

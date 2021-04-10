@@ -19,10 +19,10 @@
 package org.apache.directory.server.core.changelog;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -124,7 +124,7 @@ public class MemoryChangeLogStoreTest
     @Test
     public void testLogCheckRevision() throws Exception
     {
-        assertEquals( "first revision is always 0", 0, store.getCurrentRevision() );
+        assertEquals( 0, store.getCurrentRevision(), "first revision is always 0" );
 
         LdifEntry forward = new LdifEntry();
         forward.setDn( "ou=system" );

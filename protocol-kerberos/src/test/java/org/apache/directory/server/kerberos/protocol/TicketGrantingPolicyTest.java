@@ -45,9 +45,9 @@ import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -67,7 +67,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Creates a new instance of {@link TicketGrantingPolicyTest}.
      */
-    @Before
+    @BeforeEach
     public void setUp() throws IOException
     {
         kdcServer = new KdcServer();
@@ -89,7 +89,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Shutdown the Kerberos server
      */
-    @After
+    @AfterEach
     public void shutDown()
     {
         kdcServer.stop();

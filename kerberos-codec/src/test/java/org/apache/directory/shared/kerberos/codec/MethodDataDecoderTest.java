@@ -27,8 +27,6 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -39,8 +37,8 @@ import org.apache.directory.shared.kerberos.codec.methodData.MethodDataContainer
 import org.apache.directory.shared.kerberos.codec.types.PaDataType;
 import org.apache.directory.shared.kerberos.components.MethodData;
 import org.apache.directory.shared.kerberos.components.PaData;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -48,8 +46,6 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class MethodDataDecoderTest
 {
     /**
@@ -155,7 +151,7 @@ public class MethodDataDecoderTest
     /**
      * Test the decoding of a METHOD-DATA with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testETypeInfoEmpty() throws DecoderException
     {
 
@@ -170,15 +166,16 @@ public class MethodDataDecoderTest
         Asn1Container methodDataContainer = new MethodDataContainer();
 
         // Decode the METHOD-DATA PDU
-        Asn1Decoder.decode( stream, methodDataContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, methodDataContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a METHOD-DATA with empty PA-DATA in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testETypeInfoNoETypeInfoEntry() throws DecoderException
     {
 
@@ -196,8 +193,8 @@ public class MethodDataDecoderTest
         Asn1Container methodDataContainer = new MethodDataContainer();
 
         // Decode the METHOD-DATA PDU
-        Asn1Decoder.decode( stream, methodDataContainer );
-        fail();
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, methodDataContainer);
+        } );
     }
 }

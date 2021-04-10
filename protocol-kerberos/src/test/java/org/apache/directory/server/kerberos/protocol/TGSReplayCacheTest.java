@@ -43,7 +43,7 @@ import org.apache.directory.shared.kerberos.messages.KrbError;
 import org.apache.directory.shared.kerberos.messages.TgsRep;
 import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for configurable {@link ReplayCache}.

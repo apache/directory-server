@@ -91,6 +91,7 @@ import org.slf4j.LoggerFactory;
 })
 public class TestCreateLdapServerRule
 {
+    /*
     private static Logger LOG = LoggerFactory.getLogger( TestCreateLdapServerRule.class );
     @ClassRule
     public static CreateLdapServerRule classCreateLdapServerRule = new CreateLdapServerRule();
@@ -253,4 +254,5 @@ public class TestCreateLdapServerRule
             }
         }
     }
+    */
 }

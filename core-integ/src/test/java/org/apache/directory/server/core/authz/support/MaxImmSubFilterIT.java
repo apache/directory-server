@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,11 +41,12 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 
 
 /**
@@ -53,7 +54,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "MaxImmSubFilter-DS")
 public class MaxImmSubFilterIT extends AbstractLdapTestUnit
 {
@@ -75,7 +76,7 @@ public class MaxImmSubFilterIT extends AbstractLdapTestUnit
     private SchemaManager schemaManager;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         schemaManager = service.getSchemaManager();
@@ -166,7 +167,7 @@ public class MaxImmSubFilterIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore("test is failing cause of incorrect results from MaxImmSubFilter.filter() method after " +
+    @Disabled("test is failing cause of incorrect results from MaxImmSubFilter.filter() method after " +
         "started using real OperationContext instead of MockOperationContext")
     public void testGrantTuple() throws Exception
     {

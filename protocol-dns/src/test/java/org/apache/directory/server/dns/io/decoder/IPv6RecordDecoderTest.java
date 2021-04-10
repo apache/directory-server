@@ -27,8 +27,8 @@ import java.util.Map;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,7 +46,7 @@ public class IPv6RecordDecoderTest
     IPv6RecordDecoder decoder;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         address = InetAddress.getByName( "0:0:0:0:0:0:0:1" );

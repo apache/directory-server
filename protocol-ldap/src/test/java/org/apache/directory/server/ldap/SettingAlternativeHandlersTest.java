@@ -22,9 +22,6 @@ package org.apache.directory.server.ldap;
 
 import static org.junit.Assert.assertEquals;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
 import org.apache.directory.api.ldap.model.message.*;
 import org.apache.directory.api.util.exception.NotImplementedException;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -47,8 +44,7 @@ import org.apache.directory.server.ldap.handlers.response.SearchResultDoneHandle
 import org.apache.directory.server.ldap.handlers.response.SearchResultEntryHandler;
 import org.apache.directory.server.ldap.handlers.response.SearchResultReferenceHandler;
 import org.apache.mina.core.session.IoSession;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -56,8 +52,6 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class SettingAlternativeHandlersTest
 {
     /**

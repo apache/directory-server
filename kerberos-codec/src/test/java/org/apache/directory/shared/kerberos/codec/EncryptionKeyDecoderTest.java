@@ -35,7 +35,8 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -111,7 +112,7 @@ public class EncryptionKeyDecoderTest
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncryptionKeyWithEmptySeq() throws DecoderException
     {
 
@@ -126,12 +127,13 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncryptionKeyEmptyKeyTypeTag() throws DecoderException
     {
 
@@ -147,12 +149,13 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncryptionKeyEmptyKeyTypeValue() throws DecoderException
     {
 
@@ -169,12 +172,13 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEncryptionKeyWithoutType() throws DecoderException
     {
 
@@ -196,14 +200,15 @@ public class EncryptionKeyDecoderTest
 
         stream.flip();
 
-        EncryptionKeyContainer chkContainer = new EncryptionKeyContainer();
+        EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        Asn1Decoder.decode( stream, chkContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeChecksumWithoutEncryptionKeyValue() throws DecoderException
     {
 
@@ -222,12 +227,13 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeChecksumWitEmptyEncryptionKeyTag() throws DecoderException
     {
 
@@ -248,12 +254,13 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeChecksumWitEmptyEncryptionKeyValue() throws DecoderException
     {
 
@@ -276,7 +283,8 @@ public class EncryptionKeyDecoderTest
 
         EncryptionKeyContainer container = new EncryptionKeyContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 }

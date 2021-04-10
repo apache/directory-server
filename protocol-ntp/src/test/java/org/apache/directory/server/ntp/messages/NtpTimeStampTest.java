@@ -25,8 +25,8 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -46,7 +46,7 @@ public class NtpTimeStampTest
     /**
      * Initialize name instances
      */
-    @Before
+    @BeforeEach
     public void initNames() throws Exception
     {
         ntpTimeStampA = new NtpTimeStamp();

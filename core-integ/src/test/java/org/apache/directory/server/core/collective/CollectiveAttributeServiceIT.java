@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.collective;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,11 +43,12 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -55,7 +56,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "CollectiveAttributeServiceIT")
 public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 {
@@ -207,7 +208,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         Entry entry = connection.lookup( "ou=services,ou=configuration,ou=system" );
         Attribute c_ou = entry.get( "c-ou" );
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou, "a collective c-ou attribute should be present" );
         assertEquals( "configuration", c_ou.getString() );
 
         // -------------------------------------------------------------------
@@ -216,7 +217,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         entry = connection.lookup( "ou=users,ou=system" );
         c_ou = entry.get( "c-ou" );
-        assertNull( "the c-ou collective attribute should not be present", c_ou );
+        assertNull( c_ou, "the c-ou collective attribute should not be present" );
 
         // -------------------------------------------------------------------
         // now modify entries included by the subentry to have collectiveExclusions
@@ -231,7 +232,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         if ( c_ou != null )
         {
-            assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
+            assertEquals( 0, c_ou.size(), "the c-ou collective attribute should not be present" );
         }
 
         // now add more collective subentries - the c-ou should still not show due to exclusions
@@ -243,14 +244,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         if ( c_ou != null )
         {
-            assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
+            assertEquals( 0, c_ou.size(), "the c-ou collective attribute should not be present" );
         }
 
         // entries without the collectiveExclusion should still show both values of c-ou
         entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
 
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou, "a collective c-ou attribute should be present" );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
 
@@ -258,7 +259,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "c-ou" );
         c_ou = entry.get( "c-ou" );
 
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou, "a collective c-ou attribute should be present" );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
 
@@ -266,7 +267,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "objectClass" );
         c_ou = entry.get( "c-ou" );
 
-        assertNull( "a collective c-ou attribute should not be present", c_ou );
+        assertNull( c_ou, "a collective c-ou attribute should not be present" );
 
         // -------------------------------------------------------------------
         // now add the subentry for the c-st collective attribute
@@ -277,19 +278,19 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         entry = connection.lookup( "ou=services,ou=configuration,ou=system" );
         Attribute c_st = entry.get( "c-st" );
 
-        assertNotNull( "a collective c-st attribute should be present", c_st );
+        assertNotNull( c_st, "a collective c-st attribute should be present" );
         assertTrue( c_st.contains( "FL" ) );
 
         // in node without exclusions both values of c-ou should appear with c-st value
         entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
 
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou, "a collective c-ou attribute should be present" );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
 
         c_st = entry.get( "c-st" );
-        assertNotNull( "a collective c-st attribute should be present", c_st );
+        assertNotNull( c_st, "a collective c-st attribute should be present" );
         assertTrue( c_st.contains( "FL" ) );
 
         // -------------------------------------------------------------------
@@ -305,14 +306,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         if ( c_ou != null )
         {
-            assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
+            assertEquals( 0, c_ou.size(), "the c-ou collective attribute should not be present" );
         }
 
         c_st = entry.get( "c-st" );
 
         if ( c_st != null )
         {
-            assertEquals( "the c-st collective attribute should not be present", 0, c_st.size() );
+            assertEquals( 0, c_st.size(), "the c-st collective attribute should not be present" );
         }
 
         connection.close();
@@ -320,7 +321,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore("This test is failing until we fix the handling of collective attributes in filters")
+    @Disabled("This test is failing until we fix the handling of collective attributes in filters")
     public void testSearchFilterCollectiveAttribute() throws Exception
     {
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
@@ -369,7 +370,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         Map<String, Entry> entries = getAllEntries( connection, false );
         Entry entry = entries.get( "ou=services,ou=configuration,ou=system" );
         Attribute c_ou = entry.get( "c-ou" );
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou, "a collective c-ou attribute should be present" );
         assertEquals( "configuration", c_ou.getString() );
 
         // -------------------------------------------------------------------
@@ -398,7 +399,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         entries = getAllEntriesCollectiveAttributesOnly( connection );
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou, "a collective c-ou attribute should be present" );
         assertEquals( "configuration", c_ou.getString() );
 
         // -------------------------------------------------------------------
@@ -406,7 +407,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         entry = entries.get( "ou=users,ou=system" );
         c_ou = entry.get( "c-ou" );
-        assertNull( "the c-ou collective attribute should not be present", c_ou );
+        assertNull( c_ou, "the c-ou collective attribute should not be present" );
 
         // -------------------------------------------------------------------
         // now modify entries included by the subentry to have collectiveExclusions
@@ -424,7 +425,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         if ( c_ou != null )
         {
-            assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
+            assertEquals( 0, c_ou.size(), "the c-ou collective attribute should not be present" );
         }
 
 //        System.out.println( "----- Exclusions OK" );
@@ -438,13 +439,13 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         if ( c_ou != null )
         {
-            assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
+            assertEquals( 0, c_ou.size(), "the c-ou collective attribute should not be present" );
         }
 
         // entries without the collectiveExclusion should still show both values of c-ou
         entry = entries.get( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou, "a collective c-ou attribute should be present" );
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
 
@@ -458,17 +459,17 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // the new attribute c-st should appear in the node with the c-ou exclusion
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
         Attribute c_st = entry.get( "c-st" );
-        assertNotNull( "a collective c-st attribute should be present", c_st );
+        assertNotNull( c_st, "a collective c-st attribute should be present" );
         assertTrue( c_st.contains( "FL" ) );
 
         // in node without exclusions both values of c-ou should appear with c-st value
         entry = entries.get( "ou=interceptors,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou , "a collective c-ou attribute should be present");
         assertTrue( c_ou.contains( "configuration" ) );
         assertTrue( c_ou.contains( "configuration2" ) );
         c_st = entry.get( "c-st" );
-        assertNotNull( "a collective c-st attribute should be present", c_st );
+        assertNotNull( c_st, "a collective c-st attribute should be present" );
         assertTrue( c_st.contains( "FL" ) );
 
         // -------------------------------------------------------------------
@@ -486,14 +487,14 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
 
         if ( c_ou != null )
         {
-            assertEquals( "the c-ou collective attribute should not be present", 0, c_ou.size() );
+            assertEquals( 0, c_ou.size(), "the c-ou collective attribute should not be present" );
         }
 
         c_st = entry.get( "c-st" );
 
         if ( c_st != null )
         {
-            assertEquals( "the c-st collective attribute should not be present", 0, c_st.size() );
+            assertEquals(  0, c_st.size(), "the c-st collective attribute should not be present" );
         }
 
         // -------------------------------------------------------------------
@@ -505,7 +506,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         // we should no longer see collective attributes with restricted return attribs
         entry = entries.get( "ou=services,ou=configuration,ou=system" );
         c_st = entry.get( "c-st" );
-        assertNull( "a collective c-st attribute should NOT be present", c_st );
+        assertNull( c_st, "a collective c-st attribute should NOT be present" );
 
         entry = entries.get( "ou=partitions,ou=configuration,ou=system" );
         c_ou = entry.get( "c-ou" );
@@ -517,30 +518,36 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
     }
 
 
-    @Test(expected = LdapSchemaViolationException.class)
+    @Test
     public void testAddRegularEntryWithCollectiveAttribute() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
-        Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
-        entry.put( "c-l", "Turkiye" );
-
-        connection.add( entry );
-        connection.close();
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
+        {
+            LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+            Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
+            entry.put( "c-l", "Turkiye" );
+    
+            connection.add( entry );
+            connection.close();
+        } );
     }
 
 
-    @Test(expected = LdapSchemaViolationException.class)
+    @Test
     public void testModifyRegularEntryAddingCollectiveAttribute() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
-
-        Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
-        connection.add( entry );
-
-        connection.modify( "cn=Ersin Er,ou=system", new DefaultModification(
-            ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "c-l", "Turkiye" ) ) );
-
-        connection.close();
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
+        {
+                LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
+        
+                Entry entry = getTestEntry( "cn=Ersin Er,ou=system", "Ersin Er" );
+                connection.add( entry );
+        
+                connection.modify( "cn=Ersin Er,ou=system", new DefaultModification(
+                    ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "c-l", "Turkiye" ) ) );
+        
+                connection.close();
+        } );
     }
 
 
@@ -560,7 +567,7 @@ public class CollectiveAttributeServiceIT extends AbstractLdapTestUnit
         Entry entry = connection.lookup( "ou=interceptors,ou=configuration,ou=system", "ou" );
 
         Attribute c_ou = entry.get( "c-ou" );
-        assertNotNull( "a collective c-ou attribute should be present", c_ou );
+        assertNotNull( c_ou, "a collective c-ou attribute should be present" );
         assertTrue( c_ou.contains( "configuration" ) );
 
         connection.close();

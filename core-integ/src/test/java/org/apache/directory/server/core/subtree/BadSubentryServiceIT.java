@@ -22,9 +22,9 @@ package org.apache.directory.server.core.subtree;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,9 +43,9 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -53,7 +53,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "BadSubentryServiceIT-class")
 public class BadSubentryServiceIT extends AbstractLdapTestUnit
 {
@@ -182,9 +182,9 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
 
         assertTrue( collectiveAttributeSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ) );
 
-        assertFalse( "'collectiveAttributeSubentries' operational attribute SHOULD NOT " +
-            "contain references to non-'collectiveAttributeSubentry's like 'accessControlSubentry's",
-            collectiveAttributeSubentries.contains( "cn=accessControlTestSubentry,ou=system" ) );
+        assertFalse( collectiveAttributeSubentries.contains( "cn=accessControlTestSubentry,ou=system" ),
+            "'collectiveAttributeSubentries' operational attribute SHOULD NOT " +
+                "contain references to non-'collectiveAttributeSubentry's like 'accessControlSubentry's" );
 
         assertEquals( 1, collectiveAttributeSubentries.size() );
 
@@ -194,9 +194,9 @@ public class BadSubentryServiceIT extends AbstractLdapTestUnit
 
         assertTrue( accessControlSubentries.contains( "cn=accessControlTestSubentry,ou=system" ) );
 
-        assertFalse( "'accessControlSubentries' operational attribute SHOULD NOT " +
-            "contain references to non-'accessControlSubentry's like 'collectiveAttributeSubentry's",
-            accessControlSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ) );
+        assertFalse( accessControlSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ),
+            "'accessControlSubentries' operational attribute SHOULD NOT " +
+                "contain references to non-'accessControlSubentry's like 'collectiveAttributeSubentry's" );
 
         assertEquals( 1, accessControlSubentries.size() );
     }

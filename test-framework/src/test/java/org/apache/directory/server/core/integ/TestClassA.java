@@ -25,11 +25,11 @@ import static org.junit.Assert.assertTrue;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
-@RunWith(FrameworkRunner.class)
+@ExtendWith( CreateDSTestExtension.class )
 @CreateDS(name = "ClassDS")
 @ApplyLdifs(
     {
@@ -56,8 +56,7 @@ public class TestClassA extends AbstractLdapTestUnit
         })
     public void testWithFactoryAnnotation() throws Exception
     {
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+        assertTrue( methodService.getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
     }
 
 
@@ -71,9 +70,9 @@ public class TestClassA extends AbstractLdapTestUnit
         })
     public void testWithoutFactoryAnnotation() throws Exception
     {
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
-        assertFalse( getService().getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
-        assertTrue( getService().getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassA,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassA2,ou=system" ) ) );
+        assertFalse( service.getAdminSession().exists( new Dn( "cn=testMethodA,ou=system" ) ) );
+        assertTrue( service.getAdminSession().exists( new Dn( "cn=testMethodWithApplyLdif,ou=system" ) ) );
     }
 }

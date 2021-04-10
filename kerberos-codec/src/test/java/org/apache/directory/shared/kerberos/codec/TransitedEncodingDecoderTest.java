@@ -27,8 +27,6 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -38,8 +36,8 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.transitedEncoding.TransitedEncodingContainer;
 import org.apache.directory.shared.kerberos.codec.types.TransitedEncodingType;
 import org.apache.directory.shared.kerberos.components.TransitedEncoding;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -47,8 +45,6 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class TransitedEncodingDecoderTest
 {
     /**
@@ -126,7 +122,7 @@ public class TransitedEncodingDecoderTest
     /**
      * Test the decoding of a TransitedEncoding with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTransitedEncodingEmpty() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x02 );
@@ -140,15 +136,16 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        Asn1Decoder.decode( stream, transitedEncodingContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, transitedEncodingContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a TransitedEncoding with an empty tr-type tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTransitedEncodingEmptyTrTypeTag() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x04 );
@@ -164,15 +161,16 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        Asn1Decoder.decode( stream, transitedEncodingContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, transitedEncodingContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a TransitedEncoding with no type
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTransitedEncodingNoTrType() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
@@ -190,15 +188,16 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        Asn1Decoder.decode( stream, transitedEncodingContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, transitedEncodingContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a TransitedEncoding with no tr-type tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTransitedEncodingNoTrTypeTag() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x06 );
@@ -216,15 +215,16 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        Asn1Decoder.decode( stream, transitedEncodingContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, transitedEncodingContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a TransitedEncoding with an empty contents tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTransitedEncodingEmptyContentsTag() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x09 );
@@ -245,15 +245,16 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        Asn1Decoder.decode( stream, transitedEncodingContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, transitedEncodingContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a TransitedEncoding with something else than a contents
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testTransitedEncodingBadTag() throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( 0x0C );
@@ -277,7 +278,8 @@ public class TransitedEncodingDecoderTest
         Asn1Container transitedEncodingContainer = new TransitedEncodingContainer();
 
         // Decode the TransitedEncoding PDU
-        Asn1Decoder.decode( stream, transitedEncodingContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, transitedEncodingContainer);
+        } );
     }
 }

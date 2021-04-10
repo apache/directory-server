@@ -31,7 +31,7 @@ import org.apache.directory.server.ntp.messages.NtpMessageModifier;
 import org.apache.directory.server.ntp.messages.NtpTimeStamp;
 import org.apache.directory.server.ntp.messages.ReferenceIdentifier;
 import org.apache.directory.server.ntp.messages.StratumType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

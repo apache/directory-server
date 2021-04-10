@@ -31,7 +31,7 @@ import org.apache.directory.kerberos.credentials.cache.Credentials;
 import org.apache.directory.kerberos.credentials.cache.CredentialsCache;
 import org.apache.directory.kerberos.credentials.cache.SampleCredentialsCacheResource;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  *

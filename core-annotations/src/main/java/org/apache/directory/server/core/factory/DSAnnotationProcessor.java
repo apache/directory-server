@@ -22,6 +22,7 @@ package org.apache.directory.server.core.factory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +57,7 @@ import org.apache.directory.server.core.partition.impl.btree.AbstractBTreePartit
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotIndex;
 import org.apache.directory.server.i18n.I18n;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -315,18 +316,16 @@ public final class DSAnnotationProcessor
      * @return A valid DirectoryService
      * @throws Exception If the DirectoryService instance can't be returned
      */
-    public static DirectoryService getDirectoryService( Description description )
+    public static DirectoryService getDirectoryService( CreateDS dsBuilder )
         throws Exception
     {
-        CreateDS dsBuilder = description.getAnnotation( CreateDS.class );
-
         if ( dsBuilder != null )
         {
             return createDS( dsBuilder );
         }
         else
         {
-            LOG.debug( "No {} DS.", description.getDisplayName() );
+            LOG.debug( "No CreateDS annotation." );
             return null;
         }
     }
@@ -450,18 +449,19 @@ public final class DSAnnotationProcessor
     /**
      * Load the schemas, and enable/disable them.
      * 
-     * @param desc The description
+     * @param context The text context
      * @param service The DirectoryService instance
      */
-    public static void loadSchemas( Description desc, DirectoryService service )
+    public static void loadSchemas( ExtensionContext context, DirectoryService service )
     {
-        if ( desc == null )
+        if ( context == null )
         {
             return;
         }
 
-        LoadSchema loadSchema = desc
-            .getAnnotation( LoadSchema.class );
+        AnnotatedElement annotations = context.getTestClass().get();
+
+        LoadSchema loadSchema = annotations.getDeclaredAnnotation( LoadSchema.class );
 
         if ( loadSchema != null )
         {
@@ -486,29 +486,28 @@ public final class DSAnnotationProcessor
     /**
      * Apply the LDIF entries to the given service
      * 
-     * @param desc The description
+     * @param annotations The test annotations
+     * @param displayName The context in which this methods is executed (suite name, class name or method name)
      * @param service The DirectoryService instance
      * @throws Exception If we can't apply the ldifs
      */
-    public static void applyLdifs( Description desc, DirectoryService service )
+    public static void applyLdifs( AnnotatedElement annotations, String displayName, DirectoryService service )
         throws Exception
     {
-        if ( desc == null )
+        if ( annotations == null )
         {
             return;
         }
 
-        ApplyLdifFiles applyLdifFiles = desc
-            .getAnnotation( ApplyLdifFiles.class );
+        ApplyLdifFiles applyLdifFiles = annotations.getDeclaredAnnotation( ApplyLdifFiles.class );
 
         if ( applyLdifFiles != null )
         {
-            LOG.debug( "Applying {} to {}", applyLdifFiles.value(),
-                desc.getDisplayName() );
+            LOG.debug( "Applying {} to {}", applyLdifFiles.value(), displayName );
             injectLdifFiles( applyLdifFiles.clazz(), service, applyLdifFiles.value() );
         }
 
-        ApplyLdifs applyLdifs = desc.getAnnotation( ApplyLdifs.class );
+        ApplyLdifs applyLdifs = annotations.getDeclaredAnnotation( ApplyLdifs.class );
 
         if ( ( applyLdifs != null ) && ( applyLdifs.value() != null ) )
         {
@@ -539,7 +538,7 @@ public final class DSAnnotationProcessor
                         }
                     }
 
-                    LOG.debug( "Applying {} to {}", sb, desc.getDisplayName() );
+                    LOG.debug( "Applying {} to {}", sb, displayName );
                     injectEntries( service, sb.toString() );
                     sb.setLength( 0 );
 

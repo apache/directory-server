@@ -40,22 +40,15 @@ import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for ConfigPartitionReader
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class ChangePasswordConfigReaderTest
 {
     private static File workDir;
@@ -64,7 +57,7 @@ public class ChangePasswordConfigReaderTest
     private static DnFactory dnFactory;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void readConfig() throws Exception
     {
         workDir = new File( System.getProperty( "java.io.tmpdir" ) + "/server-work-"
@@ -103,7 +96,7 @@ public class ChangePasswordConfigReaderTest
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void cleanup() throws Exception
     {
         FileUtils.deleteDirectory( workDir );

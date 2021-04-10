@@ -81,13 +81,14 @@ import org.slf4j.LoggerFactory;
 @CreateLdapConnectionPool
 public class TestCreateLdapConnectionPoolRule
 {
+    /*
     private static Logger LOG = LoggerFactory.getLogger( TestCreateLdapConnectionPoolRule.class );
     @ClassRule
     public static CreateLdapConnectionPoolRule classCreateLdapConnectionPoolRule = 
         new CreateLdapConnectionPoolRule();
     
     @Rule
-    public CreateLdapConnectionPoolRule createLdapConnectionPoolRule = 
+    public CreateLdapConnectionPoolRuleExtension createLdapConnectionPoolRule = 
         new CreateLdapConnectionPoolRule( classCreateLdapConnectionPoolRule );
     
     
@@ -149,4 +150,5 @@ public class TestCreateLdapConnectionPoolRule
             }
         }
     }
+    */
 }

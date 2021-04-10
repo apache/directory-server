@@ -43,19 +43,15 @@ import org.apache.directory.shared.kerberos.components.HostAddresses;
 import org.apache.directory.shared.kerberos.components.KdcReqBody;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.Ticket;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 
 /**
  * Test the decoder for a KdcReqBody
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class KdcReqBodyDecoderTest
 {
     /**
@@ -265,7 +261,7 @@ public class KdcReqBodyDecoderTest
     /**
      * Test the decoding of a KDC-REQ-BODY with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcReqBodyEmpty() throws DecoderException
     {
 
@@ -280,15 +276,16 @@ public class KdcReqBodyDecoderTest
         Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
 
         // Decode the KDC-REQ-BODY PDU
-        Asn1Decoder.decode( stream, kdcReqBodyContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, kdcReqBodyContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a KDC-REQ-BODY with empty options tag
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcReqBodyEmptyOptionTag() throws DecoderException
     {
 
@@ -306,15 +303,16 @@ public class KdcReqBodyDecoderTest
         Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
 
         // Decode the KDC-REQ-BODY PDU
-        Asn1Decoder.decode( stream, kdcReqBodyContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, kdcReqBodyContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a KDC-REQ-BODY with empty options value
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcReqBodyEmptyOptionValue() throws DecoderException
     {
 
@@ -333,15 +331,16 @@ public class KdcReqBodyDecoderTest
         Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
 
         // Decode the KDC-REQ-BODY PDU
-        Asn1Decoder.decode( stream, kdcReqBodyContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+                    Asn1Decoder.decode(stream, kdcReqBodyContainer);
+                } );
     }
 
 
     /**
      * Test the decoding of a KDC-REQ-BODY with no options
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testKdcReqBodyNoOptions() throws DecoderException
     {
 
@@ -461,8 +460,9 @@ public class KdcReqBodyDecoderTest
         Asn1Container kdcReqBodyContainer = new KdcReqBodyContainer( stream );
 
         // Decode the KDC-REQ-BODY PDU
-        Asn1Decoder.decode( stream, kdcReqBodyContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, kdcReqBodyContainer);
+        } );
     }
 
 

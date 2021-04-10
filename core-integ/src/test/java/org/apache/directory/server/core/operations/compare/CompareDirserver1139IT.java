@@ -21,9 +21,9 @@ package org.apache.directory.server.core.operations.compare;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -39,10 +39,10 @@ import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -50,7 +50,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith ( FrameworkRunner.class )
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "CompareDirserver1139IT")
 public class CompareDirserver1139IT extends AbstractLdapTestUnit
 {
@@ -59,7 +59,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
      * Activate the NIS and KRB5KDC schemas
      * @throws Exception
      */
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         // -------------------------------------------------------------------

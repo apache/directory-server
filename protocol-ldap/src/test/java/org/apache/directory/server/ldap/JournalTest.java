@@ -49,11 +49,11 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.StringSerializer;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessage;
 import org.apache.directory.server.ldap.replication.ReplicaEventMessageSerializer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -89,7 +89,7 @@ public class JournalTest
      * Load the SchemaManager
      * @throws Exception
      */
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         String workingDirectory = System.getProperty( "workingDirectory" );
@@ -121,7 +121,7 @@ public class JournalTest
     /**
      * Create the JdbmTable
      */
-    @Before
+    @BeforeEach
     public void createTable() throws Exception
     {
         destroyTable();
@@ -151,7 +151,7 @@ public class JournalTest
     /**
      * Delete the files on disk
      */
-    @After
+    @AfterEach
     public void destroyTable() throws Exception
     {
         if ( journal != null )
@@ -306,7 +306,7 @@ public class JournalTest
      * 
      */
     @Test
-    @Ignore("Performance test")
+    @Disabled("Performance test")
     public void testJournalPerf() throws Exception
     {
         Csn entryCsn = csnFactory.newInstance();

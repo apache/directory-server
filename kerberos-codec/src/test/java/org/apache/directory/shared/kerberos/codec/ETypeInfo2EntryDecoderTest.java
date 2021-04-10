@@ -36,7 +36,8 @@ import org.apache.directory.api.util.Strings;
 import org.apache.directory.shared.kerberos.codec.etypeInfo2Entry.ETypeInfo2EntryContainer;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.ETypeInfo2Entry;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -185,7 +186,7 @@ public class ETypeInfo2EntryDecoderTest
     /**
      * Test the decoding of a ETYPE-INFO2-ENTRY with an empty salt
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeETypeInfo2EntryEmptySalt() throws DecoderException
     {
 
@@ -206,8 +207,9 @@ public class ETypeInfo2EntryDecoderTest
 
         ETypeInfo2EntryContainer container = new ETypeInfo2EntryContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
@@ -291,7 +293,7 @@ public class ETypeInfo2EntryDecoderTest
      * Test the decoding of an empty ETYPE-INFO2-ENTRY
      * @throws DecoderException
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEmptyETypeInfo2Entry() throws DecoderException
     {
 
@@ -306,8 +308,9 @@ public class ETypeInfo2EntryDecoderTest
 
         ETypeInfo2EntryContainer container = new ETypeInfo2EntryContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
@@ -315,7 +318,7 @@ public class ETypeInfo2EntryDecoderTest
      * Test the decoding of an ETYPE-INFO2-ENTRY with no etype
      * @throws DecoderException
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEmptyETypeInfo2EntryNoEType() throws DecoderException
     {
 
@@ -332,8 +335,9 @@ public class ETypeInfo2EntryDecoderTest
 
         ETypeInfo2EntryContainer container = new ETypeInfo2EntryContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
@@ -341,7 +345,7 @@ public class ETypeInfo2EntryDecoderTest
      * Test the decoding of an ETYPE-INFO2-ENTRY with an empty etype
      * @throws DecoderException
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEmptyETypeInfo2EntryEmptyEType() throws DecoderException
     {
 
@@ -357,8 +361,9 @@ public class ETypeInfo2EntryDecoderTest
 
         ETypeInfo2EntryContainer container = new ETypeInfo2EntryContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 
@@ -366,7 +371,7 @@ public class ETypeInfo2EntryDecoderTest
      * Test the decoding of an ETYPE-INFO2-ENTRY with a empty etype tag
      * @throws DecoderException
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeEmptyETypeInfo2EntryEmptyETypeTag() throws DecoderException
     {
 
@@ -383,8 +388,9 @@ public class ETypeInfo2EntryDecoderTest
 
         ETypeInfo2EntryContainer container = new ETypeInfo2EntryContainer();
 
-        Asn1Decoder.decode( stream, container );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, container);
+        } );
     }
 
 

@@ -20,12 +20,12 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -79,12 +79,13 @@ import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -93,7 +94,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "SubschemaSubentryIT-class")
 public class SubschemaSubentryIT extends AbstractLdapTestUnit
 {
@@ -113,7 +114,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
     private Entry subschemaSubentry;
 
 
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         connection = IntegrationUtils.getAdminConnection( getService() );
@@ -161,11 +162,14 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test(expected = LdapException.class)
+    @Test
     public void testSSSEDeleteRejection() throws Exception
     {
-        connection.delete( subschemaSubentryDn );
-        fail( "You are not allowed to delete the global schema subentry" );
+        Assertions.assertThrows( LdapException.class, () -> 
+        {
+            connection.delete( subschemaSubentryDn );
+            fail( "You are not allowed to delete the global schema subentry" );
+        } );
     }
 
 
@@ -174,11 +178,14 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test(expected = LdapException.class)
+    @Test
     public void testSSSEAddRejection() throws Exception
     {
-        connection.add( subschemaSubentry );
-        fail( "You are not allowed to add the global schema subentry which exists by default" );
+        Assertions.assertThrows( LdapException.class, () -> 
+        {
+            connection.add( subschemaSubentry );
+            fail( "You are not allowed to add the global schema subentry which exists by default" );
+        } );
     }
 
 
@@ -187,11 +194,14 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws NamingException on error
      */
-    @Test(expected = LdapException.class)
+    @Test
     public void testSSSERenameRejection() throws Exception
     {
-        connection.rename( subschemaSubentryDn, "cn=schema,ou=system" );
-        fail( "You are not allowed to rename the global schema subentry which is fixed" );
+        Assertions.assertThrows( LdapException.class, () -> 
+        {
+            connection.rename( subschemaSubentryDn, "cn=schema,ou=system" );
+            fail( "You are not allowed to rename the global schema subentry which is fixed" );
+        } );
     }
 
 
@@ -1436,17 +1446,20 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      *
      * @throws Exception on error
      */
-    @Test(expected = LdapInvalidAttributeValueException.class)
+    @Test
     public void testAddAttributeTypeWithUnderscoresOnEnabledSchema() throws Exception
     {
-        enableSchema( "nis" );
-        Dn dn = new Dn( subschemaSubentryDn );
-        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogus_microsoft_name' ) "
-            + "DESC 'bogus description' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
-        Modification mod = new DefaultModification(
-            ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "attributeTypes", substrate ) );
-
-        connection.modify( dn, mod );
+        Assertions.assertThrows( LdapInvalidAttributeValueException.class, () -> 
+        {
+            enableSchema( "nis" );
+            Dn dn = new Dn( subschemaSubentryDn );
+            String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogus_microsoft_name' ) "
+                + "DESC 'bogus description' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+            Modification mod = new DefaultModification(
+                ModificationOperation.ADD_ATTRIBUTE, new DefaultAttribute( "attributeTypes", substrate ) );
+    
+            connection.modify( dn, mod );
+        } );
     }
 
 
@@ -1843,7 +1856,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
      * @throws NamingException on error
      */
     @Test
-    @Ignore("The test is failing when run in conjonction with other tests")
+    @Disabled("The test is failing when run in conjonction with other tests")
     // @TODO as we can't modify a schema element, the end of this test has been commented
     public void testTimestampAndModifierUpdates() throws Exception, InterruptedException
     {

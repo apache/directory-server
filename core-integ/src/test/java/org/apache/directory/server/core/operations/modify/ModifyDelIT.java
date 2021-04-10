@@ -22,11 +22,11 @@ package org.apache.directory.server.core.operations.modify;
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -46,10 +46,11 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -57,7 +58,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(name = "ModifyDelIT",
     partitions =
         {
@@ -373,15 +374,18 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete all the values from an existing AT in MUST
      */
-    @Test(expected = SchemaViolationException.class)
+    @Test
     public void testModifyDelExistingEntryExistingATNotInRdnNotSVAllValues() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        Attributes sn = new BasicAttributes( "sn", "Wilde", true );
-
-        exampleCtx.modifyAttributes( RDN_KIM_WILDE, DirContext.REMOVE_ATTRIBUTE, sn );
+        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        {
+            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
+            createData( exampleCtx );
+    
+            Attributes sn = new BasicAttributes( "sn", "Wilde", true );
+    
+            exampleCtx.modifyAttributes( RDN_KIM_WILDE, DirContext.REMOVE_ATTRIBUTE, sn );
+        } );
     }
 
 
@@ -392,32 +396,38 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Remove a non existing AT from an entry, the AT is part of MAY/MUST
      */
-    @Test(expected = NoSuchAttributeException.class)
+    @Test
     public void testModifyDelExistingEntryNonExistingATInMay() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        // A non existing AT 
-        Attributes attrs = new BasicAttributes( "seeAlso", "cn=test", true );
-
-        exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        Assertions.assertThrows( NoSuchAttributeException.class, () -> 
+        {
+            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
+            createData( exampleCtx );
+    
+            // A non existing AT 
+            Attributes attrs = new BasicAttributes( "seeAlso", "cn=test", true );
+    
+            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        } );
     }
 
 
     /**
      * Remove a non existing AT from an entry, the AT is not part of MAY/MUST
      */
-    @Test(expected = NoSuchAttributeException.class)
+    @Test
     public void testModifyDelExistingEntryNonExistingATNotInMayMust() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        // A non existing AT 
-        Attributes attrs = new BasicAttributes( "c", "FR", true );
-
-        exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        Assertions.assertThrows( NoSuchAttributeException.class, () -> 
+        {
+            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
+            createData( exampleCtx );
+    
+            // A non existing AT 
+            Attributes attrs = new BasicAttributes( "c", "FR", true );
+    
+            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        } );
     }
 
 
@@ -444,30 +454,36 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete a value from an existing SingleValued AT, in MUST, not in Rdn
      */
-    @Test(expected = SchemaViolationException.class)
+    @Test
     public void testModifyDelExistingEntryExistingATNotInRdnSVInMust() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        Attributes attrs = new BasicAttributes( "uidNumber", "1", true );
-
-        exampleCtx.modifyAttributes( "cn=test", DirContext.REMOVE_ATTRIBUTE, attrs );
+        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        {
+            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
+            createData( exampleCtx );
+    
+            Attributes attrs = new BasicAttributes( "uidNumber", "1", true );
+    
+            exampleCtx.modifyAttributes( "cn=test", DirContext.REMOVE_ATTRIBUTE, attrs );
+        } );
     }
 
 
     /**
      * Delete a value part of the Rdn
      */
-    @Test(expected = SchemaViolationException.class)
+    @Test
     public void testModifyDelExistingEntryExistingATPartOfRdn() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        Attributes attrs = new BasicAttributes( "cn", "test", true );
-
-        exampleCtx.modifyAttributes( "cn=test", DirContext.REMOVE_ATTRIBUTE, attrs );
+        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        {
+            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
+            createData( exampleCtx );
+    
+            Attributes attrs = new BasicAttributes( "cn", "test", true );
+    
+            exampleCtx.modifyAttributes( "cn=test", DirContext.REMOVE_ATTRIBUTE, attrs );
+        } );
     }
 
 
@@ -494,45 +510,54 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Delete an existing AT not part of the Rdn, but in MUST
      */
-    @Test(expected = SchemaViolationException.class)
+    @Test
     public void testModifyDelExistingEntryExistingATNoInRdnInMust() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        Attributes attrs = new BasicAttributes( "sn", null, true );
-
-        exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        {
+            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
+            createData( exampleCtx );
+    
+            Attributes attrs = new BasicAttributes( "sn", null, true );
+    
+            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        } );
     }
 
 
     /**
      * Delete an existing AT part of the Rdn
      */
-    @Test(expected = SchemaViolationException.class)
+    @Test
     public void testModifyDelExistingEntryExistingATInRdn() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        Attributes attrs = new BasicAttributes( "cn", null, true );
-
-        exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        {
+            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
+            createData( exampleCtx );
+    
+            Attributes attrs = new BasicAttributes( "cn", null, true );
+    
+            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        } );
     }
 
 
     /**
      * Delete a value not present in an existing AT
      */
-    @Test(expected = NoSuchAttributeException.class)
+    @Test
     public void testModifyDelExistingEntryValueNotPresentInExistingAT() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        Attributes attrs = new BasicAttributes( "description", "Not present", true );
-
-        exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        Assertions.assertThrows( NoSuchAttributeException.class, () -> 
+        {
+            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
+            createData( exampleCtx );
+    
+            Attributes attrs = new BasicAttributes( "description", "Not present", true );
+    
+            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+        } );
     }
 
 
@@ -562,15 +587,18 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     /**
      * Del an AT in an entry which does not exist
      */
-    @Test(expected = NameNotFoundException.class)
+    @Test
     public void testModifyDelNotExistingEntry() throws Exception
     {
-        LdapContext exampleCtx = getSystemContext( getService() );
-        createData( exampleCtx );
-
-        // An operational attribute
-        Attributes attrs = new BasicAttributes( "cn", "test", true );
-
-        exampleCtx.modifyAttributes( "ou=absent", DirContext.REMOVE_ATTRIBUTE, attrs );
+        Assertions.assertThrows( NameNotFoundException.class, () -> 
+        {
+            LdapContext exampleCtx = getSystemContext( getService() );
+            createData( exampleCtx );
+    
+            // An operational attribute
+            Attributes attrs = new BasicAttributes( "cn", "test", true );
+    
+            exampleCtx.modifyAttributes( "ou=absent", DirContext.REMOVE_ATTRIBUTE, attrs );
+        } );
     }
 }

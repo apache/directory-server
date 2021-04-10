@@ -28,8 +28,8 @@ import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -51,7 +51,7 @@ public class QuestionRecordEncoderTest
     QuestionRecord record = new QuestionRecord( name, type, rClass );
 
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         encoder = new QuestionRecordEncoder();

@@ -36,7 +36,7 @@ import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.mina.util.AvailablePortFinder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

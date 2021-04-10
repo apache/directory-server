@@ -47,8 +47,8 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.hash.ConfigurableHashingInterceptor;
 import org.apache.directory.server.i18n.I18n;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -60,7 +60,7 @@ public class ServiceBuilderTest
 {
     private static SchemaManager schemaManager;
 
-    @BeforeClass
+    @BeforeAll
     public static void initSchemaManager() throws Exception
     {
         File partitionsDirectory = Files.createTempDirectory( "partitions" ).toFile();

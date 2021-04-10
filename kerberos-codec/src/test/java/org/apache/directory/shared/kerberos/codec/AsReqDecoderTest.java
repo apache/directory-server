@@ -26,8 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.EncoderException;
@@ -35,16 +33,14 @@ import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.kerberos.codec.asReq.AsReqContainer;
 import org.apache.directory.shared.kerberos.messages.AsReq;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
  * Test the decoder for a AsReq
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
 public class AsReqDecoderTest
 {
     /**
@@ -231,7 +227,7 @@ public class AsReqDecoderTest
     /**
      * Test the decoding of a AsReq message with a bad MsgType
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testDecodeFullAsReqBadMsgType() throws Exception
     {
 
@@ -373,15 +369,16 @@ public class AsReqDecoderTest
         AsReqContainer asReqContainer = new AsReqContainer( stream );
 
         // Decode the AsReq PDU
-        Asn1Decoder.decode( stream, asReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, asReqContainer);
+        } );
     }
 
 
     /**
      * Test the decoding of a AS-REQ with nothing in it
      */
-    @Test(expected = DecoderException.class)
+    @Test
     public void testAsReqEmpty() throws DecoderException
     {
 
@@ -396,8 +393,9 @@ public class AsReqDecoderTest
         Asn1Container asReqContainer = new AsReqContainer( stream );
 
         // Decode the AS-REQ PDU
-        Asn1Decoder.decode( stream, asReqContainer );
-        fail();
+        Assertions.assertThrows( DecoderException.class, () -> {
+            Asn1Decoder.decode(stream, asReqContainer);
+        } );
     }
 
 

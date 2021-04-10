@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +46,12 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -60,7 +60,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "MetaSyntaxHandlerIT")
 public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 {
@@ -79,7 +79,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     private static LdapConnection connection;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         super.init();
@@ -129,8 +129,8 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         createDummySyntaxChecker( OID, "nis" );
         connection.add( entry );
 
-        assertFalse( "adding new syntax to disabled schema should not register it into the registries",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "adding new syntax to disabled schema should not register it into the registries" );
         assertTrue( isOnDisk( dn ) );
     }
 
@@ -160,8 +160,8 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             // Expected result.
         }
 
-        assertFalse( "adding new syntax to disabled schema should not register it into the registries",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "adding new syntax to disabled schema should not register it into the registries" );
         assertFalse( isOnDisk( dn ) );
     }
 
@@ -174,13 +174,13 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxToEnabledSchema();
 
         assertTrue( isOnDisk( dn ) );
-        assertTrue( "syntax should be removed from the registry after being deleted",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should be removed from the registry after being deleted" );
 
         connection.delete( dn );
 
-        assertFalse( "syntax should be removed from the registry after being deleted",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should be removed from the registry after being deleted" );
 
         try
         {
@@ -203,13 +203,13 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         testAddSyntaxToDisabledSchema();
 
         assertTrue( isOnDisk( dn ) );
-        assertFalse( "syntax should be removed from the registry after being deleted",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should be removed from the registry after being deleted" );
 
         connection.delete( dn );
 
-        assertFalse( "syntax should be removed from the registry after being deleted",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should be removed from the registry after being deleted" );
 
         try
         {
@@ -225,7 +225,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRenameSyntax() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxes,cn=apachemeta,ou=schema" );
@@ -236,8 +236,8 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.rename( dn, rdn );
 
-        assertFalse( "old syntax OID should be removed from the registry after being renamed",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "old syntax OID should be removed from the registry after being renamed" );
 
         //noinspection EmptyCatchBlock
         try
@@ -254,7 +254,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntax() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -265,8 +265,8 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertTrue( "syntax OID should still be present",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax OID should still be present" );
 
         assertEquals( "syntax schema should be set to apache not apachemeta", "apache",
             schemaManager.getLdapSyntaxRegistry().getSchemaName( OID ) );
@@ -274,7 +274,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxAndChangeRdn() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -285,11 +285,11 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertFalse( "old syntax OID should NOT be present",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "old syntax OID should NOT be present" );
 
-        assertTrue( "new syntax OID should be present",
-            schemaManager.getLdapSyntaxRegistry().contains( NEW_OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( NEW_OID ) ,
+             "new syntax OID should be present" );
 
         assertEquals( "syntax with new oid should have schema set to apache NOT apachemeta", "apache",
             schemaManager.getLdapSyntaxRegistry().getSchemaName( NEW_OID ) );
@@ -297,7 +297,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testModifySyntaxWithModificationItems() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -311,8 +311,8 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             ModificationOperation.REPLACE_ATTRIBUTE, "m-description", DESCRIPTION1 );
         connection.modify( dn, mod );
 
-        assertTrue( "syntax OID should still be present",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax OID should still be present" );
 
         assertEquals( "syntax schema should be set to apachemeta", "apachemeta",
             schemaManager.getLdapSyntaxRegistry().getSchemaName( OID ) );
@@ -323,7 +323,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testModifySyntaxWithAttributes() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -337,8 +337,8 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             ModificationOperation.REPLACE_ATTRIBUTE, "m-description", DESCRIPTION1 );
         connection.modify( dn, mod );
 
-        assertTrue( "syntax OID should still be present",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax OID should still be present" );
 
         assertEquals( "syntax schema should be set to apachemeta", "apachemeta",
             schemaManager.getLdapSyntaxRegistry().getSchemaName( OID ) );
@@ -369,13 +369,13 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         {
         }
 
-        assertTrue( "syntax should still be in the registry after delete failure",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should still be in the registry after delete failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxWhenInUse() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -395,13 +395,13 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
 
-        assertTrue( "syntax should still be in the registry after move failure",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxAndChangeRdnWhenInUse() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -421,8 +421,8 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
 
-        assertTrue( "syntax should still be in the registry after move failure",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should still be in the registry after move failure" );
     }
 
 
@@ -447,7 +447,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRenameNormalizerWhenInUse() throws Exception
     {
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxes,cn=apachemeta,ou=schema" );
@@ -467,8 +467,8 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             assertEquals( ResultCodeEnum.UNWILLING_TO_PERFORM, e.getResultCode() );
         }
 
-        assertTrue( "syntax should still be in the registry after rename failure",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should still be in the registry after rename failure" );
     }
 
 
@@ -477,7 +477,7 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
     // ----------------------------------------------------------------------
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxToTop() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -496,13 +496,13 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
-        assertTrue( "syntax should still be in the registry after move failure",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxToComparatorContainer() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -521,13 +521,13 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
             assertEquals( ResultCodeEnum.NAMING_VIOLATION, e.getResultCode() );
         }
 
-        assertTrue( "syntax should still be in the registry after move failure",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax should still be in the registry after move failure" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxToDisabledSchema() throws Exception
     {
         testAddSyntaxToEnabledSchema();
@@ -539,13 +539,13 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
 
         connection.move( dn, newDn );
 
-        assertFalse( "syntax OID should no longer be present",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax OID should no longer be present" );
     }
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testMoveSyntaxToEnabledSchema() throws Exception
     {
         testAddSyntaxToDisabledSchema();
@@ -553,15 +553,15 @@ public class MetaSyntaxHandlerIT extends AbstractMetaSchemaObjectHandler
         // nis is inactive by default
         Dn dn = new Dn( "m-oid=" + OID + ",ou=syntaxes,cn=nis,ou=schema" );
 
-        assertFalse( "syntax OID should NOT be present when added to disabled nis schema",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertFalse( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax OID should NOT be present when added to disabled nis schema" );
 
         Dn newDn = new Dn( "m-oid=" + OID + ",ou=syntaxes,cn=apachemeta,ou=schema" );
 
         connection.move( dn, newDn );
 
-        assertTrue( "syntax OID should be present when moved to enabled schema",
-            schemaManager.getLdapSyntaxRegistry().contains( OID ) );
+        assertTrue( schemaManager.getLdapSyntaxRegistry().contains( OID ) ,
+             "syntax OID should be present when moved to enabled schema" );
 
         assertEquals( "syntax should be in apachemeta schema after move", "apachemeta",
             schemaManager.getLdapSyntaxRegistry().getSchemaName( OID ) );
