@@ -73,9 +73,9 @@ See http://directory.apache.org/apacheds/1.5/apacheds-v15-basic-users-guide.html
 Notes
 -----
 
- o The kerberos service, NTP service, and Changepw service are present
-   however they are inactive by default.  SSL support likewise is present
-   yet inactive.  For more information visit the website or contact us at
+ o The NTP service, and Changepw service are present however they are inactive
+   by default.  SSL support likewise is present yet inactive.  For more
+   information visit the website or contact us at
    users@directory.apache.org.
 
 Issues

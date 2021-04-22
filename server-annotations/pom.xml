@@ -49,11 +49,6 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-protocol-kerberos</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-ldap</artifactId>
     </dependency>
 
@@ -149,8 +144,6 @@
                 org.apache.directory.server.core.security;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.kerberos;version=${project.version},
-                org.apache.directory.server.kerberos.changepwd;version=${project.version},
-                org.apache.directory.server.kerberos.kdc;version=${project.version},
                 org.apache.directory.server.ldap;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.cramMD5;version=${project.version},

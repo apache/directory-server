@@ -453,23 +453,6 @@ public class DirectoryServiceBean extends AdsBaseBean
 
 
     /**
-     * @return The KdcServerBean configuration
-     */
-    public KdcServerBean getKdcServerBean()
-    {
-        for ( ServerBean server : servers )
-        {
-            if ( server instanceof KdcServerBean )
-            {
-                return ( KdcServerBean ) server;
-            }
-        }
-
-        return null;
-    }
-
-
-    /**
      * @return The ChangePasswordServerBean configuration
      */
     public ChangePasswordServerBean getChangePasswordServerBean()

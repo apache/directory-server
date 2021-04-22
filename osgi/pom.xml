@@ -58,11 +58,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-protocol-kerberos</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-interceptor-kerberos</artifactId>
       <version>${project.version}</version>
     </dependency>

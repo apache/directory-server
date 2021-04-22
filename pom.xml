@@ -36,8 +36,8 @@
   <name>ApacheDS</name>
 
   <description>ApacheDS is an embbedable directory server entirely written in Java, which has been certified LDAPv3 compatible
-    by the Open Group. Besides LDAP it supports Kerberos 5 and the Change Password Protocol. It has been designed to introduce
-    triggers, stored procedures, queues and views to the world of LDAP which has lacked these rich constructs.
+    by the Open Group. It has been designed to introduce triggers, stored procedures, queues and views to the world of LDAP 
+    which has lacked these rich constructs.
   </description>
 
   <properties>
@@ -137,12 +137,10 @@
     <!--<module>osgi</module>-->
     <module>server-jndi</module>
     <module>interceptor-kerberos</module>
-    <!--module>kerberos-test</module-->
     <module>http-directory-bridge</module>
     <module>http-integration</module>
     <module>test-framework</module>
     <module>ldap-client-test</module>
-    <!--module>kerberos-client</module-->
     <module>service</module>
     <module>wrapper</module>
     <module>installers-maven-plugin</module>
@@ -780,27 +778,8 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-kerberos-shared</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-kerberos-codec</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-kerberos-test</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-kerberos-test</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
       </dependency>
       
       <dependency>
@@ -830,12 +809,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-protocol-dns</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-protocol-kerberos</artifactId>
         <version>${project.version}</version>
       </dependency>
       

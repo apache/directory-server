@@ -95,13 +95,6 @@
     </dependency>
 
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-kerberos-test</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>ldapsdk</groupId>
       <artifactId>ldapsdk</artifactId>
     </dependency>
