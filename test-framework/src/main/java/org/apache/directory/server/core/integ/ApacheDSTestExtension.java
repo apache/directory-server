@@ -56,6 +56,17 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
     private static final String METHOD_DS = "methodService";
     private static final String REVISION = "revision";
 
+    /** The 'service' field in the run tests */
+    private static final String SET_SERVICE_METHOD_NAME = "setService";
+
+    /** The 'ldapServer' field in the run tests */
+    private static final String SET_LDAP_SERVER_METHOD_NAME = "setLdapServer";
+
+    /** The 'kdcServer' field in the run tests */
+    private static final String SET_KDC_SERVER_METHOD_NAME = "setKdcServer";
+
+    
+    
     private DirectoryService getDirectoryService( ExtensionContext context, String fieldName ) 
         throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
     {
@@ -151,11 +162,11 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
     }
 
 
-    private void setRevision( ExtensionContext context, long revision ) 
+    private void setRevision( ExtensionContext context, String fieldName, long revision ) 
         throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
     {
         Class<?> testClass = context.getTestClass().get();
-        Field field = testClass.getField( REVISION );
+        Field field = testClass.getField( fieldName );
         field.set( null, revision );
     }
 
@@ -198,11 +209,6 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
             DSAnnotationProcessor.applyLdifs( annotations, context.getDisplayName(), classDS );
             
             setDirectoryService( context, CLASS_DS, classDS );
-            
-            // Store the revision
-            //revision = classDS.getChangeLog().getCurrentRevision();
-            
-            //setRevision( context, revision );
             
             // check if it has a LdapServerBuilder
             // then use the DS created above
@@ -320,11 +326,23 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
         
         DirectoryService service = classDS;
         
-        if ( dsBuilder != null )
+        if ( dsBuilder == null )
         {
-            // Build the DS server now
+            // No method DS? let's use the class DS then
+
+            // Set the revision to 0, we will revert only if it's set to another value
+            long methodRevision = 0L;
+            
+            setRevision( context, REVISION, methodRevision );
+        }
+        else
+        {
+            // Build the DSS server now
             try
             {
+                // Set the revision to 0, we will revert only if it's set to another value
+                long methodRevision = 0L;
+    
                 // Check if this method has a dedicated DSBuilder
                 DirectoryService methodDS = DSAnnotationProcessor.getDirectoryService( dsBuilder );
     
@@ -340,14 +358,8 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
             }
         }
         
+        DSAnnotationProcessor.applyLdifs( classAnnotation, context.getDisplayName(), service );
         DSAnnotationProcessor.applyLdifs( methodAnnotation, context.getDisplayName(), service );
-        
-        // Get current revision
-        if ( ( service != null ) && ( service.getChangeLog().isEnabled() ) )
-        {
-            long revision = service.getChangeLog().getCurrentRevision();
-            setRevision( context, revision );
-        }
     }
 
 

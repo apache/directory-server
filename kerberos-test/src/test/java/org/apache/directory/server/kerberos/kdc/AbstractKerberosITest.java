@@ -24,8 +24,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 
 import javax.security.auth.Subject;
@@ -46,9 +44,10 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 
 /**
@@ -64,13 +63,13 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
     public static final String LDAP_SERVICE_NAME = "ldap";
     public static final String HOSTNAME = KerberosTestUtils.getHostName();
 
-    @TempDir
-    public Path folder;
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     protected LdapCoreSessionConnection conn;
 
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception
     {
         conn = new LdapCoreSessionConnection( service );
@@ -79,12 +78,11 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
     }
 
 
-    @AfterEach
+    @After
     public void tearDown() throws Exception
     {
         conn.close();
     }
-    
 
     class ObtainTicketParameters
     {
@@ -197,22 +195,22 @@ public class AbstractKerberosITest extends AbstractLdapTestUnit
      */
     private String createKrb5Conf( ChecksumType checksumType, EncryptionType encryptionType, boolean isTcp ) throws IOException
     {
-        File file = Files.createDirectory( folder.resolve( "krb5.conf" ) ).toFile();
+        File file = folder.newFile( "krb5.conf" );
 
         String data = "";
 
-        data += "[libdefaults]" + System.lineSeparator();
-        data += "default_realm = " + REALM + System.lineSeparator();
-        data += "default_tkt_enctypes = " + encryptionType.getName() + System.lineSeparator();
-        data += "default_tgs_enctypes = " + encryptionType.getName() + System.lineSeparator();
-        data += "permitted_enctypes = " + encryptionType.getName() + System.lineSeparator();
+        data += "[libdefaults]" + SystemUtils.LINE_SEPARATOR;
+        data += "default_realm = " + REALM + SystemUtils.LINE_SEPARATOR;
+        data += "default_tkt_enctypes = " + encryptionType.getName() + SystemUtils.LINE_SEPARATOR;
+        data += "default_tgs_enctypes = " + encryptionType.getName() + SystemUtils.LINE_SEPARATOR;
+        data += "permitted_enctypes = " + encryptionType.getName() + SystemUtils.LINE_SEPARATOR;
         //        data += "default_checksum = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
         //        data += "ap_req_checksum_type = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
-        data += "default-checksum_type = " + checksumType.getName() + System.lineSeparator();
+        data += "default-checksum_type = " + checksumType.getName() + SystemUtils.LINE_SEPARATOR;
 
         if ( isTcp )
         {
-            data += "udp_preference_limit = 1" + System.lineSeparator();
+            data += "udp_preference_limit = 1" + SystemUtils.LINE_SEPARATOR;
         }
 
 
