@@ -25,9 +25,11 @@ import static org.junit.Assert.fail;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.directory.ldap.client.api.LookupLdapConnectionValidator;
 import org.apache.directory.ldap.client.api.ValidatingPoolableLdapConnectionFactory;
+import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -37,9 +39,11 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
-import org.apache.directory.server.core.integ.CreateLdapConnectionPoolRule;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.CreateLdapConnectionPoolExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@ExtendWith( { ApacheDSTestExtension.class, CreateLdapConnectionPoolExtension.class } )
 @CreateLdapServer(
     transports = {
             @CreateTransport(protocol = "LDAP")
@@ -84,26 +89,24 @@ import org.slf4j.LoggerFactory;
     validatorClass = LookupLdapConnectionValidator.class,
     maxActive = 1,
     testOnBorrow = true )
-public class ValidatingLdapConnectionPoolTest
+public class ValidatingLdapConnectionPoolTest extends AbstractLdapTestUnit
 {
     private static Logger LOG = LoggerFactory.getLogger( ValidatingLdapConnectionPoolTest.class );
-
-    @ClassRule
-    public static CreateLdapConnectionPoolRule createLdapConnectionPoolRule = 
-            new CreateLdapConnectionPoolRule();
+    public static LdapConnectionTemplate ldapConnectionTemplate;
+    public static LdapConnectionPool ldapConnectionPool;
+    public static LdapConnectionFactory ldapConnectionFactory;
 
     @Test
     public void testClassLdapConnectionPool()
     {
         LOG.debug( "testClassLdapConnectionPool" );
 
-        LdapConnectionPool pool = createLdapConnectionPoolRule.getLdapConnectionPool();
-        TrackingLdapConnectionFactory factory = 
-            (TrackingLdapConnectionFactory)createLdapConnectionPoolRule.getLdapConnectionFactory();
         LdapConnection ldapConnection = null;
+        TrackingLdapConnectionFactory factory = ( TrackingLdapConnectionFactory ) ldapConnectionFactory;
+        
         try
         {
-            ldapConnection = pool.getConnection();
+            ldapConnection = ldapConnectionPool.getConnection();
             assertEquals( 1, factory.getBindCalled() );
         }
         catch ( LdapException e )
@@ -116,7 +119,7 @@ public class ValidatingLdapConnectionPoolTest
             {
                 try
                 {
-                    pool.releaseConnection( ldapConnection );
+                    ldapConnectionPool.releaseConnection( ldapConnection );
                     assertEquals( 1, factory.getBindCalled() );
                 }
                 catch ( LdapException e )
@@ -127,7 +130,7 @@ public class ValidatingLdapConnectionPoolTest
         }
         try
         {
-            ldapConnection = pool.getConnection();
+            ldapConnection = ldapConnectionPool.getConnection();
             assertEquals( 1, factory.getBindCalled() );
     
             ldapConnection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
@@ -143,7 +146,7 @@ public class ValidatingLdapConnectionPoolTest
             {
                 try
                 {
-                    pool.releaseConnection( ldapConnection );
+                    ldapConnectionPool.releaseConnection( ldapConnection );
                     assertEquals( 2, factory.getBindCalled() );
                 }
                 catch ( LdapException e )

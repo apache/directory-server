@@ -89,11 +89,11 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
         throws Exception
     {
 
-        Dn entryDn = new Dn( service.getSchemaManager(), entryRdn + ",ou=system" );
+        Dn entryDn = new Dn( classDirectoryService.getSchemaManager(), entryRdn + ",ou=system" );
 
         // create the entry with the telephoneNumber attribute to compare
         Entry testEntry = new DefaultEntry(
-            service.getSchemaManager(),
+            classDirectoryService.getSchemaManager(),
             entryDn.toString(),
             "ObjectClass: top",
             "ObjectClass: organizationalUnit",
@@ -264,7 +264,7 @@ public class CompareAuthorizationIT extends AbstractLdapTestUnit
 
         Dn userDn = new Dn( "uid=bob,ou=users,ou=system" );
         Entry user = new DefaultEntry(
-            service.getSchemaManager(),
+            classDirectoryService.getSchemaManager(),
             "uid=bob,ou=users,ou=system",
             "uid: bob",
             "userPassword: bobspassword",

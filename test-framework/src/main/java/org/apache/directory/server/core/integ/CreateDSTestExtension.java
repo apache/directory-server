@@ -46,8 +46,8 @@ public class CreateDSTestExtension implements BeforeEachCallback, AfterEachCallb
 {
     private static final Logger LOG = LoggerFactory.getLogger( CreateDSTestExtension.class );
     
-    private static final String CLASS_DS = "service";
-    private static final String METHOD_DS = "methodService";
+    private static final String CLASS_DS = "classDirectoryService";
+    private static final String METHOD_DS = "methodDirectoryService";
 
     private void setDirectoryService( ExtensionContext context, String fieldName, DirectoryService directoryService ) 
         throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException

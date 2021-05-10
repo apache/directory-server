@@ -43,12 +43,12 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(allowAnonAccess = true, name = "StartTlsIT-class")
 @CreateLdapServer(
     transports =
@@ -93,7 +93,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
      * the wire since the server is configured to prevent connections without
      * TLS secured connections.
      */
-    @Before
+    @BeforeEach
     public void installKeyStoreWithCertificate() throws Exception
     {
         oldConfidentialityRequiredValue = getLdapServer().isConfidentialityRequired();
@@ -108,7 +108,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
     /**
      * Just deletes the generated key store file.
      */
-    @After
+    @AfterEach
     public void deleteKeyStore() throws Exception
     {
         getLdapServer().setConfidentialityRequired( oldConfidentialityRequiredValue );

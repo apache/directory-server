@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.util.UUID;
 
 import org.apache.directory.api.util.FileUtils;
-import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -34,7 +33,6 @@ import org.apache.directory.server.core.factory.DirectoryServiceFactory;
 import org.apache.directory.server.core.factory.PartitionFactory;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -50,22 +48,13 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
     /** A logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( ApacheDSTestExtension.class );
 
-    private static final String CLASS_DS = "service";
-    private static final String CLASS_LS = "ldapServer";
-    private static final String CLASS_KDC = "kdcServer";
-    private static final String METHOD_DS = "methodService";
-    private static final String REVISION = "revision";
-
-    /** The 'service' field in the run tests */
-    private static final String SET_SERVICE_METHOD_NAME = "setService";
-
-    /** The 'ldapServer' field in the run tests */
-    private static final String SET_LDAP_SERVER_METHOD_NAME = "setLdapServer";
-
-    /** The 'kdcServer' field in the run tests */
-    private static final String SET_KDC_SERVER_METHOD_NAME = "setKdcServer";
-
-    
+    public static final String CLASS_DS = "classDirectoryService";
+    public static final String CLASS_LS = "classLdapServer";
+    public static final String METHOD_DS = "methodDirectoryService";
+    public static final String METHOD_LS = "methodLdapServer";
+    public static final String CURRENT_DS = "directoryService";
+    public static final String CURRENT_LS = "ldapServer";
+    public static final String REVISION = "revision";
     
     private DirectoryService getDirectoryService( ExtensionContext context, String fieldName ) 
         throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
@@ -117,32 +106,6 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
         Field field = testClass.getField( fieldName );
         field.set( null, ldapServer );
     }
-    
-    
-    private KdcServer getKdcServer( ExtensionContext context, String fieldName ) 
-        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-    {
-        Class<?> testClass = context.getTestClass().get();
-        Field field = testClass.getField( fieldName );
-        
-        if ( field != null )
-        {
-            return ( KdcServer ) field.get( testClass );
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-
-    private void setKdcServer( ExtensionContext context, String fieldName, KdcServer kdcServer ) 
-        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-    {
-        Class<?> testClass = context.getTestClass().get();
-        Field field = testClass.getField( fieldName );
-        field.set( null, kdcServer );
-    }
 
     
     private long getRevision( ExtensionContext context, String fieldName ) 
@@ -162,11 +125,11 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
     }
 
 
-    private void setRevision( ExtensionContext context, String fieldName, long revision ) 
+    private void setRevision( ExtensionContext context, long revision ) 
         throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
     {
         Class<?> testClass = context.getTestClass().get();
-        Field field = testClass.getField( fieldName );
+        Field field = testClass.getField( REVISION );
         field.set( null, revision );
     }
 
@@ -182,12 +145,14 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
         
         try
         {
+            // First check if we have a classDS. If so, we create it, and 
+            // inject the LDIFs into it.
+            // Last, we store the classDS instance into the test class
             AnnotatedElement annotations = context.getTestClass().get();
 
             CreateDS dsBuilder = annotations.getDeclaredAnnotation( CreateDS.class );
 
             DirectoryService classDS = DSAnnotationProcessor.getDirectoryService( dsBuilder );
-            long revision = 0L;
 
             if ( classDS == null )
             {
@@ -209,25 +174,14 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
             DSAnnotationProcessor.applyLdifs( annotations, context.getDisplayName(), classDS );
             
             setDirectoryService( context, CLASS_DS, classDS );
-            
+
             // check if it has a LdapServerBuilder
-            // then use the DS created above
             CreateLdapServer classLdapServerBuilder = annotations.getDeclaredAnnotation( CreateLdapServer.class );
 
             if ( classLdapServerBuilder != null )
             {
                 LdapServer classLdapServer = ServerAnnotationProcessor.createLdapServer( annotations, classDS );
                 setLdapServer( context, CLASS_LS, classLdapServer );
-            }
-
-            CreateKdcServer classKdcServerBuilder = annotations.getDeclaredAnnotation( CreateKdcServer.class );
-
-            if ( classKdcServerBuilder != null )
-            {
-                int minPort = getMinPort();
-
-                KdcServer classKdcServer = ServerAnnotationProcessor.getKdcServer( annotations, classDS, minPort + 1 );
-                setKdcServer( context, CLASS_LS, classKdcServer );
             }
 
             // print out information which partition factory we use
@@ -258,14 +212,7 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
             {
                 classLdapServer.stop();
             }
-    
-            LdapServer classKdcServer = getLdapServer( context, CLASS_KDC );
-
-            if ( classKdcServer != null )
-            {
-                classKdcServer.stop();
-            }
-    
+        
             // cleanup classService if it is not the same as suite service or
             // it is not null (this second case happens in the absence of a suite)
             DirectoryService classDS = getDirectoryService( context, CLASS_DS );
@@ -313,61 +260,110 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
             return;
         }
 
+        // First process the DS
+        DirectoryService directoryService = processDS( context );
+        
+        // Then process the LS
+        processLS( context, directoryService );
+    }
+
+    
+    private DirectoryService processDS( ExtensionContext context ) throws Exception
+    {
+        
         // Get the applyLdifs for each level
         AnnotatedElement classAnnotation = context.getTestClass().get();
         AnnotatedElement methodAnnotation = context.getTestMethod().get();
 
         // Before running any test, check to see if we must create a method DS
-        CreateDS dsBuilder = methodAnnotation.getDeclaredAnnotation( CreateDS.class );
-
-        // Get the class LS if there is one
-        LdapServer classLS = getLdapServer( context, CLASS_LS );
+        CreateDS methodDsBuilder = methodAnnotation.getDeclaredAnnotation( CreateDS.class );
         DirectoryService classDS = getDirectoryService( context, CLASS_DS );
         
+        // The  current service is the classDS
         DirectoryService service = classDS;
         
-        if ( dsBuilder == null )
+        if ( methodDsBuilder != null )
         {
-            // No method DS? let's use the class DS then
-
-            // Set the revision to 0, we will revert only if it's set to another value
-            long methodRevision = 0L;
-            
-            setRevision( context, REVISION, methodRevision );
-        }
-        else
-        {
-            // Build the DSS server now
+            // Build the DS server now
             try
             {
-                // Set the revision to 0, we will revert only if it's set to another value
-                long methodRevision = 0L;
-    
-                // Check if this method has a dedicated DSBuilder
-                DirectoryService methodDS = DSAnnotationProcessor.getDirectoryService( dsBuilder );
+                // Instanciate the method DS
+                DirectoryService methodDS = DSAnnotationProcessor.getDirectoryService( methodDsBuilder );
     
                 // give #1 priority to method level DS if present
                 // Apply all the LDIFs, class and method ones
 
                 // we don't support method level LdapServer so
                 // we check for the presence of Class level LdapServer first 
+                setDirectoryService( context, METHOD_DS, methodDS );
+                
+                // Change the current DS to methodDS
                 service = methodDS;
+                
+                // Ands apply LDIFs to the method DS
+                DSAnnotationProcessor.applyLdifs( classAnnotation, context.getDisplayName(), service );
             }
             catch ( Exception e )
             {
             }
         }
-        
-        DSAnnotationProcessor.applyLdifs( classAnnotation, context.getDisplayName(), service );
-        DSAnnotationProcessor.applyLdifs( methodAnnotation, context.getDisplayName(), service );
-    }
 
+        // Apply the method LDIF into the current DS
+        DSAnnotationProcessor.applyLdifs( methodAnnotation, context.getDisplayName(), service );
+        
+        // Get current revision
+        if ( ( service != null ) && ( service.getChangeLog().isEnabled() ) )
+        {
+            long revision = service.getChangeLog().getCurrentRevision();
+            setRevision( context, revision );
+        }
+        
+        // Now, set the current service
+        setDirectoryService( context, CURRENT_DS, service );
+        
+        return service;
+    }
+    
+    
+    private void processLS( ExtensionContext context, DirectoryService directoryService ) throws Exception
+    {
+        
+        // Get the applyLdifs for each level
+        AnnotatedElement methodAnnotation = context.getTestMethod().get();
+
+        // Before running any test, check to see if we must create a method LS
+        LdapServer ldapServer = getLdapServer( context, CLASS_LS );
+            
+        CreateLdapServer methodLsBuilder = methodAnnotation.getDeclaredAnnotation( CreateLdapServer.class );
+
+        // check if it has a LdapServerBuilder
+        if ( methodLsBuilder != null )
+        {
+            LdapServer methodLdapServer = ServerAnnotationProcessor.createLdapServer( methodAnnotation, getDirectoryService( context, CURRENT_DS ) );
+            setLdapServer( context, METHOD_LS, methodLdapServer );
+            
+            ldapServer = methodLdapServer;
+        }
+        
+        if ( ldapServer != null )
+        {
+            // We may have a LdapServer, but we need to associated it with the proper DS
+            DirectoryService currentDS = getDirectoryService( context, CURRENT_DS );
+            
+            ldapServer.setDirectoryService( currentDS );
+
+            // last, not least, set the current LS
+            setLdapServer( context, CURRENT_LS, ldapServer );
+        }
+    }
+    
 
     @Override
     public void afterEach( ExtensionContext context ) throws Exception
     {
         DirectoryService methodDS = getDirectoryService( context, METHOD_DS );
         DirectoryService classDS = getDirectoryService( context, CLASS_DS );
+        LdapServer methodLS = getLdapServer( context, METHOD_LS );
         long revision = getRevision( context, REVISION );
         
         try
@@ -378,11 +374,18 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
                 LOG.debug( "Shuting down DS for {}", methodDS.getInstanceId() );
                 methodDS.shutdown();
                 FileUtils.deleteDirectory( methodDS.getInstanceLayout().getInstanceDirectory() );
+                setDirectoryService( context, METHOD_DS, null );
+                setLdapServer( context, METHOD_LS, null );
             }
             else
             {
                 // We use a class or suite DS, just revert the current test's modifications
                 revert( classDS, revision );
+            }
+            
+            if ( methodLS != null )
+            {
+                methodLS.stop();
             }
         }
         catch ( Exception e )

@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 
-@ExtendWith( CreateDSTestExtension.class )
+@ExtendWith( ApacheDSTestExtension.class )
 @ApplyLdifs(
     {
         "dn: cn=testClassB,ou=system",
@@ -41,7 +41,7 @@ public class TestClassB extends AbstractLdapTestUnit
     @Test
     public void testWithoutFactoryAnnotation() throws Exception
     {
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+        assertTrue( classDirectoryService.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
 
 
@@ -53,6 +53,6 @@ public class TestClassB extends AbstractLdapTestUnit
     @CreateDS(name = "testDS")
     public void testWithFactoryAnnotation() throws Exception
     {
-        assertTrue( methodService.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
+        assertTrue( methodDirectoryService.getAdminSession().exists( new Dn( "cn=testClassB,ou=system" ) ) );
     }
 }

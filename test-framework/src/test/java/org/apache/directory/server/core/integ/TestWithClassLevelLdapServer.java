@@ -42,11 +42,11 @@ public class TestWithClassLevelLdapServer extends AbstractLdapTestUnit
     @ApplyLdifFiles("test-entry.ldif")
     public void testWithApplyLdifFiles() throws Exception
     {
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
+        assertTrue( classDirectoryService.getAdminSession().exists( new Dn( "cn=testPerson1,ou=system" ) ) );
 
         assertTrue( ldapServer.getDirectoryService().getInstanceId().startsWith( "default" ) ); // after 'default' a UUID follows
 
-        assertTrue( service.getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
+        assertTrue( classDirectoryService.getAdminSession().exists( new Dn( "cn=testPerson2,ou=system" ) ) );
 
         assertNotNull( getLdapServer() );
     }

@@ -73,10 +73,10 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -86,7 +86,7 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(partitions =
 {
     @CreatePartition(
@@ -102,7 +102,22 @@ import org.junit.runner.RunWith;
         contextEntry = @ContextEntry(entryLdif =
             "dn: dc=example,dc=com\n" +
                 "objectClass: domain\n" +
-                "dc: example"))
+                "dc: example")),
+    @CreatePartition(
+        name = "example2",
+        suffix = "dc=example2,dc=com",
+        indexes =
+            {
+                @CreateIndex(attribute = "objectClass"),
+                @CreateIndex(attribute = "dc"),
+                @CreateIndex(attribute = "ou"),
+                @CreateIndex(attribute = "member")
+        },
+        contextEntry = @ContextEntry(entryLdif =
+            "dn: dc=example2,dc=com\n" +
+                "objectClass: domain\n" +
+                "dc: example2"))
+
 })
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
@@ -473,7 +488,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * Search operation with a base Dn which contains a BER encoded value.
      */
     @Test
-    @Ignore
+    @Disabled
     public void testSearchWithBackslashEscapedBase() throws Exception
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
@@ -1365,7 +1380,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testSearchSubordinatesPerf() throws Exception
     {
         LdapContext ctx = ( LdapContext ) getWiredContext( getLdapServer() ).lookup( BASE );
@@ -2004,7 +2019,7 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore("This test is failing because of the timing issue. Note that the SearchHandler handles time based searches correctly, this is just the below test's problem")
+    @Disabled("This test is failing because of the timing issue. Note that the SearchHandler handles time based searches correctly, this is just the below test's problem")
     public void testSearchTimeLimit() throws Exception, InterruptedException
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
@@ -2072,32 +2087,32 @@ public class SearchIT extends AbstractLdapTestUnit
      * Test for DIRSERVER-1873
      */
     @ApplyLdifs({
-        "dn: ou=users,dc=example,dc=com",
+        "dn: ou=users,dc=example2,dc=com",
         "ObjectClass: top",
         "ObjectClass: organizationalUnit",
         "ou: users",
 
-        "dn: ou=groups,dc=example,dc=com",
+        "dn: ou=groups,dc=example2,dc=com",
         "ObjectClass: top",
         "ObjectClass: organizationalUnit",
         "ou: groups",
 
-        "dn: uid=1374604692150,ou=groups,dc=example,dc=com",
+        "dn: uid=1374604692150,ou=groups,dc=example2,dc=com",
         "objectClass: uidObject",
         "objectClass: groupOfNames",
         "objectClass: top",
         "cn: Test1",
-        "member: uid=1374609919999,ou=users,dc=example,dc=com",
+        "member: uid=1374609919999,ou=users,dc=example2,dc=com",
         "uid: 1374604692150",
         "description: Test1",
 
-        "dn: uid=1374604692151,ou=groups,dc=example,dc=com",
+        "dn: uid=1374604692151,ou=groups,dc=example2,dc=com",
         "objectClass: uidObject",
         "objectClass: groupOfNames",
         "objectClass: top",
         "cn: Test2",
-        "member: uid=1374609919999,ou=users,dc=example,dc=com",
-        "member: uid=1374609910000,ou=users,dc=example,dc=com",
+        "member: uid=1374609919999,ou=users,dc=example2,dc=com",
+        "member: uid=1374609910000,ou=users,dc=example2,dc=com",
         "uid: 1374604692151",
         "description: Test2"   
     })
@@ -2106,7 +2121,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
         SearchRequest req = new SearchRequestImpl();
-        req.setBase( new Dn( "dc=example,dc=com" ) );
+        req.setBase( new Dn( "dc=example2,dc=com" ) );
         req.setFilter( "(member=*)" );
         req.setScope( SearchScope.SUBTREE );
 
@@ -2121,12 +2136,12 @@ public class SearchIT extends AbstractLdapTestUnit
         
         cursor.close();
 
-        req.setFilter( "(member=uid=1374609910000,ou=users,dc=example,dc=com)" );
+        req.setFilter( "(member=uid=1374609910000,ou=users,dc=example2,dc=com)" );
         cursor = connection.search( req );
         assertTrue( cursor.next() );
         cursor.close();
 
-        req.setFilter( "(member=uid=1374609919999,ou=users,dc=example,dc=com)" );
+        req.setFilter( "(member=uid=1374609919999,ou=users,dc=example2,dc=com)" );
         cursor = connection.search( req );
         assertTrue( cursor.next() );
         assertTrue( cursor.next() );

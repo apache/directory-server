@@ -57,7 +57,7 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.ldap.handlers.sasl.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.SimpleMechanismHandler;
@@ -65,10 +65,10 @@ import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHa
 import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -80,7 +80,7 @@ import netscape.ldap.LDAPUrl;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(allowAnonAccess = true, name = "MiscBindIT-class",
     partitions =
         {
@@ -110,7 +110,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
     private boolean oldAnnonymousAccess;
 
 
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         getLdapServer().addExtendedOperationHandler( new StoredProcedureExtendedOperationHandler() );
@@ -138,7 +138,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void revertAnonnymous()
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( oldAnnonymousAccess );

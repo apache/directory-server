@@ -26,6 +26,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -53,11 +55,11 @@ import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -65,7 +67,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 @ApplyLdifs(
@@ -102,7 +104,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     /**
      * Create the LdapConnection
      */
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
@@ -112,7 +114,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     /**
      * Close the LdapConnection
      */
-    @After
+    @AfterEach
     public void shutdown() throws Exception
     {
         if ( connection != null )
@@ -391,10 +393,11 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     /**
      * Test an bind with no password
      */
-    @Test(expected = LdapUnwillingToPerformException.class)
+    @Test
     public void testSimpleBindNoPassword() throws Exception
     {
-        connection.bind( "uid=admin,ou=system", ( String ) null );
+        Assertions.assertThrows( LdapUnwillingToPerformException.class, () -> 
+            connection.bind( "uid=admin,ou=system", ( String ) null ) );
     }
 
 

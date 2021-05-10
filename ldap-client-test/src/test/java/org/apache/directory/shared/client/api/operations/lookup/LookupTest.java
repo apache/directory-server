@@ -34,15 +34,15 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(
     name = "AddPerfDS",
     partitions =
@@ -145,7 +145,7 @@ public class LookupTest extends AbstractLdapTestUnit
     private LdapNetworkConnection connection;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
@@ -156,7 +156,7 @@ public class LookupTest extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void shutdown() throws Exception
     {
         LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );

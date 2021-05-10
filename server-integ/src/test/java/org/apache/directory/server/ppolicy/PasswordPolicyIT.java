@@ -85,13 +85,13 @@ import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.hash.SshaPasswordHashingInterceptor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -99,7 +99,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     {
         @CreateTransport(protocol = "LDAP"),
@@ -120,7 +120,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     /**
      * Set a default PaswordPolicy configuration
      */
-    @Before
+    @BeforeEach
     public void setPwdPolicy() throws LdapException
     {
         policyConfig = new PasswordPolicyConfiguration();
@@ -154,7 +154,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void closeConnections()
     {
         IntegrationUtils.closeConnections();
@@ -407,7 +407,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
      * performed by an admin, then this case would not get caught.  If there is a case
      * where a user adds another user then we should put that case here.
      */
-    @Ignore
+    @Disabled
     @Test
     public void testAddUserWithHashedPwd() throws Exception
     {
@@ -1302,7 +1302,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
      * @throws Exception
      */
     @Test
-    @Ignore
+    @Disabled
     public void testPwdAttempsDelayed() throws Exception
     {
         policyConfig.setPwdMinDelay( 200 );

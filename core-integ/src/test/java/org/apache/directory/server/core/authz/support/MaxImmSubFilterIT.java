@@ -79,7 +79,7 @@ public class MaxImmSubFilterIT extends AbstractLdapTestUnit
     @BeforeEach
     public void setup() throws Exception
     {
-        schemaManager = service.getSchemaManager();
+        schemaManager = classDirectoryService.getSchemaManager();
 
         ENTRY_NAME = new Dn( schemaManager, "ou=test, ou=system" );
         PROTECTED_ITEMS.add( new MaxImmSubItem( 2 ) );
@@ -176,7 +176,7 @@ public class MaxImmSubFilterIT extends AbstractLdapTestUnit
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS,
             EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
-        AddOperationContext addContext = new AddOperationContext( service.getSession() );
+        AddOperationContext addContext = new AddOperationContext( classDirectoryService.getSession() );
         AciContext aciContext = new AciContext( schemaManager, addContext );
         aciContext.setEntryDn( ENTRY_NAME );
         aciContext.setAciTuples( tuples );

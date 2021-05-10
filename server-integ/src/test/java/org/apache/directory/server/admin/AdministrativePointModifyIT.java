@@ -37,12 +37,12 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -99,7 +99,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
@@ -255,64 +255,64 @@ import org.junit.runner.RunWith;
 })
 public class AdministrativePointModifyIT extends AbstractLdapTestUnit
 {
-// The shared LDAP connection
-private static LdapConnection connection;
-
-// A reference to the schema manager
-private static SchemaManager schemaManager;
-
-
-@Before
-public void init() throws Exception
-{
-    connection = IntegrationUtils.getAdminConnection( getService() );
-    schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
-}
-
-
-@After
-public void shutdown() throws Exception
-{
-    connection.close();
-}
-
-
-private Attribute getAdminRole( String dn ) throws Exception
-{
-    Entry lookup = connection.lookup( dn, "administrativeRole" );
-
-    assertNotNull( lookup );
-
-    return lookup.get( "administrativeRole" );
-}
-
-
-// -------------------------------------------------------------------
-// Test the Delete operation
-// -------------------------------------------------------------------
-/**
- * Test the modification of an AAP role to a SAP role, with IAP below
- */
-@Test
-public void testModifyAAPToSAPWithIAPBelow() throws Exception
-{
-    assertTrue( getLdapServer().isStarted() );
-
-    // Remove the AAP
-    Modification modificationDelAap = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
-        new DefaultAttribute( "administrativeRole" ) );
-    // Add the SAP
-    Modification modificationAddSap = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
-        new DefaultAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
-
-    try
+    // The shared LDAP connection
+    private static LdapConnection connection;
+    
+    // A reference to the schema manager
+    private static SchemaManager schemaManager;
+    
+    
+    @BeforeEach
+    public void init() throws Exception
     {
-        connection.modify( "ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system", modificationDelAap, modificationAddSap );
-        fail();
+        connection = IntegrationUtils.getAdminConnection( getService() );
+        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
     }
-    catch ( LdapUnwillingToPerformException lutpe )
+    
+    
+    @AfterEach
+    public void shutdown() throws Exception
     {
-        assertTrue( true );
+        connection.close();
     }
-}
+    
+    
+    private Attribute getAdminRole( String dn ) throws Exception
+    {
+        Entry lookup = connection.lookup( dn, "administrativeRole" );
+    
+        assertNotNull( lookup );
+    
+        return lookup.get( "administrativeRole" );
+    }
+    
+    
+    // -------------------------------------------------------------------
+    // Test the Delete operation
+    // -------------------------------------------------------------------
+    /**
+     * Test the modification of an AAP role to a SAP role, with IAP below
+     */
+    @Test
+    public void testModifyAAPToSAPWithIAPBelow() throws Exception
+    {
+        assertTrue( getLdapServer().isStarted() );
+    
+        // Remove the AAP
+        Modification modificationDelAap = new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE,
+            new DefaultAttribute( "administrativeRole" ) );
+        // Add the SAP
+        Modification modificationAddSap = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE,
+            new DefaultAttribute( "administrativeRole", "triggerExecutionSpecificArea" ) );
+    
+        try
+        {
+            connection.modify( "ou=AAP,ou=SAP-CA,ou=SAP-AC,ou=system", modificationDelAap, modificationAddSap );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            assertTrue( true );
+        }
+    }
 }

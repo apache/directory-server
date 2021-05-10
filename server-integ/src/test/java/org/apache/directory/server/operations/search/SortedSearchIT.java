@@ -52,11 +52,11 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -64,7 +64,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifFiles(
@@ -84,7 +84,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
     private SortRequest ctrl;
 
 
-    @Before
+    @BeforeEach
     public void createConnection() throws Exception
     {
         if ( con == null )
@@ -113,7 +113,7 @@ public class SortedSearchIT extends AbstractLdapTestUnit
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void closeConnection() throws Exception
     {
         con.close();

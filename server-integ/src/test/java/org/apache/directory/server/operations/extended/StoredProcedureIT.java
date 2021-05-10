@@ -40,23 +40,23 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") }, saslHost = "localhost", saslMechanisms =
     { @SaslMechanism(name = SupportedSaslMechanisms.PLAIN, implClass = PlainMechanismHandler.class),
@@ -73,7 +73,7 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
     private Map<String, OidNormalizer> oids;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
@@ -99,7 +99,7 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
     }
 
 
-    @Ignore
+    @Disabled
     @Test
     public void testExecuteProcedureWithReturnValue() throws Exception
     {
@@ -111,7 +111,7 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
     }
 
 
-    @Ignore
+    @Disabled
     @Test
     public void testExecuteProcedureWithParametersAndReturnValue() throws Exception
     {

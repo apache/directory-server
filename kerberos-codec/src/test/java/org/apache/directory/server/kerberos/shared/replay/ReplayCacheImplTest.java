@@ -33,30 +33,20 @@ import java.util.Set;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.shared.kerberos.KerberosTime;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-
-import com.mycila.junit.concurrent.Concurrency;
-import com.mycila.junit.concurrent.ConcurrentJunitRunner;
-
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * Test the InMemory replay cache
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(ConcurrentJunitRunner.class)
-@Concurrency()
+@Execution(ExecutionMode.CONCURRENT)
 public class ReplayCacheImplTest
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.THREADSAFE );
-
-
     /**
      * Test that the cache is working well.
      * We will create 4 new entries, with 4 different serverPrincipals.

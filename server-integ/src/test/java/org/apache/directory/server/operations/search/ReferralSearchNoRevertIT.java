@@ -43,11 +43,11 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -55,7 +55,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(
     name = "ReferralSearchNoReertDS",
     partitions =
@@ -135,7 +135,7 @@ import org.junit.runner.RunWith;
         "ou: Countries" })
 public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
 {
-    @Before
+    @BeforeEach
     public void setupReferrals() throws Exception
     {
         getLdapServer().getDirectoryService().getChangeLog().setEnabled( false );
@@ -219,7 +219,7 @@ public class ReferralSearchNoRevertIT extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void after()
     {
         getLdapServer().getDirectoryService().getChangeLog().setEnabled( true );

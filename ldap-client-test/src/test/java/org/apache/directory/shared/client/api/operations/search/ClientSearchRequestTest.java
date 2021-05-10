@@ -47,13 +47,13 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 @ApplyLdifs(
@@ -109,14 +109,14 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     private LdapNetworkConnection connection;
     
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
     
     
-    @After
+    @AfterEach
     public void shutdown() throws Exception
     {
         LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
@@ -440,7 +440,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
      * Fixed to demonstrate that it works, if we loop until we don't have anymore results
      */
     @Test
-    @Ignore("The test has been fixed, it's now ignored as it takes 180seconds")
+    @Disabled("The test has been fixed, it's now ignored as it takes 180seconds")
     public void test_DIRAPI140() throws Exception
     {
         for ( int i = 0; i < 10000; i++ )

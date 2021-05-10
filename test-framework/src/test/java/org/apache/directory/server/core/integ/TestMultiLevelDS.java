@@ -35,15 +35,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@ExtendWith( CreateDSTestExtension.class )
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "TestMultiLevelDS-class")
 public class TestMultiLevelDS extends AbstractLdapTestUnit
 {
     @Test
     public void testMethodWithClassLevelDs()
     {
-        assertFalse( service.isAccessControlEnabled() );
-        assertEquals( "TestMultiLevelDS-class", service.getInstanceId() );
+        assertFalse( classDirectoryService.isAccessControlEnabled() );
+        assertEquals( "TestMultiLevelDS-class", classDirectoryService.getInstanceId() );
     }
 
 
@@ -51,7 +51,7 @@ public class TestMultiLevelDS extends AbstractLdapTestUnit
     @CreateDS(enableAccessControl = true, name = "testMethodWithClassLevelDs-method")
     public void testMethodWithMethodLevelDs()
     {
-        assertTrue( methodService.isAccessControlEnabled() );
-        assertEquals( "testMethodWithClassLevelDs-method", methodService.getInstanceId() );
+        assertTrue( methodDirectoryService.isAccessControlEnabled() );
+        assertEquals( "testMethodWithClassLevelDs-method", methodDirectoryService.getInstanceId() );
     }
 }

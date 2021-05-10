@@ -34,12 +34,12 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -70,7 +70,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
@@ -133,293 +133,293 @@ import org.junit.runner.RunWith;
 })
 public class AdministrativePointAddIT extends AbstractLdapTestUnit
 {
-// The shared LDAP connection
-private static LdapConnection connection;
-
-// A reference to the schema manager
-private static SchemaManager schemaManager;
-
-
-@Before
-public void init() throws Exception
-{
-    connection = IntegrationUtils.getAdminConnection( getService() );
-    schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
-}
-
-
-@After
-public void shutdown() throws Exception
-{
-    connection.close();
-}
-
-
-private Attribute getAdminRole( String dn ) throws Exception
-{
-    Entry lookup = connection.lookup( dn, "administrativeRole" );
-
-    assertNotNull( lookup );
-
-    return lookup.get( "administrativeRole" );
-}
-
-
-// -------------------------------------------------------------------
-// Test the Add operation
-// -------------------------------------------------------------------
-/**
- * Test the addition of IAPs
- */
-@Test
-public void testAddIAP() throws Exception
-{
-    assertTrue( getLdapServer().isStarted() );
-
-    // First check that we can't add an IAP in the DIT if there is no
-    // parent AAP or SAP with the same role
-    Entry entry = new DefaultEntry(
-        "ou=IAP-CANew,ou=entry,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: IAP-CANew",
-        "administrativeRole: collectiveAttributeInnerArea"
-        );
-
-    try
+    // The shared LDAP connection
+    private static LdapConnection connection;
+    
+    // A reference to the schema manager
+    private static SchemaManager schemaManager;
+    
+    
+    @BeforeEach
+    public void init() throws Exception
     {
+        connection = IntegrationUtils.getAdminConnection( getService() );
+        schemaManager = getLdapServer().getDirectoryService().getSchemaManager();
+    }
+    
+    
+    @AfterEach
+    public void shutdown() throws Exception
+    {
+        connection.close();
+    }
+    
+    
+    private Attribute getAdminRole( String dn ) throws Exception
+    {
+        Entry lookup = connection.lookup( dn, "administrativeRole" );
+    
+        assertNotNull( lookup );
+    
+        return lookup.get( "administrativeRole" );
+    }
+    
+    
+    // -------------------------------------------------------------------
+    // Test the Add operation
+    // -------------------------------------------------------------------
+    /**
+     * Test the addition of IAPs
+     */
+    @Test
+    public void testAddIAP() throws Exception
+    {
+        assertTrue( getLdapServer().isStarted() );
+    
+        // First check that we can't add an IAP in the DIT if there is no
+        // parent AAP or SAP with the same role
+        Entry entry = new DefaultEntry(
+            "ou=IAP-CANew,ou=entry,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: IAP-CANew",
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+    
+        try
+        {
+            connection.add( entry );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            assertTrue( true );
+        }
+    
+        // Add the entry under a SAP with the same role which has no parent AAP
+        entry = new DefaultEntry(
+            "ou=IAP-CANew,ou=SAP-CA2,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: IAP-CANew",
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+    
         connection.add( entry );
-        fail();
-    }
-    catch ( LdapUnwillingToPerformException lutpe )
-    {
-        assertTrue( true );
-    }
-
-    // Add the entry under a SAP with the same role which has no parent AAP
-    entry = new DefaultEntry(
-        "ou=IAP-CANew,ou=SAP-CA2,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: IAP-CANew",
-        "administrativeRole: collectiveAttributeInnerArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-CA2,ou=system" ) );
-
-    // Add the entry under a SAP with a different role which has no parent AAP
-    entry = new DefaultEntry(
-        "ou=IAP-CANew,ou=SAP-AC2,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: IAP-CANew",
-        "administrativeRole: collectiveAttributeInnerArea"
-        );
-
-    try
-    {
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-CA2,ou=system" ) );
+    
+        // Add the entry under a SAP with a different role which has no parent AAP
+        entry = new DefaultEntry(
+            "ou=IAP-CANew,ou=SAP-AC2,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: IAP-CANew",
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+    
+        try
+        {
+            connection.add( entry );
+            fail();
+        }
+        catch ( LdapUnwillingToPerformException lutpe )
+        {
+            assertTrue( true );
+        }
+    
+        // Add the entry under an AAP
+        entry = new DefaultEntry(
+            "ou=IAP-CANew,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: IAP-CANew",
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+    
         connection.add( entry );
-        fail();
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=AAP1,ou=system" ) );
+    
+        // Add the entry under an IAP with the same role which has a parent AAP
+        entry = new DefaultEntry(
+            "ou=IAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: IAP-CANew",
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system" ) );
+    
+        // Add the entry under an IAP with a different role which has a parent AAP
+        entry = new DefaultEntry(
+            "ou=IAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: IAP-CANew",
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system" ) );
+    
+        // Add the entry under an SAP with the same role which has a parent AAP
+        entry = new DefaultEntry(
+            "ou=IAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: IAP-CANew",
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system" ) );
+    
+        // Add the entry under an SAP with a different role which has a parent AAP
+        entry = new DefaultEntry(
+            "ou=IAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: IAP-CANew",
+            "administrativeRole: collectiveAttributeInnerArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system" ) );
     }
-    catch ( LdapUnwillingToPerformException lutpe )
+    
+    
+    /**
+     * Test the addition of SAPs
+     */
+    @Test
+    public void testAddSAP() throws Exception
     {
-        assertTrue( true );
+        assertTrue( getLdapServer().isStarted() );
+    
+        // First check that we can add a SAP in the DIT if there is no
+        // parent AAP or SAP
+        Entry entry = new DefaultEntry(
+            "ou=SAP-CANew,ou=entry,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=entry,ou=system" ) );
+    
+        // Add the entry under a SAP with the same role which has no parent AAP
+        entry = new DefaultEntry(
+            "ou=SAP-CANew,ou=SAP-CA2,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-CA2,ou=system" ) );
+    
+        // Add the entry under a SAP with a different role which has no parent AAP
+        entry = new DefaultEntry(
+            "ou=SAP-CANew,ou=SAP-AC2,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-AC2,ou=system" ) );
+    
+        // Add the entry under an AAP
+        entry = new DefaultEntry(
+            "ou=SAP-CANew,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=AAP1,ou=system" ) );
+    
+        // Add the entry under an IAP with the same role which has a parent AAP
+        entry = new DefaultEntry(
+            "ou=SAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system" ) );
+    
+        // Add the entry under an IAP with a different role which has a parent AAP
+        entry = new DefaultEntry(
+            "ou=SAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system" ) );
+    
+        // Add the entry under an SAP with the same role which has a parent AAP
+        entry = new DefaultEntry(
+            "ou=SAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system" ) );
+    
+        // Add the entry under an SAP with a different role which has a parent AAP
+        entry = new DefaultEntry(
+            "ou=SAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system",
+            "ObjectClass: top",
+            "ObjectClass: organizationalUnit",
+            "ou: SAP-CANew",
+            "administrativeRole: collectiveAttributeSpecificArea"
+            );
+    
+        connection.add( entry );
+    
+        // It should succeed
+        assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system" ) );
     }
-
-    // Add the entry under an AAP
-    entry = new DefaultEntry(
-        "ou=IAP-CANew,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: IAP-CANew",
-        "administrativeRole: collectiveAttributeInnerArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=IAP-CANew,ou=AAP1,ou=system" ) );
-
-    // Add the entry under an IAP with the same role which has a parent AAP
-    entry = new DefaultEntry(
-        "ou=IAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: IAP-CANew",
-        "administrativeRole: collectiveAttributeInnerArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=IAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system" ) );
-
-    // Add the entry under an IAP with a different role which has a parent AAP
-    entry = new DefaultEntry(
-        "ou=IAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: IAP-CANew",
-        "administrativeRole: collectiveAttributeInnerArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=IAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system" ) );
-
-    // Add the entry under an SAP with the same role which has a parent AAP
-    entry = new DefaultEntry(
-        "ou=IAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: IAP-CANew",
-        "administrativeRole: collectiveAttributeInnerArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system" ) );
-
-    // Add the entry under an SAP with a different role which has a parent AAP
-    entry = new DefaultEntry(
-        "ou=IAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: IAP-CANew",
-        "administrativeRole: collectiveAttributeInnerArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=IAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system" ) );
-}
-
-
-/**
- * Test the addition of SAPs
- */
-@Test
-public void testAddSAP() throws Exception
-{
-    assertTrue( getLdapServer().isStarted() );
-
-    // First check that we can add a SAP in the DIT if there is no
-    // parent AAP or SAP
-    Entry entry = new DefaultEntry(
-        "ou=SAP-CANew,ou=entry,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: SAP-CANew",
-        "administrativeRole: collectiveAttributeSpecificArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=SAP-CANew,ou=entry,ou=system" ) );
-
-    // Add the entry under a SAP with the same role which has no parent AAP
-    entry = new DefaultEntry(
-        "ou=SAP-CANew,ou=SAP-CA2,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: SAP-CANew",
-        "administrativeRole: collectiveAttributeSpecificArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-CA2,ou=system" ) );
-
-    // Add the entry under a SAP with a different role which has no parent AAP
-    entry = new DefaultEntry(
-        "ou=SAP-CANew,ou=SAP-AC2,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: SAP-CANew",
-        "administrativeRole: collectiveAttributeSpecificArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-AC2,ou=system" ) );
-
-    // Add the entry under an AAP
-    entry = new DefaultEntry(
-        "ou=SAP-CANew,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: SAP-CANew",
-        "administrativeRole: collectiveAttributeSpecificArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=SAP-CANew,ou=AAP1,ou=system" ) );
-
-    // Add the entry under an IAP with the same role which has a parent AAP
-    entry = new DefaultEntry(
-        "ou=SAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: SAP-CANew",
-        "administrativeRole: collectiveAttributeSpecificArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=SAP-CANew,ou=IAP-CA1,ou=AAP1,ou=system" ) );
-
-    // Add the entry under an IAP with a different role which has a parent AAP
-    entry = new DefaultEntry(
-        "ou=SAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: SAP-CANew",
-        "administrativeRole: collectiveAttributeSpecificArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=SAP-CANew,ou=IAP-AC1,ou=AAP1,ou=system" ) );
-
-    // Add the entry under an SAP with the same role which has a parent AAP
-    entry = new DefaultEntry(
-        "ou=SAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: SAP-CANew",
-        "administrativeRole: collectiveAttributeSpecificArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-CA1,ou=AAP1,ou=system" ) );
-
-    // Add the entry under an SAP with a different role which has a parent AAP
-    entry = new DefaultEntry(
-        "ou=SAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system",
-        "ObjectClass: top",
-        "ObjectClass: organizationalUnit",
-        "ou: SAP-CANew",
-        "administrativeRole: collectiveAttributeSpecificArea"
-        );
-
-    connection.add( entry );
-
-    // It should succeed
-    assertTrue( connection.exists( "ou=SAP-CANew,ou=SAP-AC1,ou=AAP1,ou=system" ) );
-}
 }

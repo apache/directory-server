@@ -53,16 +53,17 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -72,7 +73,7 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     {
         @CreateTransport(protocol = "LDAP"),
@@ -99,7 +100,7 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     private LdapConnectionConfig tlsConfig;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         sslConfig = new LdapConnectionConfig();
@@ -410,209 +411,254 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
     }
 
 
-    @Test(expected = LdapException.class)
+    @Test
     public void testFailsStartTLSWhenSSLIsInUse() throws Exception
     {
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+        Assertions.assertThrows( LdapException.class, () ->
         {
-            tlsConfig.setUseSsl( true );
-            tlsConfig.setLdapPort( ldapServer.getPortSSL() );
-            connection.connect();
-            connection.startTls();
-        }
+            try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+            {
+                tlsConfig.setUseSsl( true );
+                tlsConfig.setLdapPort( ldapServer.getPortSSL() );
+                connection.connect();
+                connection.startTls();
+            } 
+        } );
     }
 
 
-    @Test(expected = LdapAuthenticationException.class)
+    @Test
     public void testStallingSsl() throws Exception
     {
-        LdapConnectionConfig sslConfig = new LdapConnectionConfig();
-        sslConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
-        sslConfig.setUseSsl( true );
-        sslConfig.setLdapPort( getLdapServer().getPortSSL() );
-        sslConfig.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
-
-
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+        Assertions.assertThrows( LdapAuthenticationException.class, () ->
         {
-            // We should get an exception here, as we don't have a trustManager defined
-            connection.bind();
-            
-            assertTrue( connection.getConfig().isUseSsl() );
-            assertTrue( connection.isConnected() );
-        }
+            LdapConnectionConfig sslConfig = new LdapConnectionConfig();
+            sslConfig.setLdapHost( Network.LOOPBACK_HOSTNAME );
+            sslConfig.setUseSsl( true );
+            sslConfig.setLdapPort( getLdapServer().getPortSSL() );
+            sslConfig.setTrustManagers( new X509TrustManager[] { new NoVerificationTrustManager() } );
+    
+    
+            try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+            {
+                // We should get an exception here, as we don't have a trustManager defined
+                connection.bind();
+                
+                assertTrue( connection.getConfig().isUseSsl() );
+                assertTrue( connection.isConnected() );
+            }
+        } );
     }
 
 
-    @Test(expected = InvalidConnectionException.class)
+    @Test
     public void testSslConnectionWrongHost() throws LdapException, IOException
     {
         sslConfig.setLdapHost( "notexisting" );
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+
+        Assertions.assertThrows( InvalidConnectionException.class, () ->
         {
-            connection.setTimeOut( 10000L );
-            connection.connect();
-        }
-        catch ( Exception e )
-        {
-            assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
-            assertThat( e.getMessage(), containsString( "ERR_04121_CANNOT_RESOLVE_HOSTNAME" ) );
-            assertThat( e.getMessage(), containsString( "notexisting" ) );
-            throw e;
-        }
+            try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+            {
+                connection.setTimeOut( 10000L );
+                connection.connect();
+            }
+            catch ( Exception e )
+            {
+                assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
+                assertThat( e.getMessage(), containsString( "ERR_04121_CANNOT_RESOLVE_HOSTNAME" ) );
+                assertThat( e.getMessage(), containsString( "notexisting" ) );
+    
+                throw e;
+            }
+        } );
     }
 
 
-    @Test(expected = InvalidConnectionException.class)
+    @Test
     public void testStartTlsConnectionWrongHost() throws LdapException, IOException
     {
         tlsConfig.setLdapHost( "notexisting" );
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+
+        Assertions.assertThrows( InvalidConnectionException.class, () ->
         {
-            connection.setTimeOut( 10000L );
-            connection.startTls();
-        }
-        catch ( Exception e )
-        {
-            assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
-            assertThat( e.getMessage(), containsString( "ERR_04121_CANNOT_RESOLVE_HOSTNAME" ) );
-            assertThat( e.getMessage(), containsString( "notexisting" ) );
-            throw e;
-        }
+            try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+            {
+                connection.setTimeOut( 10000L );
+                connection.startTls();
+            }
+            catch ( Exception e )
+            {
+                assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
+                assertThat( e.getMessage(), containsString( "ERR_04121_CANNOT_RESOLVE_HOSTNAME" ) );
+                assertThat( e.getMessage(), containsString( "notexisting" ) );
+    
+                throw e;
+            }
+        } );
     }
 
 
-    @Test(expected = InvalidConnectionException.class)
+    @Test
     public void testSslConnectionWrongPort() throws LdapException, IOException
     {
         sslConfig.setLdapPort( 123 );
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+
+        Assertions.assertThrows( InvalidConnectionException.class, () -> 
         {
-            connection.setTimeOut( 10000L );
-            connection.connect();
-        }
-        catch ( Exception e )
-        {
-            assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
-            assertThat( e.getMessage(), containsString( "ERR_04110_CANNOT_CONNECT_TO_SERVER" ) );
-            assertThat( e.getMessage(), containsString( "Connection refused" ) );
-            throw e;
-        }
+            try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+            {
+                connection.setTimeOut( 10000L );
+                connection.connect();
+            }
+            catch ( Exception e )
+            {
+                assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
+                assertThat( e.getMessage(), containsString( "ERR_04110_CANNOT_CONNECT_TO_SERVER" ) );
+                assertThat( e.getMessage(), containsString( "Connection refused" ) );
+    
+                throw e;
+            }
+        } );
     }
 
 
-    @Test(expected = InvalidConnectionException.class)
+    @Test
     public void testStartTlsConnectionWrongPort() throws LdapException, IOException
     {
         tlsConfig.setLdapPort( 123 );
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+        
+        Assertions.assertThrows( InvalidConnectionException.class, () ->
         {
-            connection.setTimeOut( 10000L );
-            connection.startTls();
-        }
-        catch ( Exception e )
-        {
-            assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
-            assertThat( e.getMessage(), containsString( "ERR_04110_CANNOT_CONNECT_TO_SERVER" ) );
-            assertThat( e.getMessage(), containsString( "Connection refused" ) );
-            throw e;
-        }
+            try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+            {
+                connection.setTimeOut( 10000L );
+                connection.startTls();
+            }
+            catch ( Exception e )
+            {
+                assertThat( e, is( instanceOf( InvalidConnectionException.class ) ) );
+                assertThat( e.getMessage(), containsString( "ERR_04110_CANNOT_CONNECT_TO_SERVER" ) );
+                assertThat( e.getMessage(), containsString( "Connection refused" ) );
+    
+                throw e;
+            }
+        } );
     }
 
 
-    @Test(expected = LdapTlsHandshakeException.class)
+    @Test
     public void testSslConnectionNonSslPort() throws LdapException, IOException
     {
         sslConfig.setLdapPort( getLdapServer().getPort() );
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+        
+        Assertions.assertThrows( LdapTlsHandshakeException.class, () -> 
         {
-            connection.setTimeOut( 10000L );
-            connection.connect();
-        }
-        catch ( Exception e )
-        {
-            assertThat( e, is( instanceOf( LdapTlsHandshakeException.class ) ) );
-            assertThat( e.getMessage(), containsString( "ERR_04120_TLS_HANDSHAKE_ERROR" ) );
-            assertThat( e.getMessage(), containsString( "plaintext connection" ) );
-            throw e;
-        }
+            try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+            {
+                connection.setTimeOut( 10000L );
+                connection.connect();
+            }
+            catch ( Exception e )
+            {
+                assertThat( e, is( instanceOf( LdapTlsHandshakeException.class ) ) );
+                assertThat( e.getMessage(), containsString( "ERR_04120_TLS_HANDSHAKE_ERROR" ) );
+                assertThat( e.getMessage(), containsString( "plaintext connection" ) );
+    
+                throw e;
+            }
+        } );
     }
 
 
-    @Test(expected = LdapException.class)
+    @Test
     public void testStartTlsConnectionSslPort() throws LdapException, IOException
     {
         tlsConfig.setLdapPort( getLdapServer().getPortSSL() );
-        try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+
+        Assertions.assertThrows( LdapException.class, () ->
         {
-            connection.setTimeOut( 10000L );
-            connection.startTls();
-        }
-        catch ( Exception e )
-        {
-            assertThat( e, is( instanceOf( LdapException.class ) ) );
-            throw e;
-        }
+            try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+            {
+                connection.setTimeOut( 10000L );
+                connection.startTls();
+            }
+            catch ( Exception e )
+            {
+                assertThat( e, is( instanceOf( LdapException.class ) ) );
+    
+                throw e;
+            }
+        } );
     }
 
 
-    @Test(expected = LdapException.class)
+    @Test
     public void testSslConnectionTimeout() throws LdapException, IOException
     {
-        try
+
+        Assertions.assertThrows( LdapException.class, () ->
         {
-            /*
-             * Create a server socket that doesn't accept any connection,
-             * should lead to client-side timeout.
-             */
-            try ( ServerSocket ss = new ServerSocket( 0, 1 ) )
+            try
             {
-                int port = ss.getLocalPort();
-                sslConfig.setLdapPort( port );
-                try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+                /*
+                 * Create a server socket that doesn't accept any connection,
+                 * should lead to client-side timeout.
+                 */
+                try ( ServerSocket ss = new ServerSocket( 0, 1 ) )
                 {
-                    connection.setTimeOut( 10000L );
-                    connection.connect();
+                    int port = ss.getLocalPort();
+                    sslConfig.setLdapPort( port );
+                    try ( LdapNetworkConnection connection = new LdapNetworkConnection( sslConfig ) )
+                    {
+                        connection.setTimeOut( 10000L );
+                        connection.connect();
+                    }
                 }
             }
-        }
-        catch ( Exception e )
-        {
-            assertThat( e, is( instanceOf( LdapException.class ) ) );
-            assertThat( e.getMessage(), containsString( "ERR_04170_TIMEOUT_OCCURED" ) );
-            assertThat( e.getMessage(), containsString( "TimeOut occurred" ) );
-            throw e;
-        }
+            catch ( Exception e )
+            {
+                assertThat( e, is( instanceOf( LdapException.class ) ) );
+                assertThat( e.getMessage(), containsString( "ERR_04170_TIMEOUT_OCCURED" ) );
+                assertThat( e.getMessage(), containsString( "TimeOut occurred" ) );
+    
+                throw e;
+            }
+        } );
     }
 
 
-    @Test(expected = LdapException.class)
+    @Test
     public void testStartTlsConnectionTimeout() throws LdapException, IOException
     {
-        try
+        Assertions.assertThrows( LdapException.class, () ->
         {
-            /*
-             * Create a server socket that doesn't accept any connection,
-             * should lead to client-side timeout.
-             */
-            try ( ServerSocket ss = new ServerSocket( 0, 1 ) )
+            try
             {
-                int port = ss.getLocalPort();
-                tlsConfig.setLdapPort( port );
-                try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+                /*
+                 * Create a server socket that doesn't accept any connection,
+                 * should lead to client-side timeout.
+                 */
+                try ( ServerSocket ss = new ServerSocket( 0, 1 ) )
                 {
-                    connection.setTimeOut( 10000L );
-                    connection.startTls();
+                    int port = ss.getLocalPort();
+                    tlsConfig.setLdapPort( port );
+                    try ( LdapNetworkConnection connection = new LdapNetworkConnection( tlsConfig ) )
+                    {
+                        connection.setTimeOut( 10000L );
+                        connection.startTls();
+                    }
                 }
             }
-        }
-        catch ( Exception e )
-        {
-            assertThat( e, is( instanceOf( LdapException.class ) ) );
-            assertThat( e.getMessage(), containsString( "ERR_04170_TIMEOUT_OCCURED" ) );
-            assertThat( e.getMessage(), containsString( "TimeOut occurred" ) );
-            throw e;
-        }
+            catch ( Exception e )
+            {
+                assertThat( e, is( instanceOf( LdapException.class ) ) );
+                assertThat( e.getMessage(), containsString( "ERR_04170_TIMEOUT_OCCURED" ) );
+                assertThat( e.getMessage(), containsString( "TimeOut occurred" ) );
+    
+                throw e;
+            }
+        } );
     }
 
 }

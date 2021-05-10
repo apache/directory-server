@@ -43,12 +43,13 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.shared.client.api.LdapApiIntegrationUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -56,7 +57,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @ApplyLdifs(
     { 
         "dn: cn=modDn,ou=system", 
@@ -86,7 +87,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     private CoreSession session;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
@@ -94,7 +95,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void shutdown() throws Exception
     {
         LdapApiIntegrationUtils.releasePooledAdminConnection( connection, getLdapServer() );
@@ -118,10 +119,11 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
      * attribute while we keep the old one), then we get a failure.
      * @throws Exception
      */
-    @Test(expected=LdapInvalidAttributeValueException.class)
+    @Test
     public void testRenameSingleValue() throws Exception
     {
-        connection.rename( DN_EMPLOYEE, "employeeNumber=newValue", false );
+        Assertions.assertThrows( LdapInvalidAttributeValueException.class, () ->
+            connection.rename( DN_EMPLOYEE, "employeeNumber=newValue", false ) );
     }
 
 

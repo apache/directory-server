@@ -58,11 +58,11 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
-import org.apache.directory.server.core.integ.CreateLdapConnectionPoolRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.CreateLdapConnectionPoolExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -70,6 +70,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@ExtendWith( { ApacheDSTestExtension.class, CreateLdapConnectionPoolExtension.class } )
 @CreateLdapServer(
     transports =
         {
@@ -105,24 +106,10 @@ import org.junit.Test;
 @CreateLdapConnectionPool(
         maxActive = 1,
         maxWait = 5000 )
-public class LdapConnectionTemplateTest
+public class LdapConnectionTemplateTest extends AbstractLdapTestUnit
 {
-    @ClassRule
-    public static CreateLdapConnectionPoolRule classCreateLdapConnectionPoolRule =
-            new CreateLdapConnectionPoolRule();
+    public static LdapConnectionTemplate ldapConnectionTemplate;
     
-    @Rule
-    public CreateLdapConnectionPoolRule createLdapConnectionPoolRule =
-            new CreateLdapConnectionPoolRule( classCreateLdapConnectionPoolRule );
-    
-    private LdapConnectionTemplate ldapConnectionTemplate;
-    
-
-    @Before
-    public void before() {
-        ldapConnectionTemplate = createLdapConnectionPoolRule.getLdapConnectionTemplate();
-    }
-
 
     @Test
     public void testAdd()
@@ -364,7 +351,7 @@ public class LdapConnectionTemplateTest
         // test requested by https://issues.apache.org/jira/browse/DIRAPI-202
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setLdapHost( Network.LOOPBACK_HOSTNAME );
-        config.setLdapPort( createLdapConnectionPoolRule.getLdapServer().getPort() );
+        config.setLdapPort( getLdapServer().getPort() );
         config.setName( "uid=admin,ou=system" );
         config.setCredentials( "secret" );
 

@@ -61,12 +61,11 @@ import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.hash.Sha512PasswordHashingInterceptor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.ldap.handlers.extended.PwdModifyHandler;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -74,7 +73,7 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(
     transports =
         { @CreateTransport(protocol = "LDAP") },
@@ -175,7 +174,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
     /**
      * Set a default PaswordPolicy configuration
      */
-    @Before
+    @BeforeEach
     public void setPwdPolicy() throws LdapException
     {
         policyConfig = new PasswordPolicyConfiguration();

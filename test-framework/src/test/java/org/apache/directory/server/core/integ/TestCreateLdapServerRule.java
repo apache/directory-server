@@ -19,11 +19,10 @@
 package org.apache.directory.server.core.integ;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
@@ -43,9 +42,8 @@ import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.ldap.LdapServer;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "classDS",
     enableChangeLog = true,
     partitions =
@@ -89,17 +88,9 @@ import org.slf4j.LoggerFactory;
         "cn: class",
         "sn: sn_class"
 })
-public class TestCreateLdapServerRule
+public class TestCreateLdapServerRule extends AbstractLdapTestUnit
 {
-    /*
     private static Logger LOG = LoggerFactory.getLogger( TestCreateLdapServerRule.class );
-    @ClassRule
-    public static CreateLdapServerRule classCreateLdapServerRule = new CreateLdapServerRule();
-    
-    @Rule
-    public CreateLdapServerRule createLdapServerRule = new CreateLdapServerRule(
-        classCreateLdapServerRule );
-    
     
     @Test
     @CreateDS(name = "methodDS",
@@ -113,12 +104,11 @@ public class TestCreateLdapServerRule
     })
     public void testMethodDs()
     {
-        assertEquals( createLdapServerRule.getLdapServer(), classCreateLdapServerRule.getLdapServer() );
-    
         LdapConnection ldapConnection = null;
+        
         try
         {
-            LdapServer ldapServer = createLdapServerRule.getLdapServer();
+            LdapServer ldapServer = getLdapServer();
             ldapServer.getPort();
             ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
             ldapConnection.connect();
@@ -133,7 +123,7 @@ public class TestCreateLdapServerRule
             {
                 dn = new Dn( "cn=class,ou=system" );
                 entry = ldapConnection.lookup( dn );
-                assertNull( entry );
+                assertNotNull( entry );
             }
             catch ( LdapNoSuchObjectException e )
             {
@@ -169,14 +159,11 @@ public class TestCreateLdapServerRule
         })
     public void testMethodLdapServer()
     {
-        assertNotEquals( createLdapServerRule.getLdapServer(), classCreateLdapServerRule.getLdapServer() );
-        assertNotEquals( createLdapServerRule.getLdapServer().getPort(),
-            classCreateLdapServerRule.getLdapServer().getPort() );
-    
         LdapConnection ldapConnection = null;
+        
         try
         {
-            LdapServer ldapServer = createLdapServerRule.getLdapServer();
+            LdapServer ldapServer = getLdapServer();
             ldapServer.getPort();
             ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
             ldapConnection.connect();
@@ -211,11 +198,7 @@ public class TestCreateLdapServerRule
     @Test
     public void testNetworkConnection()
     {
-        assertEquals( classCreateLdapServerRule.getDirectoryService(), createLdapServerRule.getDirectoryService() );
-        assertEquals( classCreateLdapServerRule.getLdapServer(), createLdapServerRule.getLdapServer() );
-        LdapServer ldapServer = createLdapServerRule.getLdapServer();
-        DirectoryService directoryService = ldapServer.getDirectoryService();
-        assertEquals( classCreateLdapServerRule.getDirectoryService(), directoryService );
+        DirectoryService directoryService = getLdapServer().getDirectoryService();
     
         LdapConnection ldapConnection = null;
         try
@@ -226,8 +209,8 @@ public class TestCreateLdapServerRule
             assertEquals( "class", entry.get( "cn" ).get().getString() );
     
             LOG.debug( "getting network connection" );
-            ldapServer.getPort();
-            ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
+            getLdapServer().getPort();
+            ldapConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
             ldapConnection.connect();
             ldapConnection.bind( "uid=admin,ou=system", "secret" );
     
@@ -254,5 +237,4 @@ public class TestCreateLdapServerRule
             }
         }
     }
-    */
 }

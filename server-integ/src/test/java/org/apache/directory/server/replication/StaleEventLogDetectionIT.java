@@ -41,7 +41,6 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -52,19 +51,18 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.MockDirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.replication.SyncReplConfiguration;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.provider.ReplicaEventLog;
 import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHandler;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -74,9 +72,6 @@ import org.junit.Test;
  */
 public class StaleEventLogDetectionIT
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     private static LdapServer providerServer;
 
     private static SchemaManager schemaManager;
@@ -92,10 +87,10 @@ public class StaleEventLogDetectionIT
     private static File cookiesDir;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception
     {
-        Class<?> justLoadToSetControlProperties = Class.forName( FrameworkRunner.class.getName() );
+        Class<?> justLoadToSetControlProperties = Class.forName( ApacheDSTestExtension.class.getName() );
 
         startProvider();
 
@@ -111,8 +106,8 @@ public class StaleEventLogDetectionIT
     }
 
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void deleteCookies() throws IOException
     {
         if ( cookiesDir.exists() )
@@ -122,7 +117,7 @@ public class StaleEventLogDetectionIT
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception
     {
         providerServer.stop();

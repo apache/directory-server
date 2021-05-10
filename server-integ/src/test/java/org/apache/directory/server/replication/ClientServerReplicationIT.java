@@ -47,7 +47,6 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
-import org.apache.directory.junit.tools.MultiThreadedMultiInvoker;
 import org.apache.directory.server.annotations.CreateConsumer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -58,18 +57,17 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.factory.DSAnnotationProcessor;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.factory.ServerAnnotationProcessor;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer;
 import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumerImpl;
 import org.apache.directory.server.ldap.replication.provider.SyncReplRequestHandler;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -79,9 +77,6 @@ import org.junit.Test;
  */
 public class ClientServerReplicationIT
 {
-    @Rule
-    public MultiThreadedMultiInvoker i = new MultiThreadedMultiInvoker( MultiThreadedMultiInvoker.NOT_THREADSAFE );
-
     private static LdapServer providerServer;
 
     private static LdapServer consumerServer;
@@ -95,10 +90,10 @@ public class ClientServerReplicationIT
     private static AtomicInteger entryCount = new AtomicInteger();
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception
     {
-        Class.forName( FrameworkRunner.class.getName() );
+        Class.forName( ApacheDSTestExtension.class.getName() );
         CountDownLatch counter = new CountDownLatch( 2 );
 
         startProvider( counter );
@@ -109,7 +104,7 @@ public class ClientServerReplicationIT
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception
     {
         consumerServer.stop();
@@ -359,7 +354,7 @@ public class ClientServerReplicationIT
 
 
     @Test
-    @Ignore("Run this test alone, otherwise it conflicts with moddn")
+    @Disabled("Run this test alone, otherwise it conflicts with moddn")
     public void testModDnLoop() throws Exception
     {
         for ( int i = 0; i < 10; i++ )

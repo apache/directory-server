@@ -2090,7 +2090,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testNotEvaluator() throws Exception
     {
-        LdapConnection con = new LdapCoreSessionConnection( service.getAdminSession() );
+        LdapConnection con = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() );
 
         EntryCursor cursor = con.search( "ou=groups,ou=system", "(!(gidNumber=1))", SearchScope.ONELEVEL, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
 
@@ -2114,7 +2114,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchRootDSEOneLevel() throws Exception
     {
-        LdapConnection conn = getAdminConnection( service );
+        LdapConnection conn = getAdminConnection( classDirectoryService );
 
         EntryCursor cursor = conn.search( "ou=schema", "(|(objectClass=*)(cn=x))", SearchScope.OBJECT, "*" );
 

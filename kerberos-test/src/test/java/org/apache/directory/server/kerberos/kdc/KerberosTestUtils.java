@@ -30,15 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.login.Configuration;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
@@ -46,8 +38,6 @@ import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.ldap.client.api.Krb5LoginConfiguration;
-import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.ldap.LdapServer;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
@@ -253,72 +243,6 @@ public class KerberosTestUtils
     public static String getHostName()
     {
         return Network.LOOPBACK_HOSTNAME;
-    }
-
-
-    /**
-     * Obtains a new TGT from KDC.
-     * 
-     * Possible errors:
-     * Bad username:  Client not found in Kerberos database
-     * Bad password:  Integrity check on decrypted field failed
-     * 
-     * @param subject the empty subject
-     * @param userName the user name 
-     * @param password the password
-     * @throws LoginException
-     * 
-     */
-    public static void obtainTGT( Subject subject, String userName, String password ) throws LoginException
-    {
-        // Use our custom configuration to avoid reliance on external config
-        Configuration.setConfiguration( new Krb5LoginConfiguration() );
-
-        // Obtain TGT
-        LoginContext lc = new LoginContext( KerberosUdpITest.class.getName(), subject, new
-            CallbackHandlerBean( userName, password ) );
-        lc.login();
-    }
-
-    private static class CallbackHandlerBean implements CallbackHandler
-    {
-        private String name;
-        private String password;
-
-
-        /**
-         * Creates a new instance of CallbackHandlerBean.
-         *
-         * @param name
-         * @param password
-         */
-        public CallbackHandlerBean( String name, String password )
-        {
-            this.name = name;
-            this.password = password;
-        }
-
-
-        public void handle( Callback[] callbacks ) throws UnsupportedCallbackException, IOException
-        {
-            for ( Callback callback : callbacks )
-            {
-                if ( callback instanceof NameCallback )
-                {
-                    NameCallback nameCallback = ( NameCallback ) callback;
-                    nameCallback.setName( name );
-                }
-                else if ( callback instanceof PasswordCallback )
-                {
-                    PasswordCallback passwordCallback = ( PasswordCallback ) callback;
-                    passwordCallback.setPassword( password.toCharArray() );
-                }
-                else
-                {
-                    throw new UnsupportedCallbackException( callback, I18n.err( I18n.ERR_617 ) );
-                }
-            }
-        }
     }
 
 

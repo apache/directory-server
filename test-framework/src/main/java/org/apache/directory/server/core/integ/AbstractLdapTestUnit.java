@@ -32,9 +32,9 @@ import java.security.cert.X509Certificate;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.security.CertificateUtil;
-import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 
 
@@ -45,54 +45,51 @@ import org.apache.directory.server.ldap.LdapServer;
  */
 public abstract class AbstractLdapTestUnit
 {
-    /** The used DirectoryService instance */
-    public static DirectoryService service;
+    /** The class DirectoryService instance */
+    public static DirectoryService classDirectoryService;
 
     /** The test DirectoryService instance */
-    public static DirectoryService methodService;
+    public static DirectoryService methodDirectoryService;
 
-    /** The used LdapServer instance */
+    /** The current DirectoryService instance */
+    public static DirectoryService directoryService;
+
+    /** The class LdapServer instance */
+    public static LdapServer classLdapServer;
+
+    /** The test LdapServer instance */
+    public static LdapServer methodLdapServer;
+
+    /** The current LdapServer instance */
     public static LdapServer ldapServer;
 
-    /** The used KdcServer instance */
-    public static KdcServer kdcServer;
+    /** The Ldap connection template */
+    public static LdapConnectionTemplate ldapConnectionTemplate;
     
     /** The current revision */
     public static long revision = 0L;
 
-    public static DirectoryService getService()
+    public DirectoryService getService()
     {
-        return service;
+        return directoryService;
     }
 
 
-    public static void setService( DirectoryService service )
+    public void setService( DirectoryService directoryService )
     {
-        AbstractLdapTestUnit.service = service;
+        AbstractLdapTestUnit.directoryService = directoryService;
     }
 
 
-    public static LdapServer getLdapServer()
+    public LdapServer getLdapServer()
     {
         return ldapServer;
     }
 
 
-    public static void setLdapServer( LdapServer ldapServer )
+    public void setLdapServer( LdapServer ldapServer )
     {
         AbstractLdapTestUnit.ldapServer = ldapServer;
-    }
-
-
-    public static KdcServer getKdcServer()
-    {
-        return kdcServer;
-    }
-
-
-    public static void setKdcServer( KdcServer kdcServer )
-    {
-        AbstractLdapTestUnit.kdcServer = kdcServer;
     }
     
     

@@ -34,20 +34,13 @@ import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.message.AddRequest;
-import org.apache.directory.api.ldap.model.message.AddResponse;
-import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.search.FilterBuilder;
-import org.apache.directory.ldap.client.template.ConnectionCallback;
 import org.apache.directory.ldap.client.template.EntryMapper;
-import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
-import org.apache.directory.ldap.client.template.RequestBuilder;
 import org.apache.directory.server.annotations.CreateLdapConnectionPool;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -57,12 +50,12 @@ import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.CreateLdapConnectionPoolRule;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.CreateLdapConnectionPoolExtension;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +73,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class, CreateLdapConnectionPoolExtension.class } )
 @CreateDS( name = "classDS",
         partitions = {
                 @CreatePartition( 
@@ -251,8 +244,10 @@ public class DIRSERVER_1974_PerfIT extends AbstractLdapTestUnit
 
     
     @Test
-    @Ignore
-    public void testRenameWithALotOfDummiesAndSomeCustomAttributes() {
+    @Disabled
+    public void testRenameWithALotOfDummiesAndSomeCustomAttributes() 
+    {
+        /*
         CreateLdapConnectionPoolRule connectionPool = new CreateLdapConnectionPoolRule();
         LdapConnectionTemplate template = connectionPool.getLdapConnectionTemplate();
         AddResponse response = null;
@@ -361,6 +356,7 @@ public class DIRSERVER_1974_PerfIT extends AbstractLdapTestUnit
 
             template.delete( newDn );
         }
+        */
     }
 
 

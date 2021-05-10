@@ -32,14 +32,14 @@ import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
 import org.apache.directory.server.core.annotations.*;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.sasl.external.certificate.CertificateMechanismHandler;
 import org.apache.directory.server.ssl.ClientCertificateSslSocketFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
@@ -64,7 +64,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(allowAnonAccess = true, name = "ClientCertificateAuthenticationIT-class",
         partitions =
                 {
@@ -122,7 +122,7 @@ public class ClientCertificateAuthenticationIT extends AbstractLdapTestUnit
      * Setup the test, prepare certificate and testuser
      * @throws Exception on any error
      */
-    @Before
+    @BeforeEach
     public void installKeyStoreWithCertificate() throws Exception
         {
             authenticationUserDn = new Dn("uid=testsubject,ou=users,dc=example,dc=com");
@@ -161,7 +161,7 @@ public class ClientCertificateAuthenticationIT extends AbstractLdapTestUnit
      * Cleanup test, remove keystore
      * @throws Exception on any error
      */
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         if ( ClientCertificateSslSocketFactory.ksFile != null && ClientCertificateSslSocketFactory.ksFile.exists() )
         {

@@ -38,9 +38,9 @@ import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InstanceLayout;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -55,7 +55,7 @@ public class PartitionSchemaLoaderIT
     private static InstanceLayout instanceLayout;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception
     {
         // setup working directory
@@ -94,7 +94,7 @@ public class PartitionSchemaLoaderIT
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void cleanup() throws Exception
     {
         FileUtils.deleteDirectory( instanceLayout.getInstanceDirectory() );

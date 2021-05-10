@@ -34,6 +34,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.exception.LdapOperationException;
@@ -51,9 +52,10 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +65,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP") })
 @ApplyLdifs(
@@ -257,15 +259,18 @@ public class CompareIT extends AbstractLdapTestUnit
      * anonymous
      * @throws LdapException
      */
-    @Test(expected = LdapNoPermissionException.class)
+    @Test
     public void testCompareWithoutAuthentication() throws LdapException, Exception
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
         
         try ( LdapConnection conn = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() ) )
         {
-            conn.compare( "uid=admin,ou=system", "uid", "admin" );
-            fail( "Compare success without authentication" );
+            Assertions.assertThrows( LdapNoPermissionException.class, () ->
+            {
+                conn.compare( "uid=admin,ou=system", "uid", "admin" );
+                fail( "Compare success without authentication" );
+            } );
         }
     }
 

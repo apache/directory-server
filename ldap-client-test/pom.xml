@@ -111,8 +111,14 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.directory.junit</groupId>
-      <artifactId>junit-addons</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

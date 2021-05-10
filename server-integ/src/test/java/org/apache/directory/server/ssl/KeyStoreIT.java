@@ -47,19 +47,19 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Test key store scenarios.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(allowAnonAccess = true, name = "KeyStoreIT-class")
 public class KeyStoreIT extends AbstractLdapTestUnit
 {
@@ -71,7 +71,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     private static final String NON_EXISTING_KEY_STORE_FILE = "target/test-classes/non-existing-keystore-file.ks";
 
 
-    @BeforeClass
+    @BeforeAll
     public static void installKeyStoreWithCertificate() throws Exception
     {
         // Create the good key store

@@ -94,7 +94,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
         allMechanism.add( Pkcs5s2PasswordHashingInterceptor.class );
         allMechanism.add( ConfigurableHashingInterceptor.class );
 
-        Entry entry = new DefaultEntry( service.getSchemaManager(), "cn=test,ou=system",
+        Entry entry = new DefaultEntry( classDirectoryService.getSchemaManager(), "cn=test,ou=system",
             "objectClass: person",
             "cn: test",
             "sn: sn_test",
@@ -102,7 +102,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 
         LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
 
-        List<Interceptor> interceptors = service.getInterceptors();
+        List<Interceptor> interceptors = classDirectoryService.getInterceptors();
 
         for ( int i = 0; i < allMechanism.size(); i++ )
         {
@@ -119,7 +119,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
             {
                 hashMech = ( Interceptor ) clazz.newInstance();
             }
-            hashMech.init( service );
+            hashMech.init( classDirectoryService );
 
             // make sure to remove the last added mechanism
             if ( i > 0 )
@@ -129,7 +129,7 @@ public class PasswordHashingInterceptorTest extends AbstractLdapTestUnit
 
             interceptors.add( hashMech );
 
-            service.setInterceptors( interceptors );
+            classDirectoryService.setInterceptors( interceptors );
 
             connection.add( entry );
 

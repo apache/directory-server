@@ -45,10 +45,10 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.xdbm.Index;
 import org.apache.directory.server.xdbm.IndexEntry;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.TransactionManager;
@@ -78,7 +78,7 @@ public class IndexIT
     /** The partition transaction */
     private PartitionTxn partitionTxn;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception
     {
         tempDir = Files.createTempDirectory( IndexIT.class.getSimpleName() );
@@ -98,7 +98,7 @@ public class IndexIT
     }
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception
     {
         tempFile = Files.createTempFile( tempDir, "data", null );
@@ -129,7 +129,7 @@ public class IndexIT
 
 
     @Test
-    @Ignore("Does not work with JDBM2")
+    @Disabled("Does not work with JDBM2")
     public void testJdbmIndex() throws Exception
     {
         doTest( jdbmIndex );

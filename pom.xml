@@ -49,7 +49,6 @@
     <org.apache.directory.api.version>2.0.2-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>2.0.1-SNAPSHOT</org.apache.directory.checkstyle-configuration.version>
-    <org.apache.directory.junit.junit-addons.version>2.0.0</org.apache.directory.junit.junit-addons.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
     <skin.version>1.0.3</skin.version>
     
@@ -129,7 +128,6 @@
     <module>kerberos-codec</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>
-    <module>protocol-kerberos</module>
     <module>protocol-dhcp</module>
     <module>protocol-dns</module>
     <module>server-integ</module>
@@ -139,12 +137,12 @@
     <!--<module>osgi</module>-->
     <module>server-jndi</module>
     <module>interceptor-kerberos</module>
-    <module>kerberos-test</module>
+    <!--module>kerberos-test</module-->
     <module>http-directory-bridge</module>
     <module>http-integration</module>
     <module>test-framework</module>
     <module>ldap-client-test</module>
-    <module>kerberos-client</module>
+    <!--module>kerberos-client</module-->
     <module>service</module>
     <module>wrapper</module>
     <module>installers-maven-plugin</module>
@@ -1141,12 +1139,6 @@
       </dependency>
 
       <!-- Test dependencies -->
-      <dependency>
-        <groupId>org.apache.directory.junit</groupId>
-        <artifactId>junit-addons</artifactId>
-        <version>${org.apache.directory.junit.junit-addons.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>

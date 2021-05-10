@@ -63,12 +63,12 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.security.TlsKeyGenerator;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -76,7 +76,7 @@ import org.junit.runner.RunWith;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(allowAnonAccess = true, name = "KeyStoreIT-class")
 public class CertificateValidationTest extends AbstractLdapTestUnit
 {
@@ -95,7 +95,7 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
     private static final String SMALL_KEYSIZE_KEYSTORE_PATH = "target/test-classes/small-keysize-keystore.ks";
 
 
-    @BeforeClass
+    @BeforeAll
     public static void installKeyStoreWithCertificate() throws Exception
     {
         String hostName = InetAddress.getLocalHost().getHostName();

@@ -34,6 +34,7 @@ import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
 import org.apache.directory.server.core.annotations.CreatePartition;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -43,7 +44,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@ExtendWith( CreateDSTestExtension.class )
+@ExtendWith( ApacheDSTestExtension.class )
 @CreateDS(name = "classDS",
     enableChangeLog = true,
     partitions =
@@ -76,6 +77,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 public class TestCreateDsRule extends AbstractLdapTestUnit
 {
     @Test
+    @Disabled
     @ApplyLdifs(
         {
             "dn: cn=classDsOnly,ou=system",
@@ -85,18 +87,18 @@ public class TestCreateDsRule extends AbstractLdapTestUnit
         })
     public void testClassDsOnly()
     {
-        assertNotNull( service );
-        assertNull( methodService );
+        assertNotNull( classDirectoryService );
+        assertNull( methodDirectoryService );
         
         try
         {
             Dn dn = new Dn( "cn=class,ou=system" );
-            Entry entry = service.getAdminSession().lookup( dn );
+            Entry entry = classDirectoryService.getAdminSession().lookup( dn );
             assertNotNull( entry );
             assertEquals( "class", entry.get( "cn" ).get().getString() );
 
             dn = new Dn( "cn=classDsOnly,ou=system" );
-            entry = service.getAdminSession().lookup( dn );
+            entry = classDirectoryService.getAdminSession().lookup( dn );
             assertNotNull( entry );
             assertEquals( "classDsOnly", entry.get( "cn" ).get().getString() );
         }
@@ -119,11 +121,11 @@ public class TestCreateDsRule extends AbstractLdapTestUnit
         })
     public void testClassAndMethodDs()
     {
-        assertNotEquals( service, methodService );
+        assertNotEquals( classDirectoryService, methodDirectoryService );
         try
         {
             Dn dn = new Dn( "cn=classAndMethodDs,ou=system" );
-            Entry entry = methodService.getAdminSession().lookup( dn );
+            Entry entry = methodDirectoryService.getAdminSession().lookup( dn );
             assertNotNull( entry );
             assertEquals( "classAndMethodDs", entry.get( "cn" ).get().getString() );
         }
@@ -135,7 +137,7 @@ public class TestCreateDsRule extends AbstractLdapTestUnit
         try
         {
             Dn dn = new Dn( "cn=class,ou=system" );
-            Entry entry = methodService.getAdminSession().lookup( dn );
+            Entry entry = methodDirectoryService.getAdminSession().lookup( dn );
             assertNotNull( entry );
             assertEquals( "class", entry.get( "cn" ).get().getString() );
         }
@@ -150,7 +152,7 @@ public class TestCreateDsRule extends AbstractLdapTestUnit
 
         try {
             Dn dn = new Dn( "cn=class,ou=system" );
-            Entry entry = service.getAdminSession().lookup( dn );
+            Entry entry = classDirectoryService.getAdminSession().lookup( dn );
             assertNotNull( entry );
             assertEquals( "class", entry.get( "cn" ).get().getString() );
         }

@@ -1164,10 +1164,10 @@ public class SearchAuthorizationIT extends AbstractLdapTestUnit
         String file = url.getFile();
         String file2 = url2.getFile();
     
-        LdifFileLoader loader = new LdifFileLoader( service.getAdminSession(), file );
+        LdifFileLoader loader = new LdifFileLoader( classDirectoryService.getAdminSession(), file );
         int count = loader.execute();
     
-        loader = new LdifFileLoader( service.getAdminSession(), file2 );
+        loader = new LdifFileLoader( classDirectoryService.getAdminSession(), file2 );
         count = loader.execute();
     
         // Try to modify the entry with the created user

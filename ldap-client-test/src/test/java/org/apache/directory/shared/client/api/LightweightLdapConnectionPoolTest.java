@@ -40,12 +40,12 @@ import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 
 /**
@@ -53,7 +53,7 @@ import org.junit.runner.RunWith;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateLdapServer(transports =
     { @CreateTransport(protocol = "LDAP", port = 10389) })
 public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
@@ -203,7 +203,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
     }
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         int port = getLdapServer().getPort();
@@ -223,7 +223,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
     }
 
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         pool.close();
@@ -235,7 +235,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
      * connections becoming idle
      */
     @Test
-    @Ignore
+    @Disabled
     public void testManyConnectionsPoolNoIdle() throws Exception
     {
         int port = getLdapServer().getPort();
@@ -285,7 +285,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
      * Test the creation of many connections, using a standard pool
      */
     @Test
-    @Ignore
+    @Disabled
     public void testManyConnectionsPool() throws Exception
     {
         int port = getLdapServer().getPort();
@@ -343,7 +343,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
      * a benchmark.
      */
     @Test
-    @Ignore
+    @Disabled
     public void testManyConnectionsNoPool() throws Exception
     {
         for ( int j = 0; j < 1; j++ )
@@ -377,7 +377,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRebind() throws Exception
     {
         LdapConnection connection = pool.getConnection();
@@ -451,7 +451,7 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testRebindNoPool() throws Exception
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );

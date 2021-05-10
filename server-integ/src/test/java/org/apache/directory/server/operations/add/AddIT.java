@@ -94,11 +94,12 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-@RunWith(FrameworkRunner.class)
+@ExtendWith( { ApacheDSTestExtension.class } )
 @CreateDS(allowAnonAccess = true, name = "AddIT-class", partitions =
     {
         @CreatePartition(
@@ -1423,7 +1424,7 @@ public class AddIT extends AbstractLdapTestUnit
      * 
      * @throws Exception
      */
-    @Test(expected = LdapOperationException.class)
+    @Test
     public void testAddEntryNonExistingOC() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
@@ -1436,7 +1437,7 @@ public class AddIT extends AbstractLdapTestUnit
         personEntry.add( SchemaConstants.SN_AT, "Bush" );
         personEntry.setDn( dn );
 
-        connection.add( personEntry );
+        Assertions.assertThrows( LdapOperationException.class, () -> connection.add( personEntry ) );
     }
 
 
@@ -1445,7 +1446,7 @@ public class AddIT extends AbstractLdapTestUnit
      * 
      * @throws Exception
      */
-    @Test(expected = LdapException.class)
+    @Test
     public void testAddEntry100KData() throws Exception
     {
         LdapConnection connection = getAdminConnection( getLdapServer() );
@@ -1469,21 +1470,24 @@ public class AddIT extends AbstractLdapTestUnit
             "sn: Bush",
             "description", data );
 
-        connection.add( personEntry );
-
-        // Check that the entry has been stored
-        Entry entry = connection.lookup( dn, "description", "cn", "sn" );
-
-        String description = entry.get( "description" ).getString();
-
-        assertNotNull( description );
-        assertTrue( description.startsWith( "AAA" ) );
-        assertEquals( size, description.length() );
-
-        for ( int i = 0; i < size; i++ )
+        Assertions.assertThrows( LdapException.class, () -> 
         {
-            assertEquals( 'A', description.charAt( i ) );
-        }
+            connection.add( personEntry );
+    
+            // Check that the entry has been stored
+            Entry entry = connection.lookup( dn, "description", "cn", "sn" );
+    
+            String description = entry.get( "description" ).getString();
+    
+            assertNotNull( description );
+            assertTrue( description.startsWith( "AAA" ) );
+            assertEquals( size, description.length() );
+    
+            for ( int i = 0; i < size; i++ )
+            {
+                assertEquals( 'A', description.charAt( i ) );
+            }
+        } );
     }
 
 
