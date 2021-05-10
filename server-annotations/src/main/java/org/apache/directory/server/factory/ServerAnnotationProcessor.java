@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.net.ssl.TrustManager;
+
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
@@ -214,6 +216,23 @@ public final class ServerAnnotationProcessor
             }
 
             ldapServer.setSaslRealms( realms );
+
+            if ( createLdapServer.trustManagers() != null && createLdapServer.trustManagers().length > 0 )
+            {
+                TrustManager[] trustManagers = new TrustManager[createLdapServer.trustManagers().length];
+                for ( int i = 0; i < createLdapServer.trustManagers().length; i++ )
+                {
+                    try
+                    {
+                        trustManagers[i] = ( TrustManager ) createLdapServer.trustManagers()[i].newInstance();
+                    }
+                    catch ( InstantiationException | IllegalAccessException e )
+                    {
+                        throw new RuntimeException( I18n.err( I18n.ERR_751, createLdapServer.trustManagers()[i].getName() ), e );
+                    }
+                }
+                ldapServer.setTrustManagers( trustManagers );
+            }
 
             return ldapServer;
         }

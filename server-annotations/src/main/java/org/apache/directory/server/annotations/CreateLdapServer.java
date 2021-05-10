@@ -106,4 +106,11 @@ public @interface CreateLdapServer
     
     /** @return The service principal, used by GSSAPI. */
     String saslPrincipal() default "ldap/ldap.example.com@EXAMPLE.COM";
+
+    /**
+     * The X509 certificate trust managers used
+     *
+     *  @return The trust manager classes
+     */
+    Class<?>[] trustManagers() default {};
 }
