@@ -57,7 +57,7 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
  *   <li>cookie : the replication cookie</li>
  *   <li>useTls : the connection uses TLS, defaults to true</li>
  *   <li>strictCertVerification : strictly verify the certificate, defaults to true</li>
- *   <li>trustManager : the trustManager to use, defaults to @link{NoVerificationTrustManager}</li>
+ *   <li>trustManager : the trustManager to use, defaults to @link{ReplicationTrustManager}</li>
  *   <li></li>
  * </ul>
  * 
@@ -127,8 +127,8 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /** flag to indicate the use of strict certificate verification, default is true */
     private boolean strictCertVerification = true;
 
-    /** the X509 certificate trust manager used, default value set to {@link NoVerificationTrustManager} */
-    private X509TrustManager trustManager = new NoVerificationTrustManager();
+    /** the X509 certificate trust manager used, default value set to {@link ReplicationTrustManager} */
+    private X509TrustManager trustManager = ReplicationTrustManager.getInstance();
 
     /** flag to indicate if this node is part of a MMR setup, default value is true */
     private boolean mmrMode = true;

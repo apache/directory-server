@@ -271,6 +271,7 @@ public final class ServerAnnotationProcessor
         config.setUseTls( createConsumer.useTls() );
         config.setBaseDn( createConsumer.baseDn() );
         config.setRefreshInterval( createConsumer.refreshInterval() );
+        config.setStrictCertVerification( createConsumer.strictCertVerification() );
 
         consumer.setConfig( config );
 

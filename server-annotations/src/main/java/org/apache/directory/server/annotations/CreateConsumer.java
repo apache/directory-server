@@ -30,7 +30,6 @@ import java.lang.annotation.Target;
 import org.apache.directory.api.ldap.model.constants.LdapConstants;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 
 
 /**
@@ -55,7 +54,6 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
  *   <li>chaseReferrals : tells if we chase referrals, defaults to false</li>
  *   <li>useTls : the connection uses TLS, defaults to true</li>
  *   <li>strictCertVerification : strictly verify the certificate, defaults to true</li>
- *   <li>trustManager : the trustManager to use, defaults to @link{NoVerificationTrustManager}</li>
  * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -208,11 +206,4 @@ public @interface CreateConsumer
      */
     boolean strictCertVerification() default true;
 
-
-    /** 
-     * The X509 certificate trust manager used, default value set to {@link NoVerificationTrustManager}
-     * 
-     *  @return The trust manager class
-     */
-    Class<?> trustManager() default NoVerificationTrustManager.class;
 }

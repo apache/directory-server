@@ -62,9 +62,6 @@ public final class ReplicationTrustManager implements X509TrustManager
     /** the X509 certificate parser */
     private static X509CertParser parser = new X509CertParser();
 
-    /** the singleton instance of this trust manager */
-    private static final ReplicationTrustManager INSTANCE = new ReplicationTrustManager();
-
     static
     {
         try
@@ -77,6 +74,9 @@ public final class ReplicationTrustManager implements X509TrustManager
             throw new RuntimeException( e );
         }
     }
+
+    /** the singleton instance of this trust manager */
+    private static final ReplicationTrustManager INSTANCE = new ReplicationTrustManager();
 
     /**
      * Creates a instance of ReplicationTrustManager
