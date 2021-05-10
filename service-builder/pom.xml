@@ -57,11 +57,6 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-kerberos-codec</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-ldif-partition</artifactId>
     </dependency>
 
@@ -78,11 +73,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-dns</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-protocol-kerberos</artifactId>
     </dependency>
 
     <dependency>
@@ -196,8 +186,6 @@
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.integration.http;version=${project.version},
                 org.apache.directory.server.kerberos;version=${project.version},
-                org.apache.directory.server.kerberos.changepwd;version=${project.version},
-                org.apache.directory.server.kerberos.kdc;version=${project.version},
                 org.apache.directory.server.ldap;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.ntlm;version=${project.version},

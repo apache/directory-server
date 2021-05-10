@@ -63,7 +63,7 @@ public enum ConfigSchemaConstants
 
     ADS_LDAP_SERVER_OC("ads-ldapServer", "1.3.6.1.4.1.18060.0.4.1.3.300"),
 
-    ADS_KERBEROS_SERVER_OC("ads-kdcServer", "1.3.6.1.4.1.18060.0.4.1.3.400"),
+    // ADS_KERBEROS_SERVER_OC("ads-kdcServer", "1.3.6.1.4.1.18060.0.4.1.3.400"),
 
     ADS_DNS_SERVER_OC("ads-dnsServer", "1.3.6.1.4.1.18060.0.4.1.3.500"),
 

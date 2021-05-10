@@ -24,9 +24,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes128CtsSha1Encryption;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes256CtsSha1Encryption;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcSha1KdEncryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.shared.kerberos.components.Checksum;
 import org.apache.directory.shared.kerberos.crypto.checksum.ChecksumType;
@@ -49,9 +46,6 @@ public class ChecksumHandler
         EnumMap<ChecksumType, Class<?>> map = new EnumMap<>( ChecksumType.class );
 
         map.put( ChecksumType.HMAC_MD5, HmacMd5Checksum.class );
-        map.put( ChecksumType.HMAC_SHA1_96_AES128, Aes128CtsSha1Encryption.class );
-        map.put( ChecksumType.HMAC_SHA1_96_AES256, Aes256CtsSha1Encryption.class );
-        map.put( ChecksumType.HMAC_SHA1_DES3_KD, Des3CbcSha1KdEncryption.class );
         map.put( ChecksumType.RSA_MD5, RsaMd5Checksum.class );
 
         DEFAULT_CHECKSUMS = Collections.unmodifiableMap( map );

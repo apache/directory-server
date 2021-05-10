@@ -80,7 +80,6 @@ import org.apache.directory.server.core.security.CertificateUtil;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
-import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ntp.NtpServer;
 import org.slf4j.Logger;
@@ -109,9 +108,6 @@ public class ApacheDsService
 
     /** The Change Password server instance *
     private ChangePasswordServer changePwdServer;/
-
-    /** The Kerberos server instance */
-    private KdcServer kdcServer;
 
     /** The started HttpServer */
     private HttpServer httpServer;
@@ -240,9 +236,6 @@ public class ApacheDsService
 
         // start the ChangePwd server (Not ready yet)
         //startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService );
-
-        // start the Kerberos server
-        startKerberos( directoryServiceBean, directoryService, startServers );
 
         // start the jetty http server
         startHttpServer( directoryServiceBean.getHttpServerBean(), directoryService, startServers );
@@ -521,41 +514,6 @@ public class ApacheDsService
     //        }
     //    }
 
-    /**
-     * start the KERBEROS server
-     */
-    private void startKerberos( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService, boolean startServers )
-        throws Exception
-    {
-        LOG.info( "Starting the Kerberos server" );
-        long startTime = System.currentTimeMillis();
-
-        kdcServer = ServiceBuilder.createKdcServer( directoryServiceBean, directoryService );
-
-        if ( kdcServer == null )
-        {
-            LOG.info( "Cannot find any reference to the Kerberos Server in the configuration : the server won't be started" );
-            return;
-        }
-
-        LOG.info( "Starting the Kerberos server" );
-
-        getDirectoryService().startup();
-        kdcServer.setDirectoryService( getDirectoryService() );
-
-        printBanner( BANNER_KERBEROS );
-
-        if ( startServers )
-        {
-            kdcServer.start();
-        }
-
-        if ( LOG.isInfoEnabled() )
-        {
-            LOG.info( "Kerberos server: started in {} milliseconds", ( System.currentTimeMillis() - startTime ) + "" );
-        }
-    }
-
 
     /**
      * start the Change Password server
@@ -642,12 +600,6 @@ public class ApacheDsService
             directoryService = ldapServer.getDirectoryService();
         }
 
-        if ( kdcServer != null )
-        {
-            kdcServer.stop();
-            directoryService = kdcServer.getDirectoryService();
-        }
-
         /* if ( changePwdServer != null )
         {
             changePwdServer.stop();
@@ -685,12 +637,6 @@ public class ApacheDsService
         + "       /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|_| \\_| |_| |_|      \n"
         + "               |_|                                              \n";
 
-    private static final String BANNER_KERBEROS = "           _                     _          _  __ ____   ___    \n"
-        + "          / \\   _ __    ___  ___| |__   ___| |/ /|  _ \\ / __|   \n"
-        + "         / _ \\ | '_ \\ / _` |/ __| '_ \\ / _ \\ ' / | | | / /      \n"
-        + "        / ___ \\| |_) | (_| | (__| | | |  __/ . \\ | |_| \\ \\__    \n"
-        + "       /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|_|\\_\\|____/ \\___|   \n"
-        + "               |_|                                              \n";
 
     //    private static final String BANNER_DNS =
     //          "           _                     _          ____  _   _ ____    \n"

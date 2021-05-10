@@ -59,7 +59,6 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.ldap.client.api.SaslCramMd5Request;
 import org.apache.directory.ldap.client.api.SaslDigestMd5Request;
 import org.apache.directory.ldap.client.api.SaslGssApiRequest;
-import org.apache.directory.server.annotations.CreateKdcServer;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -71,7 +70,6 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
-import org.apache.directory.server.kerberos.kdc.KerberosTestUtils;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5MechanismHandler;
@@ -190,12 +188,6 @@ import org.slf4j.LoggerFactory;
             StoredProcedureExtendedOperationHandler.class
     },
     ntlmProvider = BogusNtlmProvider.class)
-@CreateKdcServer(
-    transports =
-        {
-            @CreateTransport(protocol = "UDP", port = 6088),
-            @CreateTransport(protocol = "TCP", port = 6088)
-    })
 public class SaslBindIT extends AbstractLdapTestUnit
 {
     @BeforeEach
@@ -475,7 +467,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
     /**
      * Tests to make sure GSS-API binds below the RootDSE work.
-     */
     @Test
     @Disabled
     public void testSaslGssApiBind() throws Exception
@@ -499,6 +490,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
         connection.close();
     }
+     */
 
 
     /**

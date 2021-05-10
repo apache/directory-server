@@ -624,57 +624,6 @@ objectclass: ads-base
 objectclass: top
 ads-enabled: FALSE
 
-dn: ads-serverId=kerberosServer,ou=servers,ads-directoryServiceId=default,ou=config
-objectclass: ads-server
-objectclass: ads-kdcServer
-objectclass: ads-dsBasedServer
-objectclass: ads-base
-objectclass: top
-ads-serverid: kerberosServer
-ads-enabled: FALSE
-ads-krbAllowableClockSkew: 300000
-ads-krbBodyChecksumVerified: TRUE
-ads-krbEmptyAddressesAllowed: TRUE
-ads-krbEncryptionTypes: aes128-cts-hmac-sha1-96
-ads-krbEncryptionTypes: des3-cbc-sha1-kd
-ads-krbEncryptionTypes: des-cbc-md5
-ads-krbForwardableAllowed: TRUE
-ads-krbmaximumrenewablelifetime: 604800000
-ads-krbMaximumTicketLifetime: 86400000
-ads-krbPaEncTimestampRequired: TRUE
-ads-krbPostdatedAllowed: TRUE
-ads-krbPrimaryRealm: EXAMPLE.COM
-ads-krbProxiableAllowed: TRUE
-ads-krbRenewableAllowed: TRUE
-ads-searchBaseDN: ou=users,dc=example,dc=com
-
-dn: ou=transports,ads-serverId=kerberosServer,ou=servers,ads-directoryServiceId=default,ou=config
-ou: transports
-objectclass: organizationalUnit
-objectclass: top
-
-dn: ads-transportid=tcp,ou=transports,ads-serverId=kerberosServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-systemport: 60088
-ads-transportnbthreads: 4
-ads-transportaddress: 0.0.0.0
-ads-transportid: tcp
-objectclass: ads-transport
-objectClass: ads-base
-objectclass: ads-tcpTransport
-objectclass: top
-ads-enabled: TRUE
-
-dn: ads-transportid=udp,ou=transports,ads-serverId=kerberosServer,ou=servers,ads-directoryServiceId=default,ou=config
-ads-systemport: 60088
-ads-transportnbthreads: 4
-ads-transportaddress: 0.0.0.0
-ads-transportid: udp
-objectclass: ads-transport
-objectclass: ads-udpTransport
-objectClass: ads-base
-objectclass: top
-ads-enabled: TRUE
-
 dn: ads-serverId=ldapServer,ou=servers,ads-directoryServiceId=default,ou=config
 objectclass: ads-server
 objectclass: ads-ldapServer

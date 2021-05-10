@@ -57,10 +57,6 @@ public class CipherTextHandler
     {
         EnumMap<EncryptionType, Class<? extends EncryptionEngine>> map = new EnumMap<>( EncryptionType.class );
 
-        map.put( EncryptionType.DES_CBC_MD5, DesCbcMd5Encryption.class );
-        map.put( EncryptionType.DES3_CBC_SHA1_KD, Des3CbcSha1KdEncryption.class );
-        map.put( EncryptionType.AES128_CTS_HMAC_SHA1_96, Aes128CtsSha1Encryption.class );
-        map.put( EncryptionType.AES256_CTS_HMAC_SHA1_96, Aes256CtsSha1Encryption.class );
         map.put( EncryptionType.RC4_HMAC, ArcFourHmacMd5Encryption.class );
 
         DEFAULT_CIPHERS = Collections.unmodifiableMap( map );

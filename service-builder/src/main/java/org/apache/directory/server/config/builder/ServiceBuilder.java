@@ -50,7 +50,6 @@ import org.apache.directory.server.config.beans.AuthenticationInterceptorBean;
 import org.apache.directory.server.config.beans.AuthenticatorBean;
 import org.apache.directory.server.config.beans.AuthenticatorImplBean;
 import org.apache.directory.server.config.beans.ChangeLogBean;
-import org.apache.directory.server.config.beans.ChangePasswordServerBean;
 import org.apache.directory.server.config.beans.DelegatingAuthenticatorBean;
 import org.apache.directory.server.config.beans.DirectoryServiceBean;
 import org.apache.directory.server.config.beans.ExtendedOpHandlerBean;
@@ -61,7 +60,6 @@ import org.apache.directory.server.config.beans.InterceptorBean;
 import org.apache.directory.server.config.beans.JdbmIndexBean;
 import org.apache.directory.server.config.beans.JdbmPartitionBean;
 import org.apache.directory.server.config.beans.JournalBean;
-import org.apache.directory.server.config.beans.KdcServerBean;
 import org.apache.directory.server.config.beans.LdapServerBean;
 import org.apache.directory.server.config.beans.MavibotIndexBean;
 import org.apache.directory.server.config.beans.MavibotPartitionBean;
@@ -104,10 +102,6 @@ import org.apache.directory.server.core.partition.impl.btree.mavibot.MavibotRdnI
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.integration.http.HttpServer;
 import org.apache.directory.server.integration.http.WebApp;
-import org.apache.directory.server.kerberos.ChangePasswordConfig;
-import org.apache.directory.server.kerberos.KerberosConfig;
-import org.apache.directory.server.kerberos.changepwd.ChangePasswordServer;
-import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.sasl.MechanismHandler;
@@ -122,7 +116,6 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.server.xdbm.Index;
-import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -659,36 +652,6 @@ public final class ServiceBuilder
         return transports.toArray( new Transport[transports.size()] );
     }
 
-
-    /**
-     * Helper method to create an Array of EncryptionTypes from an array of Strings
-     */
-    private static EncryptionType[] createEncryptionTypes( List<String> encryptionTypes )
-    {
-        if ( ( encryptionTypes == null ) || encryptionTypes.isEmpty() )
-        {
-            return new EncryptionType[0];
-        }
-
-        List<EncryptionType> types = new ArrayList<>();
-
-        for ( String encryptionType : encryptionTypes )
-        {
-            EncryptionType et = EncryptionType.getByName( encryptionType );
-            if ( et == EncryptionType.UNKNOWN )
-            {
-                LOG.warn( "Unknown encryption type {}", encryptionType );
-            }
-            else
-            {
-                types.add( et );
-            }
-        }
-
-        return types.toArray( new EncryptionType[0] );
-    }
-
-
     /**
      * Instantiates a NtpServer based on the configuration present in the partition
      *
@@ -744,103 +707,6 @@ public final class ServiceBuilder
         
         return dhcpServer;
     }
-
-
-    /**
-     * Instantiates a KdcServer based on the configuration present in the partition
-     *
-     * @param directoryServiceBean The DirectoryServiceBean containing the KdcServer configuration
-     * @param directoryService The DirectoryService instance
-     * @return Instance of KdcServer
-     * @throws LdapException If the KdcServce cannot be created
-     */
-    public static KdcServer createKdcServer( DirectoryServiceBean directoryServiceBean, DirectoryService directoryService )
-    {
-        KdcServerBean kdcServerBean = directoryServiceBean.getKdcServerBean();
-
-        // Fist, do nothing if the KdcServer is disabled
-        if ( ( kdcServerBean == null ) || kdcServerBean.isDisabled() )
-        {
-            return null;
-        }
-
-        KerberosConfig kdcConfig = new KerberosConfig();
-
-        // AllowableClockSkew
-        kdcConfig.setAllowableClockSkew( kdcServerBean.getKrbAllowableClockSkew() );
-
-        // BodyChecksumVerified
-        kdcConfig.setBodyChecksumVerified( kdcServerBean.isKrbBodyChecksumVerified() );
-
-        // EmptyAddressesAllowed
-        kdcConfig.setEmptyAddressesAllowed( kdcServerBean.isKrbEmptyAddressesAllowed() );
-
-        // EncryptionType
-        EncryptionType[] encryptionTypes = createEncryptionTypes( kdcServerBean.getKrbEncryptionTypes() );
-        kdcConfig.setEncryptionTypes( encryptionTypes );
-
-        // ForwardableAllowed
-        kdcConfig.setForwardableAllowed( kdcServerBean.isKrbForwardableAllowed() );
-
-        // KdcPrincipal
-        kdcConfig.setServicePrincipal( "krbtgt/" + kdcServerBean.getKrbPrimaryRealm() + "@"
-            + kdcServerBean.getKrbPrimaryRealm() );
-
-        // MaximumRenewableLifetime
-        kdcConfig.setMaximumRenewableLifetime( kdcServerBean.getKrbMaximumRenewableLifetime() );
-
-        // MaximumTicketLifetime
-        kdcConfig.setMaximumTicketLifetime( kdcServerBean.getKrbMaximumTicketLifetime() );
-
-        // PaEncTimestampRequired
-        kdcConfig.setPaEncTimestampRequired( kdcServerBean.isKrbPaEncTimestampRequired() );
-
-        // PostdatedAllowed
-        kdcConfig.setPostdatedAllowed( kdcServerBean.isKrbPostdatedAllowed() );
-
-        // PrimaryRealm
-        kdcConfig.setPrimaryRealm( kdcServerBean.getKrbPrimaryRealm() );
-
-        // ProxiableAllowed
-        kdcConfig.setProxiableAllowed( kdcServerBean.isKrbProxiableAllowed() );
-
-        // RenewableAllowed
-        kdcConfig.setRenewableAllowed( kdcServerBean.isKrbRenewableAllowed() );
-
-        // searchBaseDn
-        kdcConfig.setSearchBaseDn( kdcServerBean.getSearchBaseDn().getName() );
-
-        KdcServer kdcServer = new KdcServer( kdcConfig );
-
-        kdcServer.setDirectoryService( directoryService );
-        kdcServer.setEnabled( true );
-
-        // The ID
-        kdcServer.setServiceId( kdcServerBean.getServerId() );
-
-        // The transports
-        Transport[] transports = createTransports( kdcServerBean.getTransports() );
-        kdcServer.setTransports( transports );
-
-        ChangePasswordServerBean changePasswordServerBean = directoryServiceBean.getChangePasswordServerBean();
-
-        // Fist, do nothing if the ChangePasswordServer is disabled
-        if ( ( changePasswordServerBean != null ) && !changePasswordServerBean.isDisabled() )
-        {
-            ChangePasswordServer changePasswordServer = new ChangePasswordServer( new ChangePasswordConfig( kdcConfig ) );
-            changePasswordServer.setEnabled( true );
-            changePasswordServer.setDirectoryService( directoryService );
-
-            // Transports
-            Transport[] chngPwdTransports = createTransports( changePasswordServerBean.getTransports() );
-            changePasswordServer.setTransports( chngPwdTransports );
-
-            kdcServer.setChangePwdServer( changePasswordServer );
-        }
-
-        return kdcServer;
-    }
-
 
     /**
      * Instantiates the HttpWebApps based on the configuration present in the partition
@@ -966,10 +832,6 @@ public final class ServiceBuilder
 
         // EmptyAddressesAllowed
         changePasswordServer.setEmptyAddressesAllowed( changePasswordServerBean.isKrbEmptyAddressesAllowed() );
-
-        // EncryptionTypes
-        EncryptionType[] encryptionTypes = createEncryptionTypes( changePasswordServerBean.getKrbEncryptionTypes() );
-        changePasswordServer.setEncryptionTypes( encryptionTypes );
 
         // PolicyCategoryCount
         changePasswordServer.setPolicyCategoryCount( changePasswordServerBean.getChgPwdPolicyCategoryCount() );

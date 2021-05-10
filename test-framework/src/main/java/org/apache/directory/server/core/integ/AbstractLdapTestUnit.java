@@ -80,7 +80,6 @@ public abstract class AbstractLdapTestUnit
         AbstractLdapTestUnit.directoryService = directoryService;
     }
 
-
     public LdapServer getLdapServer()
     {
         return ldapServer;
