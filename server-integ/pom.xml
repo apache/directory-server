@@ -172,6 +172,20 @@
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-dsml-engine</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.kerby</groupId>
+      <artifactId>kerb-simplekdc</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.kerby</groupId>
+      <artifactId>kerby-kdc</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
   </dependencies>
 
   <build>

@@ -74,6 +74,7 @@
     <junit.jupiter.version>5.7.0</junit.jupiter.version>
     <junit.jupiter.api.version>5.7.0</junit.jupiter.api.version>
     <junit.platform.version>1.7.0-RC1</junit.platform.version>
+    <kerby.version>2.0.1</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
     <logback.version>1.2.3</logback.version>
@@ -1185,6 +1186,18 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>${logback.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.kerby</groupId>
+        <artifactId>kerb-simplekdc</artifactId>
+        <version>${kerby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.kerby</groupId>
+        <artifactId>kerby-kdc</artifactId>
+        <version>${kerby.version}</version>
       </dependency>
 
       <!-- Logging dependencies -->

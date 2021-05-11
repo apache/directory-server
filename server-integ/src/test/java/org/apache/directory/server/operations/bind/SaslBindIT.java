@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.Locale;
@@ -77,6 +78,8 @@ import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHand
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.apache.directory.shared.kerberos.KerberosAttribute;
+import org.apache.kerby.kerberos.kdc.impl.NettyKdcServerImpl;
+import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -467,10 +470,31 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
     /**
      * Tests to make sure GSS-API binds below the RootDSE work.
+     */
     @Test
-    @Disabled
     public void testSaslGssApiBind() throws Exception
     {
+        SimpleKdcServer kerbyServer = new SimpleKdcServer();
+
+        String basedir = System.getProperty( "basedir" );
+        if (basedir == null) {
+            basedir = new File( "." ).getCanonicalPath();
+        }
+
+        kerbyServer.setKdcRealm( "EXAMPLE.COM" );
+        kerbyServer.setAllowUdp( true );
+        kerbyServer.setWorkDir( new File( basedir + "/target" ) );
+
+        kerbyServer.setInnerKdcImpl( new NettyKdcServerImpl( kerbyServer.getKdcSetting() ) );
+        kerbyServer.init();
+
+        // Create principals
+        String hnelson = "hnelson@EXAMPLE.COM";
+        String ldap = "ldap/" + Network.LOOPBACK_HOSTNAME + "@EXAMPLE.COM";
+        kerbyServer.createPrincipal( hnelson, "secret");
+        kerbyServer.createPrincipal( ldap, "randall" );
+        kerbyServer.start();
+
         Dn userDn = new Dn( "uid=hnelson,ou=users,dc=example,dc=com" );
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
 
@@ -481,7 +505,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
         request.setCredentials( "secret" );
         request.setRealmName( ldapServer.getSaslRealms().get( 0 ).toUpperCase( Locale.ROOT ) );
         request.setKdcHost( Network.LOOPBACK_HOSTNAME );
-        request.setKdcPort( 6088 );
+        request.setKdcPort( kerbyServer.getKdcPort() );
         BindResponse resp = connection.bind( request );
         assertEquals( ResultCodeEnum.SUCCESS, resp.getLdapResult().getResultCode() );
 
@@ -489,9 +513,9 @@ public class SaslBindIT extends AbstractLdapTestUnit
         assertEquals( "hnelson", entry.get( "uid" ).getString() );
 
         connection.close();
-    }
-     */
 
+        kerbyServer.stop();
+    }
 
     /**
      * Tests to make sure GSS-API binds below the RootDSE fail if the realm is bad.
