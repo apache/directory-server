@@ -136,24 +136,3 @@ facsimiletelephonenumber: +1 408 555 8473
 roomnumber: 667
 userpassword: randall
 
-dn: uid=kadmin,ou=users,dc=example,dc=com
-cn: Changepw Server
-sn: Server
-givenname: Changepw
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-objectclass: inetOrgPerson
-objectclass: krb5Principal
-objectclass: krb5KDCEntry
-ou: Directory
-ou: users
-l: Boston
-uid: kadmin
-krb5PrincipalName: kadmin/changepw@EXAMPLE.COM
-krb5KeyVersionNumber: 0
-mail: erodriguez@example.com
-telephonenumber: +1 408 555 9187
-facsimiletelephonenumber: +1 408 555 8473
-roomnumber: 667
-userpassword: kahuna

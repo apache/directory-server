@@ -60,11 +60,6 @@
       <artifactId>apacheds-ldif-partition</artifactId>
     </dependency>
 
-    <!-- <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>apacheds-protocol-changepw</artifactId>
-    </dependency> -->
-
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>apacheds-protocol-dhcp</artifactId>

@@ -22,8 +22,6 @@ package org.apache.directory.server.kerberos.shared.store;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
-
 
 /**
  * The store interface used by Kerberos services.
@@ -32,19 +30,6 @@ import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordE
  */
 public interface PrincipalStore
 {
-
-    /**
-     * Change a principal's password.
-     * 
-     * @param byPrincipal the principal which is changing the password for the forPrincipal
-     * @param forPrincipal the principal whose password is being set or changed
-     * @param newPassword the new password
-     * @param isInitialTicket tells if the ticket is a freshly obtained ticket
-     * @throws ChangePasswordException If the password change failed
-     */
-    void changePassword( KerberosPrincipal byPrincipal, KerberosPrincipal forPrincipal, String newPassword,
-        boolean isInitialTicket ) throws ChangePasswordException;
-
 
     /**
      * Get a {@link PrincipalStoreEntry} given a Kerberos principal.

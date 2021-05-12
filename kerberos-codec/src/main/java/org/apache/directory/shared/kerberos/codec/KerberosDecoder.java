@@ -22,8 +22,6 @@ package org.apache.directory.shared.kerberos.codec;
 
 import java.nio.ByteBuffer;
 
-import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswdErrorType;
-import org.apache.directory.server.kerberos.changepwd.exceptions.ChangePasswordException;
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
@@ -600,9 +598,9 @@ public class KerberosDecoder
      * 
      * @param data The byte array containing the data structure to decode
      * @return An instance of EncTgsRepPart
-     * @throws ChangePasswordException If the decoding fails
+     * @throws DecodeException If the decoding fails
      */
-    public static EncTgsRepPart decodeEncTgsRepPart( byte[] data ) throws ChangePasswordException
+    public static EncTgsRepPart decodeEncTgsRepPart( byte[] data ) throws DecoderException
     {
         ByteBuffer stream = ByteBuffer.allocate( data.length );
         stream.put( data );
@@ -612,14 +610,7 @@ public class KerberosDecoder
         Asn1Container encTgsRepPartContainer = new EncTgsRepPartContainer( stream );
 
         // Decode the EncTgsRepPart PDU
-        try
-        {
-            Asn1Decoder.decode( stream, encTgsRepPartContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw new ChangePasswordException( ChangePasswdErrorType.KRB5_KPASSWD_MALFORMED, de );
-        }
+        Asn1Decoder.decode( stream, encTgsRepPartContainer );
 
         // get the decoded EncTgsRepPart
         return ( ( EncTgsRepPartContainer ) encTgsRepPartContainer ).getEncTgsRepPart();

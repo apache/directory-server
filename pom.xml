@@ -795,12 +795,6 @@
         <version>${project.version}</version>
       </dependency>
       
-     <!-- <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-protocol-changepw</artifactId>
-        <version>${project.version}</version>
-      </dependency> -->
-      
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-protocol-dhcp</artifactId>

@@ -17,8 +17,6 @@ changeLogInterceptor = org.apache.directory.server.core.changelog.ChangeLogInter
 
 changeLogStore = org.apache.directory.server.core.changelog.ChangeLogStore
 
-changePasswordServer = org.apache.directory.server.changepw.ChangePasswordServer
-
 collectiveAttributeInterceptor = org.apache.directory.server.core.collective.CollectiveAttributeInterceptor
 
 cramMd5MechanismHandler = org.apache.directory.server.ldap.handlers.bind.cramMD5.CramMd5MechanismHandler
