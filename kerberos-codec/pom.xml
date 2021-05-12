@@ -106,9 +106,6 @@
             <Bundle-SymbolicName>${project.groupId}.kerberos.codec</Bundle-SymbolicName>
             <Export-Package>
                 org.apache.directory.shared.kerberos;version=${project.version},
-                org.apache.directory.server.kerberos.changepwd.exceptions;version=${project.version},
-                org.apache.directory.server.kerberos.changepwd.io;version=${project.version},
-                org.apache.directory.server.kerberos.changepwd.messages;version=${project.version},
                 org.apache.directory.shared.kerberos.codec;version=${project.version},
                 org.apache.directory.shared.kerberos.codec.changePwdData;version=${project.version},
                 org.apache.directory.shared.kerberos.codec.options;version=${project.version},

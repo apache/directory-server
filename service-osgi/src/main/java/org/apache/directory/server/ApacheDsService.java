@@ -76,9 +76,6 @@ public class ApacheDsService
     /** The DNS server instance */
     //    private DnsServer dnsServer;
 
-    /** The Change Password server instance *
-    private ChangePasswordServer changePwdServer;/
-
     /** The Kerberos server instance */
     private KdcServer kdcServer;
 
@@ -161,9 +158,6 @@ public class ApacheDsService
 
         // Initialize the DHCP server (Not ready yet)
         // initDhcp( configBean );
-
-        // start the ChangePwd server (Not ready yet)
-        //startChangePwd( directoryServiceBean.getChangePasswordServerBean(), directoryService );
 
         // start the Kerberos server
         startKerberos( directoryServiceBean.getKdcServerBean(), directoryService );
@@ -455,39 +449,6 @@ public class ApacheDsService
 
 
     /**
-     * start the Change Password server
-     *
-    private void startChangePwd( ChangePasswordServerBean changePwdServerBean, DirectoryService directoryService ) throws Exception
-    {
-        changePwdServer = ServiceBuilder.createChangePasswordServer( changePwdServerBean, directoryService );
-        
-        if ( changePwdServer == null )
-        {
-            LOG.info( "Cannot find any reference to the Change Password Server in the configuration : the server won't be started" );
-            return;
-        }
-
-        LOG.info( "Starting the Change Password server" );
-        long startTime = System.currentTimeMillis();
-
-        getDirectoryService().startup();
-        changePwdServer.setDirectoryService( getDirectoryService() );
-
-        LOG.info( "Starting the Change Password server" );
-
-        printBanner( BANNER_CHANGE_PWD );
-
-        changePwdServer.start();
-
-        if ( LOG.isInfoEnabled() )
-        {
-            LOG.info( "Change Password server: started in {} milliseconds", ( System.currentTimeMillis() - startTime )
-                + "" );
-        }
-    }
-    */
-
-    /**
      * start the embedded HTTP server
      */
     private void startHttpServer( HttpServerBean httpServerBean, DirectoryService directoryService ) throws Exception
@@ -537,11 +498,6 @@ public class ApacheDsService
         {
             kdcServer.stop();
         }
-
-        /*if ( changePwdServer != null )
-        {
-            changePwdServer.stop();
-        }*/
 
         if ( ntpServer != null )
         {
@@ -597,14 +553,6 @@ public class ApacheDsService
     //        + "        / ___ \\| |_) | (_| | (__| | | |  __/ |_| |  _  \\ \\__|  __/ \n"
     //        + "       /_/   \\_\\ .__/ \\__,_|\\___|_| |_|\\___|____/|_| |_|\\___|_|    \n"
     //        + "               |_|                                                 \n";
-
-    private static final String BANNER_CHANGE_PWD = "         ___                              ___ __  __ __  ______    \n"
-        + "        / __|_       ___ _ __   ____  ___|  _ \\ \\ \\ / / / |  _ \\   \n"
-        + "       / /  | |__  / _` | '  \\ / ___\\/ _ \\ |_) \\ \\ / /\\/ /| | | |  \n"
-        + "       \\ \\__| '_  \\ (_| | |\\  | |___ | __/  __/ \\ ' /   / | |_| |  \n"
-        + "        \\___|_| |_|\\__,_|_| |_|\\__. |\\___| |     \\_/ \\_/  |____/   \n"
-        + "                                  |_|    |_|                       \n";
-
 
     /**
      * Print the banner for a server

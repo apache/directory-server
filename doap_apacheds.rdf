@@ -28,7 +28,7 @@
     <homepage rdf:resource="http://directory.apache.org/apacheds/1.5" />
     <asfext:pmc rdf:resource="http://directory.apache.org" />
     <shortdesc>An extensible, embeddable LDAP and Kerberos server, entirely in Java</shortdesc>
-    <description>ApacheDS is an extensible and embeddable directory server entirely written in Java, which has been certified LDAPv3 compatible by the Open Group. Besides LDAP it supports Kerberos 5 and the Change Password Protocol. It has been designed to introduce triggers, stored procedures, queues and views to the world of LDAP which has lacked these rich constructs.</description>
+    <description>ApacheDS is an extensible and embeddable directory server entirely written in Java, which has been certified LDAPv3 compatible by the Open Group. It has been designed to introduce triggers, stored procedures, queues and views to the world of LDAP which has lacked these rich constructs.</description>
     <bug-database rdf:resource="http://issues.apache.org/jira/browse/DIRSERVER" />
     <mailing-list rdf:resource="http://directory.apache.org/community%26resources/mailing-lists-and-irc.html" />
     <download-page rdf:resource="http://www.apache.org/dyn/closer.cgi/directory/apacheds/" />
