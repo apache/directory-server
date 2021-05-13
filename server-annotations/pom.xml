@@ -143,7 +143,6 @@
                 org.apache.directory.server.core.api;version=${project.version},
                 org.apache.directory.server.core.security;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
-                org.apache.directory.server.kerberos;version=${project.version},
                 org.apache.directory.server.ldap;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.cramMD5;version=${project.version},
@@ -152,8 +151,7 @@
                 org.apache.directory.server.ldap.handlers.sasl.ntlm;version=${project.version},
                 org.apache.directory.server.ldap.replication;version=${project.version},
                 org.apache.directory.server.ldap.replication.consumer;version=${project.version},
-                org.apache.directory.server.protocol.shared.transport;version=${project.version},
-                org.junit.runner;version=${junit.version}
+                org.apache.directory.server.protocol.shared.transport;version=${project.version}
             </Import-Package>
           </instructions>
         </configuration>

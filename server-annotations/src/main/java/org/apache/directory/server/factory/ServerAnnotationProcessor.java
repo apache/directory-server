@@ -53,7 +53,6 @@ import org.apache.directory.server.ldap.replication.consumer.ReplicationConsumer
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.protocol.shared.transport.Transport;
 import org.apache.directory.server.protocol.shared.transport.UdpTransport;
-import org.junit.runner.Description;
 
 
 /**
@@ -348,22 +347,6 @@ public final class ServerAnnotationProcessor
         }
 
         return ldapServer;
-    }
-
-
-    /**
-     * Create a new instance of LdapServer
-     *
-     * @param description A description for the created LdapServer
-     * @param directoryService The associated DirectoryService
-     * @return An LdapServer instance 
-     */
-    public static LdapServer createLdapServer( Description description, DirectoryService directoryService )
-    {
-        CreateLdapServer createLdapServer = description.getAnnotation( CreateLdapServer.class );
-
-        // Ok, we have found a CreateLdapServer annotation. Process it now.
-        return createLdapServer( createLdapServer, directoryService );
     }
 
 

@@ -180,7 +180,6 @@
                 org.apache.directory.server.core.partition.impl.btree.mavibot;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.integration.http;version=${project.version},
-                org.apache.directory.server.kerberos;version=${project.version},
                 org.apache.directory.server.ldap;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.ntlm;version=${project.version},

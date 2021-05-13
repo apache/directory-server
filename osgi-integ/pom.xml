@@ -249,8 +249,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <version>5.7.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -312,6 +313,7 @@
             <configuration>
               <includeScope>runtime</includeScope>
               <outputFile>${project.build.directory}/test-classes/deps.txt</outputFile>
+              <excludeGroupIds>org.junit.jupiter,org.junit.platform,org.apiguardian</excludeGroupIds>
             </configuration>
           </execution>
         </executions>
@@ -327,6 +329,13 @@
             <forkedProcessExitTimeoutInSeconds>1</forkedProcessExitTimeoutInSeconds>
             <rerunFailingTestsCount>1</rerunFailingTestsCount>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.surefire</groupId>
+              <artifactId>surefire-junit47</artifactId>
+              <version>3.0.0-M3</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings 
           only. It has no influence on the Maven build itself. -->
