@@ -218,8 +218,6 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         pool.setTestOnBorrow( true );
         pool.setBlockWhenExhausted( !GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
         pool.setMaxIdle( 0 );
-
-        System.out.println( "Max Active connections =: " + pool.getMaxTotal() );
     }
 
 
@@ -250,8 +248,6 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         poolNoIdle.setTestOnBorrow( true );
         poolNoIdle.setBlockWhenExhausted( !GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
         poolNoIdle.setMaxIdle( 0 );
-
-        System.out.println( "Max Active connections =: " + pool.getMaxTotal() );
 
         for ( int j = 0; j < 1; j++ )
         {
@@ -299,8 +295,6 @@ public class LightweightLdapConnectionPoolTest extends AbstractLdapTestUnit
         LdapConnectionPool poolWithIdle = new LdapConnectionPool( factory );
         poolWithIdle.setTestOnBorrow( true );
         poolWithIdle.setBlockWhenExhausted( GenericObjectPoolConfig.DEFAULT_BLOCK_WHEN_EXHAUSTED );
-
-        System.out.println( "Max Active connections =: " + pool.getMaxTotal() );
 
         for ( int j = 0; j < 1; j++ )
         {

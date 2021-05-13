@@ -328,16 +328,9 @@ public class UberJarMainTest
 
             Entry nisSchema = connection.lookup( "cn=nis,ou=schema" );
 
-            System.out.println( "Before nis anabling" );
-            System.out.println( nisSchema );
-
             Entry nisObjectClass = connection.lookup( "ou=objectClasses,cn=nis,ou=schema" );
 
-            System.out.println( nisObjectClass );
-
             Entry posixAccount = connection.lookup( "m-oid=1.3.6.1.1.1.2.0,ou=objectClasses,cn=nis,ou=schema" );
-
-            System.out.println( "posixAccount : " + posixAccount );
 
             if ( rootDseEntry == null )
             {

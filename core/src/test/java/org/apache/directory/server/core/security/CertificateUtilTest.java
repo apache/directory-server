@@ -51,6 +51,5 @@ public class CertificateUtilTest
             
 
         X509Certificate certificate = CertificateUtil.generateSelfSignedCertificate( owner, keyPair, 3650, "SHA256WithECDSA" );
-        System.out.println( certificate );
     }
 }
