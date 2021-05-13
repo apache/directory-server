@@ -509,7 +509,7 @@ public class CursorBuilder
             return Long.MAX_VALUE;
         }
 
-        int nbResults = 0;
+        long nbResults = 0;
 
         // We use the RdnIndex to get all the entries from a starting point
         // and below up to the number of descendant
