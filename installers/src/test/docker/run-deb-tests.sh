@@ -39,6 +39,6 @@ then
 
     echo
     echo
-    echo "Testing deb package (Ubuntu 18.04, OpenJ9 12, 64bit)"
-    $DOCKER_CMD adoptopenjdk/openjdk12-openj9:slim bash -c "ln -s /opt/java/openjdk/bin/java /usr/bin/java; bash /deb.test"
+    echo "Testing deb package (Ubuntu 20.04, OpenJ9 16, 64bit)"
+    $DOCKER_CMD adoptopenjdk/openjdk16-openj9:slim bash -c "ln -s /opt/java/openjdk/bin/java /usr/bin/java; bash /deb.test"
 fi

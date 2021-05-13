@@ -40,7 +40,8 @@ wait_for_apacheds() {
 
 # install packages
 yum -y -q install openldap-clients nmap procps
-command -v java >/dev/null 2>&1 || yum -y -q install java-openjdk-headless
+command -v java >/dev/null 2>&1 || yum -y -q install java-latest-openjdk-headless || yum -y -q install java-openjdk-headless
+java -version
 
 # assert no duplicate files (DIRSERVER-2197)
 test $(rpm -qlp /apacheds.rpm | sort | uniq -cd | wc -l) -eq 0

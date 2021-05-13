@@ -48,6 +48,7 @@ mkdir -p $RPM_BUILD_ROOT%{adsdata}/default/conf
 mkdir -p $RPM_BUILD_ROOT%{adsdata}/default/log
 mkdir -p $RPM_BUILD_ROOT%{adsdata}/default/partitions
 mkdir -p $RPM_BUILD_ROOT%{adsdata}/default/run
+mkdir -p $RPM_BUILD_ROOT%{adsdata}/default/tmp
 mkdir -p $RPM_BUILD_ROOT/etc/init.d
 
 # Server files
@@ -95,6 +96,7 @@ ${files.libs}
 %{adsdata}/default/log
 %{adsdata}/default/partitions
 %{adsdata}/default/run
+%{adsdata}/default/tmp
 %config %{adsdata}/default/conf/config.ldif
 %config %{adsdata}/default/conf/log4j.properties
 %config %{adsdata}/default/conf/wrapper-instance.conf

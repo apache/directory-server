@@ -39,6 +39,7 @@ set -x
 apt-get -qq update
 apt-get -qq -y install ldap-utils netcat procps
 command -v java >/dev/null 2>&1 || apt-get -qq -y install default-jre-headless
+java -version
 
 # assert no duplicate files (DIRSERVER-2197)
 test $(dpkg -c /apacheds.deb | sort | uniq -cd | wc -l) -eq 0
@@ -95,6 +96,9 @@ service ${SERVICE_NAME} status || test $? -ne 0
 grep ".*WARN.*admin password.*security breach.*" /var/lib/${DIRNAME}/default/log/apacheds.log
 # assert no error in log
 grep ".*ERROR.*" /var/lib/${DIRNAME}/default/log/apacheds.log && false
+
+# Handle OpenJ9 class sharing
+rm -rf /opt/${DIRNAME}/javasharedresources
 
 # uninstall
 dpkg -P apacheds

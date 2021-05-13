@@ -34,8 +34,8 @@ then
 
     echo
     echo
-    echo "Testing rpm package (Fedora 29, OpenJDK 12, 64bit)"
-    $DOCKER_CMD fedora:29 bash /rpm.test
+    echo "Testing rpm package (Fedora 34, OpenJDK latest (16+), 64bit)"
+    $DOCKER_CMD fedora:34 bash /rpm.test
 
     echo
     echo

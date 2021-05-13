@@ -97,6 +97,8 @@ mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/partitions
 verifyExitCode
 mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/run
 verifyExitCode
+mkdir -p $DEFAULT_INSTANCE_HOME_DIRECTORY/tmp
+verifyExitCode
 
 # Filtering default instance wrapper.conf file
 sed -e "s;@installation.directory@;${APACHEDS_HOME_DIRECTORY};" ../instance/wrapper-instance.conf > ../instance/wrapper-instance.conf.tmp

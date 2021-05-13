@@ -73,6 +73,7 @@ fi
 # install required tools
 apt-get -qq update
 apt-get -qq -y install ldap-utils netcat
+java -version
 
 # start
 /opt/${DIRNAME}/bin/apacheds.sh start
