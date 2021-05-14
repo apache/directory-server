@@ -78,7 +78,7 @@
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
     <logback.version>1.2.3</logback.version>
-    <maven.version>3.6.1</maven.version>
+    <maven.version>3.8.1</maven.version>
     <mina.core.version>2.1.3</mina.core.version>
     <org.apache.felix.version>6.0.3</org.apache.felix.version>
     <pax-exam.version>4.13.1</pax-exam.version>
