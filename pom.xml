@@ -66,7 +66,7 @@
     <caffeine.version>2.7.0</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <forbiddenapis.version>2.6</forbiddenapis.version>
-    <jetty.version>9.4.34.v20201102</jetty.version>
+    <jetty.version>9.4.40.v20210413</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.19</jetty.bundle.version>
     <junit.version>4.13.2</junit.version>
