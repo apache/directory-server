@@ -401,6 +401,8 @@
               <exclude>**/*.bytecode</exclude>
               <!-- BMP_IMAGES_EXCLUDES -->
               <exclude>**/*.bmp</exclude>
+              <!-- exclude GitHub files (codeql-analysis.yml) -->
+              <exclude>.github/**</exclude>
             </excludes>
           </configuration>
         </plugin>
