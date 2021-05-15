@@ -34,7 +34,7 @@ pipeline {
       }
       agent {
         docker {
-          label 'ubuntu && !H28 && !H36 && !H40'
+          label 'ubuntu'
           image 'apachedirectory/maven-build:jdk-8'
           args '-v $HOME/.m2:/home/hnelson/.m2'
         }
@@ -57,7 +57,7 @@ pipeline {
           }
           agent {
             docker {
-              label 'ubuntu && !H28 && !H36 && !H40'
+              label 'ubuntu'
               image 'apachedirectory/maven-build:jdk-8'
               args '-v $HOME/.m2:/home/hnelson/.m2'
             }
@@ -81,7 +81,7 @@ pipeline {
           }
           agent {
             docker {
-              label 'ubuntu && !H28 && !H36 && !H40'
+              label 'ubuntu'
               image 'apachedirectory/maven-build:jdk-11'
               args '-v $HOME/.m2:/home/hnelson/.m2'
             }
@@ -96,15 +96,15 @@ pipeline {
             }
           }
         }
-        stage ('Linux Java 14') {
+        stage ('Linux Java 17') {
           options {
             timeout(time: 4, unit: 'HOURS')
             retry(2)
           }
           agent {
             docker {
-              label 'ubuntu && !H28 && !H36 && !H40'
-              image 'apachedirectory/maven-build:jdk-14'
+              label 'ubuntu'
+              image 'apachedirectory/maven-build:jdk-17'
               args '-v $HOME/.m2:/home/hnelson/.m2'
             }
           }
@@ -149,7 +149,7 @@ pipeline {
         retry(2)
       }
       agent {
-        label 'ubuntu && !H28 && !H36 && !H40'
+        label 'ubuntu'
       }
       // https://cwiki.apache.org/confluence/display/INFRA/JDK+Installation+Matrix
       // https://cwiki.apache.org/confluence/display/INFRA/Maven+Installation+Matrix
@@ -173,7 +173,7 @@ pipeline {
       }
       agent {
         docker {
-          label 'ubuntu && !H28 && !H36 && !H40'
+          label 'ubuntu'
           image 'apachedirectory/maven-build:jdk-8'
           args '-v $HOME/.m2:/home/hnelson/.m2'
           alwaysPull true
@@ -201,7 +201,7 @@ pipeline {
             retry(2)
           }
           agent {
-            label 'ubuntu && !H28 && !H36 && !H40'
+            label 'ubuntu'
           }
           steps {
             unstash 'deb'
@@ -219,7 +219,7 @@ pipeline {
             retry(2)
           }
           agent {
-            label 'ubuntu && !H28 && !H36 && !H40'
+            label 'ubuntu'
           }
           steps {
             unstash 'rpm'
@@ -237,7 +237,7 @@ pipeline {
             retry(2)
           }
           agent {
-            label 'ubuntu && !H28 && !H36 && !H40'
+            label 'ubuntu'
           }
           steps {
             unstash 'bin'
@@ -255,7 +255,7 @@ pipeline {
             retry(2)
           }
           agent {
-            label 'ubuntu && !H28 && !H36 && !H40'
+            label 'ubuntu'
           }
           steps {
             unstash 'archive'
