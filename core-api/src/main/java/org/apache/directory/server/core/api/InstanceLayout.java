@@ -89,6 +89,7 @@ public class InstanceLayout extends AbstractLayout
     public static final String PARTITIONS_NAME = "partitions";
     private static final String REPL_NAME = "syncrepl-data";
     private static final String CACHE_NAME = "cache";
+    private static final String TMP_NAME = "tmp";
 
     /** Static file names */
     private static final String LOG4J_PROPERTIES = "log4j.properties";
@@ -113,6 +114,9 @@ public class InstanceLayout extends AbstractLayout
 
     /** The cache directory */
     private File cacheDir;
+
+    /** The tmp directory */
+    private File tmpDir;
 
 
     /**
@@ -152,7 +156,8 @@ public class InstanceLayout extends AbstractLayout
                 getLogDirectory(),
                 getPartitionsDirectory(),
                 getRunDirectory(),
-                getCacheDirectory()
+                getCacheDirectory(),
+                getTmpDirectory()
         };
 
         setRequiredDirectories( requiredDirectories );
@@ -211,11 +216,36 @@ public class InstanceLayout extends AbstractLayout
 
 
     /**
-     * @param cacheDir the confDir to set
+     * @param cacheDir the cacheDir to set
      */
     public void setCacheDir( File cacheDir )
     {
         this.cacheDir = cacheDir;
+    }
+
+
+    /**
+     * Gets the 'tmp' directory ('&lt;instance&gt;/tmp').
+     *
+     * @return the 'tmp' directory
+     */
+    public File getTmpDirectory()
+    {
+        if ( tmpDir == null )
+        {
+            tmpDir = new File( getInstanceDirectory(), TMP_NAME );
+        }
+
+        return tmpDir;
+    }
+
+
+    /**
+     * @param tmpDir the tmpDir to set
+     */
+    public void setTmpDir( File tmpDir )
+    {
+        this.tmpDir = tmpDir;
     }
 
 
@@ -407,6 +437,7 @@ public class InstanceLayout extends AbstractLayout
             + "  Instance run dir              : " + getRunDirectory() + "\n"
             + "  Instance partitions dir       : " + getPartitionsDirectory() + "\n"
             + "  Instance replication data dir : " + getReplDirectory() + "\n"
-            + "  Instance cache dir            : " + getCacheDirectory() + "\n";
+            + "  Instance cache dir            : " + getCacheDirectory() + "\n"
+            + "  Instance tmp dir              : " + getTmpDirectory() + "\n";
     }
 }

@@ -66,6 +66,7 @@ apt-get -qq -y install ldap-utils netcat
 # set wrapper java path
 echo "" >> /var/lib/${DIRNAME}/default/conf/wrapper-instance.conf
 echo "wrapper.java.command=$JAVA_HOME/bin/java" >> /var/lib/${DIRNAME}/default/conf/wrapper-instance.conf
+java -version
 
 # start
 service ${SERVICE_NAME} start
