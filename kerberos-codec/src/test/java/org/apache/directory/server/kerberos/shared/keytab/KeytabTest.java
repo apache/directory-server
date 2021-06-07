@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.text.SimpleDateFormat;
 
 import javax.crypto.spec.DESKeySpec;
 
@@ -76,6 +78,10 @@ public class KeytabTest
             ( byte ) 0x45, ( byte ) 0xD7, ( byte ) 0x96, ( byte ) 0x79, ( byte ) 0x04, ( byte ) 0x00, ( byte ) 0x03,
             ( byte ) 0x00, ( byte ) 0x08, ( byte ) 0x13, ( byte ) 0xD9, ( byte ) 0x19, ( byte ) 0x98, ( byte ) 0x23,
             ( byte ) 0x8F, ( byte ) 0x9E, ( byte ) 0x31 };
+
+
+    /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
+    private static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'", Locale.ROOT );
 
 
     /**
@@ -162,9 +168,9 @@ public class KeytabTest
         String zuluTime = "20070217235745Z";
         Date date = null;
 
-        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
+        synchronized ( UTC_DATE_FORMAT )
         {
-            date = KerberosUtils.UTC_DATE_FORMAT.parse( zuluTime );
+            date = UTC_DATE_FORMAT.parse( zuluTime );
         }
 
         KerberosTime timeStamp = new KerberosTime( date.getTime() );

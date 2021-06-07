@@ -23,8 +23,10 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -98,6 +100,10 @@ public class CipherTextHandlerTest
             ( byte ) 0xfa, ( byte ) 0x93, ( byte ) 0x02, ( byte ) 0xbe, ( byte ) 0x11, ( byte ) 0x14, ( byte ) 0x22,
             ( byte ) 0x65, ( byte ) 0x92, ( byte ) 0xbd, ( byte ) 0xf5, ( byte ) 0x52, ( byte ) 0x9f, ( byte ) 0x94,
             ( byte ) 0x67, ( byte ) 0x10, ( byte ) 0xd2 };
+
+
+    /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
+    private static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'", Locale.ROOT );
 
 
     /**
@@ -306,9 +312,9 @@ public class CipherTextHandlerTest
     {
         Date date = null;
 
-        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
+        synchronized ( UTC_DATE_FORMAT )
         {
-            date = KerberosUtils.UTC_DATE_FORMAT.parse( zuluTime );
+            date = UTC_DATE_FORMAT.parse( zuluTime );
         }
 
         KerberosTime timeStamp = new KerberosTime( date );
