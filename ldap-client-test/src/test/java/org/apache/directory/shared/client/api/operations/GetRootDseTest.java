@@ -77,14 +77,23 @@ public class GetRootDseTest extends AbstractLdapTestUnit
 
         assertNotNull( rootDse );
 
-        assertEquals( 1, rootDse.size() );
+        assertEquals( 11, rootDse.size() );
         assertTrue( rootDse.containsAttribute( "objectClass" ) );
+        assertTrue( rootDse.containsAttribute( "entryUUID" ) );
+        assertTrue( rootDse.containsAttribute( "namingContexts" ) );
+        assertTrue( rootDse.containsAttribute( "subschemaSubentry" ) );
+        assertTrue( rootDse.containsAttribute( "supportedControl" ) );
+        assertTrue( rootDse.containsAttribute( "supportedExtension" ) );
+        assertTrue( rootDse.containsAttribute( "supportedFeatures" ) );
+        assertTrue( rootDse.containsAttribute( "supportedLDAPVersion" ) );
+        assertTrue( rootDse.containsAttribute( "supportedSASLMechanisms" ) );
+        assertTrue( rootDse.containsAttribute( "vendorName" ) );
+        assertTrue( rootDse.containsAttribute( "vendorVersion" ) );
     }
 
 
     /**
-     * Test a                     if ( attributeType.getUsage() != UsageEnum.USER_APPLICATIONS )
-    lookup requesting all the user attributes (*)
+     * Test a lookup requesting all the user attributes (*)
      *
      * @throws Exception
      */
