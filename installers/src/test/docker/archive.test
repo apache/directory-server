@@ -89,6 +89,22 @@ fi
 # search
 ldapsearch -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -s base -b "dc=example,dc=com"
 
+# configure SASL auth
+ldapmodify -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -f /config.ldif
+/opt/${DIRNAME}/bin/apacheds.sh stop
+wait_for_apacheds_down
+/opt/${DIRNAME}/bin/apacheds.sh start
+wait_for_apacheds_up
+ldapmodify -h localhost -p 10389 -x -D "uid=admin,ou=system" -w secret -f /data.ldif
+
+# test SASL auth and confidentiality
+ldapwhoami -h localhost -p 10389 -Y DIGEST-MD5 -N -O "minssf=128" -U user.1 -R example.com -w secret |& tee /tmp/ldapwhoami.log
+grep "SASL/DIGEST-MD5 authentication started" /tmp/ldapwhoami.log
+grep "SASL username: user.1" /tmp/ldapwhoami.log
+grep "SASL SSF: 128" /tmp/ldapwhoami.log
+grep "SASL data security layer installed." /tmp/ldapwhoami.log
+ldapsearch -h localhost -p 10389 -Y DIGEST-MD5 -N -O "minssf=128" -U user.1 -R example.com -w secret -s sub -b "ou=users,ou=system"
+
 # repair (stop before, should be started afterwards)
 /opt/${DIRNAME}/bin/apacheds.sh stop
 wait_for_apacheds_down

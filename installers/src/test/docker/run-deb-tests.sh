@@ -24,7 +24,7 @@ INSTALLERS_DIR="$TEST_SCRIPTS_DIR/../installers"
 
 # Debian package 64bit
 DEB64="${INSTALLERS_DIR}/apacheds-${project.version}-amd64.deb"
-DOCKER_CMD="docker run -i --rm -h myhostname -v ${DEB64}:/apacheds.deb -v ${TEST_SCRIPTS_DIR}/deb.test:/deb.test"
+DOCKER_CMD="docker run -i --rm -h myhostname -v ${DEB64}:/apacheds.deb -v ${TEST_SCRIPTS_DIR}/deb.test:/deb.test -v ${TEST_SCRIPTS_DIR}/config.ldif:/config.ldif -v ${TEST_SCRIPTS_DIR}/data.ldif:/data.ldif"
 if [ -f ${DEB64} ]
 then
     echo

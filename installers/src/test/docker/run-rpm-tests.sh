@@ -24,7 +24,7 @@ INSTALLERS_DIR="$TEST_SCRIPTS_DIR/../installers"
 
 # RPM package 64bit
 RPM64="${INSTALLERS_DIR}/apacheds-${project.version}-x86_64.rpm"
-DOCKER_CMD="docker run -i --rm -h myhostname -v ${RPM64}:/apacheds.rpm -v ${TEST_SCRIPTS_DIR}/rpm.test:/rpm.test"
+DOCKER_CMD="docker run -i --rm -h myhostname -v ${RPM64}:/apacheds.rpm -v ${TEST_SCRIPTS_DIR}/rpm.test:/rpm.test -v ${TEST_SCRIPTS_DIR}/config.ldif:/config.ldif -v ${TEST_SCRIPTS_DIR}/data.ldif:/data.ldif"
 if [ -f ${RPM64} ]
 then
     echo

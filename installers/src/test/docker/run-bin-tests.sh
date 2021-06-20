@@ -32,6 +32,8 @@ then
     docker run -i --rm -h myhostname \
       -v ${BIN64}:/apacheds.bin \
       -v ${TEST_SCRIPTS_DIR}/bin.test:/bin.test \
+      -v ${TEST_SCRIPTS_DIR}/config.ldif:/config.ldif \
+      -v ${TEST_SCRIPTS_DIR}/data.ldif:/data.ldif \
       openjdk:8 bash /bin.test
 
     echo

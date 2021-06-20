@@ -32,6 +32,8 @@ then
     docker run -i --rm -h myhostname \
       -v ${TGZ}:/apacheds.tar.gz \
       -v ${TEST_SCRIPTS_DIR}/archive.test:/archive.test \
+      -v ${TEST_SCRIPTS_DIR}/config.ldif:/config.ldif \
+      -v ${TEST_SCRIPTS_DIR}/data.ldif:/data.ldif \
       openjdk:8 bash /archive.test
 fi
 
@@ -46,5 +48,7 @@ then
     docker run -i --rm -h myhostname \
       -v ${ZIP}:/apacheds.zip \
       -v ${TEST_SCRIPTS_DIR}/archive.test:/archive.test \
+      -v ${TEST_SCRIPTS_DIR}/config.ldif:/config.ldif \
+      -v ${TEST_SCRIPTS_DIR}/data.ldif:/data.ldif \
       openjdk:11 bash /archive.test
 fi
