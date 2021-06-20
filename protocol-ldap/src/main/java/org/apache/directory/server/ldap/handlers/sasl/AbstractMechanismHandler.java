@@ -22,6 +22,7 @@ package org.apache.directory.server.ldap.handlers.sasl;
 
 import javax.security.sasl.SaslServer;
 
+import org.apache.directory.api.ldap.codec.api.SaslFilter;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
