@@ -122,7 +122,7 @@ pipeline {
             }
           }
         }
-        stage ('Windows Java 8') {
+        stage ('Windows Java 11') {
           options {
             timeout(time: 4, unit: 'HOURS')
             retry(2)
@@ -131,9 +131,8 @@ pipeline {
             label 'Windows'
           }
           steps {
-            // TODO: need to investigate test failure on Windows
             bat '''
-            set JAVA_HOME=F:\\jenkins\\tools\\java\\latest1.8
+            set JAVA_HOME=F:\\jenkins\\tools\\java\\latest11
             set MAVEN_OPTS="-Xmx512m"
             F:\\jenkins\\tools\\maven\\latest3\\bin\\mvn -V -U clean verify
             '''
