@@ -184,10 +184,10 @@ pipeline {
       }
       steps {
         sh 'mvn -V -U clean verify -DskipTests -Pinstallers -Pdocker'
-        stash name: 'deb', includes: 'installers/target/installers/*.deb,installers/target/docker/*deb*'
-        stash name: 'rpm', includes: 'installers/target/installers/*.rpm,installers/target/docker/*rpm*'
-        stash name: 'bin', includes: 'installers/target/installers/*.bin,installers/target/docker/*bin*'
-        stash name: 'archive', includes: 'installers/target/installers/*.zip,installers/target/installers/*.tar.gz,installers/target/docker/*archive*'
+        stash name: 'deb', includes: 'installers/target/installers/*.deb,installers/target/docker/*deb*,installers/target/docker/*.ldif'
+        stash name: 'rpm', includes: 'installers/target/installers/*.rpm,installers/target/docker/*rpm*,installers/target/docker/*.ldif'
+        stash name: 'bin', includes: 'installers/target/installers/*.bin,installers/target/docker/*bin*,installers/target/docker/*.ldif'
+        stash name: 'archive', includes: 'installers/target/installers/*.zip,installers/target/installers/*.tar.gz,installers/target/docker/*archive*,installers/target/docker/*.ldif'
       }
       post {
         always {
