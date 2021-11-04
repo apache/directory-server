@@ -137,7 +137,7 @@ public class ClientCertificateAuthenticationIT extends AbstractLdapTestUnit
             Date startDate = new Date();
             Date expiryDate = new Date( System.currentTimeMillis() + TlsKeyGenerator.YEAR_MILLIS );
             String keyAlgo = "RSA";
-            int keySize = 1024;
+            int keySize = 2048;
 
             Entry entry = new DefaultEntry();
             TlsKeyGenerator.addKeyPair( entry, issuerDn, subjectDn, startDate, expiryDate, keyAlgo, keySize, null, false );
