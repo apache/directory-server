@@ -27,18 +27,19 @@ import static org.junit.Assert.fail;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.crypto.spec.DESKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosTime;
-import org.apache.directory.shared.kerberos.KerberosUtils;
-import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+    import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.junit.jupiter.api.Test;
 
@@ -77,6 +78,8 @@ public class KeytabTest
             ( byte ) 0x00, ( byte ) 0x08, ( byte ) 0x13, ( byte ) 0xD9, ( byte ) 0x19, ( byte ) 0x98, ( byte ) 0x23,
             ( byte ) 0x8F, ( byte ) 0x9E, ( byte ) 0x31 };
 
+    /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
+    private static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'", Locale.ROOT );
 
     /**
      * Read the first keytab test bytes and check for the presence of a valid DES key.
@@ -162,9 +165,9 @@ public class KeytabTest
         String zuluTime = "20070217235745Z";
         Date date = null;
 
-        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
+        synchronized ( UTC_DATE_FORMAT )
         {
-            date = KerberosUtils.UTC_DATE_FORMAT.parse( zuluTime );
+            date = UTC_DATE_FORMAT.parse( zuluTime );
         }
 
         KerberosTime timeStamp = new KerberosTime( date.getTime() );

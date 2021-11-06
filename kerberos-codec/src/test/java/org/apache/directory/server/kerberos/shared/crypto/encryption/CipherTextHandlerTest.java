@@ -24,7 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -38,8 +40,6 @@ import org.apache.directory.shared.kerberos.components.PaEncTsEnc;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
 import org.junit.jupiter.api.Test;
 
-
-import org.apache.directory.shared.kerberos.KerberosUtils;
 
 /**
  * Test case for sealing and unsealing Kerberos CipherText.
@@ -99,6 +99,8 @@ public class CipherTextHandlerTest
             ( byte ) 0x65, ( byte ) 0x92, ( byte ) 0xbd, ( byte ) 0xf5, ( byte ) 0x52, ( byte ) 0x9f, ( byte ) 0x94,
             ( byte ) 0x67, ( byte ) 0x10, ( byte ) 0xd2 };
 
+    /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
+    private static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'", Locale.ROOT );
 
     /**
      * Tests the lengths of the test vectors for encrypted timestamps for each
@@ -306,9 +308,9 @@ public class CipherTextHandlerTest
     {
         Date date = null;
 
-        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
+        synchronized ( UTC_DATE_FORMAT )
         {
-            date = KerberosUtils.UTC_DATE_FORMAT.parse( zuluTime );
+            date = UTC_DATE_FORMAT.parse( zuluTime );
         }
 
         KerberosTime timeStamp = new KerberosTime( date );

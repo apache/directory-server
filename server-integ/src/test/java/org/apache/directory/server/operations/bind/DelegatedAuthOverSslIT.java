@@ -56,8 +56,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
                 type = DelegatingAuthenticator.class,
                 delegatePort = 10201,
                 delegateSsl = true,
-                delegateTls = false,
-                delegateSslTrustManagerFQCN = "org.apache.directory.ldap.client.api.NoVerificationTrustManager"
+                delegateTls = false//,
+                //delegateSslTrustManagerFQCN = "org.apache.directory.ldap.client.api.NoVerificationTrustManager"
                 ) })
 @ApplyLdifs(
     {

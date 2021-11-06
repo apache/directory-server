@@ -21,11 +21,9 @@ package org.apache.directory.shared.kerberos;
 
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
+import org.apache.directory.api.util.GeneralizedTime;
 import org.apache.directory.api.util.Strings;
 
 
@@ -38,19 +36,8 @@ import org.apache.directory.api.util.Strings;
  */
 public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializable
 {
-    /**
-     * 
-     */
+    /** Serial version id */
     private static final long serialVersionUID = -7541256140193748103L;
-
-    /** The UTC timeZone */
-    private static final TimeZone UTC = TimeZone.getTimeZone( "UTC" );
-
-    /** The KerberosTime as a String*/
-    private String date;
-
-    /** The kerberosTime, as a long */
-    private long kerberosTime;
 
     /** Constant for the {@link KerberosTime} "infinity." */
     public static final KerberosTime INFINITY = new KerberosTime( Long.MAX_VALUE );
@@ -63,6 +50,9 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
 
     /** The number of milliseconds in a week. */
     public static final int WEEK = MINUTE * 10080;
+    
+    /** Kerberos generalized time. */
+    private GeneralizedTime generalizedTime;
 
 
     /**
@@ -70,8 +60,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public KerberosTime()
     {
-        kerberosTime = ( System.currentTimeMillis() / 1000L ) * 1000L; // drop the ms
-        convertInternal( kerberosTime );
+        generalizedTime = new GeneralizedTime( ( System.currentTimeMillis() / 1000L ) * 1000L ); // drop the ms
     }
 
 
@@ -98,7 +87,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public KerberosTime( long date )
     {
-        convertInternal( date );
+        generalizedTime = new GeneralizedTime( date );
     }
 
 
@@ -109,28 +98,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public KerberosTime( Date time )
     {
-        kerberosTime = ( time.getTime() / 1000L ) * 1000L; // drop the ms
-        convertInternal( kerberosTime );
-    }
-
-
-    /**
-     * converts the given milliseconds time to seconds and
-     * also formats the time to the generalized form
-     * 
-     * @param date the time in milliseconds
-     */
-    private void convertInternal( long date )
-    {
-        Calendar calendar = Calendar.getInstance( UTC, Locale.ROOT );
-        calendar.setTimeInMillis( date );
-
-        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
-        {
-            this.date = KerberosUtils.UTC_DATE_FORMAT.format( calendar.getTime() );
-        }
-
-        kerberosTime = ( calendar.getTimeInMillis() / 1000L ) * 1000L; // drop the ms
+        generalizedTime = new GeneralizedTime( ( time.getTime() / 1000L ) * 1000L ); // drop the ms
     }
 
 
@@ -141,7 +109,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public long getTime()
     {
-        return kerberosTime;
+        return generalizedTime.getTime();
     }
 
 
@@ -152,7 +120,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public Date toDate()
     {
-        return new Date( kerberosTime );
+        return generalizedTime.getDate();
     }
 
 
@@ -165,14 +133,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public static KerberosTime getTime( String zuluTime ) throws ParseException
     {
-        Date date = null;
-
-        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
-        {
-            date = KerberosUtils.UTC_DATE_FORMAT.parse( zuluTime );
-        }
-
-        return new KerberosTime( date );
+        return new KerberosTime( zuluTime );
     }
 
 
@@ -180,14 +141,9 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      * Sets the date if it's a valid KerberosTime
      * @param date The date to store
      */
-    public void setDate( String date ) throws ParseException
+    public synchronized void setDate( String date ) throws ParseException
     {
-        synchronized ( KerberosUtils.UTC_DATE_FORMAT )
-        {
-            kerberosTime = KerberosUtils.UTC_DATE_FORMAT.parse( date ).getTime();
-        }
-
-        convertInternal( kerberosTime );
+        generalizedTime = new GeneralizedTime( date );
     }
 
 
@@ -196,7 +152,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public byte[] getBytes()
     {
-        return Strings.getBytesUtf8( date );
+        return Strings.getBytesUtf8( getDate() );
     }
 
 
@@ -205,14 +161,19 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public String getDate()
     {
-        return date;
+        return generalizedTime.toGeneralizedTime(  
+            GeneralizedTime.Format.YEAR_MONTH_DAY_HOUR_MIN_SEC,
+            GeneralizedTime.FractionDelimiter.DOT, 0,
+            GeneralizedTime.TimeZoneFormat.Z
+        );
     }
 
 
     @Override
     public int hashCode()
     {
-        return ( int ) kerberosTime;
+        // leave out fraction (milliseconds)
+        return ( int ) ( generalizedTime.getTime() / 1000L );
     }
 
 
@@ -231,7 +192,8 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
 
         KerberosTime other = ( KerberosTime ) obj;
 
-        return kerberosTime == other.kerberosTime;
+        // compare without fraction (milliseconds)
+        return generalizedTime.getTime() / 1000L == other.generalizedTime.getTime() / 1000L;
     }
 
 
@@ -244,7 +206,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
     public boolean isInClockSkew( long clockSkew )
     {
         // The KerberosTime does not have milliseconds
-        long delta = Math.abs( kerberosTime - System.currentTimeMillis() );
+        long delta = Math.abs( generalizedTime.getTime() - System.currentTimeMillis() );
 
         return delta < clockSkew;
     }
@@ -259,61 +221,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public int compareTo( KerberosTime that )
     {
-        final int BEFORE = -1;
-        final int EQUAL = 0;
-        final int AFTER = 1;
-
-        // this optimization is usually worthwhile, and can always be added
-        if ( this == that )
-        {
-            return EQUAL;
-        }
-
-        // primitive numbers follow this form
-        if ( this.kerberosTime < that.kerberosTime )
-        {
-            return BEFORE;
-        }
-
-        if ( this.kerberosTime > that.kerberosTime )
-        {
-            return AFTER;
-        }
-
-        return EQUAL;
-    }
-
-
-    /**
-     * checks if the current kerberos time is less or equal than the given kerberos time
-     * @param ktime the kerberos time against which the current kerberos time needs to be compared
-     * @return true if current kerberos time is less or equal than the given kerberos time, false otherwise
-     */
-    public boolean lessThan( KerberosTime ktime )
-    {
-        return kerberosTime <= ktime.kerberosTime;
-    }
-
-
-    /**
-     * checks if the current kerberos time is greater than the given kerberos time
-     * @param ktime the kerberos time against which the currnet kerberos time needs to be compared
-     * @return true if current kerberos time is greater than the given kerberos time, false otherwise
-     */
-    public boolean greaterThan( KerberosTime ktime )
-    {
-        return kerberosTime > ktime.kerberosTime;
-    }
-
-
-    /**
-     * Returns whether this {@link KerberosTime} is zero.
-     *
-     * @return true if this {@link KerberosTime} is zero.
-     */
-    public boolean isZero()
-    {
-        return kerberosTime == 0;
+        return generalizedTime.compareTo( that.generalizedTime );
     }
 
 
@@ -322,6 +230,6 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
      */
     public String toString()
     {
-        return date;
+        return getDate();
     }
 }

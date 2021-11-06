@@ -90,17 +90,10 @@ public class KerberosUtils
      */
     private static final Map<String, String> cipherAlgoMap = new LinkedHashMap<>();
 
-    public static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
-
-    /** Defines a default date format with a "yyyyMMddHHmmss'Z'" pattern */
-    public static final SimpleDateFormat UTC_DATE_FORMAT = new SimpleDateFormat( "yyyyMMddHHmmss'Z'", Locale.ROOT );
-
     private static final Set<EncryptionType> oldEncTypes = new HashSet<>();
 
     static
     {
-        UTC_DATE_FORMAT.setTimeZone( UTC_TIME_ZONE );
-
         cipherAlgoMap.put( "rc4", "ArcFourHmac" );
         cipherAlgoMap.put( "aes256", "AES256" );
         cipherAlgoMap.put( "aes128", "AES128" );
@@ -577,7 +570,7 @@ public class KerberosUtils
             .getStartTime() : ticket.getEncTicketPart().getAuthTime();
 
         KerberosTime now = new KerberosTime();
-        boolean isValidStartTime = startTime.lessThan( now );
+        boolean isValidStartTime = startTime.compareTo( now ) <= 0;
 
         if ( !isValidStartTime || ( ticket.getEncTicketPart().getFlags().isInvalid() && !isValidate ) )
         {
@@ -586,7 +579,7 @@ public class KerberosUtils
         }
 
         // TODO - doesn't take into account skew
-        if ( !ticket.getEncTicketPart().getEndTime().greaterThan( now ) )
+        if ( ticket.getEncTicketPart().getEndTime().compareTo( now ) < 0)
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_EXPIRED );
         }
