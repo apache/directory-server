@@ -26,13 +26,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.annotations.CreateIndex;
+import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -49,7 +53,28 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 @ExtendWith( { ApacheDSTestExtension.class } )
-@CreateDS(name = "SimpleBindIT", allowAnonAccess = true)
+@CreateDS(
+    name = "SimpleBindIT", 
+        partitions =
+        {
+            @CreatePartition(
+                name = "example",
+                suffix = "dc=example,dc=com",
+                contextEntry = @ContextEntry(
+                    entryLdif =
+                    "dn: dc=example,dc=com\n" +
+                        "dc: example\n" +
+                        "objectClass: top\n" +
+                        "objectClass: domain\n\n"),
+                indexes =
+                    {
+                        @CreateIndex(attribute = "objectClass"),
+                        @CreateIndex(attribute = "sn"),
+                        @CreateIndex(attribute = "cn")
+                })
+
+    },
+    allowAnonAccess = true)
 public class SimpleBindIT extends AbstractLdapTestUnit
 {
     /** The ldap connection */
@@ -219,16 +244,28 @@ public class SimpleBindIT extends AbstractLdapTestUnit
 
 
     /**
-     * try to connect using a known user/password and read an entry.
+     * not allowed by the server. We should get a invalidCredentials error.
      *
      * @throws Exception on error
      */
     @Test
-    public void testSimpleBindWithDoubleQuote() throws LdapException, IOException
+    public void testSimpleBindComplexDn() throws LdapException, IOException
     {
-        connection.bind( "uid=\"admin\",ou=\"system\"", "secret" );
+        String dn =  "cn=Meissa SAKHO+uid=msakho,dc=example,dc=com";
+        Entry entry = new DefaultEntry( dn,
+            "objectClass: organizationalPerson",
+            "objectClass: person",
+            "objectClass: inetOrgPerson",
+            "objectClass: top",
+            "cn: meissa sakho",
+            "sn: sakho",
+            "title: cn=Administrator,ou=Groups,dc=example,dc=com",
+            "uid: msakho",
+            "userpassword: meissa"
+            );
+
+        connection.add( entry );
         
-        Entry entry = connection.lookup( "uid=admin,ou=system" );
-        assertNotNull( entry );
+        connection.bind( dn, "meissa" );
     }
 }

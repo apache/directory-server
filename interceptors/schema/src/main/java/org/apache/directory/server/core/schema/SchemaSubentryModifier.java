@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.Base64;
+
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -42,7 +44,6 @@ import org.apache.directory.api.ldap.model.schema.parsers.LdapComparatorDescript
 import org.apache.directory.api.ldap.model.schema.parsers.NormalizerDescription;
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescription;
 import org.apache.directory.api.ldap.model.schema.registries.Schema;
-import org.apache.directory.api.util.Base64;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.interceptor.Interceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -311,7 +312,7 @@ public class SchemaSubentryModifier
         if ( comparatorDescription.getBytecode() != null )
         {
             entry.put( MetaSchemaConstants.M_BYTECODE_AT,
-                Base64.decode( comparatorDescription.getBytecode().toCharArray() ) );
+                Base64.getDecoder().decode( comparatorDescription.getBytecode() ) );
         }
 
         if ( comparatorDescription.getDescription() != null )
@@ -338,7 +339,7 @@ public class SchemaSubentryModifier
         if ( normalizerDescription.getBytecode() != null )
         {
             entry.put( MetaSchemaConstants.M_BYTECODE_AT,
-                Base64.decode( normalizerDescription.getBytecode().toCharArray() ) );
+                Base64.getDecoder().decode( normalizerDescription.getBytecode() ) );
         }
 
         if ( normalizerDescription.getDescription() != null )
@@ -376,7 +377,7 @@ public class SchemaSubentryModifier
         if ( syntaxCheckerDescription.getBytecode() != null )
         {
             entry.put( MetaSchemaConstants.M_BYTECODE_AT,
-                Base64.decode( syntaxCheckerDescription.getBytecode().toCharArray() ) );
+                Base64.getDecoder().decode( syntaxCheckerDescription.getBytecode() ) );
         }
 
         if ( syntaxCheckerDescription.getDescription() != null )

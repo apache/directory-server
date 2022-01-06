@@ -25,13 +25,14 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getRootCon
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.Base64;
+
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.api.util.Base64;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -60,7 +61,7 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
         + "AAkAAAAdAAEAAQAAAAUqtwABsQAAAAEACgAAAAYAAQAAAAEACQALAAwAAQAJAAAAJQACAAEAAAA"
         + "JsgACEgO2AASxAAAAAQAKAAAACgACAAAABQAIAAYAAQANAAAAAgAO";
 
-    private static final byte[] HELLOWORLD_CLASS_BYTES = Base64.decode( HELLOWORLD_CLASS_BASE64.toCharArray() );
+    private static final byte[] HELLOWORLD_CLASS_BYTES = Base64.getDecoder().decode( HELLOWORLD_CLASS_BASE64 );
 
 
     @Test

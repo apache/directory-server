@@ -30,7 +30,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -74,7 +76,6 @@ import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescripti
 import org.apache.directory.api.ldap.model.schema.parsers.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
 import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
-import org.apache.directory.api.util.Base64;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -2014,7 +2015,7 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
                 out.write( in.read() );
             }
 
-            return new String( Base64.encode( out.toByteArray() ) );
+            return new String( Base64.getEncoder().encode( out.toByteArray() ), StandardCharsets.UTF_8 );
         }
     }
 
