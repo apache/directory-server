@@ -104,7 +104,7 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
         Date startDate = new Date();
         Date expiryDate = new Date( System.currentTimeMillis() + TlsKeyGenerator.YEAR_MILLIS );
         String keyAlgo = "RSA";
-        int keySize = 1024;
+        int keySize = 2048;
 
         // generate root CA, self-signed
         String rootCaSubjectDn = issuerDn;
