@@ -3272,7 +3272,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     @Override
     public boolean hasUserIndexOn( AttributeType attributeType ) throws LdapException
     {
+        if ( attributeType == null )
+        {
+            return false;
+        }
+
         String oid = attributeType.getOid();
+
         return userIndices.containsKey( oid );
     }
 
@@ -3283,6 +3289,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     @Override
     public boolean hasSystemIndexOn( AttributeType attributeType ) throws LdapException
     {
+        if ( attributeType == null )
+        {
+            return false;
+        }
+
         return systemIndices.containsKey( attributeType.getOid() );
     }
 
