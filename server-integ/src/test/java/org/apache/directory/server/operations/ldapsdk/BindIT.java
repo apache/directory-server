@@ -21,16 +21,10 @@ package org.apache.directory.server.operations.ldapsdk;
 
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.AuthenticationException;
-import javax.naming.InvalidNameException;
-
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPConstraints;
-import netscape.ldap.LDAPControl;
-import netscape.ldap.LDAPException;
 
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
@@ -42,6 +36,11 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPConstraints;
+import netscape.ldap.LDAPControl;
+import netscape.ldap.LDAPException;
 
 
 /**
@@ -155,7 +154,7 @@ public class BindIT extends AbstractLdapTestUnit
         }
         catch ( LDAPException e )
         {
-            assertEquals( "statuscode", LDAPException.PROTOCOL_ERROR, e.getLDAPResultCode() );
+            assertEquals( LDAPException.PROTOCOL_ERROR, e.getLDAPResultCode(), "statuscode" );
         }
         finally
         {
@@ -187,7 +186,7 @@ public class BindIT extends AbstractLdapTestUnit
         }
         catch ( LDAPException e )
         {
-            assertEquals( "statuscode", LDAPException.INVALID_CREDENTIALS, e.getLDAPResultCode() );
+            assertEquals( LDAPException.INVALID_CREDENTIALS, e.getLDAPResultCode(), "statuscode" );
         }
 
         try
@@ -198,7 +197,7 @@ public class BindIT extends AbstractLdapTestUnit
         }
         catch ( LDAPException e )
         {
-            assertEquals( "statuscode", LDAPException.INVALID_CREDENTIALS, e.getLDAPResultCode() );
+            assertEquals( LDAPException.INVALID_CREDENTIALS, e.getLDAPResultCode(), "statuscode" );
         }
     }
 }

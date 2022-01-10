@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ public class KerberosKeyFactoryTest
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "DES" );
 
-        assertEquals( "DES key length", 8, key.getEncoded().length );
+        assertEquals( 8, key.getEncoded().length, "DES key length" );
     }
 
 
@@ -67,7 +67,7 @@ public class KerberosKeyFactoryTest
         String algorithm = VendorHelper.getTripleDesAlgorithm();
         KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), algorithm );
 
-        assertEquals( "DESede key length", 24, key.getEncoded().length );
+        assertEquals( 24, key.getEncoded().length, "DESede key length" );
     }
 
 
@@ -85,7 +85,7 @@ public class KerberosKeyFactoryTest
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "ArcFourHmac" );
 
-        assertEquals( "ArcFourHmac key length", 16, key.getEncoded().length );
+        assertEquals( 16, key.getEncoded().length, "ArcFourHmac key length" );
     }
 
 
@@ -100,7 +100,7 @@ public class KerberosKeyFactoryTest
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "AES128" );
 
-        assertEquals( "AES128 key length", 16, key.getEncoded().length );
+        assertEquals( 16, key.getEncoded().length, "AES128 key length" );
     }
 
 
@@ -114,7 +114,7 @@ public class KerberosKeyFactoryTest
         {
             KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
             KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
-            assertEquals( "AES256 key length", 32, kerberosKey.getEncoded().length );
+            assertEquals( 32, kerberosKey.getEncoded().length, "AES256 key length" );
         }
         catch ( IllegalArgumentException iae )
         {
@@ -138,7 +138,7 @@ public class KerberosKeyFactoryTest
         Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
             encryptionTypes );
 
-        assertEquals( "List length", 1, map.values().size() );
+        assertEquals( 1, map.values().size(), "List length" );
 
         EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
 
@@ -175,7 +175,7 @@ public class KerberosKeyFactoryTest
         Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
             encryptionTypes );
 
-        assertEquals( "List length", 1, map.values().size() );
+        assertEquals( 1, map.values().size(), "List length" );
 
         EncryptionKey kerberosKey = map.get( EncryptionType.DES3_CBC_SHA1_KD );
 
@@ -214,7 +214,7 @@ public class KerberosKeyFactoryTest
         Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
             encryptionTypes );
 
-        assertEquals( "List length", 1, map.values().size() );
+        assertEquals( 1, map.values().size(), "List length" );
 
         EncryptionKey kerberosKey = map.get( EncryptionType.RC4_HMAC );
 
@@ -252,7 +252,7 @@ public class KerberosKeyFactoryTest
         Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
             encryptionTypes );
 
-        assertEquals( "List length", 1, map.values().size() );
+        assertEquals( 1, map.values().size(), "List length" );
 
         EncryptionKey kerberosKey = map.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
@@ -295,7 +295,7 @@ public class KerberosKeyFactoryTest
 
         if ( kerberosKey != null )
         {
-            assertEquals( "List length", 1, map.values().size() );
+            assertEquals( 1, map.values().size(), "List length" );
 
             EncryptionType keyType = kerberosKey.getKeyType();
             int keyLength = kerberosKey.getKeyValue().length;

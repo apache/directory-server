@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 

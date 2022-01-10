@@ -21,7 +21,7 @@ package org.apache.directory.server.operations.extended;
 
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.CommunicationException;
 import javax.naming.NamingException;

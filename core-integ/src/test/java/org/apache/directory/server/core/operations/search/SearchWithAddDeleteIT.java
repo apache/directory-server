@@ -72,7 +72,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
                 })
 
     })
-public class SearchWithAddDelete extends AbstractLdapTestUnit
+public class SearchWithAddDeleteIT extends AbstractLdapTestUnit
 {
     @Test
     public void testSearchWithDeletion() throws Exception

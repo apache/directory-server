@@ -22,21 +22,12 @@ package org.apache.directory.server.operations.ldapsdk;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getNsdkWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
-
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPConstraints;
-import netscape.ldap.LDAPControl;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPResponse;
-import netscape.ldap.LDAPResponseListener;
-import netscape.ldap.LDAPSearchConstraints;
 
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.util.Strings;
@@ -49,6 +40,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPConstraints;
+import netscape.ldap.LDAPControl;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPResponse;
+import netscape.ldap.LDAPResponseListener;
+import netscape.ldap.LDAPSearchConstraints;
 
 
 /**

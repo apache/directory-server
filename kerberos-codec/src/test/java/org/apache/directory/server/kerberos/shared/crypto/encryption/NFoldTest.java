@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
@@ -49,7 +49,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 192, lcm );
+        assertEquals( 192, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -71,7 +71,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 448, lcm );
+        assertEquals( 448, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -92,7 +92,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 2112, lcm );
+        assertEquals( 2112, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -114,7 +114,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 1344, lcm );
+        assertEquals( 1344, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -138,7 +138,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 7104, lcm );
+        assertEquals( 7104, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -163,7 +163,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 168, lcm );
+        assertEquals( 168, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -187,7 +187,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 336, lcm );
+        assertEquals( 336, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -211,7 +211,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 64, lcm );
+        assertEquals( 64, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -233,7 +233,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 128, lcm );
+        assertEquals( 128, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -256,7 +256,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 1344, lcm );
+        assertEquals( 1344, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 
@@ -280,7 +280,7 @@ public class NFoldTest
 
         int k = Strings.getBytesUtf8( passPhrase ).length * 8;
         int lcm = NFold.getLcm( n, k );
-        assertEquals( "LCM", 256, lcm );
+        assertEquals( 256, lcm, "LCM" );
 
         byte[] nFoldValue = NFold.nFold( n, Strings.getBytesUtf8( passPhrase ) );
 

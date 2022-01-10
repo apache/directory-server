@@ -484,7 +484,7 @@ public class IntegrationUtils
     {
         LdapConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
-        connection.setTimeOut( 30000L );
+        connection.setTimeOut( 0L );
         connection.bind( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
 
         OPEN_CONNECTIONS.add( connection );

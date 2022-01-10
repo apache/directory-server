@@ -35,6 +35,7 @@ import org.apache.directory.api.ldap.model.filter.NotNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.filter.SimpleNode;
 import org.apache.directory.api.ldap.model.filter.SubstringNode;
+import org.apache.directory.api.ldap.model.filter.UndefinedNode;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.Normalizer;
@@ -237,7 +238,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         if ( ( substringMR == null ) || ( substringMR.getNormalizer() == null ) )
         {
             // No normalizer for a Substring filter
-            return node;
+            return UndefinedNode.UNDEFINED_NODE;
         }
         
         Normalizer normalizer = substringMR.getNormalizer();

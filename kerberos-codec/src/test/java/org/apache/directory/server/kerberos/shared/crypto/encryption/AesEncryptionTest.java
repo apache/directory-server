@@ -20,6 +20,9 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.security.GeneralSecurityException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
@@ -30,9 +33,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -82,7 +82,7 @@ public class AesEncryptionTest
 
         byte[] result = aesCipher( KEY, input );
 
-        assertEquals( "Length", input.length, result.length );
+        assertEquals( input.length, result.length, "Length" );
         assertTrue( Arrays.equals( output, result ) );
     }
 
@@ -127,7 +127,7 @@ public class AesEncryptionTest
 
         byte[] result = aesCipher( KEY, input );
 
-        assertEquals( "Length", input.length, result.length );
+        assertEquals( input.length, result.length, "Length" );
         assertTrue( Arrays.equals( output, result ) );
     }
 

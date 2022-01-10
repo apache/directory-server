@@ -20,14 +20,14 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.security.InvalidKeyException;
 import java.util.Arrays;
 
 import javax.crypto.spec.DESKeySpec;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -69,7 +69,7 @@ public class DesStringToKeyTest
     {
         byte[] key = stringToKey.getKey( "password", "ATHENA.MIT.EDU", "raeburn" );
 
-        assertTrue( "Key match", Arrays.equals( DES_KEY1, key ) );
+        assertTrue( Arrays.equals( DES_KEY1, key ), "Key match" );
     }
 
 
@@ -81,7 +81,7 @@ public class DesStringToKeyTest
     {
         byte[] key = stringToKey.getKey( "potatoe", "WHITEHOUSE.GOV", "danny" );
 
-        assertTrue( "Key match", Arrays.equals( DES_KEY2, key ) );
+        assertTrue( Arrays.equals( DES_KEY2, key ), "Key match" );
     }
 
 
@@ -99,13 +99,13 @@ public class DesStringToKeyTest
         byte[] paddedByteArray = stringToKey.padString( encodedByteArray );
         byte[] fanFold = stringToKey.fanFold( paddedByteArray );
 
-        assertTrue( "Key match", Arrays.equals( FAN_FOLD1, fanFold ) );
+        assertTrue( Arrays.equals( FAN_FOLD1, fanFold ), "Key match" );
 
         fanFold = stringToKey.setParity( fanFold );
-        assertTrue( "Key match", Arrays.equals( INTERMEDIATE_KEY1, fanFold ) );
+        assertTrue( Arrays.equals( INTERMEDIATE_KEY1, fanFold ), "Key match" );
 
         byte[] secretKey = getDesKey( paddedByteArray, fanFold );
-        assertTrue( "Key match", Arrays.equals( DES_KEY1, secretKey ) );
+        assertTrue( Arrays.equals( DES_KEY1, secretKey ), "Key match" );
     }
 
 
@@ -123,13 +123,13 @@ public class DesStringToKeyTest
         byte[] paddedByteArray = stringToKey.padString( encodedByteArray );
         byte[] fanFold = stringToKey.fanFold( paddedByteArray );
 
-        assertTrue( "Key match", Arrays.equals( FAN_FOLD2, fanFold ) );
+        assertTrue( Arrays.equals( FAN_FOLD2, fanFold ), "Key match" );
 
         fanFold = stringToKey.setParity( fanFold );
-        assertTrue( "Key match", Arrays.equals( INTERMEDIATE_KEY2, fanFold ) );
+        assertTrue( Arrays.equals( INTERMEDIATE_KEY2, fanFold ), "Key match" );
 
         byte[] secretKey = getDesKey( paddedByteArray, fanFold );
-        assertTrue( "Key match", Arrays.equals( DES_KEY2, secretKey ) );
+        assertTrue( Arrays.equals( DES_KEY2, secretKey ), "Key match" );
     }
 
 

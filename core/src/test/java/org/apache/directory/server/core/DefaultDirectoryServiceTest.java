@@ -20,7 +20,7 @@
 package org.apache.directory.server.core;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.server.core.api.InterceptorEnum;

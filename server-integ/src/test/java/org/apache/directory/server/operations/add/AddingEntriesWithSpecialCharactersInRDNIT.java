@@ -21,9 +21,9 @@ package org.apache.directory.server.operations.add;
 
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -106,7 +106,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         cursor.close();
 
-        assertTrue( "entry found", entryFound );
+        assertTrue( entryFound, "entry found" );
 
         connection.delete( dn );
         connection.close();
@@ -146,7 +146,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         cursor.close();
 
-        assertTrue( "entry found", entryFound );
+        assertTrue( entryFound, "entry found" );
 
         connection.delete( dn );
         connection.close();
@@ -182,7 +182,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         cursor.close();
 
-        assertTrue( "entry found", entryFound );
+        assertTrue( entryFound, "entry found" );
 
         connection.delete( dn );
         connection.close();
@@ -218,7 +218,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         cursor.close();
 
-        assertTrue( "no entry found", entryFound );
+        assertTrue( entryFound, "no entry found" );
         connection.delete( dn );
         connection.close();
     }
@@ -257,7 +257,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         cursor.close();
 
-        assertTrue( "entry found", entryFound );
+        assertTrue( entryFound, "entry found" );
 
         connection.delete( dn );
         connection.close();
@@ -297,7 +297,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         cursor.close();
 
-        assertTrue( "entry found", entryFound );
+        assertTrue( entryFound, "entry found" );
 
         connection.delete( dn );
         connection.close();
@@ -337,7 +337,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         cursor.close();
 
-        assertTrue( "entry found", entryFound );
+        assertTrue( entryFound, "entry found" );
 
         connection.delete( dn );
         connection.close();
@@ -376,7 +376,7 @@ public class AddingEntriesWithSpecialCharactersInRDNIT extends AbstractLdapTestU
 
         cursor.close();
 
-        assertTrue( "entry found", entryFound );
+        assertTrue( entryFound, "entry found" );
 
         connection.delete( dn );
         connection.close();

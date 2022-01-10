@@ -21,8 +21,8 @@ package org.apache.directory.server.operations.extended;
 
 
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNetworkConnection;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.extras.extended.whoAmI.WhoAmIRequest;
 import org.apache.directory.api.ldap.extras.extended.whoAmI.WhoAmIRequestImpl;

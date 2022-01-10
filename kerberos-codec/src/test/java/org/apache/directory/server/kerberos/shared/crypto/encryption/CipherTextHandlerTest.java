@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -110,11 +110,11 @@ public class CipherTextHandlerTest
     @Test
     public void testTestVectorLengths()
     {
-        assertEquals( "DES length", 56, DES_ENCRYPTED_TIME_STAMP.length );
-        assertEquals( "DES3 length", 60, TRIPLE_DES_ENCRYPTED_TIME_STAMP.length );
-        assertEquals( "AES128 length", 56, AES128_ENCRYPTED_TIME_STAMP.length );
-        assertEquals( "AES256 length", 56, AES256_ENCRYPTED_TIME_STAMP.length );
-        assertEquals( "RC4-HMAC length", 52, ARCFOUR_ENCRYPTED_TIME_STAMP.length );
+        assertEquals( 56, DES_ENCRYPTED_TIME_STAMP.length, "DES length" );
+        assertEquals( 60, TRIPLE_DES_ENCRYPTED_TIME_STAMP.length, "DES3 length" );
+        assertEquals( 56, AES128_ENCRYPTED_TIME_STAMP.length, "AES128 length" );
+        assertEquals( 56, AES256_ENCRYPTED_TIME_STAMP.length, "AES256 length" );
+        assertEquals( 52, ARCFOUR_ENCRYPTED_TIME_STAMP.length, "RC4-HMAC length" );
     }
 
     /**
@@ -140,8 +140,8 @@ public class CipherTextHandlerTest
         {
             byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
-            assertEquals( "TimeStamp", "20070410212557Z", object.getPaTimestamp().toString() );
-            assertEquals( "MicroSeconds", 379386, object.getPausec() );
+            assertEquals( "20070410212557Z", object.getPaTimestamp().toString(), "TimeStamp" );
+            assertEquals( 379386, object.getPausec(), "MicroSeconds" );
         }
         catch ( KerberosException ke )
         {
@@ -189,8 +189,8 @@ public class CipherTextHandlerTest
         {
             byte[] paEncTsEncData = lockBox.decrypt( key, encryptedData, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
-            assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
-            assertEquals( "MicroSeconds", 460450, object.getPausec() );
+            assertEquals( "20070410190400Z", object.getPaTimestamp().toString(), "TimeStamp" );
+            assertEquals( 460450, object.getPausec(), "MicroSeconds" );
         }
         catch ( KerberosException ke )
         {
@@ -233,8 +233,8 @@ public class CipherTextHandlerTest
         {
             byte[] paEncTsEncData = lockBox.decrypt( key, data, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
-            assertEquals( "TimeStamp", "20070410212809Z", object.getPaTimestamp().toString() );
-            assertEquals( "MicroSeconds", 298294, object.getPausec() );
+            assertEquals( "20070410212809Z", object.getPaTimestamp().toString(), "TimeStamp" );
+            assertEquals( 298294, object.getPausec(), "MicroSeconds" );
         }
         catch ( KerberosException ke )
         {
@@ -294,8 +294,8 @@ public class CipherTextHandlerTest
         {
             byte[] paEncTsEncData = lockBox.decrypt( key, encryptedData, KeyUsage.AS_REQ_PA_ENC_TIMESTAMP_WITH_CKEY );
             PaEncTsEnc object = KerberosDecoder.decodePaEncTsEnc( paEncTsEncData );
-            assertEquals( "TimeStamp", "20070410190400Z", object.getPaTimestamp().toString() );
-            assertEquals( "MicroSeconds", 460450, object.getPausec() );
+            assertEquals( "20070410190400Z", object.getPaTimestamp().toString(), "TimeStamp" );
+            assertEquals( 460450, object.getPausec(), "MicroSeconds" );
         }
         catch ( KerberosException ke )
         {

@@ -23,24 +23,16 @@ package org.apache.directory.server.operations.ldapsdk;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getNsdkWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPConstraints;
-import netscape.ldap.LDAPControl;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPResponse;
-import netscape.ldap.LDAPResponseListener;
 
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.util.Network;
@@ -55,6 +47,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPConstraints;
+import netscape.ldap.LDAPControl;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPResponse;
+import netscape.ldap.LDAPResponseListener;
 
 
 /**
@@ -266,7 +266,7 @@ public class CompareIT extends AbstractLdapTestUnit
         }
         catch ( LDAPException e )
         {
-            assertEquals( "no permission exception", 50, e.getLDAPResultCode() );
+            assertEquals( 50, e.getLDAPResultCode(), "no permission exception" );
         }
     }
 

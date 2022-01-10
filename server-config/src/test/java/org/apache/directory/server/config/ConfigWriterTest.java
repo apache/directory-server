@@ -21,9 +21,9 @@
 package org.apache.directory.server.config;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
@@ -42,6 +41,7 @@ import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.config.beans.ConfigBean;
 import org.apache.directory.server.core.api.DnFactory;

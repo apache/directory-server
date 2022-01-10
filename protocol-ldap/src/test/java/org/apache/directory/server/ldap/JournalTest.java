@@ -20,14 +20,10 @@
 package org.apache.directory.server.ldap;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
-
-import jdbm.RecordManager;
-import jdbm.recman.BaseRecordManager;
-import jdbm.recman.TransactionManager;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.csn.Csn;
@@ -54,6 +50,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import jdbm.RecordManager;
+import jdbm.recman.BaseRecordManager;
+import jdbm.recman.TransactionManager;
 
 
 /**

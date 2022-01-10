@@ -21,8 +21,8 @@
 package org.apache.directory.server.core.factory;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -206,15 +206,15 @@ public class DirectoryServiceAnnotationTest
         assertEquals( "MethodDSWithAuthenticator", service.getInstanceId() );
         final Set<Authenticator> authenticators = findAuthInterceptor( service ).getAuthenticators();
         assertEquals(
-            "Expected interceptor to be configured with only one authenticator",
             1,
-            authenticators.size() );
+            authenticators.size(),
+            "Expected interceptor to be configured with only one authenticator" );
         assertEquals(
-            "Expected the only interceptor to be the dummy interceptor",
             DummyAuthenticator.class,
-            authenticators.iterator().next().getClass() );
+            authenticators.iterator().next().getClass(),
+            "Expected the only interceptor to be the dummy interceptor" );
         service.getSession( new Dn( "uid=non-existant-user,ou=system" ), Strings.getBytesUtf8( "wrong-password" ) );
-        assertTrue( "Expected dummy authenticator to have been invoked", dummyAuthenticatorCalled );
+        assertTrue( dummyAuthenticatorCalled, "Expected dummy authenticator to have been invoked" );
         service.shutdown();
         FileUtils.deleteDirectory( service.getInstanceLayout().getInstanceDirectory() );
     }

@@ -20,8 +20,8 @@
 package org.apache.directory.server.ssl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
@@ -133,9 +133,11 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
         String subjectDN = lastReceivedServerCertificates[0].getSubjectDN().getName();
         // converting the values to lowercase is required cause the certificate is
         // having attribute names in capital letters e.c the above newIssuerDN will be present as CN=new_issuer_dn
-        assertEquals( "Expected the new certificate with the new issuer",
-            Strings.toLowerCaseAscii( issuerDN ), Strings.toLowerCaseAscii( "CN=new_issuer_dn, OU=directory, O=apache, C=US" ) );
-        assertEquals( "Expected the new certificate with the new subject",
-            Strings.toLowerCaseAscii( subjectDN ), Strings.toLowerCaseAscii( "CN=new_subject_dn, OU=directory, O=apache, C=US" ) );
+        assertEquals( 
+            Strings.toLowerCaseAscii( issuerDN ), Strings.toLowerCaseAscii( "CN=new_issuer_dn, OU=directory, O=apache, C=US" ),
+            "Expected the new certificate with the new issuer" );
+        assertEquals( 
+            Strings.toLowerCaseAscii( subjectDN ), Strings.toLowerCaseAscii( "CN=new_subject_dn, OU=directory, O=apache, C=US" ),
+            "Expected the new certificate with the new subject" );
     }
 }

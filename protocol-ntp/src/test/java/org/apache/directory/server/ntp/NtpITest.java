@@ -20,7 +20,7 @@
 package org.apache.directory.server.ntp;
 
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.InetAddress;
 import java.util.concurrent.Executors;
@@ -91,9 +91,9 @@ public class NtpITest
         timeInfo.computeDetails();
 
         String offsetMsg = "Expected offset in range (-1000, 1000), but was " + timeInfo.getOffset();
-        assertTrue( offsetMsg, -1000 < timeInfo.getOffset() && timeInfo.getOffset() < 1000 );
+        assertTrue( -1000 < timeInfo.getOffset() && timeInfo.getOffset() < 1000, offsetMsg );
         String delayMsg = "Expected delay in range [0, 1000), but was " + timeInfo.getOffset();
-        assertTrue( delayMsg, 0 <= timeInfo.getDelay() && timeInfo.getDelay() < 1000 );
+        assertTrue( 0 <= timeInfo.getDelay() && timeInfo.getDelay() < 1000, delayMsg );
     }
 
 

@@ -20,9 +20,9 @@
 package org.apache.directory.server.kerberos.shared.keytab;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
@@ -39,7 +39,7 @@ import javax.crypto.spec.DESKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.shared.kerberos.KerberosTime;
-    import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
+import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.junit.jupiter.api.Test;
 
@@ -91,8 +91,8 @@ public class KeytabTest
     {
         Keytab keytab = Keytab.read( keytab1 );
 
-        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_0X502_BYTES, keytab.getKeytabVersion() ) );
-        assertEquals( "Entries size", 1, keytab.getEntries().size() );
+        assertTrue( Arrays.equals( Keytab.VERSION_0X502_BYTES, keytab.getKeytabVersion() ), "Keytab version" );
+        assertEquals( 1, keytab.getEntries().size(), "Entries size" );
 
         KeytabEntry entry = keytab.getEntries().get( 0 );
         EncryptionKey key = entry.getKey();
@@ -118,8 +118,8 @@ public class KeytabTest
     {
         Keytab keytab = Keytab.read( keytab2 );
 
-        assertTrue( "Keytab version", Arrays.equals( Keytab.VERSION_0X502_BYTES, keytab.getKeytabVersion() ) );
-        assertEquals( "Entries size", 1, keytab.getEntries().size() );
+        assertTrue( Arrays.equals( Keytab.VERSION_0X502_BYTES, keytab.getKeytabVersion() ), "Keytab version" );
+        assertEquals( 1, keytab.getEntries().size(), "Entries size" );
 
         KeytabEntry entry = keytab.getEntries().get( 0 );
         EncryptionKey key = entry.getKey();
@@ -153,7 +153,7 @@ public class KeytabTest
         ByteBuffer buffer = writer.write();
 
         //System.out.println( Strings.dumpBytes( buffer.array() ) );
-        assertEquals( "Expected file size.", 130, buffer.limit() );
+        assertEquals( 130, buffer.limit(), "Expected file size." );
     }
 
 

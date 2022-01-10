@@ -21,8 +21,8 @@ package org.apache.directory.server.operations.delete;
 
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.ldap.client.api.LdapConnection;

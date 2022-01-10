@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.lookup;
 
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Hashtable;
 

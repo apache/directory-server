@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class RandomKeyFactoryTest
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "DES" );
         SecretKey key = keygen.generateKey();
-        assertEquals( "DES key size", 8, key.getEncoded().length );
+        assertEquals( 8, key.getEncoded().length, "DES key size" );
         assertTrue( DESKeySpec.isParityAdjusted( key.getEncoded(), 0 ) );
     }
 
@@ -69,7 +69,7 @@ public class RandomKeyFactoryTest
     {
         KeyGenerator keygen = KeyGenerator.getInstance( "DESede" );
         SecretKey key = keygen.generateKey();
-        assertEquals( "DESede key size", 24, key.getEncoded().length );
+        assertEquals( 24, key.getEncoded().length, "DESede key size" );
     }
 
 
@@ -84,7 +84,7 @@ public class RandomKeyFactoryTest
         KeyGenerator keygen = KeyGenerator.getInstance( "AES" );
         keygen.init( 128 );
         SecretKey key = keygen.generateKey();
-        assertEquals( "AES key size", 16, key.getEncoded().length );
+        assertEquals( 16, key.getEncoded().length, "AES key size" );
     }
 
 
@@ -99,7 +99,7 @@ public class RandomKeyFactoryTest
         KeyGenerator keygen = KeyGenerator.getInstance( "AES" );
         keygen.init( 256 );
         SecretKey key = keygen.generateKey();
-        assertEquals( "AES key size", 32, key.getEncoded().length );
+        assertEquals( 32, key.getEncoded().length, "AES key size" );
     }
 
 
@@ -118,7 +118,7 @@ public class RandomKeyFactoryTest
 
         KeyGenerator keygen = KeyGenerator.getInstance( "ARCFOUR" );
         SecretKey key = keygen.generateKey();
-        assertEquals( "ARCFOUR key size", 16, key.getEncoded().length );
+        assertEquals( 16, key.getEncoded().length, "ARCFOUR key size" );
     }
 
 
@@ -137,7 +137,7 @@ public class RandomKeyFactoryTest
 
         KeyGenerator keygen = KeyGenerator.getInstance( "RC4" );
         SecretKey key = keygen.generateKey();
-        assertEquals( "RC4 key size", 16, key.getEncoded().length );
+        assertEquals( 16, key.getEncoded().length, "RC4 key size" );
     }
 
 
@@ -205,7 +205,7 @@ public class RandomKeyFactoryTest
 
         Map<EncryptionType, EncryptionKey> map = RandomKeyFactory.getRandomKeys( encryptionTypes );
 
-        assertEquals( "List length", 1, map.values().size() );
+        assertEquals( 1, map.values().size(), "List length" );
 
         EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
 

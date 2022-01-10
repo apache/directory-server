@@ -20,8 +20,8 @@
 package org.apache.directory.server.ssl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -145,21 +145,22 @@ public class StartTlsIT extends AbstractLdapTestUnit
         ne.close();
 
         assertEquals( 10, results.size() );
-        assertTrue( "Results must contain ou=system", results.contains( "ou=system" ) );
-        assertTrue( "Results must contain uid=admin,ou=system", results.contains( "uid=admin,ou=system" ) );
-        assertTrue( "Results must contain ou=users,ou=system", results.contains( "ou=users,ou=system" ) );
-        assertTrue( "Results must contain ou=groups,ou=system", results.contains( "ou=groups,ou=system" ) );
-        assertTrue( "Results must contain cn=Administrators,ou=groups,ou=system",
-            results.contains( "cn=Administrators,ou=groups,ou=system" ) );
-        assertTrue( "Results must contain ou=configuration,ou=system", results.contains( "ou=configuration,ou=system" ) );
-        assertTrue( "Results must contain ou=partitions,ou=configuration,ou=system",
-            results.contains( "ou=partitions,ou=configuration,ou=system" ) );
-        assertTrue( "Results must contain ou=services,ou=configuration,ou=system",
-            results.contains( "ou=services,ou=configuration,ou=system" ) );
-        assertTrue( "Results must contain ou=interceptors,ou=configuration,ou=system",
-            results.contains( "ou=interceptors,ou=configuration,ou=system" ) );
-        assertTrue( "Results must contain prefNodeName=sysPrefRoot,ou=system",
-            results.contains( "prefNodeName=sysPrefRoot,ou=system" ) );
+        assertTrue( results.contains( "ou=system" ), "Results must contain ou=system" );
+        assertTrue( results.contains( "uid=admin,ou=system" ), "Results must contain uid=admin,ou=system" );
+        assertTrue( results.contains( "ou=users,ou=system" ), "Results must contain ou=users,ou=system" );
+        assertTrue( results.contains( "ou=groups,ou=system" ), "Results must contain ou=groups,ou=system" );
+        assertTrue( results.contains( "cn=Administrators,ou=groups,ou=system" ),
+            "Results must contain cn=Administrators,ou=groups,ou=system" );
+        assertTrue( results.contains( "ou=configuration,ou=system" ), 
+            "Results must contain ou=configuration,ou=system" );
+        assertTrue( results.contains( "ou=partitions,ou=configuration,ou=system" ), 
+            "Results must contain ou=partitions,ou=configuration,ou=system" );
+        assertTrue( results.contains( "ou=services,ou=configuration,ou=system" ),
+            "Results must contain ou=services,ou=configuration,ou=system" );
+        assertTrue( results.contains( "ou=interceptors,ou=configuration,ou=system" ),
+            "Results must contain ou=interceptors,ou=configuration,ou=system" );
+        assertTrue( results.contains( "prefNodeName=sysPrefRoot,ou=system" ),
+            "Results must contain prefNodeName=sysPrefRoot,ou=system" );
     }
 
 

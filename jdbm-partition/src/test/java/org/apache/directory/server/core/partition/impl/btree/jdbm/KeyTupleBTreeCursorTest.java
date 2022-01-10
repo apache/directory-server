@@ -19,19 +19,14 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.Comparator;
-
-import jdbm.RecordManager;
-import jdbm.btree.BTree;
-import jdbm.helper.DefaultSerializer;
-import jdbm.recman.BaseRecordManager;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.InvalidCursorPositionException;
@@ -51,6 +46,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+
+import jdbm.RecordManager;
+import jdbm.btree.BTree;
+import jdbm.helper.DefaultSerializer;
+import jdbm.recman.BaseRecordManager;
 
 
 /**

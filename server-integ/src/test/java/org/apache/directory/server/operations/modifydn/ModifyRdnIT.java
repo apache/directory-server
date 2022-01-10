@@ -21,12 +21,12 @@ package org.apache.directory.server.operations.modifydn;
 
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -43,7 +43,6 @@ import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.ldif.LdifUtils;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Rdn;
-import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -457,10 +456,10 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
         // especially the number of cn and sn occurences
         Attribute cn = tori.getAttributes( "" ).get( "cn" );
         assertTrue( cn.contains( cnVal ) );
-        assertEquals( "Number of cn occurences", 1, cn.size() );
+        assertEquals( 1, cn.size(), "Number of cn occurences" );
         Attribute sn = tori.getAttributes( "" ).get( "sn" );
         assertTrue( sn.contains( snVal ) );
-        assertEquals( "Number of sn occurences", 1, sn.size() );
+        assertEquals( 1, sn.size(), "Number of sn occurences" );
 
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
@@ -614,7 +613,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
-        assertEquals( "Number of cn occurences", 1, cn.size() );
+        assertEquals( 1, cn.size(), "Number of cn occurences" );
         String expectedCn = new String( new byte[]
             { ( byte ) 0xC3, ( byte ) 0xA4, '+' }, "UTF-8" );
         assertTrue( cn.contains( expectedCn ) );
@@ -667,7 +666,7 @@ public class ModifyRdnIT extends AbstractLdapTestUnit
 
         // Check that cn contains the unescaped value
         Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
-        assertEquals( "Number of cn occurences", 1, cn.size() );
+        assertEquals( 1, cn.size(), "Number of cn occurences" );
         assertTrue( cn.contains( "\\#test" ) );
 
         // Remove entry (use new rdn)

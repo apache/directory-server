@@ -33,7 +33,6 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -114,7 +113,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
         "objectClass: inetOrgPerson",
         "cn: testing02",
         "sn: Testing 2",
-        "userCertificate:: CQoLD==",
+        "userCertificate:: CQoLDA==",
         "",
         "dn: cn=testing03,ou=system",
         "objectClass: top",
@@ -202,7 +201,7 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
 
     /**
      * Test search on a binary attribute
-     */
+     *
     @Test
     @Disabled
     // This test fails atm. Cf DIRSERVER-1389
@@ -227,4 +226,5 @@ public class SearchBinaryIT extends AbstractLdapTestUnit
         assertEquals( 1, i );
         connection.close();
     }
+    */
 }

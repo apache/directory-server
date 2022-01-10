@@ -22,8 +22,8 @@ package org.apache.directory.server.operations.modify;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -96,7 +96,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
 
         // Check whether entry is unmodified, i.e. no description
         Entry entry = con.lookup( DN );
-        assertEquals( "description exists?", null, entry.get( "description" ) );
+        assertEquals( null, entry.get( "description" ), "description exists?" );
         con.close();
     }
 
@@ -125,6 +125,6 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
 
         // Check whether entry is unmodified, i.e. no displayName
         Entry entry = con.lookup( DN );
-        assertEquals( "displayName exists?", null, entry.get( "displayName" ) );
+        assertEquals( null, entry.get( "displayName" ), "displayName exists?" );
     }
 }

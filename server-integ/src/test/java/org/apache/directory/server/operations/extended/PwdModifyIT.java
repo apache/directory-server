@@ -23,10 +23,10 @@ package org.apache.directory.server.operations.extended;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminNetworkConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getAnonymousNetworkConnection;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getNetworkConnectionAs;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;

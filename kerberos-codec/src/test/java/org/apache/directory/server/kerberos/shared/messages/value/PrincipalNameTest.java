@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.ByteBuffer;
 

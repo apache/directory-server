@@ -22,13 +22,8 @@ package org.apache.directory.server.operations.ldapsdk;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getNsdkWiredConnection;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
@@ -44,6 +39,12 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
 
 
 /**
@@ -97,7 +98,7 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
 
         // Check whether entry is unmodified, i.e. no description
         Entry entry = con.lookup( DN );
-        assertEquals( "description exists?", null, entry.get( "description" ) );
+        assertEquals( null, entry.get( "description" ), "description exists?" );
         con.close();
     }
 
@@ -127,6 +128,6 @@ public class IllegalModificationIT extends AbstractLdapTestUnit
 
         // Check whether entry is unmodified, i.e. no displayName
         LDAPEntry entry = con.read( DN );
-        assertEquals( "displayName exists?", null, entry.getAttribute( "displayName" ) );
+        assertEquals( null, entry.getAttribute( "displayName" ), "displayName exists?" );
     }
 }

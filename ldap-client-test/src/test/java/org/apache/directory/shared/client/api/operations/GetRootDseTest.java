@@ -21,9 +21,9 @@
 package org.apache.directory.shared.client.api.operations;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;

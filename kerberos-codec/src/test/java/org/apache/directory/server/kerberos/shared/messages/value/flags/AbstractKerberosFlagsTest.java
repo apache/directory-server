@@ -20,9 +20,9 @@
 package org.apache.directory.server.kerberos.shared.messages.value.flags;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.shared.kerberos.flags.AbstractKerberosFlags;
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
@@ -52,19 +52,19 @@ public class AbstractKerberosFlagsTest
         // unset flag 4
         akf.clearFlag( TicketFlag.PROXY );
         assertEquals(
-            "clear(KerberosFlag)",
             (
             ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
                 + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
                 + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ),
-            akf.getIntValue() );
+            akf.getIntValue(),
+            "clear(KerberosFlag)" );
 
         // unset flag 2
         akf.clearFlag( TicketFlag.FORWARDED.getValue() );
         assertEquals(
-            "clear(int)",
             ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) )
-            + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ), akf.getIntValue() );
+            + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ) ), akf.getIntValue(),
+            "clear(KerberosFlag)" );
     }
 
 
@@ -85,13 +85,13 @@ public class AbstractKerberosFlagsTest
         {
         };
 
-        assertEquals( "intValue", 0, akfEmptyConstructor.getIntValue() );
+        assertEquals( 0, akfEmptyConstructor.getIntValue(), "intValue" );
         assertEquals(
-            "intValue",
             ( ( 1 << ( 31 - TicketFlag.FORWARDABLE.getValue() ) ) )
                 + ( 1 << ( 31 - TicketFlag.FORWARDED.getValue() ) )
                 + ( 1 << ( 31 - TicketFlag.PROXY.getValue() ) )
-                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ), akfIntConstructor.getIntValue() );
+                + ( 1 << ( 31 - TicketFlag.RENEWABLE.getValue() ) ), akfIntConstructor.getIntValue(),
+                "intValue" );
     }
 
 
@@ -139,17 +139,19 @@ public class AbstractKerberosFlagsTest
             // Only every 2nd ticket flag is set
             if ( setFlag )
             {
-                assertTrue( "isFlagSet(TicketFlag): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag ) );
-                assertTrue( "isFlagSet(int): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag.getValue() ) );
-                assertTrue( "isFlagSet(int,int): " + ticketFlag.toString(),
-                    AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getValue() ) );
+                assertTrue( akf.isFlagSet( ticketFlag ), "isFlagSet(TicketFlag): " + ticketFlag.toString() );
+                assertTrue( akf.isFlagSet( ticketFlag.getValue() ), "isFlagSet(int): " + ticketFlag.toString() );
+                assertTrue( 
+                    AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getValue() ),
+                    "isFlagSet(int,int): " + ticketFlag.toString() );
             }
             else
             {
-                assertFalse( "isFlagSet(TicketFlag): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag ) );
-                assertFalse( "isFlagSet(int): " + ticketFlag.toString(), akf.isFlagSet( ticketFlag.getValue() ) );
-                assertFalse( "isFlagSet(int,int): " + ticketFlag.toString(),
-                    AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getValue() ) );
+                assertFalse( akf.isFlagSet( ticketFlag ), "isFlagSet(TicketFlag): " + ticketFlag.toString() );
+                assertFalse( akf.isFlagSet( ticketFlag.getValue() ), "isFlagSet(int): " + ticketFlag.toString() );
+                assertFalse( 
+                    AbstractKerberosFlags.isFlagSet( flagsValue, ticketFlag.getValue() ),
+                    "isFlagSet(int,int): " + ticketFlag.toString() );
             }
 
             setFlag = !setFlag;

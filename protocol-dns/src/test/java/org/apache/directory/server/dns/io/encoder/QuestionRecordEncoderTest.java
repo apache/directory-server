@@ -21,7 +21,7 @@
 package org.apache.directory.server.dns.io.encoder;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.dns.messages.QuestionRecord;

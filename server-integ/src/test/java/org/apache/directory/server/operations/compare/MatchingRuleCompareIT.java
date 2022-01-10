@@ -20,7 +20,7 @@
 package org.apache.directory.server.operations.compare;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Locale;
 
@@ -110,7 +110,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
                 { value }, ctls );
             boolean result = enumeration.hasMore();
 
-            assertEquals( "compare sn value '" + PERSON_SN + "' with '" + value + "'", expected[i], result );
+            assertEquals( expected[i], result, "compare sn value '" + PERSON_SN + "' with '" + value + "'" );
 
             enumeration.close();
         }
@@ -152,7 +152,7 @@ public class MatchingRuleCompareIT extends AbstractLdapTestUnit
                 { value }, ctls );
             boolean result = enumeration.hasMore();
 
-            assertEquals( "compare '" + memberDN + "' with '" + value + "'", expected[i], result );
+            assertEquals( expected[i], result, "compare '" + memberDN + "' with '" + value + "'" );
 
             enumeration.close();
         }

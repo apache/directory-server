@@ -24,12 +24,12 @@ import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminC
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContextThrowOnRefferal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -51,8 +51,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
-
-import netscape.ldap.LDAPException;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -102,6 +100,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import netscape.ldap.LDAPException;
 
 
 /**
@@ -216,7 +216,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         for ( String name : expectedOcls )
         {
-            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+            assertTrue( newOcls.contains( name ), "object class " + name + " is present" );
         }
     }
 
@@ -246,7 +246,7 @@ public class AddIT extends AbstractLdapTestUnit
         attributes = person.getAttributes( "" );
         javax.naming.directory.Attribute newDesc = attributes.get( "description" );
 
-        assertTrue( "new Description", newDesc.contains( newDescription ) );
+        assertTrue( newDesc.contains( newDescription ), "new Description" );
     }
 
 
@@ -933,7 +933,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         for ( String name : expectedOcls )
         {
-            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+            assertTrue( newOcls.contains( name ), "object class " + name + " is present" );
         }
 
         javax.naming.directory.Attribute givenName = person.get( "givenname" );
@@ -973,7 +973,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         for ( String name : expectedOcls )
         {
-            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+            assertTrue( newOcls.contains( name ), "object class " + name + " is present" );
         }
 
         javax.naming.directory.Attribute cn = person.get( "cn" );
@@ -984,7 +984,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         for ( String name : expectedCns )
         {
-            assertTrue( "CN " + name + " is present", cn.contains( name ) );
+            assertTrue( cn.contains( name ), "CN " + name + " is present" );
         }
     }
 
@@ -1020,7 +1020,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         for ( String name : expectedOcls )
         {
-            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+            assertTrue( newOcls.contains( name ), "object class " + name + " is present" );
         }
 
         // Check that the displayName attribute has been replaced
@@ -1061,7 +1061,7 @@ public class AddIT extends AbstractLdapTestUnit
 
         for ( String name : expectedOcls )
         {
-            assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
+            assertTrue( newOcls.contains( name ), "object class " + name + " is present" );
         }
 
         // Check that the DIsplayName attribute has been added

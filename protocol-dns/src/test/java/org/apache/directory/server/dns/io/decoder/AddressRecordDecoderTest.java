@@ -21,6 +21,8 @@
 package org.apache.directory.server.dns.io.decoder;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.net.InetAddress;
 import java.util.Map;
 
@@ -30,8 +32,6 @@ import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**

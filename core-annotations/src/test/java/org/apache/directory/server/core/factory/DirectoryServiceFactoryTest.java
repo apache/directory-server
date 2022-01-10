@@ -21,7 +21,7 @@
 package org.apache.directory.server.core.factory;
 
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.core.api.DirectoryService;

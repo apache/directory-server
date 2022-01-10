@@ -22,12 +22,12 @@ package org.apache.directory.server.operations.search;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -273,7 +273,7 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         for ( String attrName : attrNames )
         {
-            assertNotNull( "Check if attr " + attrName + " is present", attrs.get( attrName ) );
+            assertNotNull( attrs.get( attrName ), "Check if attr " + attrName + " is present" );
         }
     }
 
@@ -461,26 +461,26 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         // -------------------------------------------------------------------
         Set<String> results = search( "(|(cn=Kate*)(cn=Tori*))" );
-        assertEquals( "returned size of results", 2, results.size() );
-        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
-        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+        assertEquals( 2, results.size(), "returned size of results" );
+        assertTrue( results.contains( "cn=Tori Amos" ), "contains cn=Tori Amos" );
+        assertTrue( results.contains( "cn=Kate Bush" ), "contains cn=Kate Bush" );
 
         // -------------------------------------------------------------------
         results = search( "(|(cn=*Amos)(cn=Kate*))" );
-        assertEquals( "returned size of results", 2, results.size() );
-        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
-        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+        assertEquals( 2, results.size(), "returned size of results" );
+        assertTrue( results.contains( "cn=Tori Amos" ), "contains cn=Tori Amos" );
+        assertTrue( results.contains( "cn=Kate Bush" ), "contains cn=Kate Bush" );
 
         // -------------------------------------------------------------------
         results = search( "(|(cn=Kate Bush)(cn=Tori*))" );
-        assertEquals( "returned size of results", 2, results.size() );
-        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
-        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+        assertEquals( 2, results.size(), "returned size of results" );
+        assertTrue( results.contains( "cn=Tori Amos" ), "contains cn=Tori Amos" );
+        assertTrue( results.contains( "cn=Kate Bush" ), "contains cn=Kate Bush" );
 
         // -------------------------------------------------------------------
         results = search( "(|(cn=*Amos))" );
-        assertEquals( "returned size of results", 1, results.size() );
-        assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
+        assertEquals( 1, results.size(), "returned size of results" );
+        assertTrue( results.contains( "cn=Tori Amos" ),  "contains cn=Tori Amos" );
     }
 
 
@@ -682,12 +682,12 @@ public class SearchIT extends AbstractLdapTestUnit
     {
         // -------------------------------------------------------------------
         Set<String> results = search( "(|(sn=Bush)(numberOfOctaves=4))" );
-        assertEquals( "returned size of results", 1, results.size() );
-        assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+        assertEquals( 1, results.size(), "returned size of results" );
+        assertTrue( results.contains( "cn=Kate Bush" ), "contains cn=Kate Bush" );
 
         // if numberOfOctaves is undefined then this whole FILTER is undefined
         results = search( "(&(sn=Bush)(numberOfOctaves=4))" );
-        assertEquals( "returned size of results", 0, results.size() );
+        assertEquals( 0, results.size(), "returned size of results" );
     }
 
 
@@ -871,7 +871,7 @@ public class SearchIT extends AbstractLdapTestUnit
             results.add( result.getName() );
         }
 
-        assertEquals( "expected results size of", 1, results.size() );
+        assertEquals( 1, results.size(), "expected results size of" );
         assertTrue( results.contains( "cn=anyBodyAdd" ) );
         enm.close();
         ctx.close();
@@ -938,7 +938,7 @@ public class SearchIT extends AbstractLdapTestUnit
         {
             SearchResult sr = enm.next();
             assertNotNull( sr );
-            assertEquals( "Name in namespace", nameInNamespace, sr.getNameInNamespace() );
+            assertEquals( nameInNamespace, sr.getNameInNamespace(), "Name in namespace" );
         }
         else
         {
@@ -958,7 +958,7 @@ public class SearchIT extends AbstractLdapTestUnit
             assertNotNull( sr );
             Dn expectedDn = new Dn( mixedRdn + ",ou=system" );
 
-            assertEquals( "Name in namespace", expectedDn, sr.getNameInNamespace() );
+            assertEquals( expectedDn, sr.getNameInNamespace(), "Name in namespace" );
         }
         else
         {
@@ -1898,7 +1898,8 @@ public class SearchIT extends AbstractLdapTestUnit
         if ( result.hasMore() )
         {
             SearchResult entry = result.next();
-            assertEquals( "No user attributes expected when requesting attribute 1.1", 0, entry.getAttributes().size() );
+            assertEquals( 0, entry.getAttributes().size(),
+                "No user attributes expected when requesting attribute 1.1" );
         }
         else
         {

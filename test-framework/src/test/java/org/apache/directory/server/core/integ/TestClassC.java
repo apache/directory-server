@@ -19,8 +19,8 @@
 package org.apache.directory.server.core.integ;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;

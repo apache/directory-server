@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -126,7 +126,7 @@ public class KeyTypeTest
         DESKeySpec desKeySpec = new DESKeySpec( desKeyData );
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance( "DES" );
         SecretKey desKey = keyFactory.generateSecret( desKeySpec );
-        assertEquals( "DES key size", 8, desKey.getEncoded().length );
+        assertEquals( 8, desKey.getEncoded().length, "DES key size" );
         assertTrue( DESKeySpec.isParityAdjusted( desKey.getEncoded(), 0 ) );
     }
 
@@ -144,7 +144,7 @@ public class KeyTypeTest
 
         Cipher ecipher = Cipher.getInstance( "DES/CBC/NoPadding" );
         ecipher.init( Cipher.ENCRYPT_MODE, desKey );
-        assertEquals( "Block size", 8, ecipher.getBlockSize() );
+        assertEquals( 8, ecipher.getBlockSize(), "Block size" );
     }
 
 
@@ -161,7 +161,7 @@ public class KeyTypeTest
 
         Cipher ecipher = Cipher.getInstance( "DESede/CBC/NoPadding" );
         ecipher.init( Cipher.ENCRYPT_MODE, desKey );
-        assertEquals( "Block size", 8, ecipher.getBlockSize() );
+        assertEquals( 8, ecipher.getBlockSize(), "Block size" );
     }
 
 
@@ -178,7 +178,7 @@ public class KeyTypeTest
 
         Cipher ecipher = Cipher.getInstance( "ARCFOUR" );
         ecipher.init( Cipher.ENCRYPT_MODE, desKey );
-        assertEquals( "Block size", 0, ecipher.getBlockSize() );
+        assertEquals( 0, ecipher.getBlockSize(), "Block size" );
     }
 
 
@@ -200,7 +200,7 @@ public class KeyTypeTest
         {
             Cipher ecipher = Cipher.getInstance( "AES/CTS/NoPadding" );
             ecipher.init( Cipher.ENCRYPT_MODE, key );
-            assertEquals( "Block size", 16, ecipher.getBlockSize() );
+            assertEquals( 16, ecipher.getBlockSize(), "Block size" );
         }
         catch ( NoSuchAlgorithmException nsae )
         {
@@ -227,7 +227,7 @@ public class KeyTypeTest
         {
             Cipher ecipher = Cipher.getInstance( "AES/CTS/NoPadding" );
             ecipher.init( Cipher.ENCRYPT_MODE, key );
-            assertEquals( "Block size", 16, ecipher.getBlockSize() );
+            assertEquals( 16, ecipher.getBlockSize(), "Block size" );
         }
         catch ( InvalidKeyException ike )
         {
@@ -255,7 +255,7 @@ public class KeyTypeTest
         mac.init( sk );
         byte[] result = mac.doFinal( Strings.getBytesUtf8( "Hello world!" ) );
 
-        assertEquals( "HmacMD5 size", 16, result.length );
+        assertEquals( 16, result.length, "HmacMD5 size" );
     }
 
 
@@ -274,7 +274,7 @@ public class KeyTypeTest
         mac.init( sk );
         byte[] result = mac.doFinal( Strings.getBytesUtf8( "Hi There" ) );
 
-        assertEquals( "HmacSHA1 size", 20, result.length );
+        assertEquals( 20, result.length, "HmacSHA1 size" );
     }
 
 

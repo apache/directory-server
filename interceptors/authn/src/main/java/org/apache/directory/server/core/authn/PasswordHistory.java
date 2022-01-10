@@ -21,6 +21,7 @@
 package org.apache.directory.server.core.authn;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -84,7 +85,7 @@ public class PasswordHistory implements Comparable<PasswordHistory>
     public PasswordHistory( String time, byte[] password )
     {
         this.time = time;
-        this.data = String.valueOf( Base64.getEncoder().encode( password ) );
+        this.data = new String( Base64.getEncoder().encode( password ), StandardCharsets.UTF_8 );
         this.length = data.length();
     }
 
@@ -152,7 +153,7 @@ public class PasswordHistory implements Comparable<PasswordHistory>
 
         PasswordHistory other = ( PasswordHistory ) o;
 
-        return this.getTime().equals( other.getTime() ) && this.data.equals( other.data );
+        return getTime().equals( other.getTime() ) && data.equals( other.data );
     }
 
 

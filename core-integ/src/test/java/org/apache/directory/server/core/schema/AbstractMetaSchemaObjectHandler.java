@@ -26,7 +26,7 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 
 /**
@@ -39,7 +39,7 @@ public abstract class AbstractMetaSchemaObjectHandler extends AbstractLdapTestUn
     protected static String workingDir;
 
 
-    @Before
+    @BeforeEach
     public void init() throws Exception
     {
         workingDir = getService().getInstanceLayout().getPartitionsDirectory().getAbsolutePath();

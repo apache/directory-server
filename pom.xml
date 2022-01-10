@@ -66,14 +66,11 @@
     <caffeine.version>2.7.0</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <forbiddenapis.version>2.6</forbiddenapis.version>
+    <hamcrest.version>2.2</hamcrest.version>
     <jetty.version>9.4.40.v20210413</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.19</jetty.bundle.version>
-    <junit.version>4.13.2</junit.version>
-    <junit.engine.version>5.8.2</junit.engine.version>
-    <junit.jupiter.version>5.8.2</junit.jupiter.version>
     <junit.jupiter.api.version>5.8.2</junit.jupiter.api.version>
-    <junit.platform.version>1.8.2</junit.platform.version>
     <kerby.version>2.0.1</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
@@ -149,7 +146,6 @@
     <!--module>bulkloader</module-->
     <module>osgi-integ</module>
   </modules>
-
 
   <reporting>
     <plugins>
@@ -301,6 +297,13 @@
             <tag>@deprecated</tag>
             <tag>FIXME</tag>
           </tags>
+          <includes>
+            <include>**/*IT.java</include>
+            <include>**/*Test.java</include>
+          </includes>
+          <excludes>
+            <exclude>**/*PerfIT.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
 
@@ -472,7 +475,7 @@
             <systemPropertyVariables>
               <java.io.tmpdir>${basedir}/target</java.io.tmpdir>
             </systemPropertyVariables>
-            <parallel>all</parallel>
+            <!--  parallel>all</parallel -->
             <threadCount>10</threadCount>
             <properties>
               <configurationParameters>
@@ -1105,44 +1108,18 @@
 
       <!-- Test dependencies -->
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
         <version>${junit.jupiter.api.version}</version>
       </dependency>
-
+      
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>${junit.jupiter.version}</version>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${hamcrest.version}</version>
         <scope>test</scope>
       </dependency>
-
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit.engine.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.junit.platform</groupId>
-        <artifactId>junit-platform-runner</artifactId>
-        <version>${junit.platform.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-params</artifactId>
-        <version>${junit.jupiter.version}</version>
-      </dependency>
-
+      
       <dependency>
         <groupId>org.ops4j.pax.exam</groupId>
         <artifactId>pax-exam-container-forked</artifactId>
@@ -1318,17 +1295,18 @@
       <scope>test</scope>
     </dependency>
 
+    
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-runner</artifactId>
+    <!--  dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
-    </dependency>
+    </dependency -->
   </dependencies>
 
   <scm>

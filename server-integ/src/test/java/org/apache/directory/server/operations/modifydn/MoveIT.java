@@ -22,10 +22,10 @@ package org.apache.directory.server.operations.modifydn;
 
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getAdminConnection;
 import static org.apache.directory.server.integ.ServerIntegrationUtils.getWiredContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.SearchControls;
@@ -97,7 +97,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         NamingEnumeration<SearchResult> results = ctx.search( NEW_DN, "(objectClass=*)", controls );
         assertNotNull( results );
-        assertTrue( "Could not find entry after move.", results.hasMore() );
+        assertTrue( results.hasMore(), "Could not find entry after move." );
         SearchResult result = results.next();
         assertNotNull( result );
         assertEquals( NEW_DN, result.getNameInNamespace() );
@@ -118,7 +118,7 @@ public class MoveIT extends AbstractLdapTestUnit
 
         NamingEnumeration<SearchResult> results = ctx.search( NEW_DN2, "(objectClass=*)", controls );
         assertNotNull( results );
-        assertTrue( "Could not find entry after move.", results.hasMore() );
+        assertTrue( results.hasMore(), "Could not find entry after move." );
         SearchResult result = results.next();
         assertNotNull( result );
         assertEquals( NEW_DN2, result.getNameInNamespace() );

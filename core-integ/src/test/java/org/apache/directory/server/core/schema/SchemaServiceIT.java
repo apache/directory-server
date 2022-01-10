@@ -246,7 +246,7 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*person)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
 
         while ( results.hasMore() )
         {

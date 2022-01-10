@@ -20,9 +20,9 @@
 package org.apache.directory.server.kerberos.shared.messages.value.flags;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.shared.kerberos.flags.TicketFlag;
 import org.apache.directory.shared.kerberos.flags.TicketFlags;
@@ -153,7 +153,7 @@ public class TicketFlagsTest
     public void testToString() throws Exception
     {
         TicketFlags tf = new TicketFlags();
-        assertEquals( "toString()", "", tf.toString() );
+        assertEquals( "", tf.toString(), "toString()" );
 
         int i = 0;
         for ( TicketFlag t : TicketFlag.values() )
@@ -165,9 +165,9 @@ public class TicketFlagsTest
         }
 
         tf = new TicketFlags( i );
-        assertEquals( "toString()", "RESERVED(0) FORWARDABLE(1) FORWARDED(2) PROXIABLE(3) PROXY(4) "
+        assertEquals( "RESERVED(0) FORWARDABLE(1) FORWARDED(2) PROXIABLE(3) PROXY(4) "
             + "MAY_POSTDATE(5) POSTDATED(6) INVALID(7) RENEWABLE(8) INITIAL(9) PRE_AUTHENT(10) "
-            + "HW_AUTHENT(11) TRANSITED_POLICY_CHECKED(12) OK_AS_DELEGATE(13)", tf.toString() );
+            + "HW_AUTHENT(11) TRANSITED_POLICY_CHECKED(12) OK_AS_DELEGATE(13)", tf.toString(), "toString()" );
     }
 
 
