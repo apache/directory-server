@@ -238,7 +238,7 @@ public class FilterNormalizingVisitor implements FilterVisitor
         if ( ( substringMR == null ) || ( substringMR.getNormalizer() == null ) )
         {
             // No normalizer for a Substring filter
-            return UndefinedNode.UNDEFINED_NODE;
+            return new UndefinedNode( node.getAttribute() );
         }
         
         Normalizer normalizer = substringMR.getNormalizer();

@@ -45,8 +45,8 @@ import org.apache.directory.api.ldap.model.schema.normalizers.ConcreteNameCompon
 import org.apache.directory.api.ldap.model.schema.normalizers.NameComponentNormalizer;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -432,12 +432,6 @@ public class NormalizationInterceptor extends BaseInterceptor
                 newAndNode.addNode( modifiedNode );
                 nbNodes++;
             }
-
-            if ( modifiedNode instanceof UndefinedNode )
-            {
-                // We can just return an Undefined node as nothing will get selected
-                return UndefinedNode.UNDEFINED_NODE;
-            }
         }
 
         switch ( nbNodes )
@@ -538,6 +532,8 @@ public class NormalizationInterceptor extends BaseInterceptor
                     }
                 }
             }
+            
+            return leafNode;
         }
 
         // --------------------------------------------------------------------

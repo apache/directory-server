@@ -149,6 +149,8 @@ public class CursorBuilder
                     return computeOr( partitionTxn, ( OrNode ) node, searchResult );
     
                     /* ----------  NOT IMPLEMENTED  ---------- */
+                case UNDEFINED:
+                    return Long.MAX_VALUE;
     
                 case ASSERTION:
                 case EXTENSIBLE:

@@ -221,7 +221,7 @@ public class DefaultOptimizer implements Optimizer
             }
             else
             {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_712 ) );
+                count = Long.MAX_VALUE;
             }
         }
 

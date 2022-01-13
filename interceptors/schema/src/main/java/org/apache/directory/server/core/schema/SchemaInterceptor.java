@@ -56,6 +56,7 @@ import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
 import org.apache.directory.api.ldap.model.filter.ObjectClassNode;
 import org.apache.directory.api.ldap.model.filter.SimpleNode;
+import org.apache.directory.api.ldap.model.filter.UndefinedNode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.Cascade;
@@ -74,9 +75,9 @@ import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
-import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.filtering.EntryFilter;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
+import org.apache.directory.server.core.api.filtering.EntryFilteringCursorImpl;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.CompareOperationContext;
@@ -383,9 +384,9 @@ public class SchemaInterceptor extends BaseInterceptor
             throw new LdapException( message );
         }
 
-        if ( filter instanceof ObjectClassNode )
+        if ( ( filter instanceof ObjectClassNode ) || ( filter instanceof UndefinedNode ) )
         {
-            // Bypass (ObjectClass=*)
+            // Bypass (ObjectClass=*) and undifined nodes
             return;
         }
 
