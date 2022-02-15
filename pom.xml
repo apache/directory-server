@@ -73,7 +73,6 @@
     <junit.jupiter.api.version>5.8.2</junit.jupiter.api.version>
     <kerby.version>2.0.1</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
-    <log4j.version>1.2.17</log4j.version>
     <logback.version>1.2.10</logback.version>
     <maven.version>3.8.4</maven.version>
     <mina.core.version>2.1.5</mina.core.version>
@@ -1182,12 +1181,6 @@
         <version>${slf4j.log4j12.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>${log4j.version}</version>
-      </dependency>
-      
       <!-- Other dependencies -->
 
       <dependency>
