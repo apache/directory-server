@@ -74,7 +74,7 @@
     <kerby.version>2.0.1</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <log4j.version>1.2.17</log4j.version>
-    <logback.version>1.2.3</logback.version>
+    <logback.version>1.2.10</logback.version>
     <maven.version>3.8.4</maven.version>
     <mina.core.version>2.1.5</mina.core.version>
     <org.apache.felix.version>7.0.3</org.apache.felix.version>
