@@ -81,9 +81,9 @@
     <pax-exam.version>4.13.4</pax-exam.version>
     <pax-url.version>2.6.2</pax-url.version>
     <plexus.utils.version>3.3.0</plexus.utils.version>
-    <slf4j.api.version>1.7.32</slf4j.api.version>
+    <slf4j.api.version>1.7.36</slf4j.api.version>
     <slf4j.api.bundleversion>"$«range;[==,=+)»"</slf4j.api.bundleversion>
-    <slf4j.log4j12.version>1.7.32</slf4j.log4j12.version>
+    <slf4j.log4j12.version>${slf4j.api.version}</slf4j.log4j12.version>
     <wagon.ssh.version>3.5.1</wagon.ssh.version>
     <wagon.ssh.external.version>3.5.1</wagon.ssh.external.version>
     <wrapper.version>3.2.3</wrapper.version>
