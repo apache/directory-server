@@ -63,7 +63,7 @@
     <commons.net.version>3.8.0</commons.net.version>
     <commons.pool.version>2.11.1</commons.pool.version>
     <dnsjava.version>2.1.9</dnsjava.version>
-    <caffeine.version>2.7.0</caffeine.version>
+    <caffeine.version>2.9.2</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <forbiddenapis.version>2.6</forbiddenapis.version>
     <hamcrest.version>2.2</hamcrest.version>
