@@ -176,8 +176,7 @@ public class KeyStoreIT extends AbstractLdapTestUnit
     {
         LdapConnectionConfig config = ldapsConnectionConfig();
 
-        try (
-            LdapNetworkConnection conn = new LdapNetworkConnection( config ); )
+        try ( LdapNetworkConnection conn = new LdapNetworkConnection( config ); )
         {
             try
             {
@@ -186,7 +185,6 @@ public class KeyStoreIT extends AbstractLdapTestUnit
             }
             catch ( LdapException e )
             {
-                //e.printStackTrace();
                 assertTrue( e.getMessage().contains( "ERR_04120_TLS_HANDSHAKE_ERROR The TLS handshake failed" ) );
             }
             assertFalse( conn.isConnected() );

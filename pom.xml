@@ -76,7 +76,7 @@
     <log4j.version>1.2.17</log4j.version>
     <logback.version>1.2.3</logback.version>
     <maven.version>3.8.1</maven.version>
-    <mina.core.version>2.1.5</mina.core.version>
+    <mina.core.version>2.2.1</mina.core.version>
     <org.apache.felix.version>7.0.3</org.apache.felix.version>
     <pax-exam.version>4.13.4</pax-exam.version>
     <pax-url.version>2.6.2</pax-url.version>
@@ -281,7 +281,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
         <configuration>
-          <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <argLine>-Xmx4096m -XX:MaxPermSize=512m</argLine>
           <aggregate>true</aggregate>
           <forkedProcessTimeoutInSeconds>3600</forkedProcessTimeoutInSeconds>
         </configuration>

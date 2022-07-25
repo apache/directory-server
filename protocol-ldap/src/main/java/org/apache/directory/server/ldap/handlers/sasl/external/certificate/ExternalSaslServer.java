@@ -20,6 +20,12 @@
 package org.apache.directory.server.ldap.handlers.sasl.external.certificate;
 
 
+import java.security.cert.Certificate;
+
+import javax.naming.Context;
+import javax.net.ssl.SSLSession;
+import javax.security.sasl.SaslException;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -44,11 +50,6 @@ import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.sasl.AbstractSaslServer;
 import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
 import org.apache.mina.filter.ssl.SslFilter;
-
-import javax.naming.Context;
-import javax.net.ssl.SSLSession;
-import javax.security.sasl.SaslException;
-import java.security.cert.Certificate;
 
 
 /**
@@ -101,7 +102,7 @@ public final class ExternalSaslServer extends AbstractSaslServer
     {
         try
         {
-            SSLSession sslSession = ( SSLSession ) getLdapSession().getIoSession().getAttribute( SslFilter.SSL_SESSION );
+            SSLSession sslSession = ( SSLSession ) getLdapSession().getIoSession().getAttribute( SslFilter.SSL_SECURED );
             Certificate[] peerCertificates = sslSession.getPeerCertificates();
 
             if ( null == peerCertificates || 1 > peerCertificates.length )

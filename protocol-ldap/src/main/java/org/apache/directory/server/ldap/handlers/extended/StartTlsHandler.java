@@ -97,7 +97,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
 
         if ( sslFilter == null )
         {
-            sslFilter = new SslFilter( sslContext, false );
+            sslFilter = new SslFilter( sslContext );
 
             // Set the cipher suite
             if ( ( cipherSuite != null ) && !cipherSuite.isEmpty() )
@@ -120,14 +120,9 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
             sslFilter.setNeedClientAuth( needClientAuth );
             sslFilter.setWantClientAuth( wantClientAuth );
 
+            StartTlsFilter startTlsFilter = new StartTlsFilter();
+            chain.addFirst( "startTls", startTlsFilter );
             chain.addFirst( "sslFilter", sslFilter );
-        }
-        else
-        {
-            // Be sure we disable SSLV3
-            sslFilter.setEnabledProtocols( new String[]
-                { "TLSv1", "TLSv1.1", "TLSv1.2" } );
-            sslFilter.startSsl( session.getIoSession() );
         }
 
         StartTlsResponse res = new StartTlsResponseImpl( req.getMessageId() );
@@ -136,7 +131,6 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         res.setResponseName( EXTENSION_OID );
 
         // Send a response.
-        session.getIoSession().setAttribute( SslFilter.DISABLE_ENCRYPTION_ONCE );
         session.getIoSession().write( res );
     }
 
