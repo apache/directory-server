@@ -259,6 +259,32 @@ public class SearchIT extends AbstractLdapTestUnit
 
 
     @Test
+    public void testSearchWithTop() throws Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
+            .getJndiValue() );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(&(objectClass=top)(objectClass=person)"
+            + "(objectClass=organizationalPerson)(objectClass=inetOrgPerson)(cn=si*))", controls );
+
+        while ( list.hasMore() )
+        {
+            SearchResult result = list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        list.close();
+
+        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
+        assertTrue( map.containsKey( "cn=with-dn,ou=system" ) );
+    }
+
+
+    @Test
     public void testSearchSubTreeLevel() throws Exception
     {
         SearchControls controls = new SearchControls();
