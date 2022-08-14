@@ -561,6 +561,12 @@ public class LdapServer extends DirectoryBackedService
                     return;
                 }
 
+                
+                // Kill the chain executor
+                ExecutorFilter executorFilter = ( ExecutorFilter ) transport.getAcceptor().getFilterChain().get( "executor" );
+                ( ( UnorderedThreadPoolExecutor ) executorFilter.getExecutor() ).shutdownNow();
+
+                // Shutdown the transport
                 getSocketAcceptor( transport ).dispose();
 
                 if ( LOG.isInfoEnabled() )
@@ -593,6 +599,7 @@ public class LdapServer extends DirectoryBackedService
                 }
             }
 
+            // Stop the replication consumers
             stopConsumers();
         }
         catch ( Exception e )
