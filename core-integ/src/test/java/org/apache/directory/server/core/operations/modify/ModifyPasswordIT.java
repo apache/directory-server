@@ -20,11 +20,14 @@
 package org.apache.directory.server.core.operations.modify;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Modification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
@@ -45,6 +48,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @CreateDS(name = "ModifyPasswordIT")
 public class ModifyPasswordIT extends AbstractLdapTestUnit
 {
+    private void checkOneUserPassword( LdapConnection connection, Dn dn, String password ) throws LdapException
+    {
+        Entry admin = connection.lookup( dn );
+        assertEquals( 1, admin.get( "userPassword" ).size() );
+        assertEquals( password, new String( admin.get( "userPassword" ).getBytes() ) );
+    }
+    
+
+    private void checkTwoUserPassword( LdapConnection connection, Dn dn, String... passwords ) throws LdapException
+    {
+        Entry admin = connection.lookup( dn );
+        Attribute userPassword = admin.get( "userPassword" );
+        assertEquals( 2, userPassword.size() );
+        assertTrue( userPassword.contains( passwords[0].getBytes(), passwords[1].getBytes() ) );
+    }
+    
+
     /**
      * With this test the Master table will grow crazy.
      */
@@ -63,21 +83,14 @@ public class ModifyPasswordIT extends AbstractLdapTestUnit
 
         connection.modify( modRequest );
         
-        Entry admin = connection.lookup( dn );
+        checkOneUserPassword( connection, dn, "test" );
 
-        // Check the value
-        assertEquals( 1, admin.get( "userPassword" ).size() );
-        assertEquals( "test", new String( admin.get( "userPassword" ).getBytes() ) );
-        
         // Now try to connect as admin again 
         connection.unBind();
         connection.bind( dn, "test" );
         
-        admin = connection.lookup( dn );
+        checkOneUserPassword( connection, dn, "test" );
 
-        // Check the value
-        assertEquals( 1, admin.get( "userPassword" ).size() );
-        assertEquals( "test", new String( admin.get( "userPassword" ).getBytes() ) );
         connection.unBind();
         
         // Set it back to its default valur
@@ -89,22 +102,40 @@ public class ModifyPasswordIT extends AbstractLdapTestUnit
 
         connection.modify( modRequest );
 
-        admin = connection.lookup( dn );
-
-        // Check the value
-        assertEquals( 1, admin.get( "userPassword" ).size() );
-        assertEquals( "secret", new String( admin.get( "userPassword" ).getBytes() ) );
-        connection.unBind();
+        checkOneUserPassword( connection, dn, "secret" );
         
         // Now try to connect as admin again 
         connection.unBind();
         connection.bind( dn, "secret" );
         
-        admin = connection.lookup( dn );
+        checkOneUserPassword( connection, dn, "secret" );
+        connection.unBind();
+        
+        // Last, add a new password
+        connection.bind( dn, "secret" );
+
+        modRequest.setName( dn );
+        modification = new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "userPassword", "test" );
+        modRequest.addModification( modification );
+
+        connection.modify( modRequest );
 
         // Check the value
-        assertEquals( 1, admin.get( "userPassword" ).size() );
-        assertEquals( "secret", new String( admin.get( "userPassword" ).getBytes() ) );
+        checkTwoUserPassword( connection, dn, "test", "secret" );
+
+        connection.unBind();
+        
+        // Check that we can bind with either
+        connection.bind( dn, "secret" );
+
+        checkTwoUserPassword( connection, dn, "test", "secret" );
+        
+        connection.unBind();
+        
+        connection.bind( dn, "test" );
+
+        checkTwoUserPassword( connection, dn, "test", "secret" );
+
         connection.unBind();
     }
 }
