@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Hashtable;
 
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
@@ -36,7 +35,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.junit.jupiter.api.Test;
@@ -62,13 +60,7 @@ public class RootDSEJndiIT extends AbstractLdapTestUnit
     @Test
     public void testGetInitialContext() throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -84,13 +76,7 @@ public class RootDSEJndiIT extends AbstractLdapTestUnit
     @Test
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -111,13 +97,7 @@ public class RootDSEJndiIT extends AbstractLdapTestUnit
     @Test
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -139,13 +119,7 @@ public class RootDSEJndiIT extends AbstractLdapTestUnit
     @Test
     public void testGetInitialContextLookupAttributesByNameWithOC() throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -167,13 +141,7 @@ public class RootDSEJndiIT extends AbstractLdapTestUnit
     @Test
     public void testDelete() throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -202,13 +170,7 @@ public class RootDSEJndiIT extends AbstractLdapTestUnit
     @Test
     public void testRename() throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -237,13 +199,7 @@ public class RootDSEJndiIT extends AbstractLdapTestUnit
     @Test
     public void testModify() throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
@@ -272,13 +228,7 @@ public class RootDSEJndiIT extends AbstractLdapTestUnit
     @Test
     public void testModify2() throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
 

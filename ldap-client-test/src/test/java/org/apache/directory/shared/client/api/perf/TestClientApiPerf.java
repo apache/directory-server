@@ -176,9 +176,7 @@ public class TestClientApiPerf extends AbstractLdapTestUnit
     private DirContext jndiEnv( String host, int port, String base, String principal, String credentials, boolean ssl )
         throws NamingException
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, "ldap://" + host + ":" + port + "/" + base );
         env.put( Context.SECURITY_PRINCIPAL, principal );
         env.put( Context.SECURITY_CREDENTIALS, credentials );

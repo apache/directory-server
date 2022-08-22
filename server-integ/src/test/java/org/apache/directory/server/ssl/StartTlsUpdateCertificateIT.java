@@ -106,12 +106,8 @@ public class StartTlsUpdateCertificateIT extends AbstractLdapTestUnit
     public void testUpdateCertificate() throws Exception
     {
         // create a secure connection
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( "java.naming.provider.url", Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
         LdapContext ctx = new InitialLdapContext( env, null );
         StartTlsResponse tls = ( StartTlsResponse ) ctx.extendedOperation( new StartTlsRequest() );
         tls.setHostnameVerifier( new HostnameVerifier()

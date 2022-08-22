@@ -26,9 +26,6 @@ import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.util.JndiUtils;
@@ -36,10 +33,14 @@ import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.apache.directory.server.ldap.LdapServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
 
 
 public class ServerIntegrationUtils extends IntegrationUtils
@@ -51,7 +52,22 @@ public class ServerIntegrationUtils extends IntegrationUtils
     private static final int DEFAULT_PORT = 10389;
     private static final String DEFAULT_ADMIN = ServerDNConstants.ADMIN_SYSTEM_DN;
     private static final String DEFAULT_PASSWORD = "secret";
+    
+    
+    private static Hashtable<String, Object> setDefaultJNDIEnv( String factoryName, LdapServer ldapServer )
+    {
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        
+        env.put( DirectoryService.JNDI_KEY, ldapServer.getDirectoryService() );
+        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
+        env.put( Context.SECURITY_PRINCIPAL,  ServerDNConstants.ADMIN_SYSTEM_DN );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, factoryName );
 
+        return env;
+    }
+    
 
     /**
      * Creates a JNDI LdapContext with a connection over the wire using the 
@@ -83,12 +99,9 @@ public class ServerIntegrationUtils extends IntegrationUtils
         throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CTX_FACTORY, ldapServer );
         env.put( Context.SECURITY_PRINCIPAL, principalDn );
         env.put( Context.SECURITY_CREDENTIALS, password );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
         return new InitialLdapContext( env, null );
     }
@@ -107,12 +120,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
-        env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CTX_FACTORY, ldapServer );
         javax.naming.ldap.Control[] jndiControls;
         
         try
@@ -140,12 +148,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapContext getWiredContextThrowOnRefferal( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
-        env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CTX_FACTORY, ldapServer );
         env.put( Context.REFERRAL, "throw" );
         
         return new InitialLdapContext( env, null );
@@ -164,12 +167,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapContext getWiredContextRefferalIgnore( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
-        env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CTX_FACTORY, ldapServer );
         env.put( Context.REFERRAL, "ignore" );
         
         return new InitialLdapContext( env, null );
@@ -188,12 +186,7 @@ public class ServerIntegrationUtils extends IntegrationUtils
     public static LdapContext getWiredContextFollowOnRefferal( LdapServer ldapServer ) throws NamingException
     {
         LOG.debug( "Creating a wired context to local LDAP server on port {}", ldapServer.getPort() );
-        Hashtable<String, String> env = new Hashtable<>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
-        env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( ldapServer.getPort() ) );
-        env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CTX_FACTORY, ldapServer );
         env.put( Context.REFERRAL, "follow" );
         
         return new InitialLdapContext( env, null );

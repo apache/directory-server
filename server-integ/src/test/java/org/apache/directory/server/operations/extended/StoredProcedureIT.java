@@ -76,12 +76,8 @@ public class StoredProcedureIT extends AbstractLdapTestUnit
     @BeforeEach
     public void setUp() throws Exception
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( "java.naming.provider.url", "ldap://localhost:" + getLdapServer().getPort() + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialLdapContext( env, null );
 
         Attributes spContainer = new BasicAttributes( "objectClass", "top", true );

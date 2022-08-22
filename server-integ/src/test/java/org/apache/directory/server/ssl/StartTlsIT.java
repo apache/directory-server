@@ -186,11 +186,7 @@ public class StartTlsIT extends AbstractLdapTestUnit
             LOG.debug( "testStartTls() test starting ... " );
 
             // Set up environment for creating initial context
-            Hashtable<String, Object> env = new Hashtable<String, Object>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-            env.put( "java.naming.security.credentials", "secret" );
-            env.put( "java.naming.security.authentication", "simple" );
+            Hashtable<String, Object> env = setDefaultJNDIEnv();
 
             // Must use the name of the server that is found in its certificate?
             env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );

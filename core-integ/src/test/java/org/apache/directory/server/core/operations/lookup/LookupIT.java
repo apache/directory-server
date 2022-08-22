@@ -26,16 +26,28 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
 import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.InterceptorEnum;
+import org.apache.directory.server.core.api.LdapCoreSessionConnection;
+import org.apache.directory.server.core.api.authn.ppolicy.CheckQualityEnum;
+import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authn.ppolicy.PpolicyConfigContainer;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -376,5 +388,51 @@ public class LookupIT extends AbstractLdapTestUnit
         assertEquals( 1, entry.size() );
         assertTrue( entry.containsAttribute( "structuralObjectClass" ) );
         assertEquals( "organizationalUnit", entry.get( "structuralObjectClass" ).getString() );
+    }
+    
+    
+    @Test
+    @Disabled
+    public void testLookupPasswordPolicy() throws LdapException, IOException
+    {
+        ( ( LdapCoreSessionConnection ) connection ).getSession().setPwdMustChange( true );
+        PasswordPolicyConfiguration policyConfig = new PasswordPolicyConfiguration();
+
+        policyConfig.setPwdMustChange( true );
+        policyConfig.setPwdMaxAge( 110 );
+        policyConfig.setPwdFailureCountInterval( 30 );
+        policyConfig.setPwdMaxFailure( 2 );
+        policyConfig.setPwdLockout( true );
+        policyConfig.setPwdLockoutDuration( 0 );
+        policyConfig.setPwdMinLength( 5 );
+        policyConfig.setPwdInHistory( 5 );
+        policyConfig.setPwdExpireWarning( 600 );
+        policyConfig.setPwdGraceAuthNLimit( 5 );
+        policyConfig.setPwdCheckQuality( CheckQualityEnum.CHECK_REJECT ); // DO NOT allow the password if its quality can't be checked
+
+        PpolicyConfigContainer policyContainer = new PpolicyConfigContainer();
+        Dn defaultPolicyDn = new Dn( directoryService.getSchemaManager(), "cn=default" );
+        policyContainer.addPolicy( defaultPolicyDn, policyConfig );
+        policyContainer.setDefaultPolicyDn( defaultPolicyDn );
+
+        AuthenticationInterceptor authenticationInterceptor = ( AuthenticationInterceptor ) directoryService
+            .getInterceptor( InterceptorEnum.AUTHENTICATION_INTERCEPTOR.getName() );
+
+        authenticationInterceptor.setPwdPolicies( policyContainer );
+
+        Entry entry = connection.lookup( "uid=admin, ou=system" );
+        
+        // Entry should be null here
+        assertNull( entry );
+        
+        // Change the password
+        connection.modify( "uid=admin,ou=system", new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "userPassword", "test" ) );
+        
+        entry = connection.lookup( "uid=admin, ou=system" );
+
+        // Entry should not be null now
+        assertNotNull( entry );
+
+        connection.close();
     }
 }

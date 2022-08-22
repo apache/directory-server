@@ -135,10 +135,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBind() throws UnknownHostException
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
@@ -173,10 +171,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindBadPassword() throws UnknownHostException
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson," + BASE );
         env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
 
@@ -202,10 +198,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindBadPrincipalAPassword() throws UnknownHostException
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
@@ -231,10 +225,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindUnknowPrincipalAPassword() throws UnknownHostException
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
@@ -262,10 +254,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
         boolean oldValue = getLdapServer().getDirectoryService().isAllowAnonymousAccess();
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
 
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
 
@@ -344,10 +334,8 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindPrincipalNoPassword() throws UnknownHostException
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
 
@@ -374,8 +362,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindNoUserAPassword() throws Exception
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "" );

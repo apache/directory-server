@@ -157,11 +157,10 @@ public class MiscBindIT extends AbstractLdapTestUnit
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( false );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
-        final Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
 
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) + "/ou=system" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
         try
         {
@@ -202,11 +201,10 @@ public class MiscBindIT extends AbstractLdapTestUnit
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
 
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
         InitialDirContext ctx = new InitialDirContext( env );
         SearchControls cons = new SearchControls();
@@ -240,11 +238,10 @@ public class MiscBindIT extends AbstractLdapTestUnit
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
 
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
 
         InitialDirContext ctx = new InitialDirContext( env );
         SearchControls cons = new SearchControls();
@@ -277,12 +274,12 @@ public class MiscBindIT extends AbstractLdapTestUnit
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
 
         // Use the SUN JNDI provider to hit server port and bind as anonymous
-
-        final Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
 
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) );
         env.put( "java.naming.ldap.version", "3" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( Context.SECURITY_PRINCIPAL, "" );
+        env.put( Context.SECURITY_CREDENTIALS, "" );
 
         Attributes attributes = new BasicAttributes( true );
         Attribute objectClass = new BasicAttribute( "objectClass" );
@@ -318,11 +315,11 @@ public class MiscBindIT extends AbstractLdapTestUnit
     {
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
 
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
+        
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) + "/dc=aPache,dc=org" );
         env.put( "java.naming.ldap.version", "3" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+
         InitialDirContext ctx = new InitialDirContext( env );
         Attributes attrs = ctx.getAttributes( "" );
         assertTrue( attrs.get( "dc" ).get().equals( "aPache" ) );
@@ -338,7 +335,7 @@ public class MiscBindIT extends AbstractLdapTestUnit
         user.put( "userPassword", "Aerial" );
         ctx.createSubcontext( "cn=Kate Bush", user );
 
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        // Change the credentials 
         env.put( Context.SECURITY_CREDENTIALS, "Aerial" );
         env.put( Context.SECURITY_PRINCIPAL, "cn=Kate Bush,dc=aPache,dc=org" );
 
@@ -357,14 +354,11 @@ public class MiscBindIT extends AbstractLdapTestUnit
 
         getLdapServer().getDirectoryService().setAllowAnonymousAccess( true );
 
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
 
         env.put( Context.PROVIDER_URL, Network.ldapLoopbackUrl( getLdapServer().getPort() ) + "/ou=system" );
         env.put( "java.naming.ldap.version", "3" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+
         InitialLdapContext ctx = new InitialLdapContext( env, null );
 
         Attributes user = new BasicAttributes( "cn", "Kate Bush", true );

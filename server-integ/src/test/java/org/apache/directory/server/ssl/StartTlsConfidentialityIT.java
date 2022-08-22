@@ -50,6 +50,7 @@ import org.apache.directory.api.util.Network;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
@@ -154,6 +155,7 @@ public class StartTlsConfidentialityIT extends AbstractLdapTestUnit
         } );
         LOG.debug( "TLS negotion about to begin" );
         tls.negotiate( ReloadableSSLSocketFactory.getDefault() );
+        
         return ctx;
     }
 

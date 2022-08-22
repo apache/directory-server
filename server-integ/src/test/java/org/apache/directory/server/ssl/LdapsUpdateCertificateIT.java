@@ -85,14 +85,11 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
      */
     public DirContext getSecureConnection() throws Exception
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( "java.naming.provider.url", "ldap://" + Network.LOOPBACK_HOSTNAME + ":"
             + getLdapServer().getPortSSL() + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", AdsSSLSocketFactory.class.getName() );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
+
         return new InitialDirContext( env );
     }
 
@@ -104,14 +101,11 @@ public class LdapsUpdateCertificateIT extends AbstractLdapTestUnit
     public void testUpdateCertificate() throws Exception
     {
         // create a secure connection
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( "java.naming.provider.url", "ldaps://" + Network.LOOPBACK_HOSTNAME + ":"
             + getLdapServer().getPortSSL() );
         env.put( "java.naming.ldap.factory.socket", AdsSSLSocketFactory.class.getName() );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
+
         new InitialDirContext( env );
 
         // create a new certificate

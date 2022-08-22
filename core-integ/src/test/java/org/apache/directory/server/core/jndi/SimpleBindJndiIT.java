@@ -45,7 +45,6 @@ import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformExcep
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
-import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
@@ -93,15 +92,8 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
-
-        // Authenticate as admin and password "secret"
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         DirContext ctx = null;
 
@@ -135,15 +127,10 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
     public void testSimpleBindAPrincipalBadPassword()
     {
         // We will bind using JNDI
-        // Set up the environment for creating the initial context
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        env.put( Context.PROVIDER_URL, "ou=system" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
 
-        // Authenticate as admin and password "badsecret"
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        // Set up the environment for creating the initial context
+        env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "badsecret" );
 
         // Create the initial context
@@ -175,15 +162,9 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-
-        // Authenticate as admin and password "secret"
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
+        env.put( Context.SECURITY_PRINCIPAL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "admin" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         // Create the initial context
         try
@@ -214,15 +195,9 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
-
-        // Authenticate as uid=unknown and password "secret"
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=unknown,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         // Create the initial context
         try
@@ -255,15 +230,7 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-
-        // Bind on the rootDSE
-        env.put( Context.PROVIDER_URL, "" );
-
-        // Authenticate with no principal and no password : this is an anonymous bind
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
         env.put( Context.SECURITY_PRINCIPAL, "" );
         env.put( Context.SECURITY_CREDENTIALS, "" );
 
@@ -334,16 +301,7 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-
-        // Bind on the rootDSE
-        env.put( Context.PROVIDER_URL, "" );
-
-        // Authenticate as admin and password "secret"
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
         env.put( Context.SECURITY_CREDENTIALS, "" );
 
         // Create the initial context
@@ -392,17 +350,8 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-
-        // Bind on the rootDSE
-        env.put( Context.PROVIDER_URL, "" );
-
-        // Authenticate as admin and password "secret"
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
         env.put( Context.SECURITY_PRINCIPAL, "" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         // Create the initial context
         try
@@ -430,15 +379,9 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
     {
         // We will bind using JNDI
         // Set up the environment for creating the initial context
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, getService() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
+        Hashtable<String, Object> env = setDefaultJNDIEnv( CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
-
-        // Authenticate as admin and password "secret"
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=\"admin\",ou=\"system\"" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
 
         DirContext ctx = null;
 

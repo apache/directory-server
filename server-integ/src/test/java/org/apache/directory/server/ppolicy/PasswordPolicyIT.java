@@ -1587,5 +1587,5 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
        userConnection.close();
        adminConnection.close();
-   }    
+   }
 }

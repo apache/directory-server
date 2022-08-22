@@ -35,7 +35,6 @@ import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
-import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.integ.ServerIntegrationUtils;
@@ -85,14 +84,10 @@ public class LookupPerfIT extends AbstractLdapTestUnit
     }
 
 
-    public static LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws Exception
+    public LdapContext getWiredContext( LdapServer ldapServer, Control[] controls ) throws Exception
     {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        Hashtable<String, Object> env = setDefaultJNDIEnv();
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + ldapServer.getPort() );
-        env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
 
         return new InitialLdapContext( env, JndiUtils.toJndiControls(
             ldapServer.getDirectoryService().getLdapCodecService(),

@@ -29,7 +29,9 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.Hashtable;
 
+import javax.naming.Context;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.directory.ldap.client.template.LdapConnectionTemplate;
@@ -121,5 +123,26 @@ public abstract class AbstractLdapTestUnit
         {
             keyStore.store( out, keyStorePassword );
         }
+    }
+    
+    
+    protected Hashtable<String, Object> setDefaultJNDIEnv()
+    {
+        return setDefaultJNDIEnv( "com.sun.jndi.ldap.LdapCtxFactory" );
+    }
+    
+    
+    protected Hashtable<String, Object> setDefaultJNDIEnv( String factoryName )
+    {
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        
+        env.put( DirectoryService.JNDI_KEY, getService() );
+        env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, factoryName );
+
+        return env;
     }
 }
