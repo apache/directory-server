@@ -54,8 +54,8 @@ is one of :
 ### 'bin' installer
 
 Building a **bin** installer generates two files :
-* _apacheds-2.0.0.AM26-SNAPSHOT-32bit.bin_
-* _apacheds-2.0.0.AM26-SNAPSHOT-64bit.bin_
+* _apacheds-2.0.0.AM27-SNAPSHOT-32bit.bin_
+* _apacheds-2.0.0.AM27-SNAPSHOT-64bit.bin_
 
 Those files are scripts concatenated with a *tar* file. The script will ask you to validate the
 _Apache_ license, extract the tar file, launch the _install.sh_ script and cleanup temporary files once the 
@@ -87,9 +87,9 @@ installation is done. Here is the layout of the installer once executed, before 
 	|    |
 	|    +--/lib
 	|    |    |
-	|    |    +-- apacheds-service-2.0.0.AM26-SNAPSHOT.jar
+	|    |    +-- apacheds-service-2.0.0.AM27-SNAPSHOT.jar
 	|    |    |
-	|    |    +-- apacheds-wrapper-2.0.0.AM26-SNAPSHOT.jar
+	|    |    +-- apacheds-wrapper-2.0.0.AM27-SNAPSHOT.jar
 	|    |    |
 	|    |    +-- libwrapper.so
 	|    |    |
@@ -131,7 +131,7 @@ Here are the variables that can be configured :
 
 Once the installer has been run, the server files are located in various places :
 
-	/opt/apacheds-2.0.0.AM26-SNAPSHOT
+	/opt/apacheds-2.0.0.AM27-SNAPSHOT
 	      |
 	      +-- /bin
 	      |    |
@@ -145,9 +145,9 @@ Once the installer has been run, the server files are located in various places 
 	      |
 	      +-- /lib
 	            |
-	            +-- apacheds-service-2.0.0.AM26-SNAPSHOT.jar
+	            +-- apacheds-service-2.0.0.AM27-SNAPSHOT.jar
 	            |
-	            +-- apacheds-wrapper-2.0.0.AM26-SNAPSHOT.jar
+	            +-- apacheds-wrapper-2.0.0.AM27-SNAPSHOT.jar
 	            |
 	            +-- libwrapper.so
 	            |
@@ -155,7 +155,7 @@ Once the installer has been run, the server files are located in various places 
 	.
 	.
 	.
-	/var/lib/apacheds-2.0.0.AM26-SNAPSHOT
+	/var/lib/apacheds-2.0.0.AM27-SNAPSHOT
 	          |
 	          +-- /default
 	                |
@@ -177,7 +177,7 @@ Once the installer has been run, the server files are located in various places 
 	.
 	/etc/rc.d/init.d
 	           |
-	           +-- apacheds-2.0.0.AM26-SNAPSHOT-default
+	           +-- apacheds-2.0.0.AM27-SNAPSHOT-default
 
 In the process, a user and group will be created if they didn't exist beforhand.
 
@@ -196,7 +196,7 @@ Debugging one of the installers maven plugins in Eclipse is quite easy:
 
 * First set a breakpoint in the _execute()_ function of the plugin you are interested in debugging
 * Create a new *Maven Build* debug configuration
-* Set the base Directory to _${workspace_loc:/apacheds-installers-2.0.0.AM26-SNAPSHOT}_ (or whatever version you are debugging). This can be done using the _workspace_ button below the input box. 
+* Set the base Directory to _${workspace_loc:/apacheds-installers-2.0.0.AM27-SNAPSHOT}_ (or whatever version you are debugging). This can be done using the _workspace_ button below the input box. 
 * Set the goals to _clean install_
 * Set the _profile_ to match the plugin you want to debug (**mac**, **bin**, **debian**, **rpm**, **windows**, **archive**, **docker**, or **installers**)
 * You are good to go !
