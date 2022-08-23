@@ -20,26 +20,23 @@
 package org.apache.directory.server.core.operations.modify;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.NoSuchAttributeException;
-import javax.naming.directory.SchemaViolationException;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
+import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
+import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -49,6 +46,7 @@ import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -170,140 +168,144 @@ import org.junit.jupiter.api.extension.ExtendWith;
         "manager: cn=Heather Nova, dc=example,dc=com" })
 public class ModifyDelIT extends AbstractLdapTestUnit
 {
-    private static final String RDN_HEATHER_NOVA = "cn=Heather Nova";
-    private static final String RDN_KIM_WILDE = "cn=kim wilde";
+    private static final String DN_HEATHER_NOVA = "cn=Heather Nova, dc=example,dc=com";
+    private static final String DN_KIM_WILDE = "cn=kim wilde, dc=example,dc=com";
+    private static final String DN_TEST = "cn=test, dc=example,dc=com";
+    private static final String DN_TESTING02 = "ou=testing02,dc=example,dc=com"; 
 
 
     /**
-     * @param exampleCtx the system root to add entries to
-     * @throws NamingException on errors
+     * @throws Exception on errors
      */
-    protected void createData( LdapContext exampleCtx ) throws Exception
+    @BeforeAll
+    protected static void createData() throws Exception
     {
-        /*
-         * Check ou=testing00,dc=example,dc=com
-         */
-        DirContext ctx = ( DirContext ) exampleCtx.lookup( "ou=testing00" );
-        assertNotNull( ctx );
-        Attributes attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing00", attributes.get( "ou" ).get() );
-        Attribute attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * check ou=testing01,dc=example,dc=com
-         */
-        ctx = ( DirContext ) exampleCtx.lookup( "ou=testing01" );
-        assertNotNull( ctx );
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing01", attributes.get( "ou" ).get() );
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * Check ou=testing02,dc=example,dc=com
-         */
-        ctx = ( DirContext ) exampleCtx.lookup( "ou=testing02" );
-        assertNotNull( ctx );
-
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing02", attributes.get( "ou" ).get() );
-
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * Check ou=subtest,ou=testing01,dc=example,dc=com
-         */
-        ctx = ( DirContext ) exampleCtx.lookup( "ou=subtest,ou=testing01" );
-        assertNotNull( ctx );
-
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "subtest", attributes.get( "ou" ).get() );
-
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         *  Check entry cn=Heather Nova, dc=example,dc=com
-         */
-        ctx = ( DirContext ) exampleCtx.lookup( RDN_HEATHER_NOVA );
-        assertNotNull( ctx );
-
-        // -------------------------------------------------------------------
-        // Enable the nis schema
-        // -------------------------------------------------------------------
-
-        // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
-        boolean isNisDisabled = false;
-
-        if ( nisAttrs.get( "m-disabled" ) != null )
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
         {
-            isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
+            /*
+             * Check ou=testing00,dc=example,dc=com
+             */
+            Entry entry = conn.lookup( "ou=testing00,dc=example,dc=com" );
+            assertNotNull( entry );
+            assertNotEquals( 0, entry.size() );
+            assertEquals( "testing00", entry.get( "ou" ).getString() );
+            Attribute attribute = entry.get( "objectClass" );
+            assertNotNull( attribute );
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
+    
+            /*
+             * check ou=testing01,dc=example,dc=com
+             */
+            entry = conn.lookup( "ou=testing01,dc=example,dc=com" );
+            assertNotNull( entry );
+            assertNotEquals( 0, entry.size() );
+            assertEquals( "testing01", entry.get( "ou" ).getString() );
+            attribute = entry.get( "objectClass" );
+            assertNotNull( attribute );
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
+    
+            /*
+             * Check ou=testing02,dc=example,dc=com
+             */
+            entry = conn.lookup( "ou=testing02,dc=example,dc=com" );
+            assertNotNull( entry );
+            assertNotEquals( 0, entry.size() );
+            assertEquals( "testing02", entry.get( "ou" ).getString() );
+            attribute = entry.get( "objectClass" );
+            assertNotNull( attribute );
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
+    
+            /*
+             * Check ou=subtest,ou=testing01,dc=example,dc=com
+             */
+            entry = conn.lookup( "ou=subtest,ou=testing01,dc=example,dc=com" );
+            assertNotNull( entry );
+            assertNotEquals( 0, entry.size() );
+            assertEquals( "subtest", entry.get( "ou" ).getString() );
+            attribute = entry.get( "objectClass" );
+            assertNotNull( attribute );
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
+    
+            /*
+             *  Check entry cn=Heather Nova, dc=example,dc=com
+             */
+            entry = conn.lookup( DN_HEATHER_NOVA );
+            assertNotNull( entry );
+    
+            // -------------------------------------------------------------------
+            // Enable the nis schema
+            // -------------------------------------------------------------------
+    
+            // check if nis is disabled
+            String nisDn = "cn=nis," + SchemaConstants.OU_SCHEMA;
+            entry = conn.lookup( nisDn );
+            Attribute disabled = entry.get( "m-disabled" );
+            boolean isNisDisabled = false;
+    
+            if ( disabled != null )
+            {
+                isNisDisabled = disabled.getString().equalsIgnoreCase( "TRUE" );
+            }
+    
+            // if nis is disabled then enable it
+            if ( isNisDisabled )
+            {
+                conn.modify( nisDn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "m-disabled" ) );
+            }
+
+            entry = conn.lookup( nisDn );
+
+            // -------------------------------------------------------------------
+            // Add a bunch of nis groups
+            // -------------------------------------------------------------------
+            addNisPosixGroup( conn, "testGroup0", 0 );
+            addNisPosixGroup( conn, "testGroup1", 1 );
+            addNisPosixGroup( conn, "testGroup2", 2 );
+            addNisPosixGroup( conn, "testGroup4", 4 );
+            addNisPosixGroup( conn, "testGroup5", 5 );
+    
+            // Create a test account
+            Entry testAccount = conn.lookup( DN_TEST );
+            
+            if ( testAccount == null )
+            {
+                conn.add( new DefaultEntry(
+                    DN_TEST, 
+                    "ObjectClass", "top",
+                    "ObjectClass", "account",
+                    "ObjectClass", "posixAccount",
+                    "cn", "test",
+                    "uid", "1",
+                    "uidNumber", "1",
+                    "gidNumber", "1",
+                     "homeDirectory", "/",
+                    "description", "A test account"
+                    ) );
+            }
         }
-
-        // if nis is disabled then enable it
-        if ( isNisDisabled )
-        {
-            Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[]
-                {
-                    new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
-            schemaRoot.modifyAttributes( "cn=nis", mods );
-        }
-
-        // -------------------------------------------------------------------
-        // Add a bunch of nis groups
-        // -------------------------------------------------------------------
-        addNisPosixGroup( "testGroup0", 0 );
-        addNisPosixGroup( "testGroup1", 1 );
-        addNisPosixGroup( "testGroup2", 2 );
-        addNisPosixGroup( "testGroup4", 4 );
-        addNisPosixGroup( "testGroup5", 5 );
-
-        // Create a test account
-        Attributes test = new BasicAttributes( true );
-        Attribute oc = new BasicAttribute( "ObjectClass" );
-        oc.add( "top" );
-        oc.add( "account" );
-        oc.add( "posixAccount" );
-        test.put( oc );
-
-        test.put( "cn", "test" );
-        test.put( "uid", "1" );
-        test.put( "uidNumber", "1" );
-        test.put( "gidNumber", "1" );
-        test.put( "homeDirectory", "/" );
-        test.put( "description", "A test account" );
-
-        exampleCtx.createSubcontext( "cn=test", test );
     }
 
 
     /**
      * Create a NIS group
      */
-    private DirContext addNisPosixGroup( String name, int gid ) throws Exception
+    private static void addNisPosixGroup( LdapConnection connection, String name, int gid ) throws Exception
     {
-        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
-        attrs.get( "objectClass" ).add( "posixGroup" );
-        attrs.put( "cn", name );
-        attrs.put( "gidNumber", String.valueOf( gid ) );
-        return getSystemContext( getService() ).createSubcontext( "cn=" + name + ",ou=groups", attrs );
+        String posixGroupDn = "cn=" + name + ",ou=groups, ou=system";
+        Entry posixGroup = connection.lookup( posixGroupDn );
+        
+        if ( posixGroup == null )
+        {
+            connection.add( new DefaultEntry( posixGroupDn,
+                "objectClass", "top",
+                "objectClass", "posixGroup",
+                "cn", name, 
+                "gidNumber", Integer.toString( gid ) ) );
+        }
     }
 
 
@@ -326,23 +328,22 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNotInRdnNotSV() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            createData();
 
         // A new description attribute value
         String deletedValue = "she has blond hair";
 
-        Attributes attrs = new BasicAttributes( "description", deletedValue, true );
-
-        exampleCtx.modifyAttributes( RDN_KIM_WILDE, DirContext.REMOVE_ATTRIBUTE, attrs );
+        conn.modify( DN_KIM_WILDE, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "description", deletedValue ) );
 
         // Verify that the attribute value has been removed
-        attrs = exampleCtx.getAttributes( RDN_KIM_WILDE );
-        Attribute attr = attrs.get( "description" );
-        assertNotNull( attr );
-        assertTrue( attr.contains( "an American singer-songwriter" ) );
-        assertFalse( attr.contains( deletedValue ) );
-        assertEquals( 1, attr.size() );
+        Entry entry = conn.lookup( DN_KIM_WILDE );
+        assertNotNull( entry.get( "description" ) );
+        assertTrue( entry.contains( "description", "an American singer-songwriter" ) );
+        assertFalse( entry.contains( "description", deletedValue ) );
+        assertEquals( 1, entry.get( "description" ).size() );
+        }
     }
 
 
@@ -352,22 +353,16 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNotInRdnNotInMustNotSVAllValues() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            createData();
 
-        // A new description attribute value
-        Attributes attrs = new BasicAttributes( "description", true );
-        Attribute descr = new BasicAttribute( "description" );
-        descr.add( "an American singer-songwriter" );
-        descr.add( "she has blond hair" );
-        attrs.put( descr );
-
-        exampleCtx.modifyAttributes( RDN_KIM_WILDE, DirContext.REMOVE_ATTRIBUTE, attrs );
-
-        // Verify that the attribute value has been removed
-        attrs = exampleCtx.getAttributes( RDN_KIM_WILDE );
-        Attribute attr = attrs.get( "description" );
-        assertNull( attr );
+            // A new description attribute value
+            conn.modify( DN_KIM_WILDE, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "description", "an American singer-songwriter", "she has blond hair" ) );
+    
+            // Verify that the attribute value has been removed
+            assertNull( conn.lookup( DN_KIM_WILDE ).get( "description" ) );
+        }
     }
 
 
@@ -377,14 +372,14 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNotInRdnNotSVAllValues() throws Exception
     {
-        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
         {
-            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-            createData( exampleCtx );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                createData();
     
-            Attributes sn = new BasicAttributes( "sn", "Wilde", true );
-    
-            exampleCtx.modifyAttributes( RDN_KIM_WILDE, DirContext.REMOVE_ATTRIBUTE, sn );
+                conn.modify( DN_KIM_WILDE, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "sn", "Wilde" ) );
+            }
         } );
     }
 
@@ -399,15 +394,15 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryNonExistingATInMay() throws Exception
     {
-        Assertions.assertThrows( NoSuchAttributeException.class, () -> 
+        Assertions.assertThrows( LdapNoSuchAttributeException.class, () -> 
         {
-            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-            createData( exampleCtx );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                createData();
     
-            // A non existing AT 
-            Attributes attrs = new BasicAttributes( "seeAlso", "cn=test", true );
-    
-            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+                // A non existing AT 
+                conn.modify( DN_HEATHER_NOVA, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "seeAlso", "cn=test" ) );
+            }
         } );
     }
 
@@ -418,15 +413,15 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryNonExistingATNotInMayMust() throws Exception
     {
-        Assertions.assertThrows( NoSuchAttributeException.class, () -> 
+        Assertions.assertThrows( LdapNoSuchAttributeException.class, () -> 
         {
-            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-            createData( exampleCtx );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                createData();
     
-            // A non existing AT 
-            Attributes attrs = new BasicAttributes( "c", "FR", true );
-    
-            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+                // A non existing AT 
+                conn.modify( DN_HEATHER_NOVA, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "c", "FR" ) );
+            }
         } );
     }
 
@@ -437,17 +432,14 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNotInRdnSV() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            createData();
 
-        Attributes attrs = new BasicAttributes( "c", "FR", true );
-
-        exampleCtx.modifyAttributes( "ou=testing02", DirContext.REMOVE_ATTRIBUTE, attrs );
-
-        // Verify that the attribute value has been removed
-        attrs = exampleCtx.getAttributes( "ou=testing02" );
-        Attribute country = attrs.get( "c" );
-        assertNull( country );
+            conn.modify( DN_TESTING02, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "c", "FR" ) );
+            
+            assertNull( conn.lookup( DN_TESTING02 ).get( "c" ) );
+        }    
     }
 
 
@@ -457,14 +449,13 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNotInRdnSVInMust() throws Exception
     {
-        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
         {
-            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-            createData( exampleCtx );
-    
-            Attributes attrs = new BasicAttributes( "uidNumber", "1", true );
-    
-            exampleCtx.modifyAttributes( "cn=test", DirContext.REMOVE_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                createData();
+                conn.modify( DN_TEST, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "uidNumber", "1" ) );
+            }
         } );
     }
 
@@ -475,14 +466,13 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATPartOfRdn() throws Exception
     {
-        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
         {
-            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-            createData( exampleCtx );
-    
-            Attributes attrs = new BasicAttributes( "cn", "test", true );
-    
-            exampleCtx.modifyAttributes( "cn=test", DirContext.REMOVE_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                createData();
+                conn.modify( DN_TEST, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "cn", "test" ) );
+            }
         } );
     }
 
@@ -493,17 +483,16 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNoInRdnNotInMust() throws Exception
     {
-        LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-        createData( exampleCtx );
-
-        Attributes attrs = new BasicAttributes( "description", null, true );
-
-        exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
-
-        // Verify that the attribute has been removed
-        attrs = exampleCtx.getAttributes( RDN_HEATHER_NOVA );
-        Attribute descr = attrs.get( "description" );
-        assertNull( descr );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            createData();
+    
+            conn.modify( DN_HEATHER_NOVA, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "description" ) );
+    
+            // Verify that the attribute has been removed
+            Entry entry = conn.lookup( DN_HEATHER_NOVA );
+            assertNull( entry.get( "description" ) );
+        }
     }
 
 
@@ -513,14 +502,14 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATNoInRdnInMust() throws Exception
     {
-        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
         {
-            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-            createData( exampleCtx );
-    
-            Attributes attrs = new BasicAttributes( "sn", null, true );
-    
-            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                createData();
+        
+                conn.modify( DN_HEATHER_NOVA, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "sn" ) );
+            }
         } );
     }
 
@@ -531,14 +520,12 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryExistingATInRdn() throws Exception
     {
-        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
         {
-            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-            createData( exampleCtx );
-    
-            Attributes attrs = new BasicAttributes( "cn", null, true );
-    
-            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                conn.modify( DN_HEATHER_NOVA, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "cn" ) );
+            }
         } );
     }
 
@@ -549,14 +536,14 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelExistingEntryValueNotPresentInExistingAT() throws Exception
     {
-        Assertions.assertThrows( NoSuchAttributeException.class, () -> 
+        Assertions.assertThrows( LdapNoSuchAttributeException.class, () -> 
         {
-            LdapContext exampleCtx = IntegrationUtils.getContext( "uid=admin,ou=system", getService(), "dc=example,dc=com" );
-            createData( exampleCtx );
-    
-            Attributes attrs = new BasicAttributes( "description", "Not present", true );
-    
-            exampleCtx.modifyAttributes( RDN_HEATHER_NOVA, DirContext.REMOVE_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                createData();
+        
+                conn.modify( DN_HEATHER_NOVA, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "description", "Not present" ) );
+            }
         } );
     }
 
@@ -590,15 +577,14 @@ public class ModifyDelIT extends AbstractLdapTestUnit
     @Test
     public void testModifyDelNotExistingEntry() throws Exception
     {
-        Assertions.assertThrows( NameNotFoundException.class, () -> 
+        Assertions.assertThrows( LdapNoSuchObjectException.class, () -> 
         {
-            LdapContext exampleCtx = getSystemContext( getService() );
-            createData( exampleCtx );
-    
-            // An operational attribute
-            Attributes attrs = new BasicAttributes( "cn", "test", true );
-    
-            exampleCtx.modifyAttributes( "ou=absent", DirContext.REMOVE_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+            {
+                createData();
+        
+                conn.modify( "ou=absent,dc=example,dc=com", new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "cn", "test" ) );
+            }
         } );
     }
 }
