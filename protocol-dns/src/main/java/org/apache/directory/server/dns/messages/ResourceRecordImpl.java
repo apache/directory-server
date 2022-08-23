@@ -172,10 +172,10 @@ public class ResourceRecordImpl implements ResourceRecord
 
         ResourceRecordImpl that = ( ResourceRecordImpl ) o;
 
-        return (this.domainName.equalsIgnoreCase(that.domainName)) &&
-            (this.recordType == that.recordType)
-            && (this.recordClass == that.recordClass)
-            && this.attributes.equals(that.attributes);
+        return this.domainName.equalsIgnoreCase( that.domainName )
+            && ( this.recordType == that.recordType )
+            && ( this.recordClass == that.recordClass )
+            && this.attributes.equals( that.attributes );
     }
 
 
