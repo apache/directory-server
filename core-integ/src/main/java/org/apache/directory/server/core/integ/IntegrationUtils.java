@@ -530,7 +530,7 @@ public class IntegrationUtils
             catch ( Exception e )
             {
                 // shouldn't happen, but print the stacktrace so that less pain during development to find the cause
-                e.printStackTrace();
+                LOG.error( "Error while closing the connections: " + e.getMessage(), e );
             }
         }
 
