@@ -20,26 +20,18 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
-import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -61,104 +53,52 @@ public class DIRSERVER759IT extends AbstractLdapTestUnit
      */
     protected void createData() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+        {
+            /*
+             * create ou=testing00,ou=system
+             */
+            conn.add( 
+                new DefaultEntry(
+                    "ou=testing00,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "organizationalUnit",
+                    "ou", "testing00"
+                    ) );
 
-        /*
-         * create ou=testing00,ou=system
-         */
-        Attributes attributes = new BasicAttributes( true );
-        Attribute attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "testing00" );
+            /*
+             * create ou=testing01,ou=system
+             */
+            conn.add( 
+                new DefaultEntry(
+                    "ou=testing01,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "organizationalUnit",
+                    "ou", "testing01"
+                    ) );
 
-        DirContext ctx = sysRoot.createSubcontext( "ou=testing00", attributes );
-        assertNotNull( ctx );
+            /*
+             * create ou=testing02,ou=system
+             */
+            conn.add( 
+                new DefaultEntry(
+                    "ou=testing02,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "organizationalUnit",
+                    "ou", "testing02"
+                    ) );
 
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
-        assertNotNull( ctx );
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing00", attributes.get( "ou" ).get() );
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * create ou=testing01,ou=system
-         */
-        attributes = new BasicAttributes( true );
-        attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "testing01" );
-
-        ctx = sysRoot.createSubcontext( "ou=testing01", attributes );
-        assertNotNull( ctx );
-
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
-        assertNotNull( ctx );
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing01", attributes.get( "ou" ).get() );
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * create ou=testing02,ou=system
-         */
-        attributes = new BasicAttributes( true );
-        attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "testing02" );
-        ctx = sysRoot.createSubcontext( "ou=testing02", attributes );
-        assertNotNull( ctx );
-
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing02" );
-        assertNotNull( ctx );
-
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing02", attributes.get( "ou" ).get() );
-
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * create ou=subtest,ou=testing01,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
-
-        attributes = new BasicAttributes( true );
-        attribute = new BasicAttribute( "objectClass" );
-        attribute.add( "top" );
-        attribute.add( "organizationalUnit" );
-        attributes.put( attribute );
-        attributes.put( "ou", "subtest" );
-
-        ctx = ctx.createSubcontext( "ou=subtest", attributes );
-        assertNotNull( ctx );
-
-        ctx = ( DirContext ) sysRoot.lookup( "ou=subtest,ou=testing01" );
-        assertNotNull( ctx );
-
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "subtest", attributes.get( "ou" ).get() );
-
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
+            /*
+             * create ou=subtest,ou=testing01,ou=system
+             */
+            conn.add( 
+                new DefaultEntry(
+                    "ou=subtest,ou=testing01,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "organizationalUnit",
+                    "ou", "subtest"
+                    ) );
+        }
     }
 
 
@@ -166,21 +106,16 @@ public class DIRSERVER759IT extends AbstractLdapTestUnit
     public void testSearchBadDN() throws Exception
     {
         createData();
-        LdapContext sysRoot = getSystemContext( getService() );
 
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
-
-        try
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
         {
-            sysRoot.search( "cn=admin", "(objectClass=*)", controls );
-        }
-        catch ( NameNotFoundException nnfe )
-        {
-            assertTrue( true );
+            Assertions.assertThrows( LdapNoSuchObjectException.class, () -> 
+            {
+                try ( EntryCursor cursor = conn.search( "cn=admin,ou=system", "(ObjectClass=*)", SearchScope.ONELEVEL, "*" ) )
+                {
+                    cursor.get();
+                }
+            } );
         }
     }
 }
