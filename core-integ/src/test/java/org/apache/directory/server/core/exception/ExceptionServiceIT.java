@@ -113,10 +113,13 @@ public class ExceptionServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFailSearchNoSuchObject() throws Exception
     {
-        EntryCursor cursor = getAdminConnection( getService() ).search( "ou=blah", "(objectClass=*)",
-            SearchScope.ONELEVEL, "*" );
-        assertFalse( cursor.next() );
-        cursor.close();
+        Assertions.assertThrows( LdapNoSuchObjectException.class, () -> 
+        {
+            try ( EntryCursor cursor = getAdminConnection( getService() ).search( "ou=blah", "(objectClass=*)",
+                SearchScope.ONELEVEL, "*" ) )
+            {
+            }
+        } );
     }
 
 
