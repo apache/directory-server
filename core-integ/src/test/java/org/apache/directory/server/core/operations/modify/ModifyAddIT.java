@@ -20,32 +20,32 @@
 package org.apache.directory.server.core.operations.modify;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.naming.NameNotFoundException;
-import javax.naming.NoPermissionException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.AttributeInUseException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.InvalidAttributesException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SchemaViolationException;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapAttributeInUseException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
+import org.apache.directory.api.ldap.model.exception.LdapNoSuchAttributeException;
+import org.apache.directory.api.ldap.model.exception.LdapNoSuchObjectException;
+import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
  
@@ -140,122 +140,120 @@ import org.junit.jupiter.api.extension.ExtendWith;
 public class ModifyAddIT extends AbstractLdapTestUnit
 {
     private static final String PERSON_DESCRIPTION = "an American singer-songwriter";
-    private static final String RDN_HEATHER_NOVA = "cn=Heather Nova";
-
+    private static final String DN_HEATHER_NOVA = "cn=Heather Nova, ou=system";
+    private static final String DN_TESTING01 = "ou=testing01,ou=system"; 
     
     /**
-     * @param sysRoot the system root to add entries to
-     * @throws NamingException on errors
+     * @throws Exception on errors
      */
-    protected void createData( LdapContext sysRoot ) throws Exception
+    @BeforeAll
+    protected static void createData() throws Exception
     {
-        /*
-         * Check ou=testing00,ou=system
-         */
-        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=testing00" );
-        assertNotNull( ctx );
-        Attributes attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing00", attributes.get( "ou" ).get() );
-        Attribute attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * check ou=testing01,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing01" );
-        assertNotNull( ctx );
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing01", attributes.get( "ou" ).get() );
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * Check ou=testing02,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=testing02" );
-        assertNotNull( ctx );
-
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "testing02", attributes.get( "ou" ).get() );
-
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         * Check ou=subtest,ou=testing01,ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( "ou=subtest,ou=testing01" );
-        assertNotNull( ctx );
-
-        attributes = ctx.getAttributes( "" );
-        assertNotNull( attributes );
-        assertEquals( "subtest", attributes.get( "ou" ).get() );
-
-        attribute = attributes.get( "objectClass" );
-        assertNotNull( attribute );
-        assertTrue( attribute.contains( "top" ) );
-        assertTrue( attribute.contains( "organizationalUnit" ) );
-
-        /*
-         *  Check entry cn=Heather Nova, ou=system
-         */
-        ctx = ( DirContext ) sysRoot.lookup( RDN_HEATHER_NOVA );
-        assertNotNull( ctx );
-
-
-        // -------------------------------------------------------------------
-        // Enable the nis schema
-        // -------------------------------------------------------------------
-
-        // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
-        boolean isNisDisabled = false;
-        
-        if ( nisAttrs.get( "m-disabled" ) != null )
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
         {
-            isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
-        }
+            /*
+             * Check ou=testing00,ou=system
+             */
+            Entry entry = conn.lookup( "ou=testing00,ou=system" );
+            assertNotNull( entry );
+            assertNotEquals( 0, entry.size() );
+            assertEquals( "testing00", entry.get( "ou" ).getString() );
+            Attribute attribute = entry.get( "objectClass" );
+            assertNotNull( attribute );
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
+    
+            /*
+             * check ou=testing01,ou=system
+             */
+            entry = conn.lookup( "ou=testing01,ou=system" );
+            assertNotNull( entry );
+            assertNotEquals( 0, entry.size() );
+            assertEquals( "testing01", entry.get( "ou" ).getString() );
+            attribute = entry.get( "objectClass" );
+            assertNotNull( attribute );
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
+    
+            /*
+             * Check ou=testing02,ou=system
+             */
+            entry = conn.lookup( "ou=testing02,ou=system" );
+            assertNotNull( entry );
+            assertNotEquals( 0, entry.size() );
+            assertEquals( "testing02", entry.get( "ou" ).getString() );
+            attribute = entry.get( "objectClass" );
+            assertNotNull( attribute );
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
+    
+            /*
+             * Check ou=subtest,ou=testing01,ou=system
+             */
+            entry = conn.lookup( "ou=subtest,ou=testing01,ou=system" );
+            assertNotNull( entry );
+            assertNotEquals( 0, entry.size() );
+            assertEquals( "subtest", entry.get( "ou" ).getString() );
+            attribute = entry.get( "objectClass" );
+            assertNotNull( attribute );
+            assertTrue( attribute.contains( "top" ) );
+            assertTrue( attribute.contains( "organizationalUnit" ) );
+    
+            /*
+             *  Check entry cn=Heather Nova, dc=example,dc=com
+             */
+            entry = conn.lookup( DN_HEATHER_NOVA );
+            assertNotNull( entry );
+    
+            // -------------------------------------------------------------------
+            // Enable the nis schema
+            // -------------------------------------------------------------------
+    
+            // check if nis is disabled
+            String nisDn = "cn=nis," + SchemaConstants.OU_SCHEMA;
+            entry = conn.lookup( nisDn );
+            Attribute disabled = entry.get( "m-disabled" );
+            boolean isNisDisabled = false;
+    
+            if ( disabled != null )
+            {
+                isNisDisabled = disabled.getString().equalsIgnoreCase( "TRUE" );
+            }
+    
+            // if nis is disabled then enable it
+            if ( isNisDisabled )
+            {
+                conn.modify( nisDn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "m-disabled" ) );
+            }
 
-        // if nis is disabled then enable it
-        if ( isNisDisabled )
-        {
-            Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[] {
-                new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
-            schemaRoot.modifyAttributes( "cn=nis", mods );
+            // -------------------------------------------------------------------
+            // Add a bunch of nis groups
+            // -------------------------------------------------------------------
+            addNisPosixGroup( conn, "testGroup0", 0 );
+            addNisPosixGroup( conn, "testGroup1", 1 );
+            addNisPosixGroup( conn, "testGroup2", 2 );
+            addNisPosixGroup( conn, "testGroup4", 4 );
+            addNisPosixGroup( conn, "testGroup5", 5 );
         }
-
-        // -------------------------------------------------------------------
-        // Add a bunch of nis groups
-        // -------------------------------------------------------------------
-        addNisPosixGroup( "testGroup0", 0 );
-        addNisPosixGroup( "testGroup1", 1 );
-        addNisPosixGroup( "testGroup2", 2 );
-        addNisPosixGroup( "testGroup4", 4 );
-        addNisPosixGroup( "testGroup5", 5 );
     }
 
 
     /**
      * Create a NIS group
      */
-    private DirContext addNisPosixGroup( String name, int gid ) throws Exception
+    private static void addNisPosixGroup( LdapConnection connection, String name, int gid ) throws Exception
     {
-        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
-        attrs.get( "objectClass" ).add( "posixGroup" );
-        attrs.put( "cn", name );
-        attrs.put( "gidNumber", String.valueOf( gid ) );
-        return getSystemContext( getService() ).createSubcontext( "cn="+name+",ou=groups", attrs );
+        String posixGroupDn = "cn=" + name + ",ou=groups, ou=system";
+        Entry posixGroup = connection.lookup( posixGroupDn );
+        
+        if ( posixGroup == null )
+        {
+            connection.add( new DefaultEntry( posixGroupDn,
+                "objectClass", "top",
+                "objectClass", "posixGroup",
+                "cn", name, 
+                "gidNumber", Integer.toString( gid ) ) );
+        }
     }
 
 
@@ -282,22 +280,24 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingATValidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+        {
+            createData();
+    
+            // A new description attribute value
+            String newValue = "ou=test";
+    
+            conn.modify( DN_HEATHER_NOVA, 
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "seeAlso", newValue ) );
 
-        // A new description attribute value
-        String newValue = "ou=test";
-
-        Attributes attrs = new BasicAttributes( "seeAlso", newValue, true );
-
-        sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
-
-        // Verify that the attribute value has been added
-        attrs = sysRoot.getAttributes( RDN_HEATHER_NOVA );
-        Attribute attr = attrs.get( "seeAlso" );
-        assertNotNull( attr );
-        assertTrue( attr.contains( newValue ) );
-        assertEquals( 1, attr.size() );
+    
+            // Verify that the attribute value has been added
+            Entry heather = conn.lookup( DN_HEATHER_NOVA );
+            Attribute attr = heather.get( "seeAlso" );
+            assertNotNull( attr );
+            assertTrue( attr.contains( newValue ) );
+            assertEquals( 1, attr.size() );
+        }
     }
 
 
@@ -308,15 +308,16 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingATNotInMayValidAVA() throws Exception
     {
-        Assertions.assertThrows( SchemaViolationException.class, () -> 
+        Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
     
-            // A valid AT not in MUST or MAY
-            Attributes attrs = new BasicAttributes( "crossCertificatePair", "12345", true );
-    
-            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+                // A valid AT not in MUST or MAY
+                conn.modify( DN_HEATHER_NOVA, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "crossCertificatePair", Strings.getBytesUtf8( "12345" ) ) );
+            }
         } );
     }
 
@@ -328,21 +329,22 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingATNotInMayExtensibleObjectOCValidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
-        Attributes attrs = new BasicAttributes( "crossCertificatePair", "12345", true );
-
-        // Add the Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
-
-        // Verify that the attribute value has been added
-        attrs = sysRoot.getAttributes( "ou=testing01" );
-        Attribute attr = attrs.get( "crossCertificatePair" );
-        assertNotNull( attr );
-        assertTrue( attr.contains( Strings.getBytesUtf8( "12345" ) ) );
-        assertEquals( 1, attr.size() );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+        {
+            createData();
+            
+            // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
+            // Add the Ava
+            conn.modify( DN_TESTING01, 
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "crossCertificatePair", Strings.getBytesUtf8( "12345" ) ) );
+    
+            // Verify that the attribute value has been added
+            Entry testing01 = conn.lookup( DN_TESTING01 );
+            Attribute attr = testing01.get( "crossCertificatePair" );
+            assertNotNull( attr );
+            assertTrue( attr.contains( Strings.getBytesUtf8( "12345" ) ) );
+            assertEquals( 1, attr.size() );
+        }
     }
 
 
@@ -353,22 +355,23 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingAtEmptyValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+        {
+            createData();
+            
+            // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
+            // The value is empty
+            conn.modify( DN_TESTING01, 
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "crossCertificatePair", Strings.EMPTY_BYTES ) );
 
-        // A valid AT not in MUST or MAY, but the extensibleObject OC is present in the OCs
-        // The value is empty
-        Attributes attrs = new BasicAttributes( "crossCertificatePair", Strings.EMPTY_BYTES, true );
+            // Verify that the attribute value has been added
 
-        // Add the Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
-
-        // Verify that the attribute value has been added
-        attrs = sysRoot.getAttributes( "ou=testing01" );
-        Attribute attr = attrs.get( "crossCertificatePair" );
-        assertNotNull( attr );
-        assertTrue( attr.contains( Strings.EMPTY_BYTES ) );
-        assertEquals( 1, attr.size() );
+            Entry testing01 = conn.lookup( DN_TESTING01 );
+            Attribute attr = testing01.get( "crossCertificatePair" );
+            assertNotNull( attr );
+            assertTrue( attr.contains( Strings.EMPTY_BYTES ) );
+            assertEquals( 1, attr.size() );
+        }
     }
 
 
@@ -378,20 +381,16 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntrySingleValuedATWithTwoValues() throws Exception
     {
-        Assertions.assertThrows( InvalidAttributeValueException.class, () -> 
+        Assertions.assertThrows( LdapInvalidAttributeValueException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // 
-            Attribute attr = new BasicAttribute( "c" );
-            attr.add( "FR" );
-            attr.add( "US" );
-            Attributes attrs = new BasicAttributes( "c", true );
-            attrs.put( attr );
-    
-            // Add the Ava
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+        
+                // Add the Ava
+                conn.modify( DN_TESTING01, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "c", "FR", "US" ) );
+            }
         } );
     }
 
@@ -402,15 +401,16 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingATInvalidAVA() throws Exception
     {
-        Assertions.assertThrows( InvalidAttributesException.class, () -> 
+        Assertions.assertThrows( LdapNoSuchAttributeException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // An invalid AT
-            Attributes attrs = new BasicAttributes( "badAttr", "12345", true );
-    
-            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+        
+                // An invalid AT
+                conn.modify( DN_HEATHER_NOVA, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "badAttr", "12345" ) );
+            }
         } );
     }
 
@@ -421,15 +421,16 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryNotExistingATInvalidAVAExtensibleObjectInOcs() throws Exception
     {
-        Assertions.assertThrows( InvalidAttributesException.class, () -> 
+        Assertions.assertThrows( LdapNoSuchAttributeException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // An invalid AT
-            Attributes attrs = new BasicAttributes( "badAttr", "12345", true );
-    
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+                
+                // An invalid AT
+                conn.modify( DN_TESTING01, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "badAttr12345", "AAA" ) );
+            }
         } );
     }
     
@@ -442,13 +443,14 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     {
         Assertions.assertThrows( IllegalArgumentException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // An invalid AT value
-            Attributes attrs = new BasicAttributes( "seeAlso", "AAA", true );
-    
-            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+                
+                // An invalid AT value
+                conn.modify( DN_HEATHER_NOVA, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "seeAlso", "AAA" ) );
+            }
         } );
     }
     
@@ -460,15 +462,16 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingATInvalidValueExtensibleObjectInOcs() throws Exception
     {
-        Assertions.assertThrows( InvalidAttributeValueException.class, () -> 
+        Assertions.assertThrows( LdapInvalidAttributeValueException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // An invalid AT value
-            Attributes attrs = new BasicAttributes( "mobile", "AAA", true );
-    
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+        
+                // An invalid AT value
+                conn.modify( DN_TESTING01, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "mobile", "AAA" ) );
+            }
         } );
     }
     
@@ -479,15 +482,16 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryOperationalAttribute() throws Exception
     {
-        Assertions.assertThrows( NoPermissionException.class, () -> 
+        Assertions.assertThrows( LdapNoPermissionException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
     
-            // An operationalAttribute
-            Attributes attrs = new BasicAttributes( "subschemaSubentry", "cn=anotherSchema", true );
-    
-            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+                // An operationalAttribute
+                conn.modify( DN_HEATHER_NOVA, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "subschemaSubentry", "cn=anotherSchema" ) );
+            }
         } );
     }
     
@@ -498,15 +502,15 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryOperationalAttributeExtensibleObjectInOcs() throws Exception
     {
-        Assertions.assertThrows( NoPermissionException.class, () -> 
+        Assertions.assertThrows( LdapNoPermissionException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // An operational attribute
-            Attributes attrs = new BasicAttributes( "subschemaSubentry", "cn=anotherSchema", true );
-    
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+        
+                conn.modify( DN_TESTING01, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "subschemaSubentry", "cn=anotherSchema" ) );
+            }
         } );
     }
     
@@ -521,23 +525,23 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingATValidAVA() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+        {
+            createData();
+    
+            // A new description attribute value
+            String newValue = "test";
+    
+            conn.modify( DN_HEATHER_NOVA, 
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "description", newValue ) );
 
-        // A new description attribute value
-        String newValue = "test";
-
-        Attributes attrs = new BasicAttributes( "description", newValue, true );
-
-        sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
-
-        // Verify that the attribute value has been added
-        attrs = sysRoot.getAttributes( RDN_HEATHER_NOVA );
-        Attribute attr = attrs.get( "description" );
-        assertNotNull( attr );
-        assertTrue( attr.contains( newValue ) );
-        assertTrue( attr.contains( PERSON_DESCRIPTION ) );
-        assertEquals( 2, attr.size() );
+            // Verify that the attribute value has been added
+            Entry heather = conn.lookup( DN_HEATHER_NOVA );
+            Attribute description = heather.get( "description" );
+            assertNotNull( description );
+            assertTrue( description.contains( newValue, PERSON_DESCRIPTION ) );
+            assertEquals( 2, description.size() );
+        }
     }
 
     
@@ -548,14 +552,15 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingATExistingValue() throws Exception
     {
-        Assertions.assertThrows( AttributeInUseException.class, () -> 
+        Assertions.assertThrows( LdapAttributeInUseException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            Attributes attrs = new BasicAttributes( "description", PERSON_DESCRIPTION, true );
-    
-            sysRoot.modifyAttributes( RDN_HEATHER_NOVA, DirContext.ADD_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+        
+                conn.modify( DN_HEATHER_NOVA, 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "description", PERSON_DESCRIPTION ) );
+            }
         } );
     }
     
@@ -567,26 +572,25 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingAtEmptyValue() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        createData( sysRoot );
-
-        Attributes attrs = new BasicAttributes( "crossCertificatePair", Strings.getBytesUtf8( "12345" ), true );
-
-        // Add the first Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
-
-        attrs = new BasicAttributes( "crossCertificatePair", Strings.EMPTY_BYTES, true );
-        
-        // Add the second Ava
-        sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
-
-        // Verify that the attribute value has been added
-        attrs = sysRoot.getAttributes( "ou=testing01" );
-        Attribute attr = attrs.get( "crossCertificatePair" );
-        assertNotNull( attr );
-        assertTrue( attr.contains( Strings.getBytesUtf8( "12345" ) ) );
-        assertTrue( attr.contains( Strings.EMPTY_BYTES ) );
-        assertEquals( 2, attr.size() );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+        {
+            createData();
+    
+            // Add the first Ava
+            conn.modify( DN_TESTING01, new DefaultModification( 
+                ModificationOperation.ADD_ATTRIBUTE, "crossCertificatePair", Strings.getBytesUtf8( "12345" ) ) );
+    
+            // Add the second Ava
+            conn.modify( DN_TESTING01, new DefaultModification( 
+                ModificationOperation.ADD_ATTRIBUTE, "crossCertificatePair", Strings.EMPTY_BYTES ) );
+    
+            // Verify that the attribute value has been added
+            Entry testing01= conn.lookup( DN_TESTING01 );
+            Attribute crossCertificatePair = testing01.get( "crossCertificatePair" );
+            assertNotNull( crossCertificatePair );
+            assertTrue( crossCertificatePair.contains( Strings.getBytesUtf8( "12345" ), Strings.EMPTY_BYTES ) );
+            assertEquals( 2, crossCertificatePair.size() );
+        }
     }
     
     
@@ -596,22 +600,18 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingSingleValuedAT() throws Exception
     {
-        Assertions.assertThrows( InvalidAttributeValueException.class, () -> 
+        Assertions.assertThrows( LdapInvalidAttributeValueException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // The initial value
-            Attributes attrs = new BasicAttributes( "c", "FR", true );
-    
-            // Add the Ava
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
-            
-            // Add another value
-            Attributes attrs2 = new BasicAttributes( "c", "US", true );
-    
-            // Add the Ava
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs2 );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+        
+                // The initial value
+                conn.modify( DN_TESTING01, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "c", "FR" ) );
+                
+                // Add another value
+                conn.modify( DN_TESTING01, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "c", "US" ) );
+            }
         } );
     }
     
@@ -622,22 +622,18 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingSingleValuedATExistingValue() throws Exception
     {
-        Assertions.assertThrows( AttributeInUseException.class, () -> 
+        Assertions.assertThrows( LdapAttributeInUseException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // The initial value
-            Attributes attrs = new BasicAttributes( "c", "FR", true );
-    
-            // Add the Ava
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
-            
-            // Add another value
-            Attributes attrs2 = new BasicAttributes( "c", "FR", true );
-    
-            // Add the Ava
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs2 );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+        
+                // The initial value
+                conn.modify( DN_TESTING01, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "c", "FR" ) );
+                
+                // Add another value
+                conn.modify( DN_TESTING01, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "c", "FR" ) );
+            }
         } );
     }
     
@@ -648,16 +644,15 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddExistingEntryExistingATBadValue() throws Exception
     {
-        Assertions.assertThrows( InvalidAttributeValueException.class, () -> 
+        Assertions.assertThrows( LdapInvalidAttributeValueException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
-    
-            // The added value
-            Attributes attrs = new BasicAttributes( "telephoneNumber", "BAD", true );
-    
-            // Add the Ava
-            sysRoot.modifyAttributes( "ou=testing01", DirContext.ADD_ATTRIBUTE, attrs );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
+        
+                // The added value
+                conn.modify( DN_TESTING01, new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "telephoneNumber", "BAD" ) );
+            }
         } );
     }
     
@@ -695,15 +690,15 @@ public class ModifyAddIT extends AbstractLdapTestUnit
     @Test
     public void testModifyAddNotExistingEntry() throws Exception
     {
-        Assertions.assertThrows( NameNotFoundException.class, () -> 
+        Assertions.assertThrows( LdapNoSuchObjectException.class, () -> 
         {
-            LdapContext sysRoot = getSystemContext( getService() );
-            createData( sysRoot );
+            try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+            {
+                createData();
     
-            // An operational attribute
-            Attributes attrs = new BasicAttributes( "cn", "test", true );
-    
-            sysRoot.modifyAttributes( "ou=absent", DirContext.ADD_ATTRIBUTE, attrs );
+                // An operational attribute
+                conn.modify( "ou=absent", new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "cn", "test" ) );
+            }
         } );
     }
 }

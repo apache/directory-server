@@ -21,24 +21,19 @@
 package org.apache.directory.server.core.sp;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Base64;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
+import org.apache.directory.server.core.api.sp.LdapClassLoader;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.api.sp.LdapClassLoader;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -67,76 +62,64 @@ public class LdapClassLoaderIT extends AbstractLdapTestUnit
     @Test
     public void testLdapClassLoaderWithClassLoadedAnywhere() throws Exception
     {
-        LdapContext root = getRootContext( getService() );
-
-        // get default naming context to work on
-        ServerLdapContext defaultContext = ( ServerLdapContext ) root.lookup( "ou=system" );
-
-        // set up
-        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
-        attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "fullyQualifiedJavaClassName", "HelloWorld" );
-        attributes.put( "javaClassByteCode", HELLOWORLD_CLASS_BYTES );
-        defaultContext.createSubcontext( "fullyQualifiedJavaClassName=HelloWorld", attributes );
-
-        // assert set up successfull
-        assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
-
-        // load the class
-        LdapClassLoader loader = new LdapClassLoader( getService() );
-        Class<?> clazz = loader.loadClass( "HelloWorld" );
-
-        // assert class loaded successfully
-        assertEquals( "HelloWorld", clazz.getName() );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+        {
+            // add the configuration entry to the DIT
+            conn.add( 
+                new DefaultEntry(
+                    "fullyQualifiedJavaClassName=HelloWorld,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "javaClass",
+                    "fullyQualifiedJavaClassName", "HelloWorld",
+                    "javaClassByteCode", HELLOWORLD_CLASS_BYTES ) );
+    
+            // assert set up successfull
+            assertNotNull( conn.lookup( "fullyQualifiedJavaClassName=HelloWorld,ou=system" ) );
+    
+            // load the class
+            LdapClassLoader loader = new LdapClassLoader( getService() );
+            Class<?> clazz = loader.loadClass( "HelloWorld" );
+    
+            // assert class loaded successfully
+            assertEquals( "HelloWorld", clazz.getName() );
+        }
     }
 
 
     @Test
     public void testLdapClassLoaderWithClassLoadedAtDefaultSearchSubtree() throws Exception
     {
-        LdapContext root = getRootContext( getService() );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
+        {
+            // add the configuration entry to the DIT
+            conn.add( 
+                new DefaultEntry(
+                    "cn=classLoaderDefaultSearchContext,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "javaContainer",
+                    "objectClass", "extensibleObject",
+                    "cn", "classLoaderDefaultSearchContext",
+                    "classLoaderDefaultSearchContext", "ou=system" ) );
+    
+            // create a class holder entry and add it to the DIT
+            conn.add( 
+                new DefaultEntry(
+                    "fullyQualifiedJavaClassName=HelloWorld,cn=classLoaderDefaultSearchContext,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "javaClass",
+                    "fullyQualifiedJavaClassName", "HelloWorld",
+                    "javaClassByteCode", HELLOWORLD_CLASS_BYTES ) );
 
-        // get default naming context to work on
-        ServerLdapContext defaultContext = ( ServerLdapContext ) root.lookup( "ou=system" );
 
-        // create an extensible object for holding custom config data
-        Attributes classLoaderDefaultSearchContextConfig = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "javaContainer" );
-
-        // We need to ad this extensibleObject OC in order to avoid an error
-        // with the classLoaderDefaultSearchContext AT used later (no OC contains
-        // this AT)
-        objectClass.add( "extensibleObject" );
-
-        // create custom config entry
-        classLoaderDefaultSearchContextConfig.put( objectClass );
-        classLoaderDefaultSearchContextConfig.put( new BasicAttribute( "cn", "classLoaderDefaultSearchContext" ) );
-
-        // add a default search context to the configuration
-        classLoaderDefaultSearchContextConfig
-            .put( new BasicAttribute( "classLoaderDefaultSearchContext", "ou=system" ) );
-
-        // add the configuration entry to the DIT
-        ServerLdapContext configContext = ( ServerLdapContext ) defaultContext.lookup( "ou=configuration" );
-        configContext.createSubcontext( "cn=classLoaderDefaultSearchContext", classLoaderDefaultSearchContextConfig );
-
-        // create a class holder entry and add it to the DIT
-        Attributes attributes = new BasicAttributes( "objectClass", "top", true );
-        attributes.get( "objectClass" ).add( "javaClass" );
-        attributes.put( "fullyQualifiedJavaClassName", "HelloWorld" );
-        attributes.put( "javaClassByteCode", HELLOWORLD_CLASS_BYTES );
-        defaultContext.createSubcontext( "fullyQualifiedJavaClassName=HelloWorld", attributes );
-
-        // assert set up successfull
-        assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
-
-        // load the class
-        LdapClassLoader loader = new LdapClassLoader( getService() );
-        Class<?> clazz = loader.loadClass( "HelloWorld" );
-
-        // assert class loaded successfully
-        assertEquals( "HelloWorld", clazz.getName() );
+            // assert set up successfull
+            assertNotNull( conn.lookup( "fullyQualifiedJavaClassName=HelloWorld,cn=classLoaderDefaultSearchContext,ou=system" ) );
+    
+            // load the class
+            LdapClassLoader loader = new LdapClassLoader( getService() );
+            Class<?> clazz = loader.loadClass( "HelloWorld" );
+    
+            // assert class loaded successfully
+            assertEquals( "HelloWorld", clazz.getName() );
+        }
     }
 }
