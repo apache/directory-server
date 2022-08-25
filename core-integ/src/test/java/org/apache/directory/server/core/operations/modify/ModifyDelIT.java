@@ -257,8 +257,6 @@ public class ModifyDelIT extends AbstractLdapTestUnit
                 conn.modify( nisDn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "m-disabled" ) );
             }
 
-            entry = conn.lookup( nisDn );
-
             // -------------------------------------------------------------------
             // Add a bunch of nis groups
             // -------------------------------------------------------------------

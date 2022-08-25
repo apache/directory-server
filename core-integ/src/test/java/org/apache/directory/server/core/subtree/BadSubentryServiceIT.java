@@ -21,7 +21,6 @@
 package org.apache.directory.server.core.subtree;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,21 +28,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -57,147 +54,110 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @CreateDS(name = "BadSubentryServiceIT-class")
 public class BadSubentryServiceIT extends AbstractLdapTestUnit
 {
-
-    public Attributes getTestEntry( String cn )
+    public Map<String, Entry> getAllEntries() throws Exception
     {
-        Attributes entry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        entry.put( objectClass );
-        entry.put( "cn", cn );
-        entry.put( "sn", cn );
-        return entry;
-    }
-
-
-    public Attributes getCollectiveAttributeTestSubentry( String cn )
-    {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
-        objectClass.add( "collectiveAttributeSubentry" );
-        subentry.put( objectClass );
-        subentry.put( "subtreeSpecification", "{ }" );
-        subentry.put( "c-o", "Test Org" );
-        subentry.put( "cn", cn );
-        return subentry;
-    }
-
-
-    public Attributes getAccessControlTestSubentry( String cn )
-    {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
-        objectClass.add( "accessControlSubentry" );
-        subentry.put( objectClass );
-        subentry.put( "subtreeSpecification", "{ }" );
-        subentry.put( "prescriptiveACI",
-            "{ " +
-                "identificationTag \"alllUsersFullAccessACI\", " +
-                "precedence 14, " +
-                "authenticationLevel none, " +
-                "itemOrUserFirst userFirst: " +
-                "{ " +
-                "userClasses " +
-                "{ " +
-                "allUsers " +
-                "}, " +
-                "userPermissions " +
-                "{ " +
-                "{ " +
-                "protectedItems " +
-                "{ " +
-                "entry, allUserAttributeTypesAndValues " +
-                "}, " +
-                "grantsAndDenials " +
-                "{ " +
-                "grantAdd, grantDiscloseOnError, grantRead, " +
-                "grantRemove, grantBrowse, grantExport, grantImport, " +
-                "grantModify, grantRename, grantReturnDN, " +
-                "grantCompare, grantFilterMatch, grantInvoke " +
-                "} " +
-                "} " +
-                "} " +
-                "} " +
-                "} "
-            );
-        subentry.put( "cn", cn );
-        return subentry;
-    }
-
-
-    public void addAdministrativeRoles() throws Exception
-    {
-        LdapContext sysRoot = getSystemContext( getService() );
-        Attribute attribute = new BasicAttribute( "administrativeRole" );
-        attribute.add( "collectiveAttributeSpecificArea" );
-        attribute.add( "accessControlSpecificArea" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        sysRoot.modifyAttributes( "", new ModificationItem[]
-            { item } );
-    }
-
-
-    public Map<String, Attributes> getAllEntries() throws Exception
-    {
-        LdapContext sysRoot = getSystemContext( getService() );
-        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            resultMap.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> resultMap = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "", "(ObjectClass=*)", SearchScope.SUBTREE, "*", "+" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get();
+                    resultMap.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            return resultMap;
         }
-
-        return resultMap;
     }
 
 
     @Test
     public void testTrackingOfSubentryOperationals() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        addAdministrativeRoles();
-        sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry",
-            getCollectiveAttributeTestSubentry( "collectiveAttributeTestSubentry" ) );
-        sysRoot.createSubcontext( "cn=accessControlTestSubentry",
-            getAccessControlTestSubentry( "accessControlTestSubentry" ) );
-        sysRoot.createSubcontext( "cn=testEntry", getTestEntry( "testEntry" ) );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            conn.modify( "ou=system", new DefaultModification( 
+                ModificationOperation.ADD_ATTRIBUTE, "administrativeRole", "collectiveAttributeSpecificArea", "accessControlSpecificArea" ) );
+            
+            conn.add( new DefaultEntry( "cn=collectiveAttributeTestSubentry,ou=system",
+                "objectClass", "top",
+                "objectClass", SchemaConstants.SUBENTRY_OC,
+                "objectClass", "collectiveAttributeSubentry",
+                "subtreeSpecification", "{ }",
+                "c-o", "Test Org",
+                "cn", "collectiveAttributeTestSubentry" ) );
 
-        Map<String, Attributes> results = getAllEntries();
-        Attributes testEntry = results.get( "cn=testEntry,ou=system" );
+            conn.add( new DefaultEntry( "cn=accessControlTestSubentry,ou=system",
+                "objectClass", "top",
+                "objectClass", SchemaConstants.SUBENTRY_OC,
+                "objectClass", "accessControlSubentry" ,
+                "subtreeSpecification", "{ }",
+                "prescriptiveACI",
+                    "{ " +
+                    "    identificationTag \"alllUsersFullAccessACI\", " +
+                    "    precedence 14, " +
+                    "    authenticationLevel none, " +
+                    "    itemOrUserFirst userFirst: " +
+                    "    { " +
+                    "        userClasses " +
+                    "        { " +
+                    "            allUsers " +
+                    "        }, " +
+                    "        userPermissions " +
+                    "        { " +
+                    "            { " +
+                    "                protectedItems " +
+                    "                { " +
+                    "                    entry, allUserAttributeTypesAndValues " +
+                    "                }, " +
+                    "                grantsAndDenials " +
+                    "                { " +
+                    "                    grantAdd, grantDiscloseOnError, grantRead, " +
+                    "                    grantRemove, grantBrowse, grantExport, grantImport, " +
+                    "                    grantModify, grantRename, grantReturnDN, " +
+                    "                    grantCompare, grantFilterMatch, grantInvoke " +
+                    "                } " +
+                    "            } " +
+                    "        } " +
+                    "    } " +
+                    "} ",
+                "cn", "accessControlTestSubentry" ) );
 
-        //----------------------------------------------------------------------
-
-        Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
-
-        assertTrue( collectiveAttributeSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ) );
-
-        assertFalse( collectiveAttributeSubentries.contains( "cn=accessControlTestSubentry,ou=system" ),
-            "'collectiveAttributeSubentries' operational attribute SHOULD NOT " +
-                "contain references to non-'collectiveAttributeSubentry's like 'accessControlSubentry's" );
-
-        assertEquals( 1, collectiveAttributeSubentries.size() );
-
-        //----------------------------------------------------------------------
-
-        Attribute accessControlSubentries = testEntry.get( "accessControlSubentries" );
-
-        assertTrue( accessControlSubentries.contains( "cn=accessControlTestSubentry,ou=system" ) );
-
-        assertFalse( accessControlSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ),
-            "'accessControlSubentries' operational attribute SHOULD NOT " +
-                "contain references to non-'accessControlSubentry's like 'collectiveAttributeSubentry's" );
-
-        assertEquals( 1, accessControlSubentries.size() );
+            conn.add( new DefaultEntry( "cn=testEntry,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "person",
+                    "cn", "testEntry",
+                    "sn", "testEntry" ) );
+    
+            Map<String, Entry> results = getAllEntries();
+            Entry testEntry = results.get( "cn=testEntry,ou=system" );
+    
+            //----------------------------------------------------------------------
+    
+            Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
+    
+            assertTrue( collectiveAttributeSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ) );
+    
+            assertFalse( collectiveAttributeSubentries.contains( "cn=accessControlTestSubentry,ou=system" ),
+                "'collectiveAttributeSubentries' operational attribute SHOULD NOT " +
+                    "contain references to non-'collectiveAttributeSubentry's like 'accessControlSubentry's" );
+    
+            assertEquals( 1, collectiveAttributeSubentries.size() );
+    
+            //----------------------------------------------------------------------
+    
+            Attribute accessControlSubentries = testEntry.get( "accessControlSubentries" );
+    
+            assertTrue( accessControlSubentries.contains( "cn=accessControlTestSubentry,ou=system" ) );
+    
+            assertFalse( accessControlSubentries.contains( "cn=collectiveAttributeTestSubentry,ou=system" ),
+                "'accessControlSubentries' operational attribute SHOULD NOT " +
+                    "contain references to non-'accessControlSubentry's like 'collectiveAttributeSubentry's" );
+    
+            assertEquals( 1, accessControlSubentries.size() );
+        }
     }
 }

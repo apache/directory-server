@@ -19,27 +19,22 @@
  */
 package org.apache.directory.server.core.operations.compare;
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.api.ldap.model.ldif.LdifUtils;
-import org.apache.directory.api.util.Strings;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +49,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @CreateDS(name = "CompareDirserver1139IT")
 public class CompareDirserver1139IT extends AbstractLdapTestUnit
 {
-    
     /**
      * Activate the NIS and KRB5KDC schemas
      * @throws Exception
@@ -62,53 +56,52 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
     @BeforeEach
     public void init() throws Exception
     {
-        // -------------------------------------------------------------------
-        // Enable the nis schema
-        // -------------------------------------------------------------------
-        // check if nis is disabled
-        LdapContext schemaRoot = getSchemaContext( getService() );
-        Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
-        boolean isNisDisabled = false;
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            // -------------------------------------------------------------------
+            // Enable the nis schema
+            // -------------------------------------------------------------------
+            // check if nis is disabled
+            String nisDn = "cn=nis," + SchemaConstants.OU_SCHEMA;
+            Entry entry = connection.lookup( nisDn );
+            Attribute disabled = entry.get( "m-disabled" );
+            boolean isNisDisabled = false;
+    
+            if ( disabled != null )
+            {
+                isNisDisabled = disabled.getString().equalsIgnoreCase( "TRUE" );
+            }
+    
+            // if nis is disabled then enable it
+            if ( isNisDisabled )
+            {
+                connection.modify( nisDn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "m-disabled" ) );
+            }
         
-        if ( nisAttrs.get( "m-disabled" ) != null )
-        {
-            isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
-        }
+            // -------------------------------------------------------------------
+            // Enable the krb5kdc schema
+            // -------------------------------------------------------------------
+            // Check if krb5kdc is loaded
+            if ( !getService().getSchemaManager().isSchemaLoaded( "krb5kdc" ) )
+            {
+                getService().getSchemaManager().load( "krb5kdc" );
+            }
 
-        // if nis is disabled then enable it
-        if ( isNisDisabled )
-        {
-            Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[] {
-                new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
-            schemaRoot.modifyAttributes( "cn=nis", mods );
-        }
+            String krb5Dn = "cn=krb5kdc," + SchemaConstants.OU_SCHEMA;
+            entry = connection.lookup( krb5Dn );
+            disabled = entry.get( "m-disabled" );
+            boolean isKrb5Disabled = false;
+    
+            if ( disabled != null )
+            {
+                isKrb5Disabled = disabled.getString().equalsIgnoreCase( "TRUE" );
+            }
 
-        // -------------------------------------------------------------------
-        // Enable the krb5kdc schema
-        // -------------------------------------------------------------------
-        // Check if krb5kdc is loaded
-        if ( !getService().getSchemaManager().isSchemaLoaded( "krb5kdc" ) )
-        {
-            getService().getSchemaManager().load( "krb5kdc" );
-        }
-
-        // check if krb5kdc is disabled
-        Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=krb5kdc" );
-        boolean isKrb5kdcDisabled = false;
-        
-        if ( krb5kdcAttrs.get( "m-disabled" ) != null )
-        {
-            isKrb5kdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
-        }
-
-        // if krb5kdc is disabled then enable it
-        if ( isKrb5kdcDisabled )
-        {
-            Attribute disabled = new BasicAttribute( "m-disabled" );
-            ModificationItem[] mods = new ModificationItem[] {
-                new ModificationItem( DirContext.REMOVE_ATTRIBUTE, disabled ) };
-            schemaRoot.modifyAttributes( "cn=krb5kdc", mods );
+            // if nis is disabled then enable it
+            if ( isKrb5Disabled )
+            {
+                connection.modify( krb5Dn, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "m-disabled" ) );
+            }
         }
     }
     
@@ -116,19 +109,19 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
     /**
      * Inject entries into the server
      */
-    private void injectEntries( LdapContext sysRoot ) throws Exception
+    private void injectEntries( LdapConnection connection ) throws Exception
     {
         // Add the group
-        Attributes attrs = LdifUtils.createJndiAttributes( 
+        connection.add( new DefaultEntry( 
+            "cn=group,ou=groups,ou=system",
             "ObjectClass: top",
             "ObjectClass: groupOfNames",
             "cn: group",
-            "member: cn=user,ou=users,ou=system" );
-        
-        sysRoot.createSubcontext( "cn=group,ou=groups", attrs );
+            "member: cn=user,ou=users,ou=system" ) );
+
         
         // Add the user
-        attrs = LdifUtils.createJndiAttributes( 
+        connection.add( new DefaultEntry( "cn=user,ou=users,ou=system",
             "objectClass: top",
             "objectClass: organizationalPerson",
             "objectClass: person",
@@ -147,9 +140,7 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
             "mail: user@apache.org",
             "sn: User",
             "uid: user",
-            "uidnumber: 1001" );
-        
-        sysRoot.createSubcontext( "cn=user,ou=users", attrs );
+            "uidnumber: 1001" ) );
     }
     
     
@@ -159,30 +150,29 @@ public class CompareDirserver1139IT extends AbstractLdapTestUnit
     @Test
     public void testCompare() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        
-        injectEntries( sysRoot);
-
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes(  new String[0] );
-
-        NamingEnumeration<SearchResult> list = 
-            sysRoot.search( "cn=group,ou=groups", "(member=cn=user,ou=users,ou=system)", controls );
-        
-        int count = 0;
-        
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            assertNotNull( result );
-            assertTrue( Strings.isEmpty(result.getName()) );
-            assertNotNull( result.getAttributes() );
-            assertEquals( 0, result.getAttributes().size() );
-            count++;
+            injectEntries( connection );
+    
+            try ( EntryCursor cursor = connection.search( "cn=group,ou=groups,ou=system", "(member=cn=user,ou=users,ou=system)",
+                SearchScope.OBJECT, "" ) )
+            {
+    
+                int i = 0;
+    
+                while ( cursor.next() )
+                {
+                    Entry entry  = cursor.get();
+                    assertNotNull( entry );
+                    assertEquals( "cn=group,ou=groups,ou=system", entry.getDn().getName() );
+                    assertNotNull( entry.getAttributes() );
+                    assertEquals( 0, entry.getAttributes().size() );
+                    ++i;
+                }
+    
+                assertEquals( 1, i );
+            }
         }
-        
-        assertEquals( 1, count );
     }
 
 }
