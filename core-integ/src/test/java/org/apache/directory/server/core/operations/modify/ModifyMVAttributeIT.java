@@ -19,19 +19,17 @@
  */
 package org.apache.directory.server.core.operations.modify;
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,23 +62,24 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
     @Disabled( "Ignore atm, this is a perf test" )
     public void testAdd1000Members() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        
-        // Add 10000 members
-        Attributes attrs = new BasicAttributes( "uniqueMember", true );
-        Attribute attr = new BasicAttribute( "uniqueMember" );
-
-        for ( int i = 0; i < 10000; i++ )
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            String newValue = "cn=member" + i + ",ou=people,o=sevenSeas";
-            attr.add( newValue );
+            // Add 10000 members
+            Attribute members = new DefaultAttribute( "uniqueMember" );
+    
+            for ( int i = 0; i < 10000; i++ )
+            {
+                String newValue = "cn=member" + i + ",ou=people,o=sevenSeas";
+                members.add( newValue );
+            }
+    
+            conn.modify( "cn=testing00,ou=system", 
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE
+                    , members ) );
+            
+            Entry entry = conn.lookup( "cn=testing00,ou=system" );
+            System.out.println(" Done, " + entry );
         }
-
-        attrs.put( attr );
-        
-        sysRoot.modifyAttributes( "cn=testing00", DirContext.ADD_ATTRIBUTE, attrs );
-        
-        System.out.println(" Done" );
     }
 
     
@@ -91,25 +90,27 @@ public class ModifyMVAttributeIT extends AbstractLdapTestUnit
     @Disabled( "Ignore atm, this is a perf test" )
     public void testAdd500Members() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        long t0 = System.currentTimeMillis();
-        
-        // Add 600 members
-        for ( int i = 0; i < 100000; i++ )
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            if ( i% 100 == 0)
-            {
-                long t1 = System.currentTimeMillis();
-                long delta = ( t1 - t0 );
-                System.out.println( "Done : " + i + " in " + delta + "ms" );
-                t0 = t1;
-            }
+            long t0 = System.currentTimeMillis();
             
-            String newValue = "cn=member" + i + ",ou=people,o=sevenSeas";
-            Attributes attrs = new BasicAttributes( "uniqueMember", newValue, true );
-            sysRoot.modifyAttributes( "cn=testing00", DirContext.ADD_ATTRIBUTE, attrs );
+            // Add 500 members
+            for ( int i = 0; i < 500; i++ )
+            {
+                if ( i% 100 == 0)
+                {
+                    long t1 = System.currentTimeMillis();
+                    long delta = ( t1 - t0 );
+                    System.out.println( "Done : " + i + " in " + delta + "ms" );
+                    t0 = t1;
+                }
+                
+                conn.modify( "cn=testing00,ou=system", 
+                    new DefaultModification( ModificationOperation.ADD_ATTRIBUTE
+                        , "uniqueMember", "cn=member" + i + ",ou=people,o=sevenSeas" ) );
+            }
+    
+            System.out.println(" Done" );
         }
-
-        System.out.println(" Done" );
     }
 }
