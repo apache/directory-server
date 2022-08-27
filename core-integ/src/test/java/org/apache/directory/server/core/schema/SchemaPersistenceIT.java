@@ -20,36 +20,24 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.api.ldap.util.JndiUtils;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -73,13 +61,13 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
     public static SchemaManager schemaManager;
-    private static LdapConnection connection;
+    ///private static LdapConnection connection;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = IntegrationUtils.getAdminConnection( getService() );
+        //connection = IntegrationUtils.getAdminConnection( getService() );
         schemaManager = getService().getSchemaManager();
     }
 
@@ -93,16 +81,15 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
     @Test
     public void testAddAttributeTypePersistence() throws Exception
     {
-        try
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            enableSchema( "nis" );
-            List<String> descriptions = new ArrayList<String>();
+            enableSchema( connection, "nis" );
 
             // -------------------------------------------------------------------
             // test successful add with everything
             // -------------------------------------------------------------------
 
-            descriptions.add(
+            String[] descriptions = new String[] {
                 "( 1.3.6.1.4.1.18060.0.4.1.2.10000 " +
                     "  NAME 'type0' " +
                     "  OBSOLETE SUP 2.5.4.41 " +
@@ -112,33 +99,38 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
                     "  COLLECTIVE " +
                     "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
                     "  USAGE userApplications " +
-                    "  X-SCHEMA 'nis' )" );
+                    "  X-SCHEMA 'nis' )",
 
-            descriptions.add(
                 "( 1.3.6.1.4.1.18060.0.4.1.2.10001 " +
                     "  NAME ( 'type1' 'altName' ) " +
                     "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 " +
                     "  SUP 2.5.4.41 " +
                     "  USAGE userApplications " +
-                    "  X-SCHEMA 'nis' )" );
+                    "  X-SCHEMA 'nis' )"
+            };
 
-            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
+            connection.modify( getSubschemaSubentryDN( connection ), new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "attributeTypes", descriptions ) );
 
-            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
-            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+            checkAttributeTypePresent( connection, "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+            checkAttributeTypePresent( connection, "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
 
             // sync operation happens anyway on shutdowns but just to make sure we can do it again
             getService().sync();
+        }
+        
+        getService().shutdown();
+        getService().startup();
 
-            getService().shutdown();
-            getService().startup();
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            connection.add( 
+                new DefaultEntry( 
+                    "cn=blah,ou=schema", 
+                    "objectClass", "metaSchema",
+                    "cn", "blah" ) );
 
-            Attributes attrs = new BasicAttributes( "objectClass", "metaSchema", true );
-            attrs.put( "cn", "blah" );
-            getSchemaContext( getService() ).createSubcontext( "cn=blah", attrs );
-
-            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
-            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
+            checkAttributeTypePresent( connection, "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
+            checkAttributeTypePresent( connection, "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
         }
         catch ( Exception e )
         {
@@ -155,7 +147,7 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
     @Test
     public void testAddSchemaMixedCase() throws Exception
     {
-        try
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
             Dn dn = new Dn( "cn=DuMMy,ou=schema" );
 
@@ -171,10 +163,13 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
             // sync operation happens anyway on shutdowns but just to make sure we can do it again
             getService().sync();
+        }
 
-            getService().shutdown();
-            getService().startup();
+        getService().shutdown();
+        getService().startup();
 
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
             // Check that the schema still exists
             assertNotNull( connection.lookup( "cn=dummy,ou=schema" ) );
 
@@ -185,16 +180,15 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
 
             // sync operation happens anyway on shutdowns but just to make sure we can do it again
             getService().sync();
+        }
 
-            getService().shutdown();
-            getService().startup();
+        getService().shutdown();
+        getService().startup();
 
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
             // Check that the schema does not exists
             assertNull( connection.lookup( "cn=dummy,ou=schema" ) );
-        }
-        catch ( Exception e )
-        {
-            throw e;
         }
     }
 
@@ -202,31 +196,11 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
     // -----------------------------------------------------------------------
     // Private Utility Methods
     // -----------------------------------------------------------------------
-
-    private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
-    {
-        Dn dn = new Dn( getSubschemaSubentryDN() );
-        Attribute attr = new BasicAttribute( opAttr );
-
-        for ( String description : descriptions )
-        {
-            attr.add( description );
-        }
-
-        Attributes mods = new BasicAttributes( true );
-        mods.put( attr );
-
-        getRootContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), op, mods );
-    }
-
-
-    private void enableSchema( String schemaName ) throws Exception
+    private void enableSchema( LdapConnection connection, String schemaName ) throws Exception
     {
         // now enable the test schema
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( getService() ).modifyAttributes( "cn=" + schemaName, mods );
+        connection.modify( "cn=" + schemaName + ",ou=schema", 
+            new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "FALSE" ) );
     }
 
 
@@ -236,19 +210,11 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
      * @return the subschemaSubentry distinguished name
      * @throws NamingException if there are problems accessing the RootDSE
      */
-    private String getSubschemaSubentryDN() throws Exception
+    private String getSubschemaSubentryDN( LdapConnection conn ) throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { SUBSCHEMA_SUBENTRY } );
+        Entry entry = conn.getRootDse( SUBSCHEMA_SUBENTRY );
 
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "", "(objectClass=*)",
-            controls );
-        SearchResult result = results.next();
-        results.close();
-        Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
-        return ( String ) subschemaSubentry.get();
+        return entry.get( SUBSCHEMA_SUBENTRY ).getString();
     }
 
 
@@ -258,34 +224,25 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
      * @return all operational attributes of the subschemaSubentry
      * @throws NamingException if there are problems accessing this entry
      */
-    private Attributes getSubschemaSubentryAttributes() throws Exception
+    private Entry getSubschemaSubentryAttributes( LdapConnection conn ) throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( getSubschemaSubentryDN(),
-            "(objectClass=*)", controls );
-        SearchResult result = results.next();
-        results.close();
-        return result.getAttributes();
+        return conn.lookup( "cn=schema", "*", "+" );
     }
 
 
-    private void checkAttributeTypePresent( String oid, String schemaName, boolean isPresent ) throws Exception
+    private void checkAttributeTypePresent( LdapConnection conn, String oid, String schemaName, boolean isPresent ) throws Exception
     {
         // -------------------------------------------------------------------
         // check first to see if it is present in the subschemaSubentry
         // -------------------------------------------------------------------
 
-        Attributes attrs = getSubschemaSubentryAttributes();
-        Attribute attrTypes = attrs.get( "attributeTypes" );
+        Entry entry = getSubschemaSubentryAttributes( conn );
+        Attribute attributeTypes = entry.get( "attributeTypes" );
         AttributeType attributeType = null;
 
-        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        for ( Value value : attributeTypes )
         {
-            String desc = ( String ) attrTypes.get( ii );
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -308,27 +265,17 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         // check next to see if it is present in the schema partition
         // -------------------------------------------------------------------
 
-        attrs = null;
-
         if ( isPresent )
         {
-            attrs = getSchemaContext( getService() ).getAttributes(
-                "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
-            assertNotNull( attrs );
+            entry = conn.lookup( "ou=schema", "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            assertNotNull( entry );
         }
         else
         {
             //noinspection EmptyCatchBlock
-            try
-            {
-                attrs = getSchemaContext( getService() ).getAttributes(
-                    "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
-                fail( "should never get here" );
-            }
-            catch ( NamingException e )
-            {
-            }
-            assertNull( attrs );
+            entry = conn.lookup( "ou=schema", "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            
+            assertNull( entry );
         }
 
         // -------------------------------------------------------------------

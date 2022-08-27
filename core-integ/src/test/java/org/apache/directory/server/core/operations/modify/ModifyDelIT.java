@@ -330,17 +330,17 @@ public class ModifyDelIT extends AbstractLdapTestUnit
         {
             createData();
 
-        // A new description attribute value
-        String deletedValue = "she has blond hair";
-
-        conn.modify( DN_KIM_WILDE, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "description", deletedValue ) );
-
-        // Verify that the attribute value has been removed
-        Entry entry = conn.lookup( DN_KIM_WILDE );
-        assertNotNull( entry.get( "description" ) );
-        assertTrue( entry.contains( "description", "an American singer-songwriter" ) );
-        assertFalse( entry.contains( "description", deletedValue ) );
-        assertEquals( 1, entry.get( "description" ).size() );
+            // A new description attribute value
+            String deletedValue = "she has blond hair";
+    
+            conn.modify( DN_KIM_WILDE, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "description", deletedValue ) );
+    
+            // Verify that the attribute value has been removed
+            Entry entry = conn.lookup( DN_KIM_WILDE );
+            assertNotNull( entry.get( "description" ) );
+            assertTrue( entry.contains( "description", "an American singer-songwriter" ) );
+            assertFalse( entry.contains( "description", deletedValue ) );
+            assertEquals( 1, entry.get( "description" ).size() );
         }
     }
 
@@ -356,7 +356,9 @@ public class ModifyDelIT extends AbstractLdapTestUnit
             createData();
 
             // A new description attribute value
-            conn.modify( DN_KIM_WILDE, new DefaultModification( ModificationOperation.REMOVE_ATTRIBUTE, "description", "an American singer-songwriter", "she has blond hair" ) );
+            conn.modify( DN_KIM_WILDE, 
+                new DefaultModification( 
+                    ModificationOperation.REMOVE_ATTRIBUTE, "description", "an American singer-songwriter", "she has blond hair" ) );
     
             // Verify that the attribute value has been removed
             assertNull( conn.lookup( DN_KIM_WILDE ).get( "description" ) );
