@@ -20,18 +20,15 @@
 package org.apache.directory.server.core.partition;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.ldap.LdapContext;
-
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ContextEntry;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreateIndex;
@@ -39,6 +36,7 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -120,18 +118,18 @@ public final class PartitionIT extends AbstractLdapTestUnit
          * Confirm presence and publishing of foo and bar partitions as 
          * namingContexts as values innamingContexts attribute of the rootDSE
          */
-        LdapContext rootDse = getRootContext( getService() );
-        Attribute namingContexts = rootDse.getAttributes( "", new String[]
-            { "namingContexts" } ).get( "namingContexts" );
-        assertTrue( namingContexts.contains( "dc=foo,dc=com" ) );
-        assertTrue( namingContexts.contains( "dc=bar,dc=com" ) );
-        LOG.debug( "Found both dc=foo,dc=com and dc=bar,dc=com in namingContexts" );
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            assertTrue( conn.getRootDse( "*", "+" ).contains( "namingContexts", "dc=foo,dc=com", "dc=bar,dc=com" ) );
+            
+            LOG.debug( "Found both dc=foo,dc=com and dc=bar,dc=com in namingContexts" );
 
-        /*
-         * Add, lookup, then delete entry in both foo and bar partitions
-         */
-        addLookupDelete( "dc=foo,dc=com" );
-        addLookupDelete( "dc=bar,dc=com" );
+            /*
+             * Add, lookup, then delete entry in both foo and bar partitions
+             */
+            addLookupDelete( "dc=foo,dc=com" );
+            addLookupDelete( "dc=bar,dc=com" );
+        }
     }
 
 
@@ -143,27 +141,28 @@ public final class PartitionIT extends AbstractLdapTestUnit
      */
     public void addLookupDelete( String partitionSuffix ) throws Exception
     {
-        LdapContext rootDse = getRootContext( getService() );
-        Attributes attrs = new BasicAttributes( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "people" );
-        String entryDn = "ou=people," + partitionSuffix;
-        rootDse.createSubcontext( entryDn, attrs );
-        LOG.debug( "added entry {} to partition {}", entryDn, partitionSuffix );
-
-        Attributes reloaded = rootDse.getAttributes( entryDn );
-        assertNotNull( reloaded );
-        assertTrue( reloaded.get( "ou" ).contains( "people" ) );
-        LOG.debug( "looked up entry {} from partition {}", entryDn, partitionSuffix );
-
-        rootDse.destroySubcontext( entryDn );
-        try
+        try ( LdapConnection conn = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            rootDse.getAttributes( entryDn );
-            fail( "should never get here" );
-        }
-        catch ( Exception e )
-        {
-            LOG.debug( "Successfully deleted entry {} from partition {}", entryDn, partitionSuffix );
+            String entryDn = "ou=people," + partitionSuffix;
+
+            conn.add( new DefaultEntry( 
+                entryDn,
+                "objectClass", "organizationalUnit",
+                "ou", "people"
+                ) );
+            
+            LOG.debug( "added entry {} to partition {}", entryDn, partitionSuffix );
+            
+            Entry reloaded = conn.lookup( entryDn );
+            
+            assertNotNull( reloaded );
+            assertTrue( reloaded.contains( "ou", "people" ) );
+            LOG.debug( "looked up entry {} from partition {}", entryDn, partitionSuffix );
+            
+            conn.delete( entryDn );
+
+            // The entry should not be founc
+            assertNull( conn.lookup( entryDn ) );
         }
     }
 }
