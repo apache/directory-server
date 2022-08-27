@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,36 +28,32 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SchemaViolationException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
+import org.apache.directory.api.ldap.model.exception.LdapSchemaViolationException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
-import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.parsers.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.api.ldap.util.JndiUtils;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -103,16 +96,17 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testNoStructuralObjectClass() throws Exception
     {
-        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
-        attrs.get( "objectClass" ).add( "uidObject" );
-        attrs.put( "uid", "invalid" );
-
-        try
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            getSystemContext( getService() ).createSubcontext( "uid=invalid", attrs );
-        }
-        catch ( SchemaViolationException e )
-        {
+            Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
+            {
+                connection.add( 
+                    new DefaultEntry(
+                        "uid=invalid, ou=system",
+                        "objectClass", "top",
+                        "objectClass", "uidObject",
+                        "uid", "invalid" ) );
+            } );
         }
     }
 
@@ -125,19 +119,20 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testMultipleStructuralObjectClasses() throws Exception
     {
-        Attributes attrs = new BasicAttributes( "objectClass", "top", true );
-        attrs.get( "objectClass" ).add( "organizationalUnit" );
-        attrs.get( "objectClass" ).add( "person" );
-        attrs.put( "ou", "comedy" );
-        attrs.put( "cn", "Jack Black" );
-        attrs.put( "sn", "Black" );
-
-        try
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            getSystemContext( getService() ).createSubcontext( "cn=Jack Black", attrs );
-        }
-        catch ( SchemaViolationException e )
-        {
+            Assertions.assertThrows( LdapSchemaViolationException.class, () -> 
+            {
+                connection.add( 
+                    new DefaultEntry(
+                        "cn=Jack Black, ou=system",
+                        "objectClass", "top",
+                        "objectClass", "person",
+                        "objectClass", "organizationalUnit",
+                        "ou", "comedy",
+                        "cn", "Jack Black",
+                        "sn", "Black" ) );
+            } );
         }
     }
 
@@ -212,24 +207,26 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testFillInObjectClasses() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        Attribute ocs = sysRoot.getAttributes( "cn=person0" ).get( "objectClass" );
-        assertEquals( 2, ocs.size() );
-        assertTrue( ocs.contains( "top" ) );
-        assertTrue( ocs.contains( "person" ) );
-
-        ocs = sysRoot.getAttributes( "cn=person1" ).get( "objectClass" );
-        assertEquals( 3, ocs.size() );
-        assertTrue( ocs.contains( "top" ) );
-        assertTrue( ocs.contains( "person" ) );
-        assertTrue( ocs.contains( "organizationalPerson" ) );
-
-        ocs = sysRoot.getAttributes( "cn=person2" ).get( "objectClass" );
-        assertEquals( 4, ocs.size() );
-        assertTrue( ocs.contains( "top" ) );
-        assertTrue( ocs.contains( "person" ) );
-        assertTrue( ocs.contains( "organizationalPerson" ) );
-        assertTrue( ocs.contains( "inetOrgPerson" ) );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            Attribute ocs = connection.lookup( "cn=person0,ou=system" ).get( "objectClass" );
+            assertEquals( 2, ocs.size() );
+            assertTrue( ocs.contains( "top" ) );
+            assertTrue( ocs.contains( "person" ) );
+    
+            ocs = connection.lookup( "cn=person1,ou=system" ).get( "objectClass" );
+            assertEquals( 3, ocs.size() );
+            assertTrue( ocs.contains( "top" ) );
+            assertTrue( ocs.contains( "person" ) );
+            assertTrue( ocs.contains( "organizationalPerson" ) );
+    
+            ocs = connection.lookup( "cn=person2,ou=system" ).get( "objectClass" );
+            assertEquals( 4, ocs.size() );
+            assertTrue( ocs.contains( "top" ) );
+            assertTrue( ocs.contains( "person" ) );
+            assertTrue( ocs.contains( "organizationalPerson" ) );
+            assertTrue( ocs.contains( "inetOrgPerson" ) );
+        }
     }
 
 
@@ -242,24 +239,24 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForPerson() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
+        Map<String, Entry> persons = new HashMap<>();
 
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            persons.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(objectClass=person)", SearchScope.ONELEVEL ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    persons.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
-
+        
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person = persons.get( "cn=person0,ou=system" );
+        Entry person = persons.get( "cn=person0,ou=system" );
         assertNotNull( person );
         Attribute ocs = person.get( "objectClass" );
         assertEquals( 2, ocs.size() );
@@ -288,24 +285,24 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForOrgPerson() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map<String, Attributes> orgPersons = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=organizationalPerson)", controls );
+        Map<String, Entry> orgPersons = new HashMap<>();
 
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            orgPersons.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(objectClass=organizationalPerson)", SearchScope.ONELEVEL ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    orgPersons.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // admin is extra
         assertEquals( 3, orgPersons.size() );
 
-        Attributes orgPerson = orgPersons.get( "cn=person1,ou=system" );
+        Entry orgPerson = orgPersons.get( "cn=person1,ou=system" );
         assertNotNull( orgPerson );
         Attribute ocs = orgPerson.get( "objectClass" );
         assertEquals( 3, ocs.size() );
@@ -327,24 +324,24 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForInetOrgPerson() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map<String, Attributes> inetOrgPersons = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=inetOrgPerson)", controls );
+        Map<String, Entry> inetOrgPersons = new HashMap<>();
 
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            inetOrgPersons.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(objectClass=inetOrgPerson)", SearchScope.ONELEVEL ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    inetOrgPersons.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // admin is extra
         assertEquals( 2, inetOrgPersons.size() );
 
-        Attributes inetOrgPerson = inetOrgPersons.get( "cn=person2,ou=system" );
+        Entry inetOrgPerson = inetOrgPersons.get( "cn=person2,ou=system" );
         assertNotNull( inetOrgPerson );
         Attribute ocs = inetOrgPerson.get( "objectClass" );
         assertEquals( 4, ocs.size() );
@@ -358,26 +355,25 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForSubSchemaSubEntryUserAttrsOnly() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "cn=schema",
-            "(objectClass=*)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(objectClass=*)", SearchScope.OBJECT ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    subSchemaEntry.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "cn=schema" );
+        Entry attrs = subSchemaEntry.get( "cn=schema" );
 
         assertNotNull( attrs );
 
@@ -395,28 +391,25 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForSubSchemaSubEntryAllAttrs() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "*", "+" } );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search(
-            "cn=schema", "(objectClass=*)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(objectClass=*)", SearchScope.OBJECT, "*", "+" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    subSchemaEntry.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "cn=schema" );
+        Entry attrs = subSchemaEntry.get( "cn=schema" );
 
         assertNotNull( attrs );
 
@@ -428,28 +421,25 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForSubSchemaSubEntrySingleAttributeSelected() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "objectClasses" } );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() )
-            .search( "cn=schema", "(objectClass=*)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(objectClass=*)", SearchScope.OBJECT, "objectClasses" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    subSchemaEntry.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "cn=schema" );
+        Entry attrs = subSchemaEntry.get( "cn=schema" );
 
         assertNotNull( attrs );
 
@@ -482,28 +472,26 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForSubSchemaSubEntryOperationalAttributesSelected() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" } );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() )
-            .search( "cn=schema", "(objectClass=subschema)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(objectClass=subschema)", SearchScope.OBJECT, 
+                "creatorsName", "createTimestamp", "modifiersName", "modifyTimestamp" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    subSchemaEntry.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "cn=schema" );
+        Entry attrs = subSchemaEntry.get( "cn=schema" );
 
         assertNotNull( attrs );
 
@@ -530,22 +518,19 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForSubSchemaSubEntryBadFilter() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+" } );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() )
-            .search( "cn=schema", "(objectClass=nothing)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(objectClass=nothing)", SearchScope.OBJECT, "+" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    subSchemaEntry.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
@@ -555,28 +540,25 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForSubSchemaSubEntryFilterEqualTop() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "*", "+" } );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() )
-            .search( "cn=schema", "(objectClass=top)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(objectClass=top)", SearchScope.OBJECT, "*", "+" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    subSchemaEntry.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "cn=schema" );
+        Entry attrs = subSchemaEntry.get( "cn=schema" );
 
         assertNotNull( attrs );
 
@@ -607,28 +589,25 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForSubSchemaSubEntryFilterEqualSubSchema() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "*", "+" } );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() )
-            .search( "cn=schema", "(objectClass=subSchema)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(objectClass=subSchema)", SearchScope.OBJECT, "*", "+" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    subSchemaEntry.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // We should have only one entry in the result
         assertEquals( 1, subSchemaEntry.size() );
 
         // It should be the normalized form of cn=schema
-        Attributes attrs = subSchemaEntry.get( "cn=schema" );
+        Entry attrs = subSchemaEntry.get( "cn=schema" );
 
         assertNotNull( attrs );
 
@@ -656,47 +635,43 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForSubSchemaSubEntryNotObjectScope() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+" } );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() )
-            .search( "cn=schema", "(objectClass=nothing)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(objectClass=nothing)", SearchScope.ONELEVEL, "+" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    subSchemaEntry.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
     }
+    
 
 
     @Test
     public void testSearchForSubSchemaSubEntryComposedFilters() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+" } );
+        Map<String, Entry> subSchemaEntry = new HashMap<>();
 
-        Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getRootContext( getService() )
-            .search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            subSchemaEntry.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "cn=schema", "(&(objectClass=*)(objectClass=top))", SearchScope.ONELEVEL, "+" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    subSchemaEntry.put( entry.getDn().getName(), entry );
+                }
+            }
         }
-
-        results.close();
 
         // We should have no entry in the result
         assertEquals( 0, subSchemaEntry.size() );
@@ -711,24 +686,24 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchSeeAlso() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = getSystemContext( getService() )
-            .search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
+        Map<String, Entry> persons = new HashMap<>();
 
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            persons.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", SearchScope.ONELEVEL ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    persons.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // admin is extra
         assertEquals( 1, persons.size() );
 
-        Attributes person;
+        Entry person;
         Attribute ocs;
 
         person = persons.get( "cn=person1,ou=system" );
@@ -754,27 +729,24 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForUnknownAttributes() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        controls.setReturningAttributes( new String[]
-            { "9.9.9" } );
+        Map<String, Entry> persons = new HashMap<>();
 
-        NamingEnumeration<SearchResult> results = getSystemContext( getService() )
-            .search( "", "(objectClass=person)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            persons.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(objectClass=person)", SearchScope.ONELEVEL, "9.9.9" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    persons.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person;
+        Entry person;
         Attribute ocs;
 
         person = persons.get( "cn=person0,ou=system" );
@@ -806,27 +778,24 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchAttributesOIDObjectClass() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        controls.setReturningAttributes( new String[]
-            { "2.5.6.6" } );
+        Map<String, Entry> persons = new HashMap<>();
 
-        NamingEnumeration<SearchResult> results = getSystemContext( getService() )
-            .search( "", "(objectClass=person)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            persons.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(objectClass=person)", SearchScope.ONELEVEL, "2.5.6.6" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    persons.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person;
+        Entry person;
         Attribute ocs;
 
         person = persons.get( "cn=person0,ou=system" );
@@ -858,27 +827,24 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchAttributesOIDObjectClassName() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        controls.setReturningAttributes( new String[]
-            { "person" } );
+        Map<String, Entry> persons = new HashMap<>();
 
-        NamingEnumeration<SearchResult> results = getSystemContext( getService() )
-            .search( "", "(objectClass=person)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            persons.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(objectClass=person)", SearchScope.ONELEVEL, "person" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                    persons.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
 
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person;
+        Entry person;
         Attribute ocs;
 
         person = persons.get( "cn=person0,ou=system" );
@@ -912,46 +878,37 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForName() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        Map<String, Attributes> persons = new HashMap<String, Attributes>();
+        Map<String, Entry> persons = new HashMap<>();
 
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(name=person*)", controls );
-
-        while ( results.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = results.next();
-            persons.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(name=person*)", SearchScope.ONELEVEL ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry person = cursor.get(); 
+                
+                    persons.put( person.getDn().getName(), person );
+                }
+            }
         }
-
-        results.close();
-
+    
         assertEquals( 3, persons.size() );
 
-        Attributes person = persons.get( "cn=person0,ou=system" );
+        Entry person = persons.get( "cn=person0,ou=system" );
         assertNotNull( person );
-        Attribute ocs = person.get( "objectClass" );
-        assertEquals( 2, ocs.size() );
-        assertTrue( ocs.contains( "top" ) );
-        assertTrue( ocs.contains( "person" ) );
+        assertTrue( person.contains( "objectClass", "top", "person" ) );
+        assertEquals( 2, person.get( "objectClass" ).size() );
 
         person = persons.get( "cn=person1,ou=system" );
         assertNotNull( person );
-        ocs = person.get( "objectClass" );
-        assertEquals( 3, ocs.size() );
-        assertTrue( ocs.contains( "top" ) );
-        assertTrue( ocs.contains( "person" ) );
-        assertTrue( ocs.contains( "organizationalPerson" ) );
+        assertTrue( person.contains( "objectClass", "top", "person", "organizationalPerson" ) );
+        assertEquals( 3, person.get( "objectClass" ).size() );
 
         person = persons.get( "cn=person2,ou=system" );
         assertNotNull( person );
-        ocs = person.get( "objectClass" );
-        assertEquals( 4, ocs.size() );
-        assertTrue( ocs.contains( "top" ) );
-        assertTrue( ocs.contains( "person" ) );
-        assertTrue( ocs.contains( "organizationalPerson" ) );
-        assertTrue( ocs.contains( "inetOrgPerson" ) );
+        assertTrue( person.contains( "objectClass", "top", "person", "organizationalPerson", "inetOrgPerson" ) );
+        assertEquals( 4, person.get( "objectClass" ).size() );
     }
 
 
@@ -964,25 +921,26 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testSearchForMetaTop() throws Exception
     {
-        LdapContext schemaRoot = getSchemaContext( getService() );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            try ( EntryCursor cursor = connection.search( "ou=schema", "(ObjectClass=top)", SearchScope.SUBTREE ) )
+            {
+                assertTrue( cursor.next() );
+                assertNotNull( cursor.get() );
+            }
 
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration<SearchResult> results = schemaRoot.search( "", "(objectClass=top)", controls );
-        assertTrue( results.hasMore() , "Expected some results" );
-        results.close();
-
-        controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        results = schemaRoot.search( "", "(objectClass=metaAttributeType)", controls );
-        assertTrue( results.hasMore() , "Expected some results" );
-        results.close();
-
-        controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        results = schemaRoot.search( "", "(objectClass=metaTop)", controls );
-        assertTrue( results.hasMore() , "Expected some results" );
-        results.close();
+            try ( EntryCursor cursor = connection.search( "ou=schema", "(objectClass=metaAttributeType)", SearchScope.SUBTREE ) )
+            {
+                assertTrue( cursor.next() );
+                assertNotNull( cursor.get() );
+            }
+    
+            try ( EntryCursor cursor = connection.search( "ou=schema", "(objectClass=metaTop)", SearchScope.SUBTREE ) )
+            {
+                assertTrue( cursor.next() );
+                assertNotNull( cursor.get() );
+            }
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -992,89 +950,40 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER = new AttributeTypeDescriptionSchemaParser();
 
 
-    private void modify( int op, List<String> descriptions, String opAttr ) throws Exception
-    {
-        Dn dn = new Dn( getSubschemaSubentryDN() );
-        Attribute attr = new BasicAttribute( opAttr );
-
-        for ( String description : descriptions )
-        {
-            attr.add( description );
-        }
-
-        Attributes mods = new BasicAttributes( true );
-        mods.put( attr );
-
-        getRootContext( getService() ).modifyAttributes( JndiUtils.toName( dn ), op, mods );
-    }
-
-
-    /**
-     * Gets the subschemaSubentry attributes for the global schema.
-     *
-     * @return all operational attributes of the subschemaSubentry
-     * @throws NamingException if there are problems accessing this entry
-     */
-    private Attributes getSubschemaSubentryAttributes() throws Exception
-    {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( getSubschemaSubentryDN(),
-            "(objectClass=*)", controls );
-        SearchResult result = results.next();
-        results.close();
-        return result.getAttributes();
-    }
-
-
     /**
      * Get's the subschemaSubentry attribute value from the rootDSE.
      *
      * @return the subschemaSubentry distinguished name
      * @throws NamingException if there are problems accessing the RootDSE
      */
-    private String getSubschemaSubentryDN() throws Exception
+    private String getSubschemaSubentryDN( LdapConnection connection ) throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { SUBSCHEMA_SUBENTRY } );
+        Entry entry = connection.getRootDse( SUBSCHEMA_SUBENTRY );
 
-        NamingEnumeration<SearchResult> results = getRootContext( getService() ).search( "", "(objectClass=*)",
-            controls );
-        SearchResult result = results.next();
-        results.close();
-        Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
-        return ( String ) subschemaSubentry.get();
+        return entry.get( SUBSCHEMA_SUBENTRY ).getString();
     }
 
 
-    private void enableSchema( String schemaName ) throws Exception
+    private void enableSchema( LdapConnection connection, String schemaName ) throws Exception
     {
         // now enable the test schema
-        ModificationItem[] mods = new ModificationItem[1];
-        Attribute attr = new BasicAttribute( "m-disabled", "FALSE" );
-        mods[0] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, attr );
-        getSchemaContext( getService() ).modifyAttributes( "cn=" + schemaName, mods );
+        connection.modify( "cn=" + schemaName + ",ou=schema", 
+            new DefaultModification( ModificationOperation.REPLACE_ATTRIBUTE, "m-disabled", "FALSE" ) );
     }
 
 
-    private void checkAttributeTypePresent( String oid, String schemaName, boolean isPresent ) throws Exception
+    private void checkAttributeTypePresent( LdapConnection connection, String oid, String schemaName, boolean isPresent ) throws Exception
     {
         // -------------------------------------------------------------------
         // check first to see if it is present in the subschemaSubentry
         // -------------------------------------------------------------------
-
-        Attributes attrs = getSubschemaSubentryAttributes();
-        Attribute attrTypes = attrs.get( "attributeTypes" );
+        Entry entry = connection.lookup( "cn=schema", "attributeTypes" );
+        Attribute attributeTypes = entry.get( "attributeTypes" );
         AttributeType attributeType = null;
 
-        for ( int ii = 0; ii < attrTypes.size(); ii++ )
+        for ( Value value : attributeTypes )
         {
-            String desc = ( String ) attrTypes.get( ii );
+            String desc = value.getString();
 
             if ( desc.indexOf( oid ) != -1 )
             {
@@ -1097,27 +1006,16 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
         // check next to see if it is present in the schema partition
         // -------------------------------------------------------------------
 
-        attrs = null;
-
         if ( isPresent )
         {
-            attrs = getSchemaContext( getService() ).getAttributes(
-                "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
-            assertNotNull( attrs );
+            entry = connection.lookup( "ou=schema", "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            assertNotNull( entry );
         }
         else
         {
-            //noinspection EmptyCatchBlock
-            try
-            {
-                attrs = getSchemaContext( getService() ).getAttributes(
-                    "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
-                fail( "should never get here" );
-            }
-            catch ( NamingException e )
-            {
-            }
-            assertNull( attrs );
+            entry = connection.lookup( "ou=schema", "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            
+            assertNull( entry );
         }
 
         // -------------------------------------------------------------------
@@ -1144,17 +1042,14 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
     @Test
     public void testAddAttributeTypePersistence() throws Exception
     {
-        try
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            enableSchema( "nis" );
-
-            List<String> descriptions = new ArrayList<String>();
+            enableSchema( connection, "nis" );
 
             // -------------------------------------------------------------------
             // test successful add with everything
             // -------------------------------------------------------------------
-
-            descriptions.add(
+            String description =
                 "( 1.3.6.1.4.1.18060.0.9.3.1.9" +
                     "  NAME 'ibm-imm' " +
                     "  DESC 'the actual block data being stored' " +
@@ -1162,36 +1057,34 @@ public class SchemaServiceIT extends AbstractLdapTestUnit
                     "  SYNTAX 1.3.6.1.4.1.1466.115.121.1.40{32700} " +
                     "  SINGLE-VALUE " +
                     "  USAGE userApplications " +
-                    "  X-SCHEMA 'nis' )" );
+                    "  X-SCHEMA 'nis' )";
 
-            modify( DirContext.ADD_ATTRIBUTE, descriptions, "attributeTypes" );
-
-            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.9.3.1.9", "nis", true );
-
-            // sync operation happens anyway on shutdowns but just to make sure we can do it again
-            getService().sync();
-
-            getService().shutdown();
-            getService().startup();
-
-            Attributes attrs = new BasicAttributes( true );
-
-            Attribute attr = new BasicAttribute( "objectClass" );
-            attr.add( "top" );
-            attr.add( "person" );
-            attr.add( "extensibleObject" );
-
-            attrs.put( attr );
-            attrs.put( "cn", "blah" );
-            attrs.put( "sn", "Blah" );
-            attrs.put( "ibm-imm", "test" );
-            getSystemContext( getService() ).createSubcontext( "cn=blah", attrs );
-
-            checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.9.3.1.9", "nis", true );
+            connection.modify( getSubschemaSubentryDN( connection ), 
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "attributeTypes", description ) );
+            
+            checkAttributeTypePresent( connection, "1.3.6.1.4.1.18060.0.9.3.1.9", "nis", true );
         }
-        catch ( Exception e )
+
+        // sync operation happens anyway on shutdowns but just to make sure we can do it again
+        getService().sync();
+
+        getService().shutdown();
+        getService().startup();
+
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            throw e;
+            connection.add( 
+                new DefaultEntry( 
+                    "cn=blah,ou=system",
+                    "objectClass", "top",
+                    "objectClass", "person",
+                    "objectClass", "extensibleObject",
+                    "cn", "blah",
+                    "sn", "Blah",
+                    "ibm-imm", "test"
+                    ) );
+
+            checkAttributeTypePresent( connection, "1.3.6.1.4.1.18060.0.9.3.1.9", "nis", true );
         }
     }
 }
