@@ -1219,8 +1219,10 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( directoryService.getEvaluator().evaluate( ssNew, apName, candidateDn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( modifyContext.getSession(), candidateDn,
-                            getOperationalModsForAdd( candidate, operationalAttributes ) ) );
+                        ModifyOperationContext newModifyContext = new ModifyOperationContext( modifyContext.getSession(), candidateDn,
+                            getOperationalModsForAdd( candidate, operationalAttributes ) );
+                        newModifyContext.setTransaction( modifyContext.getTransaction() );
+                        nexus.modify( newModifyContext );
                     }
                 }
                 subentries.close();
@@ -1521,7 +1523,9 @@ public class SubentryInterceptor extends BaseInterceptor
 
             if ( !mods.isEmpty() )
             {
-                nexus.modify( new ModifyOperationContext( moveAndRenameContext.getSession(), newDn, mods ) );
+                ModifyOperationContext newModifyContext = new ModifyOperationContext( moveAndRenameContext.getSession(), newDn, mods );
+                newModifyContext.setTransaction( moveAndRenameContext.getTransaction() );
+                nexus.modify( newModifyContext );
             }
         }
     }
@@ -1587,9 +1591,11 @@ public class SubentryInterceptor extends BaseInterceptor
 
                     if ( directoryService.getEvaluator().evaluate( ss, apName, dn, candidate ) )
                     {
-                        nexus.modify( new ModifyOperationContext( renameContext.getSession(), dn,
+                        ModifyOperationContext newModifyContext = new ModifyOperationContext( renameContext.getSession(), dn,
                             getOperationalModsForReplace(
-                                oldDn, newName, subentry, candidate ) ) );
+                                oldDn, newName, subentry, candidate ) );
+                        newModifyContext.setTransaction( renameContext.getTransaction() );
+                        nexus.modify( newModifyContext );
                     }
                 }
             }
