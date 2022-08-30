@@ -21,29 +21,26 @@
 package org.apache.directory.server.core.subtree;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -59,97 +56,86 @@ import org.junit.jupiter.api.extension.ExtendWith;
 public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTestUnit
 {
 
-    public Attributes getTestEntry( String cn )
+    public Entry getTestEntry( String dn, String cn ) throws LdapException
     {
-        Attributes entry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        entry.put( objectClass );
-        entry.put( "cn", cn );
-        entry.put( "sn", cn );
-        return entry;
+        return new DefaultEntry(  
+            dn,
+            "objectClass", "top",
+            "objectClass", "person",
+            "cn", cn,
+            "sn", cn );
     }
 
 
-    public Attributes getCollectiveAttributeTestSubentry( String cn )
+    public Entry getCollectiveAttributeTestSubentry( String dn, String cn ) throws LdapException
     {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
-        objectClass.add( "collectiveAttributeSubentry" );
-        subentry.put( objectClass );
-        subentry.put( "subtreeSpecification", "{ specificationFilter item:organizationalPerson }" );
-        subentry.put( "c-o", "Test Org" );
-        subentry.put( "cn", cn );
-        return subentry;
+        return new DefaultEntry(  
+            dn,
+            "objectClass", "top",
+            "objectClass", "subentry",
+            "objectClass", "collectiveAttributeSubentry",
+            "subtreeSpecification", "{ specificationFilter item:organizationalPerson }",
+            "c-o", "Test Org",
+            "cn", cn );
     }
 
-
-    public void addAdministrativeRoles() throws Exception
+    private void addAdministrativeRole( LdapConnection connection, String dn ) throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        Attribute attribute = new BasicAttribute( "administrativeRole" );
-        attribute.add( "collectiveAttributeSpecificArea" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        sysRoot.modifyAttributes( "", new ModificationItem[]
-            { item } );
+        connection.modify( dn, 
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "administrativeRole", "collectiveAttributeSpecificArea" ) );
     }
 
-
-    public Map<String, Attributes> getAllEntries() throws Exception
+    public Map<String, Entry> getAllEntries( LdapConnection connection, String dn ) throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
-
-        while ( results.hasMore() )
+        Map<String, Entry> resultMap = new HashMap<>();
+        
+        try ( EntryCursor cursor = connection.search( dn, "(objectClass=*)", SearchScope.SUBTREE, "*", "+" ) )
         {
-            SearchResult result = results.next();
-            resultMap.put( result.getName(), result.getAttributes() );
+            while ( cursor.next() )
+            {
+                Entry entry = cursor.get(); 
+                
+                resultMap.put( entry.getDn().getName(), entry );
+            }
         }
+
         return resultMap;
     }
 
-
+    
     @Test
     public void testTrackingOfOCChangesInSubentryServiceModifyRoutine() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        addAdministrativeRoles();
-        sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry",
-            getCollectiveAttributeTestSubentry( "collectiveAttributeTestSubentry" ) );
-        Attributes entry = getTestEntry( "testEntry" );
-        sysRoot.createSubcontext( "cn=testEntry", entry );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            addAdministrativeRole( connection, "ou=system" );
 
-        //----------------------------------------------------------------------
-
-        Map<String, Attributes> results = getAllEntries();
-        Attributes testEntry = results.get( "cn=testEntry,ou=system" );
-
-        Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
-
-        assertNull( collectiveAttributeSubentries );
-
-        //----------------------------------------------------------------------
-        ModificationItem[] modItems = new ModificationItem[2];
-        Attribute objectClass = new BasicAttribute( "ObjectClass", "organizationalPerson" );
-        modItems[0] = new ModificationItem( DirContext.ADD_ATTRIBUTE, objectClass );
-        Attribute ou = new BasicAttribute( "ou", "Test Organizational Unit" );
-        modItems[1] = new ModificationItem( DirContext.ADD_ATTRIBUTE, ou );
-
-        sysRoot.modifyAttributes( "cn=testEntry", modItems );
-
-        results = getAllEntries();
-        testEntry = ( Attributes ) results.get( "cn=testEntry,ou=system" );
-
-        collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
-        assertNotNull( collectiveAttributeSubentries );
+            connection.add(
+                getCollectiveAttributeTestSubentry( "cn=collectiveAttributeTestSubentry,ou=system", "collectiveAttributeTestSubentry" ) );
+        
+            Entry entry = getTestEntry( "cn=testEntry,ou=system", "testEntry" );
+            connection.add( entry );
+    
+            //----------------------------------------------------------------------
+    
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
+            Entry testEntry = results.get( "cn=testEntry,ou=system" );
+    
+            Attribute collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
+    
+            assertNull( collectiveAttributeSubentries );
+    
+            //----------------------------------------------------------------------
+            connection.modify( "cn=testEntry,ou=system", 
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "ObjectClass", "organizationalPerson" ),
+                new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "ou", "Test Organizational Unit" ) );
+            
+    
+            results = getAllEntries( connection, "ou=system" );
+            testEntry = results.get( "cn=testEntry,ou=system" );
+    
+            collectiveAttributeSubentries = testEntry.get( "collectiveAttributeSubentries" );
+            assertNotNull( collectiveAttributeSubentries );
+        }
     }
-
 }
