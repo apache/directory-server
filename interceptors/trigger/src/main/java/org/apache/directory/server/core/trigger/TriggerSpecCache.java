@@ -239,7 +239,7 @@ public class TriggerSpecCache
 
         for ( Modification mod : mods )
         {
-            isTriggerSpecModified |= mod.getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
+            isTriggerSpecModified |= mod.getAttribute().getAttributeType().getNames().contains( PRESCRIPTIVE_TRIGGER_ATTR );
         }
 
         if ( isTriggerSpecModified )
