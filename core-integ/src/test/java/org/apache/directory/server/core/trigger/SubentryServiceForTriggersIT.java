@@ -21,7 +21,6 @@
 package org.apache.directory.server.core.trigger;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -30,21 +29,19 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.DefaultModification;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.ModificationOperation;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
+import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,78 +57,64 @@ import org.junit.jupiter.api.extension.ExtendWith;
     "problem in testEntryAdd() will fix it all over.")
 public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
 {
-
-    public Attributes getTestEntry( String cn )
+    public Entry getTestEntry( String dn, String cn ) throws LdapException
     {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "person" );
-        subentry.put( objectClass );
-        subentry.put( "cn", cn );
-        subentry.put( "sn", "testentry" );
-        return subentry;
+        return new DefaultEntry(  
+            dn,
+            "objectClass", "top",
+            "objectClass", "person",
+            "cn", cn,
+            "sn", cn );
     }
 
-
-    public Attributes getTestSubentry()
+    
+    public Entry getTestSubentry( String dn ) throws LdapException
     {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
-        objectClass.add( "triggerExecutionSubentry" );
-        subentry.put( objectClass );
-        subentry.put( "subtreeSpecification", "{ base \"ou=configuration\" }" );
-        subentry.put( "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name);" );
-        subentry.put( "cn", "testsubentry" );
-        return subentry;
+        return new DefaultEntry(  
+            dn,
+            "objectClass", "top",
+            "objectClass", "subentry",
+            "objectClass", "triggerExecutionSubentry",
+            "subtreeSpecification", "{ base \"ou=configuration\" }",
+            "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name);",
+            "cn", "testsubentry" );
     }
 
-
-    public Attributes getTestSubentryWithExclusion()
+    
+    public Entry getTestSubentryWithExclusion( String dn ) throws LdapException
     {
-        Attributes subentry = new BasicAttributes( true );
-        Attribute objectClass = new BasicAttribute( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
-        objectClass.add( "triggerExecutionSubentry" );
-        subentry.put( objectClass );
-        String spec = "{ base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }";
-        subentry.put( "subtreeSpecification", spec );
-        subentry.put( "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name);" );
-        subentry.put( "cn", "testsubentry" );
-        return subentry;
+        return new DefaultEntry(  
+            dn,
+            "objectClass", "top",
+            "objectClass", "subentry",
+            "objectClass", "triggerExecutionSubentry",
+            "subtreeSpecification", "{ base \"ou=configuration\", specificExclusions { chopBefore:\"cn=unmarked\" } }",
+            "prescriptiveTriggerSpecification", "AFTER Delete CALL \"LogUtils.logDelete\"($name);",
+            "cn", "testsubentry" );
     }
 
-
-    public void addTheAdministrativeRole() throws Exception
+    
+    private void addAdministrativeRole( LdapConnection connection, String dn ) throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        Attribute attribute = new BasicAttribute( "administrativeRole" );
-        attribute.add( "autonomousArea" );
-        attribute.add( "triggerSpecificArea" );
-        ModificationItem item = new ModificationItem( DirContext.ADD_ATTRIBUTE, attribute );
-        sysRoot.modifyAttributes( "", new ModificationItem[]
-            { item } );
+        connection.modify( dn, 
+            new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "administrativeRole", "autonomousArea", "triggerSpecificArea" ) );
     }
 
-
-    public Map<String, Attributes> getAllEntries() throws Exception
+    
+    public Map<String, Entry> getAllEntries( LdapConnection connection, String dn ) throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=*)", controls );
-
-        while ( results.hasMore() )
+        Map<String, Entry> resultMap = new HashMap<>();
+        
+        try ( EntryCursor cursor = connection.search( dn, "(objectClass=*)", SearchScope.SUBTREE, "*", "+" ) )
         {
-            SearchResult result = results.next();
-            resultMap.put( result.getName(), result.getAttributes() );
+            while ( cursor.next() )
+            {
+                Entry entry = cursor.get(); 
+                
+                resultMap.put( entry.getDn().getName(), entry );
+            }
         }
+
         return resultMap;
     }
 
@@ -139,156 +122,162 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     @Test
     public void testEntryAdd() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        addTheAdministrativeRole();
-        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-        sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
-        sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
-        Map<String, Attributes> results = getAllEntries();
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            addAdministrativeRole( connection, "ou=system" );
+            connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
+            connection.add( getTestEntry( "cn=unmarked,ou=system", "unmarked" ) );
+            connection.add( getTestEntry( "cn=marked,ou=configuration,ou=system", "marked" ) );
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
 
-        // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
-        // --------------------------------------------------------------------
-
-        Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        Attribute triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        Attributes unmarked = results.get( "cn=unmarked,ou=system" );
-        assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) ,  "cn=unmarked,ou=system should not be marked" );
-
-        // @todo attempts to delete this entry cause an StringIndexOutOfBoundsException
-        sysRoot.destroySubcontext( "cn=marked,ou=configuration" );
+            // --------------------------------------------------------------------
+            // Make sure entries selected by the subentry do have the mark
+            // --------------------------------------------------------------------
+    
+            Entry marked = results.get( "cn=marked,ou=configuration,ou=system" );
+            Attribute triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            Entry unmarked = results.get( "cn=unmarked,ou=system" );
+            assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) , "cn=unmarked,ou=system should not be marked" );
+    
+            // @todo attempts to delete this entry cause an StringIndexOutOfBoundsException
+            connection.delete( "cn=marked,ou=configuration,ou=system" );
+        }
     }
 
 
     @Test
     public void testSubentryAdd() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-
-        //noinspection EmptyCatchBlock
-        try
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-            fail( "should never get here: cannot create subentry under regular entries" );
+            //noinspection EmptyCatchBlock
+            try
+            {
+                connection.add( getTestSubentry( "cn=testsubentry" ) );
+                fail( "should never get here: cannot create subentry under regular entries" );
+            }
+            catch ( Exception e )
+            {
+            }
+    
+            addAdministrativeRole( connection, "ou=system" );
+            connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries selected by the subentry do have the mark
+            // --------------------------------------------------------------------
+    
+            Entry configuration = results.get( "ou=configuration,ou=system" );
+            Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
+            triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            Entry system = results.get( "ou=system" );
+            assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), "ou=system should not be marked" );
+    
+            Entry users = results.get( "ou=users,ou=system" );
+            assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) ,  "ou=users,ou=system should not be marked" );
         }
-        catch ( Exception e )
-        {
-        }
-
-        addTheAdministrativeRole();
-        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-        Map<String, Attributes> results = getAllEntries();
-
-        // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
-        // --------------------------------------------------------------------
-
-        Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        Attributes system = results.get( "ou=system" );
-        assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), "ou=system should not be marked" );
-
-        Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) ,  "ou=users,ou=system should not be marked" );
     }
 
 
     @Test
     public void testSubentryModify() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        addTheAdministrativeRole();
-        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-        Map<String, Attributes> results = getAllEntries();
-
-        // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
-        // --------------------------------------------------------------------
-
-        Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        Attributes system = results.get( "ou=system" );
-        assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), "ou=system should not be marked" );
-
-        Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) ,  "ou=users,ou=system should not be marked" );
-
-        // --------------------------------------------------------------------
-        // Now modify the subentry by introducing an exclusion
-        // --------------------------------------------------------------------
-
-        Attribute subtreeSpecification = new BasicAttribute( "subtreeSpecification" );
-        subtreeSpecification
-            .add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=interceptors\" } }" );
-        ModificationItem item = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
-        sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItem[]
-            { item } );
-        results = getAllEntries();
-
-        // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
-        // --------------------------------------------------------------------
-
-        configuration = results.get( "ou=configuration,ou=system" );
-        triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        system = results.get( "ou=system" );
-        assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), 
-            "ou=system should not be marked" );
-
-        users = results.get( "ou=users,ou=system" );
-        assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) ,  
-            "ou=users,ou=system should not be marked" );
-
-        interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        if ( triggerSubentries != null )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            assertEquals( 0, triggerSubentries.size(),
-                "ou=interceptors,ou=configuration,ou=system should not be marked" );
+            addAdministrativeRole( connection, "ou=system" );
+            connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries selected by the subentry do have the mark
+            // --------------------------------------------------------------------
+    
+            Entry configuration = results.get( "ou=configuration,ou=system" );
+            Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
+            triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            Entry system = results.get( "ou=system" );
+            assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), "ou=system should not be marked" );
+    
+            Entry users = results.get( "ou=users,ou=system" );
+            assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) ,  "ou=users,ou=system should not be marked" );
+    
+            // --------------------------------------------------------------------
+            // Now modify the subentry by introducing an exclusion
+            // --------------------------------------------------------------------
+    
+            connection.modify( "cn=testsubentry,ou=system", 
+                new DefaultModification( 
+                    ModificationOperation.REPLACE_ATTRIBUTE, 
+                    "subtreeSpecification", 
+                    "{ base \"ou=configuration\", specificExclusions { chopBefore: \"ou=interceptors\" } }" ) );
+            
+            results = getAllEntries( connection, "ou=system" );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries selected by the subentry do have the mark
+            // --------------------------------------------------------------------
+    
+            configuration = results.get( "ou=configuration,ou=system" );
+            triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            system = results.get( "ou=system" );
+            assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), 
+                "ou=system should not be marked" );
+    
+            users = results.get( "ou=users,ou=system" );
+            assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) ,  
+                "ou=users,ou=system should not be marked" );
+    
+            interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
+            triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            
+            if ( triggerSubentries != null )
+            {
+                assertEquals( 0, triggerSubentries.size(),
+                    "ou=interceptors,ou=configuration,ou=system should not be marked" );
+            }
         }
     }
 
@@ -296,299 +285,308 @@ public class SubentryServiceForTriggersIT extends AbstractLdapTestUnit
     @Test
     public void testSubentryDelete() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        addTheAdministrativeRole();
-        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-        sysRoot.destroySubcontext( "cn=testsubentry" );
-        Map<String, Attributes> results = getAllEntries();
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        if ( triggerSubentries != null )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            assertEquals( 0, triggerSubentries.size(), "ou=configuration,ou=system should not be marked" );
+            addAdministrativeRole( connection, "ou=system" );
+            connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
+            connection.delete( "cn=testsubentry,ou=system" );
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            Entry configuration = results.get( "ou=configuration,ou=system" );
+            Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            if ( triggerSubentries != null )
+            {
+                assertEquals( 0, triggerSubentries.size(), "ou=configuration,ou=system should not be marked" );
+            }
+    
+            Entry interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
+            triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            if ( triggerSubentries != null )
+            {
+                assertEquals( 0, triggerSubentries.size(),
+                    "ou=interceptors,ou=configuration,ou=system should not be marked" );
+            }
+    
+            Entry system = results.get( "ou=system" );
+            assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), 
+                "ou=system should not be marked" );
+    
+            Entry users = results.get( "ou=users,ou=system" );
+            assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "ou=users,ou=system should not be marked" );
         }
-
-        Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        if ( triggerSubentries != null )
-        {
-            assertEquals( 0, triggerSubentries.size(),
-                "ou=interceptors,ou=configuration,ou=system should not be marked" );
-        }
-
-        Attributes system = results.get( "ou=system" );
-        assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), 
-            "ou=system should not be marked" );
-
-        Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "ou=users,ou=system should not be marked" );
     }
 
 
     @Test
     public void testSubentryModifyRdn() throws Exception
     {
-        addTheAdministrativeRole();
-        LdapContext sysRoot = getSystemContext( getService() );
-        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-        sysRoot.rename( "cn=testsubentry", "cn=newname" );
-        Map<String, Attributes> results = getAllEntries();
-
-        // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
-        // --------------------------------------------------------------------
-
-        Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=newname,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=newname,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        Attributes system = results.get( "ou=system" );
-        assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "ou=system should not be marked" );
-
-        Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "ou=users,ou=system should not be marked" );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            addAdministrativeRole( connection, "ou=system" );
+            connection.add( getTestSubentry( "cn=testsubentry,ou=system" ) );
+            connection.rename( "cn=testsubentry,ou=system", "cn=newname" );
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries selected by the subentry do have the mark
+            // --------------------------------------------------------------------
+    
+            Entry configuration = results.get( "ou=configuration,ou=system" );
+            Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= newname ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
+            triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= newname ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            Entry system = results.get( "ou=system" );
+            assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "ou=system should not be marked" );
+    
+            Entry users = results.get( "ou=users,ou=system" );
+            assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "ou=users,ou=system should not be marked" );
+        }
     }
 
 
     @Test
     public void testEntryModifyRdn() throws Exception
     {
-        addTheAdministrativeRole();
-        LdapContext sysRoot = getSystemContext( getService() );
-        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
-        sysRoot.createSubcontext( "cn=unmarked,ou=configuration", getTestEntry( "unmarked" ) );
-        sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
-        Map<String, Attributes> results = getAllEntries();
-
-        // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
-        // --------------------------------------------------------------------
-
-        Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        Attributes system = results.get( "ou=system" );
-        assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "ou=system should not be marked" );
-
-        Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "ou=users,ou=system should not be marked" );
-
-        Attributes unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
-        assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "cn=unmarked,ou=configuration,ou=system should not be marked" );
-
-        // --------------------------------------------------------------------
-        // Now destry one of the marked/unmarked and rename to deleted entry
-        // --------------------------------------------------------------------
-
-        sysRoot.destroySubcontext( "cn=unmarked,ou=configuration" );
-        sysRoot.rename( "cn=marked,ou=configuration", "cn=unmarked,ou=configuration" );
-        results = getAllEntries();
-
-        unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
-        assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "cn=unmarked,ou=configuration,ou=system should not be marked" );
-        assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
-
-        // --------------------------------------------------------------------
-        // Now rename unmarked to marked and see that subentry op attr is there
-        // --------------------------------------------------------------------
-
-        sysRoot.rename( "cn=unmarked,ou=configuration", "cn=marked,ou=configuration" );
-        results = getAllEntries();
-        assertNull( results.get( "cn=unmarked,ou=configuration,ou=system" ) );
-        marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        assertNotNull( marked );
-        triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            addAdministrativeRole( connection, "ou=system" );
+            connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
+            connection.add( getTestEntry( "cn=unmarked,ou=configuration,ou=system", "unmarked" ) );
+            connection.add( getTestEntry( "cn=marked,ou=configuration,ou=system", "marked" ) );
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries selected by the subentry do have the mark
+            // --------------------------------------------------------------------
+    
+            Entry configuration = results.get( "ou=configuration,ou=system" );
+            Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
+            triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry marked = results.get( "cn=marked,ou=configuration,ou=system" );
+            triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            Entry system = results.get( "ou=system" );
+            assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "ou=system should not be marked" );
+    
+            Entry users = results.get( "ou=users,ou=system" );
+            assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "ou=users,ou=system should not be marked" );
+    
+            Entry unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
+            assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "cn=unmarked,ou=configuration,ou=system should not be marked" );
+    
+            // --------------------------------------------------------------------
+            // Now destry one of the marked/unmarked and rename to deleted entry
+            // --------------------------------------------------------------------
+    
+            connection.delete( "cn=unmarked,ou=configuration,ou=system" );
+            connection.rename( "cn=marked,ou=configuration,ou=system", "cn=unmarked" );
+            results = getAllEntries( connection, "ou=system" );
+    
+            unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
+            assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "cn=unmarked,ou=configuration,ou=system should not be marked" );
+            assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
+    
+            // --------------------------------------------------------------------
+            // Now rename unmarked to marked and see that subentry op attr is there
+            // --------------------------------------------------------------------
+    
+            connection.rename( "cn=unmarked,ou=configuration,ou=system", "cn=marked" );
+            results = getAllEntries( connection, "ou=system" );
+            assertNull( results.get( "cn=unmarked,ou=configuration,ou=system" ) );
+            marked = results.get( "cn=marked,ou=configuration,ou=system" );
+            assertNotNull( marked );
+            triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+        }
     }
 
 
     @Test
     public void testEntryMoveWithRdnChange() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        addTheAdministrativeRole();
-        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
-        sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
-        sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
-        Map<String, Attributes> results = getAllEntries();
-
-        // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
-        // --------------------------------------------------------------------
-
-        Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        Attributes system = results.get( "ou=system" );
-        assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "ou=system should not be marked" );
-
-        Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "ou=users,ou=system should not be marked" );
-
-        Attributes unmarked = results.get( "cn=unmarked,ou=system" );
-        assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "cn=unmarked,ou=system should not be marked" );
-
-        // --------------------------------------------------------------------
-        // Now destry one of the marked/unmarked and rename to deleted entry
-        // --------------------------------------------------------------------
-
-        sysRoot.destroySubcontext( "cn=unmarked" );
-        sysRoot.rename( "cn=marked,ou=configuration", "cn=unmarked" );
-        results = getAllEntries();
-
-        unmarked = results.get( "cn=unmarked,ou=system" );
-        assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
-            "cn=unmarked,ou=system should not be marked" );
-        assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
-
-        // --------------------------------------------------------------------
-        // Now rename unmarked to marked and see that subentry op attr is there
-        // --------------------------------------------------------------------
-
-        sysRoot.rename( "cn=unmarked", "cn=marked,ou=configuration" );
-        results = getAllEntries();
-        assertNull( results.get( "cn=unmarked,ou=system" ) );
-        marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        assertNotNull( marked );
-        triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            addAdministrativeRole( connection, "ou=system" );
+            connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
+            connection.add( getTestEntry( "cn=unmarked,ou=system", "unmarked" ) );
+            connection.add( getTestEntry( "cn=marked,ou=configuration,ou=system", "marked" ) );
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries selected by the subentry do have the mark
+            // --------------------------------------------------------------------
+    
+            Entry configuration = results.get( "ou=configuration,ou=system" );
+            Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
+            triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry marked = results.get( "cn=marked,ou=configuration,ou=system" );
+            triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            Entry system = results.get( "ou=system" );
+            assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "ou=system should not be marked" );
+    
+            Entry users = results.get( "ou=users,ou=system" );
+            assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "ou=users,ou=system should not be marked" );
+    
+            Entry unmarked = results.get( "cn=unmarked,ou=system" );
+            assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "cn=unmarked,ou=system should not be marked" );
+    
+            // --------------------------------------------------------------------
+            // Now destry one of the marked/unmarked and rename to deleted entry
+            // --------------------------------------------------------------------
+    
+            connection.delete( "cn=unmarked,ou=system" );
+            connection.moveAndRename( "cn=marked,ou=configuration,ou=system", "cn=unmarked,ou=system" );
+            results = getAllEntries( connection, "ou=system" );
+    
+            unmarked = results.get( "cn=unmarked,ou=system" );
+            assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),
+                "cn=unmarked,ou=system should not be marked" );
+            assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
+    
+            // --------------------------------------------------------------------
+            // Now rename unmarked to marked and see that subentry op attr is there
+            // --------------------------------------------------------------------
+    
+            connection.moveAndRename( "cn=unmarked,ou=system", "cn=marked,ou=configuration,ou=system" );
+            results = getAllEntries( connection, "ou=system" );
+            assertNull( results.get( "cn=unmarked,ou=system" ) );
+            marked = results.get( "cn=marked,ou=configuration,ou=system" );
+            assertNotNull( marked );
+            triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+       } 
     }
 
 
     @Test
     public void testEntryMove() throws Exception
     {
-        LdapContext sysRoot = getSystemContext( getService() );
-        addTheAdministrativeRole();
-        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
-        sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
-        sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
-        Map<String, Attributes> results = getAllEntries();
-
-        // --------------------------------------------------------------------
-        // Make sure entries selected by the subentry do have the mark
-        // --------------------------------------------------------------------
-
-        Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
-
-        // --------------------------------------------------------------------
-        // Make sure entries not selected by subentry do not have the mark
-        // --------------------------------------------------------------------
-
-        Attributes system = results.get( "ou=system" );
-        assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), "ou=system should not be marked" );
-
-        Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),  
-            "ou=users,ou=system should not be marked" );
-
-        Attributes unmarked = results.get( "cn=unmarked,ou=system" );
-        assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), 
-            "cn=unmarked,ou=system should not be marked" );
-
-        // --------------------------------------------------------------------
-        // Now destry one of the marked/unmarked and rename to deleted entry
-        // --------------------------------------------------------------------
-
-        sysRoot.destroySubcontext( "cn=unmarked" );
-        sysRoot.rename( "cn=marked,ou=configuration", "cn=marked,ou=interceptors,ou=configuration" );
-        results = getAllEntries();
-
-        unmarked = results.get( "cn=unmarked,ou=system" );
-        assertNull( unmarked, "cn=unmarked,ou=system should not be marked"  );
-        assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
-
-        marked = results.get( "cn=marked,ou=interceptors,ou=configuration,ou=system" );
-        assertNotNull( marked );
-        triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
-        assertNotNull( triggerSubentries ,  "cn=marked,ou=interceptors,ou=configuration should be marked" );
-        assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
-        assertEquals( 1, triggerSubentries.size() );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            addAdministrativeRole( connection, "ou=system" );
+            connection.add( getTestSubentryWithExclusion( "cn=testsubentry,ou=system" ) );
+            connection.add( getTestEntry( "cn=unmarked,ou=system", "unmarked" ) );
+            connection.add( getTestEntry( "cn=marked,ou=configuration,ou=system", "marked" ) );
+            Map<String, Entry> results = getAllEntries( connection, "ou=system" );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries selected by the subentry do have the mark
+            // --------------------------------------------------------------------
+    
+            Entry configuration = results.get( "ou=configuration,ou=system" );
+            Attribute triggerSubentries = configuration.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
+            triggerSubentries = interceptors.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "ou=interceptors,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            Entry marked = results.get( "cn=marked,ou=configuration,ou=system" );
+            triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "cn=marked,ou=configuration,ou=system should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+    
+            // --------------------------------------------------------------------
+            // Make sure entries not selected by subentry do not have the mark
+            // --------------------------------------------------------------------
+    
+            Entry system = results.get( "ou=system" );
+            assertNull( system.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), "ou=system should not be marked" );
+    
+            Entry users = results.get( "ou=users,ou=system" );
+            assertNull( users.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ),  
+                "ou=users,ou=system should not be marked" );
+    
+            Entry unmarked = results.get( "cn=unmarked,ou=system" );
+            assertNull( unmarked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ), 
+                "cn=unmarked,ou=system should not be marked" );
+    
+            // --------------------------------------------------------------------
+            // Now destry one of the marked/unmarked and rename to deleted entry
+            // --------------------------------------------------------------------
+    
+            connection.delete( "cn=unmarked,ou=system" );
+            connection.move( "cn=marked,ou=configuration,ou=system", "ou=interceptors,ou=configuration,ou=system" );
+            results = getAllEntries( connection, "ou=system" );
+    
+            unmarked = results.get( "cn=unmarked,ou=system" );
+            assertNull( unmarked, "cn=unmarked,ou=system should not be marked"  );
+            assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
+    
+            marked = results.get( "cn=marked,ou=interceptors,ou=configuration,ou=system" );
+            assertNotNull( marked );
+            triggerSubentries = marked.get( ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
+            assertNotNull( triggerSubentries ,  "cn=marked,ou=interceptors,ou=configuration should be marked" );
+            assertEquals( "2.5.4.3= testsubentry ,2.5.4.11= system ", triggerSubentries.get().getNormalized() );
+            assertEquals( 1, triggerSubentries.size() );
+        }
     }
-
 }
