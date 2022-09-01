@@ -84,6 +84,7 @@ public class SubentryServiceObjectClassChangeHandlingIT extends AbstractLdapTest
         connection.modify( dn, 
             new DefaultModification( ModificationOperation.ADD_ATTRIBUTE, "administrativeRole", "collectiveAttributeSpecificArea" ) );
     }
+    
 
     public Map<String, Entry> getAllEntries( LdapConnection connection, String dn ) throws Exception
     {

@@ -272,7 +272,6 @@ public class SchemaPersistenceIT extends AbstractLdapTestUnit
         }
         else
         {
-            //noinspection EmptyCatchBlock
             entry = conn.lookup( "ou=schema", "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
             
             assertNull( entry );
