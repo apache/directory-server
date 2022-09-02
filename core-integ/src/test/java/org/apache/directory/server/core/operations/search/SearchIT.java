@@ -20,42 +20,32 @@
 package org.apache.directory.server.core.operations.search;
 
 
-import static org.apache.directory.server.core.integ.IntegrationUtils.getAdminConnection;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidSearchFilterException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.cursor.SearchCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
-import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapProtocolErrorException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
-import org.apache.directory.api.ldap.model.ldif.LdifUtils;
-import org.apache.directory.api.ldap.model.message.AliasDerefMode;
+import org.apache.directory.api.ldap.model.message.SearchRequest;
+import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
@@ -67,7 +57,6 @@ import org.apache.directory.server.core.api.LdapCoreSessionConnection;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -217,176 +206,152 @@ public class SearchIT extends AbstractLdapTestUnit
     private static final String RDN = "cn=Heather Nova";
     private static final String FILTER = "(objectclass=*)";
 
-    public static LdapContext sysRoot;
-
-
-    /**
-     * @param sysRoot the system root to add entries to
-     * @throws NamingException on errors
-     */
-    @BeforeEach
-    public void init() throws Exception
-    {
-        sysRoot = getSystemContext( getService() );
-    }
-
-
     @Test
     public void testSearchOneLevel() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=*)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+    
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=*)", SearchScope.ONELEVEL ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+        
+            assertEquals( 9, entries.size(), "Expected number of results returned was incorrect!" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing02,ou=system" ) );
         }
-
-        list.close();
-
-        assertEquals( 9, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
     }
 
 
     @Test
     public void testSearchWithTop() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(&(objectClass=top)(objectClass=person)"
-            + "(objectClass=organizationalPerson)(objectClass=inetOrgPerson)(cn=si*))", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
-        }
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(&(objectClass=top)(objectClass=person)"
+                + "(objectClass=organizationalPerson)(objectClass=inetOrgPerson)(cn=si*))", SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
 
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "cn=with-dn,ou=system" ) );
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+            assertTrue( entries.containsKey( "cn=with-dn,ou=system" ) );
+        } 
     }
 
 
     @Test
     public void testSearchSubTreeLevel() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=*)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=*)", SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 14, entries.size(), "Expected number of results returned was incorrect!" );
+            assertTrue( entries.containsKey( "ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing02,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
         }
-
-        list.close();
-
-        assertEquals( 14, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
-        assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
     }
 
 
     @Test
     public void testSearchSubTreeLevelNoAttributes() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "1.1" } );
-
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing02)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing02)", SearchScope.SUBTREE, "1.1" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+            assertTrue( entries.containsKey( "ou=testing02,ou=system" ) );
+            Entry entry = entries.get( "ou=testing02,ou=system" );
+            assertEquals( 0, entry.size() );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
-        Attributes attrs = map.get( "ou=testing02,ou=system" );
-        assertEquals( 0, attrs.size() );
     }
 
 
     @Test
     public void testSearchSubstringSubTreeLevel() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(objectClass=organisation)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(objectClass=organisation)", SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+
+            // 0 because the filter does not have a SUBSTRING MR
+            assertEquals( 0, entries.size(), "Expected number of results returned was incorrect!" );
+    
+            // 
+            
+            entries.clear();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=*es*)", SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 8, entries.size(), "Expected number of results returned was incorrect!" );
+            
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing02,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing03,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing04,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing05,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=services,ou=configuration,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
         }
-
-        list.close();
-
-        // 0 because the filter does not have a SUBSTRING MR
-        assertEquals( 0, map.size(), "Expected number of results returned was incorrect!" );
-
-        // 
-        list = sysRoot.search( "", "(ou=*es*)", controls );
-
-        while ( list.hasMore() )
-        {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
-        }
-
-        list.close();
-
-        assertEquals( 8, map.size(), "Expected number of results returned was incorrect!" );
-        
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing02,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing03,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing04,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing05,ou=system" ) );
-        assertTrue( map.containsKey( "ou=services,ou=configuration,ou=system" ) );
-        assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
     }
 
 
@@ -400,298 +365,261 @@ public class SearchIT extends AbstractLdapTestUnit
         boolean oldSetAllowAnnonymousAccess = getService().isAllowAnonymousAccess();
         getService().setAllowAnonymousAccess( true );
 
-        SearchControls cons = new SearchControls();
-        NamingEnumeration<SearchResult> e = sysRoot.search( "", "(bogusAttribute=abc123)", cons );
-        assertNotNull( e );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            try ( EntryCursor cursor = connection.search( "ou=system", "(bogusAttribute=abc123)", SearchScope.SUBTREE ) )
+            {
+                assertFalse( cursor.next() );
+            }
 
-        e.close();
+            try ( EntryCursor cursor = connection.search( "ou=system", "(!(bogusAttribute=abc123))", SearchScope.SUBTREE ) )
+            {
+                assertFalse( cursor.next() );
+            }
+    
+            try ( EntryCursor cursor = connection.search( "ou=system", "(|(bogusAttribute=abc123)(bogusAttribute=abc123))", SearchScope.SUBTREE ) )
+            {
+                assertFalse( cursor.next() );
+            }
+    
+            try ( EntryCursor cursor = connection.search( "ou=system", "(|(bogusAttribute=abc123)(ou=abc123))", SearchScope.SUBTREE ) )
+            {
+                assertFalse( cursor.next() );
+            }
+    
+            try ( EntryCursor cursor = connection.search( "ou=system", "(OBJECTclass=*)", SearchScope.SUBTREE ) )
+            {
+                assertTrue( cursor.next() );
+            }
+    
+            try ( EntryCursor cursor = connection.search( "ou=system", "(objectclass=*)", SearchScope.SUBTREE ) )
+            {
+                assertTrue( cursor.next() );
+            }
 
-        e = sysRoot.search( "", "(!(bogusAttribute=abc123))", cons );
-        assertNotNull( e );
-        assertFalse( e.hasMore() );
-
-        e.close();
-
-        e = sysRoot.search( "", "(|(bogusAttribute=abc123)(bogusAttribute=abc123))", cons );
-        assertNotNull( e );
-        assertFalse( e.hasMore() );
-
-        e.close();
-
-        e = sysRoot.search( "", "(|(bogusAttribute=abc123)(ou=abc123))", cons );
-        assertNotNull( e );
-        assertFalse( e.hasMore() );
-
-        e.close();
-
-        e = sysRoot.search( "", "(OBJECTclass=*)", cons );
-        assertNotNull( e );
-        assertTrue( e.hasMore() );
-
-        e.close();
-
-        e = sysRoot.search( "", "(objectclass=*)", cons );
-        assertNotNull( e );
-
-        e.close();
-
-        getService().setAllowAnonymousAccess( oldSetAllowAnnonymousAccess );
+            getService().setAllowAnonymousAccess( oldSetAllowAnnonymousAccess );
+        }
     }
 
 
     @Test
     public void testSearchFilterArgs() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(|(ou={0})(ou={1}))", new Object[]
-            { "testing00", "testing01" }, controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(|(ou=testing00)(ou=testing01))", SearchScope.ONELEVEL ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 2, entries.size(), "Expected number of results returned was incorrect!" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ) );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ) );
         }
-
-        list.close();
-
-        assertEquals( 2, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
     }
 
 
     @Test
     public void testFilterExpansion0() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(name=testing00)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(name=testing00)", SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+            
+            assertEquals( 1, entries.size(), "size of results" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "size of results" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
     }
 
 
     @Test
     public void testFilterExpansion1() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(name=*)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(name=*)", SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 23, entries.size(), "size of results" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ), "contains ou=testing02,ou=system" );
+            assertTrue( entries.containsKey( "ou=configuration,ou=system" ), "contains ou=configuration,ou=system" );
+            assertTrue( entries.containsKey( "ou=groups,ou=system" ), "contains ou=groups,ou=system" );
+            assertTrue( entries.containsKey( "ou=interceptors,ou=configuration,ou=system" ), "contains ou=interceptors,ou=configuration,ou=system" );
+            assertTrue( entries.containsKey( "ou=partitions,ou=configuration,ou=system" ), "contains ou=partitions,ou=configuration,ou=system" );
+            assertTrue( entries.containsKey( "ou=services,ou=configuration,ou=system" ), "contains ou=services,ou=configuration,ou=system" );
+            assertTrue( entries.containsKey( "ou=subtest,ou=testing01,ou=system" ), "contains ou=subtest,ou=testing01,ou=system" );
+            assertTrue( entries.containsKey( "ou=system" ), "contains ou=system" );
+            assertTrue( entries.containsKey( "ou=users,ou=system" ), "contains ou=users,ou=system" );
+            assertTrue( entries.containsKey( "uid=admin,ou=system" ), "contains uid=admin,ou=system" );
+            assertTrue( entries.containsKey( "cn=Administrators,ou=groups,ou=system" ), "contains cn=administrators,ou=groups,ou=system" );
         }
-
-        list.close();
-
-        assertEquals( 23, map.size(), "size of results" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing02,ou=system" );
-        assertTrue( map.containsKey( "ou=configuration,ou=system" ), "contains ou=configuration,ou=system" );
-        assertTrue( map.containsKey( "ou=groups,ou=system" ), "contains ou=groups,ou=system" );
-        assertTrue( map.containsKey( "ou=interceptors,ou=configuration,ou=system" ), "contains ou=interceptors,ou=configuration,ou=system" );
-        assertTrue( map.containsKey( "ou=partitions,ou=configuration,ou=system" ), "contains ou=partitions,ou=configuration,ou=system" );
-        assertTrue( map.containsKey( "ou=services,ou=configuration,ou=system" ), "contains ou=services,ou=configuration,ou=system" );
-        assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ), "contains ou=subtest,ou=testing01,ou=system" );
-        assertTrue( map.containsKey( "ou=system" ), "contains ou=system" );
-        assertTrue( map.containsKey( "ou=users,ou=system" ), "contains ou=users,ou=system" );
-        assertTrue( map.containsKey( "uid=admin,ou=system" ), "contains uid=admin,ou=system" );
-        assertTrue( map.containsKey( "cn=Administrators,ou=groups,ou=system" ), "contains cn=administrators,ou=groups,ou=system" );
     }
 
 
     @Test
     public void testFilterExpansion2() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(|(name=testing00)(name=testing01))", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(|(name=testing00)(name=testing01))", SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 2, entries.size(), "size of results" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
         }
-
-        list.close();
-
-        assertEquals( 2, map.size(), "size of results" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
     }
 
 
     @Test
     public void testFilterExpansion4() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(name=testing*)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(name=testing*)", SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 6, entries.size(), "size of results" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing02,ou=system" ), "contains ou=testing02,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing03,ou=system" ), "contains ou=testing03,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing04,ou=system" ), "contains ou=testing04,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing05,ou=system" ), "contains ou=testing05,ou=system" );
         }
-
-        list.close();
-
-        assertEquals( 6, map.size(), "size of results" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
-        assertTrue( map.containsKey( "ou=testing02,ou=system" ), "contains ou=testing02,ou=system" );
-        assertTrue( map.containsKey( "ou=testing03,ou=system" ), "contains ou=testing03,ou=system" );
-        assertTrue( map.containsKey( "ou=testing04,ou=system" ), "contains ou=testing04,ou=system" );
-        assertTrue( map.containsKey( "ou=testing05,ou=system" ), "contains ou=testing05,ou=system" );
     }
 
 
     @Test
     public void testFilterExpansion5() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        String filter = "(|(2.5.4.11.1=testing*)(2.5.4.54=testing*)(2.5.4.10=testing*)"
-            + "(2.5.4.6=testing*)(2.5.4.43=testing*)(2.5.4.7.1=testing*)(2.5.4.10.1=testing*)"
-            + "(2.5.4.44=testing*)(2.5.4.11=testing*)(2.5.4.4=testing*)(2.5.4.8.1=testing*)"
-            + "(2.5.4.12=testing*)(1.3.6.1.4.1.18060.0.4.1.2.3=testing)"
-            + "(2.5.4.7=testing*)(2.5.4.3=testing*)(2.5.4.8=testing*)(2.5.4.42=testing*))";
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", filter, controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            String filter = "(|(2.5.4.11.1=testing*)(2.5.4.54=testing*)(2.5.4.10=testing*)"
+                + "(2.5.4.6=testing*)(2.5.4.43=testing*)(2.5.4.7.1=testing*)(2.5.4.10.1=testing*)"
+                + "(2.5.4.44=testing*)(2.5.4.11=testing*)(2.5.4.4=testing*)(2.5.4.8.1=testing*)"
+                + "(2.5.4.12=testing*)(1.3.6.1.4.1.18060.0.4.1.2.3=testing)"
+                + "(2.5.4.7=testing*)(2.5.4.3=testing*)(2.5.4.8=testing*)(2.5.4.42=testing*))";
+
+            try ( EntryCursor cursor = connection.search( "ou=system", filter, SearchScope.SUBTREE ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 6, entries.size(), "size of results" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing02,ou=system" ), "contains ou=testing02,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing03,ou=system" ), "contains ou=testing03,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing04,ou=system" ), "contains ou=testing04,ou=system" );
+            assertTrue( entries.containsKey( "ou=testing05,ou=system" ), "contains ou=testing05,ou=system" );
         }
-
-        list.close();
-
-        assertEquals( 6, map.size(), "size of results" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ), "contains ou=testing00,ou=system" );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ), "contains ou=testing01,ou=system" );
-        assertTrue( map.containsKey( "ou=testing02,ou=system" ), "contains ou=testing02,ou=system" );
-        assertTrue( map.containsKey( "ou=testing03,ou=system" ), "contains ou=testing03,ou=system" );
-        assertTrue( map.containsKey( "ou=testing04,ou=system" ), "contains ou=testing04,ou=system" );
-        assertTrue( map.containsKey( "ou=testing05,ou=system" ), "contains ou=testing05,ou=system" );
     }
 
 
     @Test
     public void testOpAttrDenormalizationOff() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "creatorsName" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing00)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing00)", SearchScope.ONELEVEL, "creatorsName" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+            
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ) );
+            Entry entry = entries.get( "ou=testing00,ou=system" );
+            assertTrue( entry.get( "creatorsName" ).contains( "uid=admin,ou=system" ) );
+            assertEquals( "0.9.2342.19200300.100.1.1= admin ,2.5.4.11= system ", entry.get(
+                "creatorsName" ).get().getNormalized(), "normalized creator's name" );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
-        Attributes attrs = map.get( "ou=testing00,ou=system" );
-        assertEquals( "0.9.2342.19200300.100.1.1= admin ,2.5.4.11= system ", attrs.get(
-            "creatorsName" ).get(), "normalized creator's name" );
     }
 
 
     @Test
     public void testOpAttrDenormalizationOn() throws Exception
     {
-        getService().setDenormalizeOpAttrsEnabled( true );
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "creatorsName" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing00)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing00)", SearchScope.ONELEVEL, "creatorsName" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+
+            getService().setDenormalizeOpAttrsEnabled( true );
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+            assertTrue( entries.containsKey( "ou=testing00,ou=system" ) );
+            Entry entry = entries.get( "ou=testing00,ou=system" );
+            assertTrue( entry.get( "creatorsName" ).contains( "uid=admin,ou=system" ) );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
-        Attributes attrs = map.get( "ou=testing00,ou=system" );
-        assertEquals( "uid=admin,ou=system", attrs.get( "creatorsName" ).get(), "normalized creator's name" );
-    }
-
-
-    /**
-     * Creation of required attributes of a person entry.
-     *
-     * @param cn the commonName of the person
-     * @param sn the surName of the person
-     * @return the attributes of a new person entry
-     */
-    protected Attributes getPersonAttributes( String sn, String cn ) throws LdapException
-    {
-        Attributes attributes = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: top",
-            "objectClass: person", "cn", cn, "sn", sn );
-
-        return attributes;
     }
 
 
@@ -702,343 +630,307 @@ public class SearchIT extends AbstractLdapTestUnit
             { 0x34, 0x56, 0x4e, 0x5f };
 
         // First let's add a some binary data representing a userCertificate
-        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
-        attrs.put( "userCertificate", certData );
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
+        {
+            connection.add( new DefaultEntry(
+                "cn=Kate Bush,ou=system",
+                "objectClass", "top", 
+                "objectClass", "person",
+                "objectClass", "strongAuthenticationUser",
+                "cn", "Bush",
+                "sn", "Kate Bush",
+                "userCertificate", certData
+                ) );
+            
+            // Search for kate by cn first
+            try ( EntryCursor cursor = connection.search( "ou=system", "(cn=Kate Bush)", SearchScope.ONELEVEL ) )
+            {
+                assertTrue( cursor.next() );
+                
+                Entry entry = cursor.get();
 
-        Attribute objectClasses = attrs.get( "objectClass" );
-        objectClasses.add( "strongAuthenticationUser" );
+                assertNotNull( entry );
+                assertEquals( "cn=Kate Bush,ou=system", entry.getDn().getName() );
+                
+                assertFalse( cursor.next() );
+            }
 
-        sysRoot.createSubcontext( "cn=Kate Bush", attrs );
-
-        // Search for kate by cn first
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration<SearchResult> enm = sysRoot.search( "", "(cn=Kate Bush)", controls );
-        assertTrue( enm.hasMore() );
-        SearchResult sr = enm.next();
-        assertNotNull( sr );
-        assertFalse( enm.hasMore() );
-
-        enm.close();
-
-        assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
-
-        enm = sysRoot.search( "", "(userCertificate=\\34\\56\\4E\\5F)", controls );
-        assertTrue( enm.hasMore() );
-        sr = enm.next();
-        assertNotNull( sr );
-        assertFalse( enm.hasMore() );
-        assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
-
-        enm.close();
+            try ( EntryCursor cursor = connection.search( "ou=system", "(userCertificate=\\34\\56\\4E\\5F)", SearchScope.ONELEVEL ) )
+            {
+                assertTrue( cursor.next() );
+                
+                Entry entry = cursor.get();
+                assertNotNull( entry );
+                assertEquals( "cn=Kate Bush,ou=system", entry.getDn().getName() );
+                
+                assertFalse( cursor.next() );
+            }
+        }
     }
 
 
     @Test
     public void testSearchOperationalAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "+" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing01)", SearchScope.ONELEVEL, "+" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+    
+            Entry entry = entries.get( "ou=testing01,ou=system" );
+    
+            assertNotNull( entry.get( "createTimestamp" ) );
+            assertNotNull( entry.get( "creatorsName" ) );
+            assertNull( entry.get( "objectClass" ) );
+            assertNull( entry.get( "ou" ) );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNotNull( attrs.get( "createTimestamp" ) );
-        assertNotNull( attrs.get( "creatorsName" ) );
-        assertNull( attrs.get( "objectClass" ) );
-        assertNull( attrs.get( "ou" ) );
     }
 
 
     @Test
     public void testSearchUserAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing01)", SearchScope.ONELEVEL, "*" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+    
+            Entry entry = entries.get( "ou=testing01,ou=system" );
+    
+            assertNotNull( entry.get( "objectClass" ) );
+            assertNotNull( entry.get( "ou" ) );
+            assertNull( entry.get( "createTimestamp" ) );
+            assertNull( entry.get( "creatorsName" ) );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNotNull( attrs.get( "objectClass" ) );
-        assertNotNull( attrs.get( "ou" ) );
-        assertNull( attrs.get( "createTimestamp" ) );
-        assertNull( attrs.get( "creatorsName" ) );
     }
 
 
     @Test
     public void testSearchUserAttrAndOpAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "*", "creatorsName" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing01)", SearchScope.ONELEVEL, "*",  "creatorsName" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+    
+            Entry entry = entries.get( "ou=testing01,ou=system" );
+    
+            assertNotNull( entry.get( "objectClass" ) );
+            assertNotNull( entry.get( "ou" ) );
+            assertNotNull( entry.get( "creatorsName" ) );
+            assertNull( entry.get( "createTimestamp" ) );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNotNull( attrs.get( "objectClass" ) );
-        assertNotNull( attrs.get( "ou" ) );
-        assertNotNull( attrs.get( "creatorsName" ) );
-        assertNull( attrs.get( "createTimestamp" ) );
     }
 
 
     @Test
     public void testSearchUserAttrAndNoAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "1.1", "ou" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing01)", SearchScope.ONELEVEL, "1.1", "ou" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+    
+            Entry entry = entries.get( "ou=testing01,ou=system" );
+    
+            assertNull( entry.get( "objectClass" ) );
+            assertNotNull( entry.get( "ou" ) );
+            assertNull( entry.get( "creatorsName" ) );
+            assertNull( entry.get( "createTimestamp" ) );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNull( attrs.get( "objectClass" ) );
-        assertNotNull( attrs.get( "ou" ) );
-        assertNull( attrs.get( "creatorsName" ) );
-        assertNull( attrs.get( "createTimestamp" ) );
     }
 
 
     @Test
     public void testSearchNoAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "1.1" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing01)", SearchScope.ONELEVEL, "1.1" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+    
+            Entry entry = entries.get( "ou=testing01,ou=system" );
+    
+            assertNull( entry.get( "objectClass" ) );
+            assertNull( entry.get( "ou" ) );
+            assertNull( entry.get( "creatorsName" ) );
+            assertNull( entry.get( "createTimestamp" ) );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNull( attrs.get( "objectClass" ) );
-        assertNull( attrs.get( "ou" ) );
-        assertNull( attrs.get( "creatorsName" ) );
-        assertNull( attrs.get( "createTimestamp" ) );
     }
 
 
     @Test
     public void testSearchAllAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=system", "(ou=testing01)", SearchScope.ONELEVEL, "+", "*" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+    
+            Entry entry = entries.get( "ou=testing01,ou=system" );
+    
+            assertNotNull( entry.get( "createTimestamp" ) );
+            assertNotNull( entry.get( "creatorsName" ) );
+            assertNotNull( entry.get( "objectClass" ) );
+            assertNotNull( entry.get( "ou" ) );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNotNull( attrs.get( "createTimestamp" ) );
-        assertNotNull( attrs.get( "creatorsName" ) );
-        assertNotNull( attrs.get( "objectClass" ) );
-        assertNotNull( attrs.get( "ou" ) );
     }
 
 
     /**
      * Search an entry and fetch an attribute with unknown option
-     * @throws NamingException if there are errors
+     * @throws Exception if there are errors
      */
     @Test
     @Disabled("We don't support options")
     public void testSearchFetchNonExistingAttributeOption() throws Exception
     {
-        SearchControls ctls = new SearchControls();
-        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        ctls.setReturningAttributes( new String[]
-            { "cn", "sn;unknownOption", "badAttr" } );
-
-        NamingEnumeration<SearchResult> result = sysRoot.search( RDN, FILTER, ctls );
-
-        if ( result.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult entry = result.next();
-            Attributes attrs = entry.getAttributes();
-            Attribute cn = attrs.get( "cn" );
-
-            assertNotNull( cn );
-            assertEquals( "Heather Nova", cn.get().toString() );
-
-            Attribute sn = attrs.get( "sn" );
-            assertNull( sn );
+            try ( EntryCursor cursor = connection.search( RDN + ",ou=system", FILTER, SearchScope.OBJECT, 
+                "cn", "sn;unknownOption", "badAttr" ) )
+            {
+                if ( cursor.next() )
+                {
+                    Entry entry = cursor.get();
+                    
+                    assertNotNull( entry.get( "cn" ) );
+                    assertEquals( "Heather Nova", entry.get( "cn" ).getString() );
+                    assertNull( entry.get( "sn" ) );
+                }
+            }
         }
-        else
-        {
-            fail( "entry " + RDN + " not found" );
-        }
-
-        result.close();
     }
 
 
     /**
      * Search an entry and fetch an attribute and all its subtypes
-     * @throws NamingException if there are errors
+     * @throws Exception if there are errors
      */
     @Test
     public void testSearchFetchAttributeAndSubTypes() throws Exception
     {
-        SearchControls ctls = new SearchControls();
-        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        ctls.setReturningAttributes( new String[]
-            { "name" } );
-
-        NamingEnumeration<SearchResult> result = sysRoot.search( RDN, FILTER, ctls );
-
-        if ( result.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult entry = result.next();
-            Attributes attrs = entry.getAttributes();
+            try ( EntryCursor cursor = connection.search( RDN + ",ou=system", FILTER, SearchScope.OBJECT, "name" ) )
+            {
+                assertTrue( cursor.next() );
+                
+                Entry entry = cursor.get(); 
 
-            // We should have get cn and sn only
-            assertEquals( 2, attrs.size() );
+                // We should have get cn and sn only
+                assertEquals( 2, entry.size() );
 
-            // Check CN
-            Attribute cn = attrs.get( "cn" );
+                // Check CN
+                Attribute cn = entry.get( "cn" );
+                assertNotNull( cn );
+                assertEquals( "Heather Nova", cn.get().toString() );
 
-            assertNotNull( cn );
-            assertEquals( "Heather Nova", cn.get().toString() );
-
-            // Assert SN
-            Attribute sn = attrs.get( "sn" );
-            assertNotNull( sn );
-            assertEquals( "Nova", sn.get().toString() );
+                // Assert SN
+                Attribute sn = entry.get( "sn" );
+                assertNotNull( sn );
+                assertEquals( "Nova", sn.get().toString() );
+                
+                // No more entry expected
+                assertFalse( cursor.next() );
+            }
         }
-        else
-        {
-            fail( "entry " + RDN + " not found" );
-        }
-
-        result.close();
     }
 
 
     /**
      * Search an entry and fetch an attribute with twice the same attributeType
-     * @throws NamingException if there are errors
+     * @throws Exception if there are errors
      */
     @Test
     public void testSearchFetchTwiceSameAttribute() throws Exception
     {
-        SearchControls ctls = new SearchControls();
-        ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        ctls.setReturningAttributes( new String[]
-            { "cn", "cn" } );
-
-        NamingEnumeration<SearchResult> result = sysRoot.search( RDN, FILTER, ctls );
-
-        if ( result.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult entry = result.next();
-            Attributes attrs = entry.getAttributes();
-            Attribute cn = attrs.get( "cn" );
+            try ( EntryCursor cursor = connection.search( RDN + ",ou=system", FILTER, SearchScope.OBJECT, "cn", "cn" ) )
+            {
+                assertTrue( cursor.next() );
+                
+                Entry entry = cursor.get(); 
+                
+                // We should have get cn
+                assertEquals( 1, entry.size() );
 
-            assertNotNull( cn );
-            assertEquals( "Heather Nova", cn.get().toString() );
+                // Check CN
+                Attribute cn = entry.get( "cn" );
+                assertNotNull( cn );
+                assertEquals( "Heather Nova", cn.get().toString() );
+                
+                // No more entry expected
+                assertFalse( cursor.next() );
+            }
         }
-        else
-        {
-            fail( "entry " + RDN + " not found" );
-        }
-
-        result.close();
     }
 
 
@@ -1050,28 +942,28 @@ public class SearchIT extends AbstractLdapTestUnit
     //        controls.setDerefLinkFlag( false );
     //        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES );
     //
-    //        List map = new ArrayList();
+    //        List entries = new ArrayList();
     //        NamingEnumeration list = sysRoot.search( "", "(name=*)", controls );
     //        while ( list.hasMore() )
     //        {
     //            SearchResult result = ( SearchResult ) list.next();
-    //            map.add( result.getName() );
+    //            entries.add( result.getName() );
     //        }
-    //        assertEquals( "size of results", 14, map.size() );
-    //        assertTrue( "contains ou=testing00,ou=system", map.contains( "ou=testing00,ou=system" ) );
-    //        assertTrue( "contains ou=testing01,ou=system", map.contains( "ou=testing01,ou=system" ) );
-    //        assertTrue( "contains ou=testing02,ou=system", map.contains( "ou=testing01,ou=system" ) );
-    //        assertTrue( "contains uid=akarasulu,ou=users,ou=system", map.contains( "uid=akarasulu,ou=users,ou=system" ) );
-    //        assertTrue( "contains ou=configuration,ou=system", map.contains( "ou=configuration,ou=system" ) );
-    //        assertTrue( "contains ou=groups,ou=system", map.contains( "ou=groups,ou=system" ) );
-    //        assertTrue( "contains ou=interceptors,ou=configuration,ou=system", map.contains( "ou=interceptors,ou=configuration,ou=system" ) );
-    //        assertTrue( "contains ou=partitions,ou=configuration,ou=system", map.contains( "ou=partitions,ou=configuration,ou=system" ) );
-    //        assertTrue( "contains ou=services,ou=configuration,ou=system", map.contains( "ou=services,ou=configuration,ou=system" ) );
-    //        assertTrue( "contains ou=subtest,ou=testing01,ou=system", map.contains( "ou=subtest,ou=testing01,ou=system" ) );
-    //        assertTrue( "contains ou=system", map.contains( "ou=system" ) );
-    //        assertTrue( "contains ou=users,ou=system", map.contains( "ou=users,ou=system" ) );
-    //        assertTrue( "contains uid=admin,ou=system", map.contains( "uid=admin,ou=system" ) );
-    //        assertTrue( "contains cn=administrators,ou=groups,ou=system", map.contains( "cn=administrators,ou=groups,ou=system" ) );
+    //        assertEquals( "size of results", 14, entries.size() );
+    //        assertTrue( "contains ou=testing00,ou=system", entries.contains( "ou=testing00,ou=system" ) );
+    //        assertTrue( "contains ou=testing01,ou=system", entries.contains( "ou=testing01,ou=system" ) );
+    //        assertTrue( "contains ou=testing02,ou=system", entries.contains( "ou=testing01,ou=system" ) );
+    //        assertTrue( "contains uid=akarasulu,ou=users,ou=system", entries.contains( "uid=akarasulu,ou=users,ou=system" ) );
+    //        assertTrue( "contains ou=configuration,ou=system", entries.contains( "ou=configuration,ou=system" ) );
+    //        assertTrue( "contains ou=groups,ou=system", entries.contains( "ou=groups,ou=system" ) );
+    //        assertTrue( "contains ou=interceptors,ou=configuration,ou=system", entries.contains( "ou=interceptors,ou=configuration,ou=system" ) );
+    //        assertTrue( "contains ou=partitions,ou=configuration,ou=system", entries.contains( "ou=partitions,ou=configuration,ou=system" ) );
+    //        assertTrue( "contains ou=services,ou=configuration,ou=system", entries.contains( "ou=services,ou=configuration,ou=system" ) );
+    //        assertTrue( "contains ou=subtest,ou=testing01,ou=system", entries.contains( "ou=subtest,ou=testing01,ou=system" ) );
+    //        assertTrue( "contains ou=system", entries.contains( "ou=system" ) );
+    //        assertTrue( "contains ou=users,ou=system", entries.contains( "ou=users,ou=system" ) );
+    //        assertTrue( "contains uid=admin,ou=system", entries.contains( "uid=admin,ou=system" ) );
+    //        assertTrue( "contains cn=administrators,ou=groups,ou=system", entries.contains( "cn=administrators,ou=groups,ou=system" ) );
     //    }
 
     /**
@@ -1081,27 +973,26 @@ public class SearchIT extends AbstractLdapTestUnit
      * @param controls the search controls
      * @param filter the filter expression
      * @return the set of groups
-     * @throws NamingException if there are problems conducting the search
+     * @throws Exception if there are problems conducting the search
      */
-    public Set<String> searchGroups( String filter, SearchControls controls ) throws Exception
+    public Set<String> searchGroups( String filter, SearchScope scope ) throws Exception
     {
-        if ( controls == null )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            controls = new SearchControls();
+            try ( EntryCursor cursor = connection.search( "ou=groups,ou=system", filter, scope ) )
+            {
+                Set<String> results = new HashSet<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    results.add( entry.getDn().getName() );
+                }
+
+                return results;
+            }
         }
-
-        Set<String> results = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = getSystemContext( getService() ).search( "ou=groups", filter, controls );
-
-        while ( list.hasMore() )
-        {
-            SearchResult result = list.next();
-            results.add( result.getName() );
-        }
-
-        list.close();
-
-        return results;
     }
 
 
@@ -1111,38 +1002,11 @@ public class SearchIT extends AbstractLdapTestUnit
      *
      * @param filter the filter expression
      * @return the set of group names
-     * @throws NamingException if there are problems conducting the search
+     * @throws Exception if there are problems conducting the search
      */
     public Set<String> searchGroups( String filter ) throws Exception
     {
-        return searchGroups( filter, null );
-    }
-
-
-    /**
-     *  Convenience method that performs a one level search using the
-     *  specified filter returning their DNs as Strings in a set.
-     *
-     * @param controls the search controls
-     * @return the set of groups
-     * @throws NamingException if there are problems conducting the search
-     */
-    public Set<String> searchRevisions( String filter ) throws Exception
-    {
-        SearchControls controls = new SearchControls();
-
-        Set<String> results = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = getSystemContext( getService() ).search( "", filter, controls );
-
-        while ( list.hasMore() )
-        {
-            SearchResult result = list.next();
-            results.add( result.getName() );
-        }
-
-        list.close();
-
-        return results;
+        return searchGroups( filter, SearchScope.SUBTREE );
     }
 
 
@@ -1153,27 +1017,26 @@ public class SearchIT extends AbstractLdapTestUnit
      * @param controls the search controls
      * @param filter the filter expression
      * @return the set of groups
-     * @throws NamingException if there are problems conducting the search
+     * @throws Exception if there are problems conducting the search
      */
-    private Set<String> searchUnits( String filter, SearchControls controls ) throws Exception
+    private Set<String> searchUnits( String filter, SearchScope scope ) throws Exception
     {
-        if ( controls == null )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            controls = new SearchControls();
+            try ( EntryCursor cursor = connection.search( "ou=system", filter, scope ) )
+            {
+                Set<String> results = new HashSet<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    results.add( entry.getDn().getName() );
+                }
+
+                return results;
+            }
         }
-
-        Set<String> results = new HashSet<String>();
-        NamingEnumeration<SearchResult> list = getSystemContext( getService() ).search( "", filter, controls );
-
-        while ( list.hasMore() )
-        {
-            SearchResult result = list.next();
-            results.add( result.getName() );
-        }
-
-        list.close();
-
-        return results;
     }
 
 
@@ -1288,10 +1151,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testNotOperatorSubtree() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-
-        Set<String> results = searchGroups( "(!(gidNumber=4))", controls );
+        Set<String> results = searchGroups( "(!(gidNumber=4))", SearchScope.SUBTREE );
         assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
         assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
@@ -1304,101 +1164,88 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchWithEscapedCharsInFilter() throws Exception
     {
-        // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person",
-            "cn: Sid Vicious",
-            "sn: Vicious", "description: (sex*pis\\tols)" );
-
-        DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
-        assertNotNull( ctx );
-
-        ctx = ( DirContext ) sysRoot.lookup( "cn=Sid Vicious" );
-        assertNotNull( ctx );
-
-        Attributes attributes = ctx.getAttributes( "" );
-
-        assertEquals( "(sex*pis\\tols)", attributes.get( "description" ).get() );
-
-        // Now, search for the description
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-
-        controls.setReturningAttributes( new String[]
-            { "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot
-            .search( "", "(description=\\28sex\\2Apis\\5Ctols\\29)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            // Create entry cn=Sid Vicious, ou=system
+            connection.add( new DefaultEntry( 
+                "cn=Sid Vicious,ou=system",
+                "objectClass: top", 
+                "objectClass: person",
+                "cn: Sid Vicious",
+                "sn: Vicious", 
+                "description: (sex*pis\\tols)"
+                ) );
+    
+            Entry sid = connection.lookup( "cn=Sid Vicious,ou=system" );
+            
+            assertNotNull( sid );
+            assertEquals( "(sex*pis\\tols)", sid.get( "description" ).getString() );
+    
+            // Now, search for the description
+            try ( EntryCursor cursor = connection.search( "ou=system", "(description=\\28sex\\2Apis\\5Ctols\\29)", SearchScope.SUBTREE, "*" ) )
+            {
+                Map<String, Entry> results = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    results.put( entry.getDn().getName(), entry );
+                }
+    
+                assertEquals( 1, results.size(), "Expected number of results returned was incorrect!" );
+        
+                Entry entry = results.get( "cn=Sid Vicious,ou=system" );
+        
+                assertNotNull( entry.get( "objectClass" ) );
+                assertNotNull( entry.get( "cn" ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "cn=Sid Vicious,ou=system" );
-
-        assertNotNull( attrs.get( "objectClass" ) );
-        assertNotNull( attrs.get( "cn" ) );
     }
 
 
     @Test
     public void testSubstringSearchWithEscapedCharsInFilter() throws Exception
     {
-        // Create entry cn=Sid Vicious, ou=system
-        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person",
-            "cn: Sid Vicious",
-            "sn: Vicious", "description: (sex*pis\\\\tols)" );
-
-        DirContext ctx = sysRoot.createSubcontext( "cn=Sid Vicious", vicious );
-        assertNotNull( ctx );
-
-        ctx = ( DirContext ) sysRoot.lookup( "cn=Sid Vicious" );
-        assertNotNull( ctx );
-
-        Attributes attributes = ctx.getAttributes( "" );
-
-        assertEquals( "(sex*pis\\\\tols)", attributes.get( "description" ).get() );
-
-        // Now, search for the description
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        String[] filters = new String[]
-            { /*"(description=*\\28*)", "(description=*\\29*)", "(description=*\\2A*)",*/ "(description=*\\5C*)" };
-
-        for ( String filter : filters )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-            NamingEnumeration<SearchResult> list = sysRoot.search( "", filter, controls );
+            // Create entry cn=Sid Vicious, ou=system
+            connection.add( new DefaultEntry( 
+                "cn=Sid Vicious,ou=system",
+                "objectClass: top", 
+                "objectClass: person",
+                "cn: Sid Vicious",
+                "sn: Vicious", 
+                "description: (sex*pis\\\\tols)"
+                ) );
+    
+            Entry sid = connection.lookup( "cn=Sid Vicious,ou=system" );
+            
+            assertNotNull( sid );
+            assertEquals( "(sex*pis\\\\tols)", sid.get( "description" ).getString() );
 
-            while ( list.hasMore() )
+
+            // Now, search for the description
+            try ( EntryCursor cursor = connection.search( "ou=system", 
+                /*"(description=*\\28*)", "(description=*\\29*)", "(description=*\\2A*)",*/ "(description=*\\5C*)", 
+                SearchScope.SUBTREE, "*" ) )
             {
-                SearchResult result = list.next();
-                map.put( result.getName(), result.getAttributes() );
+                Map<String, Entry> results = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    results.put( entry.getDn().getName(), entry );
+                }
+
+                assertEquals( 1, results.size(), "Expected number of results returned was incorrect!" );
+    
+                Entry entry = results.get( "cn=Sid Vicious,ou=system" );
+    
+                assertNotNull( entry.get( "objectClass" ) );
+                assertNotNull( entry.get( "cn" ) );
             }
-
-            list.close();
-
-            assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-            Attributes attrs = map.get( "cn=Sid Vicious,ou=system" );
-
-            assertNotNull( attrs.get( "objectClass" ) );
-            assertNotNull( attrs.get( "cn" ) );
         }
     }
 
@@ -1406,31 +1253,57 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSubstringSearchWithEscapedAsterisksInFilter_DIRSERVER_1181() throws Exception
     {
-        Attributes vicious = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: person", "cn: x*y*z*",
-            "sn: x*y*z*", "description: (sex*pis\\tols)" );
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
+        {
+            connection.add( new DefaultEntry(
+                "cn=x*y*z*,ou=system",
+                "objectClass: top", 
+                "objectClass: person", 
+                "cn: x*y*z*",
+                "sn: x*y*z*", 
+                "description: (sex*pis\\tols)"
+                ) );
+        
+            try ( EntryCursor cursor = connection.search( "ou=system", "(cn=*x\\2Ay\\2Az\\2A*)", SearchScope.ONELEVEL, "cn" ) )
+            {
+                Entry entry = null;
 
-        sysRoot.createSubcontext( "cn=x*y*z*", vicious );
+                while ( cursor.next() )
+                {
+                    if ( entry == null )
+                    {
+                        entry = cursor.get();
+                    }
+                    else
+                    {
+                        fail( "Cannot have 2 entries" );
+                    }
+                }
 
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setReturningAttributes( new String[]
-            { "cn" } );
-        NamingEnumeration<SearchResult> res;
+                assertNotNull( entry );
+                assertEquals( "x*y*z*", entry.get( "cn" ).getString() );
+            }
 
-        res = sysRoot.search( "", "(cn=*x\\2Ay\\2Az\\2A*)", controls );
-        assertTrue( res.hasMore() );
-        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
-        assertFalse( res.hasMore() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(cn=*x*y*z*)", SearchScope.ONELEVEL, "cn" ) )
+            {
+                Entry entry = null;
 
-        res.close();
+                while ( cursor.next() )
+                {
+                    if ( entry == null )
+                    {
+                        entry = cursor.get();
+                    }
+                    else
+                    {
+                        fail( "Cannot have 2 entries" );
+                    }
+                }
 
-        res = sysRoot.search( "", "(cn=*{0}*)", new String[]
-            { "x*y*z*" }, controls );
-        assertTrue( res.hasMore() );
-        assertEquals( "x*y*z*", res.next().getAttributes().get( "cn" ).get() );
-        assertFalse( res.hasMore() );
-
-        res.close();
+                assertNotNull( entry );
+                assertEquals( "x*y*z*", entry.get( "cn" ).getString() );
+            }
+        }
     }
 
 
@@ -1440,21 +1313,19 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testBadFilter() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        try
+        // With LDAP API 2.1.3
+        //assertThrows( LdapInvalidSearchFilterException.class, () ->
+        // With LDAP API 2.1.2
+        assertThrows( LdapProtocolErrorException.class, () ->
         {
-            sysRoot.search( "", "(|(name=testing00)(name=testing01)", controls );
-            fail();
-        }
-        catch ( InvalidSearchFilterException isfe )
-        {
-            assertTrue( true );
-        }
+            try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
+            {
+                try ( EntryCursor cursor = connection.search( "ou=system", "(|(name=testing00)(name=testing01)", SearchScope.SUBTREE ) )
+                {
+                    fail();
+                }
+            }
+        } );
     }
 
 
@@ -1462,7 +1333,7 @@ public class SearchIT extends AbstractLdapTestUnit
      * Search operation with a base Dn with quotes
      * Commented as it's not valid by RFC 5514
     @Test
-    public void testSearchWithQuotesInBase() throws NamingException
+    public void testSearchWithQuotesInBase() throws Exception
     {
         LdapContext sysRoot = getSystemContext( getService() );
         createData( sysRoot );
@@ -1506,7 +1377,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testIntegerComparison() throws Exception
     {
-        Set<String> results = searchUnits( "(&(objectClass=organizationalUnit)(integerAttribute<=2))", null );
+        Set<String> results = searchUnits( "(&(objectClass=organizationalUnit)(integerAttribute<=2))", SearchScope.SUBTREE );
         assertTrue( results.contains( "ou=testing00,ou=system" ) );
         assertTrue( results.contains( "ou=testing01,ou=system" ) );
         assertTrue( results.contains( "ou=testing02,ou=system" ) );
@@ -1526,7 +1397,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testIntegerComparison2() throws Exception
     {
-        Set<String> results = searchUnits( "(&(objectClass=organizationalUnit)(integerAttribute>=3))", null );
+        Set<String> results = searchUnits( "(&(objectClass=organizationalUnit)(integerAttribute>=3))", SearchScope.SUBTREE );
         assertFalse( results.contains( "ou=testing00,ou=system" ) );
         assertFalse( results.contains( "ou=testing01,ou=system" ) );
         assertFalse( results.contains( "ou=testing02,ou=system" ) );
@@ -1546,7 +1417,7 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testIntegerComparison3() throws Exception
     {
-        Set<String> results = searchUnits( "(&(objectClass=organizationalUnit)(integerAttribute<=42))", null );
+        Set<String> results = searchUnits( "(&(objectClass=organizationalUnit)(integerAttribute<=42))", SearchScope.SUBTREE );
         assertTrue( results.contains( "ou=testing00,ou=system" ) );
         assertTrue( results.contains( "ou=testing01,ou=system" ) );
         assertTrue( results.contains( "ou=testing02,ou=system" ) );
@@ -1567,7 +1438,7 @@ public class SearchIT extends AbstractLdapTestUnit
     public void testIntegerComparison4() throws Exception
     {
         Set<String> results = searchUnits(
-            "(&(objectClass=organizationalUnit)(|(integerAttribute<=1)(integerAttribute>=5)))", null );
+            "(&(objectClass=organizationalUnit)(|(integerAttribute<=1)(integerAttribute>=5)))", SearchScope.SUBTREE );
         assertTrue( results.contains( "ou=testing00,ou=system" ) );
         assertTrue( results.contains( "ou=testing01,ou=system" ) );
         assertFalse( results.contains( "ou=testing02,ou=system" ) );
@@ -1576,91 +1447,89 @@ public class SearchIT extends AbstractLdapTestUnit
         assertTrue( results.contains( "ou=testing05,ou=system" ) );
     }
 
-
     @Test
     public void testSearchTelephoneNumber() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(telephoneNumber=18015551212)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(telephoneNumber=18015551212)", SearchScope.ONELEVEL ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+
+                assertEquals( 2, entries.size(), "Expected number of results returned was incorrect!" );
+                assertTrue( entries.containsKey( "cn=Heather Nova, ou=system" ) || entries.containsKey( "cn=Heather Nova,ou=system" ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 2, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "cn=Heather Nova, ou=system" ) || map.containsKey( "cn=Heather Nova,ou=system" ) );
     }
 
 
     @Test
     public void testSearchDN() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(manager=cn=Heather Nova, ou=system)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "ou=system", "(manager=cn=Heather Nova, ou=system)", SearchScope.SUBTREE ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+        
+                assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+                assertTrue( entries.containsKey( "cn=with-dn, ou=system" ) || entries.containsKey( "cn=with-dn,ou=system" ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "cn=with-dn, ou=system" ) || map.containsKey( "cn=with-dn,ou=system" ) );
     }
 
 
     @Test
     public void testComplexFilter() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-
-        // Create an entry which does not match
-        Attributes attrs = LdifUtils.createJndiAttributes( "objectClass: top", "objectClass: groupOfUniqueNames",
-            "cn: testGroup3", "uniqueMember: uid=admin,ou=system" );
-
-        getSystemContext( getService() ).createSubcontext( "cn=testGroup3,ou=groups", attrs );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        String filter = "(|(&(|(2.5.4.0=posixgroup)(2.5.4.0=groupofuniquenames)(2.5.4.0=groupofnames)(2.5.4.0=group))(!(|(2.5.4.50=uid=admin,ou=system)(2.5.4.31=0.9.2342.19200300.100.1.1=admin,2.5.4.11=system))))(objectClass=referral))";
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", filter, controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            String filter = "(|(&(|(2.5.4.0=posixgroup)(2.5.4.0=groupofuniquenames)(2.5.4.0=groupofnames)(2.5.4.0=group))(!(|(2.5.4.50=uid=admin,ou=system)(2.5.4.31=0.9.2342.19200300.100.1.1=admin,2.5.4.11=system))))(objectClass=referral))";
+
+            // Create an entry which does not match
+            connection.add( new DefaultEntry( 
+                "cn=testGroup3,ou=groups,ou=system",
+                "objectClass: top", 
+                "objectClass: groupOfUniqueNames",
+                "cn: testGroup3", 
+                "uniqueMember: uid=admin,ou=system" ) );
+
+            try ( EntryCursor cursor = connection.search( "ou=system", filter, SearchScope.SUBTREE ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+
+                assertEquals( 5, entries.size(), "size of results" );
+                assertTrue( entries.containsKey( "cn=testGroup0,ou=groups,ou=system" ) );
+                assertTrue( entries.containsKey( "cn=testGroup1,ou=groups,ou=system" ) );
+                assertTrue( entries.containsKey( "cn=testGroup2,ou=groups,ou=system" ) );
+                assertTrue( entries.containsKey( "cn=testGroup4,ou=groups,ou=system" ) );
+                assertTrue( entries.containsKey( "cn=testGroup5,ou=groups,ou=system" ) );
+                assertFalse( entries.containsKey( "cn=testGroup3,ou=groups,ou=system" ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 5, map.size(), "size of results" );
-        assertTrue( map.containsKey( "cn=testGroup0,ou=groups,ou=system" ) );
-        assertTrue( map.containsKey( "cn=testGroup1,ou=groups,ou=system" ) );
-        assertTrue( map.containsKey( "cn=testGroup2,ou=groups,ou=system" ) );
-        assertTrue( map.containsKey( "cn=testGroup4,ou=groups,ou=system" ) );
-        assertTrue( map.containsKey( "cn=testGroup5,ou=groups,ou=system" ) );
-        assertFalse( map.containsKey( "cn=testGroup3,ou=groups,ou=system" ) );
     }
+    
 
 
     /**
@@ -1669,32 +1538,33 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchTypesOnlyAndNoAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "1.1" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        sysRoot.addToEnvironment( "java.naming.ldap.typesOnly", "true" );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            SearchRequest searchRequest = new SearchRequestImpl();
+            searchRequest.setBase( new Dn( "ou=system" ) );
+            searchRequest.setFilter( "(ou=testing01)" );
+            searchRequest.setScope( SearchScope.ONELEVEL );
+            searchRequest.setTypesOnly( true );
+            searchRequest.addAttributes( "1.1" );
+            
+            try ( SearchCursor cursor = connection.search( searchRequest ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.getEntry(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+        
+                assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+        
+                Entry entry = entries.get( "ou=testing01,ou=system" );
+        
+                assertEquals( 0, entry.size() );
+            }
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertEquals( 0, attrs.size() );
     }
 
 
@@ -1704,36 +1574,37 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchTypesOnlyWithNoAttrAndOperationalAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "1.1", "+" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        sysRoot.addToEnvironment( "java.naming.ldap.typesOnly", "true" );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            SearchRequest searchRequest = new SearchRequestImpl();
+            searchRequest.setBase( new Dn( "ou=system" ) );
+            searchRequest.setFilter( "(ou=testing01)" );
+            searchRequest.setScope( SearchScope.ONELEVEL );
+            searchRequest.setTypesOnly( true );
+            searchRequest.addAttributes( "1.1", "+" );
+            
+            try ( SearchCursor cursor = connection.search( searchRequest ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.getEntry(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+
+                assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+        
+                Entry entry = entries.get( "ou=testing01,ou=system" );
+        
+                assertNotNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
+                assertNotNull( entry.get( SchemaConstants.CREATORS_NAME_AT ) );
+        
+                assertEquals( 0, entry.get( SchemaConstants.ENTRY_UUID_AT ).size() );
+                assertEquals( 0, entry.get( SchemaConstants.CREATORS_NAME_AT ).size() );
+            }
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNotNull( attrs.get( SchemaConstants.ENTRY_UUID_AT ) );
-        assertNotNull( attrs.get( SchemaConstants.CREATORS_NAME_AT ) );
-
-        assertEquals( 0, attrs.get( SchemaConstants.ENTRY_UUID_AT ).size() );
-        assertEquals( 0, attrs.get( SchemaConstants.CREATORS_NAME_AT ).size() );
     }
 
 
@@ -1743,230 +1614,226 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchTypesOnlyWithNullReturnAttr() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        sysRoot.addToEnvironment( "java.naming.ldap.typesOnly", "true" );
-
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(ou=testing01)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            SearchRequest searchRequest = new SearchRequestImpl();
+            searchRequest.setBase( new Dn( "ou=system" ) );
+            searchRequest.setFilter( "(ou=testing01)" );
+            searchRequest.setScope( SearchScope.ONELEVEL );
+            searchRequest.setTypesOnly( true );
+            
+            try ( SearchCursor cursor = connection.search( searchRequest ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.getEntry(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+        
+                assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+        
+                Entry entry = entries.get( "ou=testing01,ou=system" );
+        
+                assertNotNull( entry.get( SchemaConstants.OU_AT ) );
+                assertNotNull( entry.get( "integerAttribute" ) );
+        
+                assertEquals( 0, entry.get( SchemaConstants.OU_AT ).size() );
+                assertEquals( 0, entry.get( "integerAttribute" ).size() );
+        
+                assertNull( entry.get( SchemaConstants.ENTRY_UUID_AT ) );
+                assertNull( entry.get( SchemaConstants.CREATORS_NAME_AT ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNotNull( attrs.get( SchemaConstants.OU_AT ) );
-        assertNotNull( attrs.get( "integerAttribute" ) );
-
-        assertEquals( 0, attrs.get( SchemaConstants.OU_AT ).size() );
-        assertEquals( 0, attrs.get( "integerAttribute" ).size() );
-
-        assertNull( attrs.get( SchemaConstants.ENTRY_UUID_AT ) );
-        assertNull( attrs.get( SchemaConstants.CREATORS_NAME_AT ) );
     }
 
 
     @Test
     public void testSearchEmptyDNWithOneLevelScope() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-
-        LdapContext nullRootCtx = getRootContext( getService() );
-
-        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=*)", controls );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "", "(objectClass=*)", SearchScope.ONELEVEL ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+        
+                assertEquals( 2, entries.size() );
+                assertTrue( entries.containsKey( "ou=system" ) );
+                assertTrue( entries.containsKey( "ou=schema" ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 2, map.size() );
-
-        assertTrue( map.containsKey( "ou=system" ) );
-        assertTrue( map.containsKey( "ou=schema" ) );
     }
 
 
     @Test
     public void testSearchEmptyDNWithSubLevelScope() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-
-        LdapContext nullRootCtx = getRootContext( getService() );
-
-        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=organizationalUnit)", controls );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "", "(objectClass=organizationalUnit)", SearchScope.SUBTREE ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+        
+                assertTrue( entries.size() > 2 );
+                assertTrue( entries.containsKey( "ou=system" ) );
+                assertTrue( entries.containsKey( "ou=schema" ) );
+            }
         }
-
-        list.close();
-
-        assertTrue( map.size() > 2 );
-
-        assertTrue( map.containsKey( "ou=system" ) );
-        assertTrue( map.containsKey( "ou=schema" ) );
     }
 
 
     @Test
     public void testSearchEmptyDNWithObjectScopeAndNoObjectClassPresenceFilter() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setDerefLinkFlag( false );
-
-        LdapContext nullRootCtx = getRootContext( getService() );
-
-        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=domain)", controls );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "", "(objectClass=domain)", SearchScope.OBJECT ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+
+                assertEquals( 0, entries.size() );
+        
+                assertFalse( entries.containsKey( "ou=system" ) );
+                assertFalse( entries.containsKey( "ou=schema" ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 0, map.size() );
-
-        assertFalse( map.containsKey( "ou=system" ) );
-        assertFalse( map.containsKey( "ou=schema" ) );
     }
 
 
     @Test
     public void testSearchRootDSE() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "*", "+" } );
-
-        LdapContext nullRootCtx = getRootContext( getService() );
-
-        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(objectClass=*)", controls );
-        Attributes rootDse = null;
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            rootDse = result.getAttributes();
+            try ( EntryCursor cursor = connection.search( "", "(objectClass=*)", SearchScope.OBJECT, "*", "+" ) )
+            {
+                Entry rootDse = null;
+
+                while ( cursor.next() )
+                {
+                    if ( rootDse == null )
+                    {
+                        rootDse = cursor.get();
+                    }
+                    else
+                    {
+                        fail( "Cannot have 2 root DSE" );
+                    }
+                }
+
+                assertNotNull( rootDse );
+        
+                assertEquals( 10, rootDse.size() );
+                assertNotNull( rootDse.get( "objectClass" ) );
+                assertNotNull( rootDse.get( "entryUUID" ) );
+                assertNotNull( rootDse.get( "namingContexts" ) );
+                assertNotNull( rootDse.get( "subschemaSubentry" ) );
+                assertNotNull( rootDse.get( "supportedControl" ) );
+                assertNotNull( rootDse.get( "supportedExtension" ) );
+                assertNotNull( rootDse.get( "supportedFeatures" ) );
+                assertNotNull( rootDse.get( "supportedLDAPVersion" ) );
+                assertNotNull( rootDse.get( "vendorName" ) );
+                assertNotNull( rootDse.get( "vendorVersion" ) );
+            }
         }
-
-        list.close();
-
-        assertNotNull( rootDse );
-
-        assertEquals( 10, rootDse.size() );
-        assertNotNull( rootDse.get( "objectClass" ) );
-        assertNotNull( rootDse.get( "entryUUID" ) );
-        assertNotNull( rootDse.get( "namingContexts" ) );
-        assertNotNull( rootDse.get( "subschemaSubentry" ) );
-        assertNotNull( rootDse.get( "supportedControl" ) );
-        assertNotNull( rootDse.get( "supportedExtension" ) );
-        assertNotNull( rootDse.get( "supportedFeatures" ) );
-        assertNotNull( rootDse.get( "supportedLDAPVersion" ) );
-        assertNotNull( rootDse.get( "vendorName" ) );
-        assertNotNull( rootDse.get( "vendorVersion" ) );
     }
 
 
     @Test
     public void testSearchEmptyDNWithOneLevelScopeAndNoObjectClassPresenceFilter() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-
-        LdapContext nullRootCtx = getRootContext( getService() );
-
-        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(cn=*)", controls );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = connection.search( "", "(cn=*)", SearchScope.ONELEVEL ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+
+                assertEquals( 0, entries.size() );
+                assertFalse( entries.containsKey( "ou=system" ) );
+                assertFalse( entries.containsKey( "ou=schema" ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 0, map.size() );
-
-        assertFalse( map.containsKey( "ou=system" ) );
-        assertFalse( map.containsKey( "ou=schema" ) );
     }
 
 
     @Test
     public void testCsnLessEqualitySearch() throws Exception
     {
-        LdapConnection connection = IntegrationUtils.getAdminConnection( getService() );
-
-        Dn dn = new Dn( "cn=testLowerCsnAdd,ou=system" );
-        Entry entry = new DefaultEntry( dn );
-        entry.add( "objectClass", SchemaConstants.PERSON_OC );
-        entry.add( "cn", "testLowerCsnAdd_cn" );
-        entry.add( "sn", "testLowerCsnAdd_sn" );
-
-        connection.add( entry );
-
-        // add an entry to have a entry with higher CSN value
-        Dn dn2 = new Dn( "cn=testHigherCsnAdd,ou=system" );
-        Entry entry2 = new DefaultEntry( dn2,
-            "objectClass :person",
-            "cn: testHigherCsnAdd_cn",
-            "sn: testHigherCsnAdd_sn" );
-
-        connection.add( entry2 );
-
-        entry = connection.lookup( dn.getName(), "+" );
-        entry2 = connection.lookup( dn2.getName(), "+" );
-
-        String lowerCsn = entry.get( "entryCsn" ).getString();
-        String higherCsn = entry2.get( "entryCsn" ).getString();
-
-        // usecases
-        // 1.1 Less than or Equal ( with the lower csn value)
-        testUseCases( lowerCsn, new String[]
-            { lowerCsn }, connection, 1 );
-
-        // 1.2 Less than or equals with a highest csn value
-        testUseCases( higherCsn, new String[]
-            { higherCsn, lowerCsn }, connection, 1 );
-
-        // 2.1 Greater than or Equal ( with the highest csn value )
-        testUseCases( higherCsn, new String[]
-            { higherCsn }, connection, 2 );
-
-        // 2.2 Greater than or Equal ( with lower csn value )
-        testUseCases( lowerCsn, new String[]
-            { higherCsn, lowerCsn }, connection, 2 );
+        try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
+        {
+            Dn dn = new Dn( "cn=testLowerCsnAdd,ou=system" );
+            
+            Entry entry = new DefaultEntry( 
+                dn,
+                "objectClass", SchemaConstants.PERSON_OC,
+                "cn", "testLowerCsnAdd_cn",
+                "sn", "testLowerCsnAdd_sn" );
+    
+            connection.add( entry );
+    
+            // add an entry to have a entry with higher CSN value
+            Dn dn2 = new Dn( "cn=testHigherCsnAdd,ou=system" );
+            Entry entry2 = new DefaultEntry( 
+                dn2,
+                "objectClass: person",
+                "cn: testHigherCsnAdd_cn",
+                "sn: testHigherCsnAdd_sn" );
+    
+            connection.add( entry2 );
+    
+            entry = connection.lookup( dn.getName(), "+" );
+            entry2 = connection.lookup( dn2.getName(), "+" );
+    
+            String lowerCsn = entry.get( "entryCsn" ).getString();
+            String higherCsn = entry2.get( "entryCsn" ).getString();
+    
+            // usecases
+            // 1.1 Less than or Equal ( with the lower csn value)
+            testUseCases( lowerCsn, new String[]
+                { lowerCsn }, connection, 1 );
+    
+            // 1.2 Less than or equals with a highest csn value
+            testUseCases( higherCsn, new String[]
+                { higherCsn, lowerCsn }, connection, 1 );
+    
+            // 2.1 Greater than or Equal ( with the highest csn value )
+            testUseCases( higherCsn, new String[]
+                { higherCsn }, connection, 2 );
+    
+            // 2.2 Greater than or Equal ( with lower csn value )
+            testUseCases( lowerCsn, new String[]
+                { higherCsn, lowerCsn }, connection, 2 );
+        }
     }
 
 
@@ -1979,26 +1846,26 @@ public class SearchIT extends AbstractLdapTestUnit
 
         if ( useCaseNum == 1 )
         {
-            filter = new LessEqNode( entryCsnAt, val );
+            filter = new LessEqNode<>( entryCsnAt, val );
         }
         else if ( useCaseNum == 2 )
         {
-            filter = new GreaterEqNode( entryCsnAt, val );
+            filter = new GreaterEqNode<>( entryCsnAt, val );
         }
 
         Entry loadedEntry = null;
 
-        Set<String> csnSet = new HashSet<String>( expectedCsns.length );
-        EntryCursor cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*", "+" );
-
-        while ( cursor.next() )
+        Set<String> csnSet = new HashSet<>( expectedCsns.length );
+        
+        try ( EntryCursor cursor = connection.search( "ou=system", filter.toString(), SearchScope.ONELEVEL, "*", "+" ) )
         {
-            loadedEntry = cursor.get();
-            csnSet.add( loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+            while ( cursor.next() )
+            {
+                loadedEntry = cursor.get();
+                csnSet.add( loadedEntry.get( SchemaConstants.ENTRY_CSN_AT ).getString() );
+            }
         }
-
-        cursor.close();
-
+        
         assertTrue( csnSet.size() >= expectedCsns.length );
 
         for ( String csn : expectedCsns )
@@ -2011,102 +1878,100 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchFilterWithBadAttributeType() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(|(badAttr={0})(ou={1}))", new Object[]
-            { "testing00", "testing01" }, controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection con = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = con.search( "ou=system", "(|(badAttr=testing00)(ou=testing01))", SearchScope.ONELEVEL ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+    
+                assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+                assertTrue( entries.containsKey( "ou=testing01,ou=system" ) );
+            }
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-        assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
     }
 
 
     @Test
     public void testSearchFilterBadAttributeType() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "", "(badAttr=*)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection con = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            try ( EntryCursor cursor = con.search( "ou=system", "(badAttr=*)", SearchScope.ONELEVEL ) )
+            {
+                Map<String, Entry> entries = new HashMap<>();
+
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+                
+                assertEquals( 0, entries.size(), "Expected number of results returned was incorrect!" );
+            }
         }
-
-        list.close();
-
-        assertEquals( 0, map.size(), "Expected number of results returned was incorrect!" );
     }
 
 
     @Test
     public void testSearchRootDSESubtree() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "*", "+" } );
-
-        LdapContext nullRootCtx = getRootContext( getService() );
-
-        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(ou=testing01)", controls );
-        Attributes rootDse = null;
-
-        while ( list.hasMore() )
+        try ( LdapConnection con = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            rootDse = result.getAttributes();
+            try ( EntryCursor cursor = con.search( "", "(ou=testing01)", SearchScope.SUBTREE, "+", "*" ) )
+            {
+                Entry rootDse = null;
+
+                while ( cursor.next() )
+                {
+                    if ( rootDse == null )
+                    {
+                        rootDse = cursor.get();
+                    }
+                    else
+                    {
+                        fail( "Cannot have 2 root DSE" );
+                    }
+                }
+
+                assertNotNull( rootDse );
+            }
         }
-
-        list.close();
-
-        assertNotNull( rootDse );
     }
 
 
     @Test
     public void testSearchOrGidNumber() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "*", "+" } );
-
-        LdapContext nullRootCtx = getRootContext( getService() );
-
-        NamingEnumeration<SearchResult> list = nullRootCtx.search( "", "(|(&(objectclass=posixGroup)(|(gidnumber=1)(gidnumber=1)))(objectClass=posixGroupp))", controls );
-        Attributes rootDse = null;
-
-        while ( list.hasMore() )
+        try ( LdapConnection con = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            SearchResult result = list.next();
-            rootDse = result.getAttributes();
-        }
+            try ( EntryCursor cursor = con.search( "ou=system", 
+                "(|(&(objectclass=posixGroup)(|(gidnumber=1)(gidnumber=1)))(objectClass=posixGroupp))", SearchScope.SUBTREE, "+", "*" ) )
+            {
+                Entry rootDse = null;
 
-        list.close();
+                while ( cursor.next() )
+                {
+                    if ( rootDse == null )
+                    {
+                        rootDse = cursor.get();
+                    }
+                    else
+                    {
+                        fail( "Cannot have 2 root DSE" );
+                    }
+                }
 
-        assertNotNull( rootDse );
+                assertNotNull( rootDse );
+            }
+        } 
     }
     
     
@@ -2116,19 +1981,20 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testNotEvaluator() throws Exception
     {
-        LdapConnection con = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() );
-
-        EntryCursor cursor = con.search( "ou=groups,ou=system", "(!(gidNumber=1))", SearchScope.ONELEVEL, SchemaConstants.ALL_ATTRIBUTES_ARRAY );
-
-        int count = 0;
-        while ( cursor.next() )
+        try ( LdapConnection con = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
         {
-            count++;
+            try ( EntryCursor cursor = con.search( "ou=groups,ou=system", "(!(gidNumber=1))", SearchScope.ONELEVEL, "+", "*" ) )
+            {
+                int count = 0;
+        
+                while ( cursor.next() )
+                {
+                    count++;
+                }
+                
+                assertEquals( 5, count );
+            }
         }
-        
-        cursor.close();
-        
-        assertEquals( 5, count );
     }
 
     
@@ -2140,66 +2006,65 @@ public class SearchIT extends AbstractLdapTestUnit
     @Test
     public void testSearchRootDSEOneLevel() throws Exception
     {
-        LdapConnection conn = getAdminConnection( classDirectoryService );
-
-        EntryCursor cursor = conn.search( "ou=schema", "(|(objectClass=*)(cn=x))", SearchScope.OBJECT, "*" );
-
-        assertTrue( cursor.next() );
-        cursor.close();
-
-        cursor = conn.search( "ou=schema", "(objectClass=person)", SearchScope.OBJECT, "*" );
-
-        assertFalse( cursor.next() );
-        cursor.close();
-
-        cursor = conn.search( "", "(objectClass=person)", SearchScope.ONELEVEL, "*" );
-
-        assertFalse( cursor.next() );
-        cursor.close();
-        
-        cursor = conn.search( "", "(objectClass=person)", SearchScope.SUBTREE, "*" );
-        int count = 0;
-        while( cursor.next() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( classDirectoryService ) )
         {
-            count++;
-        }
-        
-        assertEquals(3, count);
-        cursor.close();
-    }
+            try ( EntryCursor cursor = connection.search( "ou=schema", "(|(objectClass=*)(cn=x))", SearchScope.OBJECT, "*" ) )
+            {
+                assertTrue( cursor.next() );
+            }
 
+            try ( EntryCursor cursor = connection.search( "ou=schema", "(objectClass=person)", SearchScope.OBJECT, "*" ) )
+            {
+                assertFalse( cursor.next() );
+            }
+
+            try ( EntryCursor cursor = connection.search( "", "(objectClass=person)", SearchScope.ONELEVEL, "*" ) )
+            {
+                assertFalse( cursor.next() );
+            }
+        
+            try ( EntryCursor cursor = connection.search( "", "(objectClass=person)", SearchScope.SUBTREE, "*" ) )
+            {
+                int count = 0;
+
+                while( cursor.next() )
+                {
+                    count++;
+                }
+                
+                assertEquals(3, count);
+            }
+        }
+    }
+    
 
     @Test
     public void testSearchHasSubordinates() throws Exception
     {
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        controls.setDerefLinkFlag( false );
-        controls.setReturningAttributes( new String[]
-            { "+", "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES
-            .getJndiValue() );
-        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-
-        NamingEnumeration<SearchResult> list = sysRoot.search( "ou=testing01", "(ObjectClass=*)", controls );
-
-        while ( list.hasMore() )
+        try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
         {
-            SearchResult result = list.next();
-            map.put( result.getName(), result.getAttributes() );
+            Map<String, Entry> entries = new HashMap<>();
+            
+            try ( EntryCursor cursor = connection.search( "ou=testing01,ou=system", FILTER, SearchScope.OBJECT, "+", "*" ) )
+            {
+                while ( cursor.next() )
+                {
+                    Entry entry = cursor.get(); 
+                    
+                    entries.put( entry.getDn().getName(), entry );
+                }
+            }
+    
+            assertEquals( 1, entries.size(), "Expected number of results returned was incorrect!" );
+    
+            Entry entry = entries.get( "ou=testing01,ou=system" );
+    
+            assertNotNull( entry.get( "createTimestamp" ) );
+            assertNotNull( entry.get( "creatorsName" ) );
+            assertNotNull( entry.get( "objectClass" ) );
+            assertNotNull( entry.get( "ou" ) );
+            assertNotNull( entry.get( "hasSubordinates" ) );
+            assertEquals( "TRUE", entry.get( "hasSubordinates" ).getString() );
         }
-
-        list.close();
-
-        assertEquals( 1, map.size(), "Expected number of results returned was incorrect!" );
-
-        Attributes attrs = map.get( "ou=testing01,ou=system" );
-
-        assertNotNull( attrs.get( "createTimestamp" ) );
-        assertNotNull( attrs.get( "creatorsName" ) );
-        assertNotNull( attrs.get( "objectClass" ) );
-        assertNotNull( attrs.get( "ou" ) );
-        assertNotNull( attrs.get( "hasSubordinates" ) );
-        assertEquals( "TRUE", attrs.get( "hasSubordinates" ).get() );
     }
 }
