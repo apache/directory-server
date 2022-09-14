@@ -28,12 +28,10 @@ import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
-import org.apache.directory.shared.kerberos.codec.ticket.TicketContainer;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.apache.directory.shared.kerberos.messages.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,36 +160,5 @@ public class KerberosDecoder
 
         // get the decoded PrincipalName
         return ( ( PrincipalNameContainer ) principalNameContainer ).getPrincipalName();
-    }
-    
-    
-    /**
-     * Decode a Ticket structure
-     * 
-     * @param data The byte array containing the data structure to decode
-     * @return An instance of Ticket
-     * @throws KerberosException If the decoding fails
-     */
-    public static Ticket decodeTicket( byte[] data ) throws KerberosException
-    {
-        ByteBuffer stream = ByteBuffer.allocate( data.length );
-        stream.put( data );
-        stream.flip();
-        
-        // Allocate a Ticket Container
-        Asn1Container ticketContainer = new TicketContainer( stream );
-
-        // Decode the Ticket PDU
-        try
-        {
-            Asn1Decoder.decode( stream, ticketContainer );
-        }
-        catch ( DecoderException de )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, de );
-        }
-
-        // get the decoded Ticket
-        return ( ( TicketContainer ) ticketContainer ).getTicket();
     }
 }

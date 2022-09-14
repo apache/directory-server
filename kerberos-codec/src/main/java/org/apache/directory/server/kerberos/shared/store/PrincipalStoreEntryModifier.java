@@ -182,28 +182,6 @@ public class PrincipalStoreEntryModifier
 
 
     /**
-     * Sets the ticket maximum life time.
-     *
-     * @param maxLife
-     */
-    public void setMaxLife( int maxLife )
-    {
-        this.maxLife = maxLife;
-    }
-
-
-    /**
-     * Sets the ticket maximum renew time.
-     *
-     * @param maxRenew
-     */
-    public void setMaxRenew( int maxRenew )
-    {
-        this.maxRenew = maxRenew;
-    }
-
-
-    /**
      * Sets the end-of-life for the password.
      *
      * @param passwordEnd

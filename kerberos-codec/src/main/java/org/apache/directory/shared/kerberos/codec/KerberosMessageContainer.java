@@ -23,7 +23,6 @@ package org.apache.directory.shared.kerberos.codec;
 import org.apache.directory.api.asn1.ber.AbstractContainer;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.messages.KerberosMessage;
-import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
@@ -78,15 +77,6 @@ public class KerberosMessageContainer extends AbstractContainer
     public void setMessage( KerberosMessage message )
     {
         this.message = message;
-    }
-
-
-    /**
-     * @return Returns the Ticket if the interned message is a Ticket.
-     */
-    public Ticket getTicket()
-    {
-        return ( Ticket ) message;
     }
 
 
