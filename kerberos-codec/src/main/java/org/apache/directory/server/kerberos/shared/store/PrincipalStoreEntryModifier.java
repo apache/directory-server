@@ -59,7 +59,6 @@ public class PrincipalStoreEntryModifier
     private KerberosTime passwordEnd;
     private int maxLife;
     private int maxRenew;
-    private int kdcFlags;
     private SamType samType;
 
     private boolean disabled = false;
@@ -77,7 +76,7 @@ public class PrincipalStoreEntryModifier
     public PrincipalStoreEntry getEntry()
     {
         return new PrincipalStoreEntry( distinguishedName, commonName, userId, principal, keyVersionNumber, validStart,
-            validEnd, passwordEnd, maxLife, maxRenew, kdcFlags, keyMap, realmName, samType, disabled, lockedOut,
+            validEnd, passwordEnd, maxLife, maxRenew, keyMap, realmName, samType, disabled, lockedOut,
             expiration );
     }
 
@@ -145,17 +144,6 @@ public class PrincipalStoreEntryModifier
     public void setUserId( String userId )
     {
         this.userId = userId;
-    }
-
-
-    /**
-     * Sets the KDC flags.
-     *
-     * @param kdcFlags
-     */
-    public void setKDCFlags( int kdcFlags )
-    {
-        this.kdcFlags = kdcFlags;
     }
 
 

@@ -25,15 +25,12 @@ import java.nio.ByteBuffer;
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Container;
 import org.apache.directory.api.asn1.ber.Asn1Decoder;
-import org.apache.directory.api.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.kerberos.codec.encryptionKey.EncryptionKeyContainer;
 import org.apache.directory.shared.kerberos.codec.principalName.PrincipalNameContainer;
 import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,66 +38,6 @@ import org.slf4j.LoggerFactory;
  */
 public class KerberosDecoder
 {
-
-    /** The logger */
-    private static Logger LOG = LoggerFactory.getLogger( KerberosDecoder.class );
-
-    /** A speedup for logger */
-    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
-
-
-    public static Object decode( KerberosMessageContainer kerberosMessageContainer ) throws DecoderException
-    {
-        ByteBuffer buf = kerberosMessageContainer.getStream();
-        
-        if ( kerberosMessageContainer.isTCP() )
-        {
-            if ( buf.remaining() > 4 )
-            {
-                kerberosMessageContainer.setTcpLength( buf.getInt() );
-                buf.mark();
-            }
-            else
-            {
-                return null;
-            }
-        }
-        else
-        {
-            buf.mark();
-        }
-
-        while ( buf.hasRemaining() )
-        {
-            try
-            {
-                Asn1Decoder.decode( buf, kerberosMessageContainer );
-                
-                if ( kerberosMessageContainer.getState() == TLVStateEnum.PDU_DECODED )
-                {
-                    if ( IS_DEBUG )
-                    {
-                        LOG.debug( "Decoded KerberosMessage : {}", kerberosMessageContainer.getMessage() );
-                        buf.mark();
-                    }
-        
-                    return kerberosMessageContainer.getMessage();
-                }
-            }
-            catch ( DecoderException de )
-            {
-                LOG.warn( "error while decoding", de );
-                buf.clear();
-                kerberosMessageContainer.clean();
-                throw de;
-            }
-        }
-        
-        return null;
-    }
-
-    
-    
     /**
      * Decode an EncryptionKey structure
      * 

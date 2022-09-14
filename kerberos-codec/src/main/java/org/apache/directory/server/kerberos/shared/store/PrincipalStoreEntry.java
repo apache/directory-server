@@ -51,7 +51,6 @@ public class PrincipalStoreEntry
     private int keyVersionNumber;
     private int maxLife;
     private int maxRenew;
-    private int kdcFlags;
     private SamType samType;
 
     private boolean disabled;
@@ -63,7 +62,7 @@ public class PrincipalStoreEntry
 
     PrincipalStoreEntry( String distinguishedName, String commonName, String userId, KerberosPrincipal principal,
         int keyVersionNumber, KerberosTime validStart, KerberosTime validEnd, KerberosTime passwordEnd, int maxLife,
-        int maxRenew, int kdcFlags, Map<EncryptionType, EncryptionKey> keyMap, String realmName, SamType samType,
+        int maxRenew, Map<EncryptionType, EncryptionKey> keyMap, String realmName, SamType samType,
         boolean disabled, boolean lockedOut, KerberosTime expiration )
     {
         this.distinguishedName = distinguishedName;
@@ -76,7 +75,6 @@ public class PrincipalStoreEntry
         this.keyVersionNumber = keyVersionNumber;
         this.maxLife = maxLife;
         this.maxRenew = maxRenew;
-        this.kdcFlags = kdcFlags;
         this.realmName = realmName;
         this.disabled = disabled;
         this.lockedOut = lockedOut;
@@ -160,17 +158,6 @@ public class PrincipalStoreEntry
     public Map<EncryptionType, EncryptionKey> getKeyMap()
     {
         return keyMap;
-    }
-
-
-    /**
-     * Returns the KDC flags.
-     *
-     * @return The KDC flags.
-     */
-    public int getKDCFlags()
-    {
-        return kdcFlags;
     }
 
 
