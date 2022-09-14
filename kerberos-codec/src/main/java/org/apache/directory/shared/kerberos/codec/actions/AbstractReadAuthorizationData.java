@@ -22,11 +22,9 @@ package org.apache.directory.shared.kerberos.codec.actions;
 
 import org.apache.directory.api.asn1.DecoderException;
 import org.apache.directory.api.asn1.ber.Asn1Container;
-import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.api.i18n.I18n;
-import org.apache.directory.shared.kerberos.codec.authorizationData.AuthorizationDataContainer;
 import org.apache.directory.shared.kerberos.components.AuthorizationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,21 +77,6 @@ public abstract class AbstractReadAuthorizationData<E extends Asn1Container> ext
             // This will generate a PROTOCOL_ERROR
             throw new DecoderException( I18n.err( I18n.ERR_01309_EMPTY_TLV ) );
         }
-
-        // Now, let's decode the AuthorizationData
-        AuthorizationDataContainer authorizationDataContainer = new AuthorizationDataContainer();
-
-        // Decode the AuthorizationData PDU
-        Asn1Decoder.decode( container.getStream(), authorizationDataContainer );
-
-        AuthorizationData authorizationData = authorizationDataContainer.getAuthorizationData();
-
-        if ( IS_DEBUG )
-        {
-            LOG.debug( "AuthorizationData : {}", authorizationData );
-        }
-
-        setAuthorizationData( authorizationData, container );
 
         // Update the expected length for the current TLV
         tlv.setExpectedLength( tlv.getExpectedLength() - tlv.getLength() );

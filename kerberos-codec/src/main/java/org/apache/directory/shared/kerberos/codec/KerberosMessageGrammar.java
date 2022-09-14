@@ -24,24 +24,12 @@ import java.nio.ByteBuffer;
 import java.nio.InvalidMarkException;
 
 import org.apache.directory.api.asn1.DecoderException;
-import org.apache.directory.api.asn1.ber.Asn1Decoder;
 import org.apache.directory.api.asn1.ber.grammar.AbstractGrammar;
 import org.apache.directory.api.asn1.ber.grammar.Grammar;
 import org.apache.directory.api.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.api.asn1.ber.grammar.GrammarTransition;
 import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.kerberos.KerberosConstants;
-import org.apache.directory.shared.kerberos.codec.apRep.ApRepContainer;
-import org.apache.directory.shared.kerberos.codec.apReq.ApReqContainer;
-import org.apache.directory.shared.kerberos.codec.asRep.AsRepContainer;
-import org.apache.directory.shared.kerberos.codec.asReq.AsReqContainer;
-import org.apache.directory.shared.kerberos.codec.krbCred.KrbCredContainer;
-import org.apache.directory.shared.kerberos.codec.krbError.KrbErrorContainer;
-import org.apache.directory.shared.kerberos.codec.krbPriv.KrbPrivContainer;
-import org.apache.directory.shared.kerberos.codec.krbSafe.KrbSafeContainer;
-import org.apache.directory.shared.kerberos.codec.tgsRep.TgsRepContainer;
-import org.apache.directory.shared.kerberos.codec.tgsReq.TgsReqContainer;
-import org.apache.directory.shared.kerberos.messages.KerberosMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,107 +74,33 @@ public final class KerberosMessageGrammar extends AbstractGrammar<KerberosMessag
             switch ( tlv.getTag() )
             {
                 case KerberosConstants.AS_REQ_TAG:
-                    AsReqContainer asReqContainer = new AsReqContainer( stream );
-
-                    // Decode the AS_REQ PDU
-                    Asn1Decoder.decode( stream, asReqContainer );
-
-                    KerberosMessage asReq = asReqContainer.getAsReq();
-                    kerberosMessageContainer.setMessage( asReq );
-
                     break;
 
                 case KerberosConstants.AS_REP_TAG:
-                    AsRepContainer asRepContainer = new AsRepContainer( stream );
-
-                    // Decode the AS-REP PDU
-                    Asn1Decoder.decode( stream, asRepContainer );
-
-                    KerberosMessage asRep = asRepContainer.getAsRep();
-                    kerberosMessageContainer.setMessage( asRep );
-
                     break;
 
                 case KerberosConstants.TGS_REQ_TAG:
-                    TgsReqContainer tgsReqContainer = new TgsReqContainer( stream );
-
-                    // Decode the TGS-REQ PDU
-                    Asn1Decoder.decode( stream, tgsReqContainer );
-
-                    KerberosMessage tgsReq = tgsReqContainer.getTgsReq();
-                    kerberosMessageContainer.setMessage( tgsReq );
-
                     break;
 
                 case KerberosConstants.TGS_REP_TAG:
-                    TgsRepContainer tgsRepContainer = new TgsRepContainer( stream );
-
-                    // Decode the TGS-REP PDU
-                    Asn1Decoder.decode( stream, tgsRepContainer );
-
-                    KerberosMessage tgsRep = tgsRepContainer.getTgsRep();
-                    kerberosMessageContainer.setMessage( tgsRep );
-
                     break;
 
                 case KerberosConstants.AP_REQ_TAG:
-                    ApReqContainer apReqContainer = new ApReqContainer( stream );
-
-                    // Decode the AP-REQ PDU
-                    Asn1Decoder.decode( stream, apReqContainer );
-
-                    KerberosMessage apReq = apReqContainer.getApReq();
-                    kerberosMessageContainer.setMessage( apReq );
                     break;
 
                 case KerberosConstants.AP_REP_TAG:
-                    ApRepContainer apRepContainer = new ApRepContainer( stream );
-
-                    // Decode the AP-REP PDU
-                    Asn1Decoder.decode( stream, apRepContainer );
-
-                    KerberosMessage apRep = apRepContainer.getApRep();
-                    kerberosMessageContainer.setMessage( apRep );
                     break;
 
                 case KerberosConstants.KRB_SAFE_TAG:
-                    KrbSafeContainer krbSafeContainer = new KrbSafeContainer( stream );
-
-                    // Decode the KRB-SAFE PDU
-                    Asn1Decoder.decode( stream, krbSafeContainer );
-
-                    KerberosMessage krbSafe = krbSafeContainer.getKrbSafe();
-                    kerberosMessageContainer.setMessage( krbSafe );
                     break;
 
                 case KerberosConstants.KRB_PRIV_TAG:
-                    KrbPrivContainer krbPrivContainer = new KrbPrivContainer( stream );
-
-                    // Decode the KRB-PRIV PDU
-                    Asn1Decoder.decode( stream, krbPrivContainer );
-
-                    KerberosMessage krbPriv = krbPrivContainer.getKrbPriv();
-                    kerberosMessageContainer.setMessage( krbPriv );
                     break;
 
                 case KerberosConstants.KRB_CRED_TAG:
-                    KrbCredContainer krbCredContainer = new KrbCredContainer( stream );
-
-                    // Decode the KRB-CRED PDU
-                    Asn1Decoder.decode( stream, krbCredContainer );
-
-                    KerberosMessage krbCred = krbCredContainer.getKrbCred();
-                    kerberosMessageContainer.setMessage( krbCred );
                     break;
 
                 case KerberosConstants.KRB_ERROR_TAG:
-                    KrbErrorContainer krbErrorContainer = new KrbErrorContainer( stream );
-
-                    // Decode the KRB-ERROR PDU
-                    Asn1Decoder.decode( stream, krbErrorContainer );
-
-                    KerberosMessage krbError = krbErrorContainer.getKrbError();
-                    kerberosMessageContainer.setMessage( krbError );
                     break;
             }
 

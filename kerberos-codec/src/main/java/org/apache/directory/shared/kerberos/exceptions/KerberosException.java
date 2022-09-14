@@ -20,7 +20,6 @@
 package org.apache.directory.shared.kerberos.exceptions;
 
 
-import org.apache.directory.shared.kerberos.messages.KrbError;
 
 
 /**
@@ -33,8 +32,6 @@ public class KerberosException extends Exception
     private static final long serialVersionUID = 2968072183596955597L;
 
     /** the kerberos error */
-    private KrbError error;
-
     /**
      * The Kerberos error code associated with this exception.
      */
@@ -57,20 +54,6 @@ public class KerberosException extends Exception
         super( errorType.getMessage() );
 
         this.errorCode = errorType.getValue();
-    }
-
-
-    /**
-     * 
-     * Creates a new instance of KerberosException.
-     *
-     * @param error the KrbError message
-     */
-    public KerberosException( KrbError error )
-    {
-        super( error.getMessageType().getMessage() );
-        this.errorCode = error.getErrorCode().getValue();
-        this.error = error;
     }
 
 
@@ -236,16 +219,5 @@ public class KerberosException extends Exception
 
         this.errorCode = errorCode;
         this.explanatoryData = explanatoryData;
-    }
-
-
-    /**
-     * returns the KrbError message associated with this exception
-     * 
-     * @return the error, can be null
-     */
-    public KrbError getError()
-    {
-        return error;
     }
 }

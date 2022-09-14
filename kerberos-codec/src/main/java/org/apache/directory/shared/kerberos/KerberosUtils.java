@@ -35,40 +35,25 @@ import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.RS
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.RSAES_OAEP_ENV_OID;
 import static org.apache.directory.shared.kerberos.codec.types.EncryptionType.SHA1WITHRSAENCRYPTION_CMSOID;
 
-import java.net.InetAddress;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.shared.kerberos.codec.KerberosDecoder;
-import org.apache.directory.shared.kerberos.codec.options.ApOptions;
 import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.kerberos.components.EncTicketPart;
-import org.apache.directory.shared.kerberos.components.EncryptionKey;
-import org.apache.directory.shared.kerberos.components.HostAddress;
 import org.apache.directory.shared.kerberos.components.PrincipalName;
 import org.apache.directory.shared.kerberos.exceptions.ErrorType;
 import org.apache.directory.shared.kerberos.exceptions.KerberosException;
-import org.apache.directory.shared.kerberos.messages.ApReq;
-import org.apache.directory.shared.kerberos.messages.Authenticator;
-import org.apache.directory.shared.kerberos.messages.Ticket;
 
 
 /**
@@ -450,143 +435,6 @@ public class KerberosUtils
         }
 
         return entry;
-    }
-
-
-    /**
-         * Verifies an AuthHeader using guidelines from RFC 1510 section A.10., "KRB_AP_REQ verification."
-         *
-         * @param authHeader
-         * @param ticket
-         * @param serverKey
-         * @param clockSkew
-         * @param replayCache
-         * @param emptyAddressesAllowed
-         * @param clientAddress
-         * @param lockBox
-         * @param authenticatorKeyUsage
-         * @param isValidate
-         * @return The authenticator.
-         * @throws KerberosException
-         */
-    public static Authenticator verifyAuthHeader( ApReq authHeader, Ticket ticket, EncryptionKey serverKey,
-        long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
-        CipherTextHandler lockBox, KeyUsage authenticatorKeyUsage, boolean isValidate ) throws KerberosException
-    {
-        if ( authHeader.getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BADVERSION );
-        }
-
-        if ( authHeader.getMessageType() != KerberosMessageType.AP_REQ )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_MSG_TYPE );
-        }
-
-        if ( authHeader.getTicket().getTktVno() != KerberosConstants.KERBEROS_V5 )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BADVERSION );
-        }
-
-        EncryptionKey ticketKey = null;
-
-        if ( authHeader.getOption( ApOptions.USE_SESSION_KEY ) )
-        {
-            ticketKey = authHeader.getTicket().getEncTicketPart().getKey();
-        }
-        else
-        {
-            ticketKey = serverKey;
-        }
-
-        if ( ticketKey == null )
-        {
-            // TODO - check server key version number, skvno; requires store
-            //            if ( false )
-            //            {
-            //                throw new KerberosException( ErrorType.KRB_AP_ERR_BADKEYVER );
-            //            }
-
-            throw new KerberosException( ErrorType.KRB_AP_ERR_NOKEY );
-        }
-
-        byte[] encTicketPartData = lockBox.decrypt( ticketKey, ticket.getEncPart(),
-            KeyUsage.AS_OR_TGS_REP_TICKET_WITH_SRVKEY );
-        EncTicketPart encPart = KerberosDecoder.decodeEncTicketPart( encTicketPartData );
-        ticket.setEncTicketPart( encPart );
-
-        byte[] authenticatorData = lockBox.decrypt( ticket.getEncTicketPart().getKey(), authHeader.getAuthenticator(),
-            authenticatorKeyUsage );
-
-        Authenticator authenticator = KerberosDecoder.decodeAuthenticator( authenticatorData );
-
-        if ( !authenticator.getCName().getNameString().equals( ticket.getEncTicketPart().getCName().getNameString() ) )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BADMATCH );
-        }
-
-        if ( ticket.getEncTicketPart().getClientAddresses() != null )
-        {
-            if ( !ticket.getEncTicketPart().getClientAddresses().contains( new HostAddress( clientAddress ) ) )
-            {
-                throw new KerberosException( ErrorType.KRB_AP_ERR_BADADDR );
-            }
-        }
-        else
-        {
-            if ( !emptyAddressesAllowed )
-            {
-                throw new KerberosException( ErrorType.KRB_AP_ERR_BADADDR );
-            }
-        }
-
-        KerberosPrincipal serverPrincipal = getKerberosPrincipal( ticket.getSName(), ticket.getRealm() );
-        KerberosPrincipal clientPrincipal = getKerberosPrincipal( authenticator.getCName(), authenticator.getCRealm() );
-        KerberosTime clientTime = authenticator.getCtime();
-        int clientMicroSeconds = authenticator.getCusec();
-
-        if ( replayCache != null )
-        {
-            if ( replayCache.isReplay( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds ) )
-            {
-                throw new KerberosException( ErrorType.KRB_AP_ERR_REPEAT );
-            }
-
-            replayCache.save( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds );
-        }
-
-        if ( !authenticator.getCtime().isInClockSkew( clockSkew ) )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_SKEW );
-        }
-
-        /*
-         * "The server computes the age of the ticket: local (server) time minus
-         * the starttime inside the Ticket.  If the starttime is later than the
-         * current time by more than the allowable clock skew, or if the INVALID
-         * flag is set in the ticket, the KRB_AP_ERR_TKT_NYV error is returned."
-         */
-        KerberosTime startTime = ( ticket.getEncTicketPart().getStartTime() != null ) ? ticket.getEncTicketPart()
-            .getStartTime() : ticket.getEncTicketPart().getAuthTime();
-
-        KerberosTime now = new KerberosTime();
-        boolean isValidStartTime = startTime.compareTo( now ) <= 0;
-
-        if ( !isValidStartTime || ( ticket.getEncTicketPart().getFlags().isInvalid() && !isValidate ) )
-        {
-            // it hasn't yet become valid
-            throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_NYV );
-        }
-
-        // TODO - doesn't take into account skew
-        if ( ticket.getEncTicketPart().getEndTime().compareTo( now ) < 0)
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_EXPIRED );
-        }
-
-        authHeader.getApOptions().set( ApOptions.MUTUAL_REQUIRED );
-
-        return authenticator;
     }
 
 
