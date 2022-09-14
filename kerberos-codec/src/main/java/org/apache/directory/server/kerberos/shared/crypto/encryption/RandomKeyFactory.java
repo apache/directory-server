@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -71,23 +70,9 @@ public class RandomKeyFactory
      */
     public static Map<EncryptionType, EncryptionKey> getRandomKeys() throws KerberosException
     {
-        return getRandomKeys( DEFAULT_CIPHERS.keySet() );
-    }
-
-
-    /**
-     * Get a map of random keys for a list of cipher types to derive keys for.
-     *
-     * @param ciphers The list of ciphers to derive keys for.
-     * @return The list of KerberosKey's.
-     * @throws KerberosException 
-     */
-    public static Map<EncryptionType, EncryptionKey> getRandomKeys( Set<EncryptionType> ciphers )
-        throws KerberosException
-    {
         Map<EncryptionType, EncryptionKey> map = new HashMap<>();
 
-        for ( EncryptionType encryptionType : ciphers )
+        for ( EncryptionType encryptionType : DEFAULT_CIPHERS.keySet() )
         {
             map.put( encryptionType, getRandomKey( encryptionType ) );
         }

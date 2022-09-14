@@ -56,5 +56,4 @@ public class KerberosAttribute
     /** the Apache specific SAM type attribute */
     public static final String APACHE_SAM_TYPE_AT = "apacheSamType";
     public static final String APACHE_SAM_TYPE_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.9";
-    
 }

@@ -21,7 +21,6 @@ package org.apache.directory.shared.kerberos.codec;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.ByteBuffer;
@@ -115,9 +114,6 @@ public class PrincipalNameDecoderTest
         PrincipalName principalName = ( ( PrincipalNameContainer ) principalNameContainer ).getPrincipalName();
 
         assertEquals( PrincipalNameType.KRB_NT_PRINCIPAL, principalName.getNameType() );
-        assertTrue( principalName.getNames().contains( "hnelson1" ) );
-        assertTrue( principalName.getNames().contains( "hnelson2" ) );
-        assertTrue( principalName.getNames().contains( "hnelson3" ) );
 
         // Check the encoding
         ByteBuffer bb = ByteBuffer.allocate( principalName.computeLength() );

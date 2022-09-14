@@ -41,7 +41,9 @@ public class PrincipalNameTest
     @Test
     public void testEncodingPrincipalNameOneName() throws Exception
     {
-        PrincipalName principal = new PrincipalName( "Test", PrincipalNameType.KRB_NT_PRINCIPAL );
+        PrincipalName principal = new PrincipalName();
+        principal.setNameType( PrincipalNameType.KRB_NT_PRINCIPAL );
+        principal.addName( "Test" );
 
         ByteBuffer encoded = ByteBuffer.allocate( principal.computeLength() );
 
@@ -65,7 +67,9 @@ public class PrincipalNameTest
     @Test
     public void testEncodingPrincipalName3names() throws Exception
     {
-        PrincipalName principal = new PrincipalName( "Test1", PrincipalNameType.KRB_NT_PRINCIPAL );
+        PrincipalName principal = new PrincipalName();
+        principal.setNameType( PrincipalNameType.KRB_NT_PRINCIPAL );
+        principal.addName( "Test1" );
         principal.addName( "Test2" );
         principal.addName( "Test3" );
 
@@ -95,7 +99,8 @@ public class PrincipalNameTest
     @Test
     public void testEncodingPrincipalNameNullName() throws Exception
     {
-        PrincipalName principal = new PrincipalName( null, PrincipalNameType.KRB_NT_PRINCIPAL );
+        PrincipalName principal = new PrincipalName();
+        principal.setNameType( PrincipalNameType.KRB_NT_PRINCIPAL );
 
         ByteBuffer encoded = ByteBuffer.allocate( principal.computeLength() );
 

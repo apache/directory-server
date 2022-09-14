@@ -37,20 +37,10 @@ public class PrincipalStoreEntry
 {
     // principal
     private String distinguishedName;
-    private String commonName;
     private KerberosPrincipal principal;
-    private String realmName;
-
-    // uidObject
-    private String userId;
 
     // KDCEntry
-    private KerberosTime validStart;
-    private KerberosTime validEnd;
-    private KerberosTime passwordEnd;
     private int keyVersionNumber;
-    private int maxLife;
-    private int maxRenew;
     private SamType samType;
 
     private boolean disabled;
@@ -60,22 +50,14 @@ public class PrincipalStoreEntry
     private Map<EncryptionType, EncryptionKey> keyMap;
 
 
-    PrincipalStoreEntry( String distinguishedName, String commonName, String userId, KerberosPrincipal principal,
-        int keyVersionNumber, KerberosTime validStart, KerberosTime validEnd, KerberosTime passwordEnd, int maxLife,
-        int maxRenew, Map<EncryptionType, EncryptionKey> keyMap, String realmName, SamType samType,
+    PrincipalStoreEntry( String distinguishedName, KerberosPrincipal principal,
+        int keyVersionNumber, 
+        Map<EncryptionType, EncryptionKey> keyMap, SamType samType,
         boolean disabled, boolean lockedOut, KerberosTime expiration )
     {
         this.distinguishedName = distinguishedName;
-        this.commonName = commonName;
-        this.userId = userId;
         this.principal = principal;
-        this.validStart = validStart;
-        this.validEnd = validEnd;
-        this.passwordEnd = passwordEnd;
         this.keyVersionNumber = keyVersionNumber;
-        this.maxLife = maxLife;
-        this.maxRenew = maxRenew;
-        this.realmName = realmName;
         this.disabled = disabled;
         this.lockedOut = lockedOut;
         this.expiration = expiration;
@@ -129,28 +111,6 @@ public class PrincipalStoreEntry
 
 
     /**
-     * Returns the common name.
-     *
-     * @return The common name.
-     */
-    public String getCommonName()
-    {
-        return commonName;
-    }
-
-
-    /**
-     * Returns the user ID.
-     *
-     * @return The user ID.
-     */
-    public String getUserId()
-    {
-        return userId;
-    }
-
-
-    /**
      * Returns the key map.
      *
      * @return The key map.
@@ -173,39 +133,6 @@ public class PrincipalStoreEntry
 
 
     /**
-     * Returns the max life.
-     *
-     * @return The max life.
-     */
-    public int getMaxLife()
-    {
-        return maxLife;
-    }
-
-
-    /**
-     * Returns the maximum renew time.
-     *
-     * @return The maximum renew time.
-     */
-    public int getMaxRenew()
-    {
-        return maxRenew;
-    }
-
-
-    /**
-     * Returns the expiration time for the password.
-     *
-     * @return The expiration time for the password.
-     */
-    public KerberosTime getPasswordEnd()
-    {
-        return passwordEnd;
-    }
-
-
-    /**
      * Returns the principal.
      *
      * @return The principal.
@@ -213,39 +140,6 @@ public class PrincipalStoreEntry
     public KerberosPrincipal getPrincipal()
     {
         return principal;
-    }
-
-
-    /**
-     * Returns the realm name.
-     *
-     * @return The realm name.
-     */
-    public String getRealmName()
-    {
-        return realmName;
-    }
-
-
-    /**
-     * Returns the end of validity.
-     *
-     * @return The end of validity.
-     */
-    public KerberosTime getValidEnd()
-    {
-        return validEnd;
-    }
-
-
-    /**
-     * Returns the start of validity.
-     *
-     * @return The start of validity.
-     */
-    public KerberosTime getValidStart()
-    {
-        return validStart;
     }
 
 

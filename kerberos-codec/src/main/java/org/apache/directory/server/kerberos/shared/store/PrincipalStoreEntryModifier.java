@@ -43,22 +43,12 @@ public class PrincipalStoreEntryModifier
 {
     // principal
     private String distinguishedName;
-    private String commonName;
     private KerberosPrincipal principal;
-    private String realmName;
-
-    // uidObject
-    private String userId;
 
     // KDCEntry
     // must
     private int keyVersionNumber;
     // may
-    private KerberosTime validStart;
-    private KerberosTime validEnd;
-    private KerberosTime passwordEnd;
-    private int maxLife;
-    private int maxRenew;
     private SamType samType;
 
     private boolean disabled = false;
@@ -75,9 +65,8 @@ public class PrincipalStoreEntryModifier
      */
     public PrincipalStoreEntry getEntry()
     {
-        return new PrincipalStoreEntry( distinguishedName, commonName, userId, principal, keyVersionNumber, validStart,
-            validEnd, passwordEnd, maxLife, maxRenew, keyMap, realmName, samType, disabled, lockedOut,
-            expiration );
+        return new PrincipalStoreEntry( distinguishedName, principal, keyVersionNumber,
+            keyMap, samType, disabled, lockedOut, expiration );
     }
 
 
@@ -126,28 +115,6 @@ public class PrincipalStoreEntryModifier
 
 
     /**
-     * Sets the common name (cn).
-     *
-     * @param commonName
-     */
-    public void setCommonName( String commonName )
-    {
-        this.commonName = commonName;
-    }
-
-
-    /**
-     * Sets the user ID.
-     *
-     * @param userId
-     */
-    public void setUserId( String userId )
-    {
-        this.userId = userId;
-    }
-
-
-    /**
      * Sets the key map.
      *
      * @param keyMap
@@ -170,17 +137,6 @@ public class PrincipalStoreEntryModifier
 
 
     /**
-     * Sets the end-of-life for the password.
-     *
-     * @param passwordEnd
-     */
-    public void setPasswordEnd( KerberosTime passwordEnd )
-    {
-        this.passwordEnd = passwordEnd;
-    }
-
-
-    /**
      * Sets the principal.
      *
      * @param principal
@@ -188,39 +144,6 @@ public class PrincipalStoreEntryModifier
     public void setPrincipal( KerberosPrincipal principal )
     {
         this.principal = principal;
-    }
-
-
-    /**
-     * Sets the realm.
-     *
-     * @param realmName
-     */
-    public void setRealmName( String realmName )
-    {
-        this.realmName = realmName;
-    }
-
-
-    /**
-     * Sets the end of validity.
-     *
-     * @param validEnd
-     */
-    public void setValidEnd( KerberosTime validEnd )
-    {
-        this.validEnd = validEnd;
-    }
-
-
-    /**
-     * Sets the start of validity.
-     *
-     * @param validStart
-     */
-    public void setValidStart( KerberosTime validStart )
-    {
-        this.validStart = validStart;
     }
 
 

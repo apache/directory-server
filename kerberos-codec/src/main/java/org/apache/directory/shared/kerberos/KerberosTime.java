@@ -21,10 +21,8 @@ package org.apache.directory.shared.kerberos;
 
 
 import java.text.ParseException;
-import java.util.Date;
 
 import org.apache.directory.api.util.GeneralizedTime;
-import org.apache.directory.api.util.Strings;
 
 
 /**
@@ -57,15 +55,6 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
 
     /**
      * Creates a new instance of a KerberosTime object
-     */
-    public KerberosTime()
-    {
-        generalizedTime = new GeneralizedTime( ( System.currentTimeMillis() / 1000L ) * 1000L ); // drop the ms
-    }
-
-
-    /**
-     * Creates a new instance of a KerberosTime object
      * 
      * @param date the KerberosTime to store
      */
@@ -73,7 +62,7 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
     {
         try
         {
-            setDate( date );
+            generalizedTime = new GeneralizedTime( date );
         }
         catch ( ParseException pe )
         {
@@ -92,39 +81,6 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
 
 
     /**
-     * Creates a new instance of KerberosTime.
-     *
-     * @param time
-     */
-    public KerberosTime( Date time )
-    {
-        generalizedTime = new GeneralizedTime( ( time.getTime() / 1000L ) * 1000L ); // drop the ms
-    }
-
-
-    /**
-     * Returns the {@link KerberosTime} as a long.
-     *
-     * @return The {@link KerberosTime} as a long.
-     */
-    public long getTime()
-    {
-        return generalizedTime.getTime();
-    }
-
-
-    /**
-     * Returns the {@link KerberosTime} as a {@link Date}.
-     *
-     * @return The {@link KerberosTime} as a {@link Date}.
-     */
-    public Date toDate()
-    {
-        return generalizedTime.getDate();
-    }
-
-
-    /**
      * Returns the {@link KerberosTime} for a given zulu time.
      *
      * @param zuluTime
@@ -134,25 +90,6 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
     public static KerberosTime getTime( String zuluTime ) throws ParseException
     {
         return new KerberosTime( zuluTime );
-    }
-
-
-    /**
-     * Sets the date if it's a valid KerberosTime
-     * @param date The date to store
-     */
-    public synchronized void setDate( String date ) throws ParseException
-    {
-        generalizedTime = new GeneralizedTime( date );
-    }
-
-
-    /**
-     * @return The date as a byte[]
-     */
-    public byte[] getBytes()
-    {
-        return Strings.getBytesUtf8( getDate() );
     }
 
 
@@ -194,21 +131,6 @@ public class KerberosTime implements Comparable<KerberosTime>, java.io.Serializa
 
         // compare without fraction (milliseconds)
         return generalizedTime.getTime() / 1000L == other.generalizedTime.getTime() / 1000L;
-    }
-
-
-    /**
-     * Returns whether this {@link KerberosTime} is within the given clockskew.
-     *
-     * @param clockSkew
-     * @return true if this {@link KerberosTime} is within the given clockskew.
-     */
-    public boolean isInClockSkew( long clockSkew )
-    {
-        // The KerberosTime does not have milliseconds
-        long delta = Math.abs( generalizedTime.getTime() - System.currentTimeMillis() );
-
-        return delta < clockSkew;
     }
 
 

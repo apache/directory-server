@@ -20,8 +20,6 @@
 package org.apache.directory.server.protocol.shared.kerberos;
 
 
-import java.nio.ByteBuffer;
-
 import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
@@ -36,10 +34,7 @@ import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.kerberos.KerberosAttribute;
-import org.apache.directory.shared.kerberos.codec.types.EncryptionType;
-import org.apache.directory.shared.kerberos.components.EncryptionKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,48 +53,6 @@ public final class StoreUtils
 
     private StoreUtils()
     {
-    }
-
-
-    /**
-     * Creates a Entry for a PrincipalStoreEntry, doing what a state 
-     * factory does but for Entry instead of Attributes.
-     *
-     * @param session the session to use to access the directory's registries
-     * @param dn the distinguished name of the principal to be 
-     * @param principalEntry the principal entry to convert into a Entry
-     * @return the resultant server entry for the PrincipalStoreEntry argument
-     * @throws Exception if there are problems accessing registries
-     */
-    public static Entry toServerEntry( CoreSession session, Dn dn, PrincipalStoreEntry principalEntry )
-        throws Exception
-    {
-        Entry outAttrs = session.getDirectoryService().newEntry( dn );
-
-        // process the objectClass attribute
-        outAttrs.add( SchemaConstants.OBJECT_CLASS_AT,
-            SchemaConstants.TOP_OC, SchemaConstants.UID_OBJECT_AT,
-            "uidObject", SchemaConstants.EXTENSIBLE_OBJECT_OC,
-            SchemaConstants.PERSON_OC, SchemaConstants.ORGANIZATIONAL_PERSON_OC,
-            SchemaConstants.INET_ORG_PERSON_OC, SchemaConstants.KRB5_PRINCIPAL_OC,
-            "krb5KDCEntry" );
-
-        outAttrs.add( SchemaConstants.UID_AT, principalEntry.getUserId() );
-        outAttrs.add( KerberosAttribute.APACHE_SAM_TYPE_AT, "7" );
-        outAttrs.add( SchemaConstants.SN_AT, principalEntry.getUserId() );
-        outAttrs.add( SchemaConstants.CN_AT, principalEntry.getCommonName() );
-
-        EncryptionKey encryptionKey = principalEntry.getKeyMap().get( EncryptionType.DES_CBC_MD5 );
-
-        ByteBuffer buffer = ByteBuffer.allocate( encryptionKey.computeLength() );
-        outAttrs.add( KerberosAttribute.KRB5_KEY_AT, encryptionKey.encode( buffer ).array() );
-
-        int keyVersion = encryptionKey.getKeyVersion();
-
-        outAttrs.add( KerberosAttribute.KRB5_PRINCIPAL_NAME_AT, principalEntry.getPrincipal().toString() );
-        outAttrs.add( KerberosAttribute.KRB5_KEY_VERSION_NUMBER_AT, Integer.toString( keyVersion ) );
-
-        return outAttrs;
     }
 
 

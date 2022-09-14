@@ -22,11 +22,8 @@ package org.apache.directory.shared.kerberos.components;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.api.asn1.Asn1Object;
 import org.apache.directory.api.asn1.EncoderException;
@@ -35,7 +32,6 @@ import org.apache.directory.api.asn1.ber.tlv.TLV;
 import org.apache.directory.api.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.shared.kerberos.KerberosUtils;
 import org.apache.directory.shared.kerberos.codec.types.PrincipalNameType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +61,6 @@ public class PrincipalName implements Asn1Object
     /** The principal name - we may have more than one - */
     private List<String> nameString = new ArrayList<>();
 
-    /** The realm part */
-    private String realm;
-
     /** The principal name as a byte[], for encoding purpose */
     private List<byte[]> nameBytes;
 
@@ -84,90 +77,6 @@ public class PrincipalName implements Asn1Object
      */
     public PrincipalName()
     {
-    }
-
-
-    /**
-     * Creates a new instance of PrincipalName, given a KerberosPrincipal.
-     * 
-     * We assume that a principal has only one type, even if there are
-     * more than one name component.
-     *
-     * @param principal A Sun kerberosPrincipal instance
-     */
-    public PrincipalName( KerberosPrincipal principal )
-    {
-        try
-        {
-            nameString = KerberosUtils.getNames( principal );
-            realm = principal.getRealm();
-        }
-        catch ( ParseException pe )
-        {
-            nameString = KerberosUtils.EMPTY_PRINCIPAL_NAME;
-        }
-
-        this.nameType = PrincipalNameType.getTypeByValue( principal.getNameType() );
-    }
-
-
-    /**
-     * Creates a new instance of PrincipalName given a String and an 
-     * principal type.
-     * 
-     * @param nameString The name string, which can contains more than one nameComponent
-     * @param nameType The principal name
-     */
-    public PrincipalName( String nameString, PrincipalNameType nameType ) throws ParseException
-    {
-        this.nameString = KerberosUtils.getNames( nameString );
-        this.nameType = nameType;
-    }
-
-
-    /**
-     * Creates a new instance of PrincipalName given a String[] and an 
-     * principal type.
-     * 
-     * @param nameParts The name string, which can contains more than one nameComponent
-     * @param nameType The principal name type
-     */
-    public PrincipalName( String[] nameParts, int nameType )
-    {
-        if ( nameParts == null || nameParts.length == 0 )
-        {
-            throw new IllegalArgumentException( "Empty name parts" );
-        }
-
-        List<String> nameComponents = new ArrayList<>();
-        for ( String np : nameParts )
-        {
-            nameComponents.add( np );
-        }
-
-        this.nameString = nameComponents;
-        this.nameType = PrincipalNameType.getTypeByValue( nameType );
-    }
-
-
-    /**
-     * Creates a new instance of PrincipalName.
-     *
-     * @param nameString
-     * @param nameType
-     */
-    public PrincipalName( String nameString, int nameType )
-    {
-        try
-        {
-            this.nameString = KerberosUtils.getNames( nameString );
-        }
-        catch ( ParseException pe )
-        {
-            throw new IllegalArgumentException( pe );
-        }
-
-        this.nameType = PrincipalNameType.getTypeByValue( nameType );
     }
 
 
@@ -189,47 +98,6 @@ public class PrincipalName implements Asn1Object
     public void setNameType( PrincipalNameType nameType )
     {
         this.nameType = nameType;
-    }
-
-
-    /** 
-     * Set the Principal name Type
-     * @param nameType the Principal name Type
-     */
-    public void setNameType( int nameType )
-    {
-        this.nameType = PrincipalNameType.getTypeByValue( nameType );
-    }
-
-
-    /**
-     * Set the realm for the principal
-     * @param realm the realm of the principal
-     */
-    public void setRealm( String realm )
-    {
-        this.realm = realm;
-    }
-
-
-    /**
-     * Get the realm for the principal
-     * @return realm the realm of the principal
-     */
-    public String getRealm()
-    {
-        return realm;
-    }
-
-
-    /**
-     * Returns the name components.
-     *
-     * @return The name components.
-     */
-    public List<String> getNames()
-    {
-        return nameString;
     }
 
 
@@ -468,11 +336,6 @@ public class PrincipalName implements Asn1Object
         else
         {
             sb.append( " no name-string" );
-        }
-
-        if ( realm != null )
-        {
-            sb.append( "realm: " ).append( realm );
         }
 
         sb.append( " }" );

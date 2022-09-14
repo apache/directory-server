@@ -23,9 +23,7 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -189,30 +187,5 @@ public class RandomKeyFactoryTest
 
         assertEquals( EncryptionType.AES256_CTS_HMAC_SHA1_96, keyType );
         assertEquals( 32, keyLength );
-    }
-
-
-    /**
-     * Tests that random key generation can be performed by the factory for a specified cipher type.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testRandomKeyFactoryOnlyDes() throws Exception
-    {
-        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
-        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
-
-        Map<EncryptionType, EncryptionKey> map = RandomKeyFactory.getRandomKeys( encryptionTypes );
-
-        assertEquals( 1, map.values().size(), "List length" );
-
-        EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
-
-        EncryptionType keyType = kerberosKey.getKeyType();
-        int keyLength = kerberosKey.getKeyValue().length;
-
-        assertEquals( EncryptionType.DES_CBC_MD5, keyType);
-        assertEquals( 8, keyLength );
     }
 }
