@@ -785,7 +785,9 @@ public enum I18n
     ERR_748("ERR_748"),
     ERR_749("ERR_749"),
     ERR_750("ERR_750"),
-    ERR_751("ERR_751");
+    ERR_751("ERR_751"),
+    ERR_752_CANNOT_SERIALIZE_TREE("ERR_752_CANNOT_SERIALIZE_TREE");
+
 
     private static final ResourceBundle ERR_BUNDLE = ResourceBundle
         .getBundle( "org.apache.directory.server.i18n.errors", Locale.ROOT );

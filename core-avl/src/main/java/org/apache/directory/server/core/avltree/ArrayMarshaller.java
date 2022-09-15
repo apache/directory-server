@@ -27,8 +27,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 
+import org.apache.directory.api.ldap.model.constants.Loggers;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.i18n.I18n;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,6 +42,9 @@ import org.apache.directory.server.i18n.I18n;
 @SuppressWarnings("unchecked")
 public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
 {
+    /** A dedicated log for cursors */
+    private static final Logger LOG_CURSOR = LoggerFactory.getLogger( Loggers.CURSOR_LOG.getName() );
+
     /** used for serialized form of an empty AvlTree */
     private static final byte[] EMPTY_TREE = new byte[1];
 
@@ -118,7 +124,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         }
         catch ( IOException e )
         {
-            e.printStackTrace();
+            LOG_CURSOR.error( I18n.err( I18n.ERR_752_CANNOT_SERIALIZE_TREE, e.getMessage() ) );
         }
 
         return data;
@@ -153,6 +159,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
 
             if ( startByte != 0 )
             {
+                LOG_CURSOR.error( I18n.err( I18n.ERR_440 ) );
                 throw new IOException( I18n.err( I18n.ERR_440 ) );
             }
 
@@ -178,7 +185,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         }
         catch ( NullPointerException npe )
         {
-            System.out.println( I18n.err( I18n.ERR_441, Strings.dumpBytes( data ) ) );
+            LOG_CURSOR.error( I18n.err( I18n.ERR_441, Strings.dumpBytes( data ) ) );
             throw npe;
         }
     }

@@ -108,7 +108,6 @@ public class DhcpProtocolHandler extends IoHandlerAdapter
     public void exceptionCaught( IoSession session, Throwable cause )
     {
         LOG.error( "EXCEPTION CAUGHT ", cause );
-        cause.printStackTrace( System.out );
 
         session.closeNow();
     }
