@@ -111,37 +111,27 @@
           <instructions>
             <Bundle-SymbolicName>${project.groupId}.kerberos.codec</Bundle-SymbolicName>
             <Export-Package>
+                org.apache.directory.server.kerberos.shared.crypto.encryption;version=${project.version},
+                org.apache.directory.server.kerberos.shared.store;version=${project.version},
                 org.apache.directory.shared.kerberos;version=${project.version},
                 org.apache.directory.shared.kerberos.codec;version=${project.version},
-                org.apache.directory.shared.kerberos.codec.changePwdData;version=${project.version},
-                org.apache.directory.shared.kerberos.codec.options;version=${project.version},
+                org.apache.directory.shared.kerberos.codec.encryptionKey;version=${project.version},
+                org.apache.directory.shared.kerberos.codec.encryptionKey.actions;version=${project.version},
+                org.apache.directory.shared.kerberos.codec.principalName;version=${project.version},
+                org.apache.directory.shared.kerberos.codec.principalName.actions;version=${project.version},
                 org.apache.directory.shared.kerberos.codec.types;version=${project.version},
                 org.apache.directory.shared.kerberos.components;version=${project.version},
-                org.apache.directory.shared.kerberos.crypto.checksum;version=${project.version},
-                org.apache.directory.shared.kerberos.exceptions;version=${project.version},
-                org.apache.directory.shared.kerberos.flags;version=${project.version},
-                org.apache.directory.shared.kerberos.messages;version=${project.version},
-                org.apache.directory.server.kerberos.shared.crypto.checksum;version=${project.version},
-                org.apache.directory.server.kerberos.shared.crypto.encryption;version=${project.version},
-                org.apache.directory.server.kerberos.shared.keytab;version=${project.version},
-                org.apache.directory.server.kerberos.shared.replay;version=${project.version},
-                org.apache.directory.server.kerberos.shared.store;version=${project.version}
+                org.apache.directory.shared.kerberos.exceptions;version=${project.version}
             </Export-Package>
             <Import-Package>
                 javax.crypto,
-                javax.crypto.spec,
                 javax.security.auth.kerberos,
-                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.asn1;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.actions;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber.grammar;version=${org.apache.directory.api.version},
                 org.apache.directory.api.asn1.ber.tlv;version=${org.apache.directory.api.version},
-                org.apache.directory.api.asn1.util;version=${org.apache.directory.api.version},
-                org.apache.directory.api.i18n;version=${org.apache.directory.api.version},
-                org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
-                org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.slf4j;version=${slf4j.api.bundleversion}

@@ -118,6 +118,8 @@
                 org.apache.directory.server.constants;version=${project.version},
                 org.apache.directory.server.core.api;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
+                org.apache.directory.server.kerberos.shared.store;version=${project.version},
+                org.apache.directory.server.protocol.shared.transport;version=${project.version},
                 org.apache.directory.shared.kerberos;version=${project.version},
                 org.apache.directory.shared.kerberos.codec.types;version=${project.version},
                 org.apache.directory.shared.kerberos.components;version=${project.version},

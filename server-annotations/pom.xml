@@ -133,12 +133,12 @@
                 org.apache.directory.server.factory;version=${project.version}
             </Export-Package>
             <Import-Package>
+                javax.net.ssl,
                 org.apache.commons.pool2;version=${commons.pool.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},
                 org.apache.directory.ldap.client.api;version=${org.apache.directory.api.version},
-                org.apache.directory.server.constants;version=${project.version},
                 org.apache.directory.server.core.annotations;version=${project.version},
                 org.apache.directory.server.core.api;version=${project.version},
                 org.apache.directory.server.core.security;version=${project.version},
@@ -147,6 +147,7 @@
                 org.apache.directory.server.ldap.handlers.sasl;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.cramMD5;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.digestMD5;version=${project.version},
+                org.apache.directory.server.ldap.handlers.sasl.external.certificate;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.gssapi;version=${project.version},
                 org.apache.directory.server.ldap.handlers.sasl.ntlm;version=${project.version},
                 org.apache.directory.server.ldap.replication;version=${project.version},

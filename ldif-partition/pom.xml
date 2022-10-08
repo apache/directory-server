@@ -121,7 +121,6 @@
                 org.apache.directory.server.core.partition.ldif;version=${project.version}
             </Export-Package>
             <Import-Package>
-                javax.naming,
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},

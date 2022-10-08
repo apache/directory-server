@@ -115,17 +115,17 @@
                 org.apache.directory.server.core.integ;version=${project.version}
             </Export-Package>
             <Import-Package>
+                javax.naming,
+                javax.security.auth.x500,
                 org.apache.commons.pool2;version=${commons.pool.version},
                 org.apache.commons.pool2.impl;version=${commons.pool.version},
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
-                org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},
                 org.apache.directory.ldap.client.api;version=${org.apache.directory.api.version},
                 org.apache.directory.ldap.client.template;version=${org.apache.directory.api.version},
                 org.apache.directory.server.annotations;version=${project.version},
-                org.apache.directory.server.constants;version=${project.version},
                 org.apache.directory.server.core.annotations;version=${project.version},
                 org.apache.directory.server.core.api;version=${project.version},
                 org.apache.directory.server.core.api.changelog;version=${project.version},
@@ -137,12 +137,8 @@
                 org.apache.directory.server.factory;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.ldap;version=${project.version},
-                org.junit;version=${junit.version},
-                org.junit.rules;version=${junit.version},
-                org.junit.runner;version=${junit.version},
-                org.junit.runner.notification;version=${junit.version},
-                org.junit.runners;version=${junit.version},
-                org.junit.runners.model;version=${junit.version},
+                org.junit.jupiter.api;version=${junit.jupiter.api.version},
+                org.junit.jupiter.api.extension;version=${junit.jupiter.api.version},
                 org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>

@@ -146,17 +146,16 @@
                 org.apache.directory.server.core.partition.impl.btree.jdbm;version=${project.version}
             </Export-Package>
             <Import-Package>
+                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 jdbm,
                 jdbm.btree,
                 jdbm.helper,
                 jdbm.recman,
-                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
-                org.apache.directory.api.ldap.model.filter;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.name;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.schema;version=${org.apache.directory.api.version},

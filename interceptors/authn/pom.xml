@@ -149,6 +149,8 @@
                 org.apache.directory.server.core.authn.ppolicy;version=${project.version}
             </Export-Package>
             <Import-Package>
+                javax.naming,
+                javax.net.ssl,
                 org.apache.commons.collections4.map;version=${commons.collections.version},
                 org.apache.directory.api.ldap.extras.controls.ppolicy;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.extras.controls.ppolicy_impl;version=${org.apache.directory.api.version},
@@ -171,6 +173,7 @@
                 org.apache.directory.server.core.api.partition;version=${project.version},
                 org.apache.directory.server.core.authn.ppolicy;version=${project.version},
                 org.apache.directory.server.core.shared;version=${project.version},
+                org.apache.directory.server.core.shared.partition;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.mina.core.session;version=${mina.core.version},
                 org.slf4j;version=${slf4j.api.bundleversion}

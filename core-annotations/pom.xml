@@ -159,6 +159,7 @@
                 org.apache.directory.server.core.factory;version=${project.version}
             </Export-Package>
             <Import-Package>
+                org.apache.commons.collections4.map;version=${commons.collections.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
@@ -175,7 +176,6 @@
                 org.apache.directory.api.util.exception;version=${org.apache.directory.api.version},
                 org.apache.directory.server.constants;version=${project.version},
                 org.apache.directory.server.core;version=${project.version},
-                org.apache.directory.server.core.annotations;version=${project.version},
                 org.apache.directory.server.core.api;version=${project.version},
                 org.apache.directory.server.core.api.interceptor;version=${project.version},
                 org.apache.directory.server.core.api.partition;version=${project.version},
@@ -189,10 +189,6 @@
                 org.apache.directory.server.core.partition.ldif;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
                 org.apache.directory.server.xdbm;version=${project.version},
-                org.apache.directory.server.xdbm.search;version=${project.version},
-                org.apache.directory.server.xdbm.search.cursor;version=${project.version},
-                org.apache.directory.server.xdbm.search.evaluator;version=${project.version},
-                org.apache.directory.server.xdbm.search.impl;version=${project.version},
                 org.apache.directory.server.xdbm.impl.avl;version=${project.version},
                 org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>

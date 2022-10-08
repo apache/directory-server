@@ -236,11 +236,13 @@
                 javax.naming,
                 javax.naming.ldap,
                 netscape.ldap,
+                org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.message;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.util;version=${org.apache.directory.api.version},
                 org.apache.directory.api.util;version=${org.apache.directory.api.version},
                 org.apache.directory.ldap.client.api;version=${org.apache.directory.api.version},
                 org.apache.directory.server.constants;version=${project.version},
+                org.apache.directory.server.core.api;version=${project.version},
                 org.apache.directory.server.core.integ;version=${project.version},
                 org.apache.directory.server.ldap;version=${project.version},
                 org.slf4j;version=${slf4j.api.bundleversion}

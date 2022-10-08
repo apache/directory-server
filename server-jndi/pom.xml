@@ -147,6 +147,7 @@
                 org.apache.directory.server.configuration;version=${project.version}
             </Export-Package>
             <Import-Package>
+                javax.naming,
                 org.apache.commons.lang3;version=${commons.lang.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},

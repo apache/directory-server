@@ -216,8 +216,10 @@
                 org.apache.directory.server.core.security;version=${project.version}
             </Export-Package>
             <Import-Package>
+                javax.net.ssl,
                 javax.security.auth.x500,
                 org.apache.directory.api.ldap.codec.api;version=${org.apache.directory.api.version},
+                org.apache.directory.api.ldap.extras.controls.ad;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.csn;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.cursor;version=${org.apache.directory.api.version},
@@ -262,14 +264,14 @@
                 org.apache.directory.server.core.subtree;version=${project.version},
                 org.apache.directory.server.core.trigger;version=${project.version},
                 org.apache.directory.server.i18n;version=${project.version},
-                org.bouncycastle.jce.provider;version=${bcprov.version},
-                org.bouncycastle.x509;version=${bcprov.version},
                 org.bouncycastle.asn1;version=${bcprov.version},
                 org.bouncycastle.asn1.x509;version=${bcprov.version},
-                org.bouncycastle.operator;version=${bcprov.version},
-                org.bouncycastle.operator.jcajce;version=${bcprov.version},
                 org.bouncycastle.cert;version=${bcprov.version},
                 org.bouncycastle.cert.jcajce;version=${bcprov.version},
+                org.bouncycastle.jce.provider;version=${bcprov.version},
+                org.bouncycastle.operator;version=${bcprov.version},
+                org.bouncycastle.operator.jcajce;version=${bcprov.version},
+                org.bouncycastle.x509;version=${bcprov.version},
                 org.slf4j;version=${slf4j.api.bundleversion}
             </Import-Package>
           </instructions>

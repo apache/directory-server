@@ -130,8 +130,6 @@
             </Export-Package>
             <Import-Package>
                 javax.naming.directory,
-                com.github.benmanes.caffeine.cache;bundle-version=${caffeine.version},
-                org.apache.directory.api.ldap.codec.controls.search.subentries;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.constants;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.entry;version=${org.apache.directory.api.version},
                 org.apache.directory.api.ldap.model.exception;version=${org.apache.directory.api.version},
