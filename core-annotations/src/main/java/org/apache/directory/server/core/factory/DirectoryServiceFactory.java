@@ -19,7 +19,7 @@
 package org.apache.directory.server.core.factory;
 
 
-import org.apache.commons.collections.Factory;
+import org.apache.commons.collections4.Factory;
 import org.apache.directory.server.core.api.DirectoryService;
 
 

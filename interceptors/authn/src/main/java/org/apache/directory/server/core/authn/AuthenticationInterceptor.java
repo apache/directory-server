@@ -24,6 +24,7 @@ import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPoli
 import static org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum.PASSWORD_TOO_SHORT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_ACCOUNT_LOCKED_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_CHANGED_TIME_AT;
+import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_END_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_FAILURE_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_GRACE_USE_TIME_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_HISTORY_AT;
@@ -31,7 +32,6 @@ import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchema
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_POLICY_SUBENTRY_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_RESET_AT;
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
-import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_END_TIME_AT;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.ADD_ATTRIBUTE;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REMOVE_ATTRIBUTE;
 import static org.apache.directory.api.ldap.model.entry.ModificationOperation.REPLACE_ATTRIBUTE;
@@ -47,10 +47,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyRequest;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponseImpl;
-import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.LdapSecurityConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
@@ -856,9 +856,13 @@ public class AuthenticationInterceptor extends BaseInterceptor
             LOG.debug( "Operation Context: {}", deleteContext );
         }
 
+        // Check that we can execute this operation
         checkAuthenticated( deleteContext );
-        checkPwdReset( deleteContext );
+
+        // propagate the call to the next interceptor
         next( deleteContext );
+        
+        // if the deleted entry contains a password, then invalidate the associated caches
         invalidateAuthenticatorCaches( deleteContext.getDn() );
     }
 
@@ -1658,15 +1662,15 @@ public class AuthenticationInterceptor extends BaseInterceptor
 
         List<Modification> mods = modifyContext.getModItems();
 
-        for ( Modification m : mods )
+        for ( Modification mod : mods )
         {
-            Attribute at = m.getAttribute();
+            Attribute at = mod.getAttribute();
             AttributeType passwordAttribute = schemaManager.lookupAttributeTypeRegistry( policyConfig.getPwdAttribute() );
 
             if ( at.getAttributeType().equals( passwordAttribute ) )
             {
                 pwdModDetails.setPwdModPresent( true );
-                ModificationOperation op = m.getOperation();
+                ModificationOperation op = mod.getOperation();
 
                 if ( op == REMOVE_ATTRIBUTE )
                 {
@@ -1676,6 +1680,22 @@ public class AuthenticationInterceptor extends BaseInterceptor
                 {
                     pwdModDetails.setAddOrReplace( true );
                     pwdModDetails.setNewPwd( at.getBytes() );
+                }
+
+                switch ( op )
+                {
+                    case REMOVE_ATTRIBUTE:
+                        pwdModDetails.setDelete( true );
+                        break;
+                        
+                    case REPLACE_ATTRIBUTE:
+                    case ADD_ATTRIBUTE:
+                        pwdModDetails.setAddOrReplace( true );
+                        pwdModDetails.setNewPwd( at.getBytes() );
+                        break;
+                        
+                    default:
+                        // nothing to do
                 }
             }
             else
@@ -1870,15 +1890,6 @@ public class AuthenticationInterceptor extends BaseInterceptor
     public PpolicyConfigContainer getPwdPolicyContainer()
     {
         return pwdPolicyContainer;
-    }
-
-
-    /**
-     * @param pwdPolicyContainer the pwdPolicyContainer to set
-     */
-    public void setPwdPolicyContainer( PpolicyConfigContainer pwdPolicyContainer )
-    {
-        this.pwdPolicyContainer = pwdPolicyContainer;
     }
 
 
