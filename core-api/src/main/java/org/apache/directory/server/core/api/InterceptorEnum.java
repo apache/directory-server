@@ -27,21 +27,22 @@ package org.apache.directory.server.core.api;
  */
 public enum InterceptorEnum
 {
-    NORMALIZATION_INTERCEPTOR("normalizationInterceptor"),
-    AUTHENTICATION_INTERCEPTOR("authenticationInterceptor"),
-    REFERRAL_INTERCEPTOR("referralInterceptor"),
     ACI_AUTHORIZATION_INTERCEPTOR("aciAuthorizationInterceptor"),
-    DEFAULT_AUTHORIZATION_INTERCEPTOR("defaultAuthorizationInterceptor"),
     ADMINISTRATIVE_POINT_INTERCEPTOR("administrativePointInterceptor"),
-    EXCEPTION_INTERCEPTOR("exceptionInterceptor"),
-    OPERATIONAL_ATTRIBUTE_INTERCEPTOR("operationalAttributeInterceptor"),
-    SCHEMA_INTERCEPTOR("schemaInterceptor"),
-    SUBENTRY_INTERCEPTOR("subentryInterceptor"),
-    EVENT_INTERCEPTOR("eventInterceptor"),
-    TRIGGER_INTERCEPTOR("triggerInterceptor"),
+    AUTHENTICATION_INTERCEPTOR("authenticationInterceptor"),
     CHANGE_LOG_INTERCEPTOR("changeLogInterceptor"),
     COLLECTIVE_ATTRIBUTE_INTERCEPTOR("collectiveAttributeInterceptor"),
-    JOURNAL_INTERCEPTOR("journalInterceptor");
+    DEFAULT_AUTHORIZATION_INTERCEPTOR("defaultAuthorizationInterceptor"),
+    EVENT_INTERCEPTOR("eventInterceptor"),
+    EXCEPTION_INTERCEPTOR("exceptionInterceptor"),
+    JOURNAL_INTERCEPTOR("journalInterceptor"),
+    NORMALIZATION_INTERCEPTOR("normalizationInterceptor"),
+    OPERATIONAL_ATTRIBUTE_INTERCEPTOR("operationalAttributeInterceptor"),
+    PASSWORD_POLICY_INTERCEPTOR("ppolicyInterceptor"),
+    REFERRAL_INTERCEPTOR("referralInterceptor"),
+    SCHEMA_INTERCEPTOR("schemaInterceptor"),
+    SUBENTRY_INTERCEPTOR("subentryInterceptor"),
+    TRIGGER_INTERCEPTOR("triggerInterceptor");
 
     /** The associated interceptor name */
     private String name;

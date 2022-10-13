@@ -35,7 +35,6 @@ import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfigur
  */
 public class PpolicyConfigContainer
 {
-
     /** a map holding the entry specific password policies */
     private Map<Dn, PasswordPolicyConfiguration> ppolicyConfigMap = new HashMap<>();
 
