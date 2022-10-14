@@ -36,23 +36,22 @@
   </description>
 
   <modules>
-    <module>normalization</module>
-    <module>event</module>
-    <module>subtree</module>
-    <module>authz</module>
     <module>admin</module>
     <module>authn</module>
+    <module>authz</module>
     <module>changelog</module>
-    <module>journal</module>
-    <module>referral</module>
-    <module>operational</module>
     <module>collective</module>
+    <module>event</module>
+    <module>journal</module>
     <module>logger</module>
-    <module>exception</module>
-    <module>hash</module>
-    <module>schema</module>
-    <module>trigger</module>
+    <module>normalization</module>
     <module>number</module>
+    <module>operational</module>
+    <module>ppolicy</module>
+    <module>referral</module>
+    <module>schema</module>
+    <module>subtree</module>
+    <module>trigger</module>
   </modules>
 
 </project>
