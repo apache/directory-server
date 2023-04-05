@@ -329,13 +329,6 @@
             <forkedProcessExitTimeoutInSeconds>1</forkedProcessExitTimeoutInSeconds>
             <rerunFailingTestsCount>1</rerunFailingTestsCount>
           </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>org.apache.maven.surefire</groupId>
-              <artifactId>surefire-junit47</artifactId>
-              <version>3.0.0-M5</version>
-            </dependency>
-          </dependencies>
         </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings 
           only. It has no influence on the Maven build itself. -->
