@@ -572,12 +572,6 @@
       
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>apacheds-benchmarks</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>apacheds-core</artifactId>
         <version>${project.version}</version>
       </dependency>
