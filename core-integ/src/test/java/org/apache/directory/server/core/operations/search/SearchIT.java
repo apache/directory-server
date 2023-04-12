@@ -40,7 +40,7 @@ import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
-import org.apache.directory.api.ldap.model.exception.LdapProtocolErrorException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
 import org.apache.directory.api.ldap.model.filter.LessEqNode;
@@ -1316,7 +1316,7 @@ public class SearchIT extends AbstractLdapTestUnit
         // With LDAP API 2.1.3
         //assertThrows( LdapInvalidSearchFilterException.class, () ->
         // With LDAP API 2.1.2
-        assertThrows( LdapProtocolErrorException.class, () ->
+        assertThrows( LdapInvalidSearchFilterException.class, () ->
         {
             try ( LdapConnection connection = new LdapCoreSessionConnection( classDirectoryService.getAdminSession() ) )
             {
