@@ -561,9 +561,12 @@ public class LdapSSLConnectionTest extends AbstractLdapTestUnit
             }
             catch ( Exception e )
             {
+                e.printStackTrace();
+
                 assertThat( e, is( instanceOf( LdapTlsHandshakeException.class ) ) );
                 assertThat( e.getMessage(), containsString( "ERR_04120_TLS_HANDSHAKE_ERROR" ) );
                 assertThat( e.getMessage(), containsString( "plaintext connection" ) );
+                
     
                 throw e;
             }
