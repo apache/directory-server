@@ -67,7 +67,7 @@
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <forbiddenapis.version>2.6</forbiddenapis.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <jetty.version>9.4.48.v20220622</jetty.version>
+    <jetty.version>11.0.15</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.48</jetty.bundle.version>
     <junit.jupiter.api.version>5.8.2</junit.jupiter.api.version>
