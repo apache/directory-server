@@ -78,7 +78,7 @@ public class ModifyMultipleChangesIT extends AbstractLdapTestUnit
      * @throws Exception on errors
      */
     @BeforeAll
-    private static void createData() throws Exception
+    public static void createData() throws Exception
     {
         try ( LdapConnection conn = IntegrationUtils.getAdminConnection( classDirectoryService ) )
         {
