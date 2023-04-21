@@ -53,7 +53,7 @@
     <skin.version>1.0.3</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.10.12</ant.version>
+    <ant.version>1.10.13</ant.version>
     <bcprov.version>1.70</bcprov.version>
     <commons.cli.version>1.5.0</commons.cli.version>
     <commons.codec.version>1.15</commons.codec.version>
