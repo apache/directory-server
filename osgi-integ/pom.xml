@@ -251,7 +251,7 @@
     <dependency>
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>
-      <version>5.9.2</version>
+      <version>${junit.jupiter.api.version}</version>
       <scope>test</scope>
     </dependency>
 
