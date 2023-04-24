@@ -65,7 +65,7 @@
     <dnsjava.version>3.5.2</dnsjava.version>
     <caffeine.version>2.9.3</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
-    <forbiddenapis.version>2.6</forbiddenapis.version>
+    <forbiddenapis.version>2.7</forbiddenapis.version>
     <hamcrest.version>2.2</hamcrest.version>
     <jetty.version>9.4.48.v20220622</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
