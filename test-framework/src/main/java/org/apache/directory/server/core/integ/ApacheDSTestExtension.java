@@ -22,6 +22,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.UUID;
 
+import org.apache.directory.api.ldap.model.name.DefaultDnFactory;
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.annotations.CreateDS;
@@ -168,6 +169,8 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
 
                 // Load the schemas
                 DSAnnotationProcessor.loadSchemas( context, classDS );
+                
+                dsf.getDirectoryService().getLdapCodecService().setDnfactory( new DefaultDnFactory( dsf.getDirectoryService().getSchemaManager(), 1000 ) );
             }
 
             // Apply the class LDIFs
