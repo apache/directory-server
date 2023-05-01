@@ -15,4 +15,4 @@ out/
 .java-version
 META-INF/
 dependency-reduced-pom.xml
-
+sbom.json
