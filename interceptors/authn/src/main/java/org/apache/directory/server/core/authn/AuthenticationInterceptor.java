@@ -1472,7 +1472,8 @@ public class AuthenticationInterceptor extends BaseInterceptor
         {
             return;
         }
-        final CheckQualityEnum qualityVal = policyConfig.getPwdCheckQuality();
+        
+        CheckQualityEnum qualityVal = policyConfig.getPwdCheckQuality();
 
         if ( qualityVal == CheckQualityEnum.NO_CHECK )
         {
