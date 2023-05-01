@@ -33,6 +33,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
+import org.apache.directory.api.ldap.model.name.DefaultDnFactory;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.util.Network;
@@ -289,7 +290,7 @@ public final class DSAnnotationProcessor
                     }
                 }
             }
-
+            
             partition.setSchemaManager( schemaManager );
 
             // Inject the partition into the DirectoryService
@@ -303,6 +304,9 @@ public final class DSAnnotationProcessor
                 injectEntries( service, contextEntry.entryLdif() );
             }
         }
+
+        // Inject the DnFactory in the DLAP codec service
+        service.getLdapCodecService().setDnfactory( new DefaultDnFactory( service.getSchemaManager(), 1000 ) );
 
         return service;
     }
