@@ -489,11 +489,11 @@
     </pluginManagement>
     
     <plugins>
-      <plugin>
+      <!-- plugin>
         <groupId>org.spdx</groupId>
-        <artifactId>spdx-maven-plugin</artifactId>
+        <artifactId>spdx-maven-plugin</artifactId -->
         <!-- please check for updates on https://search.maven.org/search?q=a:spdx-maven-plugin -->  
-        <version>0.6.5</version>
+        <!-- version>0.6.5</version>
         <executions>
           <execution>
             <id>build-spdx</id>
@@ -506,9 +506,8 @@
           <excludedFilePatterns>
             <param>*.spdx</param>
           </excludedFilePatterns>
-          <!-- See documentation below for additional configuration -->
         </configuration>
-      </plugin>
+      </plugin -->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
