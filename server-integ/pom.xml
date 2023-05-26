@@ -270,7 +270,7 @@
             <configuration>
               <systemPropertyVariables>
                 <felix.cache.rootdir>
-                  ${project.build.directory}
+                  ${felix.cache.dir}
                 </felix.cache.rootdir>
                 <felix.cache.locking>
                   false
@@ -327,7 +327,7 @@
               <systemPropertyVariables>
                 <apacheds.partition.factory>org.apache.directory.server.core.factory.JdbmPartitionFactory</apacheds.partition.factory>
                 <felix.cache.rootdir>
-                  ${project.build.directory}
+                  ${felix.cache.dir}
                 </felix.cache.rootdir>
                 <felix.cache.locking>
                   false
@@ -355,7 +355,7 @@
                   <systemPropertyVariables>
                     <apacheds.partition.factory>org.apache.directory.server.core.factory.AvlPartitionFactory</apacheds.partition.factory>
                     <felix.cache.rootdir>
-                      ${project.build.directory}
+                      ${felix.cache.dir}
                     </felix.cache.rootdir>
                     <felix.cache.locking>
                       false
@@ -383,7 +383,7 @@
                   <systemPropertyVariables>
                     <apacheds.partition.factory>org.apache.directory.server.core.factory.LdifPartitionFactory</apacheds.partition.factory>
                     <felix.cache.rootdir>
-                      ${project.build.directory}
+                      ${felix.cache.dir}
                     </felix.cache.rootdir>
                     <felix.cache.locking>
                       false
