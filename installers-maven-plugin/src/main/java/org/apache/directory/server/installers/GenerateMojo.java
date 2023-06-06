@@ -40,114 +40,99 @@ import org.apache.directory.server.installers.rpm.RpmTarget;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 
 
 /**
- * Maven 2 mojo creating the platform specific installation layout images.
- * 
- * @goal generate
- * @description Creates platform specific installation layout images.
- * @phase package
- * @requiresDependencyResolution runtime
- * 
+ * Creates platform specific installation layout images.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class GenerateMojo extends AbstractMojo
 {
     /**
      * The target directory into which the mojo creates os and platform 
      * specific images.
-     * 
-     * @parameter default-value="${project.build.directory}/installers"
      */
+    @Parameter(defaultValue = "${project.build.directory}/installers")
     private File outputDirectory;
 
     /**
      * The associated maven project.
-     * 
-     * @parameter property="project" default-value="${project}"
-     * @required
      */
+    @Parameter(property = "project", readonly = true, required = true)
     private MavenProject project;
 
     /**
      * The RPM installer targets.
-     * 
-     * @parameter
      */
+    @Parameter
     private RpmTarget[] rpmTargets;
 
     /**
      * The Mac OS X installer targets.
-     * 
-     * @parameter
      */
+    @Parameter
     private MacOsXPkgTarget[] macOsXPkgTargets;
 
     /**
      * The NSIS installer targets.
-     * 
-     * @parameter
      */
+    @Parameter
     private NsisTarget[] nsisTargets;
 
     /**
      * The Debian installer targets.
-     * 
-     * @parameter
      */
+    @Parameter
     private DebTarget[] debTargets;
 
     /**
      * The Binary installer targets.
-     * 
-     * @parameter
      */
+    @Parameter
     private BinTarget[] binTargets;
 
     /**
      * The Archive installers targets.
-     * 
-     * @parameter
      */
+    @Parameter
     private ArchiveTarget[] archiveTargets;
 
     /**
      *  The dpkg utility executable.
-     *  
-     *  @parameter
-     *      property="installers.dpkg"
-     *      default-value="/usr/bin/dpkg"
      */
+    @Parameter(property = "installers.dpkg", defaultValue = "/usr/bin/dpkg")
     private File dpkgUtility;
 
     /**
      *  The PackageMaker utility executable.
-     *  
-     *  @parameter
-     *      property="installers.packageMaker"
-     *      default-value="/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker"
      */
+    @Parameter(
+            property = "installers.packageMaker",
+            defaultValue = "/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker")
     private File packageMakerUtility;
 
     /**
      *  The makensis utility executable.
-     *  
-     *  @parameter
-     *      property="installers.makensis"
-     *      default-value="/usr/bin/makensis"
      */
+    @Parameter(
+            property = "installers.makensis",
+            defaultValue = "/usr/bin/makensis")
     private File makensisUtility;
 
     /**
      *  The rpmbuild utility executable.
-     *  
-     *  @parameter
-     *      property="installers.rpmbuild"
-     *      default-value="/usr/bin/rpmbuild"
      */
+     @Parameter(
+             property = "installers.rpmbuild",
+             defaultValue = "/usr/bin/rpmbuild")
     private File rpmbuildUtility;
 
     /** The list containing all the targets */
