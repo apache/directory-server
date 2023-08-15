@@ -86,6 +86,9 @@
     <wagon.ssh.version>3.5.3</wagon.ssh.version>
     <wagon.ssh.external.version>3.5.3</wagon.ssh.external.version>
     <wrapper.version>3.2.3</wrapper.version>
+
+    <!-- properties used in tests -->
+    <felix.cache.dir>${project.build.directory}/felix-root</felix.cache.dir>
   </properties>
 
   <url>https://directory.apache.org/apacheds/1.5</url>
