@@ -122,6 +122,32 @@ pipeline {
             }
           }
         }
+        stage ('Linux Java 20') {
+          options {
+            timeout(time: 4, unit: 'HOURS')
+            retry(2)
+          }
+          agent {
+            docker {
+              label 'ubuntu'
+              image 'apachedirectory/maven-build:jdk-20'
+              alwaysPull true
+              args '-v $HOME/.m2:/home/hnelson/.m2'
+            }
+          }
+          steps {
+            sh '''
+            mvn -V -U clean verify
+            '''
+          }
+          post {
+            always {
+              junit '**/target/surefire-reports/*.xml'
+              deleteDir()
+            }
+          }
+        }
+
         stage ('Windows Java 11') {
           options {
             timeout(time: 4, unit: 'HOURS')
