@@ -544,7 +544,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         // server the DNs are all normalized and a simple string compare should
         // do the trick
         
-        String name = Strings.toLowerCaseAscii( entry.getDn().getName() );
+        String name = Strings.toLowerCase( entry.getDn().getName() );
         
         if ( name.endsWith( replConsumerConfigDn )
             || name.endsWith( schemaDn )
