@@ -122,7 +122,7 @@ pipeline {
             }
           }
         }
-        stage ('Linux Java 20') {
+/*        stage ('Linux Java 20') {
           options {
             timeout(time: 4, unit: 'HOURS')
             retry(2)
@@ -170,6 +170,7 @@ pipeline {
             }
           }
         }
+*/
       }
     }
     stage ('Deploy') {
