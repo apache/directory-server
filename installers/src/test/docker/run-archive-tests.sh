@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -18,12 +18,13 @@
 # under the License. 
 
 set -e
+project_version='2.0.0.AM27-SNAPSHOT'
 
 TEST_SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 INSTALLERS_DIR="$TEST_SCRIPTS_DIR/../installers"
 
 # tar.gz archive
-TGZ="${INSTALLERS_DIR}/apacheds-${project.version}.tar.gz"
+TGZ="${INSTALLERS_DIR}/apacheds-${project_version}.tar.gz"
 if [ -f ${TGZ} ]
 then
     echo
@@ -39,7 +40,7 @@ fi
 
 
 # zip archive
-ZIP="${INSTALLERS_DIR}/apacheds-${project.version}.zip"
+ZIP="${INSTALLERS_DIR}/apacheds-${project_version}.zip"
 if [ -f ${ZIP} ]
 then
     echo
@@ -50,5 +51,5 @@ then
       -v ${TEST_SCRIPTS_DIR}/archive.test:/archive.test \
       -v ${TEST_SCRIPTS_DIR}/config.ldif:/config.ldif \
       -v ${TEST_SCRIPTS_DIR}/data.ldif:/data.ldif \
-      openjdk:11 bash /archive.test
+      openjdk:8 bash /archive.test
 fi

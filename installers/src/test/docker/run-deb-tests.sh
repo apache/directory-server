@@ -30,7 +30,7 @@ then
     echo
     echo
     echo "Testing deb package (Debian 9, OpenJDK 8, 64bit)"
-    $DOCKER_CMD debian:9 bash /deb.test
+    $DOCKER_CMD debian:10 bash /deb.test
 
     echo
     echo
