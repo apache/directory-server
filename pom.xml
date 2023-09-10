@@ -53,7 +53,7 @@
     <skin.version>1.0.3</skin.version>
     
     <!-- Set versions for depending jars -->
-    <ant.version>1.10.13</ant.version>
+    <ant.version>1.10.14</ant.version>
     <bcprov.version>1.70</bcprov.version>
     <commons.cli.version>1.5.0</commons.cli.version>
     <commons.codec.version>1.15</commons.codec.version>
@@ -67,7 +67,7 @@
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <forbiddenapis.version>2.7</forbiddenapis.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <jetty.version>9.4.51.v20230217</jetty.version>
+    <jetty.version>9.4.52.v20230823</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.48</jetty.bundle.version>
     <junit.jupiter.api.version>5.10.0</junit.jupiter.api.version>
@@ -78,7 +78,7 @@
     <mina.core.version>2.2.2</mina.core.version>
     <org.apache.felix.version>7.0.5</org.apache.felix.version>
     <pax-exam.version>4.13.4</pax-exam.version>
-    <pax-url.version>2.6.11</pax-url.version>
+    <pax-url.version>2.6.14</pax-url.version>
     <plexus.utils.version>3.5.1</plexus.utils.version>
     <slf4j.api.version>1.7.36</slf4j.api.version>
     <slf4j.api.bundleversion>"$«range;[==,=+)»"</slf4j.api.bundleversion>
