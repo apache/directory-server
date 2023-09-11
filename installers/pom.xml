@@ -121,7 +121,7 @@
               <!-- Targets for Linux .deb installer package -->
               <debTargets>
                 <debTarget>
-                 <id>apacheds-debian-i386</id>
+                  <id>apacheds-debian-i386</id>
                   <finalName>apacheds-${project.version}-i386.deb</finalName>
                   <osArch>i386</osArch>
                 </debTarget>
@@ -180,7 +180,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>apacheds-installers-maven-plugin</artifactId>
             <configuration>
-              
               <!-- Targets for Linux .deb installer package -->
               <debTargets>
                 <debTarget>

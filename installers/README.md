@@ -50,6 +50,28 @@ is one of :
 * **docker** : A Docker installer
 * **installers** : all the installers.
 
+NOTE: In order to be able to build the *rpm*, *windows* and *deb* packages, you need to install the following tools:
+
+### On Mac OSX:
+
+* **deb**: *brew install dpkg*. **BEWARE**: it will install in */usr/local/bin*, instead of */usr/bin*.
+
+You'll need to run the installers using this command line:
+
+	mvn clean install -Pdebian -Dinstallers.dpkg=/usr/local/bin/dpkg
+
+* **rpm**: *brew install rpm*. **BEWARE**: it will install in */usr/local/bin*, instead of */usr/bin*.
+
+You'll need to run the installers using this command line:
+
+	mvn clean install -Prpm -Dinstallers.dpkg=/usr/local/bin/rpmbuild
+
+
+* **windows**: *brew install makensis*. **BEWARE**: it will install in */usr/local/bin*, instead of */usr/bin*.
+
+You'll need to run the installers using this command line:
+
+	mvn clean install -Pwindows -Dinstallers.makensis=/usr/local/bin/makensis
 
 ### 'bin' installer
 
