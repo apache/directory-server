@@ -23,7 +23,7 @@ TEST_SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pw
 INSTALLERS_DIR="$TEST_SCRIPTS_DIR/../installers"
 
 # Debian package 64bit
-DEB64="${INSTALLERS_DIR}/apacheds-${project.version}-amd64.deb"
+DEB64="${INSTALLERS_DIR}/apacheds-2.0.0.AM27-SNAPSHOT-amd64.deb"
 DOCKER_CMD="docker run -i --rm -h myhostname -v ${DEB64}:/apacheds.deb -v ${TEST_SCRIPTS_DIR}/deb.test:/deb.test -v ${TEST_SCRIPTS_DIR}/config.ldif:/config.ldif -v ${TEST_SCRIPTS_DIR}/data.ldif:/data.ldif"
 if [ -f ${DEB64} ]
 then

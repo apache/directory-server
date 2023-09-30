@@ -223,3 +223,4 @@ Debugging one of the installers maven plugins in Eclipse is quite easy:
 * Set the _profile_ to match the plugin you want to debug (**mac**, **bin**, **debian**, **rpm**, **windows**, **archive**, **docker**, or **installers**)
 * You are good to go !
 
+NOTE: If you were to modify the plugin, do not forget to recompile it before debugging it !
