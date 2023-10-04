@@ -124,14 +124,14 @@
                   <id>apacheds-debian-i386</id>
                   <finalName>apacheds-${project.version}-i386.deb</finalName>
                   <osArch>OS_ARCH_I386</osArch>
-                  <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility>
+                  <!-- Test for Mac OS <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility> -->
                 </debTarget>
                 
                 <debTarget>
                  <id>apacheds-debian-amd64</id>
                   <finalName>apacheds-${project.version}-amd64.deb</finalName>
                   <osArch>OS_ARCH_AMD64</osArch>
-                  <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility>
+                  <!-- Test for Mac OS <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility> -->
                 </debTarget>
               </debTargets>
               
@@ -188,14 +188,14 @@
                   <id>apacheds-debian-i386</id>
                   <finalName>apacheds-${project.version}-i386.deb</finalName>
                   <osArch>OS_ARCH_I386</osArch>
-                  <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility>
+                  <!-- Test for Mac OS <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility> -->
                 </debTarget>
                 
                 <debTarget>
                   <id>apacheds-debian-amd64</id>
                   <finalName>apacheds-${project.version}-amd64.deb</finalName>
                   <osArch>OS_ARCH_AMD64</osArch>
-                  <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility>
+                  <!-- Test for Mac OS <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility> -->
                 </debTarget>
               </debTargets>
             </configuration>
@@ -237,14 +237,14 @@
                   <id>apacheds-rpm-i386</id>
                   <finalName>apacheds-${project.version}-i386.rpm</finalName>
                   <osArch>OS_ARCH_I386</osArch>
-                  <rpmbuildUtility>/usr/local/bin/rpmbuild</rpmbuildUtility>
+                  <!-- Test for Mac OS  <rpmbuildUtility>/usr/local/bin/rpmbuild</rpmbuildUtility> -->
                 </rpmTarget>
                 
                 <rpmTarget>
                   <id>apacheds-rpm-x86_64</id>
                   <finalName>apacheds-${project.version}-x86_64.rpm</finalName>
                   <osArch>OS_ARCH_X86_64</osArch>
-                  <rpmbuildUtility>/usr/local/bin/rpmbuild</rpmbuildUtility>
+                  <!-- Test for Mac OS  <rpmbuildUtility>/usr/local/bin/rpmbuild</rpmbuildUtility> -->
                 </rpmTarget>
               </rpmTargets>
             </configuration>
