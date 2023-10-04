@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>47</version>
+    <version>48-SNAPSHOT</version>
     <relativePath />
   </parent>
 
@@ -46,7 +46,7 @@
     <doclint>none</doclint>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>2.1.3</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.1.5-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>2.0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
@@ -56,12 +56,12 @@
     <ant.version>1.10.14</ant.version>
     <bcprov.version>1.70</bcprov.version>
     <commons.cli.version>1.5.0</commons.cli.version>
-    <commons.codec.version>1.15</commons.codec.version>
+    <commons.codec.version>1.16.0</commons.codec.version>
     <commons.collections.version>4.4</commons.collections.version>
-    <commons.daemon.version>1.3.3</commons.daemon.version>
-    <commons.lang.version>3.12.0</commons.lang.version>
+    <commons.daemon.version>1.3.4</commons.daemon.version>
+    <commons.lang.version>3.13.0</commons.lang.version>
     <commons.net.version>3.9.0</commons.net.version>
-    <commons.pool.version>2.11.1</commons.pool.version>
+    <commons.pool.version>2.12.0</commons.pool.version>
     <dnsjava.version>3.5.2</dnsjava.version>
     <caffeine.version>2.9.3</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
@@ -75,7 +75,7 @@
     <ldapsdk.version>4.1</ldapsdk.version>
     <logback.version>1.4.11</logback.version>
     <maven.version>3.9.1</maven.version>
-    <mina.core.version>2.2.2</mina.core.version>
+    <mina.core.version>2.2.3</mina.core.version>
     <org.apache.felix.version>7.0.5</org.apache.felix.version>
     <pax-exam.version>4.13.4</pax-exam.version>
     <pax-url.version>2.6.14</pax-url.version>
