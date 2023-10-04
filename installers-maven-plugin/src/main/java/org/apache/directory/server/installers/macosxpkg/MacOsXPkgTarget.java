@@ -20,7 +20,12 @@
 package org.apache.directory.server.installers.macosxpkg;
 
 
+import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.Target;
+import org.apache.directory.server.installers.TargetArch;
+import org.apache.directory.server.installers.TargetName;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 
 /**
@@ -42,7 +47,17 @@ public class MacOsXPkgTarget extends Target
      */
     public MacOsXPkgTarget()
     {
-        setOsName( Target.OS_NAME_MAC_OS_X );
-        setOsArch( Target.OS_ARCH_X86_64 );
+        setOsName( TargetName.OS_NAME_MAC_OS_X );
+        setOsArch( TargetArch.OS_ARCH_X86_64 );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void execute( GenerateMojo mojo ) throws MojoExecutionException, MojoFailureException
+    {
+        MacOsXPkgInstallerCommand pkgCmd = new MacOsXPkgInstallerCommand( mojo, this );
+        pkgCmd.execute();
     }
 }

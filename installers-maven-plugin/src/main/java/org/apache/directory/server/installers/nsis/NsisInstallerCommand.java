@@ -27,7 +27,7 @@ import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
-import org.apache.directory.server.installers.Target;
+import org.apache.directory.server.installers.TargetName;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -237,8 +237,8 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
      */
     private boolean verifyTarget()
     {
-        // Verifying the target is Mac OS X
-        if ( !target.getOsName().equalsIgnoreCase( Target.OS_NAME_WINDOWS ) )
+        // Verifying the target is Windows
+        if ( target.getOsName() != TargetName.OS_NAME_LINUX )
         {
             log.warn( "NSIS installer can only be targeted for Windows platform!" );
             log.warn( "The build will continue, but please check the the platform of this installer target." );

@@ -25,17 +25,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.directory.server.installers.archive.ArchiveInstallerCommand;
 import org.apache.directory.server.installers.archive.ArchiveTarget;
-import org.apache.directory.server.installers.bin.BinInstallerCommand;
 import org.apache.directory.server.installers.bin.BinTarget;
-import org.apache.directory.server.installers.deb.DebInstallerCommand;
 import org.apache.directory.server.installers.deb.DebTarget;
-import org.apache.directory.server.installers.macosxpkg.MacOsXPkgInstallerCommand;
 import org.apache.directory.server.installers.macosxpkg.MacOsXPkgTarget;
-import org.apache.directory.server.installers.nsis.NsisInstallerCommand;
 import org.apache.directory.server.installers.nsis.NsisTarget;
-import org.apache.directory.server.installers.rpm.RpmInstallerCommand;
 import org.apache.directory.server.installers.rpm.RpmTarget;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -122,17 +116,13 @@ public class GenerateMojo extends AbstractMojo
     /**
      *  The makensis utility executable.
      */
-    @Parameter(
-            property = "installers.makensis",
-            defaultValue = "/usr/bin/makensis")
+    @Parameter( property = "installers.makensis", defaultValue = "/usr/bin/makensis")
     private File makensisUtility;
 
     /**
      *  The rpmbuild utility executable.
      */
-     @Parameter(
-             property = "installers.rpmbuild",
-             defaultValue = "/usr/bin/rpmbuild")
+     @Parameter(property = "installers.rpmbuild", defaultValue = "/usr/bin/rpmbuild")
     private File rpmbuildUtility;
 
     /** The list containing all the targets */
@@ -170,47 +160,7 @@ public class GenerateMojo extends AbstractMojo
             getLog().info( "OS Arch: " + target.getOsArch() );
             getLog().info( "--------------------" );
 
-            // Archive target
-            if ( target instanceof ArchiveTarget )
-            {
-                ArchiveInstallerCommand archiveCmd = new ArchiveInstallerCommand( this, ( ArchiveTarget ) target );
-                archiveCmd.execute();
-            }
-
-            // Bin target
-            if ( target instanceof BinTarget )
-            {
-                BinInstallerCommand binCmd = new BinInstallerCommand( this, ( BinTarget ) target );
-                binCmd.execute();
-            }
-
-            // Deb target
-            if ( target instanceof DebTarget )
-            {
-                DebInstallerCommand debCmd = new DebInstallerCommand( this, ( DebTarget ) target );
-                debCmd.execute();
-            }
-
-            // Mac OS X PKG target
-            if ( target instanceof MacOsXPkgTarget )
-            {
-                MacOsXPkgInstallerCommand pkgCmd = new MacOsXPkgInstallerCommand( this, ( MacOsXPkgTarget ) target );
-                pkgCmd.execute();
-            }
-
-            // NSIS target
-            if ( target instanceof NsisTarget )
-            {
-                NsisInstallerCommand nsisCmd = new NsisInstallerCommand( this, ( NsisTarget ) target );
-                nsisCmd.execute();
-            }
-
-            // RPM target
-            if ( target instanceof RpmTarget )
-            {
-                RpmInstallerCommand rpmCmd = new RpmInstallerCommand( this, ( RpmTarget ) target );
-                rpmCmd.execute();
-            }
+            target.execute( this );
 
             getLog().info( "-------------------------------------------------------" );
         }
@@ -293,6 +243,17 @@ public class GenerateMojo extends AbstractMojo
 
 
     /**
+     * Sets the dpkg utility.
+     *
+     * @param dpkgUtility the dpkg utility
+     */
+    public void setDpkgUtility( File dpkgUtility )
+    {
+        this.dpkgUtility = dpkgUtility;
+    }
+
+
+    /**
      * Gets the dpkg utility.
      *
      * @return the dpkg utility
@@ -306,8 +267,7 @@ public class GenerateMojo extends AbstractMojo
     /**
      * Gets the makensis utility.
      *
-     * @return
-     *      the dpkg utility
+     * @return the dpkg utility
      */
     public File getMakensisUtility()
     {
@@ -315,8 +275,24 @@ public class GenerateMojo extends AbstractMojo
     }
 
 
+    /**
+     * Gets the rpmbuild utility.
+     *
+     * @return the rpmbuild utility
+     */
     public File getRpmbuildUtility()
     {
         return rpmbuildUtility;
+    }
+
+
+    /**
+     * Sets the rpmbuild utility.
+     *
+     * @param rpmbuildUtility the rpmbuild utility
+     */
+    public void setRpmbuildUtility( File rpmbuildUtility )
+    {
+        this.rpmbuildUtility = rpmbuildUtility;
     }
 }

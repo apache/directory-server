@@ -20,7 +20,12 @@
 package org.apache.directory.server.installers.deb;
 
 
+import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.Target;
+import org.apache.directory.server.installers.TargetArch;
+import org.apache.directory.server.installers.TargetName;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 
 /**
@@ -33,12 +38,35 @@ import org.apache.directory.server.installers.Target;
  */
 public class DebTarget extends Target
 {
+    /** The tool to use to generate DEB files */
+    private String dpkgUtility = "/usr/bin/dpkg";
+    
+    public String getDpkgUtility()
+    {
+        return dpkgUtility;
+    }
+
+    public void setDpkgUtility( String dpkgUtility )
+    {
+        this.dpkgUtility = dpkgUtility;
+    }
+
     /**
      * Creates a new instance of DebTarget, default to X86_64.
      */
     public DebTarget()
     {
-        setOsName( Target.OS_NAME_LINUX );
-        setOsArch( Target.OS_ARCH_X86_64 );
+        setOsName( TargetName.OS_NAME_LINUX );
+        setOsArch( TargetArch.OS_ARCH_X86_64 );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void execute( GenerateMojo mojo ) throws MojoExecutionException, MojoFailureException
+    {
+        DebInstallerCommand debCmd = new DebInstallerCommand( mojo, this );
+        debCmd.execute();
     }
 }

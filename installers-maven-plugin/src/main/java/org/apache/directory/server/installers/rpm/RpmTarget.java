@@ -20,7 +20,12 @@
 package org.apache.directory.server.installers.rpm;
 
 
+import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.Target;
+import org.apache.directory.server.installers.TargetArch;
+import org.apache.directory.server.installers.TargetName;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 
 /**
@@ -30,12 +35,35 @@ import org.apache.directory.server.installers.Target;
  */
 public class RpmTarget extends Target
 {
+    /** The tool to use to generate RPM files */
+    private String rpmbuildUtility = "/usr/bin/rpmbuild";
+    
+    public String getRpmbuildUtility()
+    {
+        return rpmbuildUtility;
+    }
+
+    public void setRpmbuildUtility( String rpmbuildUtility )
+    {
+        this.rpmbuildUtility = rpmbuildUtility;
+    }
+
     /**
      * Creates a new instance of RpmTarget.
      */
     public RpmTarget()
     {
-        setOsName( Target.OS_NAME_LINUX );
-        setOsArch( Target.OS_ARCH_I386 );
+        setOsName( TargetName.OS_NAME_LINUX );
+        setOsArch( TargetArch.OS_ARCH_I386 );
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void execute( GenerateMojo mojo ) throws MojoExecutionException, MojoFailureException
+    {
+        RpmInstallerCommand rpmCmd = new RpmInstallerCommand( mojo, this );
+        rpmCmd.execute();
     }
 }

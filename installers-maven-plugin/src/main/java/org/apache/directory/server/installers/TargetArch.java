@@ -17,40 +17,52 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.installers.nsis;
-
-
-import org.apache.directory.server.installers.GenerateMojo;
-import org.apache.directory.server.installers.Target;
-import org.apache.directory.server.installers.TargetArch;
-import org.apache.directory.server.installers.TargetName;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-
+package org.apache.directory.server.installers;
 
 /**
- * A Nullsoft Installer System (NSIS) installer for the Windows platform.
- *
+ * The various installer architectures
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class NsisTarget extends Target
+public enum TargetArch
 {
+    /** The OS architecture for 'amd64' */
+    OS_ARCH_AMD64( "amd64" ),
+    
+    /** The OS architecture for 'Any' */
+    OS_ARCH_ANY( "Any" ),
+    
+    /** The OS architecture for 'i386' */
+    OS_ARCH_I386( "i386" ),
+    
+    /** The OS architecture for 'sparc' */
+    OS_ARCH_SPARC( "sparc" ),
+    
+    /** The OS architecture for 'x86' */
+    OS_ARCH_X86( "x86" ),
+    
+    /** The OS architecture for 'x86_64' */
+    OS_ARCH_X86_64( "x86_64" );
+    
+    /** The internal name */
+    private String value;
+    
     /**
-     * Creates a new instance of NsisTarget.
+     * 
+     * Creates a new instance of TargetArch.
+     *
+     * @param value The interned value
      */
-    public NsisTarget()
+    TargetArch( String value ) 
     {
-        setOsName( TargetName.OS_NAME_WINDOWS );
-        setOsArch( TargetArch.OS_ARCH_X86 );
+        this.value = value;
     }
-    
-    
+
     /**
-     * {@inheritDoc}
+     * @return The interned valuue
      */
-    public void execute( GenerateMojo mojo ) throws MojoExecutionException, MojoFailureException
+    public String getValue()
     {
-        NsisInstallerCommand nsisCmd = new NsisInstallerCommand( mojo, this );
-        nsisCmd.execute();
+        return value;
     }
 }

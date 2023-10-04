@@ -23,12 +23,13 @@ package org.apache.directory.server.installers.macosxpkg;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.AbstractMojoCommand;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.MojoHelperUtils;
-import org.apache.directory.server.installers.Target;
+import org.apache.directory.server.installers.TargetName;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -517,7 +518,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
     private boolean verifyTarget()
     {
         // Verifying the target is Mac OS X
-        if ( !target.getOsName().equalsIgnoreCase( Target.OS_NAME_MAC_OS_X ) )
+        if ( target.getOsName() != TargetName.OS_NAME_MAC_OS_X )
         {
             log.warn( "Mac OS X PKG installer can only be targeted for Mac OS X platform!" );
             log.warn( "The build will continue, but please check the platform of this installer target." );
@@ -525,7 +526,7 @@ public class MacOsXPkgInstallerCommand extends AbstractMojoCommand<MacOsXPkgTarg
         }
 
         // Verifying the currently used OS is Mac OS X
-        if ( !Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( System.getProperty( OS_NAME ) ) )
+        if ( !SystemUtils.IS_OS_MAC )
         {
             log.warn( "Mac OS X PKG installer can only be built on a machine running Mac OS X!" );
             log.warn( "The build will continue, generation of this target is skipped." );

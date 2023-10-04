@@ -22,16 +22,17 @@ package org.apache.directory.server.installers.deb;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.LinuxInstallerCommand;
 import org.apache.directory.server.installers.MojoHelperUtils;
-import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
-
 
 /**
  * Deb Installer command for Linux.
@@ -190,7 +191,7 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
                 "-b",
                 getTargetDirectory().getName() + "/" + getDebDirectory().getName(),
                 finalName
-        };
+            };
 
         StringBuilder antTask = new StringBuilder();
 
@@ -238,9 +239,7 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
         }
 
         // Verifying the currently used OS to build the installer is Linux or Mac OS X
-        String osName = System.getProperty( OS_NAME );
-
-        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( osName ) || Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( osName ) ) )
+        if ( !SystemUtils.IS_OS_MAC && !SystemUtils.IS_OS_LINUX )
         {
             log.warn( "Deb package installer can only be built on a machine running Linux or Mac OS X!" );
             log.warn( "The build will continue, generation of this target is skipped." );
@@ -248,13 +247,21 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
             return false;
         }
 
-        // Verifying the dpkg utility exists
+        // The -D configuration overloads the  pom configuration
+        // Verifying the dpkg utility exists in the pom.xml file
         if ( !mojo.getDpkgUtility().exists() )
         {
-            log.warn( "Cannot find dpkg utility at this location: " + mojo.getDpkgUtility() );
-            log.warn( "The build will continue, but please check the location of your dpkg utility." );
-
-            return false;
+            if ( !Files.exists( Paths.get( target.getDpkgUtility() ) ) )
+            {
+                log.warn( "Cannot find dpkg utility at this location: " + target.getDpkgUtility() );
+                log.warn( "The build will continue, but please check the location of your dpkg utility." );
+    
+                return false;
+            }
+            else
+            {
+                mojo.setDpkgUtility( new File( target.getDpkgUtility() ) );
+            }
         }
 
         return true;
@@ -283,7 +290,7 @@ public class DebInstallerCommand extends LinuxInstallerCommand<DebTarget>
             }
         }
 
-        filterProperties.put( ARCH_PROP, target.getOsArch() );
+        filterProperties.put( ARCH_PROP, target.getOsArch().getValue() );
         filterProperties.put( INSTALLATION_DIRECTORY_PROP, OPT_APACHEDS_DIR + mojo.getProject().getVersion() );
         filterProperties.put( INSTANCES_DIRECTORY_PROP, VAR_LIB_APACHEDS_DIR + mojo.getProject().getVersion() );
         filterProperties.put( USER_PROP, APACHEDS );

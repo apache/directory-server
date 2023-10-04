@@ -20,7 +20,12 @@
 package org.apache.directory.server.installers.archive;
 
 
+import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.Target;
+import org.apache.directory.server.installers.TargetArch;
+import org.apache.directory.server.installers.TargetName;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 
 /**
@@ -49,16 +54,15 @@ public class ArchiveTarget extends Target
      */
     public ArchiveTarget()
     {
-        setOsName( Target.OS_NAME_ANY );
-        setOsArch( Target.OS_ARCH_ANY );
+        setOsName( TargetName.OS_NAME_ANY );
+        setOsArch( TargetArch.OS_ARCH_ANY );
     }
 
 
     /**
      * Gets the archive type.
      *
-     * @return
-     *      the archive type
+     * @return the archive type
      */
     public String getArchiveType()
     {
@@ -74,5 +78,15 @@ public class ArchiveTarget extends Target
     public void setArchiveType( String archiveType )
     {
         this.archiveType = archiveType;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void execute( GenerateMojo mojo ) throws MojoExecutionException, MojoFailureException
+    {
+        ArchiveInstallerCommand archiveCmd = new ArchiveInstallerCommand( mojo, this );
+        archiveCmd.execute();
     }
 }

@@ -23,11 +23,11 @@ package org.apache.directory.server.installers.bin;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.LinuxInstallerCommand;
 import org.apache.directory.server.installers.MojoHelperUtils;
-import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.tools.ant.taskdefs.Execute;
@@ -198,9 +198,7 @@ public class BinInstallerCommand extends LinuxInstallerCommand<BinTarget>
         }
 
         // Verifying the currently used OS to build the installer is Linux or Mac OS X
-        String osName = System.getProperty( OS_NAME );
-
-        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( osName ) || Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( osName ) ) )
+        if ( !SystemUtils.IS_OS_MAC && !SystemUtils.IS_OS_LINUX )
         {
             log.warn( "Bin package installer can only be built on a machine running Linux or Mac OS X!" );
             log.warn( "The build will continue, generation of this target is skipped." );
