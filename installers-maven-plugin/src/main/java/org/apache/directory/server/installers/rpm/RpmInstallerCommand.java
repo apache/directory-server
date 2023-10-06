@@ -22,15 +22,13 @@ package org.apache.directory.server.installers.rpm;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Properties;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.directory.server.i18n.I18n;
 import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.LinuxInstallerCommand;
 import org.apache.directory.server.installers.MojoHelperUtils;
+import org.apache.directory.server.installers.Target;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
@@ -103,11 +101,50 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
         try
         {
             // Create Rpm directories (BUILD, RPMS, SOURCES, SPECS & SRPMS)
-            makeDir( BUILD );
-            makeDir( RPMS );
-            makeDir( SOURCES );
-            makeDir( SPECS );
-            makeDir( SRPMS );
+            File rpmBuild = new File( getTargetDirectory(), BUILD );
+
+            if ( !rpmBuild.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmBuild ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
+
+            File rpmRpms = new File( getTargetDirectory(), RPMS );
+
+            if ( !rpmRpms.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmRpms ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
+
+            File rpmSources = new File( getTargetDirectory(), SOURCES );
+
+            if ( !rpmSources.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmSources ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
+
+            File rpmSpecs = new File( getTargetDirectory(), SPECS );
+
+            if ( !rpmSpecs.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmSpecs ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
+
+            File rpmSrpms = new File( getTargetDirectory(), SRPMS );
+
+            if ( !rpmSrpms.mkdirs() )
+            {
+                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmSrpms ) );
+                log.error( e.getLocalizedMessage() );
+                throw new MojoFailureException( e.getMessage() );
+            }
 
             // Creating the installation and instance layouts
             createLayouts();
@@ -143,10 +180,10 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
         MojoHelperUtils.exec( new String[]
             {
                 mojo.getRpmbuildUtility().getAbsolutePath(),
-                "-vv",
+                "--quiet",
                 "-ba",
                 "--target",
-                target.getOsArch().getValue() + "-linux",
+                target.getOsArch() + "-linux",
                 "--define",
                 "_topdir " + getTargetDirectory(),
                 "--define",
@@ -179,19 +216,6 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
             throw new MojoFailureException( "Failed to copy generated Rpm installer file." );
         }
     }
-    
-    
-    private void makeDir( String directory ) throws MojoFailureException
-    {
-        File file = new File( getTargetDirectory(), directory );
-
-        if ( !file.mkdirs() )
-        {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, file ) );
-            log.error( e.getLocalizedMessage() );
-            throw new MojoFailureException( e.getMessage() );
-        }
-    }
 
 
     /**
@@ -212,28 +236,21 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
         }
 
         // Verifying the currently used OS to build the installer is Linux or Mac OS X
-        if ( !SystemUtils.IS_OS_MAC && !SystemUtils.IS_OS_LINUX )
+        String osName = System.getProperty( OS_NAME );
+
+        if ( !( Target.OS_NAME_LINUX.equalsIgnoreCase( osName ) || Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( osName ) ) )
         {
             log.warn( "Rpm package installer can only be built on a machine running Linux or Mac OS X!" );
             log.warn( "The build will continue, generation of this target is skipped." );
             return false;
         }
 
-        // The -D configuration overloads the  pom configuration
-        // Verifying the rpmbuild utility exists in the pom.xml file
+        // Verifying the rpmbuild utility exists
         if ( !mojo.getRpmbuildUtility().exists() )
         {
-            if ( !Files.exists( Paths.get( target.getRpmbuildUtility() ) ) )
-            {
-                log.warn( "Cannot find rpmbuild utility at this location: " + target.getRpmbuildUtility() );
-                log.warn( "The build will continue, but please check the location of your rpmbuild utility." );
-    
-                return false;
-            }
-            else
-            {
-                mojo.setRpmbuildUtility( new File( target.getRpmbuildUtility() ) );
-            }
+            log.warn( "Cannot find rpmbuild utility at this location: " + mojo.getRpmbuildUtility() );
+            log.warn( "The build will continue, but please check the location of your rpmbuild utility." );
+            return false;
         }
 
         return true;

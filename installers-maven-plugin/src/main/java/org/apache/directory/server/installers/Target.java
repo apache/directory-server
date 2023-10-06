@@ -19,8 +19,8 @@
  */
 package org.apache.directory.server.installers;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+
+
 
 /**
  * The superclass for all installer targets.
@@ -29,14 +29,38 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public abstract class Target
 {
+    /** The OS name for 'Any' */
+    public static final String OS_NAME_ANY = "Any";
+    /** The OS name for 'Linux' */
+    public static final String OS_NAME_LINUX = "Linux";
+    /** The OS name for 'Mac OS X' */
+    public static final String OS_NAME_MAC_OS_X = "Mac OS X";
+    /** The OS name for 'Solaris' */
+    public static final String OS_NAME_SOLARIS = "Solaris";
+    /** The OS name for 'Windows' */
+    public static final String OS_NAME_WINDOWS = "Windows";
+
+    /** The OS architecture for 'amd64' */
+    public static final String OS_ARCH_AMD64 = "amd64";
+    /** The OS architecture for 'Any' */
+    public static final String OS_ARCH_ANY = "Any";
+    /** The OS architecture for 'i386' */
+    public static final String OS_ARCH_I386 = "i386";
+    /** The OS architecture for 'sparc' */
+    public static final String OS_ARCH_SPARC = "sparc";
+    /** The OS architecture for 'x86' */
+    public static final String OS_ARCH_X86 = "x86";
+    /** The OS architecture for 'x86_64' */
+    public static final String OS_ARCH_X86_64 = "x86_64";
+
     /** The id */
     private String id;
 
     /** The name of the operating system */
-    private TargetName osName;
+    private String osName;
 
     /** The architecture of the operating system */
-    private TargetArch osArch;
+    private String osArch;
 
     /** The final name of the installer file */
     private String finalName;
@@ -91,7 +115,7 @@ public abstract class Target
      *
      * @return the OS architecture
      */
-    public TargetArch getOsArch()
+    public String getOsArch()
     {
         return osArch;
     }
@@ -104,17 +128,6 @@ public abstract class Target
      */
     public void setOsArch( String osArch )
     {
-        this.osArch = TargetArch.valueOf( osArch );
-    }
-
-
-    /**
-     * Sets the OS architecture.
-     *
-     * @param osArch the OS architecture
-     */
-    public void setOsArch( TargetArch osArch )
-    {
         this.osArch = osArch;
     }
 
@@ -124,7 +137,7 @@ public abstract class Target
      *
      * @return the OS name
      */
-    public TargetName getOsName()
+    public String getOsName()
     {
         return osName;
     }
@@ -137,17 +150,6 @@ public abstract class Target
      */
     public void setOsName( String osName )
     {
-        this.osName = TargetName.valueOf( osName );
-    }
-
-
-    /**
-     * Sets the OS name.
-     *
-     * @param osName the OS name
-     */
-    public void setOsName( TargetName osName )
-    {
         this.osName = osName;
     }
 
@@ -159,7 +161,7 @@ public abstract class Target
      */
     public boolean isOsNameLinux()
     {
-        return osName == TargetName.OS_NAME_LINUX;
+        return Target.OS_NAME_LINUX.equalsIgnoreCase( osName );
     }
 
 
@@ -170,7 +172,7 @@ public abstract class Target
      */
     public boolean isOsNameMacOSX()
     {
-        return osName == TargetName.OS_NAME_MAC_OS_X;
+        return Target.OS_NAME_MAC_OS_X.equalsIgnoreCase( osName );
     }
 
 
@@ -181,7 +183,7 @@ public abstract class Target
      */
     public boolean isOsNameSolaris()
     {
-        return osName == TargetName.OS_NAME_SOLARIS;
+        return Target.OS_NAME_SOLARIS.equalsIgnoreCase( osName );
     }
 
 
@@ -192,7 +194,7 @@ public abstract class Target
      */
     public boolean isOsNameWindows()
     {
-        return osName == TargetName.OS_NAME_WINDOWS;
+        return Target.OS_NAME_WINDOWS.equalsIgnoreCase( osName );
     }
 
 
@@ -203,7 +205,7 @@ public abstract class Target
      */
     public boolean isOsArchAmd64()
     {
-        return osArch == TargetArch.OS_ARCH_AMD64;
+        return Target.OS_ARCH_AMD64.equalsIgnoreCase( osArch );
     }
 
 
@@ -214,7 +216,7 @@ public abstract class Target
      */
     public boolean isOsArchI386()
     {
-        return osArch == TargetArch.OS_ARCH_I386;
+        return Target.OS_ARCH_I386.equalsIgnoreCase( osArch );
     }
 
 
@@ -225,7 +227,7 @@ public abstract class Target
      */
     public boolean isOsArchSparc()
     {
-        return osArch == TargetArch.OS_ARCH_SPARC;
+        return Target.OS_ARCH_SPARC.equalsIgnoreCase( osArch );
     }
 
 
@@ -236,7 +238,7 @@ public abstract class Target
      */
     public boolean isOsArchx86()
     {
-        return osArch == TargetArch.OS_ARCH_X86;
+        return Target.OS_ARCH_X86.equalsIgnoreCase( osArch );
     }
 
 
@@ -247,9 +249,6 @@ public abstract class Target
      */
     public boolean isOsArchX86_64()
     {
-        return osArch == TargetArch.OS_ARCH_X86_64;
+        return Target.OS_ARCH_X86_64.equalsIgnoreCase( osArch );
     }
-    
-    
-    public abstract void execute( GenerateMojo mojo ) throws MojoExecutionException, MojoFailureException;
 }

@@ -20,12 +20,7 @@
 package org.apache.directory.server.installers.nsis;
 
 
-import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.Target;
-import org.apache.directory.server.installers.TargetArch;
-import org.apache.directory.server.installers.TargetName;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 
 
 /**
@@ -40,17 +35,7 @@ public class NsisTarget extends Target
      */
     public NsisTarget()
     {
-        setOsName( TargetName.OS_NAME_WINDOWS );
-        setOsArch( TargetArch.OS_ARCH_X86 );
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void execute( GenerateMojo mojo ) throws MojoExecutionException, MojoFailureException
-    {
-        NsisInstallerCommand nsisCmd = new NsisInstallerCommand( mojo, this );
-        nsisCmd.execute();
+        setOsName( Target.OS_NAME_WINDOWS );
+        setOsArch( Target.OS_ARCH_X86 );
     }
 }

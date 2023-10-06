@@ -51,10 +51,7 @@ public abstract class LinuxInstallerCommand<T extends Target> extends AbstractMo
 
     /** The default instance name property */
     protected static final String DEFAULT_INSTANCE_NAME_PROP = "default.instance.name";
-    
-    private static final String WRAPPER_BIN_PATH = INSTALLERS_PATH + "wrapper/bin/";
 
-    private static final String WRAPPER_LIB_PATH = INSTALLERS_PATH + "wrapper/lib/lib";
 
     protected LinuxInstallerCommand( GenerateMojo mojo, T target )
     {
@@ -74,12 +71,26 @@ public abstract class LinuxInstallerCommand<T extends Target> extends AbstractMo
         {
             if ( target.isOsArchI386() || target.isOsArchx86() )
             {
-                processWrapperFile( mojo, "wrapper-linux-x86-32" );
+                mojo.getLog().info( "Copying wrapper files for " + target.getOsArch() );
+                MojoHelperUtils.copyBinaryFile( mojo, INSTALLERS_PATH + "wrapper/bin/wrapper-linux-x86-32",
+                    getClass().getResourceAsStream( INSTALLERS_PATH + "wrapper/bin/wrapper-linux-x86-32" ),
+                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
+                MojoHelperUtils.copyBinaryFile( mojo, INSTALLERS_PATH + "wrapper/lib/libwrapper-linux-x86-32.so",
+                    getClass().getResourceAsStream(
+                        INSTALLERS_PATH + "wrapper/lib/libwrapper-linux-x86-32.so" ),
+                    new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
             }
             // Linux x86_64 & amd64
             else if ( ( target.isOsArchX86_64() || target.isOsArchAmd64() ) )
             {
-                processWrapperFile( mojo, "wrapper-linux-x86-64" );
+                mojo.getLog().info( "Copying wrapper files for " + target.getOsArch() );
+                MojoHelperUtils.copyBinaryFile( mojo, INSTALLERS_PATH + "wrapper/bin/wrapper-linux-x86-64",
+                    getClass().getResourceAsStream(
+                        INSTALLERS_PATH + "wrapper/bin/wrapper-linux-x86-64" ),
+                    new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
+                MojoHelperUtils.copyBinaryFile( mojo, INSTALLERS_PATH + "wrapper/lib/libwrapper-linux-x86-64.so",
+                    getClass().getResourceAsStream( INSTALLERS_PATH + "wrapper/lib/libwrapper-linux-x86-64.so" ),
+                    new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
             }
             else
             {
@@ -90,19 +101,5 @@ public abstract class LinuxInstallerCommand<T extends Target> extends AbstractMo
         {
             throw new MojoFailureException( "Failed to copy Tanuki binary files to lib and bin directories" );
         }
-    }
-    
-    
-    private void processWrapperFile( GenerateMojo mojo, String arch ) throws IOException
-    {
-        mojo.getLog().info( "Copying wrapper files for " + target.getOsArch() );
-        
-        MojoHelperUtils.copyBinaryFile( mojo, WRAPPER_BIN_PATH + arch,
-            getClass().getResourceAsStream( WRAPPER_BIN_PATH + arch ),
-            new File( getInstallationLayout().getBinDirectory(), "wrapper" ) );
-        
-        MojoHelperUtils.copyBinaryFile( mojo, WRAPPER_LIB_PATH + arch + ".so",
-            getClass().getResourceAsStream( WRAPPER_LIB_PATH + arch + ".so" ),
-            new File( getInstallationLayout().getLibDirectory(), "libwrapper.so" ) );
     }
 }

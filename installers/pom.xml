@@ -70,13 +70,13 @@
                 <macOsXPkgTarget>
                   <id>apacheds-macosx-32bit</id>
                   <finalName>apacheds-${project.version}-32bit.dmg</finalName>
-                  <osArch>OS_ARCH_X86</osArch>
+                  <osArch>x86</osArch>
                 </macOsXPkgTarget>
                 
                 <macOsXPkgTarget>
                   <id>apacheds-macosx-64bit</id>
                   <finalName>apacheds-${project.version}-64bit.dmg</finalName>
-                  <osArch>OS_ARCH_X86_64</osArch>
+                  <osArch>x86_64</osArch>
                 </macOsXPkgTarget>
               </macOsXPkgTargets>
     
@@ -108,13 +108,13 @@
                 <binTarget>
                  <id>apacheds-bin-installer-32bit</id>
                   <finalName>apacheds-${project.version}-32bit.bin</finalName>
-                  <osArch>OS_ARCH_X86</osArch>
+                  <osArch>x86</osArch>
                 </binTarget>
                 
                 <binTarget>
                   <id>apacheds-bin-installer-64bit</id>
                   <finalName>apacheds-${project.version}-64bit.bin</finalName>
-                  <osArch>OS_ARCH_X86_64</osArch>
+                  <osArch>x86_64</osArch>
                 </binTarget>
               </binTargets>
               
@@ -123,15 +123,13 @@
                 <debTarget>
                   <id>apacheds-debian-i386</id>
                   <finalName>apacheds-${project.version}-i386.deb</finalName>
-                  <osArch>OS_ARCH_I386</osArch>
-                  <!-- Test for Mac OS <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility> -->
+                  <osArch>i386</osArch>
                 </debTarget>
                 
                 <debTarget>
                  <id>apacheds-debian-amd64</id>
                   <finalName>apacheds-${project.version}-amd64.deb</finalName>
-                  <osArch>OS_ARCH_AMD64</osArch>
-                  <!-- Test for Mac OS <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility> -->
+                  <osArch>amd64</osArch>
                 </debTarget>
               </debTargets>
               
@@ -140,13 +138,13 @@
                 <rpmTarget>
                   <id>apacheds-rpm-i386</id>
                   <finalName>apacheds-${project.version}-i386.rpm</finalName>
-                  <osArch>OS_ARCH_I386</osArch>
+                  <osArch>i386</osArch>
                 </rpmTarget>
                 
                 <rpmTarget>
                   <id>apacheds-rpm-x86_64</id>
                   <finalName>apacheds-${project.version}-x86_64.rpm</finalName>
-                  <osArch>OS_ARCH_X86_64</osArch>
+                  <osArch>x86_64</osArch>
                 </rpmTarget>
               </rpmTargets>
             </configuration>
@@ -185,17 +183,15 @@
               <!-- Targets for Linux .deb installer package -->
               <debTargets>
                 <debTarget>
-                  <id>apacheds-debian-i386</id>
+                 <id>apacheds-debian-i386</id>
                   <finalName>apacheds-${project.version}-i386.deb</finalName>
-                  <osArch>OS_ARCH_I386</osArch>
-                  <!-- Test for Mac OS <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility> -->
+                  <osArch>i386</osArch>
                 </debTarget>
                 
                 <debTarget>
-                  <id>apacheds-debian-amd64</id>
+                 <id>apacheds-debian-amd64</id>
                   <finalName>apacheds-${project.version}-amd64.deb</finalName>
-                  <osArch>OS_ARCH_AMD64</osArch>
-                  <!-- Test for Mac OS <dpkgUtility>/usr/local/bin/dpkg</dpkgUtility> -->
+                  <osArch>amd64</osArch>
                 </debTarget>
               </debTargets>
             </configuration>
@@ -236,15 +232,13 @@
                 <rpmTarget>
                   <id>apacheds-rpm-i386</id>
                   <finalName>apacheds-${project.version}-i386.rpm</finalName>
-                  <osArch>OS_ARCH_I386</osArch>
-                  <!-- Test for Mac OS  <rpmbuildUtility>/usr/local/bin/rpmbuild</rpmbuildUtility> -->
+                  <osArch>i386</osArch>
                 </rpmTarget>
                 
                 <rpmTarget>
                   <id>apacheds-rpm-x86_64</id>
                   <finalName>apacheds-${project.version}-x86_64.rpm</finalName>
-                  <osArch>OS_ARCH_X86_64</osArch>
-                  <!-- Test for Mac OS  <rpmbuildUtility>/usr/local/bin/rpmbuild</rpmbuildUtility> -->
+                  <osArch>x86_64</osArch>
                 </rpmTarget>
               </rpmTargets>
             </configuration>
@@ -326,13 +320,13 @@
                 <macOsXPkgTarget>
                   <id>apacheds-macosx-32bit</id>
                   <finalName>apacheds-${project.version}-32bit.dmg</finalName>
-                  <osArch>OS_ARCH_X86</osArch>
+                  <osArch>x86</osArch>
                 </macOsXPkgTarget>
                 
                 <macOsXPkgTarget>
                   <id>apacheds-macosx-64bit</id>
                   <finalName>apacheds-${project.version}-64bit.dmg</finalName>
-                  <osArch>OS_ARCH_X86_64</osArch>
+                  <osArch>x86_64</osArch>
                 </macOsXPkgTarget>
               </macOsXPkgTargets>
             </configuration>
@@ -373,13 +367,13 @@
                 <binTarget>
                  <id>apacheds-bin-installer-32bit</id>
                   <finalName>apacheds-${project.version}-32bit.bin</finalName>
-                  <osArch>OS_ARCH_X86</osArch>
+                  <osArch>x86</osArch>
                 </binTarget>
                 
                 <binTarget>
                   <id>apacheds-bin-installer-64bit</id>
                   <finalName>apacheds-${project.version}-64bit.bin</finalName>
-                  <osArch>OS_ARCH_X86_64</osArch>
+                  <osArch>x86_64</osArch>
                 </binTarget>
               </binTargets>
             </configuration>

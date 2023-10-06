@@ -20,12 +20,7 @@
 package org.apache.directory.server.installers.bin;
 
 
-import org.apache.directory.server.installers.GenerateMojo;
 import org.apache.directory.server.installers.Target;
-import org.apache.directory.server.installers.TargetArch;
-import org.apache.directory.server.installers.TargetName;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 
 
 /**
@@ -43,17 +38,7 @@ public class BinTarget extends Target
      */
     public BinTarget()
     {
-        setOsName( TargetName.OS_NAME_LINUX );
-        setOsArch( TargetArch.OS_ARCH_X86 );
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void execute( GenerateMojo mojo ) throws MojoExecutionException, MojoFailureException
-    {
-        BinInstallerCommand binCmd = new BinInstallerCommand( mojo, this );
-        binCmd.execute();
+        setOsName( Target.OS_NAME_LINUX );
+        setOsArch( Target.OS_ARCH_X86 );
     }
 }

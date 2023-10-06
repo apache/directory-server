@@ -51,6 +51,7 @@ import org.codehaus.plexus.util.InterpolationFilterReader;
  */
 public final class MojoHelperUtils
 {
+
     private MojoHelperUtils()
     {
     }
@@ -64,6 +65,10 @@ public final class MojoHelperUtils
         try ( OutputStream out = Files.newOutputStream( to.toPath() ) )
         {
             IOUtil.copy( from, out );
+        }
+        finally
+        {
+            IOUtil.close( from );
         }
     }
 
@@ -199,9 +204,12 @@ public final class MojoHelperUtils
     /**
      * Recursively copy files from the given source to the given destination.
      *
-     * @param src the source
-     * @param dest the destination
-     * @throws IOException If an error occurs when copying a file
+     * @param src
+     *      the source
+     * @param dest
+     *      the destination
+     * @throws IOException
+     *      If an error occurs when copying a file
      */
     public static void copyFiles( File src, File dest ) throws IOException
     {
