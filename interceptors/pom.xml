@@ -42,6 +42,8 @@
     <module>changelog</module>
     <module>collective</module>
     <module>event</module>
+    <module>exception</module>
+    <module>hash</module>
     <module>journal</module>
     <module>logger</module>
     <module>normalization</module>
