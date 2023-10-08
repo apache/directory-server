@@ -30,7 +30,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>2.0.0.AM27</version>
+  <version>2.0.0.AM28-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ApacheDS</name>
@@ -1327,7 +1327,7 @@
     <connection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</developerConnection>
     <url>https://github.com/apache/directory-server/tree/${project.scm.tag}</url>
-    <tag>2.0.0.AM27</tag>
+    <tag>master</tag>
   </scm>
 
   <repositories>
