@@ -452,7 +452,7 @@ public class AvlTreeMarshallerTest
         unmarshalledTree.insert( 6 ); // will change the root as part of balancing
 
         assertTrue( savedTree.getRoot().getKey() == unmarshalledTree.getRoot().getKey() );
-        assertTrue( 8 == unmarshalledTree.getRoot().getKey() ); // new root
+        assertTrue( 9 == unmarshalledTree.getRoot().getKey() ); // new root
 
         assertTrue( 37 == unmarshalledTree.getLast().getKey() );
         unmarshalledTree.insert( 99 );

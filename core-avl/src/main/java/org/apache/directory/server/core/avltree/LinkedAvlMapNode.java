@@ -45,11 +45,7 @@ public class LinkedAvlMapNode<K, V>
     /** The previous node, inferior to the current node */
     LinkedAvlMapNode<K, V> previous;
 
-    int depth;
-    int index;
-
-    boolean isLeft;
-    int height = 1;
+    int height = 0;
 
 
     /**
@@ -121,18 +117,6 @@ public class LinkedAvlMapNode<K, V>
     }
 
 
-    public int getDepth()
-    {
-        return depth;
-    }
-
-
-    public void setDepth( int depth )
-    {
-        this.depth = depth;
-    }
-
-
     public int getHeight()
     {
         return height;
@@ -148,55 +132,6 @@ public class LinkedAvlMapNode<K, V>
     public void setPrevious( LinkedAvlMapNode<K, V> previous )
     {
         this.previous = previous;
-    }
-
-
-    public int computeHeight()
-    {
-
-        if ( right == null && left == null )
-        {
-            height = 1;
-            return height;
-        }
-
-        int lh, rh;
-
-        if ( isLeft )
-        {
-            lh = ( left == null ? -1 : left.computeHeight() );
-            rh = ( right == null ? -1 : right.getHeight() );
-        }
-        else
-        {
-            rh = ( right == null ? -1 : right.computeHeight() );
-            lh = ( left == null ? -1 : left.getHeight() );
-        }
-
-        height = 1 + Math.max( lh, rh );
-
-        return height;
-    }
-
-
-    public int getBalance()
-    {
-        int lh = ( left == null ? 0 : left.computeHeight() );
-        int rh = ( right == null ? 0 : right.computeHeight() );
-
-        return ( rh - lh );
-    }
-
-
-    public int getIndex()
-    {
-        return index;
-    }
-
-
-    public void setIndex( int index )
-    {
-        this.index = index;
     }
 
 

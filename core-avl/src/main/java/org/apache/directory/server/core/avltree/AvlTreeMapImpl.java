@@ -20,9 +20,12 @@
 package org.apache.directory.server.core.avltree;
 
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -55,7 +58,6 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /** size of the map */
     private int size;
 
-
     /**
      * Creates a new instance of AVLTreeMap without support for duplicate keys.
      *
@@ -86,6 +88,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public Comparator<K> getKeyComparator()
     {
         return keyComparator;
@@ -95,61 +98,53 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public Comparator<V> getValueComparator()
     {
         return valueComparator;
     }
 
-    
-    private void dump( LinkedAvlMapNode<K, V> node )
+
+    public void dump()
     {
-        if ( node.left != null )
+        dump( root, "" );
+    }
+
+
+    private void dump( LinkedAvlMapNode<K, V> node, String indention )
+    {
+        if ( node.right != null )
         {
-            dump( node.left );
+            dump( node.right, indention + "  " );
         }
-        
+
         if ( node.value.isSingleton() )
         {
-            System.out.print( "<" + node.key + "," + node.value.getSingleton()  + ">" );
+            System.out.println( indention + "<" + node.key + "," + node.value.getSingleton() + ">" );
         }
         else
         {
-            AvlTree<V> values = node.value.getOrderedSet();
-            System.out.print( "<" + node.key + "," );
-            boolean isFirst = true;
-            
-            for ( V value : values.getKeys() )
-            {
-                if ( isFirst )
-                {
-                    isFirst = false;
-                }
-                else
-                {
-                    System.out.print( "," );
-                }
-                
-                System.out.print( value );
-            }
-            
-            System.out.print( ">" );
-            
+            String values = node.value.getOrderedSet().getKeys().stream().map( Objects::toString ).collect( joining() );
+            System.out.println( indention + "<" + node.key + "," + values + ">" );
         }
-        
-        if ( node.right != null )
+
+        if ( node.left != null )
         {
-            dump( node.right );
+            dump( node.left, indention + "  " );
         }
     }
+
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public V insert( K key, V value )
     {
-        LinkedAvlMapNode<K, V> node, temp;
-        LinkedAvlMapNode<K, V> parent = null;
-        int c;
+        if ( key == null || value == null )
+        {
+            throw new IllegalArgumentException( "key or value cannot be null" );
+        }
 
         if ( root == null )
         {
@@ -160,67 +155,98 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
             return null;
         }
 
-        node = new LinkedAvlMapNode<>( key, value );
+        ValueHolder<V> holder = new ValueHolder<>();
+        root = insert( root, key, value, holder );
+        return holder.getSingleton();
+    }
 
-        temp = root;
-        
-        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<>();
 
-        while ( temp != null )
+    private LinkedAvlMapNode<K, V> insert( LinkedAvlMapNode<K, V> node, K key, V value,
+        ValueHolder<V> holder )
+    {
+        int cmp = keyComparator.compare( key, node.key );
+        if ( cmp < 0 )
         {
-            treePath.add( 0, temp ); // last node first, for the sake of balance factor computation
-            parent = temp;
-
-            c = keyComparator.compare( key, temp.getKey() );
-
-            if ( c == 0 )
+            if ( node.left == null )
             {
-                V returnValue;
-                
-                if ( allowDuplicates )
-                {
-                    returnValue = insertDupKey( value, temp ); // key already exists add another value
-                }
-                else
-                {
-                    // replace the existing value with the new value
-                    returnValue = temp.value.setSingleton( value );
-                }
-                
-                return returnValue;
-            }
-
-            if ( c < 0 )
-            {
-                temp.isLeft = true;
-                temp = temp.getLeft();
+                LinkedAvlMapNode<K, V> left = new LinkedAvlMapNode<>( key, value );
+                node.left = left;
+                insertInList( left, node, cmp );
+                size++;
             }
             else
             {
-                temp.isLeft = false;
-                temp = temp.getRight();
+                node.left = insert( node.left, key, value, holder );
             }
         }
-
-        c = keyComparator.compare( key, parent.getKey() );
-        
-        if ( c < 0 )
+        else if ( cmp > 0 )
         {
-            parent.setLeft( node );
+            if ( node.right == null )
+            {
+                LinkedAvlMapNode<K, V> right = new LinkedAvlMapNode<>( key, value );
+                node.right = right;
+                size++;
+                insertInList( right, node, cmp );
+            }
+            else
+            {
+                node.right = insert( node.right, key, value, holder );
+            }
         }
         else
         {
-            parent.setRight( node );
+            V returnValue;
+
+            if ( allowDuplicates )
+            {
+                returnValue = insertDupKey( value, node ); // key already exists add another value
+            }
+            else
+            {
+                // replace the existing value with the new value
+                returnValue = node.value.setSingleton( value );
+            }
+
+            if ( returnValue != null )
+            {
+                holder.value = new SingletonOrOrderedSet<>( returnValue );
+            }
+            return node;
         }
 
-        insertInList( node, parent, c );
+        node.height = 1 + Math.max( height( node.left ), height( node.right ) );
+        return balance( node );
+    }
 
-        treePath.add( 0, node );
-        balance( treePath );
 
-        size++;
-
-        return null;
+    /**
+     * Balances the tree by visiting the nodes present in the List of nodes present in the
+     * treePath parameter.<br><br>
+     *
+     * This really does the balancing if the height of the tree is greater than 2 and the<br> 
+     * balance factor is greater than +1 or less than -1.<br><br>
+     * For an excellent info please read the 
+     * <a href="http://en.wikipedia.org/wiki/Avl_tree">Wikipedia article on AVL tree</a>.
+     */
+    private LinkedAvlMapNode<K, V> balance( LinkedAvlMapNode<K, V> node )
+    {
+        if ( getBalance( node ) < -1 )
+        {
+            if ( getBalance( node.right ) > 0 )
+            {
+                node.right = rotateRight( node.right );
+            }
+            node = rotateLeft( node );
+        }
+        else if ( getBalance( node ) > 1 )
+        {
+            if ( getBalance( node.left ) < 0 )
+            {
+                node.left = rotateLeft( node.left );
+            }
+            node = rotateRight( node );
+        }
+        return node;
     }
 
 
@@ -324,6 +350,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public SingletonOrOrderedSet<V> remove( K key )
     {
         if ( key == null )
@@ -331,36 +358,21 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
             throw new IllegalArgumentException( "key cannot be null" );
         }
 
-        LinkedAvlMapNode<K, V> temp = null;
-
-        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<>();
-
-        treePath = find( key, root, treePath );
-
-        if ( treePath == null )
+        if ( root == null )
         {
             return null;
         }
 
-        temp = treePath.remove( 0 );
-
-        if ( temp.isLeaf() && ( temp == root ) )
-        {
-            root = null;
-        }
-        else
-        {
-            balanceNodesAfterRemove( treePath, temp );
-        }
-
-        size--;
-        return temp.value;
+        ValueHolder<V> holder = new ValueHolder<>();
+        root = remove( root, key, null, holder );
+        return holder.value;
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public V remove( K key, V value )
     {
         if ( key == null || value == null )
@@ -368,221 +380,179 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
             throw new IllegalArgumentException( "key or value cannot be null" );
         }
 
-        LinkedAvlMapNode<K, V> temp = null;
-
-        List<LinkedAvlMapNode<K, V>> treePath = new ArrayList<>();
-
-        treePath = find( key, root, treePath );
-
-        if ( treePath == null )
+        if ( root == null )
         {
             return null;
         }
 
-        temp = treePath.remove( 0 );
-
-        // check if the value matches
-        if ( allowDuplicates )
-        {
-            if ( temp.value.isOrderedSet() )
-            {
-                AvlTree<V> dupsTree = temp.value.getOrderedSet();
-                V removedVal = dupsTree.remove( value );
-
-                // if the removal is successful and the tree is not empty
-                // we don't need to balance the tree, cause just one value
-                // of the same key was removed
-                // if the tree is empty because of the removal, the entire 
-                // node will be removed which might require balancing, so we continue
-                // further down in this function
-                if ( ( removedVal == null ) || !dupsTree.isEmpty() )
-                {
-                    return removedVal;//no need to balance
-                }
-            }
-            else
-            {
-                if ( valueComparator.compare( temp.value.getSingleton(), value ) != 0 )
-                {
-                    return null;// no need to balance
-                }
-            }
-        }
-
-        if ( temp.isLeaf() && ( temp == root ) )
-        {
-            if ( allowDuplicates )
-            {
-                if ( temp.value.isSingleton() || temp.value.getOrderedSet().isEmpty() )
-                {
-                    root = null;
-                }
-            }
-            else
-            // if dups are not allowed set root to null
-            {
-                root = null;
-            }
-
-            size--;
-            return value;
-        }
-
-        balanceNodesAfterRemove( treePath, temp );
-
-        size--;
-        return value;
+        ValueHolder<V> holder = new ValueHolder<>();
+        root = remove( root, key, value, holder );
+        return holder.getSingleton();
     }
 
 
     /**
-     * changes the order of nodes after a delete operation and then 
-     * balances the tree
-     *
-     * @param treePath the path traversed to find the node temp 
-     * @param delNode the node to be deleted
+     * Removes the specified key and its associated value from the given subtree.
+     * 
+     * @param node the subtree
+     * @param key the key
+     * @return the updated subtree
      */
-    private void balanceNodesAfterRemove( List<LinkedAvlMapNode<K, V>> treePath, LinkedAvlMapNode<K, V> delNode )
+    private LinkedAvlMapNode<K, V> remove( LinkedAvlMapNode<K, V> node, K key, V value,
+        ValueHolder<V> holder )
     {
-        LinkedAvlMapNode<K, V> y = null;
-
-        // remove from the doubly linked
-        removeFromList( delNode );
-
-        if ( delNode.isLeaf() )
+        if ( node == null )
         {
-            if ( !treePath.isEmpty() )
-            {
-                detachNodes( delNode, treePath.get( 0 ) );
-            }
+            return null;
+        }
+
+        int cmp = keyComparator.compare( key, node.key );
+        if ( cmp < 0 )
+        {
+            node.left = remove( node.left, key, value, holder );
+        }
+        else if ( cmp > 0 )
+        {
+            node.right = remove( node.right, key, value, holder );
         }
         else
         {
-            if ( delNode.left != null )
+            if ( value == null )
             {
-                List<LinkedAvlMapNode<K, V>> leftTreePath = findMax( delNode.left );
-                y = leftTreePath.remove( 0 );
-
-                if ( leftTreePath.isEmpty() ) // y is the left child of root and y is a leaf
+                holder.value = node.value;
+            }
+            else
+            {
+                if ( allowDuplicates )
                 {
-                    detachNodes( y, delNode );
+                    if ( node.value.isOrderedSet() )
+                    {
+                        AvlTree<V> dupsTree = node.value.getOrderedSet();
+                        V removedVal = dupsTree.remove( value );
+
+                        if ( removedVal == null )
+                        {
+                            // value was not present
+                            return node;
+                        }
+
+                        holder.value = new SingletonOrOrderedSet<>( removedVal );
+
+                        if ( !dupsTree.isEmpty() )
+                        {
+                            return node;
+                        }
+
+                        // the node holds no values anymore and will be deleted
+                    }
+                    else
+                    {
+                        if ( valueComparator.compare( node.value.getSingleton(), value ) != 0 )
+                        {
+                            return node; // node was not removed, no need to balance
+                        }
+
+                        holder.value = node.value;
+                    }
                 }
                 else
                 {
-                    detachNodes( y, leftTreePath.remove( 0 ) );
-                }
+                    if ( valueComparator.compare( node.value.getSingleton(), value ) != 0 )
+                    {
+                        return node; // node was not removed, no need to balance
+                    }
 
-                leftTreePath.addAll( treePath );
-                treePath = leftTreePath;
-
-                y.right = delNode.right; // assign the right here left will be assigned in replaceNode()
-
-                if ( delNode == root )
-                {
-                    y.left = delNode.left;
-                    root = y;
-                }
-                else
-                {
-                    replaceNode( delNode, y, treePath.get( 0 ) );
+                    holder.value = node.value;
                 }
             }
-            else if ( delNode.right != null )
+
+            removeFromList( node );
+            size--;
+
+            if ( node.left == null )
             {
-                List<LinkedAvlMapNode<K, V>> rightTreePath = findMin( delNode.right );
-                y = rightTreePath.remove( 0 );
-
-                if ( rightTreePath.isEmpty() )
-                {
-                    detachNodes( y, delNode ); // y is the right child of root and y is a leaf
-                }
-                else
-                {
-                    detachNodes( y, rightTreePath.remove( 0 ) );
-                }
-
-                rightTreePath.addAll( treePath );
-                treePath = rightTreePath;
-
-                y.right = delNode.right; // assign the right here left will be assigned in replaceNode()
-
-                if ( delNode == root )
-                {
-                    y.right = delNode.right;
-                    root = y;
-                }
-                else
-                {
-                    replaceNode( delNode, y, treePath.get( 0 ) );
-                }
+                return node.right;
+            }
+            else if ( node.right == null )
+            {
+                return node.left;
+            }
+            else
+            {
+                LinkedAvlMapNode<K, V> y = node;
+                node = mostLeftChild( y.right );
+                node.right = deleteMin( y.right );
+                node.left = y.left;
             }
         }
 
-        treePath.add( 0, y ); // y can be null but getBalance returns 0 so np
-        balance( treePath );
+        node.height = 1 + Math.max( height( node.left ), height( node.right ) );
+        return balance( node );
     }
 
 
-    /**
-     * Balances the tree by visiting the nodes present in the List of nodes present in the
-     * treePath parameter.<br><br>
-     *
-     * This really does the balancing if the height of the tree is greater than 2 and the<br> 
-     * balance factor is greater than +1 or less than -1.<br><br>
-     * For an excellent info please read the 
-     * <a href="http://en.wikipedia.org/wiki/Avl_tree">Wikipedia article on AVL tree</a>.
-     * 
-     * @param treePath the traversed list of LinkedAvlMapNodes after performing an insert/delete operation.
-     */
-    private void balance( List<LinkedAvlMapNode<K, V>> treePath )
+    private LinkedAvlMapNode<K, V> mostLeftChild( LinkedAvlMapNode<K, V> node )
     {
-        LinkedAvlMapNode<K, V> parentNode = null;
-
-        int treePathSize = treePath.size();
-
-        for ( LinkedAvlMapNode<K, V> node : treePath )
+        LinkedAvlMapNode<K, V> current = node;
+        while ( current.left != null )
         {
-            int balFactor = getBalance( node );
-
-            if ( node != root && treePath.indexOf( node ) < ( treePathSize - 1 ) )
-            {
-                parentNode = treePath.get( treePath.indexOf( node ) + 1 );
-            }
-
-            if ( balFactor > 1 )
-            {
-                if ( getBalance( node.right ) <= -1 )
-                {
-                    //------rotate double-left--------
-                    rotateSingleRight( node.right, node );
-                    rotateSingleLeft( node, parentNode );
-                }
-                else
-                // rotate single-left
-                {
-                    rotateSingleLeft( node, parentNode );
-                }
-            }
-            else if ( balFactor < -1 )
-            {
-                if ( getBalance( node.left ) >= 1 )
-                {
-                    //------rotate double-right--------
-                    rotateSingleLeft( node.left, node );
-                    rotateSingleRight( node, parentNode );
-                }
-                else
-                {
-                    rotateSingleRight( node, parentNode );
-                }
-            }
+            current = current.left;
         }
+        return current;
+    }
+
+
+    private LinkedAvlMapNode<K, V> deleteMin( LinkedAvlMapNode<K, V> node )
+    {
+        if ( node.left == null )
+        {
+            return node.right;
+        }
+
+        node.left = deleteMin( node.left );
+        node.height = 1 + Math.max( height( node.left ), height( node.right ) );
+        return balance( node );
+    }
+
+
+    private LinkedAvlMapNode<K, V> rotateRight( LinkedAvlMapNode<K, V> x )
+    {
+        LinkedAvlMapNode<K, V> y = x.left;
+        x.left = y.right;
+        y.right = x;
+        x.height = 1 + Math.max( height( x.left ), height( x.right ) );
+        y.height = 1 + Math.max( height( y.left ), height( y.right ) );
+        return y;
+    }
+
+
+    private LinkedAvlMapNode<K, V> rotateLeft( LinkedAvlMapNode<K, V> x )
+    {
+        LinkedAvlMapNode<K, V> y = x.right;
+        x.right = y.left;
+        y.left = x;
+        x.height = 1 + Math.max( height( x.left ), height( x.right ) );
+        y.height = 1 + Math.max( height( y.left ), height( y.right ) );
+        return y;
+    }
+
+
+    private int height( LinkedAvlMapNode<K, V> n )
+    {
+        return n == null ? -1 : n.height;
+    }
+
+
+    public int getBalance( LinkedAvlMapNode<K, V> n )
+    {
+        return height( n.left ) - height( n.right );
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isEmpty()
     {
         return root == null;
@@ -593,6 +563,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
      * {@inheritDoc}
      */
     //NOTE: This method is internally used by AVLTreeMarshaller
+    @Override
     public int getSize()
     {
         return size;
@@ -641,6 +612,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> getRoot()
     {
         return root;
@@ -650,6 +622,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<K> getKeys()
     {
         List<K> keys = new ArrayList<>();
@@ -668,6 +641,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public void printTree()
     {
         if ( isEmpty() )
@@ -676,19 +650,18 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
             return;
         }
 
-        getRoot().setDepth( 0 );
+        System.out.println( root );
 
-        System.out.println( getRoot() );
+        visit( root.right, root, 0 );
 
-        visit( getRoot().getRight(), getRoot() );
-
-        visit( getRoot().getLeft(), getRoot() );
+        visit( root.left, root, 0 );
     }
 
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> getFirst()
     {
         return first;
@@ -698,6 +671,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> getLast()
     {
         return last;
@@ -705,169 +679,9 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
 
 
     /**
-     * Rotate the node left side once.
-     *
-     * @param node the LinkedAvlMapNode to be rotated
-     * @param parentNode parent LinkedAvlMapNode of node
-     */
-    private void rotateSingleLeft( LinkedAvlMapNode<K, V> node, LinkedAvlMapNode<K, V> parentNode )
-    {
-        LinkedAvlMapNode<K, V> temp;
-        //------rotate single-left--------
-
-        temp = node.right;
-        node.right = temp.left;
-        temp.left = node;
-
-        if ( node == root )
-        {
-            root = temp;
-        }
-        else if ( parentNode != null )
-        {
-            if ( parentNode.left == node )
-            {
-                parentNode.left = temp;
-            }
-            else if ( parentNode.right == node )
-            {
-                parentNode.right = temp;
-            }
-        }
-    }
-
-
-    /**
-     * Rotate the node right side once.
-     *
-     * @param node the LinkedAvlMapNode to be rotated
-     * @param parentNode parent LinkedAvlMapNode of node
-     */
-    private void rotateSingleRight( LinkedAvlMapNode<K, V> node, LinkedAvlMapNode<K, V> parentNode )
-    {
-        LinkedAvlMapNode<K, V> temp;
-        //------rotate single-right--------
-
-        temp = node.left;
-        node.left = temp.right;
-        temp.right = node;
-
-        if ( node == root )
-        {
-            root = temp;
-        }
-        else if ( parentNode != null )
-        {
-            if ( parentNode.left == node )
-            {
-                parentNode.left = temp;
-            }
-            else if ( parentNode.right == node )
-            {
-                parentNode.right = temp;
-            }
-        }
-        /*
-         when the 'parentNode' param is null then the node under rotation is a child of ROOT.
-         Most likely this condition executes when the root node is deleted and balancing is required.
-         */
-        else if ( root != null && root.left == node )
-        {
-            root.left = temp;
-            // no need to check for right node
-        }
-    }
-
-
-    /**
-     * Detach a LinkedAvlMapNode from its parent
-     *
-     * @param node the LinkedAvlMapNode to be detached
-     * @param parentNode the parent LinkedAvlMapNode of the node
-     */
-    private void detachNodes( LinkedAvlMapNode<K, V> node, LinkedAvlMapNode<K, V> parentNode )
-    {
-        if ( parentNode != null )
-        {
-            if ( node == parentNode.left )
-            {
-                parentNode.left = node.left;
-            }
-            else if ( node == parentNode.right )
-            {
-                parentNode.right = node.left;
-            }
-        }
-    }
-
-
-    /**
-     * 
-     * Replace a LinkedAvlMapNode to be removed with a new existing LinkedAvlMapNode 
-     *
-     * @param deleteNode the LinkedAvlMapNode to be deleted
-     * @param replaceNode the LinkedAvlMapNode to replace the deleteNode
-     * @param parentNode the parent LinkedAvlMapNode of deleteNode
-     */
-    private void replaceNode( LinkedAvlMapNode<K, V> deleteNode, LinkedAvlMapNode<K, V> replaceNode,
-        LinkedAvlMapNode<K, V> parentNode )
-    {
-        if ( parentNode != null )
-        {
-            replaceNode.left = deleteNode.left;
-
-            if ( deleteNode == parentNode.left )
-            {
-                parentNode.left = replaceNode;
-            }
-            else if ( deleteNode == parentNode.right )
-            {
-                parentNode.right = replaceNode;
-            }
-        }
-    }
-
-
-    /**
-     * 
-     * Find a LinkedAvlMapNode with the given key value in the tree starting from the startNode.
-     *
-     * @param key the key to find
-     * @param startNode starting node of a subtree/tree
-     * @param path the list to be filled with traversed nodes
-     * @return the list of traversed LinkedAvlMapNodes.
-     */
-    private List<LinkedAvlMapNode<K, V>> find( K key, LinkedAvlMapNode<K, V> startNode,
-        List<LinkedAvlMapNode<K, V>> path )
-    {
-        int c;
-
-        if ( startNode == null )
-        {
-            return null;
-        }
-
-        path.add( 0, startNode );
-        c = keyComparator.compare( key, startNode.key );
-
-        if ( c == 0 )
-        {
-            return path;
-        }
-        else if ( c > 0 )
-        {
-            return find( key, startNode.right, path );
-        }
-        else
-        {
-            return find( key, startNode.left, path );
-        }
-    }
-
-
-    /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> findGreater( K key )
     {
         LinkedAvlMapNode<K, V> result = fetchNonNullNode( key, root, root );
@@ -888,6 +702,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> findGreaterOrEqual( K key )
     {
         LinkedAvlMapNode<K, V> result = fetchNonNullNode( key, root, root );
@@ -908,6 +723,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> findLess( K key )
     {
         LinkedAvlMapNode<K, V> result = fetchNonNullNode( key, root, root );
@@ -928,6 +744,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> findLessOrEqual( K key )
     {
         LinkedAvlMapNode<K, V> result = fetchNonNullNode( key, root, root );
@@ -979,6 +796,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> find( K key )
     {
         return find( key, root );
@@ -988,6 +806,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public LinkedAvlMapNode<K, V> find( K key, V value )
     {
         if ( key == null || value == null )
@@ -1036,12 +855,10 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
 
         if ( c > 0 )
         {
-            startNode.isLeft = false;
             return find( key, startNode.right );
         }
         else if ( c < 0 )
         {
-            startNode.isLeft = true;
             return find( key, startNode.left );
         }
 
@@ -1049,108 +866,14 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     }
 
 
-    /**
-     * Find the LinkedAvlMapNode having the max key value in the tree starting from the startNode.
-     *
-     * @param startNode starting node of a subtree/tree
-     * @return the list of traversed LinkedAvlMapNodes.
-     */
-    private List<LinkedAvlMapNode<K, V>> findMax( LinkedAvlMapNode<K, V> startNode )
-    {
-        LinkedAvlMapNode<K, V> x = startNode;
-        LinkedAvlMapNode<K, V> y = null;
-        List<LinkedAvlMapNode<K, V>> path;
-
-        if ( x == null )
-        {
-            return null;
-        }
-
-        while ( x.right != null )
-        {
-            x.isLeft = false;
-            y = x;
-            x = x.right;
-        }
-
-        path = new ArrayList<>( 2 );
-        path.add( x );
-
-        if ( y != null )
-        {
-            path.add( y );
-        }
-
-        return path;
-    }
-
-
-    /**
-     * Find the LinkedAvlMapNode having the min key value in the tree starting from the startNode.
-     *
-     * @param startNode starting node of a subtree/tree
-     * @return the list of traversed LinkedAvlMapNodes.
-     */
-    private List<LinkedAvlMapNode<K, V>> findMin( LinkedAvlMapNode<K, V> startNode )
-    {
-        LinkedAvlMapNode<K, V> x = startNode;
-        LinkedAvlMapNode<K, V> y = null;
-        List<LinkedAvlMapNode<K, V>> path;
-
-        if ( x == null )
-        {
-            return null;
-        }
-
-        while ( x.left != null )
-        {
-            x.isLeft = true;
-            y = x;
-            x = x.left;
-        }
-
-        path = new ArrayList<>( 2 );
-        path.add( x );
-
-        if ( y != null )
-        {
-            path.add( y );
-        }
-
-        return path;
-    }
-
-
-    /**
-     * Get balance-factor of the given LinkedAvlMapNode.
-     *
-     * @param node a LinkedAvlMapNode 
-     * @return balance-factor of the node
-     */
-    private int getBalance( LinkedAvlMapNode<K, V> node )
-    {
-        if ( node == null )
-        {
-            return 0;
-        }
-
-        return node.getBalance();
-    }
-
-
-    private void visit( LinkedAvlMapNode<K, V> node, LinkedAvlMapNode<K, V> parentNode )
+    private void visit( LinkedAvlMapNode<K, V> node, LinkedAvlMapNode<K, V> parentNode, int depth )
     {
         if ( node == null )
         {
             return;
         }
 
-        if ( !node.isLeaf() )
-        {
-            node.setDepth( parentNode.getDepth() + 1 );
-        }
-
-        for ( int i = 0; i < parentNode.getDepth(); i++ )
+        for ( int i = 0; i < depth; i++ )
         {
             System.out.print( "|  " );
         }
@@ -1169,12 +892,12 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
 
         if ( node.getRight() != null )
         {
-            visit( node.getRight(), node );
+            visit( node.getRight(), node, depth + 1 );
         }
 
         if ( node.getLeft() != null )
         {
-            visit( node.getLeft(), node );
+            visit( node.getLeft(), node, depth + 1 );
         }
     }
 
@@ -1182,6 +905,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isDupsAllowed()
     {
         return allowDuplicates;
@@ -1205,5 +929,20 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
         last = null;
         root = null;
         size = 0;
+    }
+
+    private static class ValueHolder<T>
+    {
+
+        private SingletonOrOrderedSet<T> value;
+
+        T getSingleton()
+        {
+            if ( value != null )
+            {
+                return value.getSingleton();
+            }
+            return null;
+        }
     }
 }
