@@ -159,7 +159,7 @@ public class AvlTreeMapTest
 
         tree.remove( 24, 3 ); // this causes a single left rotation on node with key 12
 
-        assertTrue( tree.getRoot().getLeft().key == 26 );
+        assertTrue( tree.getRoot().getLeft().key == 25 );
     }
 
 

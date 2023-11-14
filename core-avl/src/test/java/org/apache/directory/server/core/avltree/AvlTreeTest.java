@@ -147,7 +147,7 @@ public class AvlTreeTest
         {
             tree.printTree();
         }
-        assertTrue( tree.getRoot().getLeft().key == 26 );
+        assertTrue( tree.getRoot().getLeft().key == 25 );
     }
 
 
@@ -450,7 +450,7 @@ public class AvlTreeTest
 
         tree.remove( 13 );
 
-        assertEquals( 11, ( int ) tree.find( 8 ).right.key );
+        assertEquals( 14, ( int ) tree.find( 8 ).right.key );
     }
 
 
@@ -468,10 +468,10 @@ public class AvlTreeTest
 
         tree.remove( 16 );
 
-        assertEquals( 8, ( int ) tree.getRoot().key );
-        assertEquals( 12, ( int ) tree.getRoot().right.key );
-        assertEquals( 14, ( int ) tree.getRoot().right.right.key );
-        assertEquals( 13, ( int ) tree.find( 14 ).left.key );
+        assertEquals( 11, ( int ) tree.getRoot().key );
+        assertEquals( 13, ( int ) tree.getRoot().right.key );
+        assertEquals( 17, ( int ) tree.getRoot().right.right.key );
+        assertNull( tree.find( 14 ).left );
     }
 
 
