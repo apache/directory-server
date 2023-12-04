@@ -79,7 +79,7 @@
     <org.apache.felix.version>7.0.5</org.apache.felix.version>
     <pax-exam.version>4.13.4</pax-exam.version>
     <pax-url.version>2.6.14</pax-url.version>
-    <plexus.utils.version>3.5.1</plexus.utils.version>
+    <plexus.utils.version>4.0.0</plexus.utils.version>
     <slf4j.api.version>1.7.36</slf4j.api.version>
     <slf4j.api.bundleversion>"$«range;[==,=+)»"</slf4j.api.bundleversion>
     <slf4j.log4j12.version>${slf4j.api.version}</slf4j.log4j12.version>
