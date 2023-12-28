@@ -82,7 +82,7 @@
     <plexus.utils.version>4.0.0</plexus.utils.version>
     <slf4j.api.version>1.7.36</slf4j.api.version>
     <slf4j.api.bundleversion>"$«range;[==,=+)»"</slf4j.api.bundleversion>
-    <slf4j.log4j12.version>${slf4j.api.version}</slf4j.log4j12.version>
+    <slf4j.log4j12.version>2.0.10</slf4j.log4j12.version>
     <wagon.ssh.version>3.5.3</wagon.ssh.version>
     <wagon.ssh.external.version>3.5.3</wagon.ssh.external.version>
     <wrapper.version>3.2.3</wrapper.version>
