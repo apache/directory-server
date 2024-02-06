@@ -70,7 +70,7 @@
     <jetty.version>9.4.53.v20231009</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.48</jetty.bundle.version>
-    <junit.jupiter.api.version>5.10.1</junit.jupiter.api.version>
+    <junit.jupiter.api.version>5.10.2</junit.jupiter.api.version>
     <kerby.version>2.0.3</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <logback.version>1.4.14</logback.version>
