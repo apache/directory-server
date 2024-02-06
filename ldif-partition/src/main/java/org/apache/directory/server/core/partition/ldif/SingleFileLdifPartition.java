@@ -28,6 +28,7 @@ import java.io.RandomAccessFile;
 import java.util.Iterator;
 import java.util.UUID;
 
+import de.thetaphi.forbiddenapis.SuppressForbidden;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -68,7 +69,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
     /** the LDIF file holding the partition's data */
     private RandomAccessFile ldifFile;
 
-    /** flag to enable/disable re-writing in-memory partition data back to file, default is set to true */
+    /** flag to enable/disable re-writing `in-memory partition data back to file, default is set to true */
     private volatile boolean enableRewriting = true;
 
     /** flag used internally to detect if partition data was updated in memory but not on disk */
@@ -469,6 +470,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
 
 
         @Override
+        @SuppressForbidden // TODO ldifFile.readLine() uses system file encoding
         protected String getLine() throws IOException
         {
             if ( len == 0 )

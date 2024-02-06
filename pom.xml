@@ -65,7 +65,7 @@
     <dnsjava.version>3.5.3</dnsjava.version>
     <caffeine.version>2.9.3</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
-    <forbiddenapis.version>2.7</forbiddenapis.version>
+    <forbiddenapis.version>3.6</forbiddenapis.version>
     <hamcrest.version>2.2</hamcrest.version>
     <jetty.version>9.4.53.v20231009</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
@@ -577,10 +577,10 @@
         <artifactId>forbiddenapis</artifactId>
         <version>${forbiddenapis.version}</version>
         <configuration>
-          <internalRuntimeForbidden>false</internalRuntimeForbidden>
           <failOnUnsupportedJava>true</failOnUnsupportedJava>
           <failOnViolation>true</failOnViolation>
           <bundledSignatures>
+            <bundledSignature>jdk-non-portable</bundledSignature>
             <bundledSignature>jdk-unsafe</bundledSignature>
             <bundledSignature>jdk-deprecated</bundledSignature>
           </bundledSignatures>
@@ -1139,6 +1139,15 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-pool2</artifactId>
         <version>${commons.pool.version}</version>
+      </dependency>
+
+      <!-- forbidden apis annotations -->
+      <!-- needed for compile, but not runtime -->
+      <dependency>
+        <groupId>de.thetaphi</groupId>
+        <artifactId>forbiddenapis</artifactId>
+        <version>${forbiddenapis.version}</version>
+        <scope>provided</scope>
       </dependency>
 
       <!-- Test dependencies -->
