@@ -42,12 +42,9 @@ public class LinkedAvlNode<T>
     /** The previous node, inferior to the current node */
     LinkedAvlNode<T> previous;
 
-    int depth;
     int index;
 
-    boolean isLeft;
     int height = 1;
-
 
     /**
      * Creates a new instance of LinkedAvlNode, containing a given value.
@@ -110,18 +107,6 @@ public class LinkedAvlNode<T>
     }
 
 
-    public int getDepth()
-    {
-        return depth;
-    }
-
-
-    public void setDepth( int depth )
-    {
-        this.depth = depth;
-    }
-
-
     public int getHeight()
     {
         return height;
@@ -137,43 +122,6 @@ public class LinkedAvlNode<T>
     public void setPrevious( LinkedAvlNode<T> previous )
     {
         this.previous = previous;
-    }
-
-
-    public int computeHeight()
-    {
-
-        if ( right == null && left == null )
-        {
-            height = 1;
-            return height;
-        }
-
-        int lh, rh;
-
-        if ( isLeft )
-        {
-            lh = ( left == null ? -1 : left.computeHeight() );
-            rh = ( right == null ? -1 : right.getHeight() );
-        }
-        else
-        {
-            rh = ( right == null ? -1 : right.computeHeight() );
-            lh = ( left == null ? -1 : left.getHeight() );
-        }
-
-        height = 1 + Math.max( lh, rh );
-
-        return height;
-    }
-
-
-    public int getBalance()
-    {
-        int lh = ( left == null ? 0 : left.computeHeight() );
-        int rh = ( right == null ? 0 : right.computeHeight() );
-
-        return ( rh - lh );
     }
 
 

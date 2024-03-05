@@ -54,32 +54,32 @@
     
     <!-- Set versions for depending jars -->
     <ant.version>1.10.14</ant.version>
-    <bcprov.version>1.70</bcprov.version>
-    <commons.cli.version>1.5.0</commons.cli.version>
+    <bcprov.version>1.77</bcprov.version>
+    <commons.cli.version>1.6.0</commons.cli.version>
     <commons.codec.version>1.16.1</commons.codec.version>
     <commons.collections.version>4.4</commons.collections.version>
     <commons.daemon.version>1.3.4</commons.daemon.version>
     <commons.lang.version>3.14.0</commons.lang.version>
     <commons.net.version>3.10.0</commons.net.version>
     <commons.pool.version>2.12.0</commons.pool.version>
-    <dnsjava.version>3.5.2</dnsjava.version>
+    <dnsjava.version>3.5.3</dnsjava.version>
     <caffeine.version>2.9.3</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
-    <forbiddenapis.version>2.7</forbiddenapis.version>
+    <forbiddenapis.version>3.6</forbiddenapis.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <jetty.version>9.4.52.v20230823</jetty.version>
+    <jetty.version>9.4.54.v20240208</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.48</jetty.bundle.version>
-    <junit.jupiter.api.version>5.10.0</junit.jupiter.api.version>
+    <junit.jupiter.api.version>5.10.2</junit.jupiter.api.version>
     <kerby.version>2.0.3</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
-    <logback.version>1.4.11</logback.version>
-    <maven.version>3.9.1</maven.version>
+    <logback.version>1.5.1</logback.version>
+    <maven.version>3.9.6</maven.version>
     <mina.core.version>2.2.3</mina.core.version>
     <org.apache.felix.version>7.0.5</org.apache.felix.version>
     <pax-exam.version>4.13.4</pax-exam.version>
     <pax-url.version>2.6.14</pax-url.version>
-    <plexus.utils.version>3.5.1</plexus.utils.version>
+    <plexus.utils.version>4.0.0</plexus.utils.version>
     <slf4j.api.version>1.7.36</slf4j.api.version>
     <slf4j.api.bundleversion>"$«range;[==,=+)»"</slf4j.api.bundleversion>
     <slf4j.log4j12.version>${slf4j.api.version}</slf4j.log4j12.version>
@@ -484,6 +484,23 @@
             </properties>
           </configuration>
          </plugin>
+         <plugin>
+          <groupId>org.cyclonedx</groupId>
+          <artifactId>cyclonedx-maven-plugin</artifactId>
+          <version>2.7.11</version>
+          <executions>
+            <execution>
+              <id>make-bom</id>
+              <phase>package</phase>
+              <goals>
+                <goal>makeAggregateBom</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <outputName>${project.artifactId}-${project.version}-bom</outputName>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
     
@@ -560,10 +577,10 @@
         <artifactId>forbiddenapis</artifactId>
         <version>${forbiddenapis.version}</version>
         <configuration>
-          <internalRuntimeForbidden>false</internalRuntimeForbidden>
           <failOnUnsupportedJava>true</failOnUnsupportedJava>
           <failOnViolation>true</failOnViolation>
           <bundledSignatures>
+            <bundledSignature>jdk-non-portable</bundledSignature>
             <bundledSignature>jdk-unsafe</bundledSignature>
             <bundledSignature>jdk-deprecated</bundledSignature>
           </bundledSignatures>
@@ -576,6 +593,10 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
@@ -1120,6 +1141,15 @@
         <version>${commons.pool.version}</version>
       </dependency>
 
+      <!-- forbidden apis annotations -->
+      <!-- needed for compile, but not runtime -->
+      <dependency>
+        <groupId>de.thetaphi</groupId>
+        <artifactId>forbiddenapis</artifactId>
+        <version>${forbiddenapis.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
       <!-- Test dependencies -->
       <dependency>
         <groupId>org.junit.jupiter</groupId>
@@ -1211,12 +1241,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.apache.maven.plugin-tools</groupId>
-        <artifactId>maven-plugin-annotations</artifactId>
-        <version>${maven.plugin.tools.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-core</artifactId>
         <version>${maven.version}</version>
@@ -1248,13 +1272,13 @@
 
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
+        <artifactId>bcprov-jdk18on</artifactId>
         <version>${bcprov.version}</version>
       </dependency>
     
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
+        <artifactId>bcpkix-jdk18on</artifactId>
         <version>${bcprov.version}</version>
       </dependency>
 
@@ -1327,7 +1351,7 @@
     <connection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</developerConnection>
     <url>https://github.com/apache/directory-server/tree/${project.scm.tag}</url>
-    <tag>2.0.0.AM27</tag>
+    <tag>master</tag>
   </scm>
 
   <repositories>
