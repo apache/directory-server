@@ -81,7 +81,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    private class CollectiveAttributeFilter implements EntryFilter
+    private final class CollectiveAttributeFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}

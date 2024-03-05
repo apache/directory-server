@@ -90,7 +90,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    private class DefaultAuthorizationSearchFilter implements EntryFilter
+    private final class DefaultAuthorizationSearchFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}

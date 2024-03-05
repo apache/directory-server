@@ -1449,7 +1449,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     /**
      * WARNING: create one of these filters fresh every time for each new search.
      */
-    private class AuthorizationFilter implements EntryFilter
+    private final class AuthorizationFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}

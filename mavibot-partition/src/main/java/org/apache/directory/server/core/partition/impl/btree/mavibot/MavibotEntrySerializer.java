@@ -70,7 +70,7 @@ public class MavibotEntrySerializer extends AbstractElementSerializer<Entry>
     /** The schemaManager reference */
     private static SchemaManager schemaManager;
 
-    private static class EntryComparator implements Comparator<Entry>
+    private static final class EntryComparator implements Comparator<Entry>
     {
 
         @Override

@@ -128,7 +128,7 @@ public class SubentryInterceptor extends BaseInterceptor
     /**
      * SearchResultFilter used to filter out subentries based on objectClass values.
      */
-    private class HideSubentriesFilter implements EntryFilter
+    private final class HideSubentriesFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}
@@ -161,7 +161,7 @@ public class SubentryInterceptor extends BaseInterceptor
      * SearchResultFilter used to filter out normal entries but shows subentries based on
      * objectClass values.
      */
-    private class HideEntriesFilter implements EntryFilter
+    private final class HideEntriesFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}

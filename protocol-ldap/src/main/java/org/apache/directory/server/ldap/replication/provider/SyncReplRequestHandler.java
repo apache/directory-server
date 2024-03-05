@@ -1190,7 +1190,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
     /**
      * an event listener for handling deletions and updates of replication event log entries present under ou=consumers,ou=system
      */
-    private class ConsumerLogEntryChangeListener extends DirectoryListenerAdapter
+    private final class ConsumerLogEntryChangeListener extends DirectoryListenerAdapter
     {
 
         private ReplicaEventLog getEventLog( OperationContext opCtx )

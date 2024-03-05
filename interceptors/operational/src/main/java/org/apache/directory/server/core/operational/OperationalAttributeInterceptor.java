@@ -102,7 +102,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for collective attribute injection
      */
-    private class OperationalAttributeDenormalizingSearchFilter implements EntryFilter
+    private final class OperationalAttributeDenormalizingSearchFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}
@@ -136,7 +136,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * the search result filter to use for the addition of mandatory operational attributes
      */
-    private class OperationalAttributeSearchFilter implements EntryFilter
+    private final class OperationalAttributeSearchFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}
@@ -179,7 +179,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     /**
      * The search result filter to use for the addition of the subordinates attributes, if requested
      */
-    private class SubordinatesSearchFilter implements EntryFilter
+    private final class SubordinatesSearchFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}

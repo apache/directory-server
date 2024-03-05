@@ -906,7 +906,7 @@ public class SchemaInterceptor extends BaseInterceptor
     /**
      * Filters objectClass attribute to inject top when not present.
      */
-    private class TopFilter implements EntryFilter
+    private final class TopFilter implements EntryFilter
     {
         /**
          * {@inheritDoc}
