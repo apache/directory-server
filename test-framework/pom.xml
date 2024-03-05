@@ -23,7 +23,7 @@
     <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>2.0.0.AM27</version>
+    <version>2.0.0.AM28-SNAPSHOT</version>
   </parent>
   
   <artifactId>apacheds-test-framework</artifactId>
