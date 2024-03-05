@@ -685,7 +685,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
         }
     }
 
-    private static class KeyHolder<T>
+    private static final class KeyHolder<T>
     {
 
         private T key;

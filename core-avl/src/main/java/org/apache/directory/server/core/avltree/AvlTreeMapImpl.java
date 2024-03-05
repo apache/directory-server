@@ -931,7 +931,7 @@ public class AvlTreeMapImpl<K, V> implements AvlTreeMap<K, V>
         size = 0;
     }
 
-    private static class ValueHolder<T>
+    private static final class ValueHolder<T>
     {
 
         private SingletonOrOrderedSet<T> value;
