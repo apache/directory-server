@@ -26,16 +26,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.directory.api.dsmlv2.request.BatchRequestDsml;
+import org.apache.directory.api.dsmlv2.request.SearchRequestDsml;
+import org.apache.directory.api.ldap.codec.api.LdapApiServiceFactory;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.filter.ExprNode;
+import org.apache.directory.api.ldap.model.filter.FilterParser;
 import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -524,5 +531,17 @@ public class SearchRequestReturningAttributesTest extends AbstractLdapTestUnit
 
         assertEquals( 1, count );
         assertNull( response.get( SchemaConstants.UID_AT ).get() );
+    }
+    
+    
+    @Test
+    public void testMinimalEqualityRequest() throws Exception {
+        SearchRequestDsml searchRequest = new SearchRequestDsml(LdapApiServiceFactory.getSingleton());
+        SchemaManager schemaManager = new DefaultSchemaManager();
+        searchRequest.setFilter( /*schemaManager,*/ "(uid=SomeArbitraryBenignString)" );
+        
+        BatchRequestDsml batchRequest = new BatchRequestDsml();
+        batchRequest.addRequest(searchRequest);
+        String dsmlString = batchRequest.toDsml();
     }
 }
