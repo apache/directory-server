@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -417,7 +418,7 @@ public class GroupCache
 
         for ( Modification modification : mods )
         {
-            if ( memberAttr.getOid() == modification.getAttribute().getId() )
+            if ( Strings.equals( memberAttr.getOid(), modification.getAttribute().getId() ) )
             {
                 Set<String> memberSet = groups.get( name.getNormName() );
                 
