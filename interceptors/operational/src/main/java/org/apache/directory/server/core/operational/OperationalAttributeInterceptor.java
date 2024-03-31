@@ -756,8 +756,6 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
                     }
                     else
                     {
-                        ObjectClass topStructural = objectClassArray[0];
-
                         for ( ObjectClass oc : objectClassArray )
                         {
                             if ( !superiors.containsKey( oc.getOid() ) )
