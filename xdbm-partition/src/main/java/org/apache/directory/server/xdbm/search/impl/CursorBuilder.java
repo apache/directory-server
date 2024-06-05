@@ -506,7 +506,7 @@ public class CursorBuilder
         // If we are searching from the partition DN, better get out.
         String contextEntryId = db.getEntryId( partitionTxn, ( ( Partition ) db ).getSuffixDn() );
 
-        if ( node.getBaseId() == contextEntryId )
+        if ( contextEntryId.equals( node.getBaseId() ) )
         {
             return Long.MAX_VALUE;
         }
