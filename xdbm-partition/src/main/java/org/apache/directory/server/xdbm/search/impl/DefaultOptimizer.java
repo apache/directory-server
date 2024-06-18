@@ -507,7 +507,7 @@ public class DefaultOptimizer implements Optimizer
                 return db.getChildCount( partitionTxn, id );
 
             case SUBTREE:
-                if ( Strings.equals(id, getContextEntryId( partitionTxn ) ) )
+                if ( Strings.equals( id, getContextEntryId( partitionTxn ) ) )
                 {
                     return db.count( partitionTxn );
                 }
