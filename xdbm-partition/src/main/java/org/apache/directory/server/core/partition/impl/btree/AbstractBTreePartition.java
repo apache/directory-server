@@ -1695,13 +1695,13 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // And add the new ones 
             for ( Value value : mods )
             {
-                String valueStr = value.getString();
-
-                if ( valueStr.equals( topOCValue ) )
+                if ( value.equals( topOCValue ) )
                 {
                     continue;
                 }
                 
+                String valueStr = value.getString();
+
                 adminRoleIdx.add( partitionTxn, valueStr, id );
             }
         }
