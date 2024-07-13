@@ -514,7 +514,7 @@ public class LdifPartition extends AbstractLdifPartition
                 IndexEntry<String, String> entry = scopeCursor.get();
 
                 // except the parent entry add the rest of entries
-                if ( !Strings.equals(entry.getId(), entryIdOld ) )
+                if ( !Strings.equals( entry.getId(), entryIdOld ) )
                 {
                     addEntry( fetch( partitionTxn, entry.getId() ) );
                 }
