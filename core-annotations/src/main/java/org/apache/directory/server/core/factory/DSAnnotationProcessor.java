@@ -405,23 +405,23 @@ public final class DSAnnotationProcessor
         {
             for ( String ldifFile : ldifFiles )
             {
-                InputStream is = clazz.getClassLoader().getResourceAsStream(
-                    ldifFile );
-                if ( is == null )
+                try ( InputStream is = clazz.getClassLoader().getResourceAsStream( ldifFile ) ) 
                 {
-                    throw new FileNotFoundException( "LDIF file '" + ldifFile
-                        + "' not found." );
-                }
-                else
-                {
-                    LdifReader ldifReader = new LdifReader( is );
-
-                    for ( LdifEntry entry : ldifReader )
+                    if ( is == null )
                     {
-                        injectEntry( entry, service );
+                        throw new FileNotFoundException( "LDIF file '" + ldifFile + "' not found." );
                     }
+                    else
+                    {
+                        LdifReader ldifReader = new LdifReader( is );
 
-                    ldifReader.close();
+                        for ( LdifEntry entry : ldifReader )
+                        {
+                            injectEntry( entry, service );
+                        }
+
+                        ldifReader.close();
+                    }
                 }
             }
         }
