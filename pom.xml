@@ -56,13 +56,13 @@
     <ant.version>1.10.14</ant.version>
     <bcprov.version>1.78.1</bcprov.version>
     <commons.cli.version>1.8.0</commons.cli.version>
-    <commons.codec.version>1.17.0</commons.codec.version>
+    <commons.codec.version>1.17.1</commons.codec.version>
     <commons.collections.version>4.4</commons.collections.version>
     <commons.daemon.version>1.4.0</commons.daemon.version>
-    <commons.lang.version>3.14.0</commons.lang.version>
+    <commons.lang.version>3.15.0</commons.lang.version>
     <commons.net.version>3.11.1</commons.net.version>
     <commons.pool.version>2.12.0</commons.pool.version>
-    <dnsjava.version>3.5.3</dnsjava.version>
+    <dnsjava.version>3.6.0</dnsjava.version>
     <caffeine.version>2.9.3</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <forbiddenapis.version>3.6</forbiddenapis.version>
