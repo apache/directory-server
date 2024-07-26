@@ -24,6 +24,7 @@ package org.apache.directory.server.dhcp.io;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -52,32 +53,39 @@ public class DhcpMessageDecoder
      */
     public DhcpMessage decode( ByteBuffer buffer ) throws DhcpException
     {
-        byte op = buffer.get();
-
-        short htype = ( short ) ( buffer.get() & 0xff );
-        short hlen = ( short ) ( buffer.get() & 0xff );
-        short hops = ( short ) ( buffer.get() & 0xff );
-        int xid = buffer.getInt();
-        int secs = buffer.getShort() & 0xffff;
-        short flags = buffer.getShort();
-
-        InetAddress ciaddr = decodeAddress( buffer );
-        InetAddress yiaddr = decodeAddress( buffer );
-        InetAddress siaddr = decodeAddress( buffer );
-        InetAddress giaddr = decodeAddress( buffer );
-
-        byte[] chaddr = decodeBytes( buffer, 16 );
-
-        String sname = decodeString( buffer, 64 );
-        String file = decodeString( buffer, 128 );
-
-        OptionsField options = decodeOptions( buffer );
-
-        // message type option: may be null if option isn't set (BOOTP)
-        DhcpMessageType mto = ( DhcpMessageType ) options.get( DhcpMessageType.class );
-
-        return new DhcpMessage( null != mto ? mto.getType() : null, op, new HardwareAddress( htype, hlen, chaddr ),
-            hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, sname, file, options );
+        try
+        {
+            byte op = buffer.get();
+    
+            short htype = ( short ) ( buffer.get() & 0xff );
+            short hlen = ( short ) ( buffer.get() & 0xff );
+            short hops = ( short ) ( buffer.get() & 0xff );
+            int xid = buffer.getInt();
+            int secs = buffer.getShort() & 0xffff;
+            short flags = buffer.getShort();
+    
+            InetAddress ciaddr = decodeAddress( buffer );
+            InetAddress yiaddr = decodeAddress( buffer );
+            InetAddress siaddr = decodeAddress( buffer );
+            InetAddress giaddr = decodeAddress( buffer );
+    
+            byte[] chaddr = decodeBytes( buffer, 16 );
+    
+            String sname = decodeString( buffer, 64 );
+            String file = decodeString( buffer, 128 );
+    
+            OptionsField options = decodeOptions( buffer );
+    
+            // message type option: may be null if option isn't set (BOOTP)
+            DhcpMessageType mto = ( DhcpMessageType ) options.get( DhcpMessageType.class );
+    
+            return new DhcpMessage( null != mto ? mto.getType() : null, op, new HardwareAddress( htype, hlen, chaddr ),
+                hops, xid, secs, flags, ciaddr, yiaddr, siaddr, giaddr, sname, file, options );
+        }
+        catch ( BufferUnderflowException bue )
+        {
+            throw new DhcpException( I18n.err( I18n.ERR_643, bue.toString() ) );
+        }
     }
 
 
@@ -180,6 +188,12 @@ public class DhcpMessageDecoder
             }
 
             length = message.get();
+            
+            if ( length < 0 )
+            {
+                throw new DhcpException( I18n.err( I18n.ERR_644 ) );
+            }
+            
             value = new byte[length];
             message.get( value );
 
