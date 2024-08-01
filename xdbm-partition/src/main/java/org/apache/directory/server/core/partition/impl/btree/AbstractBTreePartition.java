@@ -2805,14 +2805,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             rwLock.readLock().lock();
 
-            if ( entryDnCache != null )
+            Dn cachedDn = entryDnCache.getIfPresent( id );
+            
+            if ( cachedDn != null )
             {
-                Dn cachedDn = entryDnCache.getIfPresent( id );
-                
-                if ( cachedDn != null )
-                {
-                    return cachedDn;
-                }
+                return cachedDn;
             }
             
             do
