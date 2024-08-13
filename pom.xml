@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>49-SNAPSHOT</version>
+    <version>49</version>
     <relativePath />
   </parent>
 
@@ -46,7 +46,7 @@
     <doclint>none</doclint>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>2.1.7-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.1.7</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>2.0.1</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
@@ -89,6 +89,11 @@
 
     <!-- properties used in tests -->
     <felix.cache.dir>${project.build.directory}/felix-root</felix.cache.dir>
+
+    <!-- properties for the maven compiler plugin -->
+    <maven.compiler.release>8</maven.compiler.release>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
   </properties>
 
   <url>https://directory.apache.org/apacheds/1.5</url>
@@ -355,6 +360,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
             <showDeprecation>true</showDeprecation>
+            <maven.compiler.release>8</maven.compiler.release>
           </configuration>
         </plugin>
 
