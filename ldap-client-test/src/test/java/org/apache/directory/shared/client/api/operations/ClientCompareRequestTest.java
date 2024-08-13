@@ -34,6 +34,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.CompareFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -57,14 +58,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientCompareRequestTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
     private CoreSession session;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
         session = getLdapServer().getDirectoryService().getAdminSession();
     }
 
@@ -105,7 +106,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        CompareFuture compareFuture = connection.compareAsync( compareRequest );
+        CompareFuture compareFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).compareAsync( compareRequest );
 
         CompareResponse compareResponse = compareFuture.get( 1000, TimeUnit.MILLISECONDS );
 

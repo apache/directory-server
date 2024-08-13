@@ -41,7 +41,7 @@ import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifs;
@@ -129,7 +129,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
         "ou: Countries" })
 public class SearchWithReferralsTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
 
 
     @BeforeEach
@@ -161,7 +161,7 @@ public class SearchWithReferralsTest extends AbstractLdapTestUnit
 
         reader.close();
 
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 

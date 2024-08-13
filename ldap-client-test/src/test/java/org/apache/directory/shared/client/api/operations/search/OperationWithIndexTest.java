@@ -42,6 +42,7 @@ import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ContextEntry;
@@ -111,13 +112,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
  */
 public class OperationWithIndexTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
 
         // Restart the service so that the index is created
         getService().shutdown();
@@ -280,7 +281,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
         System.out.println( "--------------> Starting up completed in " + ( ns9 - ns8 ) );
 
         // and do a search again
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
 
         long ns10 = System.currentTimeMillis();
         results = connection.search( "dc=example,dc=com", "(displayName=345*)", SearchScope.SUBTREE, "*" );
@@ -312,7 +313,7 @@ public class OperationWithIndexTest extends AbstractLdapTestUnit
         System.out.println( "--------------> Starting up completed in " + ( ns15 - ns14 ) );
 
         // and do a search again
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
 
         long ns16 = System.currentTimeMillis();
         results = connection.search( "dc=example,dc=com", "(displayName=345*)", SearchScope.SUBTREE, "*" );

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -48,13 +48,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class GetRootDseTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = (PooledLdapConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 

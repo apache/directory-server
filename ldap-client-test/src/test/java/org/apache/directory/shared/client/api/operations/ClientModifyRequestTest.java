@@ -43,6 +43,7 @@ import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -78,14 +79,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 })
 public class ClientModifyRequestTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
     private CoreSession session;
     
     
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
         session = getLdapServer().getDirectoryService().getAdminSession();
     }
     
@@ -183,7 +184,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     
         assertTrue( session.exists( dn ) );
     
-        ModifyFuture modifyFuture = connection.modifyAsync( modifyRequest );
+        ModifyFuture modifyFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).modifyAsync( modifyRequest );
     
         ModifyResponse response = modifyFuture.get( 1000, TimeUnit.MILLISECONDS );
     

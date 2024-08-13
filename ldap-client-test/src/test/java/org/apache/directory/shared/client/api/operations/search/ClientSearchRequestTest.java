@@ -42,6 +42,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ManageDsaITImpl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -106,13 +107,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 })
 public class ClientSearchRequestTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
     
     
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
     
     
@@ -222,7 +223,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testAsyncSearch() throws Exception
     {
-        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*",
+        SearchFuture searchFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).searchAsync( "ou=system", "(objectclass=*)", SearchScope.ONELEVEL, "*",
             "+" );
         int count = 0;
         Response searchResponse = null;
@@ -249,7 +250,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchSubstring() throws Exception
     {
-        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(cn=*e*)", SearchScope.SUBTREE,
+        SearchFuture searchFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).searchAsync( "ou=system", "(cn=*e*)", SearchScope.SUBTREE,
             "*", "+" );
         int count = 0;
         Response searchResponse = null;
@@ -277,7 +278,7 @@ public class ClientSearchRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSearchSubstring2() throws Exception
     {
-        SearchFuture searchFuture = connection.searchAsync( "ou=system", "(cn=Test *)", SearchScope.SUBTREE,
+        SearchFuture searchFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).searchAsync( "ou=system", "(cn=Test *)", SearchScope.SUBTREE,
             "*", "+" );
         int count = 0;
         Response searchResponse = null;

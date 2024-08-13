@@ -53,6 +53,7 @@ import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.AddFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -77,14 +78,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class ClientAddRequestTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
     private CoreSession session;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() ) );
         session = getLdapServer().getDirectoryService().getAdminSession();
     }
 
@@ -182,7 +183,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
 
-        AddFuture addFuture = connection.addAsync( addRequest );
+        AddFuture addFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).addAsync( addRequest );
 
         AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
 
@@ -207,7 +208,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
 
-        AddFuture addFuture = connection.addAsync( addRequest );
+        AddFuture addFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).addAsync( addRequest );
 
         AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
 
@@ -428,7 +429,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         assertTrue( Strings.isEmpty( userPassword ) );
         assertTrue( Strings.isEmpty( mail ) );
 
-        connection.close();
+        //connection.close();
     }
 
 
@@ -461,6 +462,6 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         assertNotNull( found.get( "userPassword" ) );
         assertTrue( found.contains( "uid", "Hi" ) );
         
-        connection.close();
+        //connection.close();
     }
 }

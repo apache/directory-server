@@ -28,7 +28,7 @@ import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.ldap.client.api.DefaultSchemaLoader;
-import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -49,13 +49,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
     { @CreateTransport(protocol = "LDAP"), @CreateTransport(protocol = "LDAPS") })
 public class AdsSchemaLoaderTest extends AbstractLdapTestUnit
 {
-    private LdapConnection connection;
+    private PooledLdapConnection connection;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 

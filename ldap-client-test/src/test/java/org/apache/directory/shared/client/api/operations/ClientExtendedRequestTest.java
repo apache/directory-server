@@ -33,6 +33,7 @@ import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.ExtendedFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -61,13 +62,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
         { StartTlsHandler.class })
 public class ClientExtendedRequestTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = (LdapNetworkConnection)LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 
@@ -81,41 +82,24 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
     @Test
     public void testExtended() throws Exception
     {
-        try
-        {
-            ExtendedResponse response = connection.extended( StartTlsRequest.OID );
-            assertNotNull( response );
-            assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
-        }
-        finally
-        {
-            // close connection to stop TLS
-            connection.close();
-        }
+        ExtendedResponse response = connection.extended( StartTlsRequest.OID );
+        assertNotNull( response );
+        assertEquals( ResultCodeEnum.SUCCESS, response.getLdapResult().getResultCode() );
     }
 
 
     @Test
     public void testExtendedAsync() throws Exception
     {
-        try
-        {
-            ExtendedRequest extendedRequest = new StartTlsRequestImpl();
-            extendedRequest.setRequestName( StartTlsRequest.OID );
+        ExtendedRequest extendedRequest = new StartTlsRequestImpl();
+        extendedRequest.setRequestName( StartTlsRequest.OID );
 
-            ExtendedFuture extendedFuture = connection.extendedAsync( extendedRequest );
+        ExtendedFuture extendedFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).extendedAsync( extendedRequest );
 
-            ExtendedResponse extendedResponse = ( ExtendedResponse ) extendedFuture.get( 1000, TimeUnit.MILLISECONDS );
+        ExtendedResponse extendedResponse = ( ExtendedResponse ) extendedFuture.get( 1000, TimeUnit.MILLISECONDS );
 
-            assertNotNull( extendedResponse );
-            assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
-            assertTrue( connection.isAuthenticated() );
-        }
-        finally
-        {
-            // close connection to stop TLS
-            connection.close();
-        }
-
+        assertNotNull( extendedResponse );
+        assertEquals( ResultCodeEnum.SUCCESS, extendedResponse.getLdapResult().getResultCode() );
+        assertTrue( connection.isAuthenticated() );
     }
 }

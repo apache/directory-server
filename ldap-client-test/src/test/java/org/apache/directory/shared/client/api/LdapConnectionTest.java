@@ -47,6 +47,7 @@ import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -70,13 +71,13 @@ public class LdapConnectionTest extends AbstractLdapTestUnit
 {
     private static final String ADMIN_DN = "uid=admin,ou=system";
 
-    private LdapConnection connection;
+    private PooledLdapConnection connection;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
     }
 
 
@@ -234,7 +235,7 @@ public void testLookup() throws Exception
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
 
         // Now, test using the scerver's schema
-        ( ( LdapNetworkConnection ) connection ).loadSchema();
+        ( ( LdapNetworkConnection ) connection.wrapped() ).loadSchema();
         connection.bind( "uid=admin,ou=system", "secret" );
 
         // Use the default list of binary Attributes

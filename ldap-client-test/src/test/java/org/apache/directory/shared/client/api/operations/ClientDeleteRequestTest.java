@@ -41,6 +41,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.controls.OpaqueControl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.DeleteFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -86,14 +87,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
         "sn: grand_child12_sn" })
 public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 {
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
     private CoreSession session;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
         session = getLdapServer().getDirectoryService().getAdminSession();
     }
 
@@ -142,7 +143,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         if ( connection.isControlSupported( "1.2.840.113556.1.4.805" ) )
         {
-            connection.deleteTree( "cn=parent,ou=system" );
+        	( ( LdapNetworkConnection ) connection.wrapped() ).deleteTree( "cn=parent,ou=system" );
 
             assertFalse( session.exists( "cn=parent,ou=system" ) );
         }
@@ -193,7 +194,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         try
         {
-            connection.deleteTree( "cn=parent,ou=system" );
+        	( ( LdapNetworkConnection ) connection.wrapped() ).deleteTree( "cn=parent,ou=system" );
             fail();
         }
         catch ( LdapException le )
@@ -211,7 +212,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
         DeleteRequest deleteRequest = new DeleteRequestImpl();
         deleteRequest.setName( new Dn( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
 
-        DeleteFuture deleteFuture = connection.deleteAsync( deleteRequest );
+        DeleteFuture deleteFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).deleteAsync( deleteRequest );
 
         DeleteResponse deleteResponse = deleteFuture.get( 1000, TimeUnit.MILLISECONDS );
 

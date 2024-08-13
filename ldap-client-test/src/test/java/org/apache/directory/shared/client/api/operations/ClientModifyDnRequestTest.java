@@ -37,6 +37,7 @@ import org.apache.directory.api.ldap.model.message.ModifyDnResponse;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.ModifyDnFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -83,14 +84,14 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
     private static final String DN = "cn=modDn,ou=system";
     private static final String DN_EMPLOYEE = "employeeNumber=test,ou=system";
     private static final String DN_CONTAINER = "ou=container,ou=system";
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
     private CoreSession session;
 
 
     @BeforeEach
     public void setup() throws Exception
     {
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
         session = getLdapServer().getDirectoryService().getAdminSession();
     }
 
@@ -189,7 +190,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         modDnReq.setNewRdn( new Rdn( "cn=modifyDnWithString" ) );
         modDnReq.setDeleteOldRdn( true );
 
-        ModifyDnFuture modifyDnFuture = connection.modifyDnAsync( modDnReq );
+        ModifyDnFuture modifyDnFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).modifyDnAsync( modDnReq );
 
         ModifyDnResponse response = modifyDnFuture.get( 1000, TimeUnit.MILLISECONDS );
 

@@ -39,6 +39,7 @@ import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -64,7 +65,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
 {
     private static final int numEntries = 100;
     private DelayInducingInterceptor delayInterceptor;
-    private LdapNetworkConnection connection;
+    private PooledLdapConnection connection;
 
 
     @BeforeEach
@@ -72,7 +73,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
     {
         delayInterceptor = new DelayInducingInterceptor();
         getLdapServer().getDirectoryService().addFirst( delayInterceptor );
-        connection = ( LdapNetworkConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
+        connection = ( PooledLdapConnection ) LdapApiIntegrationUtils.getPooledAdminConnection( getLdapServer() );
 
         // injecting some values to keep the
         // followed search operation to run for a while
@@ -113,7 +114,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         sr.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
 
         // Launch the search now
-        SearchFuture searchFuture = connection.searchAsync( sr );
+        SearchFuture searchFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).searchAsync( sr );
 
         Response searchResponse = null;
         int count = 0;
