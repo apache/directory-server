@@ -66,7 +66,7 @@
     <caffeine.version>2.9.3</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
     <forbiddenapis.version>3.6</forbiddenapis.version>
-    <hamcrest.version>2.2</hamcrest.version>
+    <hamcrest.version>3.0</hamcrest.version>
     <jetty.version>9.4.55.v20240627</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.48</jetty.bundle.version>
