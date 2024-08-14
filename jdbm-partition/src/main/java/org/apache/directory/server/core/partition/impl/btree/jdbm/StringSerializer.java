@@ -25,6 +25,7 @@ import java.io.IOException;
 import jdbm.helper.Serializer;
 
 import org.apache.directory.api.util.Strings;
+import org.apache.directory.server.i18n.I18n;
 
 
 /**
@@ -56,6 +57,12 @@ public final class StringSerializer implements Serializer
         if ( bytes.length == 0 )
         {
             return "";
+        }
+        
+        // Check that we don't have a odd number of bytes (we should have an even number of bytes)
+        if ( ( bytes.length & 1 ) == 1 )
+        {
+            throw new IOException( I18n.err( I18n.ERR_31001_ODD_NUMBER_OF_BYTES_IN_SERIALIZED_STRING ) );
         }
 
         char[] strchars = new char[bytes.length >> 1];
