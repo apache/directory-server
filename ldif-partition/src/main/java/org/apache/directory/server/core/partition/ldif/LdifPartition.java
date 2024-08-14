@@ -700,7 +700,7 @@ public class LdifPartition extends AbstractLdifPartition
             // We have to create the entry if it does not have a parent
             if ( !dir.mkdir() )
             {
-                throw new LdapException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, dir ) );
+                throw new LdapException( I18n.err( I18n.ERR_33000_COULD_NOT_CREATE_DIRECTORY, dir ) );
             }
         }
 

@@ -91,7 +91,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
         // Creating the target directory
         if ( !getTargetDirectory().mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, getTargetDirectory() ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_CREATE_DIRECTORY, getTargetDirectory() ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }
@@ -105,7 +105,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
 
             if ( !rpmBuild.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmBuild ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_CREATE_DIRECTORY, rpmBuild ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
@@ -114,7 +114,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
 
             if ( !rpmRpms.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmRpms ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_CREATE_DIRECTORY, rpmRpms ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
@@ -123,7 +123,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
 
             if ( !rpmSources.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmSources ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_CREATE_DIRECTORY, rpmSources ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
@@ -132,7 +132,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
 
             if ( !rpmSpecs.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmSpecs ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_CREATE_DIRECTORY, rpmSpecs ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }
@@ -141,7 +141,7 @@ public class RpmInstallerCommand extends LinuxInstallerCommand<RpmTarget>
 
             if ( !rpmSrpms.mkdirs() )
             {
-                Exception e = new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, rpmSrpms ) );
+                Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_CREATE_DIRECTORY, rpmSrpms ) );
                 log.error( e.getLocalizedMessage() );
                 throw new MojoFailureException( e.getMessage() );
             }

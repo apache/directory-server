@@ -421,7 +421,7 @@ public class JdbmPartition extends AbstractBTreePartition
             
             if ( !partitionDir.exists() && !partitionDir.mkdirs() )
             {
-                throw new LdapOtherException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY, partitionDir ) );
+                throw new LdapOtherException( I18n.err( I18n.ERR_31000_COULD_NOT_CREATE_DIRECTORY, partitionDir ) );
             }
 
             // First, check if the file storing the data exists

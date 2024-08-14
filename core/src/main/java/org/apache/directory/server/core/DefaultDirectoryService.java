@@ -727,31 +727,31 @@ public class DefaultDirectoryService implements DirectoryService
         // Create the directories if they are missing
         if ( !instanceLayout.getInstanceDirectory().exists() && !instanceLayout.getInstanceDirectory().mkdirs() )
         {
-            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+            throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY,
                 instanceLayout.getInstanceDirectory() ) );
         }
 
         if ( !instanceLayout.getLogDirectory().exists() && !instanceLayout.getLogDirectory().mkdirs() )
         {
-            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+            throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY,
                 instanceLayout.getLogDirectory() ) );
         }
 
         if ( !instanceLayout.getRunDirectory().exists() && !instanceLayout.getRunDirectory().mkdirs() )
         {
-            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+            throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY,
                 instanceLayout.getRunDirectory() ) );
         }
 
         if ( !instanceLayout.getPartitionsDirectory().exists() && !instanceLayout.getPartitionsDirectory().mkdirs() )
         {
-            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+            throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY,
                 instanceLayout.getPartitionsDirectory() ) );
         }
 
         if ( !instanceLayout.getConfDirectory().exists() && !instanceLayout.getConfDirectory().mkdirs() )
         {
-            throw new IOException( I18n.err( I18n.ERR_112_COULD_NOT_CREATE_DIRECTORY,
+            throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY,
                 instanceLayout.getConfDirectory() ) );
         }
     }

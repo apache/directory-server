@@ -141,7 +141,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
             }
             catch ( Exception e )
             {
-                LOG.error( I18n.err( I18n.ERR_65 ), e );
+                LOG.error( I18n.err( I18n.ERR_00001_FAILED_CERTIFICATE_ACCESS ), e );
             }
         }
 
@@ -187,7 +187,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_66 ), e );
+            LOG.error( I18n.err( I18n.ERR_00002_FAILED_COMPARE_CERTIFICATE_BYTES ), e );
         }
 
         return null;
@@ -213,7 +213,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_66 ), e );
+            LOG.error( I18n.err( I18n.ERR_00002_FAILED_COMPARE_CERTIFICATE_BYTES ), e );
         }
 
         return new Certificate[0];
@@ -250,7 +250,7 @@ public class CoreKeyStoreSpi extends KeyStoreSpi
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_68 ), e );
+            LOG.error( I18n.err( I18n.ERR_00003_FAILED_EXTRACT_KEY ), e );
         }
 
         return null;

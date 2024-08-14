@@ -35,6 +35,88 @@ import java.util.ResourceBundle;
  */
 public enum I18n
 {
+    // apacheds-core errors                     0 - 999
+    ERR_00001_FAILED_CERTIFICATE_ACCESS("ERR_00001_FAILED_CERTIFICATE_ACCESS"),
+    ERR_00002_FAILED_COMPARE_CERTIFICATE_BYTES("ERR_00002_FAILED_COMPARE_CERTIFICATE_BYTES"),
+    ERR_00003_FAILED_EXTRACT_KEY("ERR_00003_FAILED_EXTRACT_KEY"),
+    ERR_00004_COULD_NOT_CREATE_DIRECTORY("ERR_00004_COULD_NOT_CREATE_DIRECTORY"),
+
+    // apacheds-core-annotation errors       1000 - 1999
+
+    // apacheds-core-api errors              2000 - 2999
+    ERR_02000_COULD_NOT_CREATE_DIRECTORY("ERR_02000_COULD_NOT_CREATE_DIRECTORY"),
+
+    // apacheds-core-avl errors                      3000 - 3999
+
+    // apacheds-core-constants errors                4000 - 4999
+
+    // apacheds-core-integ errors                    5000 - 5999
+
+    // apacheds-core-jndi errors                     6000 - 6999
+
+    // apacheds-core-shared errors                   7000 - 7999
+
+    // apacheds-http-directory-bridge errors         8000 - 8999
+
+    // apacheds-http-integration errors              9000 - 9999
+
+    // apacheds-installers errors                    10000 - 10999
+
+    // apacheds-installers-maven-plugins errors      11000 - 11999
+    ERR_11000_COULD_NOT_CREATE_DIRECTORY("ERR_11000_COULD_NOT_CREATE_DIRECTORY"),
+
+    // apacheds-interceptor-kerberos errors          12000 - 12999
+    // apacheds-interceptors-admin errors            13000 - 13999
+    // apacheds-interceptors-authn errors            14000 - 14999
+    // apacheds-interceptors-authz errors            15000 - 15999
+    // apacheds-interceptors-changelog errors        16000 - 16999
+    // apacheds-interceptors-collective errors       17000 - 17999
+    // apacheds-interceptors-event errors            18000 - 18999
+    // apacheds-interceptors-exception errors        19000 - 19999
+    // apacheds-interceptors-hash errors             20000 - 20999
+    // apacheds-interceptors-journal errors          21000 - 21999
+    // apacheds-interceptors-logger errors           22000 - 22999
+    // apacheds-interceptors-normalization errors    23000 - 23999
+    // apacheds-interceptors-number errors           24000 - 24999
+    // apacheds-interceptors-operational errors      25000 - 25999
+    // apacheds-interceptors-ppolicy errors          26000 - 26999
+    // apacheds-interceptors-referral errors         27000 - 27999
+    // apacheds-interceptors-schema errors           28000 - 28999
+    // apacheds-interceptors-subtree errors          29000 - 29999
+    // apacheds-interceptors-trigger errors          30000 - 30999
+    // apacheds-jdbm-partition errors                31000 - 31999
+    ERR_31000_COULD_NOT_CREATE_DIRECTORY("ERR_31000_COULD_NOT_CREATE_DIRECTORY"),
+    ERR_31001_ODD_NUMBER_OF_BYTES_IN_SERIALIZED_STRING("ERR_31001_ODD_NUMBER_OF_BYTES_IN_SERIALIZED_STRING"),
+    
+    // apacheds-kerberos-codec errors                32000 - 32999
+    // apacheds-ldif-partition errors                33000 - 33999
+    ERR_33000_COULD_NOT_CREATE_DIRECTORY("ERR_33000_COULD_NOT_CREATE_DIRECTORY"),
+    
+    // apacheds-mavipot-partition errors             34000 - 34999
+    ERR_34000_COULD_NOT_CREATE_DIRECTORY("ERR_34000_COULD_NOT_CREATE_DIRECTORY"),
+    
+    // apacheds-osgi-integ errors                    35000 - 35999
+    // apacheds-protocol-dhcp errors                 36000 - 36999
+    // apacheds-protocol-dns errors                  37000 - 37999
+    // apacheds-protocol-ldap errors                 38000 - 38999
+    ERR_38000_COULD_NOT_CREATE_DIRECTORY("ERR_38000_COULD_NOT_CREATE_DIRECTORY"),
+    
+    // apacheds-protocol-ntp errors                  39000 - 39999
+    // apacheds-protocol-shared errors               40000 - 40999
+    // apacheds-server-annotations errors            41000 - 41999
+    // apacheds-server-config errors                 42000 - 42999
+    ERR_42000_COULD_NOT_CREATE_DIRECTORY("ERR_42000_COULD_NOT_CREATE_DIRECTORY"),
+    
+    // apacheds-server-integ errors                  43000 - 43999
+    // apacheds-server-jndi errors                   44000 - 44999
+    // apacheds-service errors                       45000 - 45999
+    ERR_45000_COULD_NOT_CREATE_DIRECTORY("ERR_45000_COULD_NOT_CREATE_DIRECTORY"),
+    
+    // apacheds-service-builder errors               46000 - 46999
+    // apacheds-test-framework errors                47000 - 47999
+    // apacheds-wrapper errors                       48000 - 48999
+    // apacheds-xdbm-partition errors                49000 - 49999
+
     ERR_1("ERR_1"),
     ERR_2("ERR_2"),
     ERR_3("ERR_3"),
@@ -99,10 +181,6 @@ public enum I18n
     ERR_62("ERR_62"),
     ERR_63("ERR_63"),
     ERR_64("ERR_64"),
-    ERR_65("ERR_65"),
-    ERR_66("ERR_66"),
-    // ERR_67( "ERR_67" ),
-    ERR_68("ERR_68"),
     ERR_69("ERR_69"),
     ERR_70("ERR_70"),
     ERR_71("ERR_71"),
@@ -146,7 +224,6 @@ public enum I18n
     // ERR_109( "ERR_109" ),
     // ERR_110( "ERR_110" ),
     // ERR_111( "ERR_111" ),
-    ERR_112_COULD_NOT_CREATE_DIRECTORY("ERR_112_COULD_NOT_CREATE_DIRECTORY"),
     ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY("ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY"),
     ERR_114("ERR_114"),
     ERR_115("ERR_115"),
