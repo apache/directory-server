@@ -32,6 +32,7 @@ import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchResultEntryImpl;
 import org.apache.directory.api.ldap.model.message.controls.ChangeType;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
@@ -543,18 +544,17 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         // we can do Dn.isDescendantOf but in this part of the
         // server the DNs are all normalized and a simple string compare should
         // do the trick
+        Dn entryDn = entry.getDn();
         
-        String name = Strings.toLowerCase( entry.getDn().getName() );
-        
-        if ( name.endsWith( replConsumerConfigDn )
-            || name.endsWith( schemaDn )
-            || name.endsWith( replConsumerDn ) )
+        if ( ( entryDn.isDescendantOf( ServerDNConstants.REPL_CONSUMER_CONFIG_DN ) )
+            || ( entryDn.isDescendantOf( SchemaConstants.OU_SCHEMA ) )
+            || ( entryDn.isDescendantOf( ServerDNConstants.REPL_CONSUMER_DN_STR ) ) )
         {
             return true;
         }
         
         // do not replicate the changes made to transport config entries
-        return name.startsWith( "ads-transportid" ) && name.endsWith( ServerDNConstants.CONFIG_DN );
+        return entryDn.isDescendantOf( ServerDNConstants.CONFIG_DN ) && entryDn.getRdn().getType().equalsIgnoreCase( "ads-transportid" );
     }
     
     
