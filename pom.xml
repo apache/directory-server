@@ -90,10 +90,12 @@
     <!-- properties used in tests -->
     <felix.cache.dir>${project.build.directory}/felix-root</felix.cache.dir>
 
-    <!-- properties for the maven compiler plugin -->
+    <!-- Properties for the maven plugins -->
+    <cyclonedx.version>2.8.1</cyclonedx.version>
     <maven.compiler.release>8</maven.compiler.release>
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
+    <org.eclipse.m2e.version>1.0.0</org.eclipse.m2e.version>
   </properties>
 
   <url>https://directory.apache.org/apacheds/1.5</url>
@@ -438,7 +440,7 @@
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
+          <version>${org.eclipse.m2e.version}</version>
           <configuration>
             <lifecycleMappingMetadata>
               <pluginExecutions>
@@ -490,10 +492,11 @@
             </properties>
           </configuration>
          </plugin>
+
          <plugin>
           <groupId>org.cyclonedx</groupId>
           <artifactId>cyclonedx-maven-plugin</artifactId>
-          <version>2.8.1</version>
+          <version>${cyclonedx.version}</version>
           <executions>
             <execution>
               <id>make-bom</id>
