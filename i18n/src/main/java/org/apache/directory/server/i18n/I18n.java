@@ -87,6 +87,7 @@ public enum I18n
     // apacheds-jdbm-partition errors                31000 - 31999
     ERR_31000_COULD_NOT_CREATE_DIRECTORY("ERR_31000_COULD_NOT_CREATE_DIRECTORY"),
     ERR_31001_ODD_NUMBER_OF_BYTES_IN_SERIALIZED_STRING("ERR_31001_ODD_NUMBER_OF_BYTES_IN_SERIALIZED_STRING"),
+    ERR_31002_NEGATIOVE_NB_ATTRIBUTES_IN_ENTRY("ERR_31002_NEGATIOVE_NB_ATTRIBUTES_IN_ENTRY"),
     
     // apacheds-kerberos-codec errors                32000 - 32999
     // apacheds-ldif-partition errors                33000 - 33999

@@ -201,6 +201,11 @@ public class EntrySerializer implements Serializer
 
             // Read the number of attributes
             int nbAttributes = in.readInt();
+            
+            if ( nbAttributes < 0 )
+            {
+                throw new IOException( I18n.err( I18n.ERR_31002_NEGATIOVE_NB_ATTRIBUTES_IN_ENTRY ) );
+            }
 
             // Read the attributes
             for ( int i = 0; i < nbAttributes; i++ )
