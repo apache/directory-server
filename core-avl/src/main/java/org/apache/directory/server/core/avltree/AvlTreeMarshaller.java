@@ -184,6 +184,11 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         }
 
         int size = din.readInt();
+        
+        if ( size < 0 )
+        {
+            throw new IOException( I18n.err( I18n.ERR_03000_NEGATIVE_AVL_NODE_COUNT ) );
+        }
 
         LinkedAvlNode[] nodes = new LinkedAvlNode[size];
         LinkedAvlNode<E> root = readTree( din, nodes );
@@ -226,6 +231,11 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         throws IOException
     {
         int dLen = in.readInt();
+        
+        if ( dLen < 0 )
+        {
+            throw new IOException( I18n.err( I18n.ERR_03001_NEGATIVE_AVL_LENGTH ) );
+        }
 
         byte[] data = new byte[dLen];
 
@@ -236,6 +246,17 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
         LinkedAvlNode<E> node = new LinkedAvlNode<>( key );
 
         int index = in.readInt();
+        
+        if ( index < 0 )
+        {
+            throw new IOException( I18n.err( I18n.ERR_03002_NEGATIVE_NODE_LENGTH ) );
+        }
+        
+        if ( index >= nodes.length )
+        {
+            throw new IOException( I18n.err( I18n.ERR_03003_INVALID_NODE_NUMBER, index, nodes.length ) );
+        }
+        
         nodes[index] = node;
 
         int childMarker = in.readInt();
