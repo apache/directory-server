@@ -245,7 +245,7 @@ public long getCurrentRevision() throws LdapException
     {
         if ( revision < 0 )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_239 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_00023_NEGATIVE_REVISION ) );
         }
 
         if ( revision > store.getCurrentRevision() )

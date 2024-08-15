@@ -2109,7 +2109,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         {
             // This is not allowed : the parent must exist
             throw new LdapEntryAlreadyExistsException(
-                I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, newSuperiorDn.getName() ) );
+                I18n.err( I18n.ERR_00017_NO_SUCH_OBJECT, newSuperiorDn.getName() ) );
         }
 
         // Now check that the new entry does not exist

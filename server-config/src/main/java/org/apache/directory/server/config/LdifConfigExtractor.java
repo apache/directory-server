@@ -85,7 +85,7 @@ public final class LdifConfigExtractor
             LOG.debug( "creating non existing output directory {}", outputDirectory.getAbsolutePath() );
             if ( !outputDirectory.mkdir() )
             {
-                throw new IOException( I18n.err( I18n.ERR_42000_COULD_NOT_CREATE_DIRECTORY, outputDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY, outputDirectory ) );
             }
         }
 
@@ -96,7 +96,7 @@ public final class LdifConfigExtractor
             LOG.debug( "creating non existing config directory {}", configDirectory.getAbsolutePath() );
             if ( !configDirectory.mkdir() )
             {
-                throw new IOException( I18n.err( I18n.ERR_42000_COULD_NOT_CREATE_DIRECTORY, configDirectory ) );
+                throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY, configDirectory ) );
             }
         }
         else if ( !overwrite )
@@ -137,7 +137,7 @@ public final class LdifConfigExtractor
 
         if ( !destination.getParentFile().exists() && !destination.getParentFile().mkdirs() )
         {
-            throw new IOException( I18n.err( I18n.ERR_42000_COULD_NOT_CREATE_DIRECTORY, destination.getParentFile() ) );
+            throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY, destination.getParentFile() ) );
         }
 
         if ( !source.getParentFile().exists() )
@@ -185,7 +185,7 @@ public final class LdifConfigExtractor
 
             if ( !destination.getParentFile().exists() && !destination.getParentFile().mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_42000_COULD_NOT_CREATE_DIRECTORY,
+                throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY,
                     destination.getParentFile() ) );
             }
 
@@ -283,7 +283,7 @@ public final class LdifConfigExtractor
             if ( !configDir.mkdir() )
             {
                 throw new RuntimeException(
-                    new IOException( I18n.err( I18n.ERR_42000_COULD_NOT_CREATE_DIRECTORY, configDir ) ) );
+                    new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY, configDir ) ) );
             }
         }
         else

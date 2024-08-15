@@ -1178,7 +1178,7 @@ public abstract class ServerContext implements EventContext
 
         if ( oldDn.size() == 0 )
         {
-            throw new NoPermissionException( I18n.err( I18n.ERR_312 ) );
+            throw new NoPermissionException( I18n.err( I18n.ERR_00014_CANNOT_REMOVE_ROOT_DSE ) );
         }
 
         // calculate parents

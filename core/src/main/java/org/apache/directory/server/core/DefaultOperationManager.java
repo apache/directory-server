@@ -193,7 +193,7 @@ public class DefaultOperationManager implements OperationManager
             else
             {
                 // This is an error : we *must* have an entry if we want to be able to rename.
-                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT, opContext.getDn() ) );
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_00017_NO_SUCH_OBJECT, opContext.getDn() ) );
             }
         }
     }
@@ -215,7 +215,7 @@ public class DefaultOperationManager implements OperationManager
         else
         {
             // This is an error : we *must* have an entry if we want to be able to rename.
-            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_256_NO_SUCH_OBJECT,
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_00017_NO_SUCH_OBJECT,
                 opContext.getDn() ) );
         }
     }
@@ -337,7 +337,7 @@ public class DefaultOperationManager implements OperationManager
 
     private LdapPartialResultException buildLdapPartialResultException( Dn childDn )
     {
-        LdapPartialResultException lpre = new LdapPartialResultException( I18n.err( I18n.ERR_315 ) );
+        LdapPartialResultException lpre = new LdapPartialResultException( I18n.err( I18n.ERR_00018_CANNOT_CREATE_REFERRAL_WHEN_IGNORE ) );
 
         lpre.setRemainingDn( childDn );
         lpre.setResolvedDn( Dn.EMPTY_DN );
@@ -1992,7 +1992,7 @@ public class DefaultOperationManager implements OperationManager
     {
         if ( !directoryService.isStarted() )
         {
-            throw new LdapServiceUnavailableException( ResultCodeEnum.UNAVAILABLE, I18n.err( I18n.ERR_316 ) );
+            throw new LdapServiceUnavailableException( ResultCodeEnum.UNAVAILABLE, I18n.err( I18n.ERR_00019_DIRECTORY_SERVICE_NOT_STARTED ) );
         }
     }
 }

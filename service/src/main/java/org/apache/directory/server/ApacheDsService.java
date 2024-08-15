@@ -164,7 +164,7 @@ public class ApacheDsService
 
             if ( !partitionsDir.mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_45000_COULD_NOT_CREATE_DIRECTORY, partitionsDir ) );
+                throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY, partitionsDir ) );
             }
         }
 

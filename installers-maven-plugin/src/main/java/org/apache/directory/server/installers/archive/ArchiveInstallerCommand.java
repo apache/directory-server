@@ -167,7 +167,7 @@ public class ArchiveInstallerCommand extends LinuxInstallerCommand<ArchiveTarget
         // will be packaged to form the installer
         if ( !getTargetDirectory().mkdirs() )
         {
-            Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_CREATE_DIRECTORY, getTargetDirectory() ) );
+            Exception e = new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY, getTargetDirectory() ) );
             log.error( e.getLocalizedMessage() );
             throw new MojoFailureException( e.getMessage() );
         }

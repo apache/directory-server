@@ -1013,7 +1013,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         if ( changeLog == null || !changeLog.isEnabled() )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_310 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_00012_CHANGE_LOG_NOT_ENABLED ) );
         }
 
         Tag latest = changeLog.getLatest();
@@ -1031,7 +1031,7 @@ public class DefaultDirectoryService implements DirectoryService
             }
         }
 
-        throw new IllegalStateException( I18n.err( I18n.ERR_311 ) );
+        throw new IllegalStateException( I18n.err( I18n.ERR_00013_MISSING_TAG_TO_REVERT ) );
     }
 
 
@@ -1042,7 +1042,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         if ( oldDn.size() == 0 )
         {
-            throw new LdapNoPermissionException( I18n.err( I18n.ERR_312 ) );
+            throw new LdapNoPermissionException( I18n.err( I18n.ERR_00014_CANNOT_REMOVE_ROOT_DSE ) );
         }
 
         // calculate parents
@@ -1085,17 +1085,17 @@ public class DefaultDirectoryService implements DirectoryService
     {
         if ( changeLog == null || !changeLog.isEnabled() )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_310 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_00012_CHANGE_LOG_NOT_ENABLED ) );
         }
 
         if ( revision < 0 )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_239 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_00023_NEGATIVE_REVISION ) );
         }
 
         if ( revision >= changeLog.getChangeLogStore().getCurrentRevision() )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_314 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_00015_TOO_HIGH_REVISION_NUMBER ) );
         }
 
         Cursor<ChangeLogEvent> cursor = changeLog.getChangeLogStore().findAfter( revision );
@@ -1160,8 +1160,8 @@ public class DefaultDirectoryService implements DirectoryService
                             break;
 
                         default:
-                            LOG.error( I18n.err( I18n.ERR_75 ) );
-                            throw new NotImplementedException( I18n.err( I18n.ERR_76, reverse.getChangeType() ) );
+                            LOG.error( I18n.err( I18n.ERR_00016_CHANGE_TYPE_UNKNOWN ) );
+                            throw new NotImplementedException( I18n.err( I18n.ERR_00020_REVERT_CHANGE_TYPE_NOT_IMPLEMENTED, reverse.getChangeType() ) );
                     }
                 }
                 
@@ -2131,7 +2131,7 @@ public class DefaultDirectoryService implements DirectoryService
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_78, ldif, dn ) );
+            LOG.error( I18n.err( I18n.ERR_00021_CANNOT_BUILD_ENTRY, ldif, dn ) );
             // do nothing
             return null;
         }
@@ -2293,7 +2293,7 @@ public class DefaultDirectoryService implements DirectoryService
     {
         if ( ( replicaId < 0 ) || ( replicaId > 999 ) )
         {
-            LOG.error( I18n.err( I18n.ERR_79 ) );
+            LOG.error( I18n.err( I18n.ERR_00022_BAD_REPLICA_ID ) );
             this.replicaId = 0;
         }
         else

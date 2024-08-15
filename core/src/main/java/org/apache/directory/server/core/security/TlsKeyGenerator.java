@@ -126,7 +126,7 @@ public final class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_286 ) );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_00005_FAILED_TO_GET_X509_CERTIFICATE_FACTORY ) );
             ne.initCause( e );
             throw ne;
         }
@@ -140,7 +140,7 @@ public final class TlsKeyGenerator
         }
         catch ( CertificateException e )
         {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_287 ) );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_00006_BAD_CERTIFICATE_FORMAT ) );
             ne.initCause( e );
             throw ne;
         }
@@ -168,7 +168,7 @@ public final class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_288, ALGORITHM ) );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_00007_FAILED_TO_GET_KEY_FACTORY, ALGORITHM ) );
             ne.initCause( e );
             throw ne;
         }
@@ -180,7 +180,7 @@ public final class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_289 ) );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_00008_BAD_PRIVATE_KEY_FORMAT ) );
             ne.initCause( e );
             throw ne;
         }
@@ -192,7 +192,7 @@ public final class TlsKeyGenerator
         }
         catch ( InvalidKeySpecException e )
         {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_290 ) );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_00009_BAD_PUBLIC_KEY_FORMAT ) );
             ne.initCause( e );
             throw ne;
         }
@@ -278,7 +278,7 @@ public final class TlsKeyGenerator
         }
         catch ( NoSuchAlgorithmException e )
         {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_291 ) );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_00010_CANNPOT_GENERATE_KEY_PAIR ) );
             ne.initCause( e );
             throw ne;
         }
@@ -325,7 +325,7 @@ public final class TlsKeyGenerator
         }
         catch ( Exception e )
         {
-            LdapException ne = new LdapException( I18n.err( I18n.ERR_292 ) );
+            LdapException ne = new LdapException( I18n.err( I18n.ERR_00011_CANNOT_GENERATE_SELF_SIGNED_CERTIFICATE ) );
             ne.initCause( e );
             throw ne;
         }

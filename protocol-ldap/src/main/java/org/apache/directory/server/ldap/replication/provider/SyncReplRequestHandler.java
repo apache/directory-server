@@ -196,7 +196,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
 
             if ( !syncReplData.exists() && !syncReplData.mkdirs() )
             {
-                throw new IOException( I18n.err( I18n.ERR_38000_COULD_NOT_CREATE_DIRECTORY, syncReplData ) );
+                throw new IOException( I18n.err( I18n.ERR_00004_COULD_NOT_CREATE_DIRECTORY, syncReplData ) );
             }
 
             // Create the replication manager

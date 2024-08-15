@@ -40,11 +40,29 @@ public enum I18n
     ERR_00002_FAILED_COMPARE_CERTIFICATE_BYTES("ERR_00002_FAILED_COMPARE_CERTIFICATE_BYTES"),
     ERR_00003_FAILED_EXTRACT_KEY("ERR_00003_FAILED_EXTRACT_KEY"),
     ERR_00004_COULD_NOT_CREATE_DIRECTORY("ERR_00004_COULD_NOT_CREATE_DIRECTORY"),
+    ERR_00005_FAILED_TO_GET_X509_CERTIFICATE_FACTORY("ERR_00005_FAILED_TO_GET_X509_CERTIFICATE_FACTORY"),
+    ERR_00006_BAD_CERTIFICATE_FORMAT("ERR_00006_BAD_CERTIFICATE_FORMAT"),
+    ERR_00007_FAILED_TO_GET_KEY_FACTORY("ERR_00007_FAILED_TO_GET_KEY_FACTORY"),
+    ERR_00008_BAD_PRIVATE_KEY_FORMAT("ERR_00008_BAD_PRIVATE_KEY_FORMAT"),
+    ERR_00009_BAD_PUBLIC_KEY_FORMAT("ERR_00009_BAD_PUBLIC_KEY_FORMAT"),
+    ERR_00010_CANNPOT_GENERATE_KEY_PAIR("ERR_00010_CANNPOT_GENERATE_KEY_PAIR"),
+    ERR_00011_CANNOT_GENERATE_SELF_SIGNED_CERTIFICATE("ERR_00011_CANNOT_GENERATE_SELF_SIGNED_CERTIFICATE"),
+    ERR_00012_CHANGE_LOG_NOT_ENABLED("ERR_00012_CHANGE_LOG_NOT_ENABLED"),
+    ERR_00013_MISSING_TAG_TO_REVERT("ERR_00013_MISSING_TAG_TO_REVERT"),
+    ERR_00014_CANNOT_REMOVE_ROOT_DSE("ERR_00014_CANNOT_REMOVE_ROOT_DSE"),
+    ERR_00015_TOO_HIGH_REVISION_NUMBER("ERR_00015_TOO_HIGH_REVISION_NUMBER"),
+    ERR_00016_CHANGE_TYPE_UNKNOWN("ERR_00016_CHANGE_TYPE_UNKNOWN"),
+    ERR_00017_NO_SUCH_OBJECT("ERR_00017_NO_SUCH_OBJECT"),
+    ERR_00018_CANNOT_CREATE_REFERRAL_WHEN_IGNORE("ERR_00018_CANNOT_CREATE_REFERRAL_WHEN_IGNORE"),
+    ERR_00019_DIRECTORY_SERVICE_NOT_STARTED("ERR_00019_DIRECTORY_SERVICE_NOT_STARTED"),
+    ERR_00020_REVERT_CHANGE_TYPE_NOT_IMPLEMENTED("ERR_00020_REVERT_CHANGE_TYPE_NOT_IMPLEMENTED"),
+    ERR_00021_CANNOT_BUILD_ENTRY("ERR_00021_CANNOT_BUILD_ENTRY"),
+    ERR_00022_BAD_REPLICA_ID("ERR_00022_BAD_REPLICA_ID"),
+    ERR_00023_NEGATIVE_REVISION("ERR_00023_NEGATIVE_REVISION"),
 
     // apacheds-core-annotation errors       1000 - 1999
 
     // apacheds-core-api errors              2000 - 2999
-    ERR_02000_COULD_NOT_CREATE_DIRECTORY("ERR_02000_COULD_NOT_CREATE_DIRECTORY"),
 
     // apacheds-core-avl errors                      3000 - 3999
     ERR_03000_NEGATIVE_AVL_NODE_COUNT("ERR_03000_NEGATIVE_AVL_NODE_COUNT"),
@@ -67,7 +85,6 @@ public enum I18n
     // apacheds-installers errors                    10000 - 10999
 
     // apacheds-installers-maven-plugins errors      11000 - 11999
-    ERR_11000_COULD_NOT_CREATE_DIRECTORY("ERR_11000_COULD_NOT_CREATE_DIRECTORY"),
 
     // apacheds-interceptor-kerberos errors          12000 - 12999
     // apacheds-interceptors-admin errors            13000 - 13999
@@ -89,33 +106,26 @@ public enum I18n
     // apacheds-interceptors-subtree errors          29000 - 29999
     // apacheds-interceptors-trigger errors          30000 - 30999
     // apacheds-jdbm-partition errors                31000 - 31999
-    ERR_31000_COULD_NOT_CREATE_DIRECTORY("ERR_31000_COULD_NOT_CREATE_DIRECTORY"),
     ERR_31001_ODD_NUMBER_OF_BYTES_IN_SERIALIZED_STRING("ERR_31001_ODD_NUMBER_OF_BYTES_IN_SERIALIZED_STRING"),
     ERR_31002_NEGATIOVE_NB_ATTRIBUTES_IN_ENTRY("ERR_31002_NEGATIOVE_NB_ATTRIBUTES_IN_ENTRY"),
     
     // apacheds-kerberos-codec errors                32000 - 32999
-    // apacheds-ldif-partition errors                33000 - 33999
-    ERR_33000_COULD_NOT_CREATE_DIRECTORY("ERR_33000_COULD_NOT_CREATE_DIRECTORY"),
-    
+    // apacheds-ldif-partition errors                33000 - 33999    
     // apacheds-mavipot-partition errors             34000 - 34999
-    ERR_34000_COULD_NOT_CREATE_DIRECTORY("ERR_34000_COULD_NOT_CREATE_DIRECTORY"),
     
     // apacheds-osgi-integ errors                    35000 - 35999
     // apacheds-protocol-dhcp errors                 36000 - 36999
     // apacheds-protocol-dns errors                  37000 - 37999
     // apacheds-protocol-ldap errors                 38000 - 38999
-    ERR_38000_COULD_NOT_CREATE_DIRECTORY("ERR_38000_COULD_NOT_CREATE_DIRECTORY"),
     
     // apacheds-protocol-ntp errors                  39000 - 39999
     // apacheds-protocol-shared errors               40000 - 40999
     // apacheds-server-annotations errors            41000 - 41999
     // apacheds-server-config errors                 42000 - 42999
-    ERR_42000_COULD_NOT_CREATE_DIRECTORY("ERR_42000_COULD_NOT_CREATE_DIRECTORY"),
     
     // apacheds-server-integ errors                  43000 - 43999
     // apacheds-server-jndi errors                   44000 - 44999
     // apacheds-service errors                       45000 - 45999
-    ERR_45000_COULD_NOT_CREATE_DIRECTORY("ERR_45000_COULD_NOT_CREATE_DIRECTORY"),
     
     // apacheds-service-builder errors               46000 - 46999
     // apacheds-test-framework errors                47000 - 47999
@@ -192,11 +202,7 @@ public enum I18n
     ERR_72("ERR_72"),
     ERR_73("ERR_73"),
     ERR_74("ERR_74"),
-    ERR_75("ERR_75"),
-    ERR_76("ERR_76"),
     ERR_77("ERR_77"),
-    ERR_78("ERR_78"),
-    ERR_79("ERR_79"),
     ERR_80("ERR_80"),
     ERR_81("ERR_81"),
     ERR_82("ERR_82"),
@@ -355,7 +361,6 @@ public enum I18n
     ERR_236("ERR_236"),
     ERR_237("ERR_237"),
     ERR_238("ERR_238"),
-    ERR_239("ERR_239"),
     ERR_240("ERR_240"),
     ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY("ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY"),
     ERR_242("ERR_242"),
@@ -372,7 +377,6 @@ public enum I18n
     ERR_253("ERR_253"),
     ERR_254_ADD_EXISTING_VALUE("ERR_254_ADD_EXISTING_VALUE"),
     ERR_255("ERR_255"),
-    ERR_256_NO_SUCH_OBJECT("ERR_256_NO_SUCH_OBJECT"),
     ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT("ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT"),
     ERR_258("ERR_258"),
     ERR_259("ERR_259"),
@@ -402,13 +406,6 @@ public enum I18n
     ERR_283("ERR_283"),
     ERR_284("ERR_284"),
     ERR_285("ERR_285"),
-    ERR_286("ERR_286"),
-    ERR_287("ERR_287"),
-    ERR_288("ERR_288"),
-    ERR_289("ERR_289"),
-    ERR_290("ERR_290"),
-    ERR_291("ERR_291"),
-    ERR_292("ERR_292"),
     ERR_293("ERR_293"),
     ERR_294("ERR_294"),
     ERR_295("ERR_295"),
@@ -426,13 +423,8 @@ public enum I18n
     ERR_307("ERR_307"),
     ERR_308("ERR_308"),
     ERR_309("ERR_309"),
-    ERR_310("ERR_310"),
-    ERR_311("ERR_311"),
-    ERR_312("ERR_312"),
+
     ERR_313("ERR_313"),
-    ERR_314("ERR_314"),
-    ERR_315("ERR_315"),
-    ERR_316("ERR_316"),
     ERR_317("ERR_317"),
     // ERR_318( "ERR_318" ),
     ERR_319("ERR_319"),
