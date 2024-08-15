@@ -77,7 +77,7 @@ public class ServiceBuilderTest
 
         if ( errors.size() != 0 )
         {
-            fail( "unable to create initialize schema manager: " + I18n.err( I18n.ERR_317, Exceptions.printErrors( errors ) ) );
+            fail( "unable to create initialize schema manager: " + I18n.err( I18n.ERR_01000_SCHEMA_LOAD_FAILED, Exceptions.printErrors( errors ) ) );
         }
     }
 
