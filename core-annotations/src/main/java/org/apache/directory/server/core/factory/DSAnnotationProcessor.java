@@ -357,7 +357,7 @@ public final class DSAnnotationProcessor
             return createDS( dsBuilder );
         }
 
-        throw new LdapException( I18n.err( I18n.ERR_114 ) );
+        throw new LdapException( I18n.err( I18n.ERR_01001_CANNOT_CREATE_DIRECTORY_SERVICE ) );
     }
 
 
@@ -384,7 +384,7 @@ public final class DSAnnotationProcessor
         }
         else
         {
-            String message = I18n.err( I18n.ERR_117, entry.getChangeType() );
+            String message = I18n.err( I18n.ERR_01002_UNSUPPORTED_CHANGE_TYPE, entry.getChangeType() );
             throw new LdapException( message );
         }
     }

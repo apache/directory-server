@@ -516,7 +516,7 @@ public class ApacheDS
 
         if ( !errors.isEmpty() )
         {
-            throw new Exception( I18n.err( I18n.ERR_317, Exceptions.printErrors( errors ) ) );
+            throw new Exception( I18n.err( I18n.ERR_01000_SCHEMA_LOAD_FAILED, Exceptions.printErrors( errors ) ) );
         }
     }
 }

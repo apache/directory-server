@@ -127,7 +127,7 @@ public class IntegrationUtils
                 }
                 else
                 {
-                    String message = I18n.err( I18n.ERR_117, entry.getChangeType() );
+                    String message = I18n.err( I18n.ERR_01002_UNSUPPORTED_CHANGE_TYPE, entry.getChangeType() );
                     LOG.error( message );
                     throw new NamingException( message );
                 }
