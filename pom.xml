@@ -536,11 +536,6 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <minmemory>512m</minmemory>
@@ -1355,6 +1350,23 @@
       <scope>test</scope>
     </dependency -->
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>checkstyle-activation</id>
+      <activation>
+        <jdk>[11,)</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <scm>
     <connection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</connection>
