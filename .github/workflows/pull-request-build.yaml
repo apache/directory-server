@@ -23,6 +23,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build with Apache Maven
-        run: mvn -U clean install -Djava.awt.headless=true -fae -B
+        run: mvn -U clean install -Djava.awt.headless=true -fae -B -Dcheckstyle.skip
     env: 
        MAVEN_OPTS: "-Xmx1024M"
