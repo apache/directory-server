@@ -71,7 +71,7 @@
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.48</jetty.bundle.version>
     <junit.jupiter.api.version>5.10.3</junit.jupiter.api.version>
-    <kerby.version>2.0.3</kerby.version>
+    <kerby.version>2.1.0</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <logback.version>1.5.6</logback.version>
     <maven.version>3.9.8</maven.version>
@@ -533,11 +533,6 @@
           </excludedFilePatterns>
         </configuration>
       </plugin -->
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1355,6 +1350,23 @@
       <scope>test</scope>
     </dependency -->
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>checkstyle-activation</id>
+      <activation>
+        <jdk>[11,)</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <scm>
     <connection>scm:git:https://gitbox.apache.org/repos/asf/directory-server.git</connection>
