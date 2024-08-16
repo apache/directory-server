@@ -116,14 +116,14 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
         if ( newSuperior == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_326_NEW_SUPERIROR_CANNOT_BE_NULL, modifyDnRequest ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02019_NEW_SUPERIROR_CANNOT_BE_NULL, modifyDnRequest ) );
         }
 
         this.requestControls = modifyDnRequest.getControls();
 
         if ( modifyDnRequest.getNewRdn() != null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_327_MOVE_AND_RENAME_OPERATION, modifyDnRequest ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02020_MOVE_AND_RENAME_OPERATION, modifyDnRequest ) );
         }
 
         if ( requestControls.containsKey( ManageDsaIT.OID ) )

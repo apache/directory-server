@@ -107,7 +107,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
             }
             catch ( LdapInvalidDnException lide )
             {
-                throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ), lide );
+                throw new IllegalStateException( I18n.err( I18n.ERR_02018_NEW_SUPERIOR_MUST_BE_NOT_NULL, modifyDnRequest ), lide );
             }
         }
 
@@ -118,7 +118,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
 
         if ( newSuperiorDn == null )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_02018_NEW_SUPERIOR_MUST_BE_NOT_NULL, modifyDnRequest ) );
         }
 
         if ( requestControls.containsKey( ManageDsaIT.OID ) )
@@ -136,7 +136,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         }
         catch ( LdapInvalidDnException lide )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_325, modifyDnRequest ), lide );
+            throw new IllegalStateException( I18n.err( I18n.ERR_02018_NEW_SUPERIOR_MUST_BE_NOT_NULL, modifyDnRequest ), lide );
         }
     }
 

@@ -104,7 +104,7 @@ public class RenameOperationContext extends AbstractChangeOperationContext
 
         if ( newRdn == null )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_328, modifyDnRequest ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_02021_NEWRDN_MUST_NOT_BE_NULL_ON_RENAME, modifyDnRequest ) );
         }
 
         this.deleteOldRdn = modifyDnRequest.getDeleteOldRdn();

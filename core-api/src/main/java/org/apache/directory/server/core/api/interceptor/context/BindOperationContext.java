@@ -241,7 +241,7 @@ public class BindOperationContext extends AbstractOperationContext
     @Override
     public void throwReferral()
     {
-        throw new NotImplementedException( I18n.err( I18n.ERR_320 ) );
+        throw new NotImplementedException( I18n.err( I18n.ERR_02013_THROW_REFERRAL_NOT_IMPLEMENTED_FOR_BIND ) );
     }
 
 
@@ -251,7 +251,7 @@ public class BindOperationContext extends AbstractOperationContext
     @Override
     public boolean isReferralThrown()
     {
-        throw new NotImplementedException( I18n.err( I18n.ERR_321 ) );
+        throw new NotImplementedException( I18n.err( I18n.ERR_02014_IS_REFERRAL_THROWN_NOT_IMPLEMENTED_FOR_BIND ) );
     }
 
 
@@ -261,7 +261,7 @@ public class BindOperationContext extends AbstractOperationContext
     @Override
     public void ignoreReferral()
     {
-        throw new NotImplementedException( I18n.err( I18n.ERR_322 ) );
+        throw new NotImplementedException( I18n.err( I18n.ERR_02015_IGNORE_REFERRAL_NOT_IMPLEMENTED_FOR_BIND ) );
     }
 
 
@@ -271,7 +271,7 @@ public class BindOperationContext extends AbstractOperationContext
     @Override
     public boolean isReferralIgnored()
     {
-        throw new NotImplementedException( I18n.err( I18n.ERR_323 ) );
+        throw new NotImplementedException( I18n.err( I18n.ERR_02016_IS_REFERRAL_IGNORED_NOT_IMPLEMENTED_FOR_BIND ) );
     }
 
 

@@ -473,7 +473,7 @@ public class ClonedServerEntry implements Entry
     @Override
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException
     {
-        throw new IllegalStateException( I18n.err( I18n.ERR_455 ) );
+        throw new IllegalStateException( I18n.err( I18n.ERR_02000_CANNOT_USE_SERIALIZATION_FOR_SERVER_ATTRIBUTE ) );
     }
 
 
@@ -485,7 +485,7 @@ public class ClonedServerEntry implements Entry
     @Override
     public void writeExternal( ObjectOutput out ) throws IOException
     {
-        throw new IllegalStateException( I18n.err( I18n.ERR_456 ) );
+        throw new IllegalStateException( I18n.err( I18n.ERR_02001_CANNOT_USE_SERIALIZATION_FOR_SERVER_ENTRY ) );
     }
 
 

@@ -329,7 +329,7 @@ public final class ServerEntryUtils
                 break;
 
             default:
-                throw new IllegalStateException( I18n.err( I18n.ERR_464, modOp ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_02002_UNDEFINED_MODIFICATION_TYPE, modOp ) );
         }
 
         return targetEntry;
@@ -353,7 +353,7 @@ public final class ServerEntryUtils
     {
         if ( attr0 == null && attr1 == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_465 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02003_ATTRIBUTE_ID_UNKNOWN ) );
         }
         else if ( attr0 == null )
         {
@@ -365,7 +365,7 @@ public final class ServerEntryUtils
         }
         else if ( !attr0.getAttributeType().equals( attr1.getAttributeType() ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_466 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02004_ATTTRIBUTE_UNION_NOT_POSSIBLE ) );
         }
 
         Attribute attr = attr0.clone();
@@ -493,7 +493,7 @@ public final class ServerEntryUtils
                 {
                     // The attributeType does not exist in the schema.
                     // It's an error
-                    String message = I18n.err( I18n.ERR_467, id );
+                    String message = I18n.err( I18n.ERR_02005_UNKNOWN_ATTRIBUTE_TYPE, id );
                     throw new LdapInvalidAttributeTypeException( message );
                 }
                 else
@@ -681,7 +681,7 @@ public final class ServerEntryUtils
                 catch ( NamingException ne )
                 {
                     NoSuchElementException nsee =
-                        new NoSuchElementException( I18n.err( I18n.ERR_468 ) );
+                        new NoSuchElementException( I18n.err( I18n.ERR_02006_NAMING_EXCEPTION_ENCOUNTERED ) );
                     nsee.initCause( ne );
                     throw nsee;
                 }

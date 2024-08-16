@@ -129,7 +129,7 @@ public class LeafEvaluator implements Evaluator
         }
         else
         {
-            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_245, node ) );
+            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_02009_UNRECOGNIZED_LEAF_NODE_TYPE, node ) );
         }
     }
 
@@ -287,7 +287,7 @@ public class LeafEvaluator implements Evaluator
                 break;
 
             default:
-                throw new LdapException( I18n.err( I18n.ERR_246, matchType ) );
+                throw new LdapException( I18n.err( I18n.ERR_02010_UNKNOWN_MATCH_TYPE, matchType ) );
         }
 
         if ( ( mrule == null ) && ( matchType != EQUALITY_MATCH ) )

@@ -67,7 +67,7 @@ public class ScopeEvaluator implements Evaluator
                 return dn.isDescendantOf( snode.getBaseDn() );
 
             default:
-                throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_247 ) );
+                throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_02011_UNRECOGNIZED_SEARCH_SCOPE ) );
         }
     }
 }

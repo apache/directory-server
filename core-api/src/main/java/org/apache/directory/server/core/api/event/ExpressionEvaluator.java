@@ -132,11 +132,11 @@ public class ExpressionEvaluator implements Evaluator
                 return !evaluate( bnode.getFirstChild(), dn, entry );
             }
 
-            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_243, node ) );
+            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_02007_NEGATION_HAS_NO_CHILD, node ) );
         }
         else
         {
-            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_244, bnode ) );
+            throw new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_02008_UNRECOGNIZED_BRANCH_NODE_OPERATOR, bnode ) );
         }
     }
 }

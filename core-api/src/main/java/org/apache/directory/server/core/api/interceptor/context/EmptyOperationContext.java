@@ -57,7 +57,7 @@ public abstract class EmptyOperationContext extends AbstractOperationContext
             return;
         }
 
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_324 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_02017_EMPTY_OPERATION_CONTEXT_FORBIDDEN ) );
     }
 
 

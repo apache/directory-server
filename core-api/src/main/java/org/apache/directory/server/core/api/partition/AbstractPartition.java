@@ -261,7 +261,7 @@ public abstract class AbstractPartition implements Partition
     {
         if ( initialized )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_576, property ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_02022_CANNOT_SET_JDBM_PROPERTY, property ) );
         }
     }
 

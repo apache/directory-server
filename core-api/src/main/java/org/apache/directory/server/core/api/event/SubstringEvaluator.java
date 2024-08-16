@@ -85,7 +85,7 @@ public class SubstringEvaluator implements Evaluator
         }
         catch ( PatternSyntaxException pse )
         {
-            LdapInvalidSearchFilterException ne = new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_248, node ) );
+            LdapInvalidSearchFilterException ne = new LdapInvalidSearchFilterException( I18n.err( I18n.ERR_02012_INCORRECT_SUBSTRING_NODE_SYNTAX, node ) );
             ne.initCause( pse );
             throw ne;
         }
