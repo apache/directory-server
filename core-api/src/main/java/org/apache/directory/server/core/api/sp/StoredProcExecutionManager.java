@@ -140,7 +140,7 @@ public class StoredProcExecutionManager
 
         }
 
-        throw new LdapException( I18n.err( I18n.ERR_294, spLangId ) );
+        throw new LdapException( I18n.err( I18n.ERR_02040_STORED_PROCEDURE_LANGUAGE_NOT_SUPPORTED, spLangId ) );
 
     }
 

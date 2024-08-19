@@ -97,7 +97,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = I18n.err( I18n.ERR_345, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02032_ATTRIBUTE_TYPE_ADDITION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -179,7 +179,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = I18n.err( I18n.ERR_346, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02033_ATTRIBUTE_TYPE_DELETION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -221,7 +221,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
             // Check that the entry has no descendant
             if ( schemaManager.getAttributeTypeRegistry().hasDescendants( oldAt.getOid() ) )
             {
-                String msg = I18n.err( I18n.ERR_347, entry.getDn().getName(), newDn );
+                String msg = I18n.err( I18n.ERR_02034_CANNOT_RENAME_HAS_DESCENDANTS_ATTRIBUTE_TYPES, entry.getDn().getName(), newDn );
 
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -258,14 +258,14 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( !isSchemaLoaded( oldSchemaName ) )
         {
-            String msg = I18n.err( I18n.ERR_348, oldSchemaName );
+            String msg = I18n.err( I18n.ERR_02035_CANNOT_MOVE_SCHEMA_OBJECT_FROM_NOT_LOADED_SCHEMA, oldSchemaName );
             LOG.warn( msg );
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
         }
 
         if ( !isSchemaLoaded( newSchemaName ) )
         {
-            String msg = I18n.err( I18n.ERR_349, newSchemaName );
+            String msg = I18n.err( I18n.ERR_02036_CANNOT_MOVE_SCHEMA_OBJECT_TO_NOT_LOADED_SCHEMA, newSchemaName );
             LOG.warn( msg );
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
         }
@@ -316,7 +316,7 @@ public class AttributeTypeSynchronizer extends AbstractRegistrySynchronizer
 
         if ( !isSchemaLoaded( newSchemaName ) )
         {
-            String msg = I18n.err( I18n.ERR_349, newSchemaName );
+            String msg = I18n.err( I18n.ERR_02036_CANNOT_MOVE_SCHEMA_OBJECT_TO_NOT_LOADED_SCHEMA, newSchemaName );
             LOG.warn( msg );
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
         }

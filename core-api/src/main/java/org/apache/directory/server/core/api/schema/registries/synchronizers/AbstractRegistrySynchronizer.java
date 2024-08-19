@@ -156,7 +156,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         if ( size < 2 )
         {
-            throw new LdapInvalidDnException( I18n.err( I18n.ERR_276 ) );
+            throw new LdapInvalidDnException( I18n.err( I18n.ERR_02023_TWO_NAME_COMPOENENTS_EXPECTED ) );
         }
 
         Rdn rdn = dn.getRdn( size - 2 );
@@ -171,7 +171,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
-            throw new LdapOtherException( I18n.err( I18n.ERR_335, oid ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_02024_OID_NOT_UNIQUE, oid ) );
         }
     }
 
@@ -195,7 +195,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         else
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_336, oid ) );
+                I18n.err( I18n.ERR_02025_OID_DOES_NOT_EXIST, oid ) );
         }
     }
 
@@ -212,7 +212,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_337 ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02026_ATTRIBUTE_TYPE_PARENT_SHOULD_BE_3_NC_LONG ) );
         }
 
         Rdn rdn = newParent.getRdn();
@@ -221,13 +221,13 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
             .equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_338, objectType ) );
+                I18n.err( I18n.ERR_02027_PARENT_ENTRY_NOT_ORGANIZATIONAL_UNIT, objectType ) );
         }
 
         if ( !rdn.getValue().equalsIgnoreCase( OBJECT_TYPE_TO_PATH.get( objectType ) ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_339, objectType, OBJECT_TYPE_TO_PATH.get( objectType ) ) );
+                I18n.err( I18n.ERR_02028_PARENT_ENTRY_SHOULD_HAVE_RELATIVE_NAME, objectType, OBJECT_TYPE_TO_PATH.get( objectType ) ) );
         }
     }
 
@@ -239,7 +239,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_335, oid ) );
+                I18n.err( I18n.ERR_02024_OID_NOT_UNIQUE, oid ) );
         }
     }
 
@@ -249,7 +249,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         if ( schemaManager.getGlobalOidRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_335, oid ) );
+                I18n.err( I18n.ERR_02024_OID_NOT_UNIQUE, oid ) );
         }
     }
 
@@ -280,7 +280,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
             if ( schemaObjects.contains( schemaObjectWrapper ) )
             {
-                String msg = I18n.err( I18n.ERR_341, schemaObject.getName(), schemaName );
+                String msg = I18n.err( I18n.ERR_02029_SCHEMA_ALREADY_CONTAINS_ELEMENT, schemaObject.getName(), schemaName );
                 LOG.warn( msg );
 
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -291,7 +291,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
         else
         {
-            String msg = I18n.err( I18n.ERR_342, schemaObject.getName(), schemaName );
+            String msg = I18n.err( I18n.ERR_02030_SCHEMA_NOT_LOADED, schemaObject.getName(), schemaName );
             LOG.warn( msg );
 
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -318,7 +318,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
 
             if ( !schemaObjects.contains( schemaObjectWrapper ) )
             {
-                String msg = I18n.err( I18n.ERR_343, schemaObject.getName(), schemaName );
+                String msg = I18n.err( I18n.ERR_02031_SCHEMA_DOES_NOT_CONTAIN_ELEMENT, schemaObject.getName(), schemaName );
                 LOG.warn( msg );
 
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -329,7 +329,7 @@ public abstract class AbstractRegistrySynchronizer implements RegistrySynchroniz
         }
         else
         {
-            String msg = I18n.err( I18n.ERR_342, schemaObject.getName(), schemaName );
+            String msg = I18n.err( I18n.ERR_02030_SCHEMA_NOT_LOADED, schemaObject.getName(), schemaName );
             LOG.warn( msg );
 
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );

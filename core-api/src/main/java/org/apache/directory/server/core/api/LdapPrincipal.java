@@ -72,7 +72,7 @@ public final class LdapPrincipal implements Principal, Cloneable
 
         if ( !dn.isSchemaAware() )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_436 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_02038_NAMES_OF_PRINCIPAL_MUST_BE_NORMALIZED ) );
         }
 
         this.authenticationLevel = authenticationLevel;

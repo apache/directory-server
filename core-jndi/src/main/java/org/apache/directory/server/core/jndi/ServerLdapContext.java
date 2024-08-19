@@ -215,7 +215,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
                 }
                 else
                 {
-                    throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+                    throw new NamingException( I18n.err( I18n.ERR_02039_BAD_VALUE_FOR_OID, oid ) );
                 }
             }
             else
@@ -230,13 +230,13 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
                 }
                 else
                 {
-                    throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+                    throw new NamingException( I18n.err( I18n.ERR_02039_BAD_VALUE_FOR_OID, oid ) );
                 }
             }
         }
         catch ( LdapInvalidAttributeValueException liave )
         {
-            throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+            throw new NamingException( I18n.err( I18n.ERR_02039_BAD_VALUE_FOR_OID, oid ) );
         }
 
         CompareOperationContext opCtx = new CompareOperationContext( getSession(), name, oid, val );
@@ -248,7 +248,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
         catch ( DecoderException e1 )
         {
-            throw new NamingException( I18n.err( I18n.ERR_309, oid ) );
+            throw new NamingException( I18n.err( I18n.ERR_02039_BAD_VALUE_FOR_OID, oid ) );
         }
 
         // Inject the Referral flag
@@ -291,7 +291,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
         catch ( DecoderException e1 )
         {
-            throw new NamingException( I18n.err( I18n.ERR_309, "unbind encoder exception" ) );
+            throw new NamingException( I18n.err( I18n.ERR_02039_BAD_VALUE_FOR_OID, "unbind encoder exception" ) );
         }
 
         try
@@ -310,7 +310,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
         }
         catch ( EncoderException e )
         {
-            throw new NamingException( I18n.err( I18n.ERR_309, "unbind encoder exception" ) );
+            throw new NamingException( I18n.err( I18n.ERR_02039_BAD_VALUE_FOR_OID, "unbind encoder exception" ) );
         }
         requestControls = EMPTY_CONTROLS;
     }

@@ -197,7 +197,7 @@ public class RegistrySynchronizerAdaptor
         {
             if ( addContext.getDn().size() != 3 )
             {
-                String msg = I18n.err( I18n.ERR_81 );
+                String msg = I18n.err( I18n.ERR_02110_OBJECT_CLASS_PARENT_DN_MUST_HAVE_3_NC );
                 LOG.error( msg );
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, msg );
             }
@@ -207,7 +207,7 @@ public class RegistrySynchronizerAdaptor
 
             if ( !VALID_OU_VALUES.contains( ouValue ) )
             {
-                String msg = I18n.err( I18n.ERR_82, VALID_OU_VALUES );
+                String msg = I18n.err( I18n.ERR_02111_EXPECTING_ORGANIZATIONAL_UNIT_WITH_NAME, VALID_OU_VALUES );
                 LOG.error( msg );
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, msg );
             }
@@ -216,7 +216,7 @@ public class RegistrySynchronizerAdaptor
             return;
         }
 
-        String msg = I18n.err( I18n.ERR_83, addContext.getDn() );
+        String msg = I18n.err( I18n.ERR_02112_CANNOT_ADD_ENTRY_ON, addContext.getDn() );
         LOG.error( msg );
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
     }
@@ -254,7 +254,7 @@ public class RegistrySynchronizerAdaptor
         {
             if ( deleteContext.getDn().size() != 3 )
             {
-                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_378 ) );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_02115_CANNOT_DELETE_OBJECT_CLASS_WITHOUT_3_NC ) );
             }
 
             String ouValue = deleteContext.getDn().getRdn().getValue();
@@ -263,7 +263,7 @@ public class RegistrySynchronizerAdaptor
             if ( !VALID_OU_VALUES.contains( ouValue ) )
             {
                 throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                    I18n.err( I18n.ERR_379, VALID_OU_VALUES ) );
+                    I18n.err( I18n.ERR_02116_CANNOT_DELETE_ORGANIZATIONAL_UNIT_WITHOUT_NAME, VALID_OU_VALUES ) );
             }
 
             return;
@@ -310,7 +310,7 @@ public class RegistrySynchronizerAdaptor
             return false;
         }
 
-        LOG.error( String.format( Locale.ROOT, I18n.err( I18n.ERR_84 ),
+        LOG.error( String.format( Locale.ROOT, I18n.err( I18n.ERR_02113_CANNOT_PERFORM_MODIFY_ON ),
             modifyContext.getDn(), entry, modifyContext.getModItems() ) );
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM );
     }

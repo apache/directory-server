@@ -128,7 +128,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = I18n.err( I18n.ERR_364, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02096_NORMALIZER_ADDITION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( errors ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -141,7 +141,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
 
             if ( !errors.isEmpty() )
             {
-                String msg = I18n.err( I18n.ERR_365, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02096_NORMALIZER_ADDITION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( errors ) );
 
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -174,7 +174,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         {
             if ( schemaManager.getRegistries().isReferenced( normalizer ) )
             {
-                String msg = I18n.err( I18n.ERR_366, entry.getDn().getName(), getReferenced( normalizer ) );
+                String msg = I18n.err( I18n.ERR_02097_CANNOT_DELETE_ELEMENT_SCHEMA_OBJECTS_DEPENDENCY, entry.getDn().getName(), getReferenced( normalizer ) );
                 LOG.warn( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -208,7 +208,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_367, oldOid ) );
+                I18n.err( I18n.ERR_02098_CANNOT_CHANGE_NORMALIZER_OID, oldOid ) );
         }
 
         String newOid = newRdn.getValue();
@@ -248,7 +248,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_367, oldOid ) );
+                I18n.err( I18n.ERR_02098_CANNOT_CHANGE_NORMALIZER_OID, oldOid ) );
         }
 
         String oid = newRdn.getValue();
@@ -282,7 +282,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getMatchingRuleRegistry().contains( oid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_368, oid ) );
+                I18n.err( I18n.ERR_02099_CANNOT_MOVE_NORMALIZER, oid ) );
         }
 
         Normalizer normalizer = factory.getNormalizer( schemaManager, entry, schemaManager.getRegistries(),
@@ -305,7 +305,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_369, oid ) );
+                I18n.err( I18n.ERR_02100_NORMALIZER_OID_NOT_UNIQUE, oid ) );
         }
     }
 
@@ -317,7 +317,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_369, oid ) );
+                I18n.err( I18n.ERR_02100_NORMALIZER_OID_NOT_UNIQUE, oid ) );
         }
     }
 
@@ -326,7 +326,7 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
     {
         if ( newParent.size() != 3 )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_370 ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02101_NORMALIZER_PARENT_DN_MUST_HAVE_3_NC ) );
         }
 
         Rdn rdn = newParent.getRdn();
@@ -334,12 +334,12 @@ public class NormalizerSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_371 ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02102_NORMALIZER_PARENT_ENTRY_NOT_ORGANIZATIONAL_UNIT ) );
         }
 
         if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_372 ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02081_NORMALIZER_PARENT_SHOULD_HAVE_RELATIVE_NAME ) );
         }
     }
 }

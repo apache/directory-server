@@ -127,7 +127,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = I18n.err( I18n.ERR_360, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02091_MATCHING_RULE_ADDITION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -180,7 +180,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             {
                 // We have some error : reject the deletion and get out
                 // The schema is disabled. We still have to update the backend
-                String msg = I18n.err( I18n.ERR_360, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02091_MATCHING_RULE_ADDITION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -301,7 +301,7 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
         if ( newParent.size() != 3 )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_361 ) );
+                I18n.err( I18n.ERR_02092_MATCHING_RULE_PARENT_DN_MUST_HAVE_3_NC ) );
         }
 
         Rdn rdn = newParent.getRdn();
@@ -310,13 +310,13 @@ public class MatchingRuleSynchronizer extends AbstractRegistrySynchronizer
             SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_362 ) );
+                I18n.err( I18n.ERR_02093_MATCHING_RULE_PARENT_DN_MUST_HAVE_3_NC ) );
         }
 
         if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.MATCHING_RULES_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_363 ) );
+                I18n.err( I18n.ERR_02094_MATCHING_RULE_PARENT_SHOULD_HAVE_RELATIVE_NAME ) );
         }
     }
 }

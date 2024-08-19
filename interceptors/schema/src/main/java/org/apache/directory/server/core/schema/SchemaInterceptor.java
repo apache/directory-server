@@ -1577,7 +1577,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( size < 2 )
         {
-            throw new LdapException( I18n.err( I18n.ERR_276 ) );
+            throw new LdapException( I18n.err( I18n.ERR_02023_TWO_NAME_COMPOENENTS_EXPECTED ) );
         }
 
         Rdn rdn = dn.getRdn( size - 2 );

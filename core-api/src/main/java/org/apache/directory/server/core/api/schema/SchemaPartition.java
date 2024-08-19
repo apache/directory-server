@@ -161,7 +161,7 @@ public final class SchemaPartition extends AbstractPartition
     {
         if ( this.isInitialized() )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_429 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_02046_WRAPPING_PARTITION_AFTER_INIT_FORBIDDEN ) );
         }
 
         this.wrapped = wrapped;
@@ -246,7 +246,7 @@ public final class SchemaPartition extends AbstractPartition
             }
             catch ( Exception e )
             {
-                LOG.error( I18n.err( I18n.ERR_90 ), e );
+                LOG.error( I18n.err( I18n.ERR_02044_FAILED_INIT_WRAPPED_PARTITION ), e );
                 throw new RuntimeException( e );
             }
 
@@ -267,7 +267,7 @@ public final class SchemaPartition extends AbstractPartition
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_91 ), e );
+            LOG.error( I18n.err( I18n.ERR_02045_FAILED_DESTROY_WRAPPED_PARTITION ), e );
             throw new RuntimeException( e );
         }
 

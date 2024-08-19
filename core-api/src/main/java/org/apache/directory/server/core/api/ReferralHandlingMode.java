@@ -102,6 +102,6 @@ public enum ReferralHandlingMode
             return THROW_FINDING_BASE;
         }
 
-        throw new IllegalArgumentException( I18n.err( I18n.ERR_437, jndiValue ) );
+        throw new IllegalArgumentException( I18n.err( I18n.ERR_02037_UNKNOWN_JNDI_CONTEXT_REFERRAL, jndiValue ) );
     }
 }

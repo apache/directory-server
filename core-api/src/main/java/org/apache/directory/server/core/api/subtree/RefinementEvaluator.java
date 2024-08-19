@@ -57,17 +57,17 @@ public class RefinementEvaluator
     {
         if ( node == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_295 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02051_NODE_CANNOT_BE_NULL ) );
         }
 
         if ( objectClasses == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_296 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02108_OBJECT_CLASS_CANNOT_BE_NULL ) );
         }
 
         if ( !( SchemaConstants.OBJECT_CLASS_AT_OID.equals( objectClasses.getAttributeType().getOid() ) ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_297 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02109_ATTRIBUTE_OBJECT_CLASS_WRONG_ID ) );
         }
 
         if ( node.isLeaf() )

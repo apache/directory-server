@@ -315,7 +315,7 @@ public class DefaultCoreSession implements CoreSession
             }
             else
             {
-                throw new LdapException( I18n.err( I18n.ERR_309, oid ) );
+                throw new LdapException( I18n.err( I18n.ERR_02039_BAD_VALUE_FOR_OID, oid ) );
             }
         }
         else
@@ -330,7 +330,7 @@ public class DefaultCoreSession implements CoreSession
             }
             else
             {
-                throw new LdapException( I18n.err( I18n.ERR_309, oid ) );
+                throw new LdapException( I18n.err( I18n.ERR_02039_BAD_VALUE_FOR_OID, oid ) );
             }
         }
 

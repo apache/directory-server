@@ -123,7 +123,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = I18n.err( I18n.ERR_373, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02103_OBJECT_CLASS_ADDITION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -176,7 +176,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = I18n.err( I18n.ERR_374, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02104_OBJECT_CLASS_DELETION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -214,7 +214,7 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             // Check that the entry has no descendant
             if ( schemaManager.getObjectClassRegistry().hasDescendants( oldOc.getOid() ) )
             {
-                String msg = I18n.err( I18n.ERR_375, entry.getDn().getName(), newDn );
+                String msg = I18n.err( I18n.ERR_02105_CANNOT_RENAME_OBJECT_CLASS_WITH_DESCENDANTS, entry.getDn().getName(), newDn );
 
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -317,13 +317,13 @@ public class ObjectClassSynchronizer extends AbstractRegistrySynchronizer
             SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_376 ) );
+                I18n.err( I18n.ERR_02106_OBJECT_CLASS_PARENT_ENTRY_NOT_ORGANIZATIONAL_UNIT ) );
         }
 
         if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_377 ) );
+                I18n.err( I18n.ERR_02107_OBJECT_CLASS_PARENT_SHOULD_HAVE_RELATIVE_NAME ) );
         }
     }
 }

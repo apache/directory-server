@@ -74,35 +74,35 @@ public class RefinementLeafEvaluator
     {
         if ( node == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_295 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02051_NODE_CANNOT_BE_NULL ) );
         }
 
         if ( !( node instanceof EqualityNode ) )
         {
-            throw new LdapException( I18n.err( I18n.ERR_301, node ) );
+            throw new LdapException( I18n.err( I18n.ERR_02047_UNRECOGNIZED_ASSERTION_TYPE, node ) );
         }
 
         if ( node.isSchemaAware() )
         {
             if ( !node.getAttributeType().equals( objectClassAT ) )
             {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_02048_REFINEMENT_LEAF_NODE_ATTRIBUTE_NOT_OBJECT_CLASS, node.getAttribute() ) );
             }
         }
         else if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT )
             && !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT_OID ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_302, node.getAttribute() ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02048_REFINEMENT_LEAF_NODE_ATTRIBUTE_NOT_OBJECT_CLASS, node.getAttribute() ) );
         }
 
         if ( null == objectClasses )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_303 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02049_OBJECT_CLASS_ARGUMENT_CANNOT_BE_NULL ) );
         }
 
         if ( !( objectClasses.isInstanceOf( objectClassAT ) ) )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_304 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02050_OBJECT_CLASS_ATTRIBUTE_NOT_OBJECT_CLASS ) );
         }
 
         // check if Ava value exists in attribute

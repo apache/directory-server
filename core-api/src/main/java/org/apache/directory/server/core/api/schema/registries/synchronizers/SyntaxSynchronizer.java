@@ -129,7 +129,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = I18n.err( I18n.ERR_399, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02123_SYNTAX_ADDITION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -236,7 +236,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the deletion and get out
-                String msg = I18n.err( I18n.ERR_400, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02124_SYNTAX_DELETION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( errors ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -263,9 +263,8 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
 
         if ( !dependees.isEmpty() )
         {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_401,
-                oldOid,
-                getNames( dependees ) ) );
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, 
+                I18n.err( I18n.ERR_02125_SYNTAX_DELETION_WITH_DEPENDENCIES, oldOid, getNames( dependees ) ) );
         }
 
         Entry targetEntry = entry.clone();
@@ -309,7 +308,7 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         if ( !dependees.isEmpty() )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_401, oldOid, getNames( dependees ) ) );
+                I18n.err( I18n.ERR_02125_SYNTAX_DELETION_WITH_DEPENDENCIES, oldOid, getNames( dependees ) ) );
         }
 
         Entry targetEntry = entry.clone();
@@ -380,19 +379,19 @@ public class SyntaxSynchronizer extends AbstractRegistrySynchronizer
         if ( newParent.size() != 3 )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_402 ) );
+                I18n.err( I18n.ERR_02126_SYNTAX_PARENT_DN_MUST_HAVE_3_NC ) );
         }
 
         Rdn rdn = newParent.getRdn();
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_403 ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02127_SYNTAX_PARENT_ENTRY_NOT_ORGANIZATIONAL_UNIT ) );
         }
 
         if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.SYNTAXES ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_363 ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02094_MATCHING_RULE_PARENT_SHOULD_HAVE_RELATIVE_NAME ) );
         }
     }
 }

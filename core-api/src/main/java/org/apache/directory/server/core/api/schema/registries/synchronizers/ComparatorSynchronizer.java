@@ -130,7 +130,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // We have some error : reject the addition and get out
-                String msg = I18n.err( I18n.ERR_350, entry.getDn().getName(), Strings.listToString(
+                String msg = I18n.err( I18n.ERR_02082_COMPARATOR_ADDITION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(), Strings.listToString(
                     schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -192,7 +192,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // Ok, definitively an error
-                String msg = I18n.err( I18n.ERR_351, entry.getDn().getName() );
+                String msg = I18n.err( I18n.ERR_02083_CANNOT_DELETE_NOT_EXISTING_COMPARATOR, entry.getDn().getName() );
                 LOG.info( msg );
                 throw new LdapSchemaViolationException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -208,7 +208,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = I18n.err( I18n.ERR_352, entry.getDn().getName(), Strings.listToString(
+                String msg = I18n.err( I18n.ERR_02084_COMPARATOR_DELETION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(), Strings.listToString(
                     errors ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -232,7 +232,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_353, oldOid ) );
+                I18n.err( I18n.ERR_02085_CANNOT_CHANGE_COMPARATOR_OID, oldOid ) );
         }
 
         String oid = newRdn.getValue();
@@ -275,7 +275,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getMatchingRuleRegistry().contains( oldOid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_353, oldOid ) );
+                I18n.err( I18n.ERR_02085_CANNOT_CHANGE_COMPARATOR_OID, oldOid ) );
         }
 
         String oid = newRdn.getValue();
@@ -312,7 +312,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getMatchingRuleRegistry().contains( oid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_354, oid ) );
+                I18n.err( I18n.ERR_02086_CANNOT_MOVE_COMPARATOR_TO_ANOTHER_SCHEMA, oid ) );
         }
 
         String newSchemaName = getSchemaName( newParentName );
@@ -339,7 +339,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getComparatorRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_355, oid ) );
+                I18n.err( I18n.ERR_02087_COMPARATOR_OID_NOT_UNIQUE, oid ) );
         }
     }
 
@@ -351,7 +351,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getComparatorRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_355, oid ) );
+                I18n.err( I18n.ERR_02087_COMPARATOR_OID_NOT_UNIQUE, oid ) );
         }
     }
 
@@ -375,7 +375,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         else
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_336, oid ) );
+                I18n.err( I18n.ERR_02025_OID_DOES_NOT_EXIST, oid ) );
         }
     }
 
@@ -385,7 +385,7 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( newParent.size() != 3 )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_357 ) );
+                I18n.err( I18n.ERR_02088_COMPARATOR_PARENT_DN_MUST_HAVE_3_NC ) );
         }
 
         Rdn rdn = newParent.getRdn();
@@ -393,12 +393,12 @@ public class ComparatorSynchronizer extends AbstractRegistrySynchronizer
         if ( !schemaManager.getAttributeTypeRegistry().getOidByName( rdn.getNormType() ).equals(
             SchemaConstants.OU_AT_OID ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_358 ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02089_COMPARATOR_PARENT_ENTRY_NOT_ORGANIZATIONAL_UNIT ) );
         }
 
         if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.COMPARATORS_AT ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_359 ) );
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02090_COMPARATOR_PARENT_SHOULD_HAVE_RELATIVE_NAME ) );
         }
     }
 }

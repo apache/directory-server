@@ -126,7 +126,7 @@ public class LdapClassLoader extends ClassLoader
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_69, name ), e );
+            LOG.error( I18n.err( I18n.ERR_02041_EXCEPTION_SEARCHING_THE_DIT_FOR_CLASS, name ), e );
         }
 
         throw new ClassNotFoundException();
@@ -205,13 +205,13 @@ public class LdapClassLoader extends ClassLoader
         }
         catch ( ClassNotFoundException e )
         {
-            String msg = I18n.err( I18n.ERR_293, name );
+            String msg = I18n.err( I18n.ERR_02043_CLASS_NOT_FOUND_IN_DIT, name );
             LOG.debug( msg );
             throw new ClassNotFoundException( msg );
         }
         catch ( Exception e )
         {
-            String msg = I18n.err( I18n.ERR_70, name );
+            String msg = I18n.err( I18n.ERR_02042_FAILURE_SEARCHING_DIRECTORY_FOR_CLASS, name );
             LOG.error( msg, e );
             throw new ClassNotFoundException( msg );
         }

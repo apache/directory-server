@@ -163,7 +163,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         if ( !parentDn.equals( ouSchemaDn ) )
         {
-            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_380,
+            throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION, I18n.err( I18n.ERR_02117_WRONG_SCHEMA_PARENT_DN,
                 ouSchemaDn.getName(),
                 parentDn.getName() ) );
         }
@@ -238,7 +238,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
 
         if ( ( dependents != null ) && !dependents.isEmpty() )
         {
-            String msg = I18n.err( I18n.ERR_381, dependents );
+            String msg = I18n.err( I18n.ERR_02118_CANNOT_DELETE_SCHEMA_WITH_DEPENDENCIES, dependents );
             LOG.warn( msg );
             throw new LdapUnwillingToPerformException(
                 ResultCodeEnum.UNWILLING_TO_PERFORM,
@@ -270,7 +270,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( !rdnAttributeOid.equals( cnAT.getOid() ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_382, rdnAttribute ) );
+                I18n.err( I18n.ERR_02119_CANNOT_RENAME_WHEN_NOT_CN_USED, rdnAttribute ) );
         }
 
         /*
@@ -356,7 +356,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         Entry entry, boolean cascade ) throws LdapUnwillingToPerformException
     {
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-            I18n.err( I18n.ERR_383 ) );
+            I18n.err( I18n.ERR_02120_MOVING_AROUND_SCHEMA_FORBIDDEN ) );
     }
 
 
@@ -369,7 +369,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         Entry entry, boolean cascade ) throws LdapUnwillingToPerformException
     {
         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-            I18n.err( I18n.ERR_383 ) );
+            I18n.err( I18n.ERR_02120_MOVING_AROUND_SCHEMA_FORBIDDEN ) );
     }
 
 
@@ -473,7 +473,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 break;
 
             default:
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_384, modOp ) );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_02121_UNKNOWN_MODIFY_TYPE, modOp ) );
         }
 
         return SCHEMA_UNCHANGED;
@@ -493,7 +493,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
         if ( schema == null )
         {
             // This is not possible. We can't enable a schema which is not loaded.
-            String msg = I18n.err( I18n.ERR_85, schemaName );
+            String msg = I18n.err( I18n.ERR_02114_CANNOT_ENABLE_NOT_LOADED_SCHEMA, schemaName );
             LOG.error( msg );
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
         }
@@ -566,7 +566,7 @@ public class SchemaSynchronizer implements RegistrySynchronizer
                 if ( schemaManager.getLoadedSchema( Strings.toLowerCaseAscii( dependency ) ) == null )
                 {
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                        I18n.err( I18n.ERR_385, dependency ) );
+                        I18n.err( I18n.ERR_02122_CANNOT_PERFORM_OPERATION_ON_SCHEMA, dependency ) );
                 }
             }
         }

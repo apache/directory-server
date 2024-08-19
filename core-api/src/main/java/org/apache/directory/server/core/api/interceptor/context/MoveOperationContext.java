@@ -116,7 +116,7 @@ public class MoveOperationContext extends AbstractChangeOperationContext
 
         if ( newSuperior == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_02019_NEW_SUPERIROR_CANNOT_BE_NULL, modifyDnRequest ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_02019_NEW_SUPERIOR_CANNOT_BE_NULL, modifyDnRequest ) );
         }
 
         this.requestControls = modifyDnRequest.getControls();

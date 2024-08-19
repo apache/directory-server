@@ -126,7 +126,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = I18n.err( I18n.ERR_386, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02073_SYNTAX_CHECKER_DELETION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -188,7 +188,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             else
             {
                 // Ok, definitively an error
-                String msg = I18n.err( I18n.ERR_387, entry.getDn().getName() );
+                String msg = I18n.err( I18n.ERR_02074_CANNOT_DELETES_NON_EXISTANT_SYNTAX_CHECKER, entry.getDn().getName() );
                 LOG.info( msg );
                 throw new LdapSchemaViolationException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
             }
@@ -202,7 +202,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             }
             else
             {
-                String msg = I18n.err( I18n.ERR_386, entry.getDn().getName(),
+                String msg = I18n.err( I18n.ERR_02073_SYNTAX_CHECKER_DELETION_WOULD_MAKE_REGISTRY_INCONSISTANT, entry.getDn().getName(),
                     Strings.listToString( schemaManager.getErrors() ) );
                 LOG.info( msg );
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, msg );
@@ -227,7 +227,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getLdapSyntaxRegistry().contains( oldOid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_389, oldOid ) );
+                I18n.err( I18n.ERR_02075_CANNOT_CHANGE_SYNTAX_CHECKER_OID, oldOid ) );
         }
 
         Entry targetEntry = entry.clone();
@@ -236,7 +236,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_390, newOid ) );
+                I18n.err( I18n.ERR_02076_SYNTAX_CHECKER_OID_NOT_UNIQUE, newOid ) );
         }
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -266,7 +266,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getLdapSyntaxRegistry().contains( oldOid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_391, oldOid ) );
+                I18n.err( I18n.ERR_02077_CANNOT_CHANGE_SYNTAX_CHECKER_OID, oldOid ) );
         }
 
         Entry targetEntry = entry.clone();
@@ -276,7 +276,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getSyntaxCheckerRegistry().contains( newOid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_390, newOid ) );
+                I18n.err( I18n.ERR_02076_SYNTAX_CHECKER_OID_NOT_UNIQUE, newOid ) );
         }
 
         targetEntry.put( MetaSchemaConstants.M_OID_AT, newOid );
@@ -309,7 +309,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getLdapSyntaxRegistry().contains( oid ) )
         {
             throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                I18n.err( I18n.ERR_393, oid ) );
+                I18n.err( I18n.ERR_02078_CANNOT_MOVE_SYNTAX_CHECKER_TO_ANOTHER_SCHEMA, oid ) );
         }
 
         SyntaxChecker syntaxChecker = factory.getSyntaxChecker( schemaManager, entry, schemaManager.getRegistries(),
@@ -334,7 +334,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( schemaManager.getNormalizerRegistry().contains( oid ) )
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_390, oid ) );
+                I18n.err( I18n.ERR_02076_SYNTAX_CHECKER_OID_NOT_UNIQUE, oid ) );
         }
     }
 
@@ -358,7 +358,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         else
         {
             throw new LdapSchemaViolationException( ResultCodeEnum.OTHER,
-                I18n.err( I18n.ERR_336, oid ) );
+                I18n.err( I18n.ERR_02025_OID_DOES_NOT_EXIST, oid ) );
         }
     }
 
@@ -368,7 +368,7 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
         if ( newParent.size() != 3 )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_396 ) );
+                I18n.err( I18n.ERR_02079_SYNTAX_CHECKER_PARENT_DN_MUST_HAVE_3_NC ) );
         }
 
         Rdn rdn = newParent.getRdn();
@@ -376,13 +376,13 @@ public class SyntaxCheckerSynchronizer extends AbstractRegistrySynchronizer
             SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_397 ) );
+                I18n.err( I18n.ERR_02080_SYNTAX_CHECKER_PARENT_ENTRY_NOT_ORGANIZATIONAL_UNIT ) );
         }
 
         if ( !rdn.getValue().equalsIgnoreCase( SchemaConstants.SYNTAX_CHECKERS_AT ) )
         {
             throw new LdapInvalidDnException( ResultCodeEnum.NAMING_VIOLATION,
-                I18n.err( I18n.ERR_372 ) );
+                I18n.err( I18n.ERR_02081_NORMALIZER_PARENT_SHOULD_HAVE_RELATIVE_NAME ) );
         }
     }
 }

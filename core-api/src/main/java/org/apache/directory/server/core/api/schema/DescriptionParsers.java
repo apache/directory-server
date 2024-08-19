@@ -135,7 +135,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_405,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02052_BAD_SYNTEX_CHECKER_DESCRIPTION_SYNTAX,
                         value ) );
                 iave.initCause( e );
                 throw iave;
@@ -166,7 +166,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_406,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02053_BAD_SYNTAX_NORMALIZER_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -197,7 +197,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_407,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02054_BAD_SYNTAX_COMPARATOR_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -238,7 +238,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_408,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02055_BAD_SYNTAX_ATTRIBUTE_TYPE_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -249,7 +249,7 @@ public class DescriptionParsers
                 && !schemaManager.getAttributeTypeRegistry().contains( attributeType.getSuperiorOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                    I18n.err( I18n.ERR_409, attributeType.getSuperiorOid() ) );
+                    I18n.err( I18n.ERR_02056_ATTRIBUTE_TYPE_ADDITION_INVALID_SUPER_TYPE, attributeType.getSuperiorOid() ) );
             }
 
             // if the syntax is provided by the description make sure it exists in some schema
@@ -257,7 +257,7 @@ public class DescriptionParsers
                 && !schemaManager.getLdapSyntaxRegistry().contains( attributeType.getSyntaxOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                    I18n.err( I18n.ERR_410, attributeType.getSyntaxOid() ) );
+                    I18n.err( I18n.ERR_02057_ATTRIBUTE_TYPE_ADDITION_INVALID_SYNTAX, attributeType.getSyntaxOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
@@ -265,7 +265,7 @@ public class DescriptionParsers
                 && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getEqualityOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                    I18n.err( I18n.ERR_411, attributeType.getEqualityOid() ) );
+                    I18n.err( I18n.ERR_02058_ATTRIBUTE_TYPE_ADDITION_INVALID_EQUALITY_MR, attributeType.getEqualityOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
@@ -273,7 +273,7 @@ public class DescriptionParsers
                 && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getOrderingOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                    I18n.err( I18n.ERR_412, attributeType.getOrderingOid() ) );
+                    I18n.err( I18n.ERR_02059_ATTRIBUTE_TYPE_ADDITION_INVALID_ORDERING_MR, attributeType.getOrderingOid() ) );
             }
 
             // if the matchingRule is provided make sure it exists in some schema
@@ -281,7 +281,7 @@ public class DescriptionParsers
                 && !schemaManager.getMatchingRuleRegistry().contains( attributeType.getSubstringOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                    I18n.err( I18n.ERR_413, attributeType.getSubstringOid() ) );
+                    I18n.err( I18n.ERR_02060_ATTRIBUTE_TYPE_ADDITION_INVALID_SUBSTRING_MR, attributeType.getSubstringOid() ) );
             }
 
             attributeTypes[pos++] = attributeType;
@@ -321,7 +321,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_417,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02061_OBJECT_CLASS_DESCRIPTION_NOT_CONFORM,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -341,7 +341,7 @@ public class DescriptionParsers
                     if ( !schemaManager.getObjectClassRegistry().contains( superiorOid ) )
                     {
                         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                            I18n.err( I18n.ERR_418, superiorOid ) );
+                            I18n.err( I18n.ERR_02062_OBJECT_CLASS_ADDITION_INVALID_SUPERIOR, superiorOid ) );
                     }
                 }
             }
@@ -354,7 +354,7 @@ public class DescriptionParsers
                     if ( !schemaManager.getAttributeTypeRegistry().contains( mayAttrOid ) )
                     {
                         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                            I18n.err( I18n.ERR_419, mayAttrOid ) );
+                            I18n.err( I18n.ERR_02063_OBJECT_CLASS_ADDITION_INVALID_ATTRIBUTE_TYPE_MAY, mayAttrOid ) );
                     }
                 }
             }
@@ -367,7 +367,7 @@ public class DescriptionParsers
                     if ( !schemaManager.getAttributeTypeRegistry().contains( mustAttrOid ) )
                     {
                         throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                            I18n.err( I18n.ERR_420, mustAttrOid ) );
+                            I18n.err( I18n.ERR_02064_OBJECT_CLASS_ADDITION_INVALID_ATTRIBUTE_TYPE_MUST, mustAttrOid ) );
                     }
                 }
             }
@@ -410,7 +410,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_421,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02065_NOT_CONFORM_TO_MATCHING_RULE_USE_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -454,7 +454,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_422,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02066_NOT_CONFORM_TO_LDAP_SYNTAX_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -462,7 +462,8 @@ public class DescriptionParsers
 
             if ( !schemaManager.getSyntaxCheckerRegistry().contains( ldapSyntax.getOid() ) )
             {
-                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_423 ) );
+                throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, 
+                    I18n.err( I18n.ERR_02067_SYNTAX_ADDITION_FORBIDDEN_WITHOUT_SYNTAX_CHECKER ) );
             }
 
             // Call this method once to initialize the flags
@@ -506,7 +507,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_424,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02068_NOT_CONFORM_TO_MATCHING_RULE_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -515,7 +516,7 @@ public class DescriptionParsers
             if ( !schemaManager.getLdapSyntaxRegistry().contains( matchingRule.getSyntaxOid() ) )
             {
                 throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                    I18n.err( I18n.ERR_425, matchingRule.getSyntaxOid() ) );
+                    I18n.err( I18n.ERR_02069_MATCHING_RULE_CREATION_WITHOUT_NON_EXISTANT_SYNTAX, matchingRule.getSyntaxOid() ) );
             }
 
             matchingRules[pos++] = matchingRule;
@@ -556,7 +557,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_426,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02070_NOT_CONFORM_TO_DIT_STRUCTURE_RULE_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -600,7 +601,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_427,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02071_NOT_CONFORM_TO_DIT_CONTENT_RULE_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
@@ -644,7 +645,7 @@ public class DescriptionParsers
             catch ( ParseException e )
             {
                 LdapInvalidAttributeValueException iave = new LdapInvalidAttributeValueException(
-                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_428,
+                    ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, I18n.err( I18n.ERR_02072_NOT_CONFORM_TO_NAME_FORM_DESCRIPTION,
                         value.getString() ) );
                 iave.initCause( e );
                 throw iave;
