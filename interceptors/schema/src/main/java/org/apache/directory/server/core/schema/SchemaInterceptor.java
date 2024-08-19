@@ -1150,7 +1150,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // complain if we do not recognize the attribute being compared
         if ( !schemaManager.getAttributeTypeRegistry().contains( compareContext.getOid() ) )
         {
-            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
+            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_28000_OBJECT_NOT_FOUND_IN_AT_REGISTRY, compareContext.getOid() ) );
         }
 
         return next( compareContext );

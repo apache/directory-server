@@ -175,7 +175,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         }
         catch ( LdapException le )
         {
-            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_266, compareContext.getOid() ) );
+            throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_28000_OBJECT_NOT_FOUND_IN_AT_REGISTRY, compareContext.getOid() ) );
         }
 
         return next( compareContext );

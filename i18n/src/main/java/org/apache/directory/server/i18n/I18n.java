@@ -224,6 +224,15 @@ public enum I18n
     // apacheds-core-jndi errors                     6000 - 6999
 
     // apacheds-core-shared errors                   7000 - 7999
+    ERR_07000_CANNOT_DESERIALIZE_ENTRY("ERR_07000_CANNOT_DESERIALIZE_ENTRY"),
+    ERR_07001_FAILED_TO_LOG_VERSION("ERR_07001_FAILED_TO_LOG_VERSION"),
+    ERR_07002_NO_PARTITION_WITH_SUFFIX("ERR_07002_NO_PARTITION_WITH_SUFFIX"),
+    ERR_07003_NO_PARTITION_WITH_SUFFIX_IN_NAMING_CONTEXTS("ERR_07003_NO_PARTITION_WITH_SUFFIX_IN_NAMING_CONTEXTS"),
+    ERR_07004_DUPLICATE_PARTITION_SUFFIX("ERR_07004_DUPLICATE_PARTITION_SUFFIX"),
+    ERR_07005_PARTITION_ID_CANNOT_BE_SET("ERR_07005_PARTITION_ID_CANNOT_BE_SET"),
+    ERR_07006_GROUPING_EXCEPTIONS_ON_ROOT_NEXUS("ERR_07006_GROUPING_EXCEPTIONS_ON_ROOT_NEXUS"),
+    ERR_07007_PARTITION_HAS_NO_SUFFIX("ERR_07007_PARTITION_HAS_NO_SUFFIX"),
+    ERR_07008_CANNOT_FIND_PARTITION("ERR_07008_CANNOT_FIND_PARTITION"),
 
     // apacheds-http-directory-bridge errors         8000 - 8999
 
@@ -252,6 +261,8 @@ public enum I18n
     // apacheds-interceptors-ppolicy errors          26000 - 26999
     // apacheds-interceptors-referral errors         27000 - 27999
     // apacheds-interceptors-schema errors           28000 - 28999
+    ERR_28000_OBJECT_NOT_FOUND_IN_AT_REGISTRY("ERR_28000_OBJECT_NOT_FOUND_IN_AT_REGISTRY"),
+
     // apacheds-interceptors-subtree errors          29000 - 29999
     // apacheds-interceptors-trigger errors          30000 - 30999
     // apacheds-jdbm-partition errors                31000 - 31999
@@ -313,9 +324,6 @@ public enum I18n
     ERR_30("ERR_30"),
     ERR_31("ERR_31"),
     ERR_32("ERR_32"),
-    ERR_33("ERR_33"),
-    ERR_34("ERR_34"),
-    ERR_35("ERR_35"),
     ERR_36("ERR_36"),
     ERR_37("ERR_37"),
     ERR_38("ERR_38"),
@@ -392,7 +400,6 @@ public enum I18n
     ERR_131("ERR_131"),
     ERR_132("ERR_132"),
     ERR_133("ERR_133"),
-    ERR_134("ERR_134"),
     ERR_135("ERR_135"),
     ERR_136("ERR_136"),
     ERR_137("ERR_137"),
@@ -513,12 +520,6 @@ public enum I18n
     ERR_260("ERR_260"),
     ERR_261("ERR_261"),
     ERR_262("ERR_262"),
-    ERR_263("ERR_263"),
-    ERR_264("ERR_264"),
-    ERR_265("ERR_265"),
-    ERR_266("ERR_266"),
-    ERR_267("ERR_267"),
-    ERR_268("ERR_268"),
     ERR_269("ERR_269"),
     ERR_270("ERR_270"),
     ERR_271("ERR_271"),

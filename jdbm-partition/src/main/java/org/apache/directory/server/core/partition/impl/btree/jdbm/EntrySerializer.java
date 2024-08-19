@@ -236,7 +236,7 @@ public class EntrySerializer implements Serializer
         }
         catch ( ClassNotFoundException cnfe )
         {
-            LOG.error( I18n.err( I18n.ERR_134, cnfe.getLocalizedMessage() ) );
+            LOG.error( I18n.err( I18n.ERR_07000_CANNOT_DESERIALIZE_ENTRY, cnfe.getLocalizedMessage() ) );
             throw new IOException( cnfe.getLocalizedMessage() );
         }
     }

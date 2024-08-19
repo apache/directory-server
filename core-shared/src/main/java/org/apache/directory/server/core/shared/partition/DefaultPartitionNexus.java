@@ -170,7 +170,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
         }
         catch ( IOException e )
         {
-            LOG.error( I18n.err( I18n.ERR_33 ) );
+            LOG.error( I18n.err( I18n.ERR_07001_FAILED_TO_LOG_VERSION ) );
         }
 
         rootDse.put( SchemaConstants.VENDOR_VERSION_AT, props.getProperty( "apacheds.version", "UNKNOWN" ) );
@@ -312,7 +312,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
     @Override
     public void setId( String id )
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_264 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_07005_PARTITION_ID_CANNOT_BE_SET ) );
     }
 
 
@@ -348,7 +348,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
                 if ( errors == null )
                 {
                     //noinspection ThrowableInstanceNeverThrown
-                    errors = new MultiException( I18n.err( I18n.ERR_265 ) );
+                    errors = new MultiException( I18n.err( I18n.ERR_07006_GROUPING_EXCEPTIONS_ON_ROOT_NEXUS ) );
                 }
 
                 // @todo really need to send this info to a monitor
@@ -826,7 +826,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( partitions.containsKey( key ) )
         {
-            throw new LdapOtherException( I18n.err( I18n.ERR_263, key ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_07004_DUPLICATE_PARTITION_SUFFIX, key ) );
         }
 
         if ( !partition.isInitialized() )
@@ -840,7 +840,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
             if ( partitionSuffix == null )
             {
-                throw new LdapOtherException( I18n.err( I18n.ERR_267, partition.getId() ) );
+                throw new LdapOtherException( I18n.err( I18n.ERR_07007_PARTITION_HAS_NO_SUFFIX, partition.getId() ) );
             }
 
             partitions.put( partitionSuffix.getNormName(), partition );
@@ -874,7 +874,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( partition == null )
         {
-            String msg = I18n.err( I18n.ERR_34, partitionDn );
+            String msg = I18n.err( I18n.ERR_07002_NO_PARTITION_WITH_SUFFIX, partitionDn );
             LOG.error( msg );
             throw new LdapNoSuchObjectException( msg );
         }
@@ -906,7 +906,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
             }
             else
             {
-                String msg = I18n.err( I18n.ERR_35, partitionDn );
+                String msg = I18n.err( I18n.ERR_07003_NO_PARTITION_WITH_SUFFIX_IN_NAMING_CONTEXTS, partitionDn );
                 LOG.error( msg );
                 throw new LdapNoSuchObjectException( msg );
             }
@@ -961,7 +961,7 @@ public class DefaultPartitionNexus extends AbstractPartition implements Partitio
 
         if ( parent == null )
         {
-            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_268, dn ) );
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_07008_CANNOT_FIND_PARTITION, dn ) );
         }
         else
         {
