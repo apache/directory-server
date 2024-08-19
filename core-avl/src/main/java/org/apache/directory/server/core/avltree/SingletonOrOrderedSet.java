@@ -43,7 +43,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_447 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_03012_NULL_SINGLETON ) );
         }
 
         this.singleton = singleton;
@@ -60,7 +60,7 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_448 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_03013_NULL_ORDERED_SET ) );
         }
 
         this.orderedSet = orderedSet;
@@ -102,7 +102,7 @@ public class SingletonOrOrderedSet<V>
             return singleton;
         }
 
-        throw new RuntimeException( I18n.err( I18n.ERR_449 ) );
+        throw new RuntimeException( I18n.err( I18n.ERR_03014_REQUEST_SINGLETON_FORBIDDEN ) );
     }
 
 
@@ -116,12 +116,12 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_447 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_03012_NULL_SINGLETON ) );
         }
 
         if ( this.orderedSet != null )
         {
-            throw new RuntimeException( I18n.err( I18n.ERR_450 ) );
+            throw new RuntimeException( I18n.err( I18n.ERR_03015_SET_SINGLETON_FORBIDDEN ) );
         }
 
         V retval = this.singleton;
@@ -142,12 +142,12 @@ public class SingletonOrOrderedSet<V>
     {
         if ( singleton == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_447 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_03012_NULL_SINGLETON ) );
         }
 
         if ( this.singleton != null )
         {
-            throw new RuntimeException( I18n.err( I18n.ERR_451 ) );
+            throw new RuntimeException( I18n.err( I18n.ERR_03016_ALREADY_IN_SINGLETON_MODE ) );
         }
 
         AvlTree<V> retval = this.orderedSet;
@@ -170,7 +170,7 @@ public class SingletonOrOrderedSet<V>
             return orderedSet;
         }
 
-        throw new RuntimeException( I18n.err( I18n.ERR_452 ) );
+        throw new RuntimeException( I18n.err( I18n.ERR_03017_CANNOT_GET_ORDERED_SET ) );
     }
 
 
@@ -185,12 +185,12 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_448 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_03013_NULL_ORDERED_SET ) );
         }
 
         if ( this.singleton != null )
         {
-            throw new RuntimeException( I18n.err( I18n.ERR_453 ) );
+            throw new RuntimeException( I18n.err( I18n.ERR_03018_CANNOT_SET_ORDERED_SET ) );
         }
 
         AvlTree<V> retval = this.orderedSet;
@@ -211,12 +211,12 @@ public class SingletonOrOrderedSet<V>
     {
         if ( orderedSet == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_448 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_03013_NULL_ORDERED_SET ) );
         }
 
         if ( this.orderedSet != null )
         {
-            throw new RuntimeException( I18n.err( I18n.ERR_454 ) );
+            throw new RuntimeException( I18n.err( I18n.ERR_03019_ALREADY_IN_ORDERED_SET_MODE ) );
         }
 
         V retval = this.singleton;

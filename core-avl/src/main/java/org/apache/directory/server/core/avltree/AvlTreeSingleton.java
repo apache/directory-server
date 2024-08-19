@@ -171,7 +171,7 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
 
     public K insert( K key )
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_444 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03008_SINGLETON_AVL_TREE_CHANGE_FORBIDDEN ) );
     }
 
 
@@ -189,6 +189,6 @@ public class AvlTreeSingleton<K> implements AvlTree<K>
 
     public K remove( K key )
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_444 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03008_SINGLETON_AVL_TREE_CHANGE_FORBIDDEN ) );
     }
 }

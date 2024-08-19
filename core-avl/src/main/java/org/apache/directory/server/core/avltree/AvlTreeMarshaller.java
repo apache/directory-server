@@ -165,7 +165,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
     {
         if ( data == null || data.length == 0 )
         {
-            throw new IOException( I18n.err( I18n.ERR_439 ) );
+            throw new IOException( I18n.err( I18n.ERR_03004_NULL_OR_EMPTY_DATA_ARRAY ) );
         }
 
         if ( data.length == 1 && data[0] == 0 )
@@ -180,7 +180,7 @@ public class AvlTreeMarshaller<E> implements Marshaller<AvlTree<E>>
 
         if ( startByte != 0 )
         {
-            throw new IOException( I18n.err( I18n.ERR_443 ) );
+            throw new IOException( I18n.err( I18n.ERR_03007_WRONG_AVL_TREE_SERIALIZED_DATA_FORMAT ) );
         }
 
         int size = din.readInt();

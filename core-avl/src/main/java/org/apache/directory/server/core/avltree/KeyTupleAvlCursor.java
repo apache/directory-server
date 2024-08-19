@@ -88,13 +88,13 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void beforeKey( K key ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 
     public void afterKey( K key ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 
@@ -103,7 +103,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         checkNotClosed();
         if ( key != null && !key.equals( this.key ) )
         {
-            throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
         }
 
         wrapped.before( value );
@@ -116,7 +116,7 @@ public class KeyTupleAvlCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         checkNotClosed();
         if ( key != null && !key.equals( this.key ) )
         {
-            throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
         }
 
         wrapped.after( value );

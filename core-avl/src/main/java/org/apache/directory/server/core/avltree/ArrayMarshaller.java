@@ -124,7 +124,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         }
         catch ( IOException e )
         {
-            LOG_CURSOR.error( I18n.err( I18n.ERR_752_CANNOT_SERIALIZE_TREE, e.getMessage() ) );
+            LOG_CURSOR.error( I18n.err( I18n.ERR_03011_CANNOT_SERIALIZE_TREE, e.getMessage() ) );
         }
 
         return data;
@@ -142,7 +142,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         {
             if ( ( data == null ) || ( data.length == 0 ) )
             {
-                throw new IOException( I18n.err( I18n.ERR_439 ) );
+                throw new IOException( I18n.err( I18n.ERR_03004_NULL_OR_EMPTY_DATA_ARRAY ) );
             }
 
             if ( ( data.length == 1 ) && ( data[0] == 0 ) )
@@ -159,8 +159,8 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
 
             if ( startByte != 0 )
             {
-                LOG_CURSOR.error( I18n.err( I18n.ERR_440 ) );
-                throw new IOException( I18n.err( I18n.ERR_440 ) );
+                LOG_CURSOR.error( I18n.err( I18n.ERR_03005_WRONG_ARRAY_SERIALIZED_DATA_FORMAT ) );
+                throw new IOException( I18n.err( I18n.ERR_03005_WRONG_ARRAY_SERIALIZED_DATA_FORMAT ) );
             }
 
             int size = din.readInt();
@@ -185,7 +185,7 @@ public class ArrayMarshaller<E> implements Marshaller<ArrayTree<E>>
         }
         catch ( NullPointerException npe )
         {
-            LOG_CURSOR.error( I18n.err( I18n.ERR_441, Strings.dumpBytes( data ) ) );
+            LOG_CURSOR.error( I18n.err( I18n.ERR_03006_BAD_TREE, Strings.dumpBytes( data ) ) );
             throw npe;
         }
     }
