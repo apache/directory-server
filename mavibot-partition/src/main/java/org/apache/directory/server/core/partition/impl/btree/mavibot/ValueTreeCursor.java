@@ -62,14 +62,14 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
     @Override
     public void before( V element ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 
     @Override
     public void after( V element ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 
@@ -82,21 +82,21 @@ public class ValueTreeCursor<V> extends AbstractCursor<V>
     @Override
     public void afterLast() throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 
     @Override
     public boolean first() throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 
     @Override
     public boolean last() throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 

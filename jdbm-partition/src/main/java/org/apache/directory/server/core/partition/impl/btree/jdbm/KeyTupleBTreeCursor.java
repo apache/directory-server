@@ -102,7 +102,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void beforeKey( K key ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 
@@ -111,7 +111,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterKey( K key ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
     }
 
 
@@ -123,7 +123,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
         checkNotClosed();
         if ( key != null && !key.equals( this.key ) )
         {
-            throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
         }
 
         browser = btree.browse( value );
@@ -139,7 +139,7 @@ public class KeyTupleBTreeCursor<K, V> extends AbstractCursor<Tuple<K, V>>
     {
         if ( key != null && !key.equals( this.key ) )
         {
-            throw new UnsupportedOperationException( I18n.err( I18n.ERR_446 ) );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_03010_CURSOR_LOCK_KEY ) );
         }
 
         try

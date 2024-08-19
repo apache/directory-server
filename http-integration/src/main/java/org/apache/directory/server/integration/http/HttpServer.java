@@ -130,7 +130,7 @@ public class HttpServer
             }
             catch ( Exception e )
             {
-                LOG.error( I18n.err( I18n.ERR_120 ) );
+                LOG.error( I18n.err( I18n.ERR_09000_FAILETO_CONFIGURE_JETTY_SERVER ) );
                 throw e;
             }
         }
@@ -283,7 +283,7 @@ public class HttpServer
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_121 ), e );
+            LOG.error( I18n.err( I18n.ERR_09001_FAILED_TO_CONFIGURE_WEB_APPLICATION ), e );
         }
 
     }

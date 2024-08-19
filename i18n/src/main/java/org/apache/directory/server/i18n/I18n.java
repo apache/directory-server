@@ -228,6 +228,8 @@ public enum I18n
     // apacheds-http-directory-bridge errors         8000 - 8999
 
     // apacheds-http-integration errors              9000 - 9999
+    ERR_09000_FAILETO_CONFIGURE_JETTY_SERVER("ERR_09000_FAILETO_CONFIGURE_JETTY_SERVER"),
+    ERR_09001_FAILED_TO_CONFIGURE_WEB_APPLICATION("ERR_09001_FAILED_TO_CONFIGURE_WEB_APPLICATION"),
 
     // apacheds-installers errors                    10000 - 10999
 
@@ -378,8 +380,6 @@ public enum I18n
     ERR_116("ERR_116"),
     ERR_118("ERR_118"),
     ERR_119("ERR_119"),
-    ERR_120("ERR_120"),
-    ERR_121("ERR_121"),
     ERR_122("ERR_122"),
     // ERR_123( "ERR_123" ),
     ERR_124("ERR_124"),
