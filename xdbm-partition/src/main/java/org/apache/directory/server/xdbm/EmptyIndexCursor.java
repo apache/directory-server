@@ -151,7 +151,7 @@ public class EmptyIndexCursor<K> extends AbstractIndexCursor<K>
     public IndexEntry<K, String> get() throws CursorException
     {
         checkNotClosed();
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_703 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49030_EMPTY_CURSOR ) );
     }
 
 

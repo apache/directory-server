@@ -189,7 +189,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 if ( objectClass == null )
                 {
-                    String msg = I18n.err( I18n.ERR_217, dn, entry );
+                    String msg = I18n.err( I18n.ERR_49009_ENTRY_WITHOUT_OBJECT_CLASS, dn, entry );
                     ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
                     throw new LdapSchemaViolationException( rc, msg );
                 }
@@ -219,7 +219,7 @@ public class JdbmPartition extends AbstractBTreePartition
 
                 if ( entryCsn == null )
                 {
-                    String msg = I18n.err( I18n.ERR_219, dn, entry );
+                    String msg = I18n.err( I18n.ERR_49010_ENTRY_WITHOUT_ENTRY_CSN, dn, entry );
                     throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
                 }
 
@@ -845,7 +845,7 @@ public class JdbmPartition extends AbstractBTreePartition
     @Override
     protected synchronized void doDestroy( PartitionTxn partitionTxn ) throws LdapException
     {
-        MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
+        MultiException errors = new MultiException( I18n.err( I18n.ERR_49003_ERRORS_ENCOUNTERED_ON_DESTROY ) );
 
         if ( !initialized )
         {

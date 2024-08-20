@@ -92,7 +92,7 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
 
         if ( normalizer == null )
         {
-            throw new LdapOtherException( I18n.err( I18n.ERR_212, attributeType ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_49018_NO_NORMALIZER_FOR_ATTRIBUTE_TYPE, attributeType ) );
         }
 
         LdapComparator<K> comp = ( LdapComparator<K> ) mr.getLdapComparator();
@@ -372,7 +372,7 @@ public class AvlIndex<K> extends AbstractIndex<K, String>
      */
     public void setWkDirPath( URI wkDirPath )
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_213 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_49019_CANNOT_USE_IN_MEMORY_INDEX_TO_STORE_DATA ) );
     }
 
 

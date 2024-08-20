@@ -178,7 +178,7 @@ public class ExpandingVisitor implements FilterVisitor
                             }
                             else
                             {
-                                throw new IllegalStateException( I18n.err( I18n.ERR_260, leaf ) );
+                                throw new IllegalStateException( I18n.err( I18n.ERR_49026_UNKNOWN_ASSERTION_TYPE, leaf ) );
                             }
 
                             orNode.addNode( newLeaf );

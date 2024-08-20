@@ -186,7 +186,7 @@ public class DefaultOptimizer implements Optimizer
                 }
                 else
                 {
-                    throw new IllegalArgumentException( I18n.err( I18n.ERR_711 ) );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_49035_UNRECOGNIZED_LEAF_NODE  ) );
                 }
             }
             catch ( IndexNotFoundException | IOException e )
@@ -517,7 +517,7 @@ public class DefaultOptimizer implements Optimizer
                 }
 
             default:
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_713 ) );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_49036_UNRECOGNIZED_SEARCH_SCOPE ) );
         }
     }
 }

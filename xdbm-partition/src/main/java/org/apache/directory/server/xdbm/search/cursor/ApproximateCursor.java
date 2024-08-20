@@ -302,7 +302,7 @@ public class ApproximateCursor<V> extends AbstractIndexCursor<V>
             return ( IndexEntry<V, String> ) uuidIdxCursor.get();
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 

@@ -156,7 +156,7 @@ public class LdifPartition extends AbstractLdifPartition
             // of the workingDirectory followed by the suffix
             if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
             {
-                String msg = I18n.err( I18n.ERR_150 );
+                String msg = I18n.err( I18n.ERR_33000_CANNOT_INITIALIZE_PARTITION_WITH_INVALID_SUFFIX );
                 LOG.error( msg );
                 throw new LdapInvalidDnException( msg );
             }
@@ -186,7 +186,7 @@ public class LdifPartition extends AbstractLdifPartition
                 }
                 catch ( SecurityException se )
                 {
-                    String msg = I18n.err( I18n.ERR_151, suffixDirectory.getAbsolutePath(), se.getLocalizedMessage() );
+                    String msg = I18n.err( I18n.ERR_33001_PARTITION_CANNOT_BE_CREATED, suffixDirectory.getAbsolutePath(), se.getLocalizedMessage() );
                     LOG.error( msg );
                     throw se;
                 }
@@ -709,7 +709,7 @@ public class LdifPartition extends AbstractLdifPartition
         if ( ldifFile.exists() && create )
         {
             // The entry already exists
-            throw new LdapException( I18n.err( I18n.ERR_633 ) );
+            throw new LdapException( I18n.err( I18n.ERR_49014_ENTRY_ALREADY_EXISTS ) );
         }
 
         return ldifFile;

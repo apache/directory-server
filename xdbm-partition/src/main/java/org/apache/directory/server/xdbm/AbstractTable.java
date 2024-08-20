@@ -77,7 +77,7 @@ public abstract class AbstractTable<K, V> implements Table<K, V>
 
         if ( keyComparator == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_591 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_49028_NULL_KEY_COMPARATOR ) );
         }
         else
         {

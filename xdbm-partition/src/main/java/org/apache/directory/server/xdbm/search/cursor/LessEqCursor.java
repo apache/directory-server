@@ -57,7 +57,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_716 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_49024_LESS_CURSOR_ONLY_SUPPORT_POSITIONING_WHEN_INDEX_EXISTS );
 
     /** An less eq evaluator for candidates */
     private final LessEqEvaluator<V> lessEqEvaluator;
@@ -381,7 +381,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
                 return userIdxCursor.get();
             }
 
-            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
         }
 
         if ( available() )
@@ -389,7 +389,7 @@ public class LessEqCursor<V> extends AbstractIndexCursor<V>
             return ( IndexEntry<V, String> ) uuidCandidate;
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 

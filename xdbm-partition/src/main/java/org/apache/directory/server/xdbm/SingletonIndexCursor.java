@@ -246,11 +246,11 @@ public class SingletonIndexCursor<V> extends AbstractIndexCursor<V>
 
         if ( beforeFirst )
         {
-            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_705 ) );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49032_CANNOT_ACCESS_ELEMENT_BEFORE_FIRST ) );
         }
         else
         {
-            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_706 ) );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49033_CANNOT_ACCESS_ELEMENT_AFTER_LAST ) );
         }
     }
 

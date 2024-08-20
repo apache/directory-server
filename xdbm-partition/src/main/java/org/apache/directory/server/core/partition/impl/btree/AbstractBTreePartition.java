@@ -479,7 +479,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
             else
             {
-                LOG.error( I18n.err( I18n.ERR_4, attributeType.getName() ) );
+                LOG.error( I18n.err( I18n.ERR_49002_CANNOT_BUILD_INDEX_FOR_ATTRIBUTE, attributeType.getName() ) );
             }
         }
 
@@ -547,7 +547,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         piarCache.invalidateAll();
         entryDnCache.invalidateAll();
 
-        MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
+        MultiException errors = new MultiException( I18n.err( I18n.ERR_49003_ERRORS_ENCOUNTERED_ON_DESTROY ) );
 
         for ( Index<?, String> index : userIndices.values() )
         {
@@ -558,7 +558,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
             catch ( Throwable t )
             {
-                LOG.error( I18n.err( I18n.ERR_124 ), t );
+                LOG.error( I18n.err( I18n.ERR_49004_FAILED_TO_CLOSE_INDEX ), t );
                 errors.addThrowable( t );
             }
         }
@@ -572,7 +572,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             }
             catch ( Throwable t )
             {
-                LOG.error( I18n.err( I18n.ERR_124 ), t );
+                LOG.error( I18n.err( I18n.ERR_49004_FAILED_TO_CLOSE_INDEX ), t );
                 errors.addThrowable( t );
             }
         }
@@ -583,12 +583,12 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             
             if ( LOG.isDebugEnabled() )
             {
-                LOG.debug( I18n.err( I18n.ERR_125, suffixDn ) );
+                LOG.debug( I18n.err( I18n.ERR_49005_CLOSED_MASTER_TABLE_FOR_PARTITION, suffixDn ) );
             }
         }
         catch ( Throwable t )
         {
-            LOG.error( I18n.err( I18n.ERR_126 ), t );
+            LOG.error( I18n.err( I18n.ERR_49006_FAILED_TO_CLOSE_MASTER ), t );
             errors.addThrowable( t );
         }
 
@@ -782,7 +782,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // don't keep going if we cannot find the parent Id
             if ( parentIdAndRdn == null )
             {
-                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_216_ID_FOR_PARENT_NOT_FOUND, 
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_49008_ID_FOR_PARENT_NOT_FOUND, 
                     parentIdAndRdn ) );
             }
 
@@ -795,7 +795,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 if ( rdnIdx.forwardLookup( partitionTxn, parentIdAndRdn ) != null )
                 {
                     throw new LdapEntryAlreadyExistsException(
-                        I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
+                        I18n.err( I18n.ERR_49014_ENTRY_ALREADY_EXISTS, entryDn.getName() ) );
                 }
             }
             finally
@@ -827,7 +827,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( objectClass == null )
             {
-                String msg = I18n.err( I18n.ERR_217, entryDn.getName(), entry );
+                String msg = I18n.err( I18n.ERR_49009_ENTRY_WITHOUT_OBJECT_CLASS, entryDn.getName(), entry );
                 ResultCodeEnum rc = ResultCodeEnum.OBJECT_CLASS_VIOLATION;
                 
                 throw new LdapSchemaViolationException( rc, msg );
@@ -857,7 +857,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
 
             if ( entryCsn == null )
             {
-                String msg = I18n.err( I18n.ERR_219, entryDn.getName(), entry );
+                String msg = I18n.err( I18n.ERR_49010_ENTRY_WITHOUT_ENTRY_CSN, entryDn.getName(), entry );
                 throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, msg );
             }
 
@@ -978,14 +978,14 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         // don't continue if id is null
         if ( id == null )
         {
-            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_699, dn ) );
+            throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_49016_COULD_NOT_FIND_ENTRY_TO_DELETE, dn ) );
         }
 
         long childCount = getChildCount( partitionTxn, id );
 
         if ( childCount > 0 )
         {
-            throw new LdapContextNotEmptyException( I18n.err( I18n.ERR_700, dn ) );
+            throw new LdapContextNotEmptyException( I18n.err( I18n.ERR_49017_CANNOT_DELETE_ENTRY_WITH_CHILDREN, dn ) );
         }
 
         // We now defer the deletion to the implementing class
@@ -1460,7 +1460,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                         break;
     
                     default:
-                        throw new LdapException( I18n.err( I18n.ERR_221 ) );
+                        throw new LdapException( I18n.err( I18n.ERR_49011_UNIDENTIFIED_MODIFICATION_OPERATION ) );
                 }
             }
             catch ( IndexNotFoundException infe )
@@ -1499,7 +1499,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new LdapOtherException( I18n.err( I18n.ERR_215_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_49007_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1610,7 +1610,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new LdapOtherException( I18n.err( I18n.ERR_215_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_49007_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1752,7 +1752,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new LdapOtherException( I18n.err( I18n.ERR_215_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_49007_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -1911,7 +1911,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         if ( entry instanceof ClonedServerEntry )
         {
-            throw new LdapOtherException( I18n.err( I18n.ERR_215_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_49007_CANNOT_STORE_CLONED_SERVER_ENTRY ) );
         }
 
         String modsOid = schemaManager.getAttributeTypeRegistry().getOidByName( mods.getId() );
@@ -2120,7 +2120,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             // This is not allowed : we should not be able to move an entry
             // to an existing position
             throw new LdapEntryAlreadyExistsException(
-                I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
+                I18n.err( I18n.ERR_49014_ENTRY_ALREADY_EXISTS, newSuperiorDn.getName() ) );
         }
 
         // Get the entry and the old parent IDs
@@ -3128,7 +3128,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             return systemIndices.get( id );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, id, id ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_49001_USER_INDEX_DOES_NOT_EXIST, id, id ) );
     }
 
 
@@ -3140,7 +3140,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         if ( attributeType == null )
         {
-            throw new IndexNotFoundException( I18n.err( I18n.ERR_3, attributeType, attributeType ) );
+            throw new IndexNotFoundException( I18n.err( I18n.ERR_49001_USER_INDEX_DOES_NOT_EXIST, attributeType, attributeType ) );
         }
 
         String oid = attributeType.getOid();
@@ -3150,7 +3150,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             return userIndices.get( oid );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_3, attributeType, attributeType ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_49001_USER_INDEX_DOES_NOT_EXIST, attributeType, attributeType ) );
     }
 
 
@@ -3162,7 +3162,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
     {
         if ( attributeType == null )
         {
-            throw new IndexNotFoundException( I18n.err( I18n.ERR_2, attributeType, attributeType ) );
+            throw new IndexNotFoundException( I18n.err( I18n.ERR_49000_SYSTEM_INDEX_DOES_NOT_EXIST, attributeType, attributeType ) );
         }
 
         String oid = attributeType.getOid();
@@ -3172,7 +3172,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             return systemIndices.get( oid );
         }
 
-        throw new IndexNotFoundException( I18n.err( I18n.ERR_2, attributeType, attributeType ) );
+        throw new IndexNotFoundException( I18n.err( I18n.ERR_49000_SYSTEM_INDEX_DOES_NOT_EXIST, attributeType, attributeType ) );
     }
 
 
@@ -3337,7 +3337,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
          */
         if ( !aliasTarget.isDescendantOf( suffixDn ) )
         {
-            String msg = I18n.err( I18n.ERR_225, suffixDn.getName() );
+            String msg = I18n.err( I18n.ERR_49012_ALIAS_POINTING_TO_OUTSIDE_NAMING_CONTEX, suffixDn.getName() );
             throw new LdapAliasDereferencingException( msg );
         }
 
@@ -3353,7 +3353,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
         if ( null == targetId )
         {
             // Complain about target not existing
-            String msg = I18n.err( I18n.ERR_581, aliasDn.getName(), aliasTarget );
+            String msg = I18n.err( I18n.ERR_49015_ALIAS_REFERENCING_UNKNOWN_OBJECT, aliasDn.getName(), aliasTarget );
             throw new LdapAliasException( msg );
         }
 
@@ -3369,7 +3369,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
          */
         if ( null != aliasIdx.reverseLookup( partitionTxn, targetId ) )
         {
-            String msg = I18n.err( I18n.ERR_227 );
+            String msg = I18n.err( I18n.ERR_49013_ALIAS_POINTING_TO_ANOTHER_ALIAS );
             throw new LdapAliasDereferencingException( msg );
         }
 

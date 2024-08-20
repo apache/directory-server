@@ -125,7 +125,7 @@ public class SingleFileLdifPartition extends AbstractLdifPartition
             // of the workingDirectory followed by the suffix
             if ( ( suffixDn == null ) || ( suffixDn.isEmpty() ) )
             {
-                String msg = I18n.err( I18n.ERR_150 );
+                String msg = I18n.err( I18n.ERR_33000_CANNOT_INITIALIZE_PARTITION_WITH_INVALID_SUFFIX );
                 LOG.error( msg );
                 throw new LdapInvalidDnException( msg );
             }

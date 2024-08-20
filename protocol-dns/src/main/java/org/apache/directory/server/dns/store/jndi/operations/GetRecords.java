@@ -299,7 +299,7 @@ public class GetRecords implements DnsOperation
 
         if ( !searchBaseDn.startsWith( ctxRoot ) )
         {
-            throw new NamingException( I18n.err( I18n.ERR_648, baseDn ) );
+            throw new NamingException( I18n.err( I18n.ERR_49029_INVALID_SEARCH_BASE, baseDn ) );
         }
 
         for ( int ii = 0; ii < ctxRoot.size(); ii++ )
