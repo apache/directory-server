@@ -56,7 +56,7 @@ public abstract class StringOption extends DhcpOption
         catch ( UnsupportedEncodingException e )
         {
             // should not happen
-            throw new RuntimeException( I18n.err( I18n.ERR_642 ) );
+            throw new RuntimeException( I18n.err( I18n.ERR_36007_ASCII_ENCODING_UNAVAILABLE ) );
         }
     }
 
@@ -80,7 +80,7 @@ public abstract class StringOption extends DhcpOption
         catch ( UnsupportedEncodingException e )
         {
             // should not happen
-            throw new RuntimeException( I18n.err( I18n.ERR_642 ) );
+            throw new RuntimeException( I18n.err( I18n.ERR_36007_ASCII_ENCODING_UNAVAILABLE ) );
         }
     }
 

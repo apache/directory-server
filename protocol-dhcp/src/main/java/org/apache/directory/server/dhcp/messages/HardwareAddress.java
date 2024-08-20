@@ -213,7 +213,7 @@ public final class HardwareAddress
 
         if ( !m.matches() )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_637, s ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_36002_CANNOT_PARSE_STRING_REPRESENTATION, s ) );
         }
 
         int type = Integer.parseInt( m.group( 1 ) );

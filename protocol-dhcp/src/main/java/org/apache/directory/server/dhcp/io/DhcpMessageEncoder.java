@@ -106,7 +106,7 @@ public class DhcpMessageEncoder
         catch ( UnsupportedEncodingException e )
         {
             // should not happen
-            throw new RuntimeException( I18n.err( I18n.ERR_635 ), e );
+            throw new RuntimeException( I18n.err( I18n.ERR_36000_NO_ASCII_ENCODING ), e );
         }
     }
 

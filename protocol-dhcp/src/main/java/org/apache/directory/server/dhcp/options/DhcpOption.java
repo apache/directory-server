@@ -224,7 +224,7 @@ public abstract class DhcpOption
 
                 if ( !DhcpOption.class.isAssignableFrom( dhcpOptionClass ) )
                 {
-                    throw new RuntimeException( I18n.err( I18n.ERR_639, dhcpOptionClass ) );
+                    throw new RuntimeException( I18n.err( I18n.ERR_36004_CLASS_NOT_DESCENDANT_OF_DHCP_OPTION, dhcpOptionClass ) );
                 }
 
                 DhcpOption dhcpOption = ( DhcpOption ) dhcpOptionClass.newInstance();
@@ -239,7 +239,7 @@ public abstract class DhcpOption
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( I18n.err( I18n.ERR_640 ), e );
+            throw new RuntimeException( I18n.err( I18n.ERR_36005_CANNOT_INIT_OPTION_FIELD_CLASS ), e );
         }
     }
 
@@ -304,7 +304,7 @@ public abstract class DhcpOption
 
         if ( data.length > 255 )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_641 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_36006_MAX_DATA_LENGHT_128_BYTES ) );
         }
 
         out.put( ( byte ) data.length );
