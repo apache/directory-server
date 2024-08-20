@@ -92,7 +92,7 @@ public class GreaterEqEvaluator<T> extends LeafEvaluator<T>
 
         if ( mr == null )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_715, node ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_49037_COULD_NOT_FIND_MATCHING_RULE_FOR_GREATER_EQ_NODE, node ) );
         }
 
         normalizer = mr.getNormalizer();

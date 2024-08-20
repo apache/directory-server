@@ -59,7 +59,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
     /** The message for unsupported operations */
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_714 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_49023_EQUALITY_CURSOR_ONLY_SUPPORT_POSITIONING_WHEN_INDEX_EXISTS );
 
     /** An equality evaluator for candidates */
     private final EqualityEvaluator<V> equalityEvaluator;
@@ -304,7 +304,7 @@ public class EqualityCursor<V> extends AbstractIndexCursor<V>
             return ( IndexEntry<V, String> ) uuidIdxCursor.get();
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 

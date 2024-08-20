@@ -82,7 +82,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
 
         if ( node.getScope() != SearchScope.SUBTREE )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_727 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_49045_SCOPE_NODE_NOT_IN_SUBTREE_SCOPE ) );
         }
 
         baseId = node.getBaseId();
@@ -219,7 +219,7 @@ public class SubtreeScopeEvaluator implements Evaluator<ScopeNode>
     @Override
     public boolean evaluate( Entry candidate ) throws LdapException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_49040_INEFFICIENT_WITHOUT_GET_ID ) );
     }
 
 

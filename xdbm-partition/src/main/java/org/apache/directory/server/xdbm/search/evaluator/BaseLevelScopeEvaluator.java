@@ -77,7 +77,7 @@ public class BaseLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      */
     public boolean evaluate( Entry candidate ) throws LdapException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_49040_INEFFICIENT_WITHOUT_GET_ID ) );
     }
 
 

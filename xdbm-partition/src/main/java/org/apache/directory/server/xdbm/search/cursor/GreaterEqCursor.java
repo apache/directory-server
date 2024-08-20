@@ -361,7 +361,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
                 return userIdxCursor.get();
             }
 
-            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
         }
 
         if ( available() )
@@ -369,7 +369,7 @@ public class GreaterEqCursor<V> extends AbstractIndexCursor<V>
             return ( IndexEntry<V, String> ) uuidCandidate;
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 

@@ -45,7 +45,7 @@ public class IndexNotFoundException extends NamingException
      */
     public IndexNotFoundException( String indexName )
     {
-        super( I18n.err( I18n.ERR_704, indexName ) );
+        super( I18n.err( I18n.ERR_49031_CANNOT_SEARCH_THE_DIB_WITHOUT_INDEX, indexName ) );
         this.indexName = indexName;
     }
 

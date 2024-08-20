@@ -50,7 +50,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_718 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_49025_NOT_CURSOR_NOT_ORDERED );
     private final AllEntriesCursor uuidCursor;
     private final Evaluator<? extends ExprNode> childEvaluator;
 
@@ -185,7 +185,7 @@ public class NotCursor<V> extends AbstractIndexCursor<V>
             return ( IndexEntry<V, String> ) uuidCursor.get();
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 

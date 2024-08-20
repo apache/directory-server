@@ -143,7 +143,7 @@ public class DefaultSearchEngine implements SearchEngine
             else
             {
                 // The search base doesn't exist
-                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_648, baseDn ) );
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_49029_INVALID_SEARCH_BASE, baseDn ) );
             }
         }
 

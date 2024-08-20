@@ -54,7 +54,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_722 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_49041_OR_CURSOR_NOT_ORDERED );
     private final List<Cursor<IndexEntry<V, String>>> cursors;
     private final List<Evaluator<? extends ExprNode>> evaluators;
     private final List<Set<String>> blacklists;
@@ -82,7 +82,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
 
         if ( cursors.size() <= 1 )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_723 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_49042_MUST_HAVE_2_SUB_EXPRESSIONS ) );
         }
 
         this.cursors = cursors;
@@ -294,7 +294,7 @@ public class OrCursor<V> extends AbstractIndexCursor<V>
             return prefetched;
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 

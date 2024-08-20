@@ -64,7 +64,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
 
         if ( node.getScope() != SearchScope.ONELEVEL )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_720 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_49039_SCOPE_NODE_NOT_ONE_LEVEL ) );
         }
 
         this.db = db;
@@ -84,7 +84,7 @@ public class OneLevelScopeEvaluator<E> implements Evaluator<ScopeNode>
      */
     public boolean evaluate( Entry candidate ) throws LdapException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_721 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_49040_INEFFICIENT_WITHOUT_GET_ID ) );
     }
 
 

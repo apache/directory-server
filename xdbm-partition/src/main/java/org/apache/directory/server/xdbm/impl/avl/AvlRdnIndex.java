@@ -72,7 +72,7 @@ public class AvlRdnIndex extends AvlIndex<ParentIdAndRdn>
 
         if ( normalizer == null )
         {
-            throw new LdapOtherException( I18n.err( I18n.ERR_212, attributeType ) );
+            throw new LdapOtherException( I18n.err( I18n.ERR_49018_NO_NORMALIZER_FOR_ATTRIBUTE_TYPE, attributeType ) );
         }
 
         ParentIdAndRdnComparator<String> comp = new ParentIdAndRdnComparator<>( mr.getOid() );

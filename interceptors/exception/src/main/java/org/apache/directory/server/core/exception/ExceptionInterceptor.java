@@ -266,7 +266,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             // we want to allow this.
             if ( !newDn.equals( oldDn ) )
             {
-                throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_250_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
+                throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_49014_ENTRY_ALREADY_EXISTS, newDn.getName() ) );
             }
         }
     }

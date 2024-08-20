@@ -289,7 +289,7 @@ public class MavibotPartition extends AbstractBTreePartition
     @Override
     protected synchronized void doDestroy( PartitionTxn partitionTxn ) throws LdapException
     {
-        MultiException errors = new MultiException( I18n.err( I18n.ERR_577 ) );
+        MultiException errors = new MultiException( I18n.err( I18n.ERR_49003_ERRORS_ENCOUNTERED_ON_DESTROY ) );
 
         if ( !initialized )
         {

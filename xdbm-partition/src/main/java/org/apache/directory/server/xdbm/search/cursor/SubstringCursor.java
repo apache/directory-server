@@ -53,7 +53,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_725 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_49044_SUBSTRING_CURSOR_NOT_ORDERED );
     private final boolean hasIndex;
     private final Cursor<IndexEntry<String, String>> wrapped;
     private final SubstringEvaluator evaluator;
@@ -262,7 +262,7 @@ public class SubstringCursor extends AbstractIndexCursor<String>
             return indexEntry;
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 

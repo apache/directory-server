@@ -54,7 +54,7 @@ public class DescendantCursor extends AbstractIndexCursor<String>
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
     /** Error message for unsupported operations */
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_719 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_49022_SCOPE_CURSOR_NOT_ORDERED );
 
     /** The entry database/store */
     private final Store db;

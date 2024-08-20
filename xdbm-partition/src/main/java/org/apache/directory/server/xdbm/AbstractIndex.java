@@ -150,7 +150,7 @@ public abstract class AbstractIndex<K, E> implements Index<K, E>
     {
         if ( initialized )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_575, property ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_49027_INDEX_PROPERTY_CANNOT_BE_SET_AFTER_INIT, property ) );
         }
     }
 

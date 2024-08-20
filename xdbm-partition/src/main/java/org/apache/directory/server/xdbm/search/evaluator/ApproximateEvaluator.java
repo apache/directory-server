@@ -81,7 +81,7 @@ public class ApproximateEvaluator<T> extends LeafEvaluator<T>
 
             if ( mr == null )
             {
-                throw new IllegalStateException( I18n.err( I18n.ERR_709, node ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_49034_COULD_NOT_FIND_MATCHING_RULE, node ) );
             }
 
             normalizer = mr.getNormalizer();

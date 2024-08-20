@@ -51,7 +51,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
     /** Speedup for logs */
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_724 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_49043_PRESENCE_CURSOR_ONLY_SUPPORT_POSITIONING_WHEN_INDEX_EXISTS );
     private final Cursor<IndexEntry<String, String>> uuidCursor;
     private final Cursor<IndexEntry<String, String>> presenceCursor;
     private final PresenceEvaluator presenceEvaluator;
@@ -301,7 +301,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
                 return presenceCursor.get();
             }
 
-            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+            throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
         }
 
         if ( available() )
@@ -321,7 +321,7 @@ public class PresenceCursor extends AbstractIndexCursor<String>
             return prefetched;
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 

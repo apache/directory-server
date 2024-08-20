@@ -55,7 +55,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
     private static final boolean IS_DEBUG = LOG_CURSOR.isDebugEnabled();
 
     /** The message for unsupported operations */
-    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_707 );
+    private static final String UNSUPPORTED_MSG = I18n.err( I18n.ERR_49020_AND_CURSOR_NOT_ORDERED );
 
     /** */
     private final Cursor<IndexEntry<V, String>> wrapped;
@@ -192,7 +192,7 @@ public class AndCursor<V> extends AbstractIndexCursor<V>
             return wrapped.get();
         }
 
-        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_708 ) );
+        throw new InvalidCursorPositionException( I18n.err( I18n.ERR_49021_CURSOR_NOT_POSITIONED ) );
     }
 
 
