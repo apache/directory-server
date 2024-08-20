@@ -314,7 +314,7 @@ public class KeyDerivationInterceptor extends BaseInterceptor
 
         if ( userEntry == null )
         {
-            throw new LdapAuthenticationException( I18n.err( I18n.ERR_512, principalDn ) );
+            throw new LdapAuthenticationException( I18n.err( I18n.ERR_12001_FAILED_TO_AUTHENTICATE_USER, principalDn ) );
         }
 
         if ( !( ( ClonedServerEntry ) userEntry ).getOriginalEntry().contains(
@@ -442,8 +442,8 @@ public class KeyDerivationInterceptor extends BaseInterceptor
             }
             catch ( EncoderException ioe )
             {
-                LOG.error( I18n.err( I18n.ERR_122 ), ioe );
-                LOG_KRB.error( I18n.err( I18n.ERR_122 ), ioe );
+                LOG.error( I18n.err( I18n.ERR_12000_ERROR_ENCODING_ENCRYPTION_KEY ), ioe );
+                LOG_KRB.error( I18n.err( I18n.ERR_12000_ERROR_ENCODING_ENCRYPTION_KEY ), ioe );
             }
         }
 

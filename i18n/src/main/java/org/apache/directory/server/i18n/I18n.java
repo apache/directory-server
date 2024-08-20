@@ -267,6 +267,9 @@ public enum I18n
     // apacheds-installers-maven-plugins errors      11000 - 11999
 
     // apacheds-interceptor-kerberos errors          12000 - 12999
+    ERR_12000_ERROR_ENCODING_ENCRYPTION_KEY("ERR_12000_ERROR_ENCODING_ENCRYPTION_KEY"),
+    ERR_12001_FAILED_TO_AUTHENTICATE_USER("ERR_12001_FAILED_TO_AUTHENTICATE_USER"),
+
     // apacheds-interceptors-admin errors            13000 - 13999
     // apacheds-interceptors-authn errors            14000 - 14999
     // apacheds-interceptors-authz errors            15000 - 15999
@@ -514,7 +517,6 @@ public enum I18n
     ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY("ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY"),
     ERR_115("ERR_115"),
     ERR_116("ERR_116"),
-    ERR_122("ERR_122"),
     ERR_128("ERR_128"),
     ERR_135("ERR_135"),
     ERR_136("ERR_136"),
@@ -656,7 +658,6 @@ public enum I18n
     ERR_509("ERR_509"),
     ERR_510("ERR_510"),
     ERR_511("ERR_511"),
-    ERR_512("ERR_512"),
     ERR_513("ERR_513"),
     ERR_514("ERR_514"),
     ERR_515("ERR_515"),
