@@ -94,7 +94,7 @@ final class JavaLdapSupport
         }
         catch ( LdapInvalidAttributeValueException liave )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_479, className, liave.getLocalizedMessage() ) );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_06017_INSTANCE_DESERIALIZATION_FAILED, className, liave.getLocalizedMessage() ) );
             ne.setRootCause( liave );
             throw ne;
         }
@@ -106,7 +106,7 @@ final class JavaLdapSupport
         }
         catch ( Exception e )
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_479, className, e.getLocalizedMessage() ) );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_06017_INSTANCE_DESERIALIZATION_FAILED, className, e.getLocalizedMessage() ) );
             ne.setRootCause( e );
             throw ne;
         }
@@ -132,7 +132,7 @@ final class JavaLdapSupport
         }
         catch ( Exception e )
         {
-            throw new LdapException( I18n.err( I18n.ERR_481, obj, e.getLocalizedMessage() ) );
+            throw new LdapException( I18n.err( I18n.ERR_06018_SERIALIZATION_FAILED, obj, e.getLocalizedMessage() ) );
         }
     }
 

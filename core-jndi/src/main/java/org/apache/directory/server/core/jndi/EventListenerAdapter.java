@@ -91,7 +91,7 @@ public class EventListenerAdapter implements DirectoryListener
 
     private void deliverNamingExceptionEvent( Exception e )
     {
-        LOG.error( I18n.err( I18n.ERR_118 ), e );
+        LOG.error( I18n.err( I18n.ERR_06000_ERROR_WHILE_DELIVERING_NOTIFICATIONS ), e );
         NamingExceptionEvent evt = null;
 
         if ( e instanceof NamingException )
@@ -100,7 +100,7 @@ public class EventListenerAdapter implements DirectoryListener
         }
         else
         {
-            NamingException ne = new NamingException( I18n.err( I18n.ERR_119 ) );
+            NamingException ne = new NamingException( I18n.err( I18n.ERR_06001_EXCEPTION_DURING_EVENT_HANDLING ) );
             ne.setRootCause( e );
             evt = new NamingExceptionEvent( source, ne );
         }

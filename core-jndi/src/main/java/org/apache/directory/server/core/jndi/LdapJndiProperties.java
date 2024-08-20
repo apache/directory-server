@@ -75,7 +75,7 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(),
+            throw new ConfigurationException( I18n.err( I18n.ERR_06002_DONT_KNOW_HOW_TO_INTERPRET, authentication.getClass(),
                 Context.SECURITY_AUTHENTICATION ) );
         }
         else
@@ -116,7 +116,7 @@ public class LdapJndiProperties
 
         if ( !env.containsKey( Context.PROVIDER_URL ) )
         {
-            String msg = I18n.err( I18n.ERR_484, Context.PROVIDER_URL );
+            String msg = I18n.err( I18n.ERR_06003_EXPECTED_PROPERTY, Context.PROVIDER_URL );
             throw new ConfigurationException( msg );
         }
 
@@ -124,7 +124,7 @@ public class LdapJndiProperties
 
         if ( url == null )
         {
-            String msg = I18n.err( I18n.ERR_485, Context.PROVIDER_URL );
+            String msg = I18n.err( I18n.ERR_06004_PROPERTY_SET_TO_NULL, Context.PROVIDER_URL );
             throw new ConfigurationException( msg );
         }
 
@@ -140,7 +140,7 @@ public class LdapJndiProperties
             }
             catch ( LdapInvalidDnException lide )
             {
-                String msg = I18n.err( I18n.ERR_733, url );
+                String msg = I18n.err( I18n.ERR_06016_PRINCIPAL_NOT_VALID, url );
                 throw new ConfigurationException( msg );
             }
         }
@@ -163,7 +163,7 @@ public class LdapJndiProperties
         }
         else if ( !( authentication instanceof String ) )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_483, authentication.getClass(),
+            throw new ConfigurationException( I18n.err( I18n.ERR_06002_DONT_KNOW_HOW_TO_INTERPRET, authentication.getClass(),
                 Context.SECURITY_AUTHENTICATION ) );
         }
         else
@@ -189,7 +189,7 @@ public class LdapJndiProperties
 
         if ( principal == null && props.level == AuthenticationLevel.SIMPLE )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_487, Context.SECURITY_PRINCIPAL ) );
+            throw new ConfigurationException( I18n.err( I18n.ERR_06005_CANNOT_BE_NULL, Context.SECURITY_PRINCIPAL ) );
         }
         else if ( principal == null && props.level == AuthenticationLevel.NONE )
         {
@@ -197,7 +197,7 @@ public class LdapJndiProperties
         }
         else if ( !( principal instanceof String ) )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_483, principal.getClass(), Context.SECURITY_PRINCIPAL ) );
+            throw new ConfigurationException( I18n.err( I18n.ERR_06002_DONT_KNOW_HOW_TO_INTERPRET, principal.getClass(), Context.SECURITY_PRINCIPAL ) );
         }
         else if ( ( ( String ) principal ).trim().equals( "" ) )
         {
@@ -211,7 +211,7 @@ public class LdapJndiProperties
             }
             catch ( LdapInvalidDnException lide )
             {
-                String msg = I18n.err( I18n.ERR_733, principal );
+                String msg = I18n.err( I18n.ERR_06016_PRINCIPAL_NOT_VALID, principal );
                 throw new ConfigurationException( msg );
             }
 
@@ -226,7 +226,7 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new ConfigurationException( I18n.err( I18n.ERR_483, obj.getClass(), SASL_AUTHID ) );
+                throw new ConfigurationException( I18n.err( I18n.ERR_06002_DONT_KNOW_HOW_TO_INTERPRET, obj.getClass(), SASL_AUTHID ) );
             }
             props.saslAuthId = ( String ) principal;
         }
@@ -237,7 +237,7 @@ public class LdapJndiProperties
 
         if ( props.level == AuthenticationLevel.SIMPLE && credobj == null )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_489 ) );
+            throw new ConfigurationException( I18n.err( I18n.ERR_06006_CANT_SPECIFY_SIMPLE_AUTHENTICATION ) );
         }
         else if ( credobj != null )
         {
@@ -251,7 +251,7 @@ public class LdapJndiProperties
             }
             else
             {
-                throw new ConfigurationException( I18n.err( I18n.ERR_483, credobj.getClass(),
+                throw new ConfigurationException( I18n.err( I18n.ERR_06002_DONT_KNOW_HOW_TO_INTERPRET, credobj.getClass(),
                     Context.SECURITY_CREDENTIALS ) );
             }
         }

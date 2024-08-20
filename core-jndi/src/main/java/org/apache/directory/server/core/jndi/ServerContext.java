@@ -210,7 +210,7 @@ public abstract class ServerContext implements EventContext
 
         if ( !operationManager.hasEntry( hasEntryContext ) )
         {
-            throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
+            throw new NameNotFoundException( I18n.err( I18n.ERR_06007_ELEMENT_DOES_NOT_EXIST, dn ) );
         }
 
         schemaManager = service.getSchemaManager();
@@ -245,7 +245,7 @@ public abstract class ServerContext implements EventContext
 
         if ( !operationManager.hasEntry( hasEntryContext ) )
         {
-            throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
+            throw new NameNotFoundException( I18n.err( I18n.ERR_06007_ELEMENT_DOES_NOT_EXIST, dn ) );
         }
 
         schemaManager = service.getSchemaManager();
@@ -269,7 +269,7 @@ public abstract class ServerContext implements EventContext
 
         if ( !operationManager.hasEntry( hasEntryContext ) )
         {
-            throw new NameNotFoundException( I18n.err( I18n.ERR_490, dn ) );
+            throw new NameNotFoundException( I18n.err( I18n.ERR_06007_ELEMENT_DOES_NOT_EXIST, dn ) );
         }
 
         schemaManager = service.getSchemaManager();
@@ -915,7 +915,7 @@ public abstract class ServerContext implements EventContext
         }
         catch ( LdapException le )
         {
-            throw new SchemaViolationException( I18n.err( I18n.ERR_491, name ) );
+            throw new SchemaViolationException( I18n.err( I18n.ERR_06008_CN_ATTRIBUTE_MISSING_FOR_JAVA_CONTAINER, name ) );
         }
 
         // Now add the CN attribute, which is mandatory
@@ -930,13 +930,13 @@ public abstract class ServerContext implements EventContext
             else
             {
                 // No CN in the rdn, this is an error
-                throw new SchemaViolationException( I18n.err( I18n.ERR_491, name ) );
+                throw new SchemaViolationException( I18n.err( I18n.ERR_06008_CN_ATTRIBUTE_MISSING_FOR_JAVA_CONTAINER, name ) );
             }
         }
         else
         {
             // No CN in the rdn, this is an error
-            throw new SchemaViolationException( I18n.err( I18n.ERR_491, name ) );
+            throw new SchemaViolationException( I18n.err( I18n.ERR_06008_CN_ATTRIBUTE_MISSING_FOR_JAVA_CONTAINER, name ) );
         }
 
         /*
@@ -988,7 +988,7 @@ public abstract class ServerContext implements EventContext
 
         if ( target.size() == 0 )
         {
-            throw new NoPermissionException( I18n.err( I18n.ERR_492 ) );
+            throw new NoPermissionException( I18n.err( I18n.ERR_06009_CANT_DELETE_ROOT_DSE ) );
         }
 
         try
@@ -1050,7 +1050,7 @@ public abstract class ServerContext implements EventContext
         }
         catch ( LdapInvalidAttributeTypeException liate )
         {
-            throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+            throw new NamingException( I18n.err( I18n.ERR_06012_CANT_BIND, obj ) );
         }
 
         if ( outServerEntry != null )
@@ -1082,13 +1082,13 @@ public abstract class ServerContext implements EventContext
         // Check for Referenceable
         else if ( obj instanceof Referenceable )
         {
-            throw new NamingException( I18n.err( I18n.ERR_493 ) );
+            throw new NamingException( I18n.err( I18n.ERR_06010_CANT_STORE_REFERENCEABLE ) );
         }
         // Store different formats
         else if ( obj instanceof Reference )
         {
             // Store as ref and add outAttrs
-            throw new NamingException( I18n.err( I18n.ERR_494 ) );
+            throw new NamingException( I18n.err( I18n.ERR_06011_CANT_STORE_REFERENCE ) );
         }
         else if ( obj instanceof Serializable )
         {
@@ -1101,7 +1101,7 @@ public abstract class ServerContext implements EventContext
             }
             catch ( LdapException le )
             {
-                throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+                throw new NamingException( I18n.err( I18n.ERR_06012_CANT_BIND, obj ) );
             }
 
             // Get target and inject all rdn attributes into entry
@@ -1114,7 +1114,7 @@ public abstract class ServerContext implements EventContext
             }
             catch ( LdapException le )
             {
-                throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+                throw new NamingException( I18n.err( I18n.ERR_06012_CANT_BIND, obj ) );
             }
 
             try
@@ -1138,7 +1138,7 @@ public abstract class ServerContext implements EventContext
             }
             catch ( LdapInvalidAttributeTypeException liate )
             {
-                throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+                throw new NamingException( I18n.err( I18n.ERR_06012_CANT_BIND, obj ) );
             }
 
             injectRdnAttributeValues( target, serverEntry );
@@ -1154,7 +1154,7 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+            throw new NamingException( I18n.err( I18n.ERR_06012_CANT_BIND, obj ) );
         }
     }
 
@@ -1361,7 +1361,7 @@ public abstract class ServerContext implements EventContext
         }
         catch ( Exception e )
         {
-            String msg = I18n.err( I18n.ERR_497, target );
+            String msg = I18n.err( I18n.ERR_06013_CANNOT_CREATE_OBJECT_WITH_FACTORY, target );
             NamingException ne = new NamingException( msg );
             ne.setRootCause( e );
             throw ne;

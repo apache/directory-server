@@ -60,7 +60,7 @@ public class CoreContextFactory implements InitialContextFactory
 
         if ( service == null )
         {
-            throw new ConfigurationException( I18n.err( I18n.ERR_477, env ) );
+            throw new ConfigurationException( I18n.err( I18n.ERR_06014_CANNOT_FIND_DIRECTORY_SERVICE, env ) );
         }
 
         if ( !service.isStarted() )
@@ -74,7 +74,7 @@ public class CoreContextFactory implements InitialContextFactory
         }
         catch ( LdapInvalidDnException lide )
         {
-            throw new InvalidNameException( I18n.err( I18n.ERR_733, env ) );
+            throw new InvalidNameException( I18n.err( I18n.ERR_06016_PRINCIPAL_NOT_VALID, env ) );
         }
 
         ServerLdapContext ctx = null;
@@ -148,7 +148,7 @@ public class CoreContextFactory implements InitialContextFactory
         }
         else
         {
-            throw new javax.naming.ConfigurationException( I18n.err( I18n.ERR_478, Context.SECURITY_CREDENTIALS ) );
+            throw new javax.naming.ConfigurationException( I18n.err( I18n.ERR_06015_CANNOT_CONVERT_TO_BYTES, Context.SECURITY_CREDENTIALS ) );
         }
 
         if ( credential != null )

@@ -333,7 +333,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
         if ( ( null == obj ) && ( null == attrs ) )
         {
-            throw new NamingException( I18n.err( I18n.ERR_499 ) );
+            throw new NamingException( I18n.err( I18n.ERR_06019_ABJ_AND_ATTRS_ARGS_ARE_NULL ) );
         }
 
         // A null attrs defaults this to the Context.bind() operation
@@ -421,14 +421,14 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // Check for Referenceable
         if ( obj instanceof Referenceable )
         {
-            throw new NamingException( I18n.err( I18n.ERR_493 ) );
+            throw new NamingException( I18n.err( I18n.ERR_06010_CANT_STORE_REFERENCEABLE ) );
         }
 
         // Store different formats
         if ( obj instanceof Reference )
         {
             // Store as ref and add outAttrs
-            throw new NamingException( I18n.err( I18n.ERR_494 ) );
+            throw new NamingException( I18n.err( I18n.ERR_06011_CANT_STORE_REFERENCE ) );
         }
         else if ( obj instanceof Serializable )
         {
@@ -505,7 +505,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         else
         {
-            throw new NamingException( I18n.err( I18n.ERR_495, obj ) );
+            throw new NamingException( I18n.err( I18n.ERR_06012_CANT_BIND, obj ) );
         }
     }
 
@@ -854,7 +854,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         catch ( ParseException pe )
         {
-            InvalidSearchFilterException isfe = new InvalidSearchFilterException( I18n.err( I18n.ERR_500, filter ) );
+            InvalidSearchFilterException isfe = new InvalidSearchFilterException( I18n.err( I18n.ERR_06020_PARSE_EXCEPTION_ENCOUNTERED, filter ) );
             isfe.setRootCause( pe );
             throw isfe;
         }
@@ -970,7 +970,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
         catch ( Exception e )
         {
-            NamingException e2 = new NamingException( I18n.err( I18n.ERR_501, filterStr ) );
+            NamingException e2 = new NamingException( I18n.err( I18n.ERR_06021_COULD_NOT_PARSE_FILTER, filterStr ) );
             e2.setRootCause( e );
             throw e2;
         }
