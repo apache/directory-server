@@ -332,7 +332,7 @@ public class ApacheDS
         }
         catch ( IOException e )
         {
-            LOG.error( I18n.err( I18n.ERR_179 ), e );
+            LOG.error( I18n.err( I18n.ERR_44000_COULD_NOT_GET_CANONICAL_PATH ), e );
             return null;
         }
 
@@ -417,7 +417,7 @@ public class ApacheDS
             {
                 // If the file can't be read, log the error, and stop
                 // loading LDIFs.
-                LOG.error( I18n.err( I18n.ERR_180, ldifDirectory.getAbsolutePath(), ne.getLocalizedMessage() ) );
+                LOG.error( I18n.err( I18n.ERR_44001_CANNOT_LOAD_LDIF_FILE, ldifDirectory.getAbsolutePath(), ne.getLocalizedMessage() ) );
                 throw new LdapException( ne.getMessage(), ne );
             }
         }
@@ -464,7 +464,7 @@ public class ApacheDS
                 {
                     // If the file can't be read, log the error, and stop
                     // loading LDIFs.
-                    LOG.error( I18n.err( I18n.ERR_180, ldifFile.getAbsolutePath(), ne.getLocalizedMessage() ) );
+                    LOG.error( I18n.err( I18n.ERR_44001_CANNOT_LOAD_LDIF_FILE, ldifFile.getAbsolutePath(), ne.getLocalizedMessage() ) );
                     throw new LdapException( ne.getMessage(), ne );
                 }
             }

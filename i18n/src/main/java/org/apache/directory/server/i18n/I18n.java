@@ -388,6 +388,9 @@ public enum I18n
     
     // apacheds-server-integ errors                  43000 - 43999
     // apacheds-server-jndi errors                   44000 - 44999
+    ERR_44000_COULD_NOT_GET_CANONICAL_PATH("ERR_44000_COULD_NOT_GET_CANONICAL_PATH"),
+    ERR_44001_CANNOT_LOAD_LDIF_FILE("ERR_44001_CANNOT_LOAD_LDIF_FILE"),
+
     // apacheds-service errors                       45000 - 45999
     
     // apacheds-service-builder errors               46000 - 46999
@@ -536,8 +539,6 @@ public enum I18n
     ERR_176("ERR_176"),
     ERR_177("ERR_177"),
     ERR_178("ERR_178"),
-    ERR_179("ERR_179"),
-    ERR_180("ERR_180"),
     ERR_181("ERR_181"),
     ERR_182("ERR_182"),
     ERR_183("ERR_183"),
