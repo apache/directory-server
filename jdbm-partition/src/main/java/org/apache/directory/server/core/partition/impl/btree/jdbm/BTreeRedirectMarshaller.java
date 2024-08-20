@@ -75,11 +75,11 @@ public class BTreeRedirectMarshaller implements Marshaller<BTreeRedirect>
         {
             if ( bytes != null )
             {
-                throw new IOException( I18n.err( I18n.ERR_568, Strings.dumpBytes( bytes ) ) );
+                throw new IOException( I18n.err( I18n.ERR_31003_NOT_A_SERIALIZABLE_OBJECT, Strings.dumpBytes( bytes ) ) );
             }
             else
             {
-                throw new IOException( I18n.err( I18n.ERR_569 ) );
+                throw new IOException( I18n.err( I18n.ERR_31004_NOT_A_SERIALIZABLE_OBJECT_NULL_BYTE_ARRAY ) );
             }
         }
 

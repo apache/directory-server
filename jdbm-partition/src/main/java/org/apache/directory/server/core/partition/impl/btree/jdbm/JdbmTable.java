@@ -111,7 +111,7 @@ public class JdbmTable<K, V> extends AbstractTable<K, V>
 
         if ( valueComparator == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_592 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_31009_NULL_VALUE_COMPARATOR ) );
         }
 
         // TODO make the size of the duplicate btree cache configurable via constructor
