@@ -869,7 +869,7 @@ public class JdbmPartition extends AbstractBTreePartition
         }
         catch ( IOException t )
         {
-            LOG.error( I18n.err( I18n.ERR_127 ), t );
+            LOG.error( I18n.err( I18n.ERR_34000_FAILED_TO_CLOSE_RECORD_MANAGER ), t );
             errors.addThrowable( t );
         }
         finally

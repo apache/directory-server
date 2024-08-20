@@ -145,13 +145,13 @@ class NoDupsCursor<K, V> extends AbstractCursor<Tuple<K, V>>
 
     public void beforeValue( K key, V value ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_34007_DUPLICATE_KEYS_FORBIDDEN ) );
     }
 
 
     public void afterValue( K key, V value )
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_34007_DUPLICATE_KEYS_FORBIDDEN ) );
     }
 
 

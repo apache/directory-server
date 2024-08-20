@@ -191,7 +191,7 @@ public class JdbmIndex<K> extends AbstractIndex<K, String>
 
         if ( mr == null )
         {
-            throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
+            throw new IOException( I18n.err( I18n.ERR_34004_NO_EQUALITY_MATCHING_RULE_FOR_ATTRIBUTE, attributeType.getName() ) );
         }
 
         comp = new SerializableComparator<>( mr.getOid() );

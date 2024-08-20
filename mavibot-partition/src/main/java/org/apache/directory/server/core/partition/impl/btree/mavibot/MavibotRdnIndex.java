@@ -105,7 +105,7 @@ public class MavibotRdnIndex extends MavibotIndex<ParentIdAndRdn>
 
         if ( mr == null )
         {
-            throw new IOException( I18n.err( I18n.ERR_574, attributeType.getName() ) );
+            throw new IOException( I18n.err( I18n.ERR_34004_NO_EQUALITY_MATCHING_RULE_FOR_ATTRIBUTE, attributeType.getName() ) );
         }
 
         MavibotParentIdAndRdnSerializer.setSchemaManager( schemaManager );

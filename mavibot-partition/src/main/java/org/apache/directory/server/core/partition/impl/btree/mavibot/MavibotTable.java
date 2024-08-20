@@ -270,7 +270,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         if ( !allowsDuplicates )
         {
-            throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_34005_MISSING_VALUE_COMPARATOR ) );
         }
 
         ValueCursor<V> valueCursor = null;
@@ -315,7 +315,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
 
         if ( !allowsDuplicates )
         {
-            throw new UnsupportedOperationException( I18n.err( I18n.ERR_593 ) );
+            throw new UnsupportedOperationException( I18n.err( I18n.ERR_34005_MISSING_VALUE_COMPARATOR ) );
         }
 
         try
@@ -376,7 +376,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         {
             if ( ( value == null ) || ( key == null ) )
             {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_594 ) );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_34006_NULL_KEY_VALUE_FORBIDDEN ) );
             }
 
             V existingVal = bt.insert( key, value );
@@ -388,7 +388,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
         catch ( IOException ioe )
         {
-            LOG.error( I18n.err( I18n.ERR_131, key, name ), ioe );
+            LOG.error( I18n.err( I18n.ERR_34001_ERROR_WHILE_ADDING_KEY_ON_TABLE, key, name ), ioe );
             throw new LdapOtherException( ioe.getMessage(), ioe );
         }
     }
@@ -436,7 +436,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
         catch ( IOException | KeyNotFoundException e )
         {
-            LOG.error( I18n.err( I18n.ERR_133, key, name ), e );
+            LOG.error( I18n.err( I18n.ERR_34003_EXCEPTION_WHILE_REMOVING_FROM_INDEX, key, name ), e );
 
             throw new LdapOtherException( e.getMessage(), e );
         }
@@ -466,7 +466,7 @@ public class MavibotTable<K, V> extends AbstractTable<K, V>
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_132, key, value, name ), e );
+            LOG.error( I18n.err( I18n.ERR_34002_ERROR_WHILE_ADDING_KEY_VALUE_ON_TABLE, key, value, name ), e );
         }
     }
 

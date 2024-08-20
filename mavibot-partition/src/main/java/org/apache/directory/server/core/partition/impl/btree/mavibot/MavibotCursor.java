@@ -163,7 +163,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void beforeValue( K key, V value ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_34007_DUPLICATE_KEYS_FORBIDDEN ) );
     }
 
 
@@ -176,7 +176,7 @@ class MavibotCursor<K, V> extends AbstractCursor<Tuple<K, V>>
      */
     public void afterValue( K key, V value ) throws LdapException, CursorException
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_596 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_34007_DUPLICATE_KEYS_FORBIDDEN ) );
     }
 
 
