@@ -71,7 +71,7 @@ public class MultiBaseSearch implements SearchStrategy
         catch ( Exception e )
         {
             LOG.error( e.getLocalizedMessage(), e );
-            String message = I18n.err( I18n.ERR_156, catalogBaseDn );
+            String message = I18n.err( I18n.ERR_37003_FAILED_TO_GET_CATALOG_CONTEXT, catalogBaseDn );
             throw new ServiceConfigurationException( message, e );
         }
     }
@@ -96,7 +96,7 @@ public class MultiBaseSearch implements SearchStrategy
         catch ( NamingException ne )
         {
             LOG.error( ne.getLocalizedMessage(), ne );
-            String message = I18n.err( I18n.ERR_157, question.getDomainName() );
+            String message = I18n.err( I18n.ERR_37004_FAILED_TO_GET_INITIAL_CONTEXT, question.getDomainName() );
             throw new ServiceConfigurationException( message, ne );
         }
         catch ( Exception e )

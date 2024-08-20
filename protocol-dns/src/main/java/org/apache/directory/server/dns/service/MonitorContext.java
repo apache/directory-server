@@ -62,7 +62,7 @@ public class MonitorContext implements IoHandlerCommand
             catch ( Exception e )
             {
                 // This is a monitor.  No exceptions should bubble up.
-                LOG.error( I18n.err( I18n.ERR_154 ), e );
+                LOG.error( I18n.err( I18n.ERR_37001_ERROR_IN_CONTEXT_MONITOR ), e );
             }
         }
 

@@ -66,7 +66,7 @@ public class ReverseEnumMap<K, E extends Enum<E> & EnumConverter<K>>
         E e = reverseMap.get( value );
         if ( e == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_650, value ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_37011_INVALID_ENUM_VALUE, value ) );
         }
         return e;
     }

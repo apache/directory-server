@@ -147,7 +147,7 @@ public class DnsMessageDecoder
 
         if ( recordDecoder == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_600, type ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_37006_DECODER_UNAVAILABLE, type ) );
         }
 
         return recordDecoder.decode( byteBuffer, length );

@@ -84,7 +84,7 @@ public class DhcpMessageDecoder
         }
         catch ( BufferUnderflowException bue )
         {
-            throw new DhcpException( I18n.err( I18n.ERR_643, bue.toString() ) );
+            throw new DhcpException( I18n.err( I18n.ERR_36008_NOT_ENOUGH_DATA_IN_BUFFER, bue.toString() ) );
         }
     }
 
@@ -125,7 +125,7 @@ public class DhcpMessageDecoder
         }
         catch ( UnsupportedEncodingException e )
         {
-            throw new RuntimeException( I18n.err( I18n.ERR_635 ), e );
+            throw new RuntimeException( I18n.err( I18n.ERR_36000_NO_ASCII_ENCODING ), e );
         }
     }
 
@@ -191,7 +191,7 @@ public class DhcpMessageDecoder
             
             if ( length < 0 )
             {
-                throw new DhcpException( I18n.err( I18n.ERR_644 ) );
+                throw new DhcpException( I18n.err( I18n.ERR_36009_NEGATIVE_INDEX_IN_BUFFER ) );
             }
             
             value = new byte[length];
@@ -217,7 +217,7 @@ public class DhcpMessageDecoder
         }
         catch ( Exception e )
         {
-            throw new DhcpException( I18n.err( I18n.ERR_636, e.toString() ) );
+            throw new DhcpException( I18n.err( I18n.ERR_36001_CANNOT_SET_OPTION_VALUE, e.toString() ) );
         }
     }
 }

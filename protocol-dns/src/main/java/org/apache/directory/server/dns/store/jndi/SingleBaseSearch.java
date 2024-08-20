@@ -65,7 +65,7 @@ public class SingleBaseSearch implements SearchStrategy
         }
         catch ( Exception e )
         {
-            throw new ServiceConfigurationException( I18n.err( I18n.ERR_649, searchBaseDn ), e );
+            throw new ServiceConfigurationException( I18n.err( I18n.ERR_37010_CANNOT_GET_CONTEXT, searchBaseDn ), e );
         }
 
     }

@@ -93,7 +93,7 @@ public final class DomainNameService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_153 ), e );
+            LOG.error( I18n.err( I18n.ERR_37000_ERROR_IN_REQUEST_MONITOR ), e );
         }
     }
 
@@ -155,7 +155,7 @@ public final class DomainNameService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_154 ), e );
+            LOG.error( I18n.err( I18n.ERR_37001_ERROR_IN_CONTEXT_MONITOR ), e );
         }
     }
 
@@ -200,7 +200,7 @@ public final class DomainNameService
         catch ( Exception e )
         {
             // This is a monitor.  No exceptions should bubble up.
-            LOG.error( I18n.err( I18n.ERR_155 ), e );
+            LOG.error( I18n.err( I18n.ERR_37002_ERROR_IN_REPLY_MONITOR ), e );
         }
     }
 

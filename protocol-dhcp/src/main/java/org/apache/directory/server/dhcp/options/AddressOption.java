@@ -65,7 +65,7 @@ public abstract class AddressOption extends DhcpOption
         }
         catch ( UnknownHostException e )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_638 ), e );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_36003_ILLEGAL_ADDRESS ), e );
         }
     }
 

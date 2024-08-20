@@ -273,14 +273,14 @@ public class GetRecords implements DnsOperation
 
                 if ( type == null )
                 {
-                    throw new RuntimeException( I18n.err( I18n.ERR_646 ) );
+                    throw new RuntimeException( I18n.err( I18n.ERR_37008_RECORD_TYPE_NOT_SET ) );
                 }
 
                 return type;
             }
         }
 
-        throw new NamingException( I18n.err( I18n.ERR_647 ) );
+        throw new NamingException( I18n.err( I18n.ERR_37009_REQUIRED_STRUCTURAL_OBJECT_CLASS ) );
     }
 
 
