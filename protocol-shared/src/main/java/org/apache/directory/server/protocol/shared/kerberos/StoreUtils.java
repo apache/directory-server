@@ -106,7 +106,7 @@ public final class StoreUtils
 
                 while ( cursor.next() )
                 {
-                    LOG.error( I18n.err( I18n.ERR_149, principal, cursor.next() ) );
+                    LOG.error( I18n.err( I18n.ERR_40000_MORE_THAN_ONE_ENTRY_KERBEROS_PRINCIPAL, principal, cursor.next() ) );
                 }
 
                 return entry;

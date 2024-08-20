@@ -68,7 +68,7 @@ public class DupsContainer<V>
     {
         if ( arrayTree == null )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_570 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_31005_NOT_ARRAY_TREE_CONTAINER ) );
         }
 
         return arrayTree;
@@ -79,7 +79,7 @@ public class DupsContainer<V>
     {
         if ( btreeRedirect == null )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_571 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_31006_NOT_A_BTREE_CONTAINER ) );
         }
 
         return btreeRedirect;

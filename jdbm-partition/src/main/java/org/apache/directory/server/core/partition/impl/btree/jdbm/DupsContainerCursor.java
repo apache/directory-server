@@ -84,7 +84,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
 
         if ( !table.isDupsEnabled() )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_572 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_31007_CURSOR_REQUIRES_DUPLICATE_KEY_ENABLED ) );
         }
 
         this.table = table;
@@ -189,7 +189,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      */
     public void beforeValue( K key, DupsContainer<V> value ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_573 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_31008_VALE_BASED_AVANCES_NOT_SUPPORTED ) );
     }
 
 
@@ -198,7 +198,7 @@ public class DupsContainerCursor<K, V> extends AbstractCursor<Tuple<K, DupsConta
      */
     public void afterValue( K key, DupsContainer<V> value ) throws Exception
     {
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_573 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_31008_VALE_BASED_AVANCES_NOT_SUPPORTED ) );
     }
 
 

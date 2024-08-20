@@ -227,11 +227,11 @@ public class LdifFileLoader
         }
         catch ( FileNotFoundException fnfe )
         {
-            LOG.error( I18n.err( I18n.ERR_173 ) );
+            LOG.error( I18n.err( I18n.ERR_40001_LDIF_FILE_DOES_NOT_EXIST ) );
         }
         catch ( Exception ioe )
         {
-            LOG.error( I18n.err( I18n.ERR_174 ), ioe );
+            LOG.error( I18n.err( I18n.ERR_40002_FAILED_TO_IMPORT_LDIF ), ioe );
         }
 
         return count;
@@ -277,7 +277,7 @@ public class LdifFileLoader
                 return in;
             }
 
-            throw new FileNotFoundException( I18n.err( I18n.ERR_173 ) );
+            throw new FileNotFoundException( I18n.err( I18n.ERR_40001_LDIF_FILE_DOES_NOT_EXIST ) );
         }
     }
 }

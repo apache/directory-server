@@ -162,7 +162,7 @@ public class GetPrincipal
             catch ( KerberosException ioe )
             {
                 throw new LdapInvalidAttributeValueException( ResultCodeEnum.OPERATIONS_ERROR, 
-                    I18n.err( I18n.ERR_623, KerberosAttribute.KRB5_KEY_AT ), ioe );
+                    I18n.err( I18n.ERR_40003_INVALID_KRB5KEY_VALUE, KerberosAttribute.KRB5_KEY_AT ), ioe );
             }
         }
 
