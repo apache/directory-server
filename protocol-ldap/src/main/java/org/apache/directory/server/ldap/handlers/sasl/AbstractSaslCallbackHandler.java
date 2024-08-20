@@ -222,7 +222,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
                 catch ( Exception e )
                 {
                     // TODO - figure out how to handle this properly.
-                    throw new RuntimeException( I18n.err( I18n.ERR_677 ), e );
+                    throw new RuntimeException( I18n.err( I18n.ERR_38027_AUTHENTICATION_FAILED_IN_CALLBACK_HANDLER ), e );
                 }
             }
         }

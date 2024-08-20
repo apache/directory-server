@@ -655,7 +655,7 @@ public class LdapServer extends DirectoryBackedService
         }
         catch ( IOException e )
         {
-            String msg = I18n.err( I18n.ERR_171, transport.getPort() );
+            String msg = I18n.err( I18n.ERR_38009_FAILED_TO_BIND_TO_SERVICE_REGISTRY, transport.getPort() );
             LdapConfigurationException lce = new LdapConfigurationException( msg );
             lce.setCause( e );
             LOG.error( msg, e );

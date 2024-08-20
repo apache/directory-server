@@ -143,11 +143,11 @@ public abstract class LdapRequestHandler<T extends Request> implements MessageHa
             if ( !( message instanceof BindRequest ) || ( ( BindRequest ) message ).isSimple()
                 || ldapSession.isSimpleAuthPending() )
             {
-                LOG.error( I18n.err( I18n.ERR_732 ) );
+                LOG.error( I18n.err( I18n.ERR_38033_CANNOT_PROCESS_REQUEST_WHILE_BINDING ) );
                 BindResponse bindResponse = new BindResponseImpl( message.getMessageId() );
                 LdapResult bindResult = bindResponse.getLdapResult();
                 bindResult.setResultCode( ResultCodeEnum.UNWILLING_TO_PERFORM );
-                bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_732 ) );
+                bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_38033_CANNOT_PROCESS_REQUEST_WHILE_BINDING ) );
                 ldapSession.getIoSession().write( bindResponse );
                 return;
             }

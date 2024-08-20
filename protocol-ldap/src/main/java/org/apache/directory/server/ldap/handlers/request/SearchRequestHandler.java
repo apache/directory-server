@@ -212,7 +212,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
             else
             {
-                throw new IllegalStateException( I18n.err( I18n.ERR_685, req ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_38030_UNIDENTIFIED_SINGLE_REPLY_TYPE, req ) );
             }
         }
     }
@@ -659,7 +659,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                     }
                     catch ( Exception e )
                     {
-                        LOG.error( I18n.err( I18n.ERR_168 ), e );
+                        LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                     }
                 }
 
@@ -758,7 +758,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 }
                 catch ( Exception ne )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), ne );
+                    LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), ne );
                 }
             }
         }
@@ -836,7 +836,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                 }
             }
         }
@@ -901,7 +901,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 }
                 catch ( LdapURLEncodingException e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_165, url, entry ) );
+                    LOG.error( I18n.err( I18n.ERR_38006_BAD_URL_FOR_REF, url, entry ) );
                     ldapUrl = new LdapUrl();
                 }
 
@@ -1389,7 +1389,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
             catch ( LdapURLEncodingException e )
             {
-                LOG.error( I18n.err( I18n.ERR_165, refstr, entry ) );
+                LOG.error( I18n.err( I18n.ERR_38006_BAD_URL_FOR_REF, refstr, entry ) );
                 continue;
             }
 
@@ -1488,7 +1488,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
             catch ( LdapURLEncodingException e )
             {
-                LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
+                LOG.error( I18n.err( I18n.ERR_38006_BAD_URL_FOR_REF, ref, referralAncestor ) );
                 ldapUrl = new LdapUrl();
             }
 
@@ -1573,7 +1573,7 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
             }
             catch ( LdapURLEncodingException e )
             {
-                LOG.error( I18n.err( I18n.ERR_165, ref, referralAncestor ) );
+                LOG.error( I18n.err( I18n.ERR_38006_BAD_URL_FOR_REF, ref, referralAncestor ) );
                 ldapUrl = new LdapUrl();
             }
 

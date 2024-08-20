@@ -83,17 +83,17 @@ public class NtlmSaslServer extends AbstractSaslServer
                 break;
 
             case TYPE_1_RECEIVED:
-                throw new IllegalStateException( I18n.err( I18n.ERR_660 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_38012_CANNOT_RECEIVE_NTLM_MESSAGE_BEFORE_TYPE_2_CHALLENGE ) );
 
             case TYPE_2_SENT:
                 state = NegotiationState.TYPE_3_RECEIVED;
                 break;
 
             case TYPE_3_RECEIVED:
-                throw new IllegalStateException( I18n.err( I18n.ERR_661 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_38013_CANNOT_RECEIVE_NTLM_MESSAGE_AFTER_TYPE_3_RECEIVED ) );
 
             case COMPLETED:
-                throw new IllegalStateException( I18n.err( I18n.ERR_662 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_38014_SASL_CHALLENGE_RESPONSE_COMPLETED ) );
 
             default:
                 throw new IllegalStateException( "Unexpected negotiation state " + state );
@@ -106,21 +106,21 @@ public class NtlmSaslServer extends AbstractSaslServer
         switch ( state )
         {
             case INITIALIZED:
-                throw new IllegalStateException( I18n.err( I18n.ERR_663 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_38015_CANNOT_SEND_TYPE_2_CHALLENGE_BEFORE_TYPE_1_RESPONSE ) );
 
             case TYPE_1_RECEIVED:
                 state = NegotiationState.TYPE_2_SENT;
                 break;
 
             case TYPE_2_SENT:
-                throw new IllegalStateException( I18n.err( I18n.ERR_664 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_38016_CANNOT_RESEND_TYPE_2 ) );
 
             case TYPE_3_RECEIVED:
                 state = NegotiationState.COMPLETED;
                 break;
 
             case COMPLETED:
-                throw new IllegalStateException( I18n.err( I18n.ERR_662 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_38014_SASL_CHALLENGE_RESPONSE_COMPLETED ) );
 
             default:
                 throw new IllegalStateException( "Unexpected negotiation state " + state );
@@ -135,12 +135,12 @@ public class NtlmSaslServer extends AbstractSaslServer
     {
         if ( response == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_666 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_38017_RESPONSE_WAS_NULL ) );
         }
 
         if ( response.length == 0 )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_667 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_38018_RESPONSE_WITH_ZERO_BYTES ) );
         }
 
         responseRecieved();
@@ -155,7 +155,7 @@ public class NtlmSaslServer extends AbstractSaslServer
                 }
                 catch ( Exception e )
                 {
-                    throw new SaslException( I18n.err( I18n.ERR_668 ), e );
+                    throw new SaslException( I18n.err( I18n.ERR_38019_FAILURE_DURING_TYPE_1_MESSAGE ), e );
                 }
 
                 break;
@@ -185,12 +185,12 @@ public class NtlmSaslServer extends AbstractSaslServer
                 }
                 catch ( Exception e )
                 {
-                    throw new SaslException( I18n.err( I18n.ERR_669 ), e );
+                    throw new SaslException( I18n.err( I18n.ERR_38020_FAILURE_DURING_TYPE_3_MESSAGE ), e );
                 }
 
                 if ( !result )
                 {
-                    throw new SaslException( I18n.err( I18n.ERR_670 ) );
+                    throw new SaslException( I18n.err( I18n.ERR_38021_AUTHENTICATE_FAILED_CREDENTIALS_INVALID ) );
                 }
 
                 break;

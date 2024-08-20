@@ -69,7 +69,7 @@ public final class LdapsInitializer
         }
         catch ( Exception e )
         {
-            throw new LdapException( I18n.err( I18n.ERR_683 ), e );
+            throw new LdapException( I18n.err( I18n.ERR_38028_FAILED_TO_CREATE_SSL_CONTEXT ), e );
         }
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();

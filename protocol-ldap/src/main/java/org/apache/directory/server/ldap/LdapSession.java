@@ -260,7 +260,7 @@ public class LdapSession
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_172, e.getLocalizedMessage() ) );
+            LOG.error( I18n.err( I18n.ERR_38010_FAILING_ON_CURSOR_CLOSE, e.getLocalizedMessage() ) );
         }
 
         if ( request == null )
@@ -533,7 +533,7 @@ public class LdapSession
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_172, e.getLocalizedMessage() ) );
+                    LOG.error( I18n.err( I18n.ERR_38010_FAILING_ON_CURSOR_CLOSE, e.getLocalizedMessage() ) );
                 }
             }
         }

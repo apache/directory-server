@@ -133,13 +133,13 @@ public class GssapiMechanismHandler extends AbstractMechanismHandler
         }
         catch ( ServiceConfigurationException sce )
         {
-            String message = I18n.err( I18n.ERR_659, servicePrincipalName, ldapServer.getSearchBaseDn() );
+            String message = I18n.err( I18n.ERR_38011_SERVICE_PRINCIPAL_NOT_FOUND, servicePrincipalName, ldapServer.getSearchBaseDn() );
             throw new ServiceConfigurationException( message, sce );
         }
 
         if ( entry == null )
         {
-            String message = I18n.err( I18n.ERR_659, servicePrincipalName, ldapServer.getSearchBaseDn() );
+            String message = I18n.err( I18n.ERR_38011_SERVICE_PRINCIPAL_NOT_FOUND, servicePrincipalName, ldapServer.getSearchBaseDn() );
             throw new ServiceConfigurationException( message );
         }
 

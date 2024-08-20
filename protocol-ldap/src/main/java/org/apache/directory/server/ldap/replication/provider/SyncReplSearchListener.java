@@ -165,7 +165,7 @@ public class SyncReplSearchListener implements DirectoryListener, AbandonListene
         }
         catch ( Exception e )
         {
-            LOG.error( I18n.err( I18n.ERR_164 ), e );
+            LOG.error( I18n.err( I18n.ERR_38005_FAILED_TO_PROPERLY_ABANDON_PERSISTENT_SEARCH ), e );
         }
     }
 

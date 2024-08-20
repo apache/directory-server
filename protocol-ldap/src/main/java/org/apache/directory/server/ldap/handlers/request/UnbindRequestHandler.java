@@ -53,7 +53,7 @@ public class UnbindRequestHandler extends LdapRequestHandler<UnbindRequest>
         }
         catch ( Throwable t )
         {
-            LOG.error( I18n.err( I18n.ERR_169 ), t );
+            LOG.error( I18n.err( I18n.ERR_38008_FAILED_TO_UNBIND_SESSION ), t );
         }
     }
 }

@@ -168,7 +168,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( I18n.err( I18n.ERR_681 ), e );
+            throw new RuntimeException( I18n.err( I18n.ERR_38028_FAILED_TO_CREATE_SSL_CONTEXT ), e );
         }
 
         try
@@ -178,7 +178,7 @@ public class StartTlsHandler implements ExtendedOperationHandler<ExtendedRequest
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( I18n.err( I18n.ERR_682 ), e );
+            throw new RuntimeException( I18n.err( I18n.ERR_38029_FAILED_TO_INIT_SSL_CONTEXT ), e );
         }
 
         // Get the transport

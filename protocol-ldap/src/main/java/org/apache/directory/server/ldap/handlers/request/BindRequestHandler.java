@@ -301,7 +301,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         // Guard clause:  Reject unsupported SASL mechanisms.
         if ( !ldapServer.getSupportedMechanisms().contains( saslMechanism ) )
         {
-            LOG.error( I18n.err( I18n.ERR_160, saslMechanism ) );
+            LOG.error( I18n.err( I18n.ERR_38001_BIND_ERROR_MECHANISM_NOT_SUPPORTED, saslMechanism ) );
 
             return false;
         }
@@ -521,7 +521,7 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
 
         if ( mechanismHandler == null )
         {
-            String message = I18n.err( I18n.ERR_161, saslMechanism );
+            String message = I18n.err( I18n.ERR_38003_BIND_ERROR_ONLY_LDAP_V3_SUPPORTED, saslMechanism );
 
             // Clear the saslProperties, and move to the anonymous state
             ldapSession.clearSaslProperties();
@@ -646,10 +646,10 @@ public class BindRequestHandler extends LdapRequestHandler<BindRequest>
         {
             BindResponse bindResponse = ( BindResponse ) bindRequest.getResultResponse();
 
-            LOG.error( I18n.err( I18n.ERR_162 ) );
+            LOG.error( I18n.err( I18n.ERR_38003_BIND_ERROR_ONLY_LDAP_V3_SUPPORTED ) );
             LdapResult bindResult = bindResponse.getLdapResult();
             bindResult.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_163 ) );
+            bindResult.setDiagnosticMessage( I18n.err( I18n.ERR_38004_ONLY_LDAP_V3_SUPPORTED ) );
             ldapSession.getIoSession().write( bindResponse );
 
             return;

@@ -63,7 +63,7 @@ public class SearchTimeLimitingMonitor implements ClosureMonitor
                 this.millisToLive = timeToLive * 1000;
                 break;
             default:
-                throw new IllegalStateException( I18n.err( I18n.ERR_687, unit ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_38032_TIME_UNIT_NOT_SUPPORTED, unit ) );
         }
     }
 

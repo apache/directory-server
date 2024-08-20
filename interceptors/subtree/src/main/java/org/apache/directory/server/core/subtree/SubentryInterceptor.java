@@ -278,7 +278,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                 }
             }
         }
@@ -424,7 +424,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                LOG.error( I18n.err( I18n.ERR_168 ), e );
+                LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
             }
         }
     }
@@ -532,7 +532,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                LOG.error( I18n.err( I18n.ERR_168 ), e );
+                LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
             }
         }
 
@@ -1192,7 +1192,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                 }
             }
 
@@ -1239,7 +1239,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                 }
             }
         }
@@ -1380,7 +1380,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                 }
             }
         }
@@ -1501,7 +1501,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                 }
             }
         }
@@ -1611,7 +1611,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 }
                 catch ( Exception e )
                 {
-                    LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                 }
             }
         }

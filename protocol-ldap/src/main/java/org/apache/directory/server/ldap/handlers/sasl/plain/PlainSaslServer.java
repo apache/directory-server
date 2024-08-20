@@ -165,7 +165,7 @@ public final class PlainSaslServer extends AbstractSaslServer
                             else
                             {
                                 // This not allowed
-                                throw new IllegalArgumentException( I18n.err( I18n.ERR_671 ) );
+                                throw new IllegalArgumentException( I18n.err( I18n.ERR_38022_RESPONSE_WITH_NO_AUTHCID_OR_PASSWORD ) );
                             }
                         }
                         else
@@ -192,7 +192,7 @@ public final class PlainSaslServer extends AbstractSaslServer
 
                                 default:
                                     // This is an error !
-                                    throw new IllegalArgumentException( I18n.err( I18n.ERR_672 ) );
+                                    throw new IllegalArgumentException( I18n.err( I18n.ERR_38023_0_CHARS_NOT_ALLOWED_IN_AUTHCID_OR_NO_PASSWORD ) );
                             }
                         }
                     }
@@ -204,7 +204,7 @@ public final class PlainSaslServer extends AbstractSaslServer
 
                 if ( start == end )
                 {
-                    throw new IllegalArgumentException( I18n.err( I18n.ERR_671 ) );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_38022_RESPONSE_WITH_NO_AUTHCID_OR_PASSWORD ) );
                 }
 
                 start++;
@@ -214,7 +214,7 @@ public final class PlainSaslServer extends AbstractSaslServer
 
                 if ( ( authcId == null ) || ( password == null ) )
                 {
-                    throw new IllegalArgumentException( I18n.err( I18n.ERR_671 ) );
+                    throw new IllegalArgumentException( I18n.err( I18n.ERR_38022_RESPONSE_WITH_NO_AUTHCID_OR_PASSWORD ) );
                 }
 
                 // Now that we have the authcid and password, try to authenticate.
@@ -226,15 +226,15 @@ public final class PlainSaslServer extends AbstractSaslServer
             }
             catch ( IOException ioe )
             {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_674 ) );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_38024_INCORRECT_INITIAL_RESPONSE ) );
             }
             catch ( InvalidNameException ine )
             {
-                throw new IllegalArgumentException( I18n.err( I18n.ERR_675 ) );
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_38025_INVALID_AUTHCID_DN ) );
             }
             catch ( Exception e )
             {
-                throw new SaslException( I18n.err( I18n.ERR_676, authcId ) );
+                throw new SaslException( I18n.err( I18n.ERR_38026_CANNOT_AUTHENTICATE_USER, authcId ) );
             }
         }
 

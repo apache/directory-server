@@ -400,7 +400,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                         break;
 
                     default:
-                        throw new IllegalStateException( I18n.err( I18n.ERR_686 ) );
+                        throw new IllegalStateException( I18n.err( I18n.ERR_38031_UNEXPECTED_BASE_SCOPE ) );
                 }
 
                 sendSearchResultEntry( session, req, entry, syncStateType );
@@ -687,7 +687,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 }
                 catch ( Exception e )
                 {
-                    PROVIDER_LOG.error( I18n.err( I18n.ERR_168 ), e );
+                    PROVIDER_LOG.error( I18n.err( I18n.ERR_38007_FAILED_ON_LIST_CLOSE ), e );
                 }
             }
         }
@@ -813,7 +813,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                 }
                 catch ( LdapURLEncodingException e )
                 {
-                    PROVIDER_LOG.error( I18n.err( I18n.ERR_165, url, entry ) );
+                    PROVIDER_LOG.error( I18n.err( I18n.ERR_38006_BAD_URL_FOR_REF, url, entry ) );
                 }
 
                 switch ( req.getScope() )
@@ -827,7 +827,7 @@ public class SyncReplRequestHandler implements ReplicationRequestHandler
                         break;
 
                     default:
-                        throw new IllegalStateException( I18n.err( I18n.ERR_686 ) );
+                        throw new IllegalStateException( I18n.err( I18n.ERR_38031_UNEXPECTED_BASE_SCOPE ) );
                 }
 
                 respRef.getReferral().addLdapUrl( ldapUrl.toString() );

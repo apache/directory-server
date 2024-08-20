@@ -156,7 +156,7 @@ public class GracefulShutdownHandler implements
         }
         else
         {
-            LOG.error( I18n.err( I18n.ERR_159, requestor.getRemoteAddress() ) );
+            LOG.error( I18n.err( I18n.ERR_38000_FAILED_TO_WRITE_GRACEFUL_SHUTDOWN_RESPONSE, requestor.getRemoteAddress() ) );
         }
         
         requestor.closeNow();
