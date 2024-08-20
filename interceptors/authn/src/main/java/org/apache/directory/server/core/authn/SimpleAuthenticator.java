@@ -252,7 +252,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
 
         // Bad password ...
-        String message = I18n.err( I18n.ERR_230, bindContext.getDn().getName() );
+        String message = I18n.err( I18n.ERR_14004_INCORRECT_PASSWORD, bindContext.getDn().getName() );
         LOG.info( message );
         throw new LdapAuthenticationException( message );
     }
@@ -297,12 +297,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 Dn dn = bindContext.getDn();
                 String upDn = dn == null ? "" : dn.getName();
 
-                throw new LdapAuthenticationException( I18n.err( I18n.ERR_231, upDn ) );
+                throw new LdapAuthenticationException( I18n.err( I18n.ERR_14005_FAILED_TO_LOOKUP_USER, upDn ) );
             }
         }
         catch ( Exception cause )
         {
-            LOG.error( I18n.err( I18n.ERR_6, cause.getLocalizedMessage() ) );
+            LOG.error( I18n.err( I18n.ERR_14001_AUTHENTICATION_ERROR, cause.getLocalizedMessage() ) );
             LdapAuthenticationException e = new LdapAuthenticationException( cause.getLocalizedMessage() );
             e.initCause( cause );
             throw e;

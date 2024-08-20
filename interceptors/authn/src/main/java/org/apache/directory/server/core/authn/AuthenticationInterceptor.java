@@ -727,7 +727,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
             }
 
             String upDn = bindDn == null ? "" : bindDn.getName();
-            throw new LdapAuthenticationException( I18n.err( I18n.ERR_229, upDn ) );
+            throw new LdapAuthenticationException( I18n.err( I18n.ERR_14003_CANNOT_AUTHENTICATE_USER, upDn ) );
         }
         else if ( policyConfig != null )
         {
@@ -1416,7 +1416,7 @@ public class AuthenticationInterceptor extends BaseInterceptor
         if ( operation.getSession().isAnonymous() && !directoryService.isAllowAnonymousAccess()
             && !operation.getDn().isEmpty() )
         {
-            String msg = I18n.err( I18n.ERR_5, operation.getName() );
+            String msg = I18n.err( I18n.ERR_14000_OPERATION_BY_UNAUTHENTICATED_CALLER, operation.getName() );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }

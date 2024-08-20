@@ -315,7 +315,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
             }
             catch ( LdapException le )
             {
-                String message = I18n.err( I18n.ERR_230, bindDn.getName() );
+                String message = I18n.err( I18n.ERR_14004_INCORRECT_PASSWORD, bindDn.getName() );
                 LOG.info( message );
                 throw new LdapAuthenticationException( message );
             }
@@ -350,7 +350,7 @@ public class DelegatingAuthenticator extends AbstractAuthenticator
         catch ( LdapException e )
         {
             // Bad password ...
-            String message = I18n.err( I18n.ERR_230, bindDn.getName() );
+            String message = I18n.err( I18n.ERR_14004_INCORRECT_PASSWORD, bindDn.getName() );
             LOG.info( message );
             throw new LdapAuthenticationException( message );
         }

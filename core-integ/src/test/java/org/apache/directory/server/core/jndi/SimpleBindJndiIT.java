@@ -210,8 +210,8 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
         catch ( AuthenticationException ae )
         {
             // lae.printStackTrace();
-            assertTrue( ae.getMessage().startsWith( org.apache.directory.server.i18n.I18n.ERR_229.getErrorCode() ), 
-                org.apache.directory.server.i18n.I18n.err( org.apache.directory.server.i18n.I18n.ERR_229 ) );
+            assertTrue( ae.getMessage().startsWith( org.apache.directory.server.i18n.I18n.ERR_14003_CANNOT_AUTHENTICATE_USER.getErrorCode() ), 
+                org.apache.directory.server.i18n.I18n.err( org.apache.directory.server.i18n.I18n.ERR_14003_CANNOT_AUTHENTICATE_USER ) );
         }
         catch ( NamingException ne )
         {

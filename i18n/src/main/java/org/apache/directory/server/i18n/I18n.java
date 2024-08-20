@@ -218,6 +218,7 @@ public enum I18n
     ERR_03019_ALREADY_IN_ORDERED_SET_MODE("ERR_03019_ALREADY_IN_ORDERED_SET_MODE"),
 
     // apacheds-core-constants errors                4000 - 4999
+    // No error
 
     // apacheds-core-integ errors                    5000 - 5999
 
@@ -257,6 +258,7 @@ public enum I18n
     ERR_07008_CANNOT_FIND_PARTITION("ERR_07008_CANNOT_FIND_PARTITION"),
 
     // apacheds-http-directory-bridge errors         8000 - 8999
+    // No error
 
     // apacheds-http-integration errors              9000 - 9999
     ERR_09000_FAILED_TO_CONFIGURE_JETTY_SERVER("ERR_09000_FAILED_TO_CONFIGURE_JETTY_SERVER"),
@@ -267,20 +269,44 @@ public enum I18n
     // apacheds-installers-maven-plugins errors      11000 - 11999
 
     // apacheds-interceptor-kerberos errors          12000 - 12999
+    ERR_12000_ERROR_ENCODING_ENCRYPTION_KEY("ERR_12000_ERROR_ENCODING_ENCRYPTION_KEY"),
+    ERR_12001_FAILED_TO_AUTHENTICATE_USER("ERR_12001_FAILED_TO_AUTHENTICATE_USER"),
+
     // apacheds-interceptors-admin errors            13000 - 13999
+    // No error
+    
     // apacheds-interceptors-authn errors            14000 - 14999
+    ERR_14000_OPERATION_BY_UNAUTHENTICATED_CALLER("ERR_14000_OPERATION_BY_UNAUTHENTICATED_CALLER"),
+    ERR_14001_AUTHENTICATION_ERROR("ERR_14001_AUTHENTICATION_ERROR"),
+    ERR_14002_ANONYMOUS_BIND_FORBIDDEN("ERR_14002_ANONYMOUS_BIND_FORBIDDEN"),
+    ERR_14003_CANNOT_AUTHENTICATE_USER("ERR_14003_CANNOT_AUTHENTICATE_USER"),
+    ERR_14004_INCORRECT_PASSWORD("ERR_14004_INCORRECT_PASSWORD"),
+    ERR_14005_FAILED_TO_LOOKUP_USER("ERR_14005_FAILED_TO_LOOKUP_USER"),
+
     // apacheds-interceptors-authz errors            15000 - 15999
     // apacheds-interceptors-changelog errors        16000 - 16999
     // apacheds-interceptors-collective errors       17000 - 17999
     // apacheds-interceptors-event errors            18000 - 18999
+    // No error
+
     // apacheds-interceptors-exception errors        19000 - 19999
     // apacheds-interceptors-hash errors             20000 - 20999
+    // No error
+
     // apacheds-interceptors-journal errors          21000 - 21999
+    // No error
+
     // apacheds-interceptors-logger errors           22000 - 22999
+    // No error
+
     // apacheds-interceptors-normalization errors    23000 - 23999
     // apacheds-interceptors-number errors           24000 - 24999
+    // No error
+
     // apacheds-interceptors-operational errors      25000 - 25999
     // apacheds-interceptors-ppolicy errors          26000 - 26999
+    // No error
+
     // apacheds-interceptors-referral errors         27000 - 27999
     // apacheds-interceptors-schema errors           28000 - 28999
     ERR_28000_OBJECT_NOT_FOUND_IN_AT_REGISTRY("ERR_28000_OBJECT_NOT_FOUND_IN_AT_REGISTRY"),
@@ -377,6 +403,8 @@ public enum I18n
     ERR_38033_CANNOT_PROCESS_REQUEST_WHILE_BINDING("ERR_38033_CANNOT_PROCESS_REQUEST_WHILE_BINDING"),
 
     // apacheds-protocol-ntp errors                  39000 - 39999
+    // No error
+
     // apacheds-protocol-shared errors               40000 - 40999
     ERR_40000_MORE_THAN_ONE_ENTRY_KERBEROS_PRINCIPAL("ERR_40000_MORE_THAN_ONE_ENTRY_KERBEROS_PRINCIPAL"),
     ERR_40001_LDIF_FILE_DOES_NOT_EXIST("ERR_40001_LDIF_FILE_DOES_NOT_EXIST"),
@@ -446,8 +474,6 @@ public enum I18n
 
 
     ERR_1("ERR_1"),
-    ERR_5("ERR_5"),
-    ERR_6("ERR_6"),
     ERR_7("ERR_7"),
     ERR_8("ERR_8"),
     ERR_9("ERR_9"),
@@ -514,7 +540,6 @@ public enum I18n
     ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY("ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY"),
     ERR_115("ERR_115"),
     ERR_116("ERR_116"),
-    ERR_122("ERR_122"),
     ERR_128("ERR_128"),
     ERR_135("ERR_135"),
     ERR_136("ERR_136"),
@@ -577,10 +602,6 @@ public enum I18n
     ERR_223("ERR_223"),
     ERR_224("ERR_224"),
     ERR_226("ERR_226"),
-    ERR_228("ERR_228"),
-    ERR_229("ERR_229"),
-    ERR_230("ERR_230"),
-    ERR_231("ERR_231"),
     ERR_232("ERR_232"),
     ERR_233("ERR_233"),
     ERR_234("ERR_234"),
@@ -656,7 +677,6 @@ public enum I18n
     ERR_509("ERR_509"),
     ERR_510("ERR_510"),
     ERR_511("ERR_511"),
-    ERR_512("ERR_512"),
     ERR_513("ERR_513"),
     ERR_514("ERR_514"),
     ERR_515("ERR_515"),
