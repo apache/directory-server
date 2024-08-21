@@ -187,8 +187,8 @@ public class ExpandingVisitor implements FilterVisitor
                 }
                 catch ( LdapException e )
                 {
-                    // log something here and throw a runtime excpetion
-                    throw new RuntimeException( I18n.err( I18n.ERR_261 ) );
+                    // log something here and throw a runtime exception
+                    throw new RuntimeException( I18n.err( I18n.ERR_23000_FAILED_TO_EXPAND_NODE ) );
                 }
             }
             else

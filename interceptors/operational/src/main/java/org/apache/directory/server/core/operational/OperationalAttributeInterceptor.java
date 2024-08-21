@@ -247,7 +247,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             if ( !isAdmin )
             {
                 // Wrong !
-                String message = I18n.err( I18n.ERR_30, attribute );
+                String message = I18n.err( I18n.ERR_25000_CANNOT_MODIFY_OPERATIONAL_ATTRIBUTE, attribute );
                 LOG.error( message );
                 throw new LdapNoPermissionException( message );
             }
@@ -383,7 +383,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 if ( !isAdmin )
                 {
-                    String message = I18n.err( I18n.ERR_31 );
+                    String message = I18n.err( I18n.ERR_25001_CANNOT_MODIFY__MODIFIERS_NAME );
                     LOG.error( message );
                     throw new LdapNoPermissionException( message );
                 }
@@ -397,7 +397,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 if ( !isAdmin )
                 {
-                    String message = I18n.err( I18n.ERR_30, attributeType );
+                    String message = I18n.err( I18n.ERR_25000_CANNOT_MODIFY_OPERATIONAL_ATTRIBUTE, attributeType );
                     LOG.error( message );
                     throw new LdapNoPermissionException( message );
                 }
@@ -411,7 +411,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             {
                 if ( !isAdmin )
                 {
-                    String message = I18n.err( I18n.ERR_30, attributeType );
+                    String message = I18n.err( I18n.ERR_25000_CANNOT_MODIFY_OPERATIONAL_ATTRIBUTE, attributeType );
                     LOG.error( message );
                     throw new LdapNoPermissionException( message );
                 }
@@ -423,7 +423,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
             if ( PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) && !isAdmin )
             {
-                String message = I18n.err( I18n.ERR_30, attributeType );
+                String message = I18n.err( I18n.ERR_25000_CANNOT_MODIFY_OPERATIONAL_ATTRIBUTE, attributeType );
                 LOG.error( message );
                 throw new LdapNoPermissionException( message );
             }

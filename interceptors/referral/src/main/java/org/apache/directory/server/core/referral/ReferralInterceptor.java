@@ -98,35 +98,35 @@ public class ReferralInterceptor extends BaseInterceptor
             // This is the default value if we don't have any scope
             // Let's assume that it's incorrect if we get something
             // else in the LdapURL
-            String message = I18n.err( I18n.ERR_36 );
+            String message = I18n.err( I18n.ERR_27000_LDAPURL_CONTAINS_SCOPE );
             LOG.error( message );
             throw new LdapException( message );
         }
 
         if ( !Strings.isEmpty( ldapUrl.getFilter() ) )
         {
-            String message = I18n.err( I18n.ERR_37 );
+            String message = I18n.err( I18n.ERR_27001_LDAPURL_CONTAINS_FILTERS );
             LOG.error( message );
             throw new LdapException( message );
         }
 
         if ( ( ldapUrl.getAttributes() != null ) && !ldapUrl.getAttributes().isEmpty() )
         {
-            String message = I18n.err( I18n.ERR_38 );
+            String message = I18n.err( I18n.ERR_27002_LDAPURL_CONTAINS_DESCRIPTION_ATTRIBUTE_LIST );
             LOG.error( message );
             throw new LdapException( message );
         }
 
         if ( ( ldapUrl.getExtensions() != null ) && !ldapUrl.getExtensions().isEmpty() )
         {
-            String message = I18n.err( I18n.ERR_39 );
+            String message = I18n.err( I18n.ERR_27003_LDAPURL_CONTAINS_EXTENSION );
             LOG.error( message );
             throw new LdapException( message );
         }
 
         if ( ( ldapUrl.getExtensions() != null ) && !ldapUrl.getExtensions().isEmpty() )
         {
-            String message = I18n.err( I18n.ERR_40 );
+            String message = I18n.err( I18n.ERR_27004_LDAPURL_CONTAINS_CRITICL_EXTENSION );
             LOG.error( message );
             throw new LdapException( message );
         }
@@ -135,7 +135,7 @@ public class ReferralInterceptor extends BaseInterceptor
 
         if ( ( dn == null ) || dn.isEmpty() )
         {
-            String message = I18n.err( I18n.ERR_41 );
+            String message = I18n.err( I18n.ERR_27005_LDAPURL_DOES_NOT_CONTAIN_NON_EMPTY_DN );
             LOG.error( message );
             throw new LdapException( message );
         }
@@ -169,7 +169,7 @@ public class ReferralInterceptor extends BaseInterceptor
             if ( refAttr == null )
             {
                 // very unlikely, as we have already checked the entry in SchemaInterceptor
-                String message = I18n.err( I18n.ERR_42 );
+                String message = I18n.err( I18n.ERR_27006_REFERAL_ENTRY_WITHOUT_REF_ATTRIBUTE );
                 LOG.error( message );
                 throw new LdapException( message );
             }
