@@ -287,7 +287,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             }
             else
             {
-                throw new InternalError( I18n.err( I18n.ERR_232, item.getClass().getName() ) );
+                throw new InternalError( I18n.err( I18n.ERR_15020_UNEXPECTED_PROTECTED_ITEM, item.getClass().getName() ) );
             }
         }
 

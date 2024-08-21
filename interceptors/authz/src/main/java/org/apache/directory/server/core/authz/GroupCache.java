@@ -377,7 +377,7 @@ public class GroupCache
                 break;
 
             default:
-                throw new InternalError( I18n.err( I18n.ERR_235, modOp ) );
+                throw new InternalError( I18n.err( I18n.ERR_15024_UNDEFINED_MODIFY_OPERATION, modOp ) );
         }
     }
 

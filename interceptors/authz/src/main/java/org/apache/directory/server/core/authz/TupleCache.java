@@ -226,7 +226,7 @@ public class TupleCache
             }
             catch ( ParseException e )
             {
-                String msg = I18n.err( I18n.ERR_28, item );
+                String msg = I18n.err( I18n.ERR_15023_ACI_ITEM_PARSER_FAILURE, item );
                 LOG.error( msg, e );
 
                 // do not process this ACI Item because it will be null
