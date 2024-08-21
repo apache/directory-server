@@ -177,7 +177,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
         if ( revFile.exists() && !revFile.delete() )
         {
-            throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, revFile.getAbsolutePath() ) );
+            throw new IOException( I18n.err( I18n.ERR_16004_FILE_CANNOT_BE_DELETED, revFile.getAbsolutePath() ) );
         }
 
         
@@ -196,7 +196,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
         if ( tagFile.exists() && !tagFile.delete() )
         {
-            throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, tagFile.getAbsolutePath() ) );
+            throw new IOException( I18n.err( I18n.ERR_16004_FILE_CANNOT_BE_DELETED, tagFile.getAbsolutePath() ) );
         }
 
         OutputStream out = null;
@@ -327,7 +327,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
         if ( file.exists() && !file.delete() )
         {
-            throw new IOException( I18n.err( I18n.ERR_726_FILE_UNDELETABLE, file.getAbsolutePath() ) );
+            throw new IOException( I18n.err( I18n.ERR_16004_FILE_CANNOT_BE_DELETED, file.getAbsolutePath() ) );
         }
 
         file.createNewFile();
@@ -438,7 +438,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
         if ( revision > getCurrentRevision() )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_240 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_16003_REVISION_TOO_HIGH ) );
         }
 
         return events.get( ( int ) revision );

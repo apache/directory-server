@@ -321,14 +321,14 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.isEmpty() )
         {
-            String msg = I18n.err( I18n.ERR_8 );
+            String msg = I18n.err( I18n.ERR_15000_CANNOT_DELETE_OR_MOVE_ROOT_DSE );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( isTheAdministrator( dn ) )
         {
-            String msg = I18n.err( I18n.ERR_9, principalDn.getName(), dn.getName() );
+            String msg = I18n.err( I18n.ERR_15001_USER_CANNOT_DELETE_ADMIN_ACCOUNT, principalDn.getName(), dn.getName() );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
@@ -430,7 +430,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             }
             catch ( ParseException e )
             {
-                String msg = I18n.err( I18n.ERR_10, aciString );
+                String msg = I18n.err( I18n.ERR_15002_FAILED_TO_PARSE_ENTRY_ACI, aciString );
                 LOG.error( msg, e );
                 throw new LdapOperationErrorException( msg );
             }
@@ -490,7 +490,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             }
             catch ( ParseException e )
             {
-                String msg = I18n.err( I18n.ERR_11, aciString );
+                String msg = I18n.err( I18n.ERR_15003_FAILED_TO_PARSE_SUBENTRY_ACI, aciString );
                 LOG.error( msg, e );
                 throw new LdapOperationErrorException( msg );
             }

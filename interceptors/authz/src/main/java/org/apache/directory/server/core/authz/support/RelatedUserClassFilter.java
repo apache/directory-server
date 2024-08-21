@@ -160,7 +160,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             }
             else
             {
-                throw new InternalError( I18n.err( I18n.ERR_233, userClass.getClass().getName() ) );
+                throw new InternalError( I18n.err( I18n.ERR_15021_UNEXPECTED_USER_CLASS, userClass.getClass().getName() ) );
             }
         }
 

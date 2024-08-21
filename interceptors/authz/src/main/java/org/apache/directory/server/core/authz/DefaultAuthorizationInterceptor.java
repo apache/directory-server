@@ -199,14 +199,14 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.isEmpty() )
         {
-            String msg = I18n.err( I18n.ERR_12 );
+            String msg = I18n.err( I18n.ERR_15004_ROOT_DSE_CANNOT_BE_DELETED );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( dn.equals( adminGroupDn ) )
         {
-            String msg = I18n.err( I18n.ERR_13 );
+            String msg = I18n.err( I18n.ERR_15005_CANNOT_DELETE_ADMINISTRATOR_GROUP );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
@@ -215,7 +215,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.equals( adminSystemDn ) )
         {
-            String msg = I18n.err( I18n.ERR_14, principalDn.getName() );
+            String msg = I18n.err( I18n.ERR_15006_USER_NO_PERMISSION_TO_DELETE_ADMIN_ACCOUNT, principalDn.getName() );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
@@ -224,21 +224,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             if ( dn.isDescendantOf( adminSystemDn ) )
             {
-                String msg = I18n.err( I18n.ERR_15, principalDn.getName(), dn.getName() );
+                String msg = I18n.err( I18n.ERR_15006_USER_NO_PERMISSION_TO_DELETE_ADMIN_ACCOUNT, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
 
             if ( dn.isDescendantOf( groupsBaseDn ) )
             {
-                String msg = I18n.err( I18n.ERR_16, principalDn.getName(), dn.getName() );
+                String msg = I18n.err( I18n.ERR_15008_USER_NO_PERMISSION_TO_DELETE_GROUP, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
 
             if ( dn.isDescendantOf( usersBaseDn ) )
             {
-                String msg = I18n.err( I18n.ERR_16, principalDn.getName(), dn.getName() );
+                String msg = I18n.err( I18n.ERR_15007_USER_NO_PERMISSION_TO_DELETE_USER_ACCOUNT, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
@@ -393,7 +393,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.isEmpty() )
         {
-            String msg = I18n.err( I18n.ERR_17 );
+            String msg = I18n.err( I18n.ERR_15009_CANNOT_MODIFY_ROOT_DSE );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
@@ -408,7 +408,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
             if ( dn.equals( adminSystemDn ) )
             {
-                String msg = I18n.err( I18n.ERR_18, principalDn.getName() );
+                String msg = I18n.err( I18n.ERR_15010_USER_NO_PERMISSION_TO_MODIFY_ADMIN_ACCOUNT, principalDn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
@@ -417,21 +417,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
             {
                 if ( dn.isDescendantOf( adminSystemDn ) )
                 {
-                    String msg = I18n.err( I18n.ERR_19, principalDn.getName(), dn.getName() );
+                    String msg = I18n.err( I18n.ERR_15010_USER_NO_PERMISSION_TO_MODIFY_ADMIN_ACCOUNT, principalDn.getName(), dn.getName() );
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
 
                 if ( dn.isDescendantOf( groupsBaseDn ) )
                 {
-                    String msg = I18n.err( I18n.ERR_20, principalDn.getName(), dn.getName() );
+                    String msg = I18n.err( I18n.ERR_15012_USER_NO_PERMISSION_TO_MODIFY_GROUP, principalDn.getName(), dn.getName() );
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
 
                 if ( dn.isDescendantOf( usersBaseDn ) )
                 {
-                    String msg = I18n.err( I18n.ERR_20, principalDn.getName(), dn.getName() );
+                    String msg = I18n.err( I18n.ERR_15011_USER_NO_PERMISSION_TO_MODIFY_USER_ACCOUNT, principalDn.getName(), dn.getName() );
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
@@ -446,21 +446,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
 
         if ( dn.isEmpty() )
         {
-            String msg = I18n.err( I18n.ERR_234 );
+            String msg = I18n.err( I18n.ERR_15022_ROOT_DSE_CANNOT_BE_MOVED );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( dn.equals( adminGroupDn ) )
         {
-            String msg = I18n.err( I18n.ERR_21 );
+            String msg = I18n.err( I18n.ERR_15013_ADMINISTRATOR_GROUP_CANNOT_BE_MOVED_OR_RENAMED );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( isTheAdministrator( dn ) )
         {
-            String msg = I18n.err( I18n.ERR_22, principalDn.getName(), dn.getName() );
+            String msg = I18n.err( I18n.ERR_15014_USER_NO_PERMISSION_TO_MOVE_ADMIN_ACCOUNT, principalDn.getName(), dn.getName() );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
@@ -469,21 +469,21 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
         {
             if ( dn.isDescendantOf( adminSystemDn ) )
             {
-                String msg = I18n.err( I18n.ERR_23, principalDn.getName(), dn.getName() );
+                String msg = I18n.err( I18n.ERR_15014_USER_NO_PERMISSION_TO_MOVE_ADMIN_ACCOUNT, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
 
             if ( dn.isDescendantOf( groupsBaseDn ) )
             {
-                String msg = I18n.err( I18n.ERR_24, principalDn.getName(), dn.getName() );
+                String msg = I18n.err( I18n.ERR_15016_USER_NO_PERMISSION_TO_MOVE_GROUP, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
 
             if ( dn.isDescendantOf( usersBaseDn ) )
             {
-                String msg = I18n.err( I18n.ERR_24, principalDn.getName(), dn.getName() );
+                String msg = I18n.err( I18n.ERR_15015_USER_NO_PERMISSION_TO_MOVE_USER_ACCOUNT, principalDn.getName(), dn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
@@ -505,7 +505,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                         return;
                     }
 
-                    String msg = I18n.err( I18n.ERR_25, normalizedDn.getName(), principalDn.getName() );
+                    String msg = I18n.err( I18n.ERR_15019_ACCESS_TO_ADMIN_FORBIDDEN, normalizedDn.getName(), principalDn.getName() );
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
@@ -518,7 +518,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                         return;
                     }
 
-                    String msg = I18n.err( I18n.ERR_26, normalizedDn.getName(), principalDn.getName() );
+                    String msg = I18n.err( I18n.ERR_15018_ACCESS_TO_GROUP_FORBDIDEN, normalizedDn.getName(), principalDn.getName() );
                     LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
@@ -532,7 +532,7 @@ public class DefaultAuthorizationInterceptor extends BaseInterceptor
                     return;
                 }
 
-                String msg = I18n.err( I18n.ERR_27, principalDn.getName() );
+                String msg = I18n.err( I18n.ERR_15017_ACCESS_TO_USER_FORBIDDEN, principalDn.getName() );
                 LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }

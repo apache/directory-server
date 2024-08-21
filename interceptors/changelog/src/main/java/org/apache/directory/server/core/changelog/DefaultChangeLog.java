@@ -110,7 +110,7 @@ public class DefaultChangeLog implements ChangeLog
     {
         if ( storeInitialized )
         {
-            LOG.error( I18n.err( I18n.ERR_29 ) );
+            LOG.error( I18n.err( I18n.ERR_16000_CANNOT_SET_CHANGE_LOG_STORE ) );
         }
         else
         {
@@ -140,7 +140,7 @@ public long getCurrentRevision() throws LdapException
     {
         if ( !enabled )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_236 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_16001_CHANGE_LOG_NOT_ENABLED ) );
         }
 
         try
@@ -163,7 +163,7 @@ public long getCurrentRevision() throws LdapException
     {
         if ( !enabled )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_236 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_16001_CHANGE_LOG_NOT_ENABLED ) );
         }
 
         try
@@ -218,7 +218,7 @@ public long getCurrentRevision() throws LdapException
             return ( ( SearchableChangeLogStore ) store ).getChangeLogSearchEngine();
         }
 
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_237 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_16002_CHANGLE_LOG_STORE_CANNOT_BE_SEARCHED ) );
     }
 
 
@@ -233,7 +233,7 @@ public long getCurrentRevision() throws LdapException
             return ( ( TaggableSearchableChangeLogStore ) store ).getTagSearchEngine();
         }
 
-        throw new UnsupportedOperationException( I18n.err( I18n.ERR_238 ) );
+        throw new UnsupportedOperationException( I18n.err( I18n.ERR_16002_CHANGLE_LOG_STORE_CANNOT_BE_SEARCHED ) );
     }
 
 
@@ -250,7 +250,7 @@ public long getCurrentRevision() throws LdapException
 
         if ( revision > store.getCurrentRevision() )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_240 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_16003_REVISION_TOO_HIGH ) );
         }
 
         if ( store instanceof TaggableChangeLogStore )

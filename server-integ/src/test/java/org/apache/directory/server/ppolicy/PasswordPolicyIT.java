@@ -1154,7 +1154,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
         checkBind( userConnection, userDn, "badPassword", 3,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_14003_CANNOT_AUTHENTICATE_USER Cannot authenticate user cn=userLockout,ou=system" );
 
         checkBind( userConnection, userDn, "12345", 1,
             "INVALID_CREDENTIALS: Bind failed: account was permanently locked" );
@@ -1187,7 +1187,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
         LdapConnection userConnection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, ldapServer.getPort() );
 
         checkBind( userConnection, userDn, "badPassword", 3,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout2,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_14003_CANNOT_AUTHENTICATE_USER Cannot authenticate user cn=userLockout2,ou=system" );
 
         // Now, try to login until the delay is elapsed
         boolean success = false;
@@ -1246,7 +1246,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         // First attempt
         checkBind( userConnection, userDn, "badPassword", 1,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout3,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_14003_CANNOT_AUTHENTICATE_USER Cannot authenticate user cn=userLockout3,ou=system" );
 
         Entry userEntry = adminConnection.lookup( userDn, "+" );
         Attribute pwdFailureTime = userEntry
@@ -1258,7 +1258,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         // Second attempt
         checkBind( userConnection, userDn, "badPassword", 1,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout3,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_14003_CANNOT_AUTHENTICATE_USER Cannot authenticate user cn=userLockout3,ou=system" );
 
         userEntry = adminConnection.lookup( userDn, "+" );
         pwdFailureTime = userEntry
@@ -1270,7 +1270,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         // Third attempt
         checkBind( userConnection, userDn, "badPassword", 1,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout3,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_14003_CANNOT_AUTHENTICATE_USER Cannot authenticate user cn=userLockout3,ou=system" );
 
         userEntry = adminConnection.lookup( userDn, "+" );
         pwdFailureTime = userEntry
@@ -1282,7 +1282,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
 
         // Forth attempt
         checkBind( userConnection, userDn, "badPassword", 1,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=userLockout3,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_14003_CANNOT_AUTHENTICATE_USER Cannot authenticate user cn=userLockout3,ou=system" );
 
         userEntry = adminConnection.lookup( userDn, "+" );
         pwdFailureTime = userEntry

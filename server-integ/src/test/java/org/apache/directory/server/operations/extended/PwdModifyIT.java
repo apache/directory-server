@@ -304,7 +304,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // almost lock the user now
         checkBind( userConnection, userDn, "badPassword", 2,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=User3,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_14003_CANNOT_AUTHENTICATE_USER Cannot authenticate user cn=User3,ou=system" );
 
         // Bind as the user
         LdapConnection anonymousConnection = getAnonymousNetworkConnection( getLdapServer() );
@@ -329,7 +329,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
 
         // almost lock the user now, the count should be reset
         checkBind( userConnection, userDn, "badPassword", 2,
-            "INVALID_CREDENTIALS: Bind failed: ERR_229 Cannot authenticate user cn=User3,ou=system" );
+            "INVALID_CREDENTIALS: Bind failed: ERR_14003_CANNOT_AUTHENTICATE_USER Cannot authenticate user cn=User3,ou=system" );
 
         userConnection.close();
         anonymousConnection.close();

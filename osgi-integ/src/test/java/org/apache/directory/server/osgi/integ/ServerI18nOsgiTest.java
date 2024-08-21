@@ -38,10 +38,9 @@ public class ServerI18nOsgiTest extends ServerOsgiTestBase
     @Override
     protected void useBundleClasses() throws Exception
     {
-        I18n errorCode = I18n.ERR_10;
+        I18n errorCode = I18n.ERR_15002_FAILED_TO_PARSE_ENTRY_ACI;
         assertNotNull( errorCode );
         assertNotNull( errorCode.getErrorCode() );
         assertNotNull( I18n.err( errorCode ) );
     }
-
 }
