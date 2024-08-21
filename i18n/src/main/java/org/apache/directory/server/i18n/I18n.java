@@ -343,10 +343,15 @@ public enum I18n
     // No error
 
     // apacheds-interceptors-normalization errors    23000 - 23999
+    ERR_23000_FAILED_TO_EXPAND_NODE("ERR_23000_FAILED_TO_EXPAND_NODE"),
+    
     // apacheds-interceptors-number errors           24000 - 24999
     // No error
 
     // apacheds-interceptors-operational errors      25000 - 25999
+    ERR_25000_CANNOT_MODIFY_OPERATIONAL_ATTRIBUTE("ERR_25000_CANNOT_MODIFY_OPERATIONAL_ATTRIBUTE"),
+    ERR_25001_CANNOT_MODIFY__MODIFIERS_NAME("ERR_25001_CANNOT_MODIFY__MODIFIERS_NAME"),
+    
     // apacheds-interceptors-ppolicy errors          26000 - 26999
     // No error
 
@@ -518,8 +523,6 @@ public enum I18n
 
     ERR_1("ERR_1"),
     ERR_7("ERR_7"),
-    ERR_30("ERR_30"),
-    ERR_31("ERR_31"),
     ERR_32("ERR_32"),
     ERR_36("ERR_36"),
     ERR_37("ERR_37"),
@@ -626,7 +629,6 @@ public enum I18n
     ERR_249("ERR_249"),
     ERR_254_ADD_EXISTING_VALUE("ERR_254_ADD_EXISTING_VALUE"),
     ERR_259("ERR_259"),
-    ERR_261("ERR_261"),
     ERR_262("ERR_262"),
     ERR_269("ERR_269"),
     ERR_270("ERR_270"),
