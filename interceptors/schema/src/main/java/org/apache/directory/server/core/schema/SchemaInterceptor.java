@@ -379,7 +379,7 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         if ( filter == null )
         {
-            String message = I18n.err( I18n.ERR_49 );
+            String message = I18n.err( I18n.ERR_28001_NULL_FILTER );
             LOG.error( message );
             throw new LdapException( message );
         }
@@ -700,7 +700,7 @@ public class SchemaInterceptor extends BaseInterceptor
                             if ( currentAttribute.contains( value ) )
                             {
                                 // This is an error.
-                                String msg = I18n.err( I18n.ERR_54, value );
+                                String msg = I18n.err( I18n.ERR_28003_CANNOT_ADD_ALREADY_PRESENT_VALUE, value );
                                 LOG.error( msg );
                                 throw new LdapAttributeInUseException( msg );
                             }
@@ -719,7 +719,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         if ( ( newAttribute.size() == 0 ) && !newAttribute.isValid( attributeType ) )
                         {
                             // This is an error.
-                            String msg = I18n.err( I18n.ERR_54, ( Object[] ) null );
+                            String msg = I18n.err( I18n.ERR_28003_CANNOT_ADD_ALREADY_PRESENT_VALUE, ( Object[] ) null );
                             LOG.error( msg );
                             throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
                         }
@@ -733,7 +733,7 @@ public class SchemaInterceptor extends BaseInterceptor
                     // First check that the removed attribute exists
                     if ( !tempEntry.containsAttribute( attributeType ) )
                     {
-                        String msg = I18n.err( I18n.ERR_55, attributeType );
+                        String msg = I18n.err( I18n.ERR_28004_CANNOT_REMOVE_ABSENT_ATTRIBUTE, attributeType );
                         LOG.error( msg );
                         throw new LdapNoSuchAttributeException( msg );
                     }
@@ -758,7 +758,7 @@ public class SchemaInterceptor extends BaseInterceptor
                             }
                             else
                             {
-                                String msg = I18n.err( I18n.ERR_56, attributeType );
+                                String msg = I18n.err( I18n.ERR_28005_CANNOT_REMOVE_ABSENT_VALUE, attributeType );
                                 LOG.error( msg );
                                 throw new LdapNoSuchAttributeException( msg );
                             }
@@ -896,7 +896,7 @@ public class SchemaInterceptor extends BaseInterceptor
             && !attributeType.equals( directoryService.getAtProvider().getEntryCSN() )
             && !PWD_POLICY_STATE_ATTRIBUTE_TYPES.contains( attributeType ) )
         {
-            String msg = I18n.err( I18n.ERR_52, attributeType );
+            String msg = I18n.err( I18n.ERR_28002_CANNOT_MODIFY_ATTRIBUTE, attributeType );
             LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
@@ -947,7 +947,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( !schemaManager.getAttributeTypeRegistry().contains( attributeType.getName() ) )
             {
-                throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_275, attributeType.getName() ) );
+                throw new LdapInvalidAttributeTypeException( I18n.err( I18n.ERR_28012_ATTRIBUTE_NOT_FOUND_IN_REGISTRY, attributeType.getName() ) );
             }
         }
 
@@ -1030,7 +1030,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         case ABSTRACT:
                             if ( !superior.isAbstract() )
                             {
-                                String message = I18n.err( I18n.ERR_57 );
+                                String message = I18n.err( I18n.ERR_28006_ABSTRACT_OBJECT_CLASS_CANNOT_INHERIT_NON_ABSTRACT );
                                 LOG.error( message );
                                 throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
                             }
@@ -1040,7 +1040,7 @@ public class SchemaInterceptor extends BaseInterceptor
                         case AUXILIARY:
                             if ( !superior.isAbstract() && !superior.isAuxiliary() )
                             {
-                                String message = I18n.err( I18n.ERR_58 );
+                                String message = I18n.err( I18n.ERR_28007_AUXILIARY_OC_MUST_INHERIT_ABSTRACT_OR_AUXILIARY );
                                 LOG.error( message );
                                 throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
                             }
@@ -1057,7 +1057,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 catch ( LdapException ne )
                 {
                     // The superior OC does not exist : this is an error
-                    String message = I18n.err( I18n.ERR_59 );
+                    String message = I18n.err( I18n.ERR_28008_SUPERIOR_MUST_EXIST );
                     LOG.error( message );
                     throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
                 }
@@ -1605,7 +1605,8 @@ public class SchemaInterceptor extends BaseInterceptor
             if ( !attributeType.isCollective() && ( attributeType.getUsage() == UsageEnum.USER_APPLICATIONS )
                 && !allowed.contains( attrOid ) )
             {
-                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_277,
+                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, 
+                    I18n.err( I18n.ERR_28013_ATTRIBUTE_NOT_DECLARED_IN_OC,
                     attribute.getUpId(), dn.getName() ) );
             }
         }
@@ -1631,7 +1632,8 @@ public class SchemaInterceptor extends BaseInterceptor
     {
         if ( attribute.size() > 1 && attribute.getAttributeType().isSingleValued() )
         {
-            throw new LdapInvalidAttributeValueException( ResultCodeEnum.CONSTRAINT_VIOLATION, I18n.err( I18n.ERR_278,
+            throw new LdapInvalidAttributeValueException( ResultCodeEnum.CONSTRAINT_VIOLATION, I18n.err( 
+                I18n.ERR_28014_MANY_VALUES_FOR_SINGLE_VALUE_ATTRIBUTE,
                 attribute.getUpId() ) );
         }
     }
@@ -1666,7 +1668,7 @@ public class SchemaInterceptor extends BaseInterceptor
             sb.replace( end - 2, end, "" ); // remove the trailing ', '
             sb.append( ']' );
 
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_279,
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_28015_MISSING_REQUIRED_ATTRIBUTE,
                 sb, dn.getName() ) );
         }
     }
@@ -1707,7 +1709,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
         if ( structuralObjectClasses.isEmpty() )
         {
-            String message = I18n.err( I18n.ERR_60, dn );
+            String message = I18n.err( I18n.ERR_28009__ENTRY_WITHOUT_STRUCTURAL_OC, dn );
             LOG.error( message );
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
         }
@@ -1739,7 +1741,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // Like the highlander there can only be one :).
         if ( remaining.size() > 1 )
         {
-            String message = I18n.err( I18n.ERR_61, dn, remaining );
+            String message = I18n.err( I18n.ERR_28010_ENTRY_HAS_2_STRUCTURAL_OC, dn, remaining );
             LOG.error( message );
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, message );
         }
@@ -1775,7 +1777,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
                 if ( !syntaxChecker.isValidSyntax( value.getString() ) )
                 {
-                    String message = I18n.err( I18n.ERR_280, value.getString(), attribute.getUpId() );
+                    String message = I18n.err( I18n.ERR_28016_INCORRECT_ATTRIBUTE_VALUE, value.getString(), attribute.getUpId() );
                     LOG.info( message );
                     throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
                 }
@@ -1792,7 +1794,7 @@ public class SchemaInterceptor extends BaseInterceptor
 
             if ( ( attribute == null ) || ( !attribute.contains( atav.getValue() ) ) )
             {
-                String message = I18n.err( I18n.ERR_62, dn, atav.getType() );
+                String message = I18n.err( I18n.ERR_28011_MISSING_ATTRIBUTE_TYPE_PRESENT_IN_RDN, dn, atav.getType() );
                 LOG.error( message );
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, message );
             }

@@ -281,10 +281,10 @@ public class SchemaSubentryManager
                     }
 
                     throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM,
-                        I18n.err( I18n.ERR_283 ) );
+                        I18n.err( I18n.ERR_28017_REPLACE_OPERATION_FORBIDDEN_ON_SCHEMA_SUBENTRY ) );
 
                 default:
-                    throw new IllegalStateException( I18n.err( I18n.ERR_284, mod.getOperation() ) );
+                    throw new IllegalStateException( I18n.err( I18n.ERR_28018_UNDEFINED_MODIFY_OPERATION, mod.getOperation() ) );
             }
         }
     }
@@ -418,7 +418,7 @@ public class SchemaSubentryManager
                 break;
 
             default:
-                throw new IllegalStateException( I18n.err( I18n.ERR_285, index ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_28019_UNKOWN_INDEX, index ) );
         }
     }
 
@@ -557,7 +557,7 @@ public class SchemaSubentryManager
                 break;
 
             default:
-                throw new IllegalStateException( I18n.err( I18n.ERR_285, index ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_28019_UNKOWN_INDEX, index ) );
         }
     }
 }
