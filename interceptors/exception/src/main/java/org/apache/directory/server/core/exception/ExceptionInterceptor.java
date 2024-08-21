@@ -162,7 +162,7 @@ public class ExceptionInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_251_PARENT_NOT_FOUND, parentDn.getName() ) );
+                throw new LdapNoSuchObjectException( I18n.err( I18n.ERR_19000_PARENT_NOT_FOUND, parentDn.getName() ) );
             }
 
             Attribute objectClass = ( ( ClonedServerEntry ) attrs ).getOriginalEntry().get(
@@ -170,7 +170,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
-                String msg = I18n.err( I18n.ERR_252_ALIAS_WITH_CHILD_NOT_ALLOWED, name.getName(), parentDn.getName() );
+                String msg = I18n.err( I18n.ERR_19001_ALIAS_WITH_CHILD_NOT_ALLOWED, name.getName(), parentDn.getName() );
                 throw new LdapAliasException( msg );
             }
             else
@@ -197,7 +197,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( dn.equals( subschemSubentryDn ) )
         {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_253,
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_19002_CANNOT_ALLOW_SUBSCHEMA_SUBENTRY_DELETION,
                 subschemSubentryDn ) );
         }
 
@@ -282,7 +282,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( oriChildName.equals( subschemSubentryDn ) )
         {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_19004_CANNOT_ALLOW_SUBSCHEMA_SUBENTRY_MOVE,
                 subschemSubentryDn, subschemSubentryDn ) );
         }
         
@@ -313,7 +313,7 @@ public class ExceptionInterceptor extends BaseInterceptor
         // Don't allow M&R in the SSSE
         if ( oldDn.getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_258,
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_19004_CANNOT_ALLOW_SUBSCHEMA_SUBENTRY_MOVE,
                 subschemSubentryDn, subschemSubentryDn ) );
         }
         
@@ -343,7 +343,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( dn.equals( subschemSubentryDn ) )
         {
-            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_255,
+            throw new LdapUnwillingToPerformException( ResultCodeEnum.UNWILLING_TO_PERFORM, I18n.err( I18n.ERR_19003_CANNOT_ALLOW_SUBSCHEMA_SUBENTRY_RENAMING,
                 subschemSubentryDn, subschemSubentryDn ) );
         }
 
