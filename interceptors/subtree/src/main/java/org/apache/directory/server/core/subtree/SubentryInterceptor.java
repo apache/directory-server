@@ -299,7 +299,7 @@ public class SubentryInterceptor extends BaseInterceptor
 
         if ( oc == null )
         {
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_305 ) );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_29001_SUBENTRY_WITHOUT_OC ) );
         }
 
         if ( oc.contains( SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
@@ -462,7 +462,7 @@ public class SubentryInterceptor extends BaseInterceptor
         if ( ( administrativeRole == null ) || ( administrativeRole.size() <= 0 ) )
         {
             LOG.error( "The entry on {} is not an AdministrativePoint", apDn );
-            throw new LdapNoSuchAttributeException( I18n.err( I18n.ERR_306, apDn ) );
+            throw new LdapNoSuchAttributeException( I18n.err( I18n.ERR_29002_AMINISTRATION_POINT_WITHOUT_ADMINISTRATIVE_ROLE, apDn ) );
         }
     }
 
@@ -481,7 +481,7 @@ public class SubentryInterceptor extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            String msg = I18n.err( I18n.ERR_307, entry.getDn() );
+            String msg = I18n.err( I18n.ERR_29003_CANNOT_PARSE_SUBTREE_SPECIFICATION_FOR, entry.getDn() );
             LOG.warn( msg );
             throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
         }
@@ -1130,7 +1130,7 @@ public class SubentryInterceptor extends BaseInterceptor
             }
             catch ( Exception e )
             {
-                String msg = I18n.err( I18n.ERR_71 );
+                String msg = I18n.err( I18n.ERR_29000_CANNOT_PARSE_SUBTREE_SPECIFICATION );
                 LOG.error( msg, e );
                 throw new LdapInvalidAttributeValueException( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, msg );
             }
@@ -1394,7 +1394,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // can't be moved.
             if ( hasAdministrativeDescendant( moveContext, oldDn ) )
             {
-                String msg = I18n.err( I18n.ERR_308 );
+                String msg = I18n.err( I18n.ERR_29004_CANNOT_RENAME_ENTRIES_WITH_ADMINISTRATIVE_DESCENDANTS );
                 LOG.warn( msg );
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
@@ -1509,7 +1509,7 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             if ( hasAdministrativeDescendant( moveAndRenameContext, oldDn ) )
             {
-                String msg = I18n.err( I18n.ERR_308 );
+                String msg = I18n.err( I18n.ERR_29004_CANNOT_RENAME_ENTRIES_WITH_ADMINISTRATIVE_DESCENDANTS );
                 LOG.warn( msg );
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
@@ -1619,7 +1619,7 @@ public class SubentryInterceptor extends BaseInterceptor
         {
             if ( hasAdministrativeDescendant( renameContext, oldDn ) )
             {
-                String msg = I18n.err( I18n.ERR_308 );
+                String msg = I18n.err( I18n.ERR_29004_CANNOT_RENAME_ENTRIES_WITH_ADMINISTRATIVE_DESCENDANTS );
                 LOG.warn( msg );
                 throw new LdapSchemaViolationException( ResultCodeEnum.NOT_ALLOWED_ON_RDN, msg );
             }
