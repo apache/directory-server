@@ -216,7 +216,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
 
             LOG.info( "A CollectiveAttribute subentry *should* have at least one collectiveAttribute" );
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION,
-                I18n.err( I18n.ERR_257_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT ) );
+                I18n.err( I18n.ERR_17002_COLLECTIVE_SUBENTRY_WITHOUT_COLLECTIVE_AT ) );
         }
 
         if ( containsAnyCollectiveAttributes( entry ) )
@@ -228,7 +228,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
                 "Cannot add the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
                 entry );
             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION,
-                I18n.err( I18n.ERR_241_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY ) );
+                I18n.err( I18n.ERR_17000_CANNOT_STORE_COLLECTIVE_ATT_IN_ENTRY ) );
         }
     }
 
@@ -259,7 +259,7 @@ public class CollectiveAttributeInterceptor extends BaseInterceptor
             LOG.info(
                 "Cannot modify the entry {} : it contains some CollectiveAttributes and is not a collective subentry",
                 targetEntry );
-            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_242 ) );
+            throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION, I18n.err( I18n.ERR_17001_CANNOT_OPERATE_ON_COLLECTIVE_ATTRIBUTE ) );
         }
     }
 
