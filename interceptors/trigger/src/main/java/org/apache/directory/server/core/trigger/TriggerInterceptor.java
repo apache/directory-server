@@ -192,7 +192,7 @@ public class TriggerInterceptor extends BaseInterceptor
             }
             catch ( ParseException e )
             {
-                String msg = I18n.err( I18n.ERR_72, triggerString );
+                String msg = I18n.err( I18n.ERR_30000_FAOLED_TO_PARSE_ENTRY_TRIGGER, triggerString );
                 LOG.error( msg, e );
                 throw new LdapOperationErrorException( msg );
             }

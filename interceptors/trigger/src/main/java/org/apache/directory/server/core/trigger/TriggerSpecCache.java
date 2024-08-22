@@ -204,7 +204,7 @@ public class TriggerSpecCache
             }
             catch ( ParseException e )
             {
-                String msg = I18n.err( I18n.ERR_73, item );
+                String msg = I18n.err( I18n.ERR_30001_TRIGGER_SPECIFICATION_PARSER_FAILURE, item );
                 LOG.error( msg, e );
             }
 
