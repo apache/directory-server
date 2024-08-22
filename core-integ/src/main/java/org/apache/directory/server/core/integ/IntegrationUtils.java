@@ -89,12 +89,12 @@ public class IntegrationUtils
             }
             catch ( IOException e )
             {
-                LOG.error( I18n.err( I18n.ERR_115 ), e );
+                LOG.error( I18n.err( I18n.ERR_05000_WORKING_DIRECTORY_CANNOT_BE_DELETED ), e );
             }
         }
         if ( wkdir.exists() )
         {
-            throw new IOException( I18n.err( I18n.ERR_116, wkdir ) );
+            throw new IOException( I18n.err( I18n.ERR_05001_FAILED_TO_DELETE, wkdir ) );
         }
     }
 
@@ -227,7 +227,7 @@ public class IntegrationUtils
 
                     if ( dn.size() == 0 )
                     {
-                        throw new IllegalStateException( I18n.err( I18n.ERR_475 ) );
+                        throw new IllegalStateException( I18n.err( I18n.ERR_15022_ROOT_DSE_CANNOT_BE_MOVED ) );
                     }
                     else if ( oldRdn.equals( newRdn ) )
                     {
@@ -253,7 +253,7 @@ public class IntegrationUtils
                 break;
 
             default:
-                throw new IllegalStateException( I18n.err( I18n.ERR_476, entry.getChangeType() ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_05003_UNIDENTIFIED_CHANGE_TYPE, entry.getChangeType() ) );
         }
     }
 

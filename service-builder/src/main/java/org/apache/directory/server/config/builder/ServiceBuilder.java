@@ -1306,7 +1306,7 @@ public final class ServiceBuilder
 
         if ( systemPartition == null )
         {
-            throw new Exception( I18n.err( I18n.ERR_505 ) );
+            throw new Exception( I18n.err( I18n.ERR_46000_SYSTEM_PARTITION_MISSING ) );
         }
 
         directoryService.setSystemPartition( systemPartition );

@@ -221,6 +221,9 @@ public enum I18n
     // No error
 
     // apacheds-core-integ errors                    5000 - 5999
+    ERR_05000_WORKING_DIRECTORY_CANNOT_BE_DELETED("ERR_05000_WORKING_DIRECTORY_CANNOT_BE_DELETED"),
+    ERR_05001_FAILED_TO_DELETE("ERR_05001_FAILED_TO_DELETE"),
+    ERR_05003_UNIDENTIFIED_CHANGE_TYPE("ERR_05003_UNIDENTIFIED_CHANGE_TYPE"),
 
     // apacheds-core-jndi errors                     6000 - 6999
     ERR_06000_ERROR_WHILE_DELIVERING_NOTIFICATIONS("ERR_06000_ERROR_WHILE_DELIVERING_NOTIFICATIONS"),
@@ -520,8 +523,11 @@ public enum I18n
     ERR_44001_CANNOT_LOAD_LDIF_FILE("ERR_44001_CANNOT_LOAD_LDIF_FILE"),
 
     // apacheds-service errors                       45000 - 45999
+    // No error
     
     // apacheds-service-builder errors               46000 - 46999
+    ERR_46000_SYSTEM_PARTITION_MISSING("ERR_46000_SYSTEM_PARTITION_MISSING"),
+
     // apacheds-test-framework errors                47000 - 47999
     // apacheds-wrapper errors                       48000 - 48999
     // apacheds-xdbm-partition errors                49000 - 49999
@@ -574,12 +580,8 @@ public enum I18n
 
 
     ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY("ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY"),
-    ERR_115("ERR_115"),
-    ERR_116("ERR_116"),
     ERR_181("ERR_181"),
     ERR_249("ERR_249"),
-    ERR_475("ERR_475"),
-    ERR_476("ERR_476"),
     ERR_689("ERR_689"),
     ERR_690("ERR_690"),
     ERR_691("ERR_691"),
