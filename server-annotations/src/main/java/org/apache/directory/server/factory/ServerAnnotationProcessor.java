@@ -170,7 +170,7 @@ public final class ServerAnnotationProcessor
                 }
                 catch ( Exception e )
                 {
-                    throw new RuntimeException( I18n.err( I18n.ERR_690, extOpClass.getName() ), e );
+                    throw new RuntimeException( I18n.err( I18n.ERR_41001_CANOT_ADD_EXTENDED_OPERATION, extOpClass.getName() ), e );
                 }
             }
 
@@ -184,7 +184,7 @@ public final class ServerAnnotationProcessor
                 catch ( Exception e )
                 {
                     throw new RuntimeException(
-                        I18n.err( I18n.ERR_691, saslMech.name(), saslMech.implClass().getName() ), e );
+                        I18n.err( I18n.ERR_41002_CANNOT_ADD_SASL_MLECHANISM, saslMech.name(), saslMech.implClass().getName() ), e );
                 }
             }
 
@@ -203,7 +203,7 @@ public final class ServerAnnotationProcessor
                     }
                     catch ( Exception e )
                     {
-                        throw new RuntimeException( I18n.err( I18n.ERR_692 ), e );
+                        throw new RuntimeException( I18n.err( I18n.ERR_41003_FAILED_TO_ADD_NTLM_PROVIDER ), e );
                     }
                 }
             }
@@ -227,7 +227,7 @@ public final class ServerAnnotationProcessor
                     }
                     catch ( InstantiationException | IllegalAccessException e )
                     {
-                        throw new RuntimeException( I18n.err( I18n.ERR_751, createLdapServer.trustManagers()[i].getName() ), e );
+                        throw new RuntimeException( I18n.err( I18n.ERR_41004_INVALID_TRUST_MANAGER_CLASS, createLdapServer.trustManagers()[i].getName() ), e );
                     }
                 }
                 ldapServer.setTrustManagers( trustManagers );
@@ -455,7 +455,7 @@ public final class ServerAnnotationProcessor
             return transports;
         }
         
-        throw new IllegalArgumentException( I18n.err( I18n.ERR_689, protocol ) );
+        throw new IllegalArgumentException( I18n.err( I18n.ERR_41000_UNSUPPORTED_PROTOCOL_TYPE, protocol ) );
     }
 
 
