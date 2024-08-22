@@ -580,6 +580,7 @@ public enum I18n
     ERR_249("ERR_249"),
     ERR_475("ERR_475"),
     ERR_476("ERR_476"),
+    ERR_505("ERR_505"),
     ERR_689("ERR_689"),
     ERR_690("ERR_690"),
     ERR_691("ERR_691"),
