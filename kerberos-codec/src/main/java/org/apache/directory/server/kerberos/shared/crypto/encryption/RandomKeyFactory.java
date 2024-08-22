@@ -95,7 +95,7 @@ public class RandomKeyFactory
 
         if ( algorithm == null )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, I18n.err( I18n.ERR_616,
+            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, I18n.err( I18n.ERR_32004_NOT_SUPPORTED_ENCRYPTION_TYPE,
                 encryptionType.getName() ) );
         }
 

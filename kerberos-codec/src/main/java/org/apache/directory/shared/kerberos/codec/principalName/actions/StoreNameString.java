@@ -78,10 +78,10 @@ public class StoreNameString extends GrammarAction<PrincipalNameContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_744_NULL_PDU_LENGTH ) );
+            LOG.error( I18n.err( I18n.ERR_32006_NULL_PDU_LENGTH ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_744_NULL_PDU_LENGTH ) );
+            throw new DecoderException( I18n.err( I18n.ERR_32006_NULL_PDU_LENGTH ) );
         }
 
         // Get the principalName
@@ -108,10 +108,10 @@ public class StoreNameString extends GrammarAction<PrincipalNameContainer>
             String valBytes = Strings.dumpBytes( value.getData() );
             String valStr = Strings.utf8ToString( value.getData() );
             String valAll = valBytes + "/" + valStr;
-            LOG.error( I18n.err( I18n.ERR_745_NOT_A_KERBEROS_STRING, valAll ) );
+            LOG.error( I18n.err( I18n.ERR_32007_NOT_A_KERBEROS_STRING, valAll ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_745_NOT_A_KERBEROS_STRING, valAll ) );
+            throw new DecoderException( I18n.err( I18n.ERR_32007_NOT_A_KERBEROS_STRING, valAll ) );
         }
     }
 }

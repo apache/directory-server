@@ -101,7 +101,7 @@ public final class LdifConfigExtractor
         }
         else if ( !overwrite )
         {
-            throw new IOException( I18n.err( I18n.ERR_508, configDirectory.getAbsolutePath() ) );
+            throw new IOException( I18n.err( I18n.ERR_42002_CANNOT_OVERWRITE, configDirectory.getAbsolutePath() ) );
         }
 
         LOG.debug( "extracting the configuration to the directory at {}", configDirectory.getAbsolutePath() );
@@ -142,7 +142,7 @@ public final class LdifConfigExtractor
 
         if ( !source.getParentFile().exists() )
         {
-            throw new FileNotFoundException( I18n.err( I18n.ERR_509, source.getAbsolutePath() ) );
+            throw new FileNotFoundException( I18n.err( I18n.ERR_42003_CANNOT_COPY, source.getAbsolutePath() ) );
         }
 
         try ( Writer out = Files.newBufferedWriter( destination.toPath(), StandardCharsets.UTF_8 );
@@ -230,13 +230,13 @@ public final class LdifConfigExtractor
 
             if ( parent.equals( parent.getParentFile() ) || parent.getParentFile() == null )
             {
-                throw new IllegalStateException( I18n.err( I18n.ERR_510 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_42004_SHOULD_NOT_HIT_ROOT ) );
             }
 
             parent = parent.getParentFile();
         }
 
-        throw new IllegalStateException( I18n.err( I18n.ERR_511 ) );
+        throw new IllegalStateException( I18n.err( I18n.ERR_42005_PARENT_IS_NULL ) );
     }
 
 

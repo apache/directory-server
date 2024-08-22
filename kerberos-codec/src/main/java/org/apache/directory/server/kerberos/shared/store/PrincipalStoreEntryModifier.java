@@ -174,7 +174,7 @@ public class PrincipalStoreEntryModifier
         {
             if ( val.isHumanReadable() )
             {
-                throw new IllegalStateException( I18n.err( I18n.ERR_626 ) );
+                throw new IllegalStateException( I18n.err( I18n.ERR_32005_KERBEROS_KEY_CANNOT_BE_A_STRING ) );
             }
 
             byte[] encryptionKeyBytes = val.getBytes();

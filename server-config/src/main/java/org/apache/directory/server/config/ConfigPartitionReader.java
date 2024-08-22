@@ -101,12 +101,12 @@ public class ConfigPartitionReader
     {
         if ( configPartition == null )
         {
-            throw new IllegalArgumentException( I18n.err( I18n.ERR_503 ) );
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_42000_CONFIG_PARTITION_IS_NULL ) );
         }
 
         if ( !configPartition.isInitialized() )
         {
-            throw new IllegalStateException( I18n.err( I18n.ERR_504 ) );
+            throw new IllegalStateException( I18n.err( I18n.ERR_42001_CONFIG_PARTITION_NOT_INITIALIZED ) );
         }
 
         this.configPartition = configPartition;

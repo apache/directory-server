@@ -63,10 +63,10 @@ public class PrincipalNameInit extends GrammarAction<PrincipalNameContainer>
         // The Length should not be null
         if ( tlv.getLength() == 0 )
         {
-            LOG.error( I18n.err( I18n.ERR_744_NULL_PDU_LENGTH ) );
+            LOG.error( I18n.err( I18n.ERR_32006_NULL_PDU_LENGTH ) );
 
             // This will generate a PROTOCOL_ERROR
-            throw new DecoderException( I18n.err( I18n.ERR_744_NULL_PDU_LENGTH ) );
+            throw new DecoderException( I18n.err( I18n.ERR_32006_NULL_PDU_LENGTH ) );
         }
 
         // We have to create a PrincipalName object here

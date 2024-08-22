@@ -238,7 +238,7 @@ public class PrincipalName implements Asn1Object
     {
         if ( buffer == null )
         {
-            throw new EncoderException( I18n.err( I18n.ERR_148 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_32003_CANNOT_PUT_PDU_IN_NULL_BUFFER ) );
         }
 
         try
@@ -286,9 +286,9 @@ public class PrincipalName implements Asn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            LOG.error( I18n.err( I18n.ERR_146, 1 + TLV.getNbBytes( principalNameSeqLength )
+            LOG.error( I18n.err( I18n.ERR_32002_CANNOT_ENCODE__PRINCIPAL_NAME, 1 + TLV.getNbBytes( principalNameSeqLength )
                 + principalNameSeqLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
+            throw new EncoderException( I18n.err( I18n.ERR_32000_PDU_BUFFER_SIZE_TOO_SMALL ), boe );
         }
 
         if ( IS_DEBUG )

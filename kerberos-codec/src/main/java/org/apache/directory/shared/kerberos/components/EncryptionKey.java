@@ -284,7 +284,7 @@ public class EncryptionKey implements Asn1Object
     {
         if ( buffer == null )
         {
-            throw new EncoderException( I18n.err( I18n.ERR_148 ) );
+            throw new EncoderException( I18n.err( I18n.ERR_32003_CANNOT_PUT_PDU_IN_NULL_BUFFER ) );
         }
 
         try
@@ -305,9 +305,9 @@ public class EncryptionKey implements Asn1Object
         }
         catch ( BufferOverflowException boe )
         {
-            log.error( I18n.err( I18n.ERR_142, 1 + TLV.getNbBytes( encryptionKeyLength )
+            log.error( I18n.err( I18n.ERR_32001_CANNOT_ENCODE_ENCRYPTION_KEY, 1 + TLV.getNbBytes( encryptionKeyLength )
                 + encryptionKeyLength, buffer.capacity() ) );
-            throw new EncoderException( I18n.err( I18n.ERR_138 ), boe );
+            throw new EncoderException( I18n.err( I18n.ERR_32000_PDU_BUFFER_SIZE_TOO_SMALL ), boe );
         }
 
         if ( IS_DEBUG )
