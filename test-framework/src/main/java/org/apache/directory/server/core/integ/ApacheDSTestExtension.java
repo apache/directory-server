@@ -238,7 +238,7 @@ public class ApacheDSTestExtension implements BeforeEachCallback, AfterEachCallb
         catch ( Exception e )
         {
             e.printStackTrace();
-            LOG.error( I18n.err( I18n.ERR_181, context.getTestClass().get().getName() ) );
+            LOG.error( I18n.err( I18n.ERR_47000_FAILED_TO_RUN_CLASS, context.getTestClass().get().getName() ) );
             LOG.error( e.getLocalizedMessage() );
         }
     }

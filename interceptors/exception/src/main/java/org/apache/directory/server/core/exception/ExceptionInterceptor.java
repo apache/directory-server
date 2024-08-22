@@ -122,7 +122,7 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         if ( subschemSubentryDn.equals( name ) )
         {
-            throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_249 ) );
+            throw new LdapEntryAlreadyExistsException( I18n.err( I18n.ERR_19005_SCHEMA_SUBENTRY_ALREADY_EXISTS ) );
         }
 
         Dn suffix = nexus.getSuffixDn( name );

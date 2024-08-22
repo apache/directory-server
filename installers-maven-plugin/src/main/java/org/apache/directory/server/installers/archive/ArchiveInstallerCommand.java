@@ -194,7 +194,7 @@ public class ArchiveInstallerCommand extends LinuxInstallerCommand<ArchiveTarget
 
             if ( !wrapperConf.delete() )
             {
-                throw new IOException( I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, wrapperConf ) );
+                throw new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_DELETE_FILE_OR_DIRECTORY, wrapperConf ) );
             }
         }
         catch ( Exception e )
@@ -256,7 +256,7 @@ public class ArchiveInstallerCommand extends LinuxInstallerCommand<ArchiveTarget
 
                 if ( !tarFile.delete() )
                 {
-                    Exception e = new IOException( I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, tarFile ) );
+                    Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_DELETE_FILE_OR_DIRECTORY, tarFile ) );
                     log.error( e.getLocalizedMessage() );
                     throw new MojoFailureException( e.getMessage() );
                 }
@@ -279,7 +279,7 @@ public class ArchiveInstallerCommand extends LinuxInstallerCommand<ArchiveTarget
 
                 if ( !tarFile.delete() )
                 {
-                    Exception e = new IOException( I18n.err( I18n.ERR_113_COULD_NOT_DELETE_FILE_OR_DIRECTORY, tarFile ) );
+                    Exception e = new IOException( I18n.err( I18n.ERR_11000_COULD_NOT_DELETE_FILE_OR_DIRECTORY, tarFile ) );
                     log.error( e.getLocalizedMessage() );
                     throw new MojoFailureException( e.getMessage() );
                 }
