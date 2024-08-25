@@ -146,6 +146,12 @@ public class LdapConnectionPoolTest extends AbstractLdapTestUnit
         }
 
         boolean result = counter.await( 100, TimeUnit.SECONDS );
+        
+        if ( !result )
+        {
+            System.out.println(" Expected 100 created connections, got " + counter.getCount() );
+        }
+        
         assertTrue( result );
     }
 
