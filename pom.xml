@@ -55,7 +55,7 @@
     <!-- Set versions for depending jars -->
     <ant.version>1.10.14</ant.version>
     <bcprov.version>1.78.1</bcprov.version>
-    <commons.cli.version>1.8.0</commons.cli.version>
+    <commons.cli.version>1.9.0</commons.cli.version>
     <commons.codec.version>1.17.1</commons.codec.version>
     <commons.collections.version>4.4</commons.collections.version>
     <commons.daemon.version>1.4.0</commons.daemon.version>
@@ -74,7 +74,7 @@
     <kerby.version>2.1.0</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
     <logback.version>1.5.7</logback.version>
-    <maven.version>3.9.8</maven.version>
+    <maven.version>3.9.9</maven.version>
     <mina.core.version>2.2.3</mina.core.version>
     <org.apache.felix.version>7.0.5</org.apache.felix.version>
     <pax-exam.version>4.13.4</pax-exam.version>
