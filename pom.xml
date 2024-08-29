@@ -59,7 +59,7 @@
     <commons.codec.version>1.17.1</commons.codec.version>
     <commons.collections.version>4.4</commons.collections.version>
     <commons.daemon.version>1.4.0</commons.daemon.version>
-    <commons.lang.version>3.16.0</commons.lang.version>
+    <commons.lang.version>3.17.0</commons.lang.version>
     <commons.net.version>3.11.1</commons.net.version>
     <commons.pool.version>2.12.0</commons.pool.version>
     <dnsjava.version>3.6.1</dnsjava.version>
