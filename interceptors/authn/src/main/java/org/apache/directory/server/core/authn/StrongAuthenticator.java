@@ -20,14 +20,11 @@
 package org.apache.directory.server.core.authn;
 
 
-import java.net.SocketAddress;
-
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
-import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -71,15 +68,7 @@ public class StrongAuthenticator extends AbstractAuthenticator
         LdapPrincipal principal = new LdapPrincipal( getDirectoryService().getSchemaManager(), bindContext.getDn(),
             AuthenticationLevel.STRONG );
 
-        IoSession session = bindContext.getIoSession();
-
-        if ( session != null )
-        {
-            SocketAddress clientAddress = session.getRemoteAddress();
-            principal.setClientAddress( clientAddress );
-            SocketAddress serverAddress = session.getServiceAddress();
-            principal.setServerAddress( serverAddress );
-        }
+        setAddresses( bindContext, principal );
 
         return principal;
     }

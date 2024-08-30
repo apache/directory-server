@@ -30,6 +30,7 @@ import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchema
 import static org.apache.directory.api.ldap.model.constants.PasswordPolicySchemaConstants.PWD_START_TIME_AT;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.Date;
 
@@ -46,11 +47,15 @@ import org.apache.directory.api.ldap.model.password.PasswordUtil;
 import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
+import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfiguration;
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
+import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
+import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -395,6 +400,28 @@ public abstract class AbstractAuthenticator implements Authenticator
                     }
                 }
             }
+        }
+    }
+    
+    
+    /**
+     * Set the client and service addresses into the LdapPrincipal instance
+     * 
+     * @param bindContext The BindOperationContext instance
+     * @param ldapPrincipal The LdapPrincipal instance to updater
+     * 
+     * @return The updated LdapPrincipal
+     */
+    protected void setAddresses( BindOperationContext bindContext, LdapPrincipal ldapPrincipal )
+    {
+        IoSession session = bindContext.getIoSession();
+
+        if ( session != null )
+        {
+            SocketAddress clientAddress = session.getRemoteAddress();
+            ldapPrincipal.setClientAddress( clientAddress );
+            SocketAddress serverAddress = session.getServiceAddress();
+            ldapPrincipal.setServerAddress( serverAddress );
         }
     }
 }

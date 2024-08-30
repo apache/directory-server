@@ -19,16 +19,12 @@
  */
 package org.apache.directory.server.core.authn;
 
-
-import java.net.SocketAddress;
-
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.exception.LdapNoPermissionException;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.LdapPrincipal;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -72,15 +68,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
             LOG.info( "Authentication as anonymous" );
             LdapPrincipal principal = getDirectoryService().getAdminSession().getAnonymousPrincipal();
 
-            IoSession session = bindContext.getIoSession();
-
-            if ( session != null )
-            {
-                SocketAddress clientAddress = session.getRemoteAddress();
-                principal.setClientAddress( clientAddress );
-                SocketAddress serverAddress = session.getServiceAddress();
-                principal.setServerAddress( serverAddress );
-            }
+            setAddresses( bindContext, principal );
 
             return principal;
         }
