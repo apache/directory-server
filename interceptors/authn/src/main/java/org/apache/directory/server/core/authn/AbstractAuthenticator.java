@@ -52,7 +52,6 @@ import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyConfigur
 import org.apache.directory.server.core.api.authn.ppolicy.PasswordPolicyException;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.OperationContext;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.partition.PartitionTxn;
 import org.apache.mina.core.session.IoSession;
