@@ -1839,7 +1839,7 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             {
                 String valueStr = value.getString();
 
-                if ( valueStr.equals( topOCValue ) )
+                if ( valueStr.equals( topOCValue.getString() ) )
                 {
                     continue;
                 }
