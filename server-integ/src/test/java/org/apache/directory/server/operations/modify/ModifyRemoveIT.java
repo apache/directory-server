@@ -242,8 +242,11 @@ public class ModifyRemoveIT extends AbstractLdapTestUnit
         Attributes tn = new BasicAttributes( "telephoneNumber", "12345678", true );
         ctx.modifyAttributes( RDN, DirContext.ADD_ATTRIBUTE, tn );
 
+        // Verify that attributes are deleted
+        Attributes attrs = ctx.getAttributes( RDN );
+
         // Remove description and telephoneNumber to Attribute
-        Attributes attrs = new BasicAttributes( true );
+        attrs = new BasicAttributes( true );
         attrs.put( new BasicAttribute( "description" ) );
         attrs.put( new BasicAttribute( "telephoneNumber" ) );
         ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, attrs );
