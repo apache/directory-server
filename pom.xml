@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>49</version>
+    <version>50</version>
     <relativePath />
   </parent>
 
@@ -46,9 +46,9 @@
     <doclint>none</doclint>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>2.1.7</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.1.8-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
-    <org.apache.directory.checkstyle-configuration.version>2.0.1</org.apache.directory.checkstyle-configuration.version>
+    <org.apache.directory.checkstyle-configuration.version>2.0.2</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
     <skin.version>1.0.3</skin.version>
     
@@ -57,7 +57,7 @@
     <bcprov.version>1.79</bcprov.version>
     <commons.cli.version>1.9.0</commons.cli.version>
     <commons.codec.version>1.17.1</commons.codec.version>
-    <commons.collections.version>4.4</commons.collections.version>
+    <commons.collections.version>4.5.0-M3</commons.collections.version>
     <commons.daemon.version>1.4.0</commons.daemon.version>
     <commons.lang.version>3.17.0</commons.lang.version>
     <commons.net.version>3.11.1</commons.net.version>
@@ -65,7 +65,7 @@
     <dnsjava.version>3.6.2</dnsjava.version>
     <caffeine.version>2.9.3</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
-    <forbiddenapis.version>3.7</forbiddenapis.version>
+    <forbiddenapis.version>3.8</forbiddenapis.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jetty.version>9.4.56.v20240826</jetty.version>
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
