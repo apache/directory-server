@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap;
 
 
 import java.io.IOException;
+import java.net.Socket;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -399,11 +400,11 @@ public class LdapServer extends DirectoryBackedService
             }
         }
 
-        StartTlsHandler handler = ( StartTlsHandler ) getExtendedOperationHandler( StartTlsHandler.EXTENSION_OID );
+        StartTlsHandler startTlsHandler = ( StartTlsHandler ) getExtendedOperationHandler( StartTlsHandler.EXTENSION_OID );
 
-        if ( handler != null )
+        if ( startTlsHandler != null )
         {
-            handler.setLdapServer( this );
+            startTlsHandler.setLdapServer( this );
         }
 
         LOG.info( "reloaded SSL context successfully" );
@@ -609,6 +610,72 @@ public class LdapServer extends DirectoryBackedService
 
         started = false;
         LOG.info( "Ldap service stopped." );
+    }
+    
+    /*
+    private void startVTNetwork( Transport transport, IoFilterChainBuilder chainBuilder ) throws Exception
+    {
+        if ( transport.getBackLog() < 0 )
+        {
+            // Set the backlog to the default value when it's below 0
+            transport.setBackLog( 50 );
+        }
+
+        if ( transport instanceof TcpTransport )
+        {
+            try ( ServerSocket serverSocket = new ServerSocket( 
+                    transport.getPort(), 
+                    transport.getBackLog(), 
+                    InetAddress.getByName( transport.getAddress() ) ) )
+            {
+                serverSocket.setOption( StandardSocketOptions.SO_REUSEADDR, true );
+                serverSocket.setOption( StandardSocketOptions.SO_REUSEPORT, true );
+                serverSocket.setOption( StandardSocketOptions.SO_RCVBUF, 64 * 1024 );
+                //serverSocket.setOption( StandardSocketOptions.SO_SNDBUF, 64 * 1024 );
+                //serverSocket.setOption( StandardSocketOptions.TCP_NODELAY, true );
+                
+                Runnable ldapServer = () -> 
+                { 
+                    System.out.println( "Hello LDAP Serevr!" ); 
+
+                    while ( true ) 
+                    {
+                        Socket socket;
+
+                        try
+                        {
+                            socket = serverSocket.accept();
+                            
+                            Thread.Builder builder = Thread.ofVirtual()
+                                .name( "virtual thread" )
+                                .inheritInheritableThreadLocals( false )
+                                .uncaughtExceptionHandler( ( t, e ) -> System.out.printf( "thread %s failed with exception %s", t, e ) );
+                            
+                            Thread thread = builder.unstarted( () -> System.out.println( "run" ) );
+                        }
+                        catch ( IOException e )
+                        {
+                            e.printStackTrace();
+                            String msg = I18n.err( I18n.ERR_38009_FAILED_TO_BIND_TO_SERVICE_REGISTRY, transport.getPort() );
+                            LdapConfigurationException lce = new LdapConfigurationException( msg );
+                            lce.setCause( e );
+                            LOG.error( msg, e );
+                        }
+                    }
+                };
+                
+                Thread thread = Thread.startVirtualThread( ldapServer );
+                
+                System.out.println( "Daemon: " + thread.isDaemon() );
+            }
+        }
+    }
+    */
+    
+    
+    private void handleLdapRequest( Socket socket )
+    {
+        
     }
 
 
@@ -816,18 +883,18 @@ public class LdapServer extends DirectoryBackedService
         //            DefaultPartitionNexus nexus = getDirectoryService().getPartitionNexus();
         //            nexus.unregisterSupportedExtensions( eoh.getExtensionOids() );
 
-        ExtendedOperationHandler<?, ?> handler = null;
+        ExtendedOperationHandler<?, ?> removedExtendedOperationHandler = null;
 
         for ( ExtendedOperationHandler<?, ?> extendedOperationHandler : extendedOperationHandlers )
         {
             if ( extendedOperationHandler.getOid().equals( oid ) )
             {
-                handler = extendedOperationHandler;
+                removedExtendedOperationHandler = extendedOperationHandler;
                 break;
             }
         }
 
-        extendedOperationHandlers.remove( handler );
+        extendedOperationHandlers.remove( removedExtendedOperationHandler );
     }
 
 
@@ -837,7 +904,7 @@ public class LdapServer extends DirectoryBackedService
      *
      * @param oid the oid of the extended request of associated with the extended
      * request handler
-     * @return the exnteded operation handler
+     * @return the extended operation handler
      */
     public ExtendedOperationHandler<? extends ExtendedRequest, ? extends ExtendedResponse> getExtendedOperationHandler(
         String oid )
@@ -1064,9 +1131,9 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    public MechanismHandler addSaslMechanismHandler( String mechanism, MechanismHandler handler )
+    public MechanismHandler addSaslMechanismHandler( String mechanism, MechanismHandler mechanislHandler )
     {
-        return this.saslMechanismHandlers.put( mechanism, handler );
+        return this.saslMechanismHandlers.put( mechanism, mechanislHandler );
     }
 
 
