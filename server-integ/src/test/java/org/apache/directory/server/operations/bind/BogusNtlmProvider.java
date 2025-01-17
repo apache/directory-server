@@ -23,7 +23,6 @@ package org.apache.directory.server.operations.bind;
 
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.server.ldap.handlers.sasl.ntlm.NtlmProvider;
-import org.apache.mina.core.session.IoSession;
 
 
 /**
@@ -38,16 +37,18 @@ public class BogusNtlmProvider implements NtlmProvider
     private byte[] type3response;
 
 
-    public boolean authenticate( IoSession session, byte[] type3response ) throws Exception
+    public boolean authenticate( byte[] type3response ) throws Exception
     {
         this.type3response = type3response;
+        
         return true;
     }
 
 
-    public byte[] generateChallenge( IoSession session, byte[] type1reponse ) throws Exception
+    public byte[] generateChallenge( byte[] type1reponse ) throws Exception
     {
         this.type1response = type1reponse;
+        
         return Strings.getBytesUtf8( "challenge" );
     }
 

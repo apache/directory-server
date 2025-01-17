@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/apacheds-service/src/main/java/org/apache/directory/server/UberjarMain.java"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
-</listAttribute>
-<mapAttribute key="org.eclipse.debug.core.preferred_launchers">
-<mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>
-<mapEntry key="[run]" value="org.eclipse.jdt.launching.localJavaApplication"/>
-</mapAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.apache.directory.server.UberjarMain"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="./target/instance"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="apacheds-service"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlog4j.configuration=file:./log4j.properties -Dapacheds.log.dir=./target/instance/log -Dapacheds.controls= -Dapacheds.extendedOperations= -Dapacheds.extendedOperations= -Dapacheds.intermediateResponses="/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/apacheds-service/src/main/java/org/apache/directory/server/UberjarMain.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="1"/>
+    </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
+        <mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>
+        <mapEntry key="[run]" value="org.eclipse.jdt.launching.localJavaApplication"/>
+    </mapAttribute>
+    <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.apache.directory.server.UberjarMain"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="./target/instance"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="apacheds-service"/>
+    <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlog4j.configuration=file:./log4j.properties -Dapacheds.log.dir=./target/instance/log -Dapacheds.controls= -Dapacheds.extendedOperations= -Dapacheds.extendedOperations= -Dapacheds.intermediateResponses="/>
 </launchConfiguration>

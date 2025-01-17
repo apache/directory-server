@@ -55,20 +55,11 @@ public class EncryptionKeyDecoderTest
         stream.put( new byte[]
             {
                 0x30, 0x0F,
-                ( byte ) 0xA0, 0x03, // keytype
-                0x02,
-                0x01,
-                0x02,
-                ( byte ) 0xA1,
-                0x08, // keyvalue
-                0x04,
-                0x06,
-                'k',
-                'e',
-                'y',
-                'v',
-                'a',
-                'l'
+                  ( byte ) 0xA0, 0x03, // keytype
+                  0x02, 0x01, 0x02,
+                  ( byte ) 0xA1, 0x08, // keyvalue
+                    0x04, 0x06,
+                      'k', 'e', 'y', 'v', 'a', 'l'
         } );
 
         String decodedPdu = Strings.dumpBytes( stream.array() );
@@ -142,7 +133,7 @@ public class EncryptionKeyDecoderTest
         stream.put( new byte[]
             {
                 0x30, 0x02,
-                ( byte ) 0xA0, 0x00
+                  ( byte ) 0xA0, 0x00
         } );
 
         stream.flip();
@@ -164,8 +155,8 @@ public class EncryptionKeyDecoderTest
         stream.put( new byte[]
             {
                 0x30, 0x04,
-                ( byte ) 0xA0, 0x02,
-                0x02, 0x00
+                  ( byte ) 0xA0, 0x02,
+                    0x02, 0x00
         } );
 
         stream.flip();
@@ -187,15 +178,9 @@ public class EncryptionKeyDecoderTest
         stream.put( new byte[]
             {
                 0x30, 0x0A,
-                ( byte ) 0xA1, 0x08, // keyvalue
-                0x04,
-                0x06,
-                'k',
-                'e',
-                'y',
-                'v',
-                'a',
-                'l'
+                  ( byte ) 0xA1, 0x08, // keyvalue
+                    0x04, 0x06,
+                      'k', 'e', 'y', 'v', 'a', 'l'
         } );
 
         stream.flip();
@@ -217,10 +202,8 @@ public class EncryptionKeyDecoderTest
         stream.put( new byte[]
             {
                 0x30, 0x05,
-                ( byte ) 0xA0, 0x03, // keytype
-                0x02,
-                0x01,
-                0x02
+                  ( byte ) 0xA0, 0x03, // keytype
+                    0x02, 0x01, 0x02
         } );
 
         stream.flip();
@@ -242,12 +225,9 @@ public class EncryptionKeyDecoderTest
         stream.put( new byte[]
             {
                 0x30, 0x07,
-                ( byte ) 0xA0, 0x03, // keytype
-                0x02,
-                0x01,
-                0x02,
-                ( byte ) 0xA1,
-                0x00
+                  ( byte ) 0xA0, 0x03, // keytype
+                    0x02, 0x01, 0x02,
+                    ( byte ) 0xA1, 0x00
         } );
 
         stream.flip();
@@ -269,14 +249,10 @@ public class EncryptionKeyDecoderTest
         stream.put( new byte[]
             {
                 0x30, 0x09,
-                ( byte ) 0xA0, 0x03, // keytype
-                0x02,
-                0x01,
-                0x02,
-                ( byte ) 0xA1,
-                0x02,
-                0x04,
-                0x00
+                  ( byte ) 0xA0, 0x03, // keytype
+                    0x02, 0x01, 0x02,
+                    ( byte ) 0xA1, 0x02,
+                      0x04, 0x00
         } );
 
         stream.flip();

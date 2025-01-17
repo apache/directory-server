@@ -54,44 +54,16 @@ public class PrincipalNameDecoderTest
 
         stream.put( new byte[]
             { 0x30, 0x27,
-                ( byte ) 0xA0, 0x03, // name-type
-                0x02,
-                0x01,
-                0x01, // NT-PRINCIPAL
-                ( byte ) 0xA1,
-                0x20, // name-string
-                0x30,
-                0x1E,
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                'l',
-                's',
-                'o',
-                'n',
-                '1',
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                'l',
-                's',
-                'o',
-                'n',
-                '2',
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                'l',
-                's',
-                'o',
-                'n',
-                '3',
+                ( byte ) 0xA0, 0x03,            // name-type
+                  0x02, 0x01, 0x01,             // NT-PRINCIPAL
+                  ( byte ) 0xA1, 0x20,          // name-string
+                    0x30, 0x1E,
+                      0x1B, 0x08,
+                        'h', 'n', 'e', 'l', 's', 'o', 'n', '1',
+                      0x1B, 0x08,
+                        'h', 'n', 'e', 'l', 's', 'o', 'n', '2',
+                      0x1B, 0x08,
+                      'h', 'n', 'e', 'l', 's', 'o', 'n', '3'
         } );
 
         String decodedPdu = Strings.dumpBytes( stream.array() );
@@ -197,9 +169,8 @@ public class PrincipalNameDecoderTest
 
         stream.put( new byte[]
             { 0x30, 0x04,
-                ( byte ) 0xA0, 0x02, // name-type
-                0x02,
-                0x00 // NT-PRINCIPAL
+                ( byte ) 0xA0, 0x02,    // name-type
+                  0x02, 0x00            // NT-PRINCIPAL
         } );
 
         stream.flip();
@@ -225,14 +196,10 @@ public class PrincipalNameDecoderTest
 
         stream.put( new byte[]
             { 0x30, 0x09,
-                ( byte ) 0xA0, 0x03, // name-type
-                0x02,
-                0x01,
-                0x7F, // NT-PRINCIPAL
-                ( byte ) 0xA1,
-                0x02, // name-string
-                0x30,
-                0x00
+                ( byte ) 0xA0, 0x03,    // name-type
+                  0x02, 0x01, 0x7F,     // NT-PRINCIPAL
+                  ( byte ) 0xA1, 0x02,  // name-string
+                    0x30, 0x00
         } );
 
         stream.flip();
@@ -259,11 +226,8 @@ public class PrincipalNameDecoderTest
         stream.put( new byte[]
             { 0x30, 0x07,
                 ( byte ) 0xA0, 0x03, // name-type
-                0x02,
-                0x01,
-                0x01, // NT-PRINCIPAL
-                ( byte ) 0xA1,
-                0x00 // name-string
+                0x02, 0x01, 0x01, // NT-PRINCIPAL
+                  ( byte ) 0xA1, 0x00 // name-string
         } );
 
         stream.flip();
@@ -290,13 +254,9 @@ public class PrincipalNameDecoderTest
         stream.put( new byte[]
             { 0x30, 0x09,
                 ( byte ) 0xA0, 0x03, // name-type
-                0x02,
-                0x01,
-                0x01, // NT-PRINCIPAL
-                ( byte ) 0xA1,
-                0x02, // name-string
-                0x30,
-                0x00
+                  0x02, 0x01, 0x01, // NT-PRINCIPAL
+                  ( byte ) 0xA1, 0x02, // name-string
+                    0x30, 0x00
         } );
 
         stream.flip();
@@ -323,15 +283,10 @@ public class PrincipalNameDecoderTest
         stream.put( new byte[]
             { 0x30, 0x0B,
                 ( byte ) 0xA0, 0x03, // name-type
-                0x02,
-                0x01,
-                0x01, // NT-PRINCIPAL
-                ( byte ) 0xA1,
-                0x04, // name-string
-                0x30,
-                0x02,
-                0x1B,
-                0x00
+                  0x02, 0x01, 0x01, // NT-PRINCIPAL
+                  ( byte ) 0xA1, 0x04, // name-string
+                    0x30, 0x02,
+                      0x1B, 0x00
         } );
 
         stream.flip();
@@ -357,44 +312,16 @@ public class PrincipalNameDecoderTest
 
         stream.put( new byte[]
             { 0x30, 0x27,
-                ( byte ) 0xA0, 0x03, // name-type
-                0x02,
-                0x01,
-                0x01, // NT-PRINCIPAL
-                ( byte ) 0xA1,
-                0x20, // name-string
-                0x30,
-                0x1E,
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                'l',
-                's',
-                'o',
-                'n',
-                '1',
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                '\r',
-                's',
-                'o',
-                'n',
-                '2',
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                'l',
-                's',
-                'o',
-                'n',
-                '3',
+                ( byte ) 0xA0, 0x03,        // name-type
+                  0x02, 0x01, 0x01,         // NT-PRINCIPAL
+                  ( byte ) 0xA1, 0x20,      // name-string
+                    0x30, 0x1E,
+                      0x1B, 0x08,
+                        'h', 'n', 'e', 'l', 's', 'o', 'n', '1',
+                      0x1B, 0x08,
+                        'h', 'n', 'e', '\r', 's', 'o', 'n', '2',
+                      0x1B, 0x08,
+                        'h', 'n', 'e', 'l', 's', 'o', 'n', '3'
         } );
 
         stream.flip();
@@ -421,38 +348,13 @@ public class PrincipalNameDecoderTest
         stream.put( new byte[]
             { 0x30, 0x22,
                 ( byte ) 0xA1, 0x20, // name-string
-                0x30,
-                0x1E,
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                'l',
-                's',
-                'o',
-                'n',
-                '1',
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                '\r',
-                's',
-                'o',
-                'n',
-                '2',
-                0x1B,
-                0x08,
-                'h',
-                'n',
-                'e',
-                'l',
-                's',
-                'o',
-                'n',
-                '3',
+                  0x30, 0x1E,
+                    0x1B, 0x08,
+                      'h', 'n', 'e', 'l', 's', 'o', 'n', '1',
+                    0x1B, 0x08,
+                      'h', 'n', 'e', 'l', 's', 'o', 'n', '2',
+                    0x1B, 0x08,
+                      'h', 'n', 'e', 'l', 's', 'o', 'n', '3'
         } );
 
         stream.flip();
