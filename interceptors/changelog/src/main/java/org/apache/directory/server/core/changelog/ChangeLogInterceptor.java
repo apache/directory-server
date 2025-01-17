@@ -40,7 +40,6 @@ import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.InterceptorEnum;
 import org.apache.directory.server.core.api.changelog.ChangeLog;
-import org.apache.directory.server.core.api.entry.ClonedServerEntry;
 import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
@@ -348,12 +347,17 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         Entry serverEntry = null;
 
-        if ( renameContext.getEntry() != null )
+        if ( changeLog.isEnabled() )
         {
-            serverEntry = ( ( ClonedServerEntry ) renameContext.getEntry() ).getOriginalEntry();
+            serverEntry = renameContext.getOriginalEntry();
         }
 
         next( renameContext );
+
+        if ( !changeLog.isEnabled() )
+        {
+            return;
+        }
 
         // After this point, the entry has been modified. The cloned entry contains
         // the modified entry, the originalEntry has changed
