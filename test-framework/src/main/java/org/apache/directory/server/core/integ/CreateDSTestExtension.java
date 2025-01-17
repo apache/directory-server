@@ -116,10 +116,6 @@ public class CreateDSTestExtension implements BeforeEachCallback, AfterEachCallb
                 DSAnnotationProcessor.applyLdifs( classAnnotation, classAnnotation.getClass().getName(), directoryService );
                 LOG.debug( "Tagged change log: {}", tag );
             }
-            else
-            {
-                LOG.trace( "no @CreateDS and no outer @CreateDS on: {}", classAnnotation.getClass().getName() );
-            }
         }
         else
         {
