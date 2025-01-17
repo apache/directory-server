@@ -272,7 +272,7 @@ public class NsisInstallerCommand extends AbstractMojoCommand<NsisTarget>
             finalName = finalName + EXE_EXTENSION;
         }
 
-        filterProperties.put( FINAL_NAME_PROP, target.getFinalName() );
+        filterProperties.put( FINAL_NAME_PROP, finalName );
         filterProperties.put( INSTALLATION_FILES, INSTALLATION_FILES );
         filterProperties.put( INSTANCES_FILES, INSTANCES_FILES );
         filterProperties.put( WRAPPER_JAVA_COMMAND_PROP, "wrapper.java.command=@java.home@\\bin\\java.exe" );
