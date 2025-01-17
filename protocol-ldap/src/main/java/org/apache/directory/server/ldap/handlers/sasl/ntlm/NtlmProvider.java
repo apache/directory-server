@@ -20,9 +20,6 @@
 package org.apache.directory.server.ldap.handlers.sasl.ntlm;
 
 
-import org.apache.mina.core.session.IoSession;
-
-
 /**
  * An NTLM authentication service provider.  Multiple providers may be
  * utilized to conduct the NTLM negotiation over various protocols or by
@@ -36,21 +33,19 @@ public interface NtlmProvider
      * Handles a Type 1 NTLM response from the client to generate an NTLM
      * Type 2 challenge message.
      *
-     * @param session the MINA IoSession to store any state to be thread safe
      * @param type1reponse the Type 1 NTLM response from client
      * @return the NTLM Type 2 message with the challenge
      * @throws Exception If the challenge cannot be generated
      */
-    byte[] generateChallenge( IoSession session, byte[] type1reponse ) throws Exception;
+    byte[] generateChallenge( byte[] type1reponse ) throws Exception;
 
 
     /**
      * Handles a Type 3 NTLM response from the client.
      *
-     * @param session the MINA IoSession to store any state to be thread safe
      * @param type3response the Type 3 NTLM response from the client
      * @return the result of the authentication from the server
      * @throws Exception If the authentication failed
      */
-    boolean authenticate( IoSession session, byte[] type3response ) throws Exception;
+    boolean authenticate( byte[] type3response ) throws Exception;
 }

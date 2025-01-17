@@ -151,7 +151,7 @@ public class NtlmSaslServer extends AbstractSaslServer
             case TYPE_1_RECEIVED:
                 try
                 {
-                    retval = provider.generateChallenge( getLdapSession().getIoSession(), response );
+                    retval = provider.generateChallenge( response );
                 }
                 catch ( Exception e )
                 {
@@ -164,7 +164,7 @@ public class NtlmSaslServer extends AbstractSaslServer
                 boolean result;
                 try
                 {
-                    result = provider.authenticate( getLdapSession().getIoSession(), response );
+                    result = provider.authenticate( response );
                     Dn dn = getBindRequest().getDn();
                     
                     if ( dn == null )
