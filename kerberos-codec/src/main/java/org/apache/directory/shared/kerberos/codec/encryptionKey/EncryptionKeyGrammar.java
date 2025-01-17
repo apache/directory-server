@@ -75,7 +75,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar<EncryptionKeyCon
                 EncryptionKeyStatesEnum.START_STATE,
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_SEQ_STATE,
                 UniversalTag.SEQUENCE,
-                new EncryptionKeyInit() );
+                new EncryptionKeyInit(),
+                FollowUp.OPTIONAL );
 
         // --------------------------------------------------------------------------------------------
         // Transition from EncryptionKey SEQ to key-type tag
@@ -87,7 +88,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar<EncryptionKeyCon
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_SEQ_STATE,
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_TAG_STATE,
                 KerberosConstants.ENCRYPTION_KEY_TYPE_TAG,
-                new CheckNotNullLength<EncryptionKeyContainer>() );
+                new CheckNotNullLength<EncryptionKeyContainer>(),
+                FollowUp.OPTIONAL );
 
         // --------------------------------------------------------------------------------------------
         // Transition from EncryptionKey type tag to key-type value
@@ -100,7 +102,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar<EncryptionKeyCon
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_TAG_STATE,
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_STATE,
                 UniversalTag.INTEGER,
-                new StoreKeyType() );
+                new StoreKeyType(),
+                FollowUp.OPTIONAL );
 
         // --------------------------------------------------------------------------------------------
         // Transition from key-type to key-value tag
@@ -113,7 +116,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar<EncryptionKeyCon
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_TYPE_STATE,
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_TAG_STATE,
                 KerberosConstants.ENCRYPTION_KEY_VALUE_TAG,
-                new CheckNotNullLength<EncryptionKeyContainer>() );
+                new CheckNotNullLength<EncryptionKeyContainer>(),
+                FollowUp.OPTIONAL );
 
         // --------------------------------------------------------------------------------------------
         // Transition from key-value tag to key-value value
@@ -126,7 +130,8 @@ public final class EncryptionKeyGrammar extends AbstractGrammar<EncryptionKeyCon
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_TAG_STATE,
                 EncryptionKeyStatesEnum.ENCRYPTION_KEY_VALUE_STATE,
                 UniversalTag.OCTET_STRING,
-                new StoreKeyValue() );
+                new StoreKeyValue(),
+                FollowUp.OPTIONAL );
     }
 
 

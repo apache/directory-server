@@ -75,7 +75,8 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
                 PrincipalNameStatesEnum.START_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_SEQ_STATE,
                 UniversalTag.SEQUENCE,
-                new PrincipalNameInit() );
+                new PrincipalNameInit(),
+                FollowUp.OPTIONAL );
 
         // --------------------------------------------------------------------------------------------
         // Transition from PrincipalName SEQ to name-type tag
@@ -87,7 +88,8 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_SEQ_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE,
                 KerberosConstants.PRINCIPAL_NAME_NAME_TYPE_TAG,
-                new CheckNotNullLength<PrincipalNameContainer>() );
+                new CheckNotNullLength<PrincipalNameContainer>(),
+                FollowUp.OPTIONAL );
 
         // --------------------------------------------------------------------------------------------
         // Transition from name-type tag to name-type value
@@ -100,7 +102,8 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_TAG_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE,
                 UniversalTag.INTEGER,
-                new StoreNameType() );
+                new StoreNameType(),
+                FollowUp.OPTIONAL );
 
         // --------------------------------------------------------------------------------------------
         // Transition from name-type value to name-string tag
@@ -113,7 +116,8 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_TYPE_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE,
                 KerberosConstants.PRINCIPAL_NAME_NAME_STRING_TAG,
-                new CheckNotNullLength<PrincipalNameContainer>() );
+                new CheckNotNullLength<PrincipalNameContainer>(),
+                FollowUp.OPTIONAL);
 
         // --------------------------------------------------------------------------------------------
         // Transition from name-string tag to name-string SEQ
@@ -127,7 +131,8 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_TAG_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,
                 UniversalTag.SEQUENCE,
-                new CheckNotNullLength<PrincipalNameContainer>() );
+                new CheckNotNullLength<PrincipalNameContainer>(),
+                FollowUp.OPTIONAL );
 
         // --------------------------------------------------------------------------------------------
         // Transition from name-string SEQ to name-string value
@@ -141,7 +146,8 @@ public final class PrincipalNameGrammar extends AbstractGrammar<PrincipalNameCon
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,
                 PrincipalNameStatesEnum.PRINCIPAL_NAME_NAME_STRING_SEQ_STATE,
                 UniversalTag.GENERAL_STRING,
-                new StoreNameString() );
+                new StoreNameString(),
+                FollowUp.OPTIONAL );
     }
 
 
