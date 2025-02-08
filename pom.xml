@@ -56,12 +56,12 @@
     <ant.version>1.10.15</ant.version>
     <bcprov.version>1.79</bcprov.version>
     <commons.cli.version>1.9.0</commons.cli.version>
-    <commons.codec.version>1.17.1</commons.codec.version>
+    <commons.codec.version>1.18.0</commons.codec.version>
     <commons.collections.version>4.5.0-M3</commons.collections.version>
     <commons.daemon.version>1.4.0</commons.daemon.version>
     <commons.lang.version>3.17.0</commons.lang.version>
     <commons.net.version>3.11.1</commons.net.version>
-    <commons.pool.version>2.12.0</commons.pool.version>
+    <commons.pool.version>2.12.1</commons.pool.version>
     <dnsjava.version>3.6.2</dnsjava.version>
     <caffeine.version>2.9.3</caffeine.version>
     <findbugs.annotations.version>1.0.0</findbugs.annotations.version>
@@ -75,7 +75,7 @@
     <ldapsdk.version>4.1</ldapsdk.version>
     <logback.version>1.5.15</logback.version>
     <maven.version>3.9.9</maven.version>
-    <mina.core.version>2.2.3</mina.core.version>
+    <mina.core.version>2.2.4</mina.core.version>
     <org.apache.felix.version>7.0.5</org.apache.felix.version>
     <pax-exam.version>4.13.4</pax-exam.version>
     <pax-url.version>2.6.16</pax-url.version>
