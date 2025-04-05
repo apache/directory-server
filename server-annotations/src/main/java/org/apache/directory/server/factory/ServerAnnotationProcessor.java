@@ -232,7 +232,11 @@ public final class ServerAnnotationProcessor
                 }
                 ldapServer.setTrustManagers( trustManagers );
             }
-
+            
+            // Set the limits
+            ldapServer.setMaxSizeLimit( createLdapServer.maxSizeLimit() );
+            ldapServer.setMaxTimeLimit( createLdapServer.maxTimeLimit() );
+            
             return ldapServer;
         }
         else
