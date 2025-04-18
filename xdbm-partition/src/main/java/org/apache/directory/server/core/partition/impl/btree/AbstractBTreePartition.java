@@ -1274,7 +1274,18 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
                 }
             }
     
-            return fetch( partitionTxn, id, lookupContext.getDn() );
+            Entry result = fetch( partitionTxn, id, lookupContext.getDn() );
+            
+            if ( result == null )
+            {
+                System.out.println( "Entry not found!!!" );
+            }
+            else
+            {
+                System.out.println( "Entry found:" + result.getDn() );
+            }
+            
+            return result;
         }
         catch ( Exception e )
         {
@@ -3001,7 +3012,11 @@ public abstract class AbstractBTreePartition extends AbstractPartition implement
             try
             {
                 rwLock.readLock().lock();
-                suffixId = rdnIdx.forwardLookup( partitionTxn, key );
+                
+                if ( suffixId == null )
+                {
+                    suffixId = rdnIdx.forwardLookup( partitionTxn, key );
+                }
             }
             finally
             {
