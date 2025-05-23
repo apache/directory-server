@@ -216,7 +216,8 @@ import com.nimbusds.jose.util.StandardCharset;
             StartTlsHandler.class,
             StoredProcedureExtendedOperationHandler.class
     },
-    ntlmProvider = BogusNtlmProvider.class)
+    ntlmProvider = BogusNtlmProvider.class,
+    searchBaseDn = "dc=example,dc=com")
 public class SaslBindIT extends AbstractLdapTestUnit
 {
 
@@ -322,6 +323,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     public void testSaslCramMd5Bind() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME, getLdapServer().getPort() );
+        connection.setTimeOut(0);
 
         SaslCramMd5Request request = new SaslCramMd5Request();
         request.setUsername( userDn.getRdn().getValue() );
