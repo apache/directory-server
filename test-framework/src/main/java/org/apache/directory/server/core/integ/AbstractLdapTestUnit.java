@@ -92,8 +92,7 @@ public abstract class AbstractLdapTestUnit
     {
         AbstractLdapTestUnit.ldapServer = ldapServer;
     }
-    
-    
+        
     public void changeCertificate( String keyStoreFile, String password, String issuerDn, String subjectDn, int days, String algorithm ) 
         throws IOException, GeneralSecurityException
     {
