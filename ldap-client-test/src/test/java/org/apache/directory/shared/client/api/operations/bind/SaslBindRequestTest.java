@@ -30,23 +30,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import javax.net.ssl.TrustManagerFactory;
-import javax.security.auth.login.Configuration;
-
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
-import org.apache.directory.api.ldap.model.cursor.CursorException;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.ldap.client.api.LdapAsyncConnection;
-import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.SaslGssApiRequest;
 import org.apache.directory.ldap.client.api.SaslPlainRequest;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -102,18 +91,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
         {
             @CreateTransport(protocol = "LDAP"), 
             @CreateTransport(protocol = "LDAPS")
-        }
+        },
+        searchBaseDn = "ou=users,ou=system"
     )
 @ApplyLdifs(
     {
         // Entry # 1
-        "dn: ou=users,dc=example,dc=com",
-        "objectClass: organizationalUnit",
-        "objectClass: top",
-        "ou: users",
-        "",
-
-        "dn: uid=superuser,ou=users,dc=example,dc=com",
+        "dn: uid=superuser,ou=users,ou=system",
         "objectClass: person",
         "objectClass: organizationalPerson",
         "objectClass: inetOrgPerson",
@@ -125,7 +109,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
         "userPassword: test",
         "",
         // Entry # 2
-        "dn: uid=superuser2,ou=users,dc=example,dc=com",
+        "dn: uid=superuser2,ou=users,ou=system",
         "objectClass: person",
         "objectClass: organizationalPerson",
         "objectClass: inetOrgPerson",

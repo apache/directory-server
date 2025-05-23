@@ -237,6 +237,9 @@ public final class ServerAnnotationProcessor
             ldapServer.setMaxSizeLimit( createLdapServer.maxSizeLimit() );
             ldapServer.setMaxTimeLimit( createLdapServer.maxTimeLimit() );
             
+            // Set the searchBaseDN
+            ldapServer.setSearchBaseDn( createLdapServer.searchBaseDn() );
+
             return ldapServer;
         }
         else

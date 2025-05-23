@@ -113,4 +113,7 @@ public @interface CreateLdapServer
      *  @return The trust manager classes
      */
     Class<?>[] trustManagers() default {};
+    
+    /** The DN from which searches for users will be done */
+    String searchBaseDn() default "ou=users,ou=system";
 }
