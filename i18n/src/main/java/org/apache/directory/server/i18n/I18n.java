@@ -636,7 +636,7 @@ public enum I18n
         try
         {
             return err + " "
-                + new MessageFormat( ERR_BUNDLE.getString( err.getErrorCode() ), Locale.ROOT ).format( args );
+                + new MessageFormat( MSG_BUNDLE.getString( err.getErrorCode() ), Locale.ROOT ).format( args );
         }
         catch ( Exception e )
         {
