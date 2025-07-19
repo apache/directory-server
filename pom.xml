@@ -55,6 +55,7 @@
     <!-- Set versions for depending jars -->
     <ant.version>1.9.4</ant.version>
     <bcprov.version>1.52</bcprov.version>
+    <bcpkix-fips.version>2.0.7</bcpkix-fips.version>
     <commons.cli.version>1.2</commons.cli.version>
     <commons.collections.version>3.2.1</commons.collections.version>
     <commons.daemon.version>1.0.15</commons.daemon.version>
@@ -162,8 +163,8 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
+            <source>1.8</source>
+            <target>1.8</target>
             <optimize>true</optimize>
             <showDeprecations>true</showDeprecations>
             <encoding>ISO-8859-1</encoding>
@@ -1201,6 +1202,12 @@
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk15on</artifactId>
         <version>${bcprov.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-fips</artifactId>
+        <version>${bcpkix-fips.version}</version>
       </dependency>
 
       <dependency>
