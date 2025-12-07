@@ -345,9 +345,6 @@ public class JdbmPartition extends AbstractBTreePartition
         // get the names of the db files
         List<String> indexDbFileNameList = Arrays.asList( partitionDir.list( DB_FILTER ) );
 
-        // then add all index objects to a list
-        List<String> allIndices = new ArrayList<>();
-
         try
         {
             // Iterate on the declared indexes, deleting the old ones
@@ -356,7 +353,6 @@ public class JdbmPartition extends AbstractBTreePartition
                 // Index won't be initialized at this time, so lookup AT registry to get the OID
                 AttributeType indexAT = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() );
                 String oid = indexAT.getOid();
-                allIndices.add( oid );
                 
                 // take the part after removing .db from the
                 String name = oid + JDBM_DB_FILE_EXTN;
@@ -449,13 +445,11 @@ public class JdbmPartition extends AbstractBTreePartition
             }
 
             // Iterate on the declared indexes
-            List<String> allIndices = new ArrayList<>();
             List<Index<?, String>> indexToBuild = new ArrayList<>();
 
             for ( Index<?, String> index : getIndexedAttributes() )
             {
                 String oid = schemaManager.lookupAttributeTypeRegistry( index.getAttributeId() ).getOid();
-                allIndices.add( oid );
                 
                 // if the name doesn't exist in the database
                 // this is a new index and we need to build it
