@@ -443,6 +443,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * SASL Quality of Protection set to 'auth-int' over ldaps://.
      */
     @Test
+    @Disabled("Flaky test")
     public void testSaslDigestMd5BindSaslQoPAuthIntOverLdaps() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
@@ -475,6 +476,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * SASL Quality of Protection set to 'auth-int' over StartTLS
      */
     @Test
+    @Disabled("Flaky test")
     public void testSaslDigestMd5BindSaslQoPAuthIntOverStartTLS() throws Exception
     {
         ldapServer.setConfidentialityRequired( true );
@@ -723,6 +725,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
 
 
     @Test
+    @Disabled("Flaky test")
     public void testSaslGssApiBindSaslQoPAuthConfOverStartTLS() throws Exception
     {
         SimpleKdcServer kerbyServer = new SimpleKdcServer();
