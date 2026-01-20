@@ -18,8 +18,6 @@
  */
 package org.apache.directory.server.core.factory;
 
-
-import org.apache.commons.collections4.Factory;
 import org.apache.directory.server.core.api.DirectoryService;
 
 
@@ -55,7 +53,7 @@ public interface DirectoryServiceFactory
     /**
      * Gets the partition factory.
      * 
-     * @return the partition {@link Factory}
+     * @return the partition Factory
      * @throws Exception If the partition cannot be created
      */
     PartitionFactory getPartitionFactory() throws Exception;

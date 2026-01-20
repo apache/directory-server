@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.codec.Charsets;
 import org.apache.directory.api.ldap.model.constants.MetaSchemaConstants;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
@@ -358,7 +358,7 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             if ( !value.isHumanReadable() )
             {
-                return new Value( attributeType, new String( value.getBytes(), Charsets.UTF_8 ) );
+                return new Value( attributeType, new String( value.getBytes(), StandardCharsets.UTF_8 ) );
             }
         }
         else
@@ -1818,7 +1818,7 @@ public class SchemaInterceptor extends BaseInterceptor
             {
                 // we have a byte[] value. It should be a String UTF-8 encoded
                 // Let's transform it
-                String valStr = new String( value.getBytes(), Charsets.UTF_8 );
+                String valStr = new String( value.getBytes(), StandardCharsets.UTF_8 );
                 attribute.remove( value );
                 attribute.add( valStr );
                 isModified = true;

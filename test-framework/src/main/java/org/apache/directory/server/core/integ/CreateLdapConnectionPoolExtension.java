@@ -23,6 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.time.Duration;
 
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -174,23 +175,23 @@ public class CreateLdapConnectionPoolExtension implements BeforeAllCallback, Aft
             config.setBinaryAttributeDetector( binaryAttributeDetector );
         }
 
-        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+        GenericObjectPoolConfig<LdapConnection> poolConfig = new GenericObjectPoolConfig<>();
         poolConfig.setLifo( createLdapConnectionPool.lifo() );
         poolConfig.setMaxTotal( createLdapConnectionPool.maxActive() );
         poolConfig.setMaxIdle( createLdapConnectionPool.maxIdle() );
-        poolConfig.setMaxWaitMillis( createLdapConnectionPool.maxWait() );
-        poolConfig.setMinEvictableIdleTimeMillis( createLdapConnectionPool
-            .minEvictableIdleTimeMillis() );
+        poolConfig.setMaxWait( Duration.ofMillis( createLdapConnectionPool.maxWait() ) );
+        poolConfig.setMinEvictableIdleDuration( Duration.ofMillis( createLdapConnectionPool
+            .minEvictableIdleTimeMillis() ) );
         poolConfig.setMinIdle( createLdapConnectionPool.minIdle() );
         poolConfig.setNumTestsPerEvictionRun( createLdapConnectionPool
             .numTestsPerEvictionRun() );
-        poolConfig.setSoftMinEvictableIdleTimeMillis( createLdapConnectionPool
-            .softMinEvictableIdleTimeMillis() );
+        poolConfig.setSoftMinEvictableIdleDuration( Duration.ofMillis( createLdapConnectionPool
+            .softMinEvictableIdleTimeMillis() ) );
         poolConfig.setTestOnBorrow( createLdapConnectionPool.testOnBorrow() );
         poolConfig.setTestOnReturn( createLdapConnectionPool.testOnReturn() );
         poolConfig.setTestWhileIdle( createLdapConnectionPool.testWhileIdle() );
-        poolConfig.setTimeBetweenEvictionRunsMillis( createLdapConnectionPool
-            .timeBetweenEvictionRunsMillis() );
+        poolConfig.setTimeBetweenEvictionRuns( Duration.ofMillis( createLdapConnectionPool
+            .timeBetweenEvictionRunsMillis() ) );
         poolConfig.setBlockWhenExhausted( createLdapConnectionPool
             .whenExhaustedAction() == 1 );
         
