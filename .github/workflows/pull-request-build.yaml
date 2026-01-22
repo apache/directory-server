@@ -23,7 +23,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build with Apache Maven
-        run: mvn -U clean install -Djava.awt.headless=true -fae -B
+        run: mvn -U clean install -Djava.awt.headless=true -fae -B --no-transfer-progress
+        env:
+          DEVELOCITY_ACCESS_KEY: ${{ secrets.DIRECTORY_DEVELOCITY_ACCESS_KEY }}
     env: 
        MAVEN_OPTS: "-Xmx1024M"
   build-java-17:
@@ -41,4 +43,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build with Apache Maven
-        run: mvn -U clean install -Djava.awt.headless=true -fae -B
+        run: mvn -U clean install -Djava.awt.headless=true -fae -B --no-transfer-progress
+        env:
+          DEVELOCITY_ACCESS_KEY: ${{ secrets.DIRECTORY_DEVELOCITY_ACCESS_KEY }}
