@@ -58,7 +58,7 @@
     <commons.cli.version>1.9.0</commons.cli.version>
     <commons.codec.version>1.18.0</commons.codec.version>
     <commons.collections.version>4.5.0-M3</commons.collections.version>
-    <commons.daemon.version>1.4.1</commons.daemon.version>
+    <commons.daemon.version>1.5.1</commons.daemon.version>
     <commons.lang.version>3.18.0</commons.lang.version>
     <commons.net.version>3.11.1</commons.net.version>
     <commons.pool.version>2.12.1</commons.pool.version>
