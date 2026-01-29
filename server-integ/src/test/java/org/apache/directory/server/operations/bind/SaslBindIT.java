@@ -570,7 +570,6 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * SASL Quality of Protection set to 'auth-conf' over StartTLS.
      */
     @Test
-    @Disabled("Flaky test")
     public void testSaslDigestMd5BindSaslQoPAuthConfOverStartTLS() throws Exception
     {
         ldapServer.setConfidentialityRequired( true );
