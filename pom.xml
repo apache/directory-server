@@ -46,7 +46,7 @@
     <doclint>none</doclint>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>2.1.9-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.1.8-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>2.0.2</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
