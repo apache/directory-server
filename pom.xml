@@ -54,7 +54,7 @@
     
     <!-- Set versions for depending jars -->
     <ant.version>1.10.15</ant.version>
-    <bcprov.version>1.80</bcprov.version>
+    <bcprov.version>1.83</bcprov.version>
     <commons.cli.version>1.11.0</commons.cli.version>
     <commons.codec.version>1.21.0</commons.codec.version>
     <commons.collections.version>4.5.0</commons.collections.version>
