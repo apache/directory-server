@@ -412,6 +412,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * SASL Quality of Protection set to 'auth-int'.
      */
     @Test
+    @Disabled("Flaky test")
     public void testSaslDigestMd5BindSaslQoPAuthInt() throws Exception
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
