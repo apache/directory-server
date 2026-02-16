@@ -294,7 +294,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     }
 
 
-    private LinkedAvlNode<K> rotateRight( LinkedAvlNode<K> x )
+    private synchronized LinkedAvlNode<K> rotateRight( LinkedAvlNode<K> x )
     {
         LinkedAvlNode<K> y = x.left;
         x.left = y.right;
@@ -305,7 +305,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     }
 
 
-    private LinkedAvlNode<K> rotateLeft( LinkedAvlNode<K> x )
+    private synchronized LinkedAvlNode<K> rotateLeft( LinkedAvlNode<K> x )
     {
         LinkedAvlNode<K> y = x.right;
         x.right = y.left;
