@@ -16,7 +16,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License. -->
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.directory.server/apacheds-all/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.directory.server/apacheds-all)
+[![Maven Central](https://maven-badges.sml.io/maven-central/org.apache.directory.server/apacheds-all/badge.svg)](https://maven-badges.sml.io/maven-central/org.apache.directory.server/apacheds-all)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/apache/directory-server/badge)](https://api.securityscorecards.dev/projects/github.com/apache/directory-server)
 
 Apache Directory Server
