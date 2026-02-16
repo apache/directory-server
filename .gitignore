@@ -16,3 +16,4 @@ out/
 META-INF/
 dependency-reduced-pom.xml
 sbom.json
+.mvn/.develocity/develocity-workspace-id
