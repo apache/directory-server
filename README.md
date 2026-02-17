@@ -33,7 +33,7 @@ Export Notice
    encryption software.  BEFORE using any encryption software, please 
    check your country's laws, regulations and policies concerning the
    import, possession, or use, and re-export of encryption software, to 
-   see if this is permitted.  See <http://www.wassenaar.org/> for more
+   see if this is permitted.  See <https://www.wassenaar.org/> for more
    information.
 
    The U.S. Government Department of Commerce, Bureau of Industry and
@@ -49,4 +49,4 @@ Export Notice
    The following provides more details on the included cryptographic
    software:
 
-   http://www.bouncycastle.org/
+   https://www.bouncycastle.org/
