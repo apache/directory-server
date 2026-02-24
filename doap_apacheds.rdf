@@ -21,57 +21,26 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  <Project rdf:about="http://directory.apache.org">
+  <Project rdf:about="https://directory.apache.org">
     <created>2007-04-17</created>
-    <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
+    <license rdf:resource="https://spdx.org/licenses/Apache-2.0" />
     <name>Apache Directory Server</name>
-    <homepage rdf:resource="http://directory.apache.org/apacheds/1.5" />
-    <asfext:pmc rdf:resource="http://directory.apache.org" />
+    <homepage rdf:resource="https://directory.apache.org/apacheds" />
+    <asfext:pmc rdf:resource="https://directory.apache.org" />
     <shortdesc>An extensible, embeddable LDAP and Kerberos server, entirely in Java</shortdesc>
     <description>ApacheDS is an extensible and embeddable directory server entirely written in Java, which has been certified LDAPv3 compatible by the Open Group. It has been designed to introduce triggers, stored procedures, queues and views to the world of LDAP which has lacked these rich constructs.</description>
-    <bug-database rdf:resource="http://issues.apache.org/jira/browse/DIRSERVER" />
-    <mailing-list rdf:resource="http://directory.apache.org/community%26resources/mailing-lists-and-irc.html" />
-    <download-page rdf:resource="http://www.apache.org/dyn/closer.cgi/directory/apacheds/" />
+    <bug-database rdf:resource="https://issues.apache.org/jira/browse/DIRSERVER" />
+    <mailing-list rdf:resource="https://directory.apache.org/mailing-lists-and-irc.html" />
+    <download-page rdf:resource="https://directory.apache.org/apacheds/downloads.html" />
     <programming-language>Java</programming-language>
-    <category rdf:resource="http://projects.apache.org/category/network-server" />
-
-    <release>
-      <Version>
-        <name>Feature release</name>
-        <created>2010-04-24</created>
-        <revision>1.5.7</revision>
-      </Version>
-    </release>
-
-    <release>
-      <Version>
-        <name>Stable release</name>
-        <created>2007-05-26</created>
-        <revision>1.0.2</revision>
-      </Version>
-    </release>
-    
-    <release>
-      <Version>
-        <name>Latest 2.x milestone release</name>
-        <created>2012-02-29</created>
-        <revision>2.0.0-M6</revision>
-      </Version>
-    </release>
+    <category rdf:resource="https://projects.apache.org/category/network-server" />
 
     <repository>
       <SVNRepository>
-        <location rdf:resource="http://svn.apache.org/repos/asf/directory/apacheds/"/>
-        <browse rdf:resource="http://svn.apache.org/viewvc/directory/apacheds/"/>
+        <location rdf:resource="https://github.com/apache/directory-server"/>
+        <browse rdf:resource="https://github.com/apache/directory-server"/>
       </SVNRepository>
     </repository>
-
-    <maintainer>
-      <foaf:Person>
-        <foaf:name>Stefan Zoerner</foaf:name>
-          <foaf:mbox rdf:resource="mailto:szoerner@apache.org"/>
-      </foaf:Person>
-    </maintainer>
 
     <asfext:implements><asfext:Standard>
       <asfext:title>Lightweight Directory Access Protocol (LDAP): The Protocol</asfext:title>
