@@ -36,24 +36,24 @@
     <category rdf:resource="https://projects.apache.org/category/network-server" />
 
     <repository>
-      <SVNRepository>
+      <GitRepository>
         <location rdf:resource="https://github.com/apache/directory-server"/>
         <browse rdf:resource="https://github.com/apache/directory-server"/>
-      </SVNRepository>
+      </GitRepository>
     </repository>
 
     <asfext:implements><asfext:Standard>
       <asfext:title>Lightweight Directory Access Protocol (LDAP): The Protocol</asfext:title>
       <asfext:body>IETF</asfext:body>
       <asfext:id>RFC 4511</asfext:id>
-      <asfext:url rdf:resource="http://www.ietf.org/rfc/rfc4511.txt"/>
+      <asfext:url rdf:resource="https://www.ietf.org/rfc/rfc4511.txt"/>
     </asfext:Standard></asfext:implements>
 
     <asfext:implements><asfext:Standard>
       <asfext:title>The Kerberos Network Authentication Service (V5)</asfext:title>
       <asfext:body>IETF</asfext:body>
       <asfext:id>RFC 4120</asfext:id>
-      <asfext:url rdf:resource="http://www.ietf.org/rfc/rfc4120.txt"/>
+      <asfext:url rdf:resource="https://www.ietf.org/rfc/rfc4120.txt"/>
     </asfext:Standard></asfext:implements>
 
   </Project>
