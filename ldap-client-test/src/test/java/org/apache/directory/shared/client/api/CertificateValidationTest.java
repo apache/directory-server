@@ -59,7 +59,6 @@ import org.apache.directory.api.ldap.model.exception.LdapTlsHandshakeException;
 import org.apache.directory.api.ldap.model.exception.LdapTlsHandshakeFailCause.LdapApiReason;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
@@ -391,22 +390,22 @@ public class CertificateValidationTest extends AbstractLdapTestUnit
     }
 
 
-    private LdapConnectionConfig startTlsConnectionConfig()
+    private LdapConnectionConfig startTlsConnectionConfig() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setTimeout( 1000 );
-        config.setLdapHost( "localhost" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( getLdapServer().getPort() );
         config.setUseTls( true );
         return config;
     }
 
 
-    private LdapConnectionConfig ldapsConnectionConfig()
+    private LdapConnectionConfig ldapsConnectionConfig() throws Exception
     {
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setTimeout( 1000 );
-        config.setLdapHost( "localhost" );
+        config.setLdapHost( InetAddress.getLocalHost().getHostName() );
         config.setLdapPort( getLdapServer().getPortSSL() );
         config.setUseSsl( true );
         return config;
