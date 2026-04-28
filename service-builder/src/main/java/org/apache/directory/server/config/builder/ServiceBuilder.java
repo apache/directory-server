@@ -1066,7 +1066,11 @@ public final class ServiceBuilder
                 config.setSearchSizeLimit( replBean.getReplSearchSizeLimit() );
 
                 config.setUseTls( replBean.isReplUseTls() );
-                config.setStrictCertVerification( replBean.isReplStrictCertValidation() );
+
+                if ( !Strings.isEmpty( replBean.getReplTrustManagerFQCN() ) )
+                {
+                    config.setTrustManager( SyncReplConfiguration.createTrustManager( replBean.getReplTrustManagerFQCN() ) );
+                }
 
                 config.setConfigEntryDn( replBean.getDn() );
 

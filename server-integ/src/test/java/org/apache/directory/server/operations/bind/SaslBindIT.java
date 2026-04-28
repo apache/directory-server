@@ -64,10 +64,10 @@ import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.apache.directory.ldap.client.api.SaslCramMd5Request;
 import org.apache.directory.ldap.client.api.SaslDigestMd5Request;
 import org.apache.directory.ldap.client.api.SaslGssApiRequest;
+import org.apache.directory.server.NoVerificationTrustManager;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.annotations.SaslMechanism;
@@ -391,7 +391,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
     {
         LdapNetworkConnection connection = new LdapNetworkConnection( Network.LOOPBACK_HOSTNAME,
             getLdapServer().getPortSSL(), true );
-        connection.getConfig().setTrustManagers( new NoVerificationTrustManager() );
+        connection.getConfig().setTrustManagers( new org.apache.directory.server.NoVerificationTrustManager() );
 
         SaslDigestMd5Request request = new SaslDigestMd5Request();
         request.setUsername( userDn.getRdn().getValue() );

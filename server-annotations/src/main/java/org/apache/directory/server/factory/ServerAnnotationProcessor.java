@@ -296,7 +296,11 @@ public final class ServerAnnotationProcessor
         config.setUseTls( createConsumer.useTls() );
         config.setBaseDn( createConsumer.baseDn() );
         config.setRefreshInterval( createConsumer.refreshInterval() );
-        config.setStrictCertVerification( createConsumer.strictCertVerification() );
+
+        if ( !Strings.isEmpty( createConsumer.trustManagerFQCN() ) )
+        {
+            config.setTrustManager( SyncReplConfiguration.createTrustManager( createConsumer.trustManagerFQCN() ) );
+        }
 
         consumer.setConfig( config );
 

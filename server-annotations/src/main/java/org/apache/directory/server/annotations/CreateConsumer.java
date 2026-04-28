@@ -53,7 +53,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
  *   <li>configEntryDn : the configuration entry's DN</li>
  *   <li>chaseReferrals : tells if we chase referrals, defaults to false</li>
  *   <li>useTls : the connection uses TLS, defaults to true</li>
- *   <li>strictCertVerification : strictly verify the certificate, defaults to true</li>
+ *   <li>trustManagerFQCN : X509TrustManager FQCN to override strictCertVerification</li>
  * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
@@ -199,11 +199,12 @@ public @interface CreateConsumer
     boolean useTls() default true;
 
 
-    /** 
-     * flag to indicate the use of strict certificate verification, default is true
-     *  
-     * @return <tt>true</tt> if a strict certificate validation is done
+    /**
+     * Fully-qualified class name of an X509TrustManager to use for replication TLS.
+     * If set, this takes precedence over strictCertVerification().
+     *
+     * @return The trust manager FQCN
      */
-    boolean strictCertVerification() default true;
+    String trustManagerFQCN() default "";
 
 }
