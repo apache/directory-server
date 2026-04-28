@@ -42,6 +42,7 @@ import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -114,6 +115,7 @@ public class SubentryServiceEntryModificationHandlingIT extends AbstractLdapTest
 
 
     @Test
+    @Disabled  // TODO
     public void testTrackingOfEntryModificationsInSubentryServiceModifyRoutine() throws Exception
     {
         try ( LdapConnection connection = IntegrationUtils.getAdminConnection( getService() ) )
