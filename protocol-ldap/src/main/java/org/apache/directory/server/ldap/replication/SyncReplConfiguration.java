@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.replication;
 
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.net.ssl.X509TrustManager;
@@ -31,7 +32,6 @@ import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Network;
-import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 
 
 /**
@@ -56,8 +56,7 @@ import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
  *   <li>chaseReferrals : tells if we chase referrals, defaults to false</li>
  *   <li>cookie : the replication cookie</li>
  *   <li>useTls : the connection uses TLS, defaults to true</li>
- *   <li>strictCertVerification : strictly verify the certificate, defaults to true</li>
- *   <li>trustManager : the trustManager to use, defaults to @link{ReplicationTrustManager}</li>
+ *   <li>trustManager : the trustManager to use, defaults to {@link ReplicationTrustManager}</li>
  *   <li></li>
  * </ul>
  * 
@@ -123,9 +122,6 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
     /** flag to indicate the use of TLS, default is true */
     private boolean useTls = true;
-
-    /** flag to indicate the use of strict certificate verification, default is true */
-    private boolean strictCertVerification = true;
 
     /** the X509 certificate trust manager used, default value set to {@link ReplicationTrustManager} */
     private X509TrustManager trustManager = ReplicationTrustManager.getInstance();
@@ -514,40 +510,52 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
 
     /**
-     * @return true if the certificate verification is enforced 
-     */
-    public boolean isStrictCertVerification()
-    {
-        return strictCertVerification;
-    }
-
-
-    /**
-     * set the strict certificate verification
-     * 
-     * @param strictCertVerification If we require a certificate validation
-     */
-    public void setStrictCertVerification( boolean strictCertVerification )
-    {
-        if ( strictCertVerification )
-        {
-            trustManager = ReplicationTrustManager.getInstance();
-        }
-        else
-        {
-            trustManager = new NoVerificationTrustManager();
-        }
-
-        this.strictCertVerification = strictCertVerification;
-    }
-
-
-    /**
      * @return The Trustmanager instance
      */
     public X509TrustManager getTrustManager()
     {
         return trustManager;
+    }
+
+
+    /**
+     * Creates an X509 trust manager from the given fully-qualified class name.
+     *
+     * @param trustManagerFqcn The trust manager class name to instantiate
+     * @return The instantiated trust manager
+     */
+    public static X509TrustManager createTrustManager( String trustManagerFqcn )
+    {
+        try
+        {
+            Class<?> trustManagerClass = Class.forName( trustManagerFqcn );
+
+            if ( !X509TrustManager.class.isAssignableFrom( trustManagerClass ) )
+            {
+                throw new IllegalArgumentException( "class " + trustManagerFqcn + " is not an X509TrustManager" );
+            }
+
+            return ( X509TrustManager ) trustManagerClass.newInstance();
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            throw iae;
+        }
+        catch ( Exception e )
+        {
+            throw new IllegalArgumentException( "Cannot instantiate trust manager class " + trustManagerFqcn, e );
+        }
+    }
+
+
+    /**
+     * Sets the trust manager used for TLS certificate validation.
+     *
+     * @param trustManager The trust manager to use, cannot be null
+     */
+    public void setTrustManager( X509TrustManager trustManager )
+    {
+        this.trustManager = Objects.requireNonNull( trustManager, "trustManager cannot be null" );
     }
 
 
@@ -635,11 +643,6 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
         sb.append( "provider:" ).append( producer ).append( ", " );
         sb.append( "user:'" ).append( replUserDn ).append( "', " );
-
-        if ( strictCertVerification )
-        {
-            sb.append( "strict" ).append( ", " );
-        }
 
         sb.append( "TLS:" ).append( useTls ).append( "]" );
 

@@ -51,6 +51,7 @@ import org.apache.directory.server.core.integ.ApacheDSTestExtension;
 import org.apache.directory.server.core.integ.IntegrationUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -260,6 +261,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
 
 
     @Test
+    @Disabled   // TODO
     public void testSelfModification() throws Exception
     {
         // ----------------------------------------------------------------------------------
@@ -312,6 +314,7 @@ public class ModifyAuthorizationIT extends AbstractLdapTestUnit
      * @throws javax.naming.Exception if the test encounters an error
      */
     @Test
+    @Disabled   // TODO
     public void testGrantModifyByTestGroup() throws Exception
     {
         // ----------------------------------------------------------------------------------

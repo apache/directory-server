@@ -98,9 +98,9 @@ public class ReplConsumerBean extends AdsBaseBean
     @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_USE_TLS, isOptional = true)
     private boolean replUseTls;
 
-    /** Tells if the certificate validation should be strict or not */
-    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_STRICT_CERT_VALIDATION, isOptional = true)
-    private boolean replStrictCertValidation;
+    /** The X509 TrustManager FQCN to use */
+    @ConfigurationElement(attributeType = "ads-replTrustManagerFQCN", isOptional = true)
+    private String replTrustManagerFQCN;
 
     /** The FQCN of replication client implementation */
     @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_CONSUMER_IMPL, isOptional = true)
@@ -420,20 +420,20 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
-     * @return the replStrictCertValidation
+     * @return the replTrustManagerFQCN
      */
-    public boolean isReplStrictCertValidation()
+    public String getReplTrustManagerFQCN()
     {
-        return replStrictCertValidation;
+        return replTrustManagerFQCN;
     }
 
 
     /**
-     * @param replStrictCertValidation the replStrictCertValidation to set
+     * @param replTrustManagerFQCN the replTrustManagerFQCN to set
      */
-    public void setReplStrictCertValidation( boolean replStrictCertValidation )
+    public void setReplTrustManagerFQCN( String replTrustManagerFQCN )
     {
-        this.replStrictCertValidation = replStrictCertValidation;
+        this.replTrustManagerFQCN = replTrustManagerFQCN;
     }
 
 
@@ -482,8 +482,8 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( toString( tabs, "  user password", String.valueOf( replUserPassword ) ) ); // do not reveal the password, just null or not
         sb.append( toString( tabs, "  cookie", replCookie ) );
         sb.append( tabs ).append( "  consumer implementation's FQCN : " ).append( replConsumerImpl ).append( '\n' );
+        sb.append( toString( tabs, "  trust manager's FQCN", replTrustManagerFQCN ) );
 
-        sb.append( toString( tabs, "  struct certivicate validation", replStrictCertValidation ) );
         sb.append( toString( tabs, "  use TLS", replUseTls ) );
 
         return sb.toString();

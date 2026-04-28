@@ -100,7 +100,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
                 },
         trustManagers =
                 {
-                        org.apache.directory.ldap.client.api.NoVerificationTrustManager.class
+                        org.apache.directory.server.NoVerificationTrustManager.class
                 },
         searchBaseDn = "ou=users,dc=example,dc=com")
 @ApplyLdifs(
