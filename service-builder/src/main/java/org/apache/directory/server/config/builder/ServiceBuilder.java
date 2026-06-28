@@ -26,6 +26,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -409,6 +410,13 @@ public final class ServiceBuilder
         if ( ldifFile.isDirectory() )
         {
             File[] files = ldifFile.listFiles( ldifFilter );
+
+            if ( files == null )
+            {
+                return;
+            }
+
+            Arrays.sort( files );
 
             for ( File f : files )
             {
