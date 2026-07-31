@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>51-SNAPSHOT</version>
+    <version>51</version>
     <relativePath />
   </parent>
 
@@ -46,7 +46,7 @@
     <doclint>none</doclint>
 
     <!-- Set versions for depending projects -->
-    <org.apache.directory.api.version>2.1.8-SNAPSHOT</org.apache.directory.api.version>
+    <org.apache.directory.api.version>2.1.9-SNAPSHOT</org.apache.directory.api.version>
     <org.apache.directory.mavibot.version>1.0.0-M8</org.apache.directory.mavibot.version>
     <org.apache.directory.checkstyle-configuration.version>2.0.2</org.apache.directory.checkstyle-configuration.version>
     <org.apache.directory.jdbm.version>2.0.0-M3</org.apache.directory.jdbm.version>
@@ -59,7 +59,7 @@
     <commons.cli.version>1.11.0</commons.cli.version>
     <commons.codec.version>1.22.0</commons.codec.version>
     <commons.collections.version>4.5.0</commons.collections.version>
-    <commons.daemon.version>1.5.1</commons.daemon.version>
+    <commons.daemon.version>1.6.1</commons.daemon.version>
     <commons.lang.version>3.20.0</commons.lang.version>
     <commons.net.version>3.13.0</commons.net.version>
     <commons.pool.version>2.13.1</commons.pool.version>
@@ -72,11 +72,11 @@
     <!-- The Jetty bundle exports are using version 9.4.5, not 9.4.5.v20170502... -->
     <jetty.bundle.version>9.4.48</jetty.bundle.version>
     <junit.jupiter.api.version>5.14.4</junit.jupiter.api.version>
-    <kerby.version>2.1.1</kerby.version>
+    <kerby.version>2.1.2</kerby.version>
     <ldapsdk.version>4.1</ldapsdk.version>
-    <logback.version>1.5.32</logback.version>
+    <logback.version>1.5.34</logback.version>
     <maven.version>3.9.16</maven.version>
-    <mina.core.version>2.2.7</mina.core.version>
+    <mina.core.version>2.2.9</mina.core.version>
     <org.apache.felix.version>7.0.5</org.apache.felix.version>
     <pax-exam.version>4.13.4</pax-exam.version>
     <pax-url.version>2.6.16</pax-url.version>
