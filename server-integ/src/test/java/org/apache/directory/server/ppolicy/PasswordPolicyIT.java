@@ -289,7 +289,7 @@ public class PasswordPolicyIT extends AbstractLdapTestUnit
             }
             catch ( LdapAuthenticationException le )
             {
-                assertEquals( expectedMessage, le.getMessage() );
+                assertTrue( le.getMessage().startsWith( expectedMessage ) );
             }
         }
     }

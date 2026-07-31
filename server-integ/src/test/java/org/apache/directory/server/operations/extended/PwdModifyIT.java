@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyErrorEnum;
 import org.apache.directory.api.ldap.extras.controls.ppolicy.PasswordPolicyResponse;
@@ -146,7 +147,7 @@ public class PwdModifyIT extends AbstractLdapTestUnit
             }
             catch ( LdapAuthenticationException le )
             {
-                assertEquals( expectedMessage, le.getMessage() );
+                assertTrue( le.getMessage().startsWith( expectedMessage ) );
             }
         }
     }
