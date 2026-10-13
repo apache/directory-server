@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.schema.LdapSyntax;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.SyntaxChecker;
 import org.apache.directory.api.ldap.model.schema.syntaxCheckers.OctetStringSyntaxChecker;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
@@ -194,6 +195,9 @@ public class MetaSyntaxCheckerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddSyntaxCheckerWithByteCodeOnDisabledSchema() throws Exception
     {
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try ( InputStream in = getClass().getResourceAsStream( "DummySyntaxChecker.bytecode" ) )

@@ -359,40 +359,50 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // check add with valid bytecode
         // -------------------------------------------------------------------
 
-        descriptions.clear();
-        descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
-                + getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
-
-        // 4th change
-        modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( getService().getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
-
-        // -------------------------------------------------------------------
-        // check remove
-        // -------------------------------------------------------------------
-
-        // 5th change
-        modify( ModificationOperation.REMOVE_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( getService().getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
-
-        // -------------------------------------------------------------------
-        // check add no schema info
-        // -------------------------------------------------------------------
-        descriptions.clear();
-        descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
-                + getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
-
-        // 6th change
-        modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
-        checkSyntaxCheckerPresent( getService().getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
-
-        // after a total of 6 changes
-        if ( getService().getChangeLog().getLatest() != null )
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        try
         {
-            assertEquals( getService().getChangeLog().getLatest().getRevision() + 6, getService().getChangeLog()
-                .getCurrentRevision() );
+            descriptions.clear();
+            descriptions
+                .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
+                    + getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
+    
+            // 4th change
+            modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
+            checkSyntaxCheckerPresent( getService().getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
+    
+            // -------------------------------------------------------------------
+            // check remove
+            // -------------------------------------------------------------------
+    
+            // 5th change
+            modify( ModificationOperation.REMOVE_ATTRIBUTE, descriptions, "syntaxCheckers" );
+            checkSyntaxCheckerPresent( getService().getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
+    
+            // -------------------------------------------------------------------
+            // check add no schema info
+            // -------------------------------------------------------------------
+            descriptions.clear();
+            descriptions
+                .add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.syntaxCheckers.DummySyntaxChecker BYTECODE "
+                    + getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
+    
+            // 6th change
+            modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
+            checkSyntaxCheckerPresent( getService().getSchemaManager(), "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
+    
+            // after a total of 6 changes
+            if ( getService().getChangeLog().getLatest() != null )
+            {
+                assertEquals( getService().getChangeLog().getLatest().getRevision() + 6, getService().getChangeLog()
+                    .getCurrentRevision() );
+            }
+        }
+        finally
+        {
+            // And reset the system property to forbid bytecode loading
+            System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "false" );
         }
     }
 
@@ -513,33 +523,43 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // check add with valid bytecode
         // -------------------------------------------------------------------
-
-        descriptions.clear();
-        descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.comparators.DummyComparator BYTECODE "
-                + getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
-
-        modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "comparators" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", true );
-
-        // -------------------------------------------------------------------
-        // check remove with valid bytecode
-        // -------------------------------------------------------------------
-
-        modify( ModificationOperation.REMOVE_ATTRIBUTE, descriptions, "comparators" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", false );
-
-        // -------------------------------------------------------------------
-        // check add no schema info
-        // -------------------------------------------------------------------
-
-        descriptions.clear();
-        descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.comparators.DummyComparator BYTECODE "
-                + getByteCode( "DummyComparator.bytecode" ) + " )" );
-
-        modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "comparators" );
-        checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "other", true );
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        
+        try
+        {
+            descriptions.clear();
+            descriptions
+                .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.comparators.DummyComparator BYTECODE "
+                    + getByteCode( "DummyComparator.bytecode" ) + " X-SCHEMA 'nis' )" );
+    
+            modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "comparators" );
+            checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", true );
+    
+            // -------------------------------------------------------------------
+            // check remove with valid bytecode
+            // -------------------------------------------------------------------
+    
+            modify( ModificationOperation.REMOVE_ATTRIBUTE, descriptions, "comparators" );
+            checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", false );
+    
+            // -------------------------------------------------------------------
+            // check add no schema info
+            // -------------------------------------------------------------------
+    
+            descriptions.clear();
+            descriptions
+                .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.comparators.DummyComparator BYTECODE "
+                    + getByteCode( "DummyComparator.bytecode" ) + " )" );
+    
+            modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "comparators" );
+            checkComparatorPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "other", true );
+        }
+        finally
+        {
+            // And reset the system property to forbid bytecode loading
+            System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "false" );
+        }
     }
 
 
@@ -661,33 +681,43 @@ public class SubschemaSubentryIT extends AbstractLdapTestUnit
         // -------------------------------------------------------------------
         // check add with valid bytecode
         // -------------------------------------------------------------------
-
-        descriptions.clear();
-        descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
-                + getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
-
-        modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "normalizers" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", true );
-
-        // -------------------------------------------------------------------
-        // check remove with valid bytecode
-        // -------------------------------------------------------------------
-
-        modify( ModificationOperation.REMOVE_ATTRIBUTE, descriptions, "normalizers" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", false );
-
-        // -------------------------------------------------------------------
-        // check add no schema info
-        // -------------------------------------------------------------------
-
-        descriptions.clear();
-        descriptions
-            .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
-                + getByteCode( "DummyNormalizer.bytecode" ) + " )" );
-
-        modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "normalizers" );
-        checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "other", true );
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        
+        try
+        {
+            descriptions.clear();
+            descriptions
+                .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
+                    + getByteCode( "DummyNormalizer.bytecode" ) + " X-SCHEMA 'nis' )" );
+    
+            modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "normalizers" );
+            checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", true );
+    
+            // -------------------------------------------------------------------
+            // check remove with valid bytecode
+            // -------------------------------------------------------------------
+    
+            modify( ModificationOperation.REMOVE_ATTRIBUTE, descriptions, "normalizers" );
+            checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "nis", false );
+    
+            // -------------------------------------------------------------------
+            // check add no schema info
+            // -------------------------------------------------------------------
+    
+            descriptions.clear();
+            descriptions
+                .add( "( 1.3.6.1.4.1.18060.0.4.0.1.100000 DESC 'bogus desc' FQCN org.apache.directory.api.ldap.model.schema.normalizers.DummyNormalizer BYTECODE "
+                    + getByteCode( "DummyNormalizer.bytecode" ) + " )" );
+    
+            modify( ModificationOperation.ADD_ATTRIBUTE, descriptions, "normalizers" );
+            checkNormalizerPresent( "1.3.6.1.4.1.18060.0.4.0.1.100000", "other", true );
+        }
+        finally
+        {
+            // And reset the system property to forbid bytecode loading
+            System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "false" );
+        }
     }
 
 

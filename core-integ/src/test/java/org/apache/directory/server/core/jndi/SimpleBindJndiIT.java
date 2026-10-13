@@ -41,6 +41,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.api.ldap.model.constants.JndiPropertyConstants;
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.ldap.client.api.LdapConnection;
@@ -321,14 +322,14 @@ public class SimpleBindJndiIT extends AbstractLdapTestUnit
 
 
     /**
-     * covers the Unauthenticated case : we should get a UnwillingToPerform error.
+     * Covers the Unauthenticated case : we should get a LdapAuthenticationException error.
      *
      * @throws Exception on error
      */
     @Test
     public void testSimpleBindAPrincipalNullPassword() throws Exception
     {
-        Assertions.assertThrows( LdapUnwillingToPerformException.class, () -> 
+        Assertions.assertThrows( LdapAuthenticationException.class, () -> 
         {
             LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );
             assertFalse( connection.isAuthenticated() );

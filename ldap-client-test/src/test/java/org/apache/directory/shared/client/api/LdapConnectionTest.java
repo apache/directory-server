@@ -235,7 +235,7 @@ public void testLookup() throws Exception
         assertFalse( entry.get( SchemaConstants.USER_PASSWORD_AT ).get().isHumanReadable() );
 
         // Now, test using the scerver's schema
-        ( ( LdapNetworkConnection ) connection.wrapped() ).loadSchema();
+        connection.loadSchema();
         connection.bind( "uid=admin,ou=system", "secret" );
 
         // Use the default list of binary Attributes

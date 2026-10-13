@@ -395,7 +395,7 @@ public class SimpleBindRequestTest extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindNoPassword() throws Exception
     {
-        Assertions.assertThrows( LdapUnwillingToPerformException.class, () -> 
+        Assertions.assertThrows( LdapAuthenticationException.class, () -> 
             connection.bind( "uid=admin,ou=system", ( String ) null ) );
     }
 

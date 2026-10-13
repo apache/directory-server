@@ -37,6 +37,7 @@ import org.apache.directory.api.ldap.model.message.ModifyDnResponse;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.MonitoringLdapConnection;
 import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.ModifyDnFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -190,7 +191,7 @@ public class ClientModifyDnRequestTest extends AbstractLdapTestUnit
         modDnReq.setNewRdn( new Rdn( "cn=modifyDnWithString" ) );
         modDnReq.setDeleteOldRdn( true );
 
-        ModifyDnFuture modifyDnFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).modifyDnAsync( modDnReq );
+        ModifyDnFuture modifyDnFuture =  ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).modifyDnAsync( modDnReq );
 
         ModifyDnResponse response = modifyDnFuture.get( 1000, TimeUnit.MILLISECONDS );
 

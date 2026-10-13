@@ -33,6 +33,7 @@ import org.apache.directory.api.ldap.model.message.ExtendedRequest;
 import org.apache.directory.api.ldap.model.message.ExtendedResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.MonitoringLdapConnection;
 import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.ExtendedFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -94,7 +95,7 @@ public class ClientExtendedRequestTest extends AbstractLdapTestUnit
         ExtendedRequest extendedRequest = new StartTlsRequestImpl();
         extendedRequest.setRequestName( StartTlsRequest.OID );
 
-        ExtendedFuture extendedFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).extendedAsync( extendedRequest );
+        ExtendedFuture extendedFuture =  ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).extendedAsync( extendedRequest );
 
         ExtendedResponse extendedResponse = ( ExtendedResponse ) extendedFuture.get( 1000, TimeUnit.MILLISECONDS );
 

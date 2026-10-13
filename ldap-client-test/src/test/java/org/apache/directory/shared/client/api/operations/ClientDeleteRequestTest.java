@@ -41,6 +41,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.message.controls.OpaqueControl;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.MonitoringLdapConnection;
 import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.DeleteFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -143,7 +144,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
 
         if ( connection.isControlSupported( "1.2.840.113556.1.4.805" ) )
         {
-        	( ( LdapNetworkConnection ) connection.wrapped() ).deleteTree( "cn=parent,ou=system" );
+            ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).deleteTree( "cn=parent,ou=system" );
 
             assertFalse( session.exists( "cn=parent,ou=system" ) );
         }
@@ -212,7 +213,7 @@ public class ClientDeleteRequestTest extends AbstractLdapTestUnit
         DeleteRequest deleteRequest = new DeleteRequestImpl();
         deleteRequest.setName( new Dn( "cn=grand_child12,cn=child1,cn=parent,ou=system" ) );
 
-        DeleteFuture deleteFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).deleteAsync( deleteRequest );
+        DeleteFuture deleteFuture =  ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).deleteAsync( deleteRequest );
 
         DeleteResponse deleteResponse = deleteFuture.get( 1000, TimeUnit.MILLISECONDS );
 

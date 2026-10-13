@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.comparators.BooleanComparator;
 import org.apache.directory.api.ldap.model.schema.comparators.StringComparator;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
@@ -190,82 +191,104 @@ public class MetaComparatorHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddComparatorWithByteCodeToEnabledSchema() throws Exception
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        try ( InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" ) )
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        
+        try
         {
-            while ( in.available() > 0 )
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+    
+            try ( InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" ) )
             {
-                out.write( in.read() );
+                while ( in.available() > 0 )
+                {
+                    out.write( in.read() );
+                }
             }
+    
+            Dn dn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=apachemeta,ou=schema" );
+    
+            Entry entry = new DefaultEntry(
+                dn,
+                "objectClass: top",
+                "objectClass: metaTop",
+                "objectClass: metaComparator",
+                "m-fqcn: org.apache.directory.api.ldap.model.schema.comparators.DummyComparator",
+                "m-bytecode", out.toByteArray(),
+                "m-oid", OID,
+                "m-description: A test comparator" );
+    
+            // Pre-checks
+            assertFalse( isOnDisk( dn ) );
+            assertFalse( schemaManager.getComparatorRegistry().contains( OID ) );
+    
+            // Addition
+            connection.add( entry );
+    
+            // Post-checks
+            assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
+            assertEquals( "apachemeta", schemaManager.getComparatorRegistry().getSchemaName( OID ) );
+            Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
+            assertEquals( "org.apache.directory.api.ldap.model.schema.comparators.DummyComparator", clazz.getName() );
+            assertTrue( isOnDisk( dn ) );
         }
-
-        Dn dn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=apachemeta,ou=schema" );
-
-        Entry entry = new DefaultEntry(
-            dn,
-            "objectClass: top",
-            "objectClass: metaTop",
-            "objectClass: metaComparator",
-            "m-fqcn: org.apache.directory.api.ldap.model.schema.comparators.DummyComparator",
-            "m-bytecode", out.toByteArray(),
-            "m-oid", OID,
-            "m-description: A test comparator" );
-
-        // Pre-checks
-        assertFalse( isOnDisk( dn ) );
-        assertFalse( schemaManager.getComparatorRegistry().contains( OID ) );
-
-        // Addition
-        connection.add( entry );
-
-        // Post-checks
-        assertTrue( schemaManager.getComparatorRegistry().contains( OID ) );
-        assertEquals( "apachemeta", schemaManager.getComparatorRegistry().getSchemaName( OID ) );
-        Class<?> clazz = schemaManager.getComparatorRegistry().lookup( OID ).getClass();
-        assertEquals( "org.apache.directory.api.ldap.model.schema.comparators.DummyComparator", clazz.getName() );
-        assertTrue( isOnDisk( dn ) );
+        finally
+        {
+            // And reset the system property to forbid bytecode loading
+            System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "false" );
+        }
     }
 
 
     @Test
     public void testAddComparatorWithByteCodeToDisabledSchema() throws Exception
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        try ( InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" ) )
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        
+        try
         {
-            while ( in.available() > 0 )
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+    
+            try ( InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" ) )
             {
-                out.write( in.read() );
+                while ( in.available() > 0 )
+                {
+                    out.write( in.read() );
+                }
             }
+    
+            Dn dn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=nis,ou=schema" );
+    
+            Entry entry = new DefaultEntry(
+                dn,
+                "objectClass: top",
+                "objectClass: metaTop",
+                "objectClass: metaComparator",
+                "m-fqcn: org.apache.directory.api.ldap.model.schema.comparators.DummyComparator",
+                "m-bytecode", out.toByteArray(),
+                "m-oid", OID,
+                "m-description: A test comparator" );
+    
+            // nis is by default inactive
+            // Pre-checks
+            assertFalse( isOnDisk( dn ) );
+            assertFalse( schemaManager.getComparatorRegistry().contains( OID ) );
+    
+            // Addition
+            connection.add( entry );
+    
+            // Post-checks
+            assertFalse( schemaManager.getComparatorRegistry().contains( OID ) ,
+                 "adding new comparator to disabled schema should not register it into the registries" );
+    
+            assertTrue( isOnDisk( dn ) );
         }
-
-        Dn dn = new Dn( "m-oid=" + OID + ",ou=comparators,cn=nis,ou=schema" );
-
-        Entry entry = new DefaultEntry(
-            dn,
-            "objectClass: top",
-            "objectClass: metaTop",
-            "objectClass: metaComparator",
-            "m-fqcn: org.apache.directory.api.ldap.model.schema.comparators.DummyComparator",
-            "m-bytecode", out.toByteArray(),
-            "m-oid", OID,
-            "m-description: A test comparator" );
-
-        // nis is by default inactive
-        // Pre-checks
-        assertFalse( isOnDisk( dn ) );
-        assertFalse( schemaManager.getComparatorRegistry().contains( OID ) );
-
-        // Addition
-        connection.add( entry );
-
-        // Post-checks
-        assertFalse( schemaManager.getComparatorRegistry().contains( OID ) ,
-             "adding new comparator to disabled schema should not register it into the registries" );
-
-        assertTrue( isOnDisk( dn ) );
+        finally
+        {
+            // And reset the system property to forbid bytecode loading
+            System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "false" );
+        }
     }
 
 

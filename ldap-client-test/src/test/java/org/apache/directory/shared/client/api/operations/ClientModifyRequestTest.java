@@ -43,6 +43,7 @@ import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Network;
 import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.MonitoringLdapConnection;
 import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.ModifyFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -184,7 +185,7 @@ public class ClientModifyRequestTest extends AbstractLdapTestUnit
     
         assertTrue( session.exists( dn ) );
     
-        ModifyFuture modifyFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).modifyAsync( modifyRequest );
+        ModifyFuture modifyFuture =  ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).modifyAsync( modifyRequest );
     
         ModifyResponse response = modifyFuture.get( 1000, TimeUnit.MILLISECONDS );
     

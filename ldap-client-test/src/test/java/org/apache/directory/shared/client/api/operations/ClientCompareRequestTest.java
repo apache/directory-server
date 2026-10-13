@@ -34,6 +34,7 @@ import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.MonitoringLdapConnection;
 import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.CompareFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -106,7 +107,7 @@ public class ClientCompareRequestTest extends AbstractLdapTestUnit
 
         assertTrue( session.exists( dn ) );
 
-        CompareFuture compareFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).compareAsync( compareRequest );
+        CompareFuture compareFuture =  ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).compareAsync( compareRequest );
 
         CompareResponse compareResponse = compareFuture.get( 1000, TimeUnit.MILLISECONDS );
 

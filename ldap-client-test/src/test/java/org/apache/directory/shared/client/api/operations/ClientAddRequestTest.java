@@ -53,6 +53,7 @@ import org.apache.directory.api.util.DateUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.directory.api.util.TimeProvider;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.MonitoringLdapConnection;
 import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.AddFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -183,7 +184,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
 
-        AddFuture addFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).addAsync( addRequest );
+        AddFuture addFuture =  ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).addAsync( addRequest );
 
         AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
 
@@ -208,7 +209,7 @@ public class ClientAddRequestTest extends AbstractLdapTestUnit
         AddRequest addRequest = new AddRequestImpl();
         addRequest.setEntry( entry );
 
-        AddFuture addFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).addAsync( addRequest );
+        AddFuture addFuture =  ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).addAsync( addRequest );
 
         AddResponse addResponse = addFuture.get( 1000, TimeUnit.MILLISECONDS );
 

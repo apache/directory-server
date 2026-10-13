@@ -43,6 +43,7 @@ import org.apache.directory.api.ldap.model.schema.MatchingRule;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
 import org.apache.directory.api.ldap.model.schema.normalizers.DeepTrimNormalizer;
 import org.apache.directory.api.ldap.model.schema.normalizers.NoOpNormalizer;
+import org.apache.directory.api.ldap.schema.loader.SchemaEntityFactory;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.integ.ApacheDSTestExtension;
@@ -96,7 +97,7 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
             "m-oid", OID,
             "m-description: A test normalizer" );
 
-        connection.add( entry );
+            connection.add( entry );
 
         assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) );
         assertEquals( "apachemeta", schemaManager.getNormalizerRegistry().getSchemaName( OID ) );
@@ -163,6 +164,9 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testAddNormalizerWithByteCodeToEnabledSchema() throws Exception
     {
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try ( InputStream in = getClass().getResourceAsStream( "DummyNormalizer.bytecode" ) )
@@ -230,6 +234,9 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteNormalizerFromEnabledSchema() throws Exception
     {
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        
         Dn dn = new Dn( "m-oid=" + OID + ",ou=normalizers,cn=apacheMeta,ou=schema" );
 
         testAddNormalizerToEnabledSchema();
@@ -259,10 +266,13 @@ public class MetaNormalizerHandlerIT extends AbstractMetaSchemaObjectHandler
     @Test
     public void testDeleteNormalizerFromDisabledSchema() throws Exception
     {
+        // First set the system property to allow bytecode loading
+        System.setProperty( SchemaEntityFactory.BYTECODE_LOADING_PROPERTY, "true" );
+        
         Dn dn = new Dn( "m-oid=" + OID + ",ou=normalizers,cn=apacheMeta,ou=schema" );
-
+    
         testAddNormalizerToEnabledSchema();
-
+    
         assertTrue( schemaManager.getNormalizerRegistry().contains( OID ) ,
              "normalizer should be removed from the registry after being deleted" );
         assertTrue( isOnDisk( dn ) );

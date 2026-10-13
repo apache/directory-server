@@ -39,6 +39,7 @@ import org.apache.directory.api.ldap.model.message.SearchResultDone;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.apache.directory.ldap.client.api.MonitoringLdapConnection;
 import org.apache.directory.ldap.client.api.PooledLdapConnection;
 import org.apache.directory.ldap.client.api.future.SearchFuture;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -114,7 +115,7 @@ public class ClientAbandonRequestTest extends AbstractLdapTestUnit
         sr.setDerefAliases( AliasDerefMode.NEVER_DEREF_ALIASES );
 
         // Launch the search now
-        SearchFuture searchFuture = ( ( LdapNetworkConnection ) connection.wrapped() ).searchAsync( sr );
+        SearchFuture searchFuture =  ( ( LdapNetworkConnection ) ( ( MonitoringLdapConnection ) connection.wrapped() ).wrapped() ).searchAsync( sr );
 
         Response searchResponse = null;
         int count = 0;

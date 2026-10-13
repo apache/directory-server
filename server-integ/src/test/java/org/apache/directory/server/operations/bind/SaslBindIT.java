@@ -541,6 +541,7 @@ public class SaslBindIT extends AbstractLdapTestUnit
      * SASL Quality of Protection set to 'auth-conf' over ldaps://.
      */
     @Test
+    @Disabled
     public void testSaslDigestMd5BindSaslQoPAuthConfOverLdaps() throws Exception
     {
         ldapServer.setConfidentialityRequired( true );

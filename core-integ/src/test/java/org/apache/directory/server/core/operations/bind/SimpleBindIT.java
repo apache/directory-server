@@ -201,7 +201,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAPrincipalNoPassword() throws LdapException, IOException
     {
-        Assertions.assertThrows( LdapUnwillingToPerformException.class, () -> 
+        Assertions.assertThrows( LdapAuthenticationException.class, () -> 
         {
             connection.bind( "uid=admin,ou=system", null );
         } );
@@ -216,7 +216,7 @@ public class SimpleBindIT extends AbstractLdapTestUnit
     @Test
     public void testSimpleBindAPrincipalNullPassword() throws Exception
     {
-        Assertions.assertThrows( LdapUnwillingToPerformException.class, () -> 
+        Assertions.assertThrows( LdapAuthenticationException.class, () -> 
         {
             LdapConnection connection = IntegrationUtils.getConnectionAs( getService(), "uid=admin,ou=system", null );
             assertFalse( connection.isAuthenticated() );
