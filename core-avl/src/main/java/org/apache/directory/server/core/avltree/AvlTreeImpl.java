@@ -90,7 +90,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     }
 
 
-    private LinkedAvlNode<K> insert( LinkedAvlNode<K> node, K key, KeyHolder<K> holder )
+    private synchronized LinkedAvlNode<K> insert( LinkedAvlNode<K> node, K key, KeyHolder<K> holder )
     {
         int cmp = comparator.compare( key, node.key );
         if ( cmp < 0 )
@@ -225,7 +225,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
      * @param key the key
      * @return the updated subtree
      */
-    private LinkedAvlNode<K> remove( LinkedAvlNode<K> node, K key, KeyHolder<K> holder )
+    private synchronized LinkedAvlNode<K> remove( LinkedAvlNode<K> node, K key, KeyHolder<K> holder )
     {
         if ( node == null )
         {
@@ -281,7 +281,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     }
 
 
-    private LinkedAvlNode<K> deleteMin( LinkedAvlNode<K> node )
+    private synchronized LinkedAvlNode<K> deleteMin( LinkedAvlNode<K> node )
     {
         if ( node.left == null )
         {
@@ -294,7 +294,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     }
 
 
-    private LinkedAvlNode<K> rotateRight( LinkedAvlNode<K> x )
+    private synchronized LinkedAvlNode<K> rotateRight( LinkedAvlNode<K> x )
     {
         LinkedAvlNode<K> y = x.left;
         x.left = y.right;
@@ -305,7 +305,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
     }
 
 
-    private LinkedAvlNode<K> rotateLeft( LinkedAvlNode<K> x )
+    private synchronized LinkedAvlNode<K> rotateLeft( LinkedAvlNode<K> x )
     {
         LinkedAvlNode<K> y = x.right;
         x.right = y.left;
@@ -480,7 +480,7 @@ public class AvlTreeImpl<K> implements AvlTree<K>
      * For an excellent info please read the 
      * <a href="http://en.wikipedia.org/wiki/Avl_tree">Wikipedia article on AVL tree</a>.
      */
-    private LinkedAvlNode<K> balance( LinkedAvlNode<K> node )
+    private synchronized LinkedAvlNode<K> balance( LinkedAvlNode<K> node )
     {
         if ( getBalance( node ) < -1 )
         {
