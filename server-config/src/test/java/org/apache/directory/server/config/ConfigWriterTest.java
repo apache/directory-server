@@ -22,10 +22,12 @@ package org.apache.directory.server.config;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,6 +46,10 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.FileUtils;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.config.beans.ConfigBean;
+import org.apache.directory.server.config.beans.AdsBaseBean;
+import org.apache.directory.server.config.beans.DirectoryServiceBean;
+import org.apache.directory.server.config.beans.LdapServerBean;
+import org.apache.directory.server.config.beans.ReplConsumerBean;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.partition.ldif.SingleFileLdifPartition;
 import org.apache.directory.server.core.shared.DefaultDnFactory;
@@ -161,5 +167,70 @@ public class ConfigWriterTest
 
         // Destroying the config partition
         configPartition.destroy( configPartition.beginReadTransaction() );
+    }
+
+
+    /**
+     * Tests that the 'ads-replUseSsl' attribute is not written into the
+     * configuration entries as long as it keeps its default value (false),
+     * and that it is written once explicitly enabled. The attribute type
+     * itself is defined in the LDAP API schema.
+     */
+    @Test
+    public void testReplConsumerUseSsl() throws Exception
+    {
+        ConfigBean configBean = new ConfigBean();
+
+        // The list is normally set by the ConfigPartitionReader, initialize it here
+        Field directoryServiceBeansField = ConfigBean.class.getDeclaredField( "directoryServiceBeans" );
+        directoryServiceBeansField.setAccessible( true );
+        directoryServiceBeansField.set( configBean, new ArrayList<AdsBaseBean>() );
+
+        DirectoryServiceBean directoryServiceBean = new DirectoryServiceBean();
+        directoryServiceBean.setDirectoryServiceId( "default" );
+
+        LdapServerBean ldapServerBean = new LdapServerBean();
+        ldapServerBean.setServerId( "ldapServer" );
+
+        ReplConsumerBean replConsumerBean = new ReplConsumerBean();
+        replConsumerBean.setReplConsumerId( "test" );
+        replConsumerBean.setReplProvHostName( "localhost" );
+        replConsumerBean.setReplProvPort( 10389 );
+        replConsumerBean.setSearchBaseDn( "ou=system" );
+
+        ldapServerBean.addReplConsumers( replConsumerBean );
+        directoryServiceBean.addServers( ldapServerBean );
+        configBean.addDirectoryService( directoryServiceBean );
+
+        // With the default value (false), the attribute must not be written
+        ConfigWriter configWriter = new ConfigWriter( schemaManager, configBean );
+        LdifEntry replConsumerEntry = findReplConsumerEntry( configWriter.getConvertedLdifEntries() );
+        assertNotNull( replConsumerEntry );
+        assertFalse( replConsumerEntry.getEntry().containsAttribute( "ads-replUseSsl" ) );
+
+        // With the flag explicitly enabled, the attribute must be written
+        replConsumerBean.setReplUseSsl( true );
+        configWriter = new ConfigWriter( schemaManager, configBean );
+        replConsumerEntry = findReplConsumerEntry( configWriter.getConvertedLdifEntries() );
+        assertNotNull( replConsumerEntry );
+        assertTrue( replConsumerEntry.getEntry().containsAttribute( "ads-replUseSsl" ) );
+        assertTrue( Boolean.parseBoolean( replConsumerEntry.getEntry().get( "ads-replUseSsl" ).getString() ) );
+    }
+
+
+    /**
+     * Finds the replication consumer entry in the given list of entries.
+     */
+    private LdifEntry findReplConsumerEntry( List<LdifEntry> entries )
+    {
+        for ( LdifEntry entry : entries )
+        {
+            if ( "ads-replConsumerId=test".equalsIgnoreCase( entry.getDn().getRdn().getName() ) )
+            {
+                return entry;
+            }
+        }
+
+        return null;
     }
 }

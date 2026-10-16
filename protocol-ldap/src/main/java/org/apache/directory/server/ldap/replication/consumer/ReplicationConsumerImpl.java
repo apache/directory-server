@@ -222,7 +222,12 @@ public class ReplicationConsumerImpl implements ConnectionClosedEventListener, R
                 connection = new LdapNetworkConnection( providerHost, port );
                 connection.setSchemaManager( schemaManager );
 
-                if ( config.isUseTls() )
+                if ( config.isUseSsl() )
+                {
+                    connection.getConfig().setTrustManagers( config.getTrustManager() );
+                    connection.getConfig().setUseSsl( true );
+                }
+                else if ( config.isUseTls() )
                 {
                     connection.getConfig().setTrustManagers( config.getTrustManager() );
                     connection.getConfig().setUseTls( true );

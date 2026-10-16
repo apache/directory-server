@@ -53,6 +53,7 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
  *   <li>configEntryDn : the configuration entry's DN</li>
  *   <li>chaseReferrals : tells if we chase referrals, defaults to false</li>
  *   <li>useTls : the connection uses TLS, defaults to true</li>
+ *   <li>useSsl : the connection uses SSL (= LDAPS), defaults to false</li>
  *   <li>trustManagerFQCN : X509TrustManager FQCN to override strictCertVerification</li>
  * </ul>
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -197,6 +198,14 @@ public @interface CreateConsumer
      * @return <tt>true</tt> if Tls is in use
      */
     boolean useTls() default true;
+
+
+    /** 
+     * flag to indicate the use of SSL (= LDAPS), default is false
+     * 
+     * @return <tt>true</tt> if SSL is in use
+     */
+    boolean useSsl() default false;
 
 
     /** 
