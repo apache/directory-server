@@ -55,7 +55,8 @@ import org.apache.directory.api.util.Network;
  *   <li>configEntryDn : the configuration entry's DN</li>
  *   <li>chaseReferrals : tells if we chase referrals, defaults to false</li>
  *   <li>cookie : the replication cookie</li>
- *   <li>useTls : the connection uses TLS, defaults to true</li>
+ *   <li>useTls : the connection uses TLS (= StartTLS over LDAP), defaults to true</li>
+ *   <li>useSsl : the connection uses SSL (= LDAPS), defaults to false</li>
  *   <li>trustManager : the trustManager to use, defaults to {@link ReplicationTrustManager}</li>
  * </ul>
  * 
@@ -119,8 +120,11 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
     /** flag to indicate whether to chase referrals or not, default is false hence passes ManageDsaITControl with syncsearch request*/
     private boolean chaseReferrals = false;
 
-    /** flag to indicate the use of TLS, default is true */
+    /** flag to indicate the use of TLS (= StartTLS over LDAP), default is true */
     private boolean useTls = true;
+
+    /** flag to indicate the use of SSL (= LDAPS), default is false */
+    private boolean useSsl = false;
 
     /** the X509 certificate trust manager used, default value set to {@link ReplicationTrustManager} */
     private X509TrustManager trustManager = ReplicationTrustManager.getInstance();
@@ -489,7 +493,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
 
     /**
-     * @return true if we use TLS
+     * @return true if we use TLS (= StartTLS over LDAP)
      */
     public boolean isUseTls()
     {
@@ -498,15 +502,34 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
 
 
     /**
-     * set the option to turn on/off use of TLS
+     * set the option to turn on/off use of TLS (= StartTLS over LDAP)
      * 
-     * @param useTls If we have to use TLS
+     * @param useTls If we have to use TLS (= StartTLS over LDAP)
      */
     public void setUseTls( boolean useTls )
     {
         this.useTls = useTls;
     }
 
+
+    /**
+     * @return true if we use SSL (= LDAPS)
+     */
+    public boolean isUseSsl()
+    {
+        return useSsl;
+    }
+
+
+    /**
+     * set the option to turn on/off use of SSL (= LDAPS)
+     * 
+     * @param useSsl If we have to use SSL (= LDAPS)
+     */
+    public void setUseSsl( boolean useSsl )
+    {
+        this.useSsl = useSsl;
+    }
 
     /**
      * @return The Trustmanager instance
@@ -643,7 +666,7 @@ public class SyncReplConfiguration implements ReplicationConsumerConfig
         sb.append( "provider:" ).append( producer ).append( ", " );
         sb.append( "user:'" ).append( replUserDn ).append( "', " );
 
-        sb.append( "TLS:" ).append( useTls ).append( "]" );
+        sb.append( "TLS:" ).append( useTls ).append( ", SSL:" ).append( useSsl ).append( "]" );
 
         return sb.toString();
     }

@@ -98,6 +98,10 @@ public class ReplConsumerBean extends AdsBaseBean
     @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_USE_TLS, isOptional = true)
     private boolean replUseTls;
 
+    /** Tells if SSL should be used during replication */
+    @ConfigurationElement(attributeType = SchemaConstants.ADS_REPL_USE_SSL, isOptional = true, defaultValue = "false")
+    private boolean replUseSsl;
+
     /** The X509 TrustManager FQCN to use */
     @ConfigurationElement(attributeType = "ads-replTrustManagerFQCN", isOptional = true)
     private String replTrustManagerFQCN;
@@ -420,6 +424,24 @@ public class ReplConsumerBean extends AdsBaseBean
 
 
     /**
+     * @return the replUseSsl
+     */
+    public boolean isReplUseSsl()
+    {
+        return replUseSsl;
+    }
+
+
+    /**
+     * @param replUseSsl the replUseSsl to set
+     */
+    public void setReplUseSsl( boolean replUseSsl )
+    {
+        this.replUseSsl = replUseSsl;
+    }
+
+
+    /**
      * @return the replTrustManagerFQCN
      */
     public String getReplTrustManagerFQCN()
@@ -485,6 +507,7 @@ public class ReplConsumerBean extends AdsBaseBean
         sb.append( toString( tabs, "  trust manager's FQCN", replTrustManagerFQCN ) );
 
         sb.append( toString( tabs, "  use TLS", replUseTls ) );
+        sb.append( toString( tabs, "  use SSL", replUseSsl ) );
 
         return sb.toString();
     }
