@@ -40,6 +40,7 @@ import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidSearchFilterException;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.GreaterEqNode;
@@ -2065,6 +2066,33 @@ public class SearchIT extends AbstractLdapTestUnit
             assertNotNull( entry.get( "ou" ) );
             assertNotNull( entry.get( "hasSubordinates" ) );
             assertEquals( "TRUE", entry.get( "hasSubordinates" ).getString() );
+        }
+    }
+
+
+    /**
+     * Check that we can't bind anonymous when the server forbid it
+     */
+    @Test
+    public void testSearchAnonymousDisabled() throws Exception
+    {
+        boolean oldSetAllowAnnonymousAccess = getService().isAllowAnonymousAccess();
+        getService().setAllowAnonymousAccess( false );
+
+        try
+        {
+            assertThrows( LdapAuthenticationException.class, () -> 
+            {
+                try ( LdapCoreSessionConnection anonymousConnection = new LdapCoreSessionConnection() )
+                {
+                    anonymousConnection.setDirectoryService( getService() );
+                    anonymousConnection.anonymousBind();
+                }
+            } );
+        }
+        finally
+        {
+            getService().setAllowAnonymousAccess( oldSetAllowAnnonymousAccess );
         }
     }
 }

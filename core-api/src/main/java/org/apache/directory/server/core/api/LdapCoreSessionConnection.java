@@ -1283,6 +1283,7 @@ public class LdapCoreSessionConnection extends AbstractLdapConnection
     {
         BindRequest bindRequest = new BindRequestImpl();
         bindRequest.setName( "" );
+        bindRequest.setDn( Dn.ROOT_DSE );
         bindRequest.setCredentials( ( byte[] ) null );
 
         BindResponse bindResponse = bind( bindRequest );
