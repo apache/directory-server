@@ -44,6 +44,7 @@ import org.apache.directory.api.ldap.model.filter.EqualityNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.filter.PresenceNode;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.Control;
 import org.apache.directory.api.ldap.model.message.LdapResult;
 import org.apache.directory.api.ldap.model.message.MessageTypeEnum;
@@ -147,6 +148,19 @@ public class SearchRequestHandler extends LdapRequestHandler<SearchRequest>
                 session.getIoSession().write( done );
 
                 return;
+            }
+        }
+        else
+        {
+            // Even if only the changes are requested, the client must be allowed to
+            // search the base : do a base level search through the client's session,
+            // which will throw an exception if it isn't authenticated as required, or
+            // if the base does not exist
+            try ( Cursor<Entry> cursor = session.getCoreSession().search( req.getBase(), SearchScope.OBJECT,
+                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT ), AliasDerefMode.NEVER_DEREF_ALIASES,
+                SchemaConstants.NO_ATTRIBUTE ) )
+            {
+                cursor.next();
             }
         }
 
