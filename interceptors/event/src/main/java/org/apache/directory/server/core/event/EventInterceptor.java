@@ -27,9 +27,9 @@ import static org.apache.directory.api.ldap.model.message.SearchScope.SUBTREE;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -96,7 +96,6 @@ public class EventInterceptor extends BaseInterceptor
         super.init( directoryService );
 
         evaluator = new ExpressionEvaluator( schemaManager );
-        executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ) );
         
         ThreadFactory threadFactory = new ThreadFactory() 
         {
@@ -110,8 +109,13 @@ public class EventInterceptor extends BaseInterceptor
             }
         };
         
-        executor = new ThreadPoolExecutor( 1, 10, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>( 100 ),
-            threadFactory );
+        // The listeners may have to wait for the end of the operation which notifies them
+        // (persistent search listeners read the modified entry), so the queue must not be
+        // bounded : a rejected notification would make this operation fail.
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor( 10, 10, 1000, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>(), threadFactory );
+        threadPoolExecutor.allowCoreThreadTimeOut( true );
+        executor = threadPoolExecutor;
 
         this.directoryService.setEventService( new DefaultEventService( directoryService ) );
         LOG.info( "Initialization complete." );
@@ -276,21 +280,24 @@ public class EventInterceptor extends BaseInterceptor
     @Override
     public void delete( final DeleteOperationContext deleteContext ) throws LdapException
     {
-        next( deleteContext );
-
         List<RegistrationEntry> selecting = getSelectingRegistrations( deleteContext.getDn(), deleteContext.getEntry() );
+        List<RegistrationEntry> notified = new ArrayList<>();
 
-        if ( selecting.isEmpty() )
-        {
-            return;
-        }
-
-        for ( final RegistrationEntry registration : selecting )
+        // Give the listeners a chance to read the entry before it gets deleted
+        for ( RegistrationEntry registration : selecting )
         {
             if ( EventType.isDelete( registration.getCriteria().getEventMask() ) )
             {
-                fire( deleteContext, EventType.DELETE, registration.getListener() );
+                registration.getListener().beforeEntryDeleted( deleteContext );
+                notified.add( registration );
             }
+        }
+
+        next( deleteContext );
+
+        for ( final RegistrationEntry registration : notified )
+        {
+            fire( deleteContext, EventType.DELETE, registration.getListener() );
         }
     }
 

@@ -52,6 +52,21 @@ public interface DirectoryListener
 
 
     /**
+     * Called synchronously, before an entry is deleted, for every listener which
+     * will be notified of the deletion. As the entry still exists at this point,
+     * this is the last chance for the listener to read it on behalf of its own
+     * session (for instance to check that this session is allowed to see it).
+     * The default implementation does nothing.
+     *
+     * @param deleteContext the delete operation context responsible for the change
+     */
+    default void beforeEntryDeleted( DeleteOperationContext deleteContext )
+    {
+        // Nothing to do by default
+    }
+
+
+    /**
      * Called when an entry has been modified.
      *
      * @param modifyContext the modify operation context responsible for the change

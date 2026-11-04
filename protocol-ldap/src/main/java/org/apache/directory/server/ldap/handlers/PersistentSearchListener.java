@@ -20,26 +20,31 @@
 package org.apache.directory.server.ldap.handlers;
 
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
+import org.apache.directory.api.ldap.model.cursor.Cursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.filter.PresenceNode;
 import org.apache.directory.api.ldap.model.message.AbandonListener;
 import org.apache.directory.api.ldap.model.message.AbandonableRequest;
+import org.apache.directory.api.ldap.model.message.AliasDerefMode;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
 import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.apache.directory.api.ldap.model.message.SearchResultEntryImpl;
+import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.message.controls.ChangeType;
 import org.apache.directory.api.ldap.model.message.controls.EntryChange;
 import org.apache.directory.api.ldap.model.message.controls.EntryChangeImpl;
 import org.apache.directory.api.ldap.model.message.controls.PersistentSearch;
-import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.util.Strings;
-import org.apache.directory.server.core.api.entry.ClonedServerEntry;
-import org.apache.directory.server.core.api.entry.ServerEntryUtils;
 import org.apache.directory.server.core.api.event.DirectoryListener;
 import org.apache.directory.server.core.api.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ChangeOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.api.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.MoveOperationContext;
@@ -59,6 +64,11 @@ import org.slf4j.LoggerFactory;
  * cancels it.  Hence time and size limits in normal search operations do not apply
  * here.
  * 
+ * The changed entries are never sent as they are found in the operation context:
+ * each of them is read again through the session of the client which created the
+ * persistent search, so that the authentication and authorization checks of a
+ * normal search are applied before anything is sent back.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class PersistentSearchListener implements DirectoryListener, AbandonListener
@@ -68,8 +78,11 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     final SearchRequest req;
     final PersistentSearch psearchControl;
 
-    private LookupOperationContext filterCtx;
-    private SchemaManager schemaManager;
+    /** The attributes requested by the client */
+    private final String[] attributes;
+
+    /** The entries about to be deleted, as visible by the client */
+    private final Map<DeleteOperationContext, Entry> deletedEntries = Collections.synchronizedMap( new WeakHashMap<>() );
 
     public PersistentSearchListener( LdapSession session, SearchRequest req )
     {
@@ -77,9 +90,7 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
         this.req = req;
         req.addAbandonListener( this );
         this.psearchControl = ( PersistentSearch ) req.getControls().get( PersistentSearch.OID );
-        
-        filterCtx = new LookupOperationContext( session.getCoreSession(), req.getAttributes().toArray( Strings.EMPTY_STRING_ARRAY ) );
-        schemaManager = session.getCoreSession().getDirectoryService().getSchemaManager();
+        attributes = req.getAttributes().toArray( Strings.EMPTY_STRING_ARRAY );
     }
 
     
@@ -145,21 +156,42 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
 
+        Entry entry = getVisibleEntry( addContext.getDn() );
+
+        if ( entry == null )
+        {
+            return;
+        }
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( addContext.getDn() );
-        
-        // the entry needs to be cloned cause addContext.getEntry() will only contain
-        // the user provided values and all the operational attributes added during
-        // Partition.add() will be applied in the cloned entry present inside it
-        // if we don't clone then the attributes will not be filtered
-        // e.x the operational attributes will also be sent even when a user requests
-        // user attributes only
-        Entry entry = new ClonedServerEntry( addContext.getEntry() );
-        filterEntry( entry );
         respEntry.setEntry( entry );
         
         setECResponseControl( respEntry, addContext, ChangeType.ADD );
         session.getIoSession().write( respEntry );
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * 
+     * The entry can't be read anymore once it has been deleted, so we read it now,
+     * and keep it until we are notified of the deletion.
+     */
+    @Override
+    public void beforeEntryDeleted( DeleteOperationContext deleteContext )
+    {
+        if ( !psearchControl.isNotificationEnabled( ChangeType.DELETE ) )
+        {
+            return;
+        }
+
+        Entry entry = getVisibleEntry( deleteContext.getDn() );
+
+        if ( entry != null )
+        {
+            deletedEntries.put( deleteContext, entry );
+        }
     }
 
 
@@ -170,10 +202,16 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
 
+        Entry entry = deletedEntries.remove( deleteContext );
+
+        if ( entry == null )
+        {
+            return;
+        }
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( deleteContext.getDn() );
-        filterEntry( deleteContext.getEntry() );
-        respEntry.setEntry( deleteContext.getEntry() );
+        respEntry.setEntry( entry );
         setECResponseControl( respEntry, deleteContext, ChangeType.DELETE );
         session.getIoSession().write( respEntry );
     }
@@ -186,11 +224,15 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
 
+        Entry entry = getVisibleEntry( modifyContext.getDn() );
+
+        if ( entry == null )
+        {
+            return;
+        }
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( modifyContext.getDn() );
-        
-        Entry entry = new ClonedServerEntry( modifyContext.getAlteredEntry() );
-        filterEntry( entry );
         respEntry.setEntry( entry );
 
         setECResponseControl( respEntry, modifyContext, ChangeType.MODIFY );
@@ -205,11 +247,15 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
 
+        Entry entry = getVisibleEntry( moveContext.getNewDn() );
+
+        if ( entry == null )
+        {
+            return;
+        }
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
         respEntry.setObjectName( moveContext.getNewDn() );
-        
-        Entry entry = new ClonedServerEntry( moveContext.getModifiedEntry() );
-        filterEntry( entry );
         respEntry.setEntry( entry );
         
         setECResponseControl( respEntry, moveContext, ChangeType.MODDN );
@@ -230,11 +276,15 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
             return;
         }
 
+        Entry entry = getVisibleEntry( renameContext.getNewDn() );
+
+        if ( entry == null )
+        {
+            return;
+        }
+
         SearchResultEntry respEntry = new SearchResultEntryImpl( req.getMessageId() );
-        respEntry.setObjectName( renameContext.getModifiedEntry().getDn() );
-        
-        Entry entry = new ClonedServerEntry( renameContext.getModifiedEntry() );
-        filterEntry( entry );
+        respEntry.setObjectName( entry.getDn() );
         respEntry.setEntry( entry );
         
         setECResponseControl( respEntry, renameContext, ChangeType.MODDN );
@@ -243,22 +293,40 @@ public class PersistentSearchListener implements DirectoryListener, AbandonListe
     
     
     /**
-     * A convenient method to filter the contents of an entry
-     * 
-     * @see ServerEntryUtils#filterContents(SchemaManager, org.apache.directory.server.core.api.interceptor.context.FilteringOperationContext, Entry)
-     * 
-     * @param entry
+     * Reads an entry the way a base level search done by the client would: the
+     * search goes through the client's session, so the entry is only returned if
+     * the client is authenticated and allowed to see it, and only with the attributes
+     * (and values) it is allowed to read. The userPassword attribute is also removed
+     * if the server is configured to hide it.
+     *
+     * @param dn The entry's Dn
+     * @return The entry as visible by the client, or null if it can't see it
      */
-    private void filterEntry( Entry entry )
+    private Entry getVisibleEntry( Dn dn )
     {
-        try
+        try ( Cursor<Entry> cursor = session.getCoreSession().search( dn, SearchScope.OBJECT,
+            new PresenceNode( SchemaConstants.OBJECT_CLASS_AT ), AliasDerefMode.NEVER_DEREF_ALIASES, attributes ) )
         {
-            ServerEntryUtils.filterContents( schemaManager, filterCtx, entry );
+            if ( !cursor.next() )
+            {
+                return null;
+            }
+
+            Entry entry = cursor.get();
+
+            if ( session.getCoreSession().getDirectoryService().isPasswordHidden() )
+            {
+                entry.removeAttributes( SchemaConstants.USER_PASSWORD_AT );
+            }
+
+            return entry;
         }
-        catch ( LdapException e )
+        catch ( Exception e )
         {
-            // shouldn't happen, if it does then blow up
-            throw new RuntimeException( e );
+            // The client is not allowed to see the entry, or the entry does not exist anymore
+            LOG.debug( "Entry {} not sent to the persistent search client: {}", dn, e.getMessage() );
+
+            return null;
         }
     }
 }
