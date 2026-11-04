@@ -100,7 +100,7 @@ public class ConcurrentAddSearchIT extends AbstractLdapTestUnit
             }
             catch ( LdapException le )
             {
-                System.out.println( "-------------> LdapException occured on" + nbAdded + " addition : "
+                System.out.println( "-------------> LdapException occurred on" + nbAdded + " addition : "
                     + le.getMessage() );
                 le.printStackTrace();
             }
