@@ -59,7 +59,7 @@ import org.apache.directory.server.i18n.I18n;
  * TODO: move to apacheds-core?
  * 
  * Parses descriptions using a number of different parsers for schema descriptions.
- * Also checks to make sure some things are valid as it's parsing paramters of
+ * Also checks to make sure some things are valid as it's parsing parameters of
  * certain entity types.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
