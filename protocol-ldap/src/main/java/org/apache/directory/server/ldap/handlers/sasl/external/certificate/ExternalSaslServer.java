@@ -45,7 +45,6 @@ import org.apache.directory.server.core.api.OperationManager;
 import org.apache.directory.server.core.api.filtering.EntryFilteringCursor;
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.api.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.LdapSession;
 import org.apache.directory.server.ldap.handlers.sasl.AbstractSaslServer;
 import org.apache.directory.server.ldap.handlers.sasl.SaslConstants;
@@ -139,10 +138,28 @@ public final class ExternalSaslServer extends AbstractSaslServer
      */
     private CoreSession authenticate( Certificate peerCertificate ) throws Exception
     {
+        // search for client certificate from base dn
+        CoreSession session = searchUserWithCertificate( peerCertificate, getLdapSession().getLdapServer().getSearchBaseDn() );
+        if ( session != null )
+        {
+            return session;
+        }
+
+        // search for client certificate from admin user
+        session = searchUserWithCertificate( peerCertificate, "uid=admin,ou=system" );
+        if ( session != null )
+        {
+            return session;
+        }
+
+        throw new LdapAuthenticationException( "Cannot authenticate user cert=" + peerCertificate );
+    }
+
+    private CoreSession searchUserWithCertificate( Certificate peerCertificate, String baseDn ) throws Exception
+    {
         LdapSession ldapSession = getLdapSession();
         CoreSession adminSession = getAdminSession();
         DirectoryService directoryService = adminSession.getDirectoryService();
-        LdapServer ldapServer = ldapSession.getLdapServer();
         OperationManager operationManager = directoryService.getOperationManager();
 
         // find user by userCertificate
@@ -151,7 +168,7 @@ public final class ExternalSaslServer extends AbstractSaslServer
                 new Value( peerCertificate.getEncoded() ) );
 
         SearchOperationContext searchContext = new SearchOperationContext( directoryService.getAdminSession() );
-        searchContext.setDn( directoryService.getDnFactory().create( ldapServer.getSearchBaseDn() ) );
+        searchContext.setDn( directoryService.getDnFactory().create( baseDn ) );
         searchContext.setScope( SearchScope.SUBTREE );
         searchContext.setFilter( filter );
         searchContext.setSizeLimit( 1 );
@@ -178,8 +195,8 @@ public final class ExternalSaslServer extends AbstractSaslServer
 
                 return bindContext.getSession();
             }
-
-            throw new LdapAuthenticationException( "Cannot authenticate user cert=" + peerCertificate );
         }
+
+        return null;
     }
 }
