@@ -294,6 +294,7 @@ public final class ServerAnnotationProcessor
         config.setReplUserDn( createConsumer.replUserDn() );
         config.setReplUserPassword( Strings.getBytesUtf8( createConsumer.replUserPassword() ) );
         config.setUseTls( createConsumer.useTls() );
+        config.setUseSsl( createConsumer.useSsl() );
         config.setBaseDn( createConsumer.baseDn() );
         config.setRefreshInterval( createConsumer.refreshInterval() );
 

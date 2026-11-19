@@ -180,6 +180,7 @@ ads-replSearchFilter: (&(objectClass=top)(ou=test))
 ads-replProvPort: 12345
 ads-replRefreshNPersist: TRUE
 ads-replUseTls: TRUE
+ads-replUseSsl: TRUE
 ads-replStrictCertValidation: TRUE
 ads-replAliasDerefMode: NEVER
 ads-replRefreshInterval: 100

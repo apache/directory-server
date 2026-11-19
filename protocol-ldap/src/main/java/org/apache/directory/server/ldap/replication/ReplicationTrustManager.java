@@ -22,6 +22,9 @@ package org.apache.directory.server.ldap.replication;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -38,9 +41,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A X509TrustManager implementation used by the replication subsystem.
- * This implementation doesn't require the certificates to be stored in a file, instead
- * it parses the given certificates of replica peers using Bouncycastle's X509CertParser 
- * and stores them in the in-memory KeyStore.
+ * It is seeded with the JVM default trust store (the 'javax.net.ssl.trustStore'
+ * file, or the 'cacerts' file of the Java installation) so that certificates
+ * signed by a trusted CA are accepted out of the box. Certificates of replica
+ * peers can be added on top of that by parsing them with Bouncycastle's
+ * X509CertParser and storing them in the in-memory KeyStore.
  * 
  * The SunX509 TrustManagerFactory is then initialized using this KeyStore and the
  * resulting X509TrustManager present in this factory's TrustManagers will be used
@@ -85,7 +90,7 @@ public final class ReplicationTrustManager implements X509TrustManager
     {
         try
         {
-            ks.load( null, null ); // initiate with null stream and password, this keystore resides in-memory only
+            loadDefaultTrustStore();
 
             TrustManagerFactory tmFactory = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
             tmFactory.init( ks );
@@ -106,6 +111,70 @@ public final class ReplicationTrustManager implements X509TrustManager
         {
             LOG.error( "failed to initialize the keystore and X509 trustmanager", e );
             throw new RuntimeException( e );
+        }
+    }
+
+
+    /**
+     * Initializes the in-memory keystore with the JVM default trust store:
+     * either the file configured through the 'javax.net.ssl.trustStore' system
+     * property, or the 'cacerts' file of the Java installation. If none of
+     * them can be loaded, the keystore is left empty and certificates can
+     * still be added via {@link #addCertificate(String, byte[])}.
+     */
+    private void loadDefaultTrustStore()
+    {
+        String trustStoreFile = System.getProperty( "javax.net.ssl.trustStore" );
+        char[] trustStorePassword = null;
+
+        String trustStorePasswordValue = System.getProperty( "javax.net.ssl.trustStorePassword" );
+
+        if ( trustStorePasswordValue != null )
+        {
+            trustStorePassword = trustStorePasswordValue.toCharArray();
+        }
+
+        try
+        {
+            if ( trustStoreFile != null )
+            {
+                try ( InputStream in = new FileInputStream( trustStoreFile ) )
+                {
+                    ks.load( in, trustStorePassword );
+                }
+            }
+            else
+            {
+                File cacertsFile = new File( System.getProperty( "java.home" ),
+                    "lib" + File.separator + "security" + File.separator + "cacerts" );
+
+                if ( cacertsFile.exists() )
+                {
+                    try ( InputStream in = new FileInputStream( cacertsFile ) )
+                    {
+                        ks.load( in, trustStorePassword );
+                    }
+                }
+                else
+                {
+                    ks.load( null, null );
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            LOG.warn( "failed to load the default trust store, continuing with an empty keystore", e );
+
+            try
+            {
+                ks = KeyStore.getInstance( KeyStore.getDefaultType() );
+                ks.load( null, null );
+            }
+            catch ( Exception ke )
+            {
+                // cannot happen with a null stream and null password
+                LOG.error( "failed to initialize an empty keystore", ke );
+            }
         }
     }
 

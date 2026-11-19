@@ -1074,6 +1074,7 @@ public final class ServiceBuilder
                 config.setSearchSizeLimit( replBean.getReplSearchSizeLimit() );
 
                 config.setUseTls( replBean.isReplUseTls() );
+                config.setUseSsl( replBean.isReplUseSsl() );
                 
                 if ( !Strings.isEmpty( replBean.getReplTrustManagerFQCN() ) )
                 {
