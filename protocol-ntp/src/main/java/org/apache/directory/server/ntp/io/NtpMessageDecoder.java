@@ -21,6 +21,7 @@
 package org.apache.directory.server.ntp.io;
 
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -38,14 +39,23 @@ import org.apache.directory.server.ntp.messages.StratumType;
  */
 public class NtpMessageDecoder
 {
+    /** The minimum size of an NTP message in bytes (16 header + 4 * 8 timestamp bytes). */
+    private static final int MIN_NTP_MESSAGE_SIZE = 48;
+
     /**
      * Decodes the {@link ByteBuffer} into an {@link NtpMessage}.
      *
      * @param request
      * @return The {@link NtpMessage}.
+     * @throws BufferUnderflowException if the buffer doesn't contain enough data
      */
-    public NtpMessage decode( ByteBuffer request )
+    public NtpMessage decode( ByteBuffer request ) throws BufferUnderflowException
     {
+        if ( request.remaining() < MIN_NTP_MESSAGE_SIZE )
+        {
+            throw new BufferUnderflowException();
+        }
+
         NtpMessageModifier modifier = new NtpMessageModifier();
 
         byte header = request.get();
