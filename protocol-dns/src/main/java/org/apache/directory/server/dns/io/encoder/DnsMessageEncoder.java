@@ -154,14 +154,32 @@ public class DnsMessageEncoder
             {
                 LOG.error( ioe.getLocalizedMessage(), ioe );
             }
+            catch ( ClassCastException cce )
+            {
+                LOG.error( I18n.err( I18n.ERR_37005_ENCODER_UNAVAILABLE, record.getRecordType() ), cce );
+            }
+            catch ( RuntimeException re )
+            {
+                LOG.error( "Error encoding resource record of type " + record.getRecordType(), re );
+            }
         }
     }
 
 
     private void put( IoBuffer byteBuffer, ResourceRecord record ) throws IOException
     {
+        if ( record == null )
+        {
+            return;
+        }
+        
         RecordType type = record.getRecordType();
 
+        if ( type == null )
+        {
+            throw new IOException( I18n.err( I18n.ERR_37005_ENCODER_UNAVAILABLE, "null" ) );
+        }
+        
         RecordEncoder encoder = DEFAULT_ENCODERS.get( type );
 
         if ( encoder == null )
