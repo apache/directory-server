@@ -22,6 +22,7 @@ package org.apache.directory.server.dns.io.decoder;
 
 
 import java.io.IOException;
+import java.nio.BufferUnderflowException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -57,6 +58,15 @@ public class DnsMessageDecoder
 
     private final Logger logger = LoggerFactory.getLogger( DnsMessageDecoder.class );
 
+    /** The minimum size of a DNS header in bytes (12 bytes). */
+    private static final int DNS_HEADER_SIZE = 12;
+
+    /** Maximum recursion depth for domain name parsing to prevent StackOverflowError. */
+    private static final int MAX_DOMAIN_NAME_RECURSION = 100;
+
+    /** Maximum label length in DNS (63 bytes). */
+    private static final int MAX_LABEL_LENGTH = 63;
+
     /**
      * A Hashed Adapter mapping record types to their encoders.
      */
@@ -81,9 +91,15 @@ public class DnsMessageDecoder
      * @param in
      * @return The {@link DnsMessage}.
      * @throws IOException
+     * @throws BufferUnderflowException if the buffer doesn't contain enough data
      */
     public DnsMessage decode( IoBuffer in ) throws IOException
     {
+        if ( in.remaining() < DNS_HEADER_SIZE )
+        {
+            throw new BufferUnderflowException();
+        }
+
         DnsMessageModifier modifier = new DnsMessageModifier();
 
         modifier.setTransactionId( in.getUnsignedShort() );
@@ -103,6 +119,12 @@ public class DnsMessageDecoder
         short answerCount = in.getShort();
         short authorityCount = in.getShort();
         short additionalCount = in.getShort();
+
+        // Validate record counts are non-negative
+        if ( questionCount < 0 || answerCount < 0 || authorityCount < 0 || additionalCount < 0 )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_37012_NEGATIVE_RECORD_COUNT ) );
+        }
 
         logger.debug( "decoding {} question records", questionCount );
         modifier.setQuestionRecords( getQuestions( in, questionCount ) );
@@ -126,13 +148,34 @@ public class DnsMessageDecoder
 
         for ( int ii = 0; ii < recordCount; ii++ )
         {
+            if ( byteBuffer.remaining() < 10 ) // Minimum: domain name (1 byte) + type (2) + class (2) + ttl (4) + length (2)
+            {
+                throw new BufferUnderflowException();
+            }
+            
             String domainName = getDomainName( byteBuffer );
+            
+            if ( byteBuffer.remaining() < 8 ) // type (2) + class (2) + ttl (4) + length (2)
+            {
+                throw new BufferUnderflowException();
+            }
+            
             RecordType recordType = RecordType.convert( byteBuffer.getShort() );
             RecordClass recordClass = RecordClass.convert( byteBuffer.getShort() );
 
             int timeToLive = byteBuffer.getInt();
             short dataLength = byteBuffer.getShort();
 
+            if ( dataLength < 0 )
+            {
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_37012_NEGATIVE_RECORD_COUNT ) );
+            }
+            
+            if ( byteBuffer.remaining() < dataLength )
+            {
+                throw new BufferUnderflowException();
+            }
+            
             Map<String, Object> attributes = decode( byteBuffer, recordType, dataLength );
             records.add( new ResourceRecordImpl( domainName, recordType, recordClass, timeToLive, attributes ) );
         }
@@ -160,8 +203,18 @@ public class DnsMessageDecoder
 
         for ( int ii = 0; ii < questionCount; ii++ )
         {
+            if ( byteBuffer.remaining() < 1 ) // Minimum: domain name (1 byte for empty label)
+            {
+                throw new BufferUnderflowException();
+            }
+            
             String domainName = getDomainName( byteBuffer );
 
+            if ( byteBuffer.remaining() < 4 ) // type (2) + class (2)
+            {
+                throw new BufferUnderflowException();
+            }
+            
             RecordType recordType = RecordType.convert( byteBuffer.getShort() );
             RecordClass recordClass = RecordClass.convert( byteBuffer.getShort() );
 
@@ -175,32 +228,85 @@ public class DnsMessageDecoder
     static String getDomainName( IoBuffer byteBuffer )
     {
         StringBuilder domainName = new StringBuilder();
-        recurseDomainName( byteBuffer, domainName );
+        recurseDomainName( byteBuffer, domainName, 0, new java.util.HashSet<>() );
 
         return domainName.toString();
     }
 
 
-    static void recurseDomainName( IoBuffer byteBuffer, StringBuilder domainName )
+    static void recurseDomainName( IoBuffer byteBuffer, StringBuilder domainName, int recursionDepth, java.util.Set<Integer> visitedPositions )
     {
+        // Prevent infinite recursion / StackOverflowError
+        if ( recursionDepth > MAX_DOMAIN_NAME_RECURSION )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_37013_DOMAIN_NAME_TOO_DEEP ) );
+        }
+        
+        if ( !byteBuffer.hasRemaining() )
+        {
+            throw new BufferUnderflowException();
+        }
+        
+        int currentPosition = byteBuffer.position();
+        
+        // Check for circular reference
+        if ( visitedPositions.contains( currentPosition ) )
+        {
+            throw new IllegalArgumentException( I18n.err( I18n.ERR_37016_CIRCULAR_DOMAIN_NAME_REFERENCE ) );
+        }
+        
         int length = byteBuffer.getUnsigned();
 
         if ( isOffset( length ) )
         {
+            if ( !byteBuffer.hasRemaining() )
+            {
+                throw new BufferUnderflowException();
+            }
+            
             int position = byteBuffer.getUnsigned();
-            int offset = length & ~( 0xc0 ) << 8;
+            int offset = ( length & ~( 0xc0 ) ) << 8;
             int originalPosition = byteBuffer.position();
-            byteBuffer.position( position + offset );
+            
+            // Validate offset is within bounds
+            int targetPosition = position + offset;
+            if ( targetPosition < 0 || targetPosition > byteBuffer.limit() )
+            {
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_37014_INVALID_DOMAIN_NAME_OFFSET ) );
+            }
+            
+            // Add current position to visited set before jumping
+            visitedPositions.add( currentPosition );
+            
+            byteBuffer.position( targetPosition );
 
-            recurseDomainName( byteBuffer, domainName );
+            recurseDomainName( byteBuffer, domainName, recursionDepth + 1, visitedPositions );
 
             byteBuffer.position( originalPosition );
         }
         else if ( isLabel( length ) )
         {
+            // Validate label length (DNS max is 63 bytes)
+            if ( length > MAX_LABEL_LENGTH )
+            {
+                throw new IllegalArgumentException( I18n.err( I18n.ERR_37015_INVALID_LABEL_LENGTH, length ) );
+            }
+            
+            if ( byteBuffer.remaining() < length )
+            {
+                throw new BufferUnderflowException();
+            }
+            
             int labelLength = length;
             getLabel( byteBuffer, domainName, labelLength );
-            recurseDomainName( byteBuffer, domainName );
+            
+            // Check if we have at least one more byte for the next label or null terminator
+            if ( !byteBuffer.hasRemaining() )
+            {
+                throw new BufferUnderflowException();
+            }
+            
+            recurseDomainName( byteBuffer, domainName, recursionDepth + 1, visitedPositions );
         }
     }
 
@@ -225,7 +331,7 @@ public class DnsMessageDecoder
             domainName.append( character );
         }
 
-        if ( byteBuffer.get( byteBuffer.position() ) != 0 )
+        if ( byteBuffer.hasRemaining() && byteBuffer.get( byteBuffer.position() ) != 0 )
         {
             domainName.append( "." );
         }
