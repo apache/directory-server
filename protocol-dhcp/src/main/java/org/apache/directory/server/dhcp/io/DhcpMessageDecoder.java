@@ -44,6 +44,9 @@ import org.apache.directory.server.i18n.I18n;
 public class DhcpMessageDecoder
 {
 
+    /** The minimum size of a DHCP message in bytes. */
+    private static final int MIN_DHCP_MESSAGE_SIZE = 241;
+
     /**
      * Convert a byte buffer into a DhcpMessage.
      * 
@@ -55,6 +58,11 @@ public class DhcpMessageDecoder
     {
         try
         {
+            if ( buffer.remaining() < MIN_DHCP_MESSAGE_SIZE )
+            {
+                throw new BufferUnderflowException();
+            }
+
             byte op = buffer.get();
     
             short htype = ( short ) ( buffer.get() & 0xff );
@@ -94,8 +102,12 @@ public class DhcpMessageDecoder
      * @param len
      * @return
      */
-    private static byte[] decodeBytes( ByteBuffer buffer, int len )
+    private static byte[] decodeBytes( ByteBuffer buffer, int len ) throws BufferUnderflowException
     {
+        if ( buffer.remaining() < len )
+        {
+            throw new BufferUnderflowException();
+        }
         byte[] bytes = new byte[len];
         buffer.get( bytes );
         return bytes;
@@ -106,7 +118,7 @@ public class DhcpMessageDecoder
      * @param buffer
      * @return
      */
-    private static String decodeString( ByteBuffer buffer, int len )
+    private static String decodeString( ByteBuffer buffer, int len ) throws BufferUnderflowException
     {
         byte[] bytes = new byte[len];
         buffer.get( bytes );
@@ -114,7 +126,7 @@ public class DhcpMessageDecoder
         // find zero-terminator
         int slen = 0;
 
-        while ( bytes[slen] != 0 )
+        while ( slen < len && bytes[slen] != 0 )
         {
             slen++;
         }
@@ -137,8 +149,12 @@ public class DhcpMessageDecoder
      * @return
      * @throws UnknownHostException
      */
-    private static InetAddress decodeAddress( ByteBuffer buffer )
+    private static InetAddress decodeAddress( ByteBuffer buffer ) throws BufferUnderflowException
     {
+        if ( buffer.remaining() < 4 )
+        {
+            throw new BufferUnderflowException();
+        }
         byte[] addr = new byte[4];
         buffer.get( addr );
 
@@ -159,6 +175,11 @@ public class DhcpMessageDecoder
 
     public OptionsField decodeOptions( ByteBuffer message ) throws DhcpException
     {
+        if ( message.remaining() < 4 )
+        {
+            throw new BufferUnderflowException();
+        }
+        
         byte[] magicCookie = new byte[4];
         message.get( magicCookie );
 
@@ -173,7 +194,7 @@ public class DhcpMessageDecoder
 
         OptionsField options = new OptionsField();
 
-        while ( true )
+        while ( message.hasRemaining() )
         {
             code = message.get();
 
@@ -187,11 +208,21 @@ public class DhcpMessageDecoder
                 break;
             }
 
+            if ( !message.hasRemaining() )
+            {
+                throw new BufferUnderflowException();
+            }
+            
             length = message.get();
             
             if ( length < 0 )
             {
                 throw new DhcpException( I18n.err( I18n.ERR_36009_NEGATIVE_INDEX_IN_BUFFER ) );
+            }
+            
+            if ( message.remaining() < length )
+            {
+                throw new BufferUnderflowException();
             }
             
             value = new byte[length];
